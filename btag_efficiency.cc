@@ -43,7 +43,7 @@ private:
 	float btag_cut_ = 0.941;
 	float bjet_pt_cut_ = 30;
 	float DR_match_to_gen_ = 0.3;
-	std::function<bool(const IDJet &)> jet_selection_ = [](const IDJet &jet) {return  (jet.Pt() > 20 || Abs(jet.Eta()) < 2.4);};
+	std::function<bool(const IDJet &)> jet_selection_ = [](const IDJet &jet) {return  (jet.Pt() > 20 && Abs(jet.Eta()) < 2.4);};
 
 	float jet_pt_cut_  = 20;
 	float jet_eta_cut_ = 2.4;
@@ -84,10 +84,10 @@ public:
 
     // SYSTEMATCIS
 		systematics_ = {NOSYS};
-		// if(run_jes_) {
-		// 	systematics_.push_back(JES_UP  );
-		// 	systematics_.push_back(JES_DOWN);
-		// }
+		if(run_jes_) {
+			systematics_.push_back(JES_UP  );
+			systematics_.push_back(JES_DOWN);
+		}
 
 
 		//ordering_["full_discriminant"] = [](const Permutation &one, const Permutation &two) {return  one.Prob()  < two.Prob() ;};
@@ -443,9 +443,6 @@ public:
 			keep_jets.push_back(idjet);
 			selected_jets.push_back(&keep_jets.back());
 		}
-		bool pass = selected_jets.size() < 4;
-		Logger::log().debug() << "event " << event.run << ":" << 
-			event.lumi << ":" << event.evt << " passes: " << pass << endl;
 		if(selected_jets.size() < 4) return;
 		tracker_.track("4 jets");
 
