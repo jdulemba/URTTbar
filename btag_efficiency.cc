@@ -84,10 +84,10 @@ public:
 
     // SYSTEMATCIS
 		systematics_ = {NOSYS};
-		if(run_jes_) {
-			systematics_.push_back(JES_UP  );
-			systematics_.push_back(JES_DOWN);
-		}
+		// if(run_jes_) {
+		// 	systematics_.push_back(JES_UP  );
+		// 	systematics_.push_back(JES_DOWN);
+		// }
 
 
 		//ordering_["full_discriminant"] = [](const Permutation &one, const Permutation &two) {return  one.Prob()  < two.Prob() ;};
@@ -443,6 +443,9 @@ public:
 			keep_jets.push_back(idjet);
 			selected_jets.push_back(&keep_jets.back());
 		}
+		bool pass = selected_jets.size() < 4;
+		Logger::log().debug() << "event " << event.run << ":" << 
+			event.lumi << ":" << event.evt << " passes: " << pass << endl;
 		if(selected_jets.size() < 4) return;
 		tracker_.track("4 jets");
 
