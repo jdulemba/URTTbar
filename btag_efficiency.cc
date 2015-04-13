@@ -358,17 +358,17 @@ public:
 			// Logger::log().debug() << "GEN: wh " << gen.whad()->first << " " << gen.whad()->second << " wl " <<
 			// 	gen.wlep()->first << " b " << gen.b << " bb " << gen.bbar << endl;
 				//}
-			bool whad_matches = reco.IsWHadCorrect(gen);
-			bool b_matches    = reco.IsBHadCorrect(gen);
-			bool lepb_matches = reco.IsBLepCorrect(gen);
-			bool lep_matches  = reco.L() == gen.L();
-
 			TTNaming name;
 			if(reco.IsCorrect(gen)) name = TTNaming::RIGHT;//"semilep_visible_right";
 			else if(reco.IsTHadCorrect(gen)) name = TTNaming::RIGHT_THAD; //"semilep_right_thad";
 			else if(reco.IsWHadCorrect(gen)) name = TTNaming::RIGHT_WHAD; //"semilep_right_whad";
 			else if(reco.IsTLepCorrect(gen)) name = TTNaming::RIGHT_TLEP; //"semilep_right_tlep";
 			else name = TTNaming::WRONG; //"semilep_wrong";
+
+			/*bool whad_matches = reco.IsWHadCorrect(gen);
+			bool b_matches    = reco.IsBHadCorrect(gen);
+			bool lepb_matches = reco.IsBLepCorrect(gen);
+			bool lep_matches  = reco.L() == gen.L();
 
 			TTNaming xcheck;
 			if(lepb_matches && lep_matches && whad_matches && b_matches) xcheck = TTNaming::RIGHT;//"semilep_visible_right";
@@ -379,7 +379,7 @@ public:
 
 			if(name != xcheck){
 				Logger::log().debug() << naming_[name] << " " << naming_[xcheck] << " differ." << endl;
-			}
+				}*/
 			return name;
 		}
 		else {
