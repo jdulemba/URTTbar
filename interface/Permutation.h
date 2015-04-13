@@ -101,12 +101,12 @@ class Permutation
 		}
 		bool IsCorrect(const Permutation& other) const
 		{
-			return(IsBLepCorrect(other) && IsTHadCorrect(other));
+			return(IsTLepCorrect(other) && IsTHadCorrect(other));
 		}
-
-		
-		
-		
+		bool IsTLepCorrect(const Permutation& other) const
+    {
+      return(IsBLepCorrect(other) && (L() == other.L()) );
+    }		
 };
 
 bool operator<(const Permutation& A, const Permutation& B);

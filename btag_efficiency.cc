@@ -172,26 +172,32 @@ public:
   {
     outFile_.cd();
 		vector<string> folders;
+
+		//FIXME use folders as root dir, makes much more sense!
+		//Would also be nice to have nothing instead of "all" for the others
+		//semilep_visible_right becomes a SubdirectoryView in the plotter
 		if(isTTbar_) folders = {"semilep_visible_right", "semilep_right_thad",
 														"semilep_right_tlep", "semilep_right_whad", "semilep_wrong", "other"};
-		else folders = {"all"};
+		else folders = {""};
 		// string folders[] = {"all", "semilep_visible_right", "semilep_right_thad", 
 		// 										"semilep_right_tlep", "semilep_right_whad", "semilep_wrong", "other"};
 		string wjet_folders[] = {"leading", "subleading"};
 		string tagging[] = {"lead_tagged", "sublead_tagged", "both_tagged", "both_untagged"};
 
 		//if(isTTbar_) book_hyp_plots("gen");
-		for(auto& sys : systematics_){
-			string sys_name = sys_names_[sys];
-			for(auto& genCategory : folders){			
-				if(isTTbar_ && genCategory == "all") continue;
+		for(auto& genCategory : folders){			
+			for(auto& sys : systematics_){
+				string sys_name = sys_names_[sys];
 				//book_combo_plots(sys_name +"/"+genCategory+"/discriminators");
 				for(auto& item : ordering_) {
 					string criterion = item.first;
 					for(auto& wp_item : working_points_) {
 						string working_point = wp_item.first;
 						for(auto& tag : tagging){
-							string folder = sys_name+"/"+genCategory + "/" + criterion + "/" + working_point + "/" + tag;
+							string folder;
+							if(genCategory.empty()) folder  = sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
+							else folder  = genCategory +"/"+ sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
+
 							Logger::log().debug() << "creating plots for folder: " << folder << std::endl;
 						
 							book_combo_plots(folder);
@@ -218,9 +224,8 @@ public:
 						}//for(auto& tag : tagging)
 					}//for(auto& wp_item : working_points_)
 				}//for(auto& criterion : criteria)
-				//if(!isTTbar_) break;
-			}//for(auto& genCategory : folders)
-		}//for(auto& sys : systematics){
+			}//for(auto& sys : systematics){
+		}//for(auto& genCategory : folders)
 
 		string folder = "preselection";
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
@@ -357,11 +362,25 @@ public:
 			bool b_matches    = reco.IsBHadCorrect(gen);
 			bool lepb_matches = reco.IsBLepCorrect(gen);
 			bool lep_matches  = reco.L() == gen.L();
-			if(lepb_matches && lep_matches && whad_matches && b_matches) return TTNaming::RIGHT;//"semilep_visible_right";
-			else if(whad_matches && b_matches) return TTNaming::RIGHT_THAD; //"semilep_right_thad";
-			else if(whad_matches) return TTNaming::RIGHT_WHAD; //"semilep_right_whad";
-			else if(lep_matches && lepb_matches) return TTNaming::RIGHT_TLEP; //"semilep_right_tlep";
-			else return TTNaming::WRONG; //"semilep_wrong";
+
+			TTNaming name;
+			if(reco.IsCorrect(gen)) name = TTNaming::RIGHT;//"semilep_visible_right";
+			else if(reco.IsTHadCorrect(gen)) name = TTNaming::RIGHT_THAD; //"semilep_right_thad";
+			else if(reco.IsWHadCorrect(gen)) name = TTNaming::RIGHT_WHAD; //"semilep_right_whad";
+			else if(reco.IsTLepCorrect(gen)) name = TTNaming::RIGHT_TLEP; //"semilep_right_tlep";
+			else name = TTNaming::WRONG; //"semilep_wrong";
+
+			TTNaming xcheck;
+			if(lepb_matches && lep_matches && whad_matches && b_matches) xcheck = TTNaming::RIGHT;//"semilep_visible_right";
+			else if(whad_matches && b_matches) xcheck =  TTNaming::RIGHT_THAD; //"semilep_right_thad";
+			else if(whad_matches) xcheck =  TTNaming::RIGHT_WHAD; //"semilep_right_whad";
+			else if(lep_matches && lepb_matches) xcheck =  TTNaming::RIGHT_TLEP; //"semilep_right_tlep";
+			else xcheck = TTNaming::WRONG; //"semilep_wrong";
+
+			if(name != xcheck){
+				Logger::log().debug() << naming_[name] << " " << naming_[xcheck] << " differ." << endl;
+			}
+			return name;
 		}
 		else {
 			return TTNaming::OTHER; //"other";
@@ -557,7 +576,7 @@ public:
 			// }
 		}
 
-		string root_dir = sys_names_[shift];
+		string sys_dir = sys_names_[shift];
 		//Logger::log().debug() << "\n\nShift: " << shift << " name: " << root_dir << endl;
 		for(auto item = ordering_.begin(); item != ordering_.end(); ++item){
 			//sort(combinations.begin(), combinations.end(), item->second);
@@ -566,7 +585,7 @@ public:
 				//fill("all/"+item->first+"/all", best, selected_jets.size(), bjets.size());
 				for(auto& wpoint : working_points_){
 					string jet_category = get_wjet_category(best, wpoint.second);
-					string folder = root_dir+"/all/"+item->first+"/"+wpoint.first+jet_category;
+					string folder = sys_dir+"/"+item->first+"/"+wpoint.first+jet_category;
 					//Logger::log().debug() << "filling: " << folder << endl;
 					fill(folder, best, selected_jets.size(), bjets.size());
 				}
@@ -582,7 +601,7 @@ public:
 				//fill(ttsubdir+"/"+item->first+"/all", best, selected_jets.size(), bjets.size(), gen);
 				for(auto& wpoint : working_points_){
 					string jet_category = get_wjet_category(best, wpoint.second);
-					string folder = root_dir+"/"+ttsubdir+"/"+item->first+"/"+wpoint.first+jet_category;
+					string folder = ttsubdir+"/"+sys_dir+"/"+item->first+"/"+wpoint.first+jet_category;
 					//Logger::log().debug() << "filling: " << folder << endl;
 					fill(folder, best, selected_jets.size(), bjets.size());
 					//if(dir_id == TTNaming::RIGHT) fill_gen_info("semilep_visible_right/"+item->first+"/all", best, gen_hyp);

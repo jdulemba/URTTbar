@@ -109,18 +109,12 @@ class BTagPlotter(Plotter):
             }
          }
 
-   @staticmethod
-   def ttsub(inpath, subdir):
-      outpath = inpath.replace('all', subdir, 1)
-      logging.debug("%s --> %s" % (inpath, outpath))
-      return outpath
-
    def create_tt_subsample(self, subdir, title, color='#9999CC'):
       return views.StyleView(
          views.TitleView(
-            views.PathModifierView(
+            views.SubdirectoryView(
                self.views['ttJets_pu30']['view'],
-               lambda x: self.ttsub(x, subdir)
+               subdir
                ),
             title
             ),
@@ -218,7 +212,7 @@ class BTagPlotter(Plotter):
          )
       
       info = {}
-      pflav_path = 'nosys/all/{order}/{wpoint}/{jtag}/{jrank}/pflav_smart'
+      pflav_path = 'nosys/{order}/{wpoint}/{jtag}/{jrank}/pflav_smart'
       for order in orders:
          all_lead_pflav = ritghtW_view.Get(
             pflav_path.format(
@@ -509,7 +503,7 @@ if not args.noplots:
           for jtype in jet_types:
              folder = os.path.join(base, jtype)
              plotter.set_subdir(folder)
-             folder = os.path.join('nosys/all', folder)
+             folder = os.path.join('nosys', folder)
              logging.info(folder)
              for var, rebin, axis, x_range in jet_variables:
                 plotter.plot_mc_vs_data(
@@ -531,7 +525,7 @@ if not args.noplots:
 
           plotter.set_subdir(base)
           for var, axis, rebin, x_range in variables:
-             folder = os.path.join('nosys/all', base)
+             folder = os.path.join('nosys', base)
              plotter.plot_mc_vs_data(
                 folder, var, rebin, sort=True,
                 xaxis=axis, leftside=False,
@@ -600,13 +594,13 @@ if not args.noshapes:
          categories=['notag', 'leadtag', 'subtag', 'ditag']
          samples, unc_conf, unc_vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('notag'),
-            os.path.join('nosys/all', order, wpoint, 'both_untagged'), 
+            os.path.join('nosys', order, wpoint, 'both_untagged'), 
             rebin=2
             )
 
          _, cfg, vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('leadtag'),
-            os.path.join('nosys/all', order, wpoint, 'lead_tagged'), 
+            os.path.join('nosys', order, wpoint, 'lead_tagged'), 
             rebin=4
             )
          unc_conf.update(cfg)
@@ -614,7 +608,7 @@ if not args.noshapes:
 
          _, cfg, vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('subtag'),
-            os.path.join('nosys/all', order, wpoint, 'sublead_tagged'), 
+            os.path.join('nosys', order, wpoint, 'sublead_tagged'), 
             rebin=4
             )
          unc_conf.update(cfg)
@@ -622,7 +616,7 @@ if not args.noshapes:
 
          _, cfg, vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('ditag'),
-            os.path.join('nosys/all', order, wpoint, 'both_tagged'), 
+            os.path.join('nosys', order, wpoint, 'both_tagged'), 
             rebin= both_tag_binning[wpoint]
             )
          unc_conf.update(cfg)
