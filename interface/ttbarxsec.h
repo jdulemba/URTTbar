@@ -97,6 +97,13 @@ class ttbar : public AnalyzerBase
 		TTBarPlots ttp_blep_incl_right;
 		TTBarPlots ttp_blep_incl_wrong;
 
+		TTBarPlots semilep_visible_right;
+		TTBarPlots semilep_right_thad;
+		TTBarPlots semilep_right_tlep;
+		TTBarPlots semilep_wrong;
+		TTBarPlots other_tt_decay;
+
+
 		BtagEff btageff;
 
 		//ttbar solver

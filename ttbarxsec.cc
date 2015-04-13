@@ -39,6 +39,11 @@ ttbar::ttbar(const std::string output_filename):
 	ttp_jets_incl_wrong("jets_incl_wrong"),
 	ttp_blep_incl_right("blep_incl_right"),
 	ttp_blep_incl_wrong("blep_incl_wrong"),
+	semilep_visible_right(""),
+  semilep_right_thad(""),
+	semilep_right_tlep(""),
+	semilep_wrong(""),
+	other_tt_decay(""),
 	PSEUDOTOP(true),
 	BTAGMODE(false), //set true for the b-tag efficiency measurement
 	cnbtag(1), //1: one thight b-jet, 2: two medium b-jets
@@ -53,9 +58,33 @@ ttbar::ttbar(const std::string output_filename):
 {
 
 	jetptmin = min(cwjetptsoft, cbjetptsoft);
-	topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 1000.};
-	topetabins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0};
-	ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.};
+	int n(0);
+	topptbins.resize(500/5 + 1);
+	std::generate(topptbins.begin(), topptbins.end(), [&]{ return (n++)*5; }); 
+	topptbins.push_back(1000.); //oflow   
+	Logger::log().debug() << "topptbins: ";
+	for(auto i: topptbins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	n = 0;
+	topetabins.resize(31);
+	std::generate(topetabins.begin(), topetabins.end(), [&]{ return (n++)*0.1; }); 
+	topetabins.push_back(8.); //oflow
+	Logger::log().debug() << "topetabins: ";
+	for(auto i: topetabins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	n = 0;
+	ttmbins.resize((900-250)/5+1);
+	std::generate(ttmbins.begin(), ttmbins.end(), [&]{ return (n++)*5+250; });
+	ttmbins.push_back(5000.); //oflow
+	Logger::log().debug() << "ttmbins: ";
+	for(auto i: ttmbins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	// topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 1000.};
+	// topetabins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0};
+	// ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.};
 }
 
 void ttbar::begin()
@@ -166,6 +195,27 @@ void ttbar::begin()
 	{
 		ttsolver.Init("Prob.root", true, true);
 	}
+
+	truth2d.AddHist("hadtop_pt_matrix", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("leptop_pt_matrix", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("hadtop_eta_matrix", topetabins, topetabins, "gen", "reco");
+	truth2d.AddHist("leptop_eta_matrix", topetabins, topetabins, "gen", "reco");
+	truth2d.AddHist("mtt_matrix", ttmbins, ttmbins, "gen", "reco");
+
+	outFile_.mkdir("semilep_visible_right")->cd();
+	semilep_visible_right.Init(this);
+
+	outFile_.mkdir("semilep_right_thad")->cd();
+  semilep_right_thad.Init(this);
+
+	outFile_.mkdir("semilep_right_tlep")->cd();
+	semilep_right_tlep.Init(this);
+
+	outFile_.mkdir("semilep_wrong")->cd();
+	semilep_wrong.Init(this);
+
+	outFile_.mkdir("other_tt_decay")->cd();
+	other_tt_decay.Init(this);
 }
 
 void ttbar::SelectGenParticles(URStreamer& event)
@@ -730,6 +780,28 @@ void ttbar::ttanalysis()
 		ttp_blep_wrong.Fill(bestper, lepcharge, weight);
 	}
 
+	if(SEMILEP && rightper.IsComplete()) {
+		if(rightper.IsCorrect(bestper)) {
+			semilep_visible_right.Fill(bestper, lepcharge, weight);
+			truth2d["hadtop_pt_matrix" ]->Fill(gentophad.Pt(), bestper.THad().Pt());
+			truth2d["leptop_pt_matrix" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt());
+			truth2d["hadtop_eta_matrix"]->Fill(gentophad.Eta(), bestper.THad().Eta());
+			truth2d["leptop_eta_matrix"]->Fill(gentoplep.Eta(), bestper.TLep().Eta());
+			truth2d["mtt_matrix"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);			
+		}
+		else if(bestper.IsTLepCorrect(rightper)) {
+			semilep_right_tlep.Fill(bestper, lepcharge, weight);
+			truth2d["leptop_pt_matrix" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt());
+			truth2d["leptop_eta_matrix"]->Fill(gentoplep.Eta(), bestper.TLep().Eta());
+		}
+		else if(bestper.IsTHadCorrect(rightper)) {
+			semilep_right_thad.Fill(bestper, lepcharge, weight);
+			truth2d["hadtop_pt_matrix" ]->Fill(gentophad.Pt(), bestper.THad().Pt());
+			truth2d["hadtop_eta_matrix"]->Fill(gentophad.Eta(), bestper.THad().Eta());
+		}
+		else semilep_wrong.Fill(bestper, lepcharge, weight);
+	}
+	else other_tt_decay.Fill(bestper, lepcharge, weight);
 }
 
 //This method is called once every file, contains the event loop
