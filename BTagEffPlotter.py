@@ -14,16 +14,21 @@ from pdb import set_trace
 import rootpy
 from fnmatch import fnmatch
 import URAnalysis.Utilities.prettyjson as prettyjson
+import URAnalysis.Utilities.quad as quad
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 from argparse import ArgumentParser
+import math
+from uncertainties import ufloat
 
 parser = ArgumentParser()
 parser.add_argument('--noplots', dest='noplots', action='store_true',
                     help='skip plot making')
 parser.add_argument('--noshapes', dest='noshapes', action='store_true',
                     help='skip shape making')
+parser.add_argument('--noLightFit', dest='noLightFit', action='store_false',
+                    help='set up fitting without light fitting')
 args = parser.parse_args()
 
 def syscheck(cmd):
@@ -122,11 +127,11 @@ class BTagPlotter(Plotter):
          linecolor = color
          )
 
-   def write_mass_discriminant_shapes(self, tfolder, folder, rebin=1, 
+   def write_mass_discriminant_shapes(self, tfolder, folders, rebin=1, 
                                       preprocess=None):
       tfolder.cd()
       category_name = tfolder.GetName()
-      path = os.path.join(folder, 'mass_discriminant')
+      paths = [os.path.join(i, 'mass_discriminant') for i in folders]
       ritghtW_view = self.rebin_view( 
          views.SumView(
             self.get_view('ttJets_allRight'),
@@ -161,14 +166,14 @@ class BTagPlotter(Plotter):
                      other_view, singlet_view]
       shape_names = ['right_whad', 'wrong_whad',
                      'nonsemi_tt', 'single_top']
-      fake_data = ritghtW_view.Get(path).Clone()
+      fake_data = sum(ritghtW_view.Get(path).Clone() for path in paths)
       fake_data.Reset()
       fake_data.SetName('data_obs')
 
       unc_conf_lines = set()
       unc_vals_lines = []
       for view, name in zip(shape_views, shape_names):
-         histo = view.Get(path)
+         histo = sum(view.Get(path) for path in paths)
          fake_data.Add(histo)
          integral = histo.Integral()
          if name == 'right_whad':
@@ -179,11 +184,11 @@ class BTagPlotter(Plotter):
             if not any(fnmatch(name, i) for i in info['apply']): continue
             shift = 1.0
             unc_conf_lines.add('%s %s' % (sys_name, info['type']))
-            path_up = info['+'](path)
-            path_dw = info['-'](path)
+            paths_up = [info['+'](path) for path in paths] 
+            paths_dw = [info['-'](path) for path in paths]
             if info['type'] == 'shape':
-               hup = view.Get(path_up)
-               hdw = view.Get(path_dw)
+               hup = sum(view.Get(i) for i in paths_up)
+               hdw = sum(view.Get(i) for i in paths_dw)
                if name == 'right_whad':
                   hup.Scale(1./integral)
                   hdw.Scale(1./integral)
@@ -210,9 +215,10 @@ class BTagPlotter(Plotter):
          self.get_view('ttJets_rightHad'),
          self.get_view('ttJets_rightWHad')
          )
-      
+      mc_weight = self.views['ttJets_pu30']['weight']
+
       info = {}
-      pflav_path = 'nosys/{order}/{wpoint}/{jtag}/{jrank}/pflav_smart'
+      pflav_path = 'nosys/{order}/{wpoint}/{jtag}/{jrank}/abs_pflav_smart'
       for order in orders:
          all_lead_pflav = ritghtW_view.Get(
             pflav_path.format(
@@ -232,35 +238,40 @@ class BTagPlotter(Plotter):
             )
 
          ##compute total number of events
-         nevt = all_lead_pflav.Integral()
+         #set_trace()
+         err  = array('d',[-1])
+         nevt = all_lead_pflav.IntegralAndError(1, all_lead_pflav.GetNbinsX(), err)
          assert(abs(all_lead_pflav.Integral() - all_sub_pflav.Integral()) < 0.01)
          
          ##compute leading charm fraction 
          #all histograms are the same
          charm_bin = all_lead_pflav.FindBin(4)
-         cbar_bin  = all_lead_pflav.FindBin(-4)
          total_charms = 0
          ncharm  = all_lead_pflav.GetBinContent(
             charm_bin
             )
-         ncharm += all_lead_pflav.GetBinContent(
-            cbar_bin
-            )
          total_charms += ncharm
          lead_charm_fraction = ncharm/nevt
+         lead_charm_fraction_err = math.sqrt(
+            (lead_charm_fraction * (1- lead_charm_fraction))*mc_weight/nevt
+            )
 
          ##compute subleading charm fraction 
          ncharm  = all_sub_pflav.GetBinContent(
             charm_bin
             )
-         ncharm += all_sub_pflav.GetBinContent(
-            cbar_bin
-            )
          total_charms += ncharm
          sub_charm_fraction = ncharm/nevt
+         sub_charm_fraction_err = math.sqrt(
+            (sub_charm_fraction * (1- sub_charm_fraction))*mc_weight/nevt
+            )
          total_lights = 2*nevt - total_charms
 
          mc_effs = {}
+
+         ntot  = ufloat(nevt, err[0])
+         lfrac = ufloat(lead_charm_fraction, lead_charm_fraction_err)
+         sfrac = ufloat(sub_charm_fraction,  sub_charm_fraction_err) 
          ##compute MC charm efficiency
          for wp in right_wpoints:
             ncharm_tagged = 0
@@ -275,19 +286,32 @@ class BTagPlotter(Plotter):
                      jrank  = 'leading',
                      )
                   )
-               mc_effs[wp][jtag] = histo.Integral()
+               cat_err = array('d',[-1])
+               mc_effs[wp][jtag] = histo.IntegralAndError(1, histo.GetNbinsX(), cat_err)
+               mc_effs[wp]['%s_err' % jtag] = cat_err[0]
+               
             ltag = (mc_effs[wp]['lead_tagged']   +mc_effs[wp]['both_tagged'])/nevt
+            ltag_err = math.sqrt(ltag * (1-ltag) * mc_weight / nevt)
+            ltag = ufloat(ltag, ltag_err)
             stag = (mc_effs[wp]['sublead_tagged']+mc_effs[wp]['both_tagged'])/nevt
-            ceff = ((1-sub_charm_fraction)*ltag-(1-lead_charm_fraction)*stag)/(lead_charm_fraction-sub_charm_fraction)
-            leff = (sub_charm_fraction*ltag - lead_charm_fraction*stag)/(-lead_charm_fraction+sub_charm_fraction)
+            stag_err = math.sqrt(stag * (1-stag) * mc_weight / nevt)
+            stag = ufloat(stag, stag_err)
+
+            ceff = ((1-sfrac)*ltag-(1-lfrac)*stag)/(lfrac-sfrac)
+            leff = (sfrac*ltag - lfrac*stag)/(-lfrac+sfrac)
             mc_effs[wp].update({
-               'charmEff' : ceff,
-               'lightEff' : leff
+               'charmEff' : ceff.n,
+               'lightEff' : leff.n,
+               'charmEff_err' : ceff.s,
+               'lightEff_err' : leff.s
                })
          info[order] = {
             'nevts' : nevt,
+            'nevts_err' : err[0],
             'leadCFrac' : lead_charm_fraction,
             'subCFrac' : sub_charm_fraction,
+            'leadCFrac_err' : lead_charm_fraction_err,
+            'subCFrac_err' : sub_charm_fraction_err,
             'working_points' : mc_effs
            } 
 
@@ -345,7 +369,7 @@ class BTagPlotter(Plotter):
          histos[0].GetXaxis().SetRangeUser(*tuple(xrange))
       self.add_legend(histos, leftside)
    
-   def make_flavor_table(self, histo, fname):
+   def make_flavor_table(self, histo, fname, to_json=False):
       ids = {
          0 : 'pile-up',
          1 : 'down',
@@ -356,21 +380,36 @@ class BTagPlotter(Plotter):
          6 : 'top',
          21: 'gluon',            
          }
-      format = '%10s %10s %10s\n'
+      format = '%10s %10s +/- %10s %10s\n'
+      yields = {'light' : 0, 'charm' : 0, 'other' : 0}
+      yield_names = {
+         'light' : set([1,2,3]), 
+         'charm' : set([4]), 
+         'other' : set([0, 5, 6, 21])
+         }
 
       with open(os.path.join(self.outputdir, fname), 'w') as f:
          total = histo.Integral()
          f.write('Total events: %.0f\n' % total)
-         header = format % ('quarks', 'yield', 'relative')
+         header = format % ('quarks', 'yield', 'error', 'relative')
          f.write(header)
          f.write('-'*len(header)+'\n')
          for idx, name in ids.iteritems():
             entries  = histo.GetBinContent(histo.FindBin(idx))
-            entries += histo.GetBinContent(histo.FindBin(-idx))
-            f.write(format % (name, '%.0f' % entries, '%.0f%%' % ((entries/total)*100)))
+            #entries += histo.GetBinContent(histo.FindBin(-idx))
+            error = histo.GetBinError(histo.FindBin(idx))
+
+            if idx in yield_names['light']: yields['light'] += entries
+            if idx in yield_names['charm']: yields['charm'] += entries
+            if idx in yield_names['other']: yields['other'] += entries
+
+            f.write(format % (name, '%.0f' % entries, '%.0f' % error, '%.0f%%' % ((entries/total)*100)))
       
+      with open(os.path.join(self.outputdir, fname.replace('.raw_txt','.json')), 'w') as f:
+         f.write(prettyjson.dumps(yields))
+
    def bake_pie(self, path):
-      var = '%s/pflav_smart' % path
+      var = '%s/abs_pflav_smart' % path
       mc_views = self.mc_views()
       mc_histos = [i.Get(var) for i in mc_views]
       integrals = [i.Integral() for i in mc_histos]
@@ -389,7 +428,7 @@ class BTagPlotter(Plotter):
             f.write(format % (name, '%.0f' % entries, '%.0f%%' % (ratio*100)))
 
       hsum = sum(mc_histos)
-      self.make_flavor_table(hsum, 'flavors.raw_txt')
+      self.make_flavor_table(hsum, 'flavors.raw_txt', to_json=True)
 
       right_cmb = self.get_view('ttJets_allRight').Get(var)
       self.make_flavor_table(right_cmb, 'flavors_rightcmb.raw_txt')
@@ -398,7 +437,7 @@ class BTagPlotter(Plotter):
          *[self.get_view(i) for i in ['ttJets_rightHad', 'ttJets_rightWHad']]
           )
       wright = wright_view.Get(var) + right_cmb
-      self.make_flavor_table(wright, 'flavors_rightw.raw_txt')
+      self.make_flavor_table(wright, 'flavors_rightw.raw_txt', to_json=True)
    
 plotter = BTagPlotter()
 
@@ -406,7 +445,7 @@ jet_variables = [
    ('pt' ,  10, '%s jet p_{T} (GeV)', None),
    ('eta',   1, '%s jet #eta', None),
    ('phi',  10, '%s jet #varphi', None),
-   ('pflav_smart', 1, '%s jet parton flavour', [-7, 22]),
+   ('abs_pflav_smart', 1, '%s jet parton flavour', None),#[-7, 22]),
    ("ncharged", 1, "%s jet charged constituents", None),
    ("nneutral", 1, "%s jet neutral constituents", None),
    ("ntotal"  , 1, "%s jet total constituents", None),
@@ -451,12 +490,14 @@ working_points = [
    "csvTight",
    "csvMedium",
    "csvLoose",
+   "rndm10",
 ]
 
 both_tag_binning = {
    'csvTight' : 100,
    'csvMedium': 10,
-   'csvLoose' : 4
+   'csvLoose' : 4,
+   'rndm10'   : 4,
 }
 
 jet_categories = [
@@ -467,12 +508,12 @@ jet_types = ['leading', 'subleading']
 
 def set_pdg_bins(histo):
    ids = {
-      1 : 'd', -1 : 'd',
-      2 : 'u', -2 : 'u',
-      3 : 's', -3 : 's',
-      4 : 'c', -4 : 'c',
-      5 : 'b', -5 : 'b',
-      6 : 't', -6 : 't',
+      1 : 'd', #-1 : 'd',
+      2 : 'u', #-2 : 'u',
+      3 : 's', #-3 : 's',
+      4 : 'c', #-4 : 'c',
+      5 : 'b', #-5 : 'b',
+      6 : 't', #-6 : 't',
       21: 'g',
       }
    
@@ -592,15 +633,16 @@ if not args.noshapes:
          #   rebin=2
          #   )
          categories=['notag', 'leadtag', 'subtag', 'ditag']
+         base = os.path.join('nosys', order, wpoint)
          samples, unc_conf, unc_vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('notag'),
-            os.path.join('nosys', order, wpoint, 'both_untagged'), 
+            [os.path.join(base, 'both_untagged')], 
             rebin=2
             )
 
          _, cfg, vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('leadtag'),
-            os.path.join('nosys', order, wpoint, 'lead_tagged'), 
+            [os.path.join(base, 'lead_tagged')], 
             rebin=4
             )
          unc_conf.update(cfg)
@@ -608,7 +650,7 @@ if not args.noshapes:
 
          _, cfg, vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('subtag'),
-            os.path.join('nosys', order, wpoint, 'sublead_tagged'), 
+            [os.path.join(base, 'sublead_tagged')], 
             rebin=4
             )
          unc_conf.update(cfg)
@@ -616,7 +658,7 @@ if not args.noshapes:
 
          _, cfg, vals = plotter.write_mass_discriminant_shapes(
             shape_file.mkdir('ditag'),
-            os.path.join('nosys', order, wpoint, 'both_tagged'), 
+            [os.path.join(base, 'both_tagged')], 
             rebin= both_tag_binning[wpoint]
             )
          unc_conf.update(cfg)
@@ -645,6 +687,13 @@ if not args.noshapes:
          logging.info("bbb added")
          os.chdir(shapedir)
          syscheck('create-datacard.py -i shapes.root -o datacard.txt')
+         format = '%20s param %7.4f 0.001\n'
+         with open('datacard.txt', 'a') as datacard:
+            datacard.write(format % ('lead_cfrac', info[order]['leadCFrac']))
+            datacard.write(format % ('sub_cfrac', info[order]['subCFrac']))
+            datacard.write(format % ('charm_eff', info[order]['working_points'][wpoint]['charmEff']))
+            datacard.write(format % ('light_eff', info[order]['working_points'][wpoint]['lightEff']))
+            datacard.write(format % ('signal_norm', info[order]['nevts']))
          os.chdir(cwd)
          logging.info("datacard created")
          with open(os.path.join(shapedir, 'make_workspace.sh'), 'w') as f:
@@ -654,34 +703,25 @@ if not args.noshapes:
             f.write("echo creating workspace\n")
             f.write(
                'text2workspace.py datacard.txt -P HiggsAnalysis.CombinedLimit'
-               '.CTagEfficiencies:ctagEfficiency -o fitModel.root --PO '
-               'leadCharmFraction={leadcfrac:.4f} --PO subCharmFraction={subcfrac:.4f} '
-               '--PO mcCharmEff={ceff:.4f} --PO mcLightEff={leff:.4f} '
-               '--PO mcExpEvts={nevts:.1f}\n'.format(
-                  leadcfrac =info[order]['leadCFrac'],
-                  subcfrac  =info[order]['subCFrac'],
-                  ceff      =info[order]['working_points'][wpoint]['charmEff'],
-                  leff      =info[order]['working_points'][wpoint]['lightEff'],
-                  nevts     =info[order]['nevts'],
-                  )
+               '.CTagEfficiencies:ctagEfficiency -o fitModel.root\n'
                )
             f.write("echo 'running Multi-dimensional fit with Profile-Likelyhood errors on Asimov'\n")
             f.write("combine fitModel.root -M MultiDimFit --algo=singles "
-                    "--setPhysicsModelParameterRanges charmTagScale=0,2:lightTagScale=0,2 "
+                    "--setPhysicsModelParameterRanges charmSF=0,2:lightSF=0,2 "
                     "-t -1 --expectSignal=1 > asimovFit.log\n")
             f.write("mv higgsCombineTest.MultiDimFit.mH120.root asimovFit.root\n")
             f.write("echo 'running 2D Scan on Asimov'\n")
             f.write("combine -M MultiDimFit fitModel.root --algo=grid --points=400 "
-                    "--setPhysicsModelParameterRanges charmTagScale=0.05,2.05:lightTagScale=0.05,2.05 "
+                    "--setPhysicsModelParameterRanges charmSF=0.05,2.05:lightSF=0.05,2.05 "
                     "-t -1 --expectSignal=1 > asimovScan.log\n")
             f.write("mv higgsCombineTest.MultiDimFit.mH120.root asimovScan.root\n")
             f.write("echo 'running Multi-dimensional with Profile-Likelyhood errors'\n")
             f.write("combine fitModel.root -M MultiDimFit --algo=singles "
-                    "--setPhysicsModelParameterRanges charmTagScale=0,2:lightTagScale=0,2 > dataFit.log\n")
+                    "--setPhysicsModelParameterRanges charmSF=0,2:lightSF=0,2 > dataFit.log\n")
             f.write("mv higgsCombineTest.MultiDimFit.mH120.root DataFit.root\n")
             ## f.write("echo 'running 2D likelyhood scan'\n")
             ## f.write("combine -M MultiDimFit fitModel.root --algo=grid --points=900 "
-            ##         "--setPhysicsModelParameterRanges charmTagScale=0,2:lightTagScale=0,2 > dataScan.log\n")
+            ##         "--setPhysicsModelParameterRanges charmSF=0,2:lightTagScale=0,2 > dataScan.log\n")
             ## f.write("mv higgsCombineTest.MultiDimFit.mH120.root DataScan.root\n")
       tardir = os.path.join(cwd, plotter.base_out_dir, order)
       os.chdir(tardir)
