@@ -18,6 +18,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include "PDGID.h"
 #include "TMath.h"
+#include "TRandom3.h"
 #include "Permutation.h"
 #include <set>
 
@@ -34,6 +35,7 @@ private:
 	map<TTNaming, string> naming_;
 	CutFlowTracker tracker_;
 	TTBarSolver solver_;
+	TRandom3 randomizer_ = TRandom3(98765);
 
 	//switches
 	bool isData_, isTTbar_, run_jes_;
@@ -107,6 +109,7 @@ public:
 		working_points_["csvTight"]  = [](const Jet* jet) {return jet->csvIncl() > 0.941;};
 		working_points_["csvMedium"] = [](const Jet* jet) {return jet->csvIncl() > 0.814;};
 		working_points_["csvLoose"]  = [](const Jet* jet) {return jet->csvIncl() > 0.423;};
+		working_points_["rndm10"]    = [&](const Jet* jet) {return (randomizer_.Rndm() < 0.1);};
 		// working_points_["ssvHiPur"] = [](const Jet* jet) {return (bool) jet->ssvHiPur()};
 		// working_points_["ssvHiEff"] = [](const Jet* jet) {return (bool) jet->ssvHiEff()};
 		// working_points_["trkHiPur"] = [](const Jet* jet) {return (bool) jet->trkHiPur()};
@@ -193,11 +196,15 @@ public:
 					string criterion = item.first;
 					for(auto& wp_item : working_points_) {
 						string working_point = wp_item.first;
+						string base;
+						if(!genCategory.empty()) base  = genCategory +"/";
+						base += sys_name + "/" + criterion + "/" + working_point;
+						// if(genCategory.empty()) folder  = sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
+						// else folder  = genCategory +"/"+ sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
+						book<TH2F>(base, "passing_jpt_massDiscriminant"  , "", 100, 0., 500., 100, 0., 10.);
+						book<TH2F>(base, "failing_jpt_massDiscriminant"  , "", 100, 0., 500., 100, 0., 10.);
 						for(auto& tag : tagging){
-							string folder;
-							if(genCategory.empty()) folder  = sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
-							else folder  = genCategory +"/"+ sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
-
+							string folder = base + "/" + tag;
 							Logger::log().debug() << "creating plots for folder: " << folder << std::endl;
 						
 							book_combo_plots(folder);
@@ -208,8 +215,8 @@ public:
 								book<TH1F>(current, "eta"	,"eta"	, 100, -5, 5);
 								book<TH1F>(current, "pt" 	,"pt" 	, 100, 0 , 500);
 								book<TH1F>(current, "phi"	,"phi"	, 100, -4, 4);
-								book<TH1F>(current, "pflav","pflav", 55, -27.5, 27.5);
 								book<TH1F>(current, "pflav_smart","pflav", 55, -27.5, 27.5);
+								book<TH1F>(current, "abs_pflav_smart","pflav", 28, -0.5, 27.5);
 								book<TH1F>(current, "hflav","hflav", 55, -27.5, 27.5);
 								book<TH1F>(current, "energy", ";E_{jet} (GeV)", 100, 0., 500.);
 								book<TH1F>(current, "ncharged", "", 50, 0., 50.);						
@@ -259,7 +266,7 @@ public:
 		dir->second["eta"	 ].fill(jet->Eta());
 		dir->second["pt" 	 ].fill(jet->Pt() );
 		dir->second["phi"	 ].fill(jet->Phi());
-		dir->second["pflav"].fill(jet->partonFlavour());
+		//dir->second["pflav"].fill(jet->partonFlavour());
 		dir->second["hflav"].fill(jet->hadronFlavour());
 		dir->second["energy"].fill(jet->E());
 
@@ -270,6 +277,7 @@ public:
 		//const IDJet* idjet = (const IDJet*) jet;
 		Logger::log().debug() << "fill_jet_info " << jet->partonFlavour() << " " << jet->flavor() << endl;
 		dir->second["pflav_smart"].fill(jet->flavor());
+		dir->second["abs_pflav_smart"].fill(fabs(jet->flavor()));
 	}
 
 	void fill_discriminator_info(string folder, const Permutation &hyp){
@@ -335,6 +343,30 @@ public:
 		fill_jet_info(folder + "/leading", leading);
 		fill_jet_info(folder + "/subleading", subleading);
 		//if((subleading->*btag_id_)() > btag_cut_) fill_jet_info(folder + "/subleading/tagged", subleading, gen_subleading);
+	}
+
+	void fill_other_jet_plots(string folder, Permutation &hyp, vector<IDJet*>& jets, std::function<bool(const Jet*)>& fcn) {
+		//folder += sys_name + "/" + criterion + "/" + working_point;
+		auto dir = histos_.find(folder);
+		if(dir == histos_.end()) {
+			Logger::log().error() << "histogram folder: " << folder <<
+				" does not exists!" << endl;
+			return;
+		}
+
+		set<IDJet*> hypjets;
+		hypjets.insert(hyp.WJa());
+		hypjets.insert(hyp.WJb());
+		hypjets.insert(hyp.BLep());
+		hypjets.insert(hyp.BHad());
+		for(IDJet* jet : jets) {
+			if(hypjets.find(jet) == hypjets.end()){
+				if(fcn(jet))
+					dir->second["passing_jpt_massDiscriminant"].fill(jet->Pt(), hyp.MassDiscr());
+				else
+					dir->second["failing_jpt_massDiscriminant"].fill(jet->Pt(), hyp.MassDiscr());
+			}
+		}
 	}
 
 	string get_wjet_category(Permutation &hyp, std::function<bool(const Jet*)>& fcn) {
@@ -585,7 +617,9 @@ public:
 				//fill("all/"+item->first+"/all", best, selected_jets.size(), bjets.size());
 				for(auto& wpoint : working_points_){
 					string jet_category = get_wjet_category(best, wpoint.second);
-					string folder = sys_dir+"/"+item->first+"/"+wpoint.first+jet_category;
+					string folder = sys_dir+"/"+item->first+"/"+wpoint.first;
+					fill_other_jet_plots(folder, best, selected_jets, wpoint.second);
+					folder += jet_category;
 					//Logger::log().debug() << "filling: " << folder << endl;
 					fill(folder, best, selected_jets.size(), bjets.size());
 				}
@@ -601,7 +635,11 @@ public:
 				//fill(ttsubdir+"/"+item->first+"/all", best, selected_jets.size(), bjets.size(), gen);
 				for(auto& wpoint : working_points_){
 					string jet_category = get_wjet_category(best, wpoint.second);
-					string folder = ttsubdir+"/"+sys_dir+"/"+item->first+"/"+wpoint.first+jet_category;
+					string folder = ttsubdir+"/"+sys_dir+"/"+item->first+"/"+wpoint.first;
+
+					fill_other_jet_plots(folder, best, selected_jets, wpoint.second);
+					folder += jet_category;
+
 					//Logger::log().debug() << "filling: " << folder << endl;
 					fill(folder, best, selected_jets.size(), bjets.size());
 					//if(dir_id == TTNaming::RIGHT) fill_gen_info("semilep_visible_right/"+item->first+"/all", best, gen_hyp);
