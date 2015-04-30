@@ -27,7 +27,7 @@ parser.add_argument('--noplots', dest='noplots', action='store_true',
                     help='skip plot making')
 parser.add_argument('--noshapes', dest='noshapes', action='store_true',
                     help='skip shape making')
-parser.add_argument('--noLightFit', dest='noLightFit', action='store_false',
+parser.add_argument('--noLightFit', dest='noLightFit', action='store_true',
                     help='set up fitting without light fitting')
 args = parser.parse_args()
 
@@ -208,6 +208,17 @@ class BTagPlotter(Plotter):
       fake_data.Write()
       return shape_names, unc_conf_lines, unc_vals_lines
 
+   @staticmethod
+   def compute_eff(jmap, jrank, qtype):
+      total = ['both_tagged', 'both_untagged', 'lead_tagged', 'sublead_tagged']
+      passing = ['both_tagged']
+      if jrank == 'leading': passing.append('lead_tagged')
+      else: passing.append('sublead_tagged')
+      
+      n_total = sum(jmap[i][jrank][qtype] for i in total)
+      n_passing = sum(jmap[i][jrank][qtype] for i in passing)
+      return n_passing / n_total
+
    def write_summary_table(self, orders, wpoints):
       right_wpoints = [i for i in wpoints if i <> 'notag']
       ritghtW_view = views.SumView(
@@ -269,41 +280,48 @@ class BTagPlotter(Plotter):
 
          mc_effs = {}
 
-         ntot  = ufloat(nevt, err[0])
-         lfrac = ufloat(lead_charm_fraction, lead_charm_fraction_err)
-         sfrac = ufloat(sub_charm_fraction,  sub_charm_fraction_err) 
          ##compute MC charm efficiency
          for wp in right_wpoints:
             ncharm_tagged = 0
             nlight_tagged = 0
             mc_effs[wp] = {}
+            info = {}
             for jtag in ["lead_tagged", "sublead_tagged", "both_tagged", "both_untagged"]:
-               histo = ritghtW_view.Get(
-                  pflav_path.format(
-                     order  = order,
-                     wpoint = wp,
-                     jtag   = jtag,
-                     jrank  = 'leading',
+               info[jtag] = {}
+               for jrank in ['leading', 'subleading']:
+                  histo = ritghtW_view.Get(
+                     pflav_path.format(
+                        order  = order,
+                        wpoint = wp,
+                        jtag   = jtag,
+                        jrank  = jrank,
+                        )
                      )
-                  )
-               cat_err = array('d',[-1])
-               mc_effs[wp][jtag] = histo.IntegralAndError(1, histo.GetNbinsX(), cat_err)
-               mc_effs[wp]['%s_err' % jtag] = cat_err[0]
-               
-            ltag = (mc_effs[wp]['lead_tagged']   +mc_effs[wp]['both_tagged'])/nevt
-            ltag_err = math.sqrt(ltag * (1-ltag) * mc_weight / nevt)
-            ltag = ufloat(ltag, ltag_err)
-            stag = (mc_effs[wp]['sublead_tagged']+mc_effs[wp]['both_tagged'])/nevt
-            stag_err = math.sqrt(stag * (1-stag) * mc_weight / nevt)
-            stag = ufloat(stag, stag_err)
-
-            ceff = ((1-sfrac)*ltag-(1-lfrac)*stag)/(lfrac-sfrac)
-            leff = (sfrac*ltag - lfrac*stag)/(-lfrac+sfrac)
+                  _, yields = self.make_flavor_table(
+                     histo, 
+                     fname='', 
+                     to_json=False, 
+                     to_txt=False
+                     )
+                  info[jtag][jrank] = yields
+                  err = array('d',[0])
+                  mc_effs[wp][jtag] = histo.IntegralAndError(
+                     1, 
+                     histo.GetNbinsX(), 
+                     err
+                     )
+                  mc_effs[wp]['%s_err' %jtag] = err[0]
+            
+            lead_ceff = BTagPlotter.compute_eff(info, 'leading', 'charm')
+            sub_ceff  = BTagPlotter.compute_eff(info, 'subleading', 'charm')
+            lead_leff = BTagPlotter.compute_eff(info, 'leading', 'light')
+            sub_leff  = BTagPlotter.compute_eff(info, 'subleading', 'light')
+            
             mc_effs[wp].update({
-               'charmEff' : ceff.n,
-               'lightEff' : leff.n,
-               'charmEff_err' : ceff.s,
-               'lightEff_err' : leff.s
+               'lead_charmEff' : lead_ceff,
+               'sub_charmEff'  : sub_ceff ,
+               'lead_lightEff' : lead_leff,
+               'sub_lightEff'  : sub_leff ,
                })
          info[order] = {
             'nevts' : nevt,
@@ -369,7 +387,7 @@ class BTagPlotter(Plotter):
          histos[0].GetXaxis().SetRangeUser(*tuple(xrange))
       self.add_legend(histos, leftside)
    
-   def make_flavor_table(self, histo, fname, to_json=False):
+   def make_flavor_table(self, histo, fname='', to_json=False, to_txt=True):
       ids = {
          0 : 'pile-up',
          1 : 'down',
@@ -381,32 +399,41 @@ class BTagPlotter(Plotter):
          21: 'gluon',            
          }
       format = '%10s %10s +/- %10s %10s\n'
-      yields = {'light' : 0, 'charm' : 0, 'other' : 0}
+      yields = {'light' : 0, 'charm' : 0, 'other' : 0, 'strange' : 0}
+      quark_yields = {}
+      quark_errors = {}
       yield_names = {
          'light' : set([1,2,3]), 
          'charm' : set([4]), 
-         'other' : set([0, 5, 6, 21])
+         'other' : set([0, 5, 6, 21]),
+         'strange' : set([3]),
          }
 
-      with open(os.path.join(self.outputdir, fname), 'w') as f:
-         total = histo.Integral()
-         f.write('Total events: %.0f\n' % total)
-         header = format % ('quarks', 'yield', 'error', 'relative')
-         f.write(header)
-         f.write('-'*len(header)+'\n')
-         for idx, name in ids.iteritems():
-            entries  = histo.GetBinContent(histo.FindBin(idx))
-            #entries += histo.GetBinContent(histo.FindBin(-idx))
-            error = histo.GetBinError(histo.FindBin(idx))
+      total = histo.Integral()
+      for idx, name in ids.iteritems():
+         entries  = histo.GetBinContent(histo.FindBin(idx))
+         #entries += histo.GetBinContent(histo.FindBin(-idx))
+         error = histo.GetBinError(histo.FindBin(idx))
+         quark_yields[name] = entries
+         quark_errors[name] = error
+         for name, idset in yield_names.iteritems():
+            if idx in idset: 
+               yields[name] += entries
 
-            if idx in yield_names['light']: yields['light'] += entries
-            if idx in yield_names['charm']: yields['charm'] += entries
-            if idx in yield_names['other']: yields['other'] += entries
+      if to_txt:
+         with open(os.path.join(self.outputdir, fname), 'w') as f:
+            f.write('Total events: %.0f\n' % total)
+            header = format % ('quarks', 'yield', 'error', 'relative')
+            f.write(header)
+            f.write('-'*len(header)+'\n')
+            for _, name in ids.iteritems():
+               f.write(format % (name, '%.0f' % entries, '%.0f' % error, '%.0f%%' % ((entries/total)*100)))
 
-            f.write(format % (name, '%.0f' % entries, '%.0f' % error, '%.0f%%' % ((entries/total)*100)))
-      
-      with open(os.path.join(self.outputdir, fname.replace('.raw_txt','.json')), 'w') as f:
-         f.write(prettyjson.dumps(yields))
+      if to_json:
+         with open(os.path.join(self.outputdir, fname.replace('.raw_txt','.json')), 'w') as f:
+            f.write(prettyjson.dumps(yields))
+
+      return (quark_yields, quark_errors), yields
 
    def bake_pie(self, path):
       var = '%s/abs_pflav_smart' % path
@@ -633,36 +660,20 @@ if not args.noshapes:
          #   rebin=2
          #   )
          categories=['notag', 'leadtag', 'subtag', 'ditag']
+         folders = ['both_untagged', 'lead_tagged', 'sublead_tagged', 'both_tagged']
          base = os.path.join('nosys', order, wpoint)
-         samples, unc_conf, unc_vals = plotter.write_mass_discriminant_shapes(
-            shape_file.mkdir('notag'),
-            [os.path.join(base, 'both_untagged')], 
-            rebin=2
-            )
-
-         _, cfg, vals = plotter.write_mass_discriminant_shapes(
-            shape_file.mkdir('leadtag'),
-            [os.path.join(base, 'lead_tagged')], 
-            rebin=4
-            )
-         unc_conf.update(cfg)
-         unc_vals.extend(vals)
-
-         _, cfg, vals = plotter.write_mass_discriminant_shapes(
-            shape_file.mkdir('subtag'),
-            [os.path.join(base, 'sublead_tagged')], 
-            rebin=4
-            )
-         unc_conf.update(cfg)
-         unc_vals.extend(vals)
-
-         _, cfg, vals = plotter.write_mass_discriminant_shapes(
-            shape_file.mkdir('ditag'),
-            [os.path.join(base, 'both_tagged')], 
-            rebin= both_tag_binning[wpoint]
-            )
-         unc_conf.update(cfg)
-         unc_vals.extend(vals)
+         samples = set()
+         unc_conf = set()
+         unc_vals = []
+         for folder, category in zip(folders, categories):
+            sam, cfg, vals = plotter.write_mass_discriminant_shapes(
+               shape_file.mkdir(category),
+               [os.path.join(base, folder)], 
+               rebin=2
+               )
+            samples.update(sam)
+            unc_conf.update(cfg)
+            unc_vals.extend(vals)
 
          shape_file.Close()
          logging.info("%s created" % fname)
@@ -691,9 +702,13 @@ if not args.noshapes:
          with open('datacard.txt', 'a') as datacard:
             datacard.write(format % ('lead_cfrac', info[order]['leadCFrac']))
             datacard.write(format % ('sub_cfrac', info[order]['subCFrac']))
-            datacard.write(format % ('charm_eff', info[order]['working_points'][wpoint]['charmEff']))
-            datacard.write(format % ('light_eff', info[order]['working_points'][wpoint]['lightEff']))
+            datacard.write(format % ('mc_lead_charm_eff', info[order]['working_points'][wpoint]['lead_charmEff']))
+            datacard.write(format % ('mc_lead_light_eff', info[order]['working_points'][wpoint]['lead_lightEff']))
+            datacard.write(format % ('mc_sub_charm_eff' , info[order]['working_points'][wpoint]['sub_charmEff']))
+            datacard.write(format % ('mc_sub_light_eff' , info[order]['working_points'][wpoint]['sub_lightEff']))
             datacard.write(format % ('signal_norm', info[order]['nevts']))
+            if args.noLightFit:
+               datacard.write('lightSF param 1.00 0.1\n')
          os.chdir(cwd)
          logging.info("datacard created")
          with open(os.path.join(shapedir, 'make_workspace.sh'), 'w') as f:
@@ -701,9 +716,10 @@ if not args.noshapes:
             f.write("sed -i 's|$MASS||g' datacard.txt\n")
             f.write(r"sed -i 's|\x1b\[?1034h||g' datacard.txt"+'\n')
             f.write("echo creating workspace\n")
+            lightFit = '--PO fitLightEff=False' if args.noLightFit else ''
             f.write(
                'text2workspace.py datacard.txt -P HiggsAnalysis.CombinedLimit'
-               '.CTagEfficiencies:ctagEfficiency -o fitModel.root\n'
+               '.CTagEfficiencies:ctagEfficiency -o fitModel.root %s\n' % lightFit
                )
             f.write("echo 'running Multi-dimensional fit with Profile-Likelyhood errors on Asimov'\n")
             f.write("combine fitModel.root -M MultiDimFit --algo=singles "
