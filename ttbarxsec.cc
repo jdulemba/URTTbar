@@ -2,6 +2,7 @@
 #include "TRandom3.h"
 
 #include "Permutation.h"
+#include "PDFuncertainty.h"
 
 using namespace std;
 
@@ -9,6 +10,7 @@ ttbar::ttbar(const std::string output_filename):
 	AnalyzerBase("ttbar", output_filename),
 	gen1d("gen"),
 	gen2d("gen"),
+    ttp_gen("gen_test"),
 	reco1d("reco"),
 	reco2d("reco"),
 	truth1d("truth"),
@@ -44,7 +46,7 @@ ttbar::ttbar(const std::string output_filename):
 	semilep_right_tlep(""),
 	semilep_wrong(""),
 	other_tt_decay(""),
-	PSEUDOTOP(true),
+	PSEUDOTOP(false),
 	BTAGMODE(false), //set true for the b-tag efficiency measurement
 	cnbtag(1), //1: one thight b-jet, 2: two medium b-jets
 	cnusedjets(10000), //only nused jets, ordered by pT are used for the permutations
@@ -58,6 +60,7 @@ ttbar::ttbar(const std::string output_filename):
 {
 
 	jetptmin = min(cwjetptsoft, cbjetptsoft);
+<<<<<<< HEAD
 	int n(0);
 	topptbins.resize(500/5 + 1);
 	std::generate(topptbins.begin(), topptbins.end(), [&]{ return (n++)*5; }); 
@@ -85,6 +88,16 @@ ttbar::ttbar(const std::string output_filename):
 	// topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 1000.};
 	// topetabins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0};
 	// ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.};
+=======
+	if(PSEUDOTOP){cnbtag = 2;}
+	topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 1000.};
+	topetabins = {0., 0.2, 0.4, 0.6,  0.8,  1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0};
+	ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 770., 900, 5000.};
+	ttybins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.};
+	ttptbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.};
+	vector<string> testpdf = {"CT10", "CT10as", "NNPDF30_nnlo_as_0118"};
+	pdfunc = new PDFuncertainty("CT10", 0, testpdf);
+>>>>>>> 534be764b4fb13fbf61272c527e9a16bf91cecf4
 }
 
 void ttbar::begin()
@@ -100,6 +113,8 @@ void ttbar::begin()
 	gen2d.AddHist("t_pt", 200, 0, 600, 200, 0., 600, "t p_{T,min} (GeV)", "t p_{T,max} (GeV)");
 	gen1d.AddHist("bjets_dr", 100, 0, 5, "b-jets #DeltaR", "Events");
 	gen1d.AddHist("wjets_dr", 100, 0, 5, "W-jets #DeltaR", "Events");
+	gen2d.AddHist("Wmasshad_tmasshad", 500, 0., 500., 500, 0., 500, "M(W) (GeV)", "M(t) (GeV)");
+    ttp_gen.Init(this);
 
 	TDirectory* dir_truth = outFile_.mkdir("TRUTH");
 	dir_truth->cd();
@@ -136,14 +151,17 @@ void ttbar::begin()
 	truth1d.AddHist("comtest_right", 1000, -100, 100., "-Log(p)", "Events");
 
 	truth1d.AddHist("response_toppthad_truth", topptbins, "response_toppthad_truth", "Events");
+	pdfunc->Add1dHist("pdfunc_toppthad", topptbins, "p_{T}(t_{h}) (GeV)", "Events");
 	truth1d.AddHist("response_toppthad_measured", topptbins, "response_toppthad_measured", "Events");
 	truth2d.AddHist("response_toppthad_matrix", topptbins, topptbins, "gen", "reco");
 
 	truth1d.AddHist("response_topptlep_truth", topptbins, "response_topptlep_truth", "Events");
+	pdfunc->Add1dHist("pdfunc_topptlep", topptbins, "p_{T}(t_{l}) (GeV)", "Events");
 	truth1d.AddHist("response_topptlep_measured", topptbins, "response_topptlep_measured", "Events");
 	truth2d.AddHist("response_topptlep_matrix", topptbins, topptbins, "gen", "reco");
 
 	truth1d.AddHist("response_topetahad_truth", topetabins, "response_topetahad_truth", "Events");
+	pdfunc->Add1dHist("pdfunc_topetahad", topetabins, "#eta(t_{h}) (GeV)", "Events");
 	truth1d.AddHist("response_topetahad_measured", topetabins, "response_topetahad_measured", "Events");
 	truth2d.AddHist("response_topetahad_matrix", topetabins, topetabins, "gen", "reco");
 
@@ -151,9 +169,17 @@ void ttbar::begin()
 	truth1d.AddHist("response_topetalep_measured", topetabins, "response_topetalep_measured", "Events");
 	truth2d.AddHist("response_topetalep_matrix", topetabins, topetabins, "gen", "reco");
 
-	truth1d.AddHist("response_mtt_truth", ttmbins, "response_mtt_truth", "Events");
-	truth1d.AddHist("response_mtt_measured", ttmbins, "response_mtt_measured", "Events");
-	truth2d.AddHist("response_mtt_matrix", ttmbins, ttmbins, "gen", "reco");
+	truth1d.AddHist("response_ttm_truth", ttmbins, "response_ttm_truth", "Events");
+	truth1d.AddHist("response_ttm_measured", ttmbins, "response_ttm_measured", "Events");
+	truth2d.AddHist("response_ttm_matrix", ttmbins, ttmbins, "gen", "reco");
+
+	truth1d.AddHist("response_tty_truth", ttybins, "response_tty_truth", "Events");
+	truth1d.AddHist("response_tty_measured", ttybins, "response_tty_measured", "Events");
+	truth2d.AddHist("response_tty_matrix", ttybins, ttybins, "gen", "reco");
+
+	truth1d.AddHist("response_ttpt_truth", ttptbins, "response_ttpt_truth", "Events");
+	truth1d.AddHist("response_ttpt_measured", ttptbins, "response_ttpt_measured", "Events");
+	truth2d.AddHist("response_ttpt_matrix", ttptbins, ttptbins, "gen", "reco");
 
 	ttp_right.Init(this);
 	ttp_wrong.Init(this);
@@ -185,15 +211,20 @@ void ttbar::begin()
 
 	TDirectory* dir_reco = outFile_.mkdir("RECO");
 	dir_reco->cd();
+	reco1d.AddHist("counter", 20, 0., 20., "counter", "Events");
 	ttp_all.Init(this);
 	ttp_all_incl.Init(this);
+
+	string probfilename("Prob_parton.root");
+	if(PSEUDOTOP){probfilename = "Prob_pseudo.root";}
 	if(BTAGMODE)
 	{
-		ttsolver.Init("Prob.root", false, true);
+		ttsolver.Init(probfilename, false, true);
 	}
 	else
 	{
-		ttsolver.Init("Prob.root", true, true);
+		ttsolver.Init(probfilename, true, true);
+		//ttsolver.Init(probfilename, false, true);
 	}
 
 	truth2d.AddHist("hadtop_pt_matrix", topptbins, topptbins, "gen", "reco");
@@ -229,6 +260,8 @@ void ttbar::SelectGenParticles(URStreamer& event)
 		if(pseudotops.size() == 10)
 		{
 			topcounter = 2;
+			//for(int t = 0 ; t < 10 ; ++t) cout << t << " " << pseudotops[t].pdgId() << ", ";
+			//cout << endl;
 
 			if(Abs(pseudotops[8].pdgId()) == 11 || Abs(pseudotops[8].pdgId()) == 13)
 			{
@@ -279,6 +312,7 @@ void ttbar::SelectGenParticles(URStreamer& event)
 				genb = &(sgenparticles.back());
 			}
 		}
+		//else {cout << "no pseudotop" << endl;}
 	}
 	else
 	{
@@ -374,7 +408,7 @@ void ttbar::SelectGenParticles(URStreamer& event)
 		else {genbh = genbbar; genbl = genb;}
 		gentophad = (*genwpartons[0] + *genwpartons[1] + *genbh);
 		gentoplep = (*gencls[0] + *gennls[0] + *genbl);
-
+		gen2d["Wmasshad_tmasshad"]->Fill((*genwpartons[0] + *genwpartons[1]).M(), gentophad.M());
 		gen2d["wjets_eta"]->Fill(Min(Abs(genwpartons[0]->Eta()), Abs(genwpartons[1]->Eta())), Max(Abs(genwpartons[0]->Eta()), Abs(genwpartons[1]->Eta())), weight);
 		gen2d["bjets_eta"]->Fill(Min(Abs(genb->Eta()), Abs(genbbar->Eta())), Max(Abs(genb->Eta()), Abs(genbbar->Eta())), weight);
 		if(Abs(gencls[0]->Eta()) < cletamax && gencls[0]->Pt() > clptmin && Abs(genwpartons[0]->Eta()) < cjetetamax && Abs(genwpartons[1]->Eta()) < cjetetamax && Abs(genb->Eta()) < cjetetamax && Abs(genbbar->Eta()) < cjetetamax)
@@ -434,7 +468,7 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 		}
 	}
 
-	const vector<Jet> jets = event.jets();
+	const vector<Jet>& jets = event.jets();
 	for(vector<Jet>::const_iterator jetit = jets.begin(); jetit != jets.end(); ++jetit)
 	{
 		IDJet jet(*jetit);
@@ -526,15 +560,25 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 void ttbar::ttanalysis()
 {
 	truth1d["counter"]->Fill(19.5, weight);
-	if(SEMILEP) truth1d["counter"]->Fill(1.5, weight);
+	reco1d["counter"]->Fill(0.5, weight);
+	if(SEMILEP) 
+    {
+        truth1d["counter"]->Fill(1.5, weight);
+        ttp_gen.Fill(genbh, genwpartons[0], genwpartons[1], genbl, gencls[0], gennls[0], gencls[0]->pdgId(), weight);
+    }
 	if(SEMILEPACC)
 	{
 		truth1d["counter"]->Fill(2.5, weight);
 		truth1d["response_toppthad_truth"]->Fill(gentophad.Pt(), weight);
+		pdfunc->Fill1d("pdfunc_toppthad", gentophad.Pt(), weight);
 		truth1d["response_topptlep_truth"]->Fill(gentoplep.Pt(), weight);
+		pdfunc->Fill1d("pdfunc_topptlep", gentoplep.Pt(), weight);
 		truth1d["response_topetahad_truth"]->Fill(Abs(gentophad.Eta()), weight);
+		pdfunc->Fill1d("pdfunc_topetahad", Abs(gentophad.Eta()), weight);
 		truth1d["response_topetalep_truth"]->Fill(Abs(gentoplep.Eta()), weight);
-		truth1d["response_mtt_truth"]->Fill((gentophad + gentoplep).M(), weight);
+		truth1d["response_ttm_truth"]->Fill((gentophad + gentoplep).M(), weight);
+		truth1d["response_tty_truth"]->Fill(Abs((gentophad + gentoplep).Rapidity()), weight);
+		truth1d["response_ttpt_truth"]->Fill((gentophad + gentoplep).Pt(), weight);
 		if(Abs(gencls[0]->pdgId()) == 11) {truth2d["Ne_Nmu"]->Fill(mediumelectrons.size()+0.5, tightmuons.size()+0.5, weight);}
 		if(Abs(gencls[0]->pdgId()) == 13) {truth2d["Nmu_Ne"]->Fill(tightmuons.size()+0.5, mediumelectrons.size()+0.5, weight);}
 	}
@@ -552,6 +596,7 @@ void ttbar::ttanalysis()
 		lepcharge = mediumelectrons[0]->charge();
 	}
 	if(lep == 0){return;}
+	reco1d["counter"]->Fill(1.5, weight);
 	if(SEMILEPACC)
 	{
 		truth1d["counter"]->Fill(3.5);
@@ -583,6 +628,7 @@ void ttbar::ttanalysis()
 	//cut on number of jets
 	if(cleanedjets.size() < 4){return;}
 	if(BTAGMODE && cleanedjets.size() > 5){return;}
+	reco1d["counter"]->Fill(2.5, weight);
 	if(SEMILEPACC) truth1d["counter"]->Fill(4.5, weight);
 
 	//keeping only the n leading jets. 
@@ -594,6 +640,11 @@ void ttbar::ttanalysis()
 	//check for b-jets
 	sort(reducedjets.begin(), reducedjets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
 	if((cnbtag == 1 && reducedjets[0]->csvIncl() < 0.941) || (cnbtag == 2 && reducedjets[1]->csvIncl() < 0.814)){return;}
+	//if(reducedjets[0]->csvIncl() > 0.814){return;}
+	//if(reducedjets[0]->csvIncl() < 0.941) {return;}
+	//if(reducedjets[1]->csvIncl() > 0.814 && reducedjets[2]->csvIncl() < 0.814) {cnbtag = 2;} else{cnbtag = 1;}
+
+	reco1d["counter"]->Fill(3.5, weight);
 	if(SEMILEPACC) truth1d["counter"]->Fill(5.5, weight);
 
 	//check what we have reconstructed
@@ -604,83 +655,135 @@ void ttbar::ttanalysis()
 
 	//reconstruction
 	Permutation bestper;
-	int permutation = 0;
 
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(6.5, weight);
-	for(size_t i = cnbtag ; i < reducedjets.size() ; ++i)
+
+	if(PSEUDOTOP)
 	{
-		for(size_t j = cnbtag ; j < i ; ++j)
+		vector<IDJet*> bjets;
+		vector<IDJet*> lightjets;
+
+		for(IDJet* j : reducedjets)
 		{
-			for(size_t k = 0 ; k < (cnbtag == 2 ? 2 : reducedjets.size()) ; ++k)
+			if(j->csvIncl() < 0.814) {lightjets.push_back(j);} else {bjets.push_back(j);}
+		} 
+		//sort(bjets.begin(), bjets.end(), [](IDJet* A, IDJet* B){return(A->Pt() > B->Pt());});
+		bestper.L(lep);
+		bestper.MET(&met);
+		Permutation testper = bestper;
+		double bestmassdiff = 100000.;
+		for(int wja = 0 ; wja < lightjets.size() ; ++wja)
+		{
+			for(int wjb = 0 ; wjb < wja ; ++wjb)
 			{
-				if(i == k || j == k) continue;
-				for(size_t l = 0 ; l < (cnbtag == 2 ? 2 : reducedjets.size()) ; ++l)
+				testper.WJa(lightjets[wja]);
+				testper.WJb(lightjets[wjb]);
+				double testmassdiff = Abs(testper.WHad().M() - 80.);
+				if(testmassdiff < bestmassdiff)
 				{
-					if(i == l || j == l || k == l) continue;
-					Permutation testper(reducedjets[i], reducedjets[j], reducedjets[k], reducedjets[l], lep, &met);
-					if(testper.WJa()->Pt() < cwjetpthard && testper.WJb()->Pt() < cwjetpthard) continue;
-					if(testper.WJa()->Pt() < cwjetptsoft || testper.WJb()->Pt() < cwjetptsoft) continue;
-					if(testper.BHad()->Pt() < cbjetpthard && testper.BLep()->Pt() < cbjetpthard) continue;
-					if(testper.BHad()->Pt() < cbjetptsoft || testper.BLep()->Pt() < cbjetptsoft) continue;
-					testper.Solve(ttsolver);
-
-					TLorentzVector whad(testper.WHad());
-					TLorentzVector thad(testper.THad());
-
-					if(rightper.IsComplete())
+					bestmassdiff = testmassdiff;
+					bestper = testper;
+				}
+			}
+		}
+		bestmassdiff = 100000.;
+		testper = bestper;
+		for(int bja = 0 ; bja < bjets.size() ; ++bja)
+		{
+			for(int bjb = 0 ; bjb < bjets.size() ; ++bjb)
+			{
+				if(bja == bjb) continue;
+				testper.BLep(bjets[bja]);
+				testper.BHad(bjets[bjb]);
+				if(!testper.IsComplete()) {return;}
+				testper.Solve(ttsolver);
+				double testmassdiff = Abs(testper.THad().M()-172.) + Abs(testper.TLep().M()-172.);
+				if(testmassdiff < bestmassdiff)
+				{
+					bestmassdiff = testmassdiff;
+					bestper = testper;
+				}
+			}
+		}
+	}
+	else
+	{
+		for(size_t i = cnbtag ; i < reducedjets.size() ; ++i)
+		{
+			for(size_t j = cnbtag ; j < i ; ++j)
+			{
+				for(size_t k = 0 ; k < (cnbtag == 2 ? 2 : reducedjets.size()) ; ++k)
+				{
+					if(i == k || j == k) continue;
+					for(size_t l = 0 ; l < (cnbtag == 2 ? 2 : reducedjets.size()) ; ++l)
 					{
-						if(rightper.IsBLepCorrect(testper))
-						{
-							truth1d["nstest_right"]->Fill(ttsolver.NSRes(), weight);
-							truth1d["nschi_right"]->Fill(ttsolver.NSChi2(), weight);
-						}
-						else
-						{
-							truth1d["nstest_wrong"]->Fill(ttsolver.NSRes(), weight);
-							truth1d["nschi_wrong"]->Fill(ttsolver.NSChi2(), weight);
-						}
+						if(i == l || j == l || k == l) continue;
+						Permutation testper(reducedjets[i], reducedjets[j], reducedjets[k], reducedjets[l], lep, &met);
+						if(testper.WJa()->Pt() < cwjetpthard && testper.WJb()->Pt() < cwjetpthard) continue;
+						if(testper.WJa()->Pt() < cwjetptsoft || testper.WJb()->Pt() < cwjetptsoft) continue;
+						if(testper.BHad()->Pt() < cbjetpthard && testper.BLep()->Pt() < cbjetpthard) continue;
+						if(testper.BHad()->Pt() < cbjetptsoft || testper.BLep()->Pt() < cbjetptsoft) continue;
+						testper.Solve(ttsolver);
 
-						if(rightper.AreBsCorrect(testper))
-						{
-							truth1d["btagtest_right"]->Fill(ttsolver.BTagRes(), weight);
-						}
-						else
-						{
-							truth1d["btagtest_wrong"]->Fill(ttsolver.BTagRes(), weight);
-						}
+						TLorentzVector whad(testper.WHad());
+						TLorentzVector thad(testper.THad());
 
-						if(rightper.IsCorrect(testper))
+						if(rightper.IsComplete())
 						{
-							truth2d["Wmasshad_tmasshad_right"]->Fill(whad.M(), thad.M(), weight);
-							truth1d["masstest_right"]->Fill(ttsolver.MassRes(), weight);
-							truth1d["comtest_right"]->Fill(ttsolver.Res(), weight);
-						}
-						else
-						{
-							if(rightper.IsWHadCorrect(testper))
+							if(rightper.IsBLepCorrect(testper))
 							{
-								truth2d["Wmasshad_tmasshad_rightw"]->Fill(whad.M(), thad.M(), weight);
+								truth1d["nstest_right"]->Fill(ttsolver.NSRes(), weight);
+								truth1d["nschi_right"]->Fill(ttsolver.NSChi2(), weight);
 							}
 							else
 							{
-								truth2d["Wmasshad_tmasshad_wrongw"]->Fill(whad.M(), thad.M(), weight);
+								truth1d["nstest_wrong"]->Fill(ttsolver.NSRes(), weight);
+								truth1d["nschi_wrong"]->Fill(ttsolver.NSChi2(), weight);
 							}
-							truth2d["Wmasshad_tmasshad_wrong"]->Fill(whad.M(), thad.M(), weight);
-							truth1d["masstest_wrong"]->Fill(ttsolver.MassRes(), weight);
-							truth1d["comtest_wrong"]->Fill(ttsolver.Res(), weight);
+
+							if(rightper.AreBsCorrect(testper))
+							{
+								truth1d["btagtest_right"]->Fill(ttsolver.BTagRes(), weight);
+							}
+							else
+							{
+								truth1d["btagtest_wrong"]->Fill(ttsolver.BTagRes(), weight);
+							}
+
+							if(rightper.IsCorrect(testper))
+							{
+								truth2d["Wmasshad_tmasshad_right"]->Fill(whad.M(), thad.M(), weight);
+								truth1d["masstest_right"]->Fill(ttsolver.MassRes(), weight);
+								truth1d["comtest_right"]->Fill(ttsolver.Res(), weight);
+							}
+							else
+							{
+								if(rightper.IsWHadCorrect(testper))
+								{
+									truth2d["Wmasshad_tmasshad_rightw"]->Fill(whad.M(), thad.M(), weight);
+								}
+								else
+								{
+									truth2d["Wmasshad_tmasshad_wrongw"]->Fill(whad.M(), thad.M(), weight);
+								}
+								truth2d["Wmasshad_tmasshad_wrong"]->Fill(whad.M(), thad.M(), weight);
+								truth1d["masstest_wrong"]->Fill(ttsolver.MassRes(), weight);
+								truth1d["comtest_wrong"]->Fill(ttsolver.Res(), weight);
+							}
+
 						}
 
-					}
-
-					if(testper < bestper)
-					{
-						bestper = testper;
+						if(testper < bestper)
+						{
+							bestper = testper;
+						}
 					}
 				}
 			}
 		}
 	}
 	if(bestper.Prob() > 1E9){return;}
+	reco1d["counter"]->Fill(4.5, weight);
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(7.5, weight);
 	//Fill reconstructed hists
 	ttp_all.Fill(bestper, lepcharge, weight);
@@ -694,6 +797,7 @@ void ttbar::ttanalysis()
 	{
 		ttp_right.Fill(bestper, lepcharge, weight);
 		if(cleanedjets.size() == 4) ttp_right_incl.Fill(bestper, lepcharge, weight);
+		if(SEMILEPACC) truth1d["counter"]->Fill(8.5, weight);
 	}
 	else if(rightper.IsComplete())
 	{
@@ -745,11 +849,15 @@ void ttbar::ttanalysis()
 	if(bestper.AreJetsCorrect(rightper))
 	{
 		ttp_jets_right.Fill(bestper, lepcharge, weight);
-		truth1d["response_mtt_measured"]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
+		truth1d["response_ttm_measured"]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
+		truth1d["response_tty_measured"]->Fill(Abs((bestper.THad() + bestper.TLep()).Rapidity()), weight);
+		truth1d["response_ttpt_measured"]->Fill((bestper.THad() + bestper.TLep()).Pt(), weight);
 		if(SEMILEPACC)
 		{
 			truth1d["counter"]->Fill(12.5, weight);
-			truth2d["response_mtt_matrix"]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+			truth2d["response_ttm_matrix"]->Fill((gentophad + gentoplep).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+			truth2d["response_tty_matrix"]->Fill(Abs((gentophad + gentoplep).Rapidity()), Abs((bestper.THad() + bestper.TLep()).Rapidity()), weight);
+			truth2d["response_ttpt_matrix"]->Fill((gentophad + gentoplep).Pt(), (bestper.THad() + bestper.TLep()).Pt(), weight);
 		}
 	}
 	else
@@ -812,6 +920,7 @@ void ttbar::analyze()
 	int nevent = 0;
 	URStreamer event(tree_);
 	IDElectron::streamer = &event;
+	PDFuncertainty::streamer = &event;
 	while(event.next())
 	{
 		nevent++;

@@ -9,18 +9,22 @@
 #include "IDElectron.h"
 #include "IDJet.h"
 #include "GenObject.h"
+#include "TTBarGenPlots.h"
 #include "TTBarPlots.h"
 #include "TTBarSolver.h"
 #include "Permutation.h"
 #include "BtagEff.h"
 
 using namespace std;
-
+class PDFuncertainty;
 
 class ttbar : public AnalyzerBase
 {
-	friend class TTBarPlots;
+	friend class TTBarGenPlots;
+    friend class TTBarPlots;
+
 	private:
+		PDFuncertainty* pdfunc;
 		//Collections
 		//Gen:
 		bool FULLHAD;
@@ -69,6 +73,9 @@ class ttbar : public AnalyzerBase
 		TH2DCollection reco2d;
 		TH1DCollection truth1d;
 		TH2DCollection truth2d;
+
+        TTBarGenPlots ttp_gen;
+
 		TTBarPlots ttp_right;
 		TTBarPlots ttp_wrong;
 		TTBarPlots ttp_semi;
@@ -130,6 +137,8 @@ class ttbar : public AnalyzerBase
 		vector<double> topptbins;
 		vector<double> topetabins;
 		vector<double> ttmbins;
+		vector<double> ttybins;
+		vector<double> ttptbins;
 	public:
 
 		ttbar(const std::string output_filename);

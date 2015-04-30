@@ -56,6 +56,7 @@ class TTBarSolver
 		double nstest;
 		double masstest;
 		double res;
+
 		bool USEBTAG;
 		bool USENS;
 	public:
@@ -71,7 +72,7 @@ class TTBarSolver
 		double NSRes() const {return nstest;}//-log(l) of neutriosolver 
 		double BTagRes() const {return btagtest;} //-log(l) of btagging
 		double MassRes() const {return masstest;} //-log(l) of 2d-mass test
-	
+
 		double NSChi2() const {return nschi;}//chi2 of neutrinosolver
 
 		//improved objects: currently only usefull for neutrino
