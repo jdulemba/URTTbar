@@ -29,6 +29,10 @@ parser.add_argument('--noshapes', dest='noshapes', action='store_true',
                     help='skip shape making')
 parser.add_argument('--noLightFit', dest='noLightFit', action='store_true',
                     help='set up fitting without light fitting')
+parser.add_argument('--noBBB', action='store_true',
+                    help='do not run bin-by-bin uncertainties')
+parser.add_argument('--inclusive', action='store_true',
+                    help='use inclusive categories')
 args = parser.parse_args()
 
 def syscheck(cmd):
@@ -36,7 +40,7 @@ def syscheck(cmd):
    if out == 0:
       return 0
    else:
-      raise OSError("command %s failed executing" % cmd)
+      raise RuntimeError("command %s failed executing" % cmd)
 
 class BTagPlotter(Plotter):
    def __init__(self):
@@ -659,16 +663,18 @@ if not args.noshapes:
          #   os.path.join('all', order, 'notag', 'both_untagged'), 
          #   rebin=2
          #   )
-         categories=['notag', 'leadtag', 'subtag', 'ditag']
-         folders = ['both_untagged', 'lead_tagged', 'sublead_tagged', 'both_tagged']
+         categories= ['Inc_nolead', 'Inc_nosub', 'Inc_leadtag', 'Inc_subtag'] \
+            if args.inclusive else ['notag', 'leadtag', 'subtag', 'ditag']
+         folders = [['both_untagged', 'sublead_tagged'], ['both_untagged', 'lead_tagged'], ['lead_tagged', 'both_tagged'], ['sublead_tagged', 'both_tagged']]\
+            if args.inclusive else [['both_untagged'], ['lead_tagged'], ['sublead_tagged'], ['both_tagged']]
          base = os.path.join('nosys', order, wpoint)
          samples = set()
          unc_conf = set()
          unc_vals = []
-         for folder, category in zip(folders, categories):
+         for folders, category in zip(folders, categories):
             sam, cfg, vals = plotter.write_mass_discriminant_shapes(
                shape_file.mkdir(category),
-               [os.path.join(base, folder)], 
+               [os.path.join(base, i) for i in folders], 
                rebin=2
                )
             samples.update(sam)
@@ -677,25 +683,27 @@ if not args.noshapes:
 
          shape_file.Close()
          logging.info("%s created" % fname)
-         syscheck('cp card_cfg/cgs.conf %s/.' % shapedir)
+         card_type = 'incl' if args.inclusive else 'excl'
+         syscheck('cp card_cfg/cgs.%s.conf %s/cgs.conf' % (card_type, shapedir))
          with open('%s/unc.conf' % shapedir, 'w')as output:
-            with open('card_cfg/unc.conf') as default:
+            with open('card_cfg/unc.%s.conf' % card_type) as default:
                output.write(default.read())
             output.write('\n'.join(unc_conf))
 
          with open('%s/unc.vals' % shapedir, 'w')as output:
-            with open('card_cfg/unc.vals') as default:
+            with open('card_cfg/unc.%s.vals' % card_type) as default:
                output.write(default.read())
             output.write('\n'.join(unc_vals))
 
          logging.info("datacard cfgs copied")
-         logging.info(
-            './add_bbb.sh %s "%s" "%s"' % (shapedir, ' '.join(categories), ' '.join(samples))
-            )
-         syscheck(
-            './add_bbb.sh %s "%s" "%s"' % (shapedir, ' '.join(categories), ' '.join(samples))
-            )
-         logging.info("bbb added")
+         if not args.noBBB:
+            logging.info(
+               './add_bbb.sh %s "%s" "%s"' % (shapedir, ' '.join(categories), ' '.join(samples))
+               )
+            syscheck(
+               './add_bbb.sh %s "%s" "%s"' % (shapedir, ' '.join(categories), ' '.join(samples))
+               )
+            logging.info("bbb added")
          os.chdir(shapedir)
          syscheck('create-datacard.py -i shapes.root -o datacard.txt')
          format = '%20s param %7.4f 0.001\n'
@@ -716,10 +724,11 @@ if not args.noshapes:
             f.write("sed -i 's|$MASS||g' datacard.txt\n")
             f.write(r"sed -i 's|\x1b\[?1034h||g' datacard.txt"+'\n')
             f.write("echo creating workspace\n")
-            lightFit = '--PO fitLightEff=False' if args.noLightFit else ''
+            workspace_opts = '--PO fitLightEff=False' if args.noLightFit else ''
+            workspace_opts +=' --PO inclusive=True' if args.inclusive else ''
             f.write(
                'text2workspace.py datacard.txt -P HiggsAnalysis.CombinedLimit'
-               '.CTagEfficiencies:ctagEfficiency -o fitModel.root %s\n' % lightFit
+               '.CTagEfficiencies:ctagEfficiency -o fitModel.root %s\n' % workspace_opts
                )
             f.write("echo 'running Multi-dimensional fit with Profile-Likelyhood errors on Asimov'\n")
             f.write("combine fitModel.root -M MultiDimFit --algo=singles "

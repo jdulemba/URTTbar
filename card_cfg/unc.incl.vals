@@ -1,0 +1,14 @@
+Inc_nolead,Inc_nosub,Inc_leadtag,Inc_subtag all lumi 1.05
+
+Inc_nolead,Inc_nosub,Inc_leadtag,Inc_subtag ttbar      tt_xsec 1.10
+Inc_nolead,Inc_nosub,Inc_leadtag,Inc_subtag right_whad btag_eff 1.10
+Inc_nolead,Inc_nosub,Inc_leadtag,Inc_subtag single_top singlet_xsec 1.10 
+
+Inc_nolead   wrong_whad tagging_Inc_nolead  1.05
+Inc_nosub    wrong_whad tagging_Inc_nosub   1.05
+Inc_leadtag  wrong_whad tagging_Inc_leadtag 1.05
+Inc_subtag   wrong_whad tagging_Inc_subtag  1.05
+
+
+
+

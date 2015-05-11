@@ -51,7 +51,7 @@ private:
 	float jet_eta_cut_ = 2.4;
 
 	map<string, std::function<bool(const Permutation &, const Permutation &)> > ordering_;
-	map<string, std::function<bool(const Jet*)> > working_points_;
+	map<string, std::function<bool(const IDJet*)> > working_points_;
 	map<SysShift, string> sys_names_ = {
 		{NOSYS, "nosys"}, 
 		{JES_UP  , "jes_up"}, 
@@ -105,11 +105,11 @@ public:
 		naming_[TTNaming::WRONG ] = "semilep_wrong" 			 ;
 		naming_[TTNaming::OTHER ] = 	"other"              ;
 
-		working_points_["notag"]     = [](const Jet* jet) {return false;};
-		working_points_["csvTight"]  = [](const Jet* jet) {return jet->csvIncl() > 0.941;};
-		working_points_["csvMedium"] = [](const Jet* jet) {return jet->csvIncl() > 0.814;};
-		working_points_["csvLoose"]  = [](const Jet* jet) {return jet->csvIncl() > 0.423;};
-		working_points_["rndm10"]    = [&](const Jet* jet) {return (randomizer_.Rndm() < 0.1);};
+		working_points_["notag"]     = [](const IDJet* jet) {return false;};
+		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->csvIncl() > 0.941;};
+		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->csvIncl() > 0.814;};
+		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->csvIncl() > 0.423;};
+		working_points_["rndm10"]    = [](const IDJet* jet) {return jet->rndm() < 0.1;};
 		// working_points_["ssvHiPur"] = [](const Jet* jet) {return (bool) jet->ssvHiPur()};
 		// working_points_["ssvHiEff"] = [](const Jet* jet) {return (bool) jet->ssvHiEff()};
 		// working_points_["trkHiPur"] = [](const Jet* jet) {return (bool) jet->trkHiPur()};
@@ -157,6 +157,7 @@ public:
 		book<TH1F>(folder, "Whad_mass", ";m_{W}(had) (GeV)", 140, 0., 140.);
 		book<TH1F>(folder, "Whad_DR"  , ";m_{W}(had) (GeV)", 100, 0., 10.);
 		book<TH1F>(folder, "Whad_pt"  , ";m_{W}(had) (GeV)", 500, 0., 500.);
+		book<TH1F>(folder, "jetCSV"   , "", 40, -20., 20.);
 		// book<TH1F>(folder, "Whad_leading_DR", "", 100, 0., 10.);
 		// book<TH1F>(folder, "Whad_sublead_DR", "", 100, 0., 10.);
 		// book<TH2F>(folder, "Whad_lead_sub_DR", ";#DeltaR(leading jet, WHad); #DeltaR(subleading jet, WHad)", 100, 0., 10., 100, 0., 10.);
@@ -203,6 +204,7 @@ public:
 						// else folder  = genCategory +"/"+ sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
 						book<TH2F>(base, "passing_jpt_massDiscriminant"  , "", 100, 0., 500., 100, 0., 10.);
 						book<TH2F>(base, "failing_jpt_massDiscriminant"  , "", 100, 0., 500., 100, 0., 10.);
+						book<TH2F>(base, "csvL_csvS"  , ";m_{t}(had) (GeV)", 100, 0., 1., 100, 0., 1.);
 						for(auto& tag : tagging){
 							string folder = base + "/" + tag;
 							Logger::log().debug() << "creating plots for folder: " << folder << std::endl;
@@ -319,11 +321,12 @@ public:
 		// dir->second["Wlep_mass"].fill(hyp.WLep().M());
 		dir->second["Whad_mass"].fill(hyp.WHad().M());
 		dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()));
-		dir->second["Whad_pt"  ].fill(hyp.WHad().Pt());
 		// dir->second["tlep_mass"].fill(hyp.TLep().M());
 		dir->second["thad_mass"].fill(hyp.THad().M());
 		dir->second["hjet_pt"  ].fill(hyp.WJa()->Pt());
 		dir->second["hjet_pt"  ].fill(hyp.WJb()->Pt());
+		dir->second["jetCSV"   ].fill(hyp.WJa()->csvIncl());
+		dir->second["jetCSV"   ].fill(hyp.WJb()->csvIncl());
 		float lead = (hyp.WJa()->Pt() > hyp.WJb()->Pt()) ? hyp.WJa()->Pt() : hyp.WJb()->Pt();
 		float sub  = (hyp.WJa()->Pt() > hyp.WJb()->Pt()) ? hyp.WJb()->Pt() : hyp.WJa()->Pt();
 		dir->second["hjet_pts" ].fill(lead, sub);//*/
@@ -345,7 +348,7 @@ public:
 		//if((subleading->*btag_id_)() > btag_cut_) fill_jet_info(folder + "/subleading/tagged", subleading, gen_subleading);
 	}
 
-	void fill_other_jet_plots(string folder, Permutation &hyp, vector<IDJet*>& jets, std::function<bool(const Jet*)>& fcn) {
+	void fill_other_jet_plots(string folder, Permutation &hyp, vector<IDJet*>& jets, std::function<bool(const IDJet*)>& fcn) {
 		//folder += sys_name + "/" + criterion + "/" + working_point;
 		auto dir = histos_.find(folder);
 		if(dir == histos_.end()) {
@@ -353,6 +356,9 @@ public:
 				" does not exists!" << endl;
 			return;
 		}
+		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
+		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
+		dir->second["csvL_csvS" ].fill(leading->csvIncl(), subleading->csvIncl());
 
 		set<IDJet*> hypjets;
 		hypjets.insert(hyp.WJa());
@@ -369,9 +375,9 @@ public:
 		}
 	}
 
-	string get_wjet_category(Permutation &hyp, std::function<bool(const Jet*)>& fcn) {
-		const Jet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
-		const Jet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
+	string get_wjet_category(Permutation &hyp, std::function<bool(const IDJet*)>& fcn) {
+		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
+		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
 		bool lead_tag = fcn(leading   );
 		bool sub_tag  = fcn(subleading);
 		if(lead_tag && sub_tag) return "/both_tagged";
@@ -468,7 +474,7 @@ public:
 		list<IDJet> keep_jets;
 		vector<IDJet*> selected_jets; selected_jets.reserve(jets.size());
 		for(vector<Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet){
-			IDJet idjet(*jet);
+			IDJet idjet(*jet, randomizer_.Rndm());
 			if(shift == JES_UP)	idjet.SetPxPyPzE(jet->Px()*1.02, jet->Py()*1.02, jet->Pz()*1.02, jet->E()*1.02);
 			else if(shift == JES_DOWN) idjet.SetPxPyPzE(jet->Px()*0.98, jet->Py()*0.98, jet->Pz()*0.98, jet->E()*0.98);
 
