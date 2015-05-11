@@ -15,6 +15,7 @@ ttbar::ttbar(const std::string output_filename):
 	reco2d("reco"),
 	truth1d("truth"),
 	truth2d("truth"),
+	ttp_all_incl("all_incl"),
 	ttp_right("right"),
 	ttp_wrong("wrong"),
 	ttp_semi("semi"),
@@ -24,7 +25,6 @@ ttbar::ttbar(const std::string output_filename):
 	ttp_wrong_incl("wrong_incl"),
 	ttp_semi_incl("semi_incl"),
 	ttp_other_incl("other_incl"),
-	ttp_all_incl("all_incl"),
 	ttp_jetspos_right("jetspos_right"),
 	ttp_jetspos_wrong("jetspos_wrong"),
 	ttp_hadjets_right("hadjets_right"),
@@ -41,11 +41,11 @@ ttbar::ttbar(const std::string output_filename):
 	ttp_jets_incl_wrong("jets_incl_wrong"),
 	ttp_blep_incl_right("blep_incl_right"),
 	ttp_blep_incl_wrong("blep_incl_wrong"),
-	semilep_visible_right(""),
-  semilep_right_thad(""),
-	semilep_right_tlep(""),
-	semilep_wrong(""),
-	other_tt_decay(""),
+	semilep_visible_right("all"),
+  semilep_right_thad("all"),
+	semilep_right_tlep("all"),
+	semilep_wrong("all"),
+	other_tt_decay("all"),
 	PSEUDOTOP(false),
 	BTAGMODE(false), //set true for the b-tag efficiency measurement
 	cnbtag(1), //1: one thight b-jet, 2: two medium b-jets
@@ -60,7 +60,6 @@ ttbar::ttbar(const std::string output_filename):
 {
 
 	jetptmin = min(cwjetptsoft, cbjetptsoft);
-<<<<<<< HEAD
 	int n(0);
 	topptbins.resize(500/5 + 1);
 	std::generate(topptbins.begin(), topptbins.end(), [&]{ return (n++)*5; }); 
@@ -85,24 +84,38 @@ ttbar::ttbar(const std::string output_filename):
 	for(auto i: ttmbins) Logger::log().debug()<< i << ", ";
 	Logger::log().debug()<< endl;
 
+	n = 0;
+	ttybins.resize(31);
+	std::generate(ttybins.begin(), ttybins.end(), [&]{ return (n++)*0.1; }); 
+	ttybins.push_back(8.); //oflow
+	Logger::log().debug() << "ttybins: ";
+	for(auto i: ttybins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	n = 0;
+	ttptbins.resize(300/5 + 1);
+	std::generate(ttptbins.begin(), ttptbins.end(), [&]{ return (n++)*5; }); 
+	ttptbins.push_back(1000.); //oflow   
+	Logger::log().debug() << "ttptbins: ";
+	for(auto i: ttptbins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
 	// topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 1000.};
 	// topetabins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0};
 	// ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.};
-=======
-	if(PSEUDOTOP){cnbtag = 2;}
-	topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 1000.};
-	topetabins = {0., 0.2, 0.4, 0.6,  0.8,  1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0};
-	ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 770., 900, 5000.};
-	ttybins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.};
-	ttptbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.};
+	// if(PSEUDOTOP){cnbtag = 2;}
+	// topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 1000.};
+	// topetabins = {0., 0.2, 0.4, 0.6,  0.8,  1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0};
+	// ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 770., 900, 5000.};
+	// ttybins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.};
+	// ttptbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.};
 	vector<string> testpdf = {"CT10", "CT10as", "NNPDF30_nnlo_as_0118"};
 	pdfunc = new PDFuncertainty("CT10", 0, testpdf);
->>>>>>> 534be764b4fb13fbf61272c527e9a16bf91cecf4
 }
 
 void ttbar::begin()
 {
 	outFile_.cd();
+	Logger::log().debug() << "GEN" << endl;
 	TDirectory* dir_gen = outFile_.mkdir("GEN");
 	dir_gen->cd();
 	gen1d.AddHist("TYP", 4, 0., 4., "Decay TYP", "Events");
@@ -114,8 +127,9 @@ void ttbar::begin()
 	gen1d.AddHist("bjets_dr", 100, 0, 5, "b-jets #DeltaR", "Events");
 	gen1d.AddHist("wjets_dr", 100, 0, 5, "W-jets #DeltaR", "Events");
 	gen2d.AddHist("Wmasshad_tmasshad", 500, 0., 500., 500, 0., 500, "M(W) (GeV)", "M(t) (GeV)");
-    ttp_gen.Init(this);
+	ttp_gen.Init(this);
 
+	Logger::log().debug() << "TRUTH" << endl;
 	TDirectory* dir_truth = outFile_.mkdir("TRUTH");
 	dir_truth->cd();
 	truth1d.AddHist("counter", 20, 0., 20., "counter", "Events");
@@ -209,11 +223,11 @@ void ttbar::begin()
 
 	btageff.Init();
 
+	Logger::log().debug() << "RECO" << endl;
 	TDirectory* dir_reco = outFile_.mkdir("RECO");
 	dir_reco->cd();
 	reco1d.AddHist("counter", 20, 0., 20., "counter", "Events");
 	ttp_all.Init(this);
-	ttp_all_incl.Init(this);
 
 	string probfilename("Prob_parton.root");
 	if(PSEUDOTOP){probfilename = "Prob_pseudo.root";}
@@ -233,18 +247,23 @@ void ttbar::begin()
 	truth2d.AddHist("leptop_eta_matrix", topetabins, topetabins, "gen", "reco");
 	truth2d.AddHist("mtt_matrix", ttmbins, ttmbins, "gen", "reco");
 
+	Logger::log().debug() << "semilep_visible_right" << endl;
 	outFile_.mkdir("semilep_visible_right")->cd();
 	semilep_visible_right.Init(this);
 
+	Logger::log().debug() << "semilep_right_thad" << endl;
 	outFile_.mkdir("semilep_right_thad")->cd();
   semilep_right_thad.Init(this);
 
+	Logger::log().debug() << "semilep_right_tlep" << endl;
 	outFile_.mkdir("semilep_right_tlep")->cd();
 	semilep_right_tlep.Init(this);
 
+	Logger::log().debug() << "semilep_wrong" << endl;
 	outFile_.mkdir("semilep_wrong")->cd();
 	semilep_wrong.Init(this);
 
+	Logger::log().debug() << "other_tt_decay" << endl;
 	outFile_.mkdir("other_tt_decay")->cd();
 	other_tt_decay.Init(this);
 }
@@ -787,8 +806,6 @@ void ttbar::ttanalysis()
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(7.5, weight);
 	//Fill reconstructed hists
 	ttp_all.Fill(bestper, lepcharge, weight);
-	if(cleanedjets.size() == 4) ttp_all_incl.Fill(bestper, lepcharge, weight);
-
 
 	if(BTAGMODE){btageff.Fill(bestper, rightper.IsCorrect(bestper), weight);}
 

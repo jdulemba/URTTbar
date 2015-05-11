@@ -39,7 +39,8 @@ TH1DCollection::TH1DCollection(string _prefix) : prefix(_prefix) {}
 
 TH1D* TH1DCollection::AddHist(string name, Int_t bins, Double_t min, Double_t max, string xlabel, string ylabel)
 {
-	hmap[name] = new TH1D((prefix+"_"+name).c_str(), (prefix+"_"+name).c_str(), bins, min, max);
+	string objname = prefix.empty() ? name : prefix+"_"+name;
+	hmap[name] = new TH1D(objname.c_str(), objname.c_str(), bins, min, max);
 	hmap[name]->Sumw2();
 	hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
 	hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
@@ -48,7 +49,8 @@ TH1D* TH1DCollection::AddHist(string name, Int_t bins, Double_t min, Double_t ma
 
 TH1D* TH1DCollection::AddHist(string name, vector<Double_t>& bins, string xlabel, string ylabel)
 {
-	hmap[name] = new TH1D((prefix+"_"+name).c_str(), (prefix+"_"+name).c_str(), bins.size()-1, bins.data());
+	string objname = prefix.empty() ? name : prefix+"_"+name;
+	hmap[name] = new TH1D(objname.c_str(), objname.c_str(), bins.size()-1, bins.data());
 	hmap[name]->Sumw2();
 	hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
 	hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
@@ -74,7 +76,8 @@ TH2DCollection::TH2DCollection(string _prefix) : prefix(_prefix) {}
 
 TH2D* TH2DCollection::AddHist(string name, Int_t xbins, Double_t xmin, Double_t xmax, Int_t ybins, Double_t ymin, Double_t ymax, string xlabel, string ylabel)
 {
-	hmap[name] = new TH2D((prefix+"_"+name).c_str(), (prefix+"_"+name).c_str(), xbins, xmin, xmax, ybins, ymin, ymax);
+	string objname = prefix.empty() ? name : prefix+"_"+name;
+	hmap[name] = new TH2D(objname.c_str(), objname.c_str(), xbins, xmin, xmax, ybins, ymin, ymax);
 	hmap[name]->Sumw2();
 	hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
 	hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
@@ -90,27 +93,30 @@ TH2D* TH2DCollection::Get(string name)
 }
 TH2D* TH2DCollection::AddHist(string name, Int_t xbins, Double_t xmin, Double_t xmax, const vector<Double_t>& ybins, string xlabel, string ylabel)
 {
-    hmap[name] = new TH2D((prefix+"_"+name).c_str(), (prefix+"_"+name).c_str(), xbins, xmin, xmax, ybins.size()-1, ybins.data());
-    hmap[name]->Sumw2();
-    hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
-    hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
-    return hmap[name];
+	string objname = prefix.empty() ? name : prefix+"_"+name;
+	hmap[name] = new TH2D((prefix+"_"+name).c_str(), (prefix+"_"+name).c_str(), xbins, xmin, xmax, ybins.size()-1, ybins.data());
+	hmap[name]->Sumw2();
+	hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
+	hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
+	return hmap[name];
 }
 TH2D* TH2DCollection::AddHist(string name, const vector<Double_t>& xbins, Int_t ybins, Double_t ymin, Double_t ymax, string xlabel, string ylabel)
 {
-    hmap[name] = new TH2D((prefix+"_"+name).c_str(), (prefix+"_"+name).c_str(), xbins.size()-1, xbins.data(), ybins, ymin, ymax);
-    hmap[name]->Sumw2();
-    hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
-    hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
-    return hmap[name];
+	string objname = prefix.empty() ? name : prefix+"_"+name;
+  hmap[name] = new TH2D(objname.c_str(), objname.c_str(), xbins.size()-1, xbins.data(), ybins, ymin, ymax);
+	hmap[name]->Sumw2();
+	hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
+	hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
+	return hmap[name];
 }
 TH2D* TH2DCollection::AddHist(string name, const vector<Double_t>& xbins, const vector<Double_t>& ybins, string xlabel, string ylabel)
 {
-    hmap[name] = new TH2D((prefix+"_"+name).c_str(), (prefix+"_"+name).c_str(), xbins.size()-1, xbins.data(), ybins.size()-1, ybins.data());
-    hmap[name]->Sumw2();
-    hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
-    hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
-    return hmap[name];
+	string objname = prefix.empty() ? name : prefix+"_"+name;
+	hmap[name] = new TH2D(objname.c_str(), objname.c_str(), xbins.size()-1, xbins.data(), ybins.size()-1, ybins.data());
+	hmap[name]->Sumw2();
+	hmap[name]->GetXaxis()->SetTitle(xlabel.c_str());
+	hmap[name]->GetYaxis()->SetTitle(ylabel.c_str());
+	return hmap[name];
 }
 
 TH2D* TH2DCollection::operator[](string name)
