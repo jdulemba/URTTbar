@@ -127,6 +127,7 @@ class TTXSecPlotter(Plotter):
             }
          }
       self.card = None
+      self.binning = {}
 
    def create_tt_subsample(self, subdir, title, color='#9999CC'):
       return views.StyleView(
@@ -146,6 +147,12 @@ class TTXSecPlotter(Plotter):
          raise RuntimeError('There is no card to save!')
       self.card.save(name, self.outputdir)
       self.card = None
+
+      binning_file = '%s/%s.binning.json' % (self.outputdir, name)
+      with open(binning_file, 'w') as json:
+         json.write(prettyjson.dumps(self.binning))
+      self.binning = {}
+      logging.info('binning saved in %s' % binning_file)
 
    def add_systematics(self):
       pass
@@ -169,10 +176,28 @@ class TTXSecPlotter(Plotter):
       category_axis = 'GetNbinsX' if slice_along == 'Y' else 'GetNbinsY'
       nbins = getattr(mc_hists2D.values()[0], category_axis)()
       fake_data = sum(i for i in mc_hists2D.values())
+      sliced_axis = getattr(
+         fake_data, 
+         'GetXaxis' if slice_along == 'Y' else 'GetYaxis'
+         )()
+      binning = {}
 
-      for idx in range(1, nbins+1):
+      for idx in range(nbins):
          self.card.add_category(category_template % idx)
          category = self.card[category_template % idx]
+         logging.debug(
+            'slicing bin %i from %.2f to %.2f' % (
+               idx+1,
+               sliced_axis.GetBinLowEdge(idx+1),
+               sliced_axis.GetBinUpEdge(idx+1),
+               )
+            )
+         binning[category_template % idx] = {
+            'idx' : idx,
+            'low_edge' : sliced_axis.GetBinLowEdge(idx+1),
+            'up_edge' : sliced_axis.GetBinUpEdge(idx+1)
+            }
+
          for name, hist in mc_hists2D.iteritems():
             category[name] = slice_hist(hist, idx+1, axis=slice_along)
          category['data_obs'] = slice_hist(fake_data, idx+1, axis=slice_along)
@@ -180,8 +205,19 @@ class TTXSecPlotter(Plotter):
          if integral != 0:
             int_int = float(int(integral))
             category['data_obs'].Scale(int_int/integral)
+      self.binning[var] = binning
+
+##################
+#  DEFINITIONS
+##################
 
 plotter = TTXSecPlotter()
+
+pt_binning = [40., 75., 105., 135., 170., 220., 300., 1000.]
+## eta_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0]
+## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
+## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
+## ttpt_binning = [0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.]
 
 ##################
 #     PLOTS
@@ -206,20 +242,25 @@ if not opts.noplots:
 
    plotter.plot_mc_vs_data(
       '', 'all_fullDiscr_ptthad', leftside=False, 
-      preprocess=lambda x: urviews.ProjectionView(x, 'X', [-10, 10])
+      preprocess=lambda x: urviews.ProjectionView(x, 'X', [0, 1000])
       )
-   plotter.save('fullDiscr', pdf=False)
+   plotter.save('fullDiscr_from_projection', pdf=False)
+   
+   previous = pt_binning[0]
+   for idx, ptbin in enumerate(pt_binning[1:]):
+      plotter.plot_mc_vs_data(
+         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning, [4]],
+         preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, ptbin])
+         )
+      previous = ptbin
+      plotter.save('fullDiscr_slice_%i' % idx, pdf=False)
+   
+
 ##################
 #     CARDS
 ##################
 if not opts.noshapes:
-   pt_binning = [40., 75., 105., 135., 170., 220., 300., 1000.]
-   ## eta_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0]
-   ## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
-   ## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
-   ## ttpt_binning = [0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.]
-
-   full_discr_binning = range(-10, 12, 2) 
+   full_discr_binning = [5]#range(-15, 16)
    to_fit = [
       ("ptthad"	, pt_binning),
       ("pttlep"	, pt_binning),
@@ -232,6 +273,7 @@ if not opts.noshapes:
    discriminant = 'fullDiscr'
    
    for var, binning in to_fit:
+      plotter.set_subdir(var)
       plotter.write_shapes(
          '', 'all_%s_%s' % (discriminant, var), full_discr_binning, binning
          ) 
