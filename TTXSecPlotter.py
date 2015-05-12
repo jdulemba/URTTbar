@@ -159,7 +159,7 @@ class TTXSecPlotter(Plotter):
 
    def write_shapes(self, folder, variable, xbinning, ybinning, 
                     category_template='Bin%i', slice_along='X'):
-      if not self.card: self.card = DataCard('tt_right')
+      if not self.card: self.card = DataCard('tt_*')
       #keep it there for systematics
       mc_views = dict(
             (name, view) for name, view in zip(
@@ -283,7 +283,7 @@ if not opts.noshapes:
       plotter.write_shapes(
          '', 'all_%s_%s' % (discriminant, var), full_discr_binning, binning
          ) 
-      plotter.card.add_systematic('lumi', 'lnN', '*', '*', 1.05)
+      plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)
       #plotter.card.add_bbb_systematics(['*'], ['*'])
       plotter.save_card(var)
       
