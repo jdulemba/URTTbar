@@ -43,8 +43,11 @@ for info in binning.itervalues():
 with io.root_open(args.fitresult) as results:
    norms = ArgSet(results.Get('norm_fit_s'))
    norms = [i for i in norms]
+   fit_result = results.Get('fit_s')
    
    with io.root_open(args.out, 'recreate') as output:
+      hcorr = fit_result.correlationHist()
+      hcorr.Write()
       for obs, info in binning.iteritems():
          var_dir = output.mkdir(obs)
          var_dir.cd()
