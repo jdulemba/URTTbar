@@ -47,8 +47,8 @@ void TTBarPlots::Init(ttbar* analysis)
 	plot2d.AddHist("testb_njet", tb, tbmin, tbmax, 20, 0., 20., "testb", "n-jets");
 	plot2d.AddHist("test_testb", ta, tamin, tamax, tb, tbmin, tbmax, "test", "testb");
 
-	int full_disc_nbins = 50;
-	double full_disc_min=-10, full_disc_max=10;
+	int full_disc_nbins = 160;
+	double full_disc_min=-30, full_disc_max=20;
 	plot2d.AddHist("fullDiscr_ptthad" , full_disc_nbins, full_disc_min, full_disc_max, an->topptbins, "test", "p_{T}(t_{had}) (GeV)");
 	plot2d.AddHist("fullDiscr_pttlep" , full_disc_nbins, full_disc_min, full_disc_max, an->topptbins, "test", "p_{T}(t_{lep}) (GeV)");
 	plot2d.AddHist("fullDiscr_etathad", full_disc_nbins, full_disc_min, full_disc_max, an->topetabins, "test", "#eta(t_{had})");
@@ -117,7 +117,7 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 	plot1d["ttpt"		]->Fill(tt.Pt(), weight);
 	plot1d["njet"		]->Fill(an->reducedjets.size(), weight);
 	plot1d["costhetastar"]->Fill(tCMS.CosTheta(), weight);
-
+	plot1d["fullDiscr"]->Fill(full_disc, weight);
 }
 
 
