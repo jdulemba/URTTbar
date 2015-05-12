@@ -193,6 +193,7 @@ class TTXSecPlotter(Plotter):
                )
             )
          binning[category_template % idx] = {
+            'var' : var,
             'idx' : idx,
             'low_edge' : sliced_axis.GetBinLowEdge(idx+1),
             'up_edge' : sliced_axis.GetBinUpEdge(idx+1)
@@ -255,7 +256,12 @@ if not opts.noplots:
       previous = ptbin
       plotter.save('fullDiscr_slice_%i' % idx, pdf=False)
    
-
+   #TEST CASE FOR MARIO
+   plotter.plot_mc_vs_data(
+         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning, [160]],
+         preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, ptbin])
+         )
+   plotter.save('mario_test', pdf=False, dotroot=True)
 ##################
 #     CARDS
 ##################
@@ -280,3 +286,4 @@ if not opts.noshapes:
       plotter.card.add_systematic('lumi', 'lnN', '*', '*', 1.05)
       #plotter.card.add_bbb_systematics(['*'], ['*'])
       plotter.save_card(var)
+      
