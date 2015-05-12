@@ -225,20 +225,20 @@ pt_binning = [40., 75., 105., 135., 170., 220., 300., 1000.]
 ##################
 if not opts.noplots:
    to_plot = [
-      ('all_lep_pt')  ,
-      ('all_tlep_eta'),
-      ('all_thad_pt') ,
-      ('all_tlep_pt') ,
-      ('all_thad_eta'),
-      ("all_ttm" ),
-      ("all_tty" ),
-      ("all_ttpt"),
-      ("all_costhetastar"),
-      ("all_njet"),
+      ('all_ptthad' , pt_binning) ,
+      ('all_pttlep' , pt_binning) ,
+      ('all_lep_pt'  , 4),
+      ('all_tlep_eta', 4),
+      ('all_thad_eta', 4),
+      ("all_ttm"     , 4),
+      ("all_tty"     , 4),
+      ("all_ttpt"    , 4),
+      ("all_costhetastar", 4),
+      ("all_njet", 4),
       ]
 
-   for var in to_plot:
-      plotter.plot_mc_vs_data('', var, leftside=False, rebin=4)
+   for var, rebin in to_plot:
+      plotter.plot_mc_vs_data('', var, leftside=False, rebin=rebin)
       plotter.save(var, pdf=False)
 
    plotter.plot_mc_vs_data(
