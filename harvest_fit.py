@@ -46,7 +46,10 @@ with io.root_open(args.fitresult) as results:
    fit_result = results.Get('fit_s')
    
    with io.root_open(args.out, 'recreate') as output:
-      hcorr = fit_result.correlationHist()
+      hcorr = asrootpy(fit_result.correlationHist())
+      fit_pars = set(
+         hcorr.xaxis.GetBinLabel(i) for i in range(1,hcorr.xaxis.GetNbins()+1)
+         )
       hcorr.Write()
       for obs, info in binning.iteritems():
          var_dir = output.mkdir(obs)
@@ -60,12 +63,19 @@ with io.root_open(args.fitresult) as results:
                   info['edges'],
                   name = sample
                   )
+            idx = info[category]['idx']+1
             hists[sample].SetBinContent(
-               info[category]['idx']+1, norm.getVal()
+               idx, norm.getVal()
                )
             hists[sample].SetBinError(
-               info[category]['idx']+1, norm.getError()
+               idx, norm.getError()
                )
+            fit_par_name = '%sYieldSF_%s' % (category, sample)
+            if fit_par_name in fit_pars:
+               logging.debug(
+                  'Assigning label %s to bin %i for %s/%s' % (fit_par_name, idx, category, sample)
+                  )
+               hists[sample].xaxis.SetBinLabel(idx, fit_par_name)
 
          for h in hists.itervalues():
             logging.debug( h.Write() )
