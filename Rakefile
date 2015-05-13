@@ -24,7 +24,7 @@ end
 rule /\.model\.root$/ => psub(/\.model\.root$/, '.txt') do |t|
   dir = File.dirname(t.name)
   chdir(dir) do
-    sh "text2workspace.py #{File.basename(t.source)} -P URAnalysis.AnalysisTools.statistics.TTBarXsecFittter:ttxsecfitter -o #{File.basename(t.name)}"
+    sh "text2workspace.py #{File.basename(t.source)} -P URAnalysis.AnalysisTools.statistics.TTBarXsecFitter:ttxsecfitter -o #{File.basename(t.name)}"
   end
 end
 
