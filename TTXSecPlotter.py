@@ -17,6 +17,7 @@ rootpy.log["/"].setLevel(rootpy.log.INFO)
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 from argparse import ArgumentParser
+from URAnalysis.Utilities.struct import Struct
 
 parser = ArgumentParser()
 parser.add_argument('--noplots', dest='noplots', action='store_true',
@@ -214,7 +215,11 @@ class TTXSecPlotter(Plotter):
 
 plotter = TTXSecPlotter()
 
-pt_binning = [40., 75., 105., 135., 170., 220., 300., 1000.]
+pt_binning = Struct(
+   gen = [40., 75., 105., 135., 170., 220., 300., 1000.],
+   reco = [40., 60., 75., 90., 105., 120., 135., 150., 170., 195., 220., 260., 300., 500., 1000.],
+   )
+   
 ## eta_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0]
 ## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
 ## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
@@ -225,8 +230,8 @@ pt_binning = [40., 75., 105., 135., 170., 220., 300., 1000.]
 ##################
 if not opts.noplots:
    to_plot = [
-      ('all_ptthad' , pt_binning) ,
-      ('all_pttlep' , pt_binning) ,
+      ('all_ptthad' , pt_binning.reco) ,
+      ('all_pttlep' , pt_binning.reco) ,
       ('all_lep_pt'  , 4),
       ('all_tlep_eta', 4),
       ('all_thad_eta', 4),
@@ -247,10 +252,10 @@ if not opts.noplots:
       )
    plotter.save('fullDiscr_from_projection', pdf=False)
    
-   previous = pt_binning[0]
-   for idx, ptbin in enumerate(pt_binning[1:]):
+   previous = pt_binning.reco[0]
+   for idx, ptbin in enumerate(pt_binning.reco[1:]):
       plotter.plot_mc_vs_data(
-         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning, [4]],
+         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning.reco, [4]],
          preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, ptbin])
          )
       previous = ptbin
@@ -258,7 +263,7 @@ if not opts.noplots:
    
    #TEST CASE FOR MARIO
    plotter.plot_mc_vs_data(
-         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning, [160]],
+         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning.reco, [160]],
          preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, ptbin])
          )
    plotter.save('mario_test', pdf=False, dotroot=True)
@@ -281,9 +286,30 @@ if not opts.noshapes:
    for var, binning in to_fit:
       plotter.set_subdir(var)
       plotter.write_shapes(
-         '', 'all_%s_%s' % (discriminant, var), full_discr_binning, binning
+         '', 'all_%s_%s' % (discriminant, var), full_discr_binning, binning.reco
          ) 
       plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)
       #plotter.card.add_bbb_systematics(['*'], ['*'])
       plotter.save_card(var)
+   
+   #Migration matrices
+   plotter.set_subdir('')
+   fname = os.path.join(plotter.outputdir, 'migration_matrices.root')
+
+   to_fit = [("toppthad" , pt_binning)]
+
+   with io.root_open(fname, 'recreate') as mfile:
+      tt_view = plotter.get_view('ttJets_pu30')
+      for var, binning in to_fit:
+         mfile.mkdir('ptthad').cd() ##FIXME var) 
+         matrix_view = plotter.rebin_view(tt_view, [pt_binning.gen, pt_binning.reco])
+         mig_matrix = matrix_view.Get('TRUTH/truth_response_%s_matrix' % var)
+         mig_matrix.SetName('migration_matrix') ##FIXME var)
+         mig_matrix.Write()
+         thruth_distro = plotter.rebin_view(tt_view, pt_binning.gen).Get('TRUTH/truth_response_%s_truth' % var)
+         thruth_distro.SetName('true_distribution')
+         thruth_distro.Write()
+         
+
+   logging.info('file: %s written' % fname)
       
