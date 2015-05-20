@@ -164,15 +164,15 @@ void ttbar::begin()
 	truth1d.AddHist("nschi_right", 520, -2, 50., "#chi2 neutrino-test", "Events");
 	truth1d.AddHist("comtest_right", 1000, -100, 100., "-Log(p)", "Events");
 
-	truth1d.AddHist("response_toppthad_truth", topptbins, "response_toppthad_truth", "Events");
-	pdfunc->Add1dHist("pdfunc_toppthad", topptbins, "p_{T}(t_{h}) (GeV)", "Events");
-	truth1d.AddHist("response_toppthad_measured", topptbins, "response_toppthad_measured", "Events");
-	truth2d.AddHist("response_toppthad_matrix", topptbins, topptbins, "gen", "reco");
+	truth1d.AddHist("response_ptthad_truth", topptbins, "response_ptthad_truth", "Events");
+	pdfunc->Add1dHist("pdfunc_ptthad", topptbins, "p_{T}(t_{h}) (GeV)", "Events");
+	truth1d.AddHist("response_ptthad_measured", topptbins, "response_ptthad_measured", "Events");
+	truth2d.AddHist("response_ptthad_matrix", topptbins, topptbins, "gen", "reco");
 
-	truth1d.AddHist("response_topptlep_truth", topptbins, "response_topptlep_truth", "Events");
-	pdfunc->Add1dHist("pdfunc_topptlep", topptbins, "p_{T}(t_{l}) (GeV)", "Events");
-	truth1d.AddHist("response_topptlep_measured", topptbins, "response_topptlep_measured", "Events");
-	truth2d.AddHist("response_topptlep_matrix", topptbins, topptbins, "gen", "reco");
+	truth1d.AddHist("response_pttlep_truth", topptbins, "response_pttlep_truth", "Events");
+	pdfunc->Add1dHist("pdfunc_pttlep", topptbins, "p_{T}(t_{l}) (GeV)", "Events");
+	truth1d.AddHist("response_pttlep_measured", topptbins, "response_pttlep_measured", "Events");
+	truth2d.AddHist("response_pttlep_matrix", topptbins, topptbins, "gen", "reco");
 
 	truth1d.AddHist("response_topetahad_truth", topetabins, "response_topetahad_truth", "Events");
 	pdfunc->Add1dHist("pdfunc_topetahad", topetabins, "#eta(t_{h}) (GeV)", "Events");
@@ -588,10 +588,10 @@ void ttbar::ttanalysis()
 	if(SEMILEPACC)
 	{
 		truth1d["counter"]->Fill(2.5, weight);
-		truth1d["response_toppthad_truth"]->Fill(gentophad.Pt(), weight);
-		pdfunc->Fill1d("pdfunc_toppthad", gentophad.Pt(), weight);
-		truth1d["response_topptlep_truth"]->Fill(gentoplep.Pt(), weight);
-		pdfunc->Fill1d("pdfunc_topptlep", gentoplep.Pt(), weight);
+		truth1d["response_ptthad_truth"]->Fill(gentophad.Pt(), weight);
+		pdfunc->Fill1d("pdfunc_ptthad", gentophad.Pt(), weight);
+		truth1d["response_pttlep_truth"]->Fill(gentoplep.Pt(), weight);
+		pdfunc->Fill1d("pdfunc_pttlep", gentoplep.Pt(), weight);
 		truth1d["response_topetahad_truth"]->Fill(Abs(gentophad.Eta()), weight);
 		pdfunc->Fill1d("pdfunc_topetahad", Abs(gentophad.Eta()), weight);
 		truth1d["response_topetalep_truth"]->Fill(Abs(gentoplep.Eta()), weight);
@@ -849,12 +849,12 @@ void ttbar::ttanalysis()
 	if(bestper.AreHadJetsCorrect(rightper))
 	{
 		ttp_hadjets_right.Fill(bestper, lepcharge, weight);
-		truth1d["response_toppthad_measured"]->Fill(bestper.THad().Pt(), weight);
+		truth1d["response_ptthad_measured"]->Fill(bestper.THad().Pt(), weight);
 		truth1d["response_topetahad_measured"]->Fill(Abs(bestper.THad().Eta()), weight);
 		if(SEMILEPACC)
 		{
 			truth1d["counter"]->Fill(11.5, weight);
-			truth2d["response_toppthad_matrix"]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
+			truth2d["response_ptthad_matrix"]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
 			truth2d["response_topetahad_matrix"]->Fill(Abs(gentophad.Eta()), Abs(bestper.THad().Eta()), weight);
 		}
 	}
@@ -885,12 +885,12 @@ void ttbar::ttanalysis()
 	if(bestper.IsBLepCorrect(rightper))
 	{
 		ttp_blep_right.Fill(bestper, lepcharge, weight);
-		truth1d["response_topptlep_measured"]->Fill(bestper.TLep().Pt(), weight);
+		truth1d["response_pttlep_measured"]->Fill(bestper.TLep().Pt(), weight);
 		truth1d["response_topetalep_measured"]->Fill(Abs(bestper.TLep().Eta()), weight);
 		if(SEMILEPACC)
 		{
 			truth1d["counter"]->Fill(13.5, weight);
-			truth2d["response_topptlep_matrix"]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
+			truth2d["response_pttlep_matrix"]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
 			truth2d["response_topetalep_matrix"]->Fill(Abs(gentoplep.Eta()), Abs(bestper.TLep().Eta()), weight);
 		}
 		//Neutrino reconstruction plots
