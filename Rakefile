@@ -28,15 +28,19 @@ rule /\.model\.root$/ => psub(/\.model\.root$/, '.txt') do |t|
   end
 end
 
-rule /\.mlfit\.root$/ => psub(/\.mlfit\.root$/, '.model.root') do |t|
+rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root') do |t|
   dir = File.dirname(t.name)
+  toy_cmd = ''
+  if t.name.include? '.toy.'
+    toy_cmd = '--saveToys --expectSignal 1 -t 1'
+  end
   chdir(dir) do
-    sh "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL"
+    sh "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL #{toy_cmd}"
     sh "cp mlfit.root #{File.basename(t.name)}"
   end
 end
 
 rule /\.harvested\.root$/ => psub(/\.harvested\.root$/, '.mlfit.root') do |t|
-  sh "./harvest_fit.py #{t.source} #{t.source.sub(/\.mlfit\.root$/, '.binning.json')} -o #{t.name}"
+  sh "./harvest_fit.py #{t.source} #{t.source.sub(/(:?\.toy)?\.mlfit\.root$/, '.binning.json')} -o #{t.name}"
 end
 
