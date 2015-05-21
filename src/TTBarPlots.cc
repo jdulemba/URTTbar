@@ -27,25 +27,15 @@ void TTBarPlots::Init(ttbar* analysis)
 	double tbmin = -20.;
 	double tbmax = 10.;
 
-	plot2d.AddHist("test_ptthad", ta, tamin, tamax, an->topptbins, "test", "p_{T}(t_{had}) (GeV)");
-	plot2d.AddHist("testb_ptthad", tb, tbmin, tbmax, an->topptbins, "testb", "p_{T}(t_{had}) (GeV)");
-	plot2d.AddHist("test_pttlep", ta, tamin, tamax, an->topptbins, "test", "p_{T}(t_{lep}) (GeV)");
-	plot2d.AddHist("testb_pttlep", tb, tbmin, tbmax, an->topptbins, "testb", "p_{T}(t_{lep}) (GeV)");
-	plot2d.AddHist("test_etathad", ta, tamin, tamax, an->topetabins, "test", "#eta(t_{had})");
-	plot2d.AddHist("testb_etathad", tb, tbmin, tbmax, an->topetabins, "testb", "#eta(t_{had})");
-	plot2d.AddHist("test_etatlep", ta, tamin, tamax, an->topetabins, "test", "#eta(t_{lep})");
-	plot2d.AddHist("testb_etatlep", tb, tbmin, tbmax, an->topetabins, "testb", "#eta(t_{lep})");
-	plot2d.AddHist("test_ttm", ta, tamin, tamax, an->ttmbins, "test", "M(tt) (GeV)");
-	plot2d.AddHist("testb_ttm", tb, tbmin, tbmax, an->ttmbins, "testb", "M(tt) (GeV)");
-	plot2d.AddHist("test_tty", ta, tamin, tamax, an->ttybins, "test", "y(tt)");
-	plot2d.AddHist("testb_tty", tb, tbmin, tbmax, an->ttybins, "testb", "y(tt)");
-	plot2d.AddHist("test_ttpt", ta, tamin, tamax, an->ttptbins, "test", "p_{T}(tt) (GeV)");
-	plot2d.AddHist("testb_ttpt", tb, tbmin, tbmax, an->ttptbins, "testb", "p_{T}(tt) (GeV)");
-	plot2d.AddHist("test_costhetastar", ta, tamin, tamax, 10, -1., 1., "test", "cos(#Theta*)");
-	plot2d.AddHist("testb_costhetastar", tb, tbmin, tbmax, 10, -1., 1., "testb", "cos(#Theta*)");
-	plot2d.AddHist("test_njet", ta, tamin, tamax, 20, 0., 20., "test", "n-jets");
-	plot2d.AddHist("testb_njet", tb, tbmin, tbmax, 20, 0., 20., "testb", "n-jets");
-	plot2d.AddHist("test_testb", ta, tamin, tamax, tb, tbmin, tbmax, "test", "testb");
+	plot2d.AddHist("massDiscr_ptthad", ta, tamin, tamax, an->topptbins, "test", "p_{T}(t_{had}) (GeV)");
+	plot2d.AddHist("massDiscr_pttlep", ta, tamin, tamax, an->topptbins, "test", "p_{T}(t_{lep}) (GeV)");
+	plot2d.AddHist("massDiscr_etathad", ta, tamin, tamax, an->topetabins, "test", "#eta(t_{had})");
+	plot2d.AddHist("massDiscr_etatlep", ta, tamin, tamax, an->topetabins, "test", "#eta(t_{lep})");
+	plot2d.AddHist("massDiscr_ttm", ta, tamin, tamax, an->ttmbins, "test", "M(tt) (GeV)");
+	plot2d.AddHist("massDiscr_tty", ta, tamin, tamax, an->ttybins, "test", "y(tt)");
+	plot2d.AddHist("massDiscr_ttpt", ta, tamin, tamax, an->ttptbins, "test", "p_{T}(tt) (GeV)");
+	plot2d.AddHist("massDiscr_costhetastar", ta, tamin, tamax, 10, -1., 1., "test", "cos(#Theta*)");
+	plot2d.AddHist("massDiscr_njet", ta, tamin, tamax, 20, 0., 20., "test", "n-jets");
 
 	int full_disc_nbins = 160;
 	double full_disc_min=-30, full_disc_max=20;
@@ -69,6 +59,7 @@ void TTBarPlots::Init(ttbar* analysis)
 	plot1d.AddHist("costhetastar", 10, -1., 1., "test", "cos(#Theta*)");
 	plot1d.AddHist("njet", 20, 0., 20., "test", "n-jets");
 	plot1d.AddHist("fullDiscr", full_disc_nbins, full_disc_min, full_disc_max, "test", "test");
+	plot1d.AddHist("massDiscr", ta, tamin, tamax, "test", "test");
 }
 
 void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
@@ -78,25 +69,15 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 	double test = per.MassDiscr();
 	double testb = per.BDiscr();
 	double full_disc = per.Prob();
-	plot2d["test_testb"]->Fill(test, testb, weight);
-	plot2d["test_ptthad"]->Fill(test, thad.Pt(), weight);
-	plot2d["testb_ptthad"]->Fill(testb, thad.Pt(), weight);
-	plot2d["test_pttlep"]->Fill(test, tlep.Pt(), weight);
-	plot2d["testb_pttlep"]->Fill(testb, tlep.Pt(), weight);
-	plot2d["test_etathad"]->Fill(test, Abs(thad.Eta()), weight);
-	plot2d["testb_etathad"]->Fill(testb, Abs(thad.Eta()), weight);
-	plot2d["test_etatlep"]->Fill(test, Abs(tlep.Eta()), weight);
-	plot2d["testb_etatlep"]->Fill(testb, Abs(tlep.Eta()), weight);
-	plot2d["test_ttm"]->Fill(test, tt.M(), weight);
-	plot2d["testb_ttm"]->Fill(testb, tt.M(), weight);
-	plot2d["test_tty"]->Fill(test, Abs(tt.Rapidity()), weight);
-	plot2d["testb_tty"]->Fill(testb, Abs(tt.Rapidity()), weight);
-	plot2d["test_ttpt"]->Fill(test, tt.Pt(), weight);
-	plot2d["testb_ttpt"]->Fill(testb, tt.Pt(), weight);
-	plot2d["test_costhetastar"]->Fill(test, tCMS.CosTheta(), weight);
-	plot2d["testb_costhetastar"]->Fill(testb, tCMS.CosTheta(), weight);
-	plot2d["test_njet"]->Fill(test, an->reducedjets.size(), weight);
-	plot2d["testb_njet"]->Fill(test, an->reducedjets.size(), weight);
+	plot2d["massDiscr_ptthad"]->Fill(test, thad.Pt(), weight);
+	plot2d["massDiscr_pttlep"]->Fill(test, tlep.Pt(), weight);
+	plot2d["massDiscr_etathad"]->Fill(test, Abs(thad.Eta()), weight);
+	plot2d["massDiscr_etatlep"]->Fill(test, Abs(tlep.Eta()), weight);
+	plot2d["massDiscr_ttm"]->Fill(test, tt.M(), weight);
+	plot2d["massDiscr_tty"]->Fill(test, Abs(tt.Rapidity()), weight);
+	plot2d["massDiscr_ttpt"]->Fill(test, tt.Pt(), weight);
+	plot2d["massDiscr_costhetastar"]->Fill(test, tCMS.CosTheta(), weight);
+	plot2d["massDiscr_njet"]->Fill(test, an->reducedjets.size(), weight);
 
 	plot2d["fullDiscr_ptthad"	]->Fill(full_disc, thad.Pt(), weight);
 	plot2d["fullDiscr_pttlep"	]->Fill(full_disc, tlep.Pt(), weight);
@@ -118,6 +99,7 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 	plot1d["njet"		]->Fill(an->reducedjets.size(), weight);
 	plot1d["costhetastar"]->Fill(tCMS.CosTheta(), weight);
 	plot1d["fullDiscr"]->Fill(full_disc, weight);
+	plot1d["massDiscr"]->Fill(test, weight);
 }
 
 

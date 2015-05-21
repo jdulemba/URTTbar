@@ -818,7 +818,7 @@ void ttbar::ttanalysis()
 
 						}
 
-						if(testper < bestper)
+						if(testper.MassDiscr() < bestper.MassDiscr())
 						{
 							bestper = testper;
 						}
