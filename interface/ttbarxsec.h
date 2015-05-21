@@ -31,6 +31,7 @@ class ttbar : public AnalyzerBase
 		bool SEMILEP;
 		bool FULLLEP;
 		bool SEMILEPACC;
+		bool SEMILEPACCLOOSE;
 		list<GenObject> sgenparticles;
 		vector<GenObject*> genwpartons;
 		vector<GenObject*> gencls;
@@ -74,7 +75,7 @@ class ttbar : public AnalyzerBase
 		TH1DCollection truth1d;
 		TH2DCollection truth2d;
 
-        TTBarGenPlots ttp_gen;
+		TTBarGenPlots ttp_gen;
 
 		TTBarPlots ttp_right;
 		TTBarPlots ttp_wrong;
@@ -128,6 +129,14 @@ class ttbar : public AnalyzerBase
 		double cjetetamax;
 		double clptmin;
 		double cletamax;
+		// For the fiducial loose phase space
+		double cwjetptsoft_fiducialloose;
+		double cwjetpthard_fiducialloose;
+		double cbjetptsoft_fiducialloose;
+		double cbjetpthard_fiducialloose;
+		double cjetetamax_fiducialloose;
+		double clptmin_fiducialloose;
+		double cletamax_fiducialloose;
 		//
 		double jetptmin;
 	
