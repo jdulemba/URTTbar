@@ -19,6 +19,9 @@ parser.add_argument('fit_file', type=str, help='file where to find the fitting i
 parser.add_argument('truth_file', type=str, help='file where to find the truth info (migration matrix and true distribution)')
 parser.add_argument('-o', type=str, dest='out', default='result_unfolding.root', help='output file')
 parser.add_argument('-d', type=str, dest='dir', default='', help='output directory')
+parser.add_argument('--no_cov_matrix', action='store_false', dest='no_cov_matrix', help='Do not use the custom covariant matrix and let TUnfold create one.')
+parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_truth', help='Use the reco from migration matrix')
+parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
 
 ## parser.add_argument('--noplots', dest='noplots', action='store_true',
 ##                     help='skip plot making')
@@ -113,16 +116,19 @@ canvas = plotting.Canvas(name='adsf', title='asdf')
 resp_file = io.root_open(opts.truth_file)
 data_file = io.root_open(opts.fit_file)
 scale = 1.
-myunfolding = URUnfolding()
+myunfolding = URUnfolding(regmode = opts.reg_mode)
 myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
-#log.warning("Using the MC reco distribution for the unfolding!")
-myunfolding.measured = getattr(data_file, opts.var).tt_right
-#myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
+if opts.use_reco_truth:
+    log.warning("Using the MC reco distribution for the unfolding!")
+    myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
+else:
+    myunfolding.measured = getattr(data_file, opts.var).tt_right
 myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
-myunfolding.cov_matrix = make_cov_matrix(
-    data_file.correlation_matrix,
-    getattr(data_file, opts.var).tt_right
-    )
+if not opts.no_cov_matrix:
+    myunfolding.cov_matrix = make_cov_matrix(
+        data_file.correlation_matrix,
+        getattr(data_file, opts.var).tt_right
+        )
 myunfolding.InitUnfolder()
 hdata = myunfolding.measured # Duplicate. Remove!
 
