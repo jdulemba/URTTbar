@@ -216,8 +216,8 @@ class TTXSecPlotter(Plotter):
 plotter = TTXSecPlotter()
 
 pt_binning = Struct(
-   gen = [40., 75., 105., 135., 170., 220., 300., 1000.],
-   reco = [40., 60., 75., 90., 105., 120., 135., 150., 170., 195., 220., 260., 300., 500., 1000.],
+   gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
+   reco = [0., 40., 60., 75., 90., 105., 120., 135., 150., 170., 195., 220., 260., 300., 500., 1000.],
    )
    
 ## eta_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0]
@@ -267,6 +267,7 @@ if not opts.noplots:
          preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, ptbin])
          )
    plotter.save('mario_test', pdf=False, dotroot=True)
+
 ##################
 #     CARDS
 ##################
@@ -296,20 +297,33 @@ if not opts.noshapes:
    plotter.set_subdir('')
    fname = os.path.join(plotter.outputdir, 'migration_matrices.root')
 
-   to_fit = [("toppthad" , pt_binning)]
+   to_fit = [("hadtop_pt" , pt_binning)]
 
    with io.root_open(fname, 'recreate') as mfile:
       tt_view = plotter.get_view('ttJets_pu30')
       for var, binning in to_fit:
          mfile.mkdir('ptthad').cd() ##FIXME var) 
          matrix_view = plotter.rebin_view(tt_view, [pt_binning.gen, pt_binning.reco])
-         mig_matrix = matrix_view.Get('TRUTH/truth_response_%s_matrix' % var)
+         mig_matrix = matrix_view.Get('RECO/truth_%s_matrix_fiducialtight' % var)
          mig_matrix.SetName('migration_matrix') ##FIXME var)
          mig_matrix.Write()
-         thruth_distro = plotter.rebin_view(tt_view, pt_binning.gen).Get('TRUTH/truth_response_%s_truth' % var)
+         thruth_distro = mig_matrix.ProjectionX() 
+         #plotter.rebin_view(tt_view, pt_binning.gen).Get('TRUTH/truth_response_%s_truth' % var)
          thruth_distro.SetName('true_distribution')
          thruth_distro.Write()
+
+         reco_distro = mig_matrix.ProjectionY() 
+         reco_distro.SetName('reco_distribution')
+         reco_distro.Write()
          
+         prefit_view = plotter.rebin_view(
+            plotter.get_view('ttJets_rightAssign'), 
+            pt_binning.reco
+            )
+         prefit_plot = prefit_view.Get('all_ptthad')
+         prefit_plot.name = 'prefit_distribution'
+         prefit_plot.Write()
+
 
    logging.info('file: %s written' % fname)
       
