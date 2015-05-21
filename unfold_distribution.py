@@ -79,12 +79,29 @@ def make_cov_matrix(full_cov, h_input):
             )
     return matrix
 
+def save(canvas, sub, name):
+    folder = os.path.join(opts.dir, sub)
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
+    canvas.SaveAs(
+        '%s.png' % os.path.join(folder, name))
+    canvas.SaveAs(
+        '%s.pdf' % os.path.join(folder, name))
+
+def overlay(reference, target):
+    canvas = plotting.Canvas(name='adsf', title='asdf')
+    reference.linecolor = 'red'
+    reference.Draw('hist')
+    
+    target.markerstyle = 20
+    target.Draw('E1P same')
+    return canvas
 
 
+canvas = plotting.Canvas(name='adsf', title='asdf')
 resp_file = io.root_open(opts.truth_file)
 data_file = io.root_open(opts.fit_file)
 scale = 1.
-canvas = plotting.Canvas(name='adsf', title='asdf')
 myunfolding = URUnfolding()
 myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
 myunfolding.measured = getattr(data_file, opts.var).tt_right
@@ -101,7 +118,7 @@ best_taus = {}
 t_min = 0.00001
 t_max = 7
 best_l, l_curve, graph_x, graph_y  = myunfolding.DoScanLcurve(100, t_min, t_max)
-best_taus['l_curve'] = best_l
+best_taus['L_curve'] = best_l
 l_curve.SetName('lcurve')
 l_curve.name = 'lcurve'
 graph_x.name = 'l_scan_x'
@@ -117,8 +134,13 @@ graph_best.SetMarkerSize(3)
 graph_best.SetMarkerColor(2)
 l_curve.Draw('ALP')
 graph_best.Draw('P SAME')
-canvas.SaveAs(os.path.join(opts.dir,'L_curve.png'))
-canvas.SaveAs(os.path.join(opts.dir,'L_curve.pdf'))
+info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
+info.SetFillColor(0)
+info.SetBorderSize(0)
+info.SetMargin(0.)
+info.AddText('#tau = %.5f' % best_l)
+info.Draw()
+save(canvas, 'L_curve', 'L_curve')
 
 modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
 for mode in modes:
@@ -134,10 +156,15 @@ for mode in modes:
     graph_best.SetMarkerStyle(29)
     graph_best.SetMarkerSize(3)
     graph_best.SetMarkerColor(2)
+    info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
+    info.SetFillColor(0)
+    info.SetBorderSize(0)
+    info.SetMargin(0.)
+    info.AddText('#tau = %.5f' % best_tau)
+    info.Draw()
     tau_curve.Draw('ALP')
     graph_best.Draw('P SAME')
-    canvas.SaveAs(os.path.join(opts.dir,'%s.png' % mode))
-    canvas.SaveAs(os.path.join(opts.dir,'%s.pdf' % mode))
+    save(canvas, mode, 'L_curve')
 
 for name, best_tau in best_taus.iteritems():
     log.warning('best tau option for %s: %.3f' % (name, best_tau))
@@ -162,6 +189,10 @@ for name, best_tau in best_taus.iteritems():
     hbias = myunfolding.bias
     hbias.name = 'bias_%s' % name
     to_save.append(hbias)
+    canvas = overlay(myunfolding.truth, hdata_unfolded)
+    save(canvas, name, 'unfolding')
+    canvas = overlay(myunfolding.measured, hdata_refolded)
+    save(canvas, name, 'refolded')
 
 htruth = myunfolding.truth
 hmatrix = myunfolding.matrix
