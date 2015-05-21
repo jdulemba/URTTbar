@@ -10,6 +10,7 @@ log = rootpy.log["/URUnfolding"]
 rootpy.log.basic_config_colorized()
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
+ROOT.gROOT.SetBatch()
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
@@ -95,6 +96,16 @@ def overlay(reference, target):
     
     target.markerstyle = 20
     target.Draw('E1P same')
+    
+    maxreference = reference.GetBinContent(reference.GetMaximumBin())
+    maxtarget = target.GetBinContent(target.GetMaximumBin())
+    minreference = reference.GetBinContent(reference.GetMinimumBin())
+    mintarget = target.GetBinContent(target.GetMinimumBin())
+
+    maxy = max(maxreference, maxtarget)*1.2
+    miny = min(minreference, mintarget)
+    miny = 0 if miny>0 else miny*1.2
+    reference.GetYaxis().SetRangeUser(miny, maxy)
     return canvas
 
 
@@ -104,12 +115,14 @@ data_file = io.root_open(opts.fit_file)
 scale = 1.
 myunfolding = URUnfolding()
 myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
+#log.warning("Using the MC reco distribution for the unfolding!")
 myunfolding.measured = getattr(data_file, opts.var).tt_right
+#myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
 myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
-## myunfolding.cov_matrix = make_cov_matrix(
-##     data_file.correlation_matrix,
-##     myunfolding.measured
-##     )
+myunfolding.cov_matrix = make_cov_matrix(
+    data_file.correlation_matrix,
+    getattr(data_file, opts.var).tt_right
+    )
 myunfolding.InitUnfolder()
 hdata = myunfolding.measured # Duplicate. Remove!
 
@@ -156,14 +169,14 @@ for mode in modes:
     graph_best.SetMarkerStyle(29)
     graph_best.SetMarkerSize(3)
     graph_best.SetMarkerColor(2)
+    tau_curve.Draw('ALP')
+    graph_best.Draw('P SAME')
     info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
     info.SetFillColor(0)
     info.SetBorderSize(0)
     info.SetMargin(0.)
     info.AddText('#tau = %.5f' % best_tau)
     info.Draw()
-    tau_curve.Draw('ALP')
-    graph_best.Draw('P SAME')
     save(canvas, mode, 'L_curve')
 
 for name, best_tau in best_taus.iteritems():
