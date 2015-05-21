@@ -1,15 +1,11 @@
 from pdb import set_trace
-import os, glob, sys, logging, rootpy, itertools
-from styles import styles
+import os, glob, sys, logging, rootpy, itertools, math
 import rootpy.plotting as plotting
-import rootpy.plotting.views as views
-from array import array
 import rootpy.io as io
-from fnmatch import fnmatch
 import ROOT
-import URAnalysis.Utilities.prettyjson as prettyjson
+import math
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
-rootpy.log["/"].setLevel(rootpy.log.INFO)
+rootpy.log["/"].setLevel(rootpy.log.WARNING)
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 from argparse import ArgumentParser
@@ -19,11 +15,31 @@ parser.add_argument('var', type=str, help='varible to unfold')
 parser.add_argument('fit_file', type=str, help='file where to find the fitting info')
 parser.add_argument('truth_file', type=str, help='file where to find the truth info (migration matrix and true distribution)')
 parser.add_argument('-o', type=str, dest='out', default='result_unfolding.root', help='output file')
+parser.add_argument('-d', type=str, dest='dir', default='', help='output directory')
+
 ## parser.add_argument('--noplots', dest='noplots', action='store_true',
 ##                     help='skip plot making')
 ## parser.add_argument('--noshapes', dest='noshapes', action='store_true',
 ##                     help='skip shape making')
 opts = parser.parse_args()
+
+def linearize(graph, axes="X"):
+    'axes X or XY'
+    axes = axes.upper()
+    npts = graph.get_n()
+    retval = plotting.Graph(npts)
+    for i in xrange(npts):
+        x = graph.get_x()[i]
+        y = graph.get_y()[i] 
+        if 'X' in axes:
+            x = 10**x
+        if 'Y' in axes:
+            y = 10**y
+        retval.set_point(i, x, y)
+    #retval.get_xaxis().SetTitle(graph.get_xaxis().GetTitle())
+    #retval.get_yaxis().SetTitle(graph.get_yaxis().GetTitle())
+    return retval
+
 
 def make_cov_matrix(full_cov, h_input):
     '''pick from the fit covariance matrix 
@@ -64,6 +80,7 @@ def make_cov_matrix(full_cov, h_input):
 resp_file = io.root_open(opts.truth_file)
 data_file = io.root_open(opts.fit_file)
 scale = 1.
+canvas = plotting.Canvas(name='adsf', title='asdf')
 myunfolding = URUnfolding()
 myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
 myunfolding.measured = getattr(data_file, opts.var).tt_right
@@ -76,27 +93,78 @@ myunfolding.InitUnfolder()
 hdata = myunfolding.measured # Duplicate. Remove!
 
 #optimize
-best_l, l_curve   = myunfolding.DoScanLcurve(100)
+best_taus = {}
+t_min = 0.00001
+t_max = 7
+best_l, l_curve, graph_x, graph_y  = myunfolding.DoScanLcurve(100, t_min, t_max)
+best_taus['l_curve'] = best_l
+l_curve.SetName('lcurve')
 l_curve.name = 'lcurve'
-best_tau, tau_curve = myunfolding.DoScanTau(100)
-tau_curve.SetName('tau_curve')
-logging.info('best_tau_option for L: %.2f for scan: %.2f' % (best_l, best_tau))
-myunfolding.tau = best_l
+graph_x.name = 'l_scan_x'
+graph_y.name = 'l_scan_y'
+l_tau = math.log10(best_l)
+points = [(graph_x.GetX()[i], graph_x.GetY()[i], graph_y.GetY()[i]) 
+          for i in xrange(graph_x.GetN())]
+best = [(x,y) for i, x, y in points if l_tau == i]
+graph_best = plotting.Graph(1)
+graph_best.SetPoint(0, *best[0])
+graph_best.SetMarkerStyle(29)
+graph_best.SetMarkerSize(3)
+graph_best.SetMarkerColor(2)
+l_curve.Draw('ALP')
+graph_best.Draw('P SAME')
+canvas.SaveAs(os.path.join(opts.dir,'L_curve.png'))
+canvas.SaveAs(os.path.join(opts.dir,'L_curve.pdf'))
 
-hdata_unfolded = myunfolding.unfolded
-hdata_unfolded.name = 'hdata_unfolded'
-hdata_refolded = myunfolding.refolded
-hdata_refolded.name = 'hdata_refolded'
-error_matrix = myunfolding.ematrix_total
-error_matrix.name = "error_matrix"
+modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
+for mode in modes:
+    best_tau, tau_curve = myunfolding.DoScanTau(100, t_min, t_max, mode)
+    best_taus[mode] = best_tau
+    tau_curve.SetName(mode)
+    tau_curve.SetMarkerStyle(1)
+    points = [(tau_curve.GetX()[i], tau_curve.GetY()[i])
+              for i in xrange(tau_curve.GetN())]
+    best = [(x,y) for x, y in points if math.log10(best_tau) == x]
+    graph_best = plotting.Graph(1)
+    graph_best.SetPoint(0, *best[0])
+    graph_best.SetMarkerStyle(29)
+    graph_best.SetMarkerSize(3)
+    graph_best.SetMarkerColor(2)
+    tau_curve.Draw('ALP')
+    graph_best.Draw('P SAME')
+    canvas.SaveAs(os.path.join(opts.dir,'%s.png' % mode))
+    canvas.SaveAs(os.path.join(opts.dir,'%s.pdf' % mode))
 
-hcorrelations = myunfolding.rhoI_total
-hcorrelations.name = "hcorrelations"
+
+for name, best_tau in best_taus.iteritems():
+    logging.warning('best tau option for %s: %.3f' % (name, best_tau))
+    
+
+to_save = []
+for name, best_tau in best_taus.iteritems():
+    logging.warning('best tau option for %s: %.3f' % (name, best_tau))
+    myunfolding.tau = best_tau
+
+    hdata_unfolded = myunfolding.unfolded
+    hdata_unfolded.name = 'hdata_unfolded_%s' % name
+    to_save.append(hdata_unfolded)
+    hdata_refolded = myunfolding.refolded
+    hdata_refolded.name = 'hdata_refolded_%s' % name
+    to_save.append(hdata_refolded)
+    error_matrix = myunfolding.ematrix_total
+    error_matrix.name = 'error_matrix_%s' % name
+    to_save.append(error_matrix)
+
+    hcorrelations = myunfolding.rhoI_total
+    hcorrelations.name = 'hcorrelations_%s' % name
+    to_save.append(error_matrix)
+    hbias = myunfolding.bias
+    hbias.name = 'bias_%s' % name
+    to_save.append(hbias)
+
 htruth = myunfolding.truth
 hmatrix = myunfolding.matrix
 hmeasured = myunfolding.measured
-hbias = myunfolding.bias
-hbias.name = 'bias'
 
 hgenerated = rootpy.asrootpy(hmatrix.ProjectionY())
 hgenerated.name = 'hgenerated'
@@ -113,12 +181,8 @@ numexp = 10
 myunfolding.unfoldingparam = 10
 #uncertainty10 = myunfolding.StatTest(numexp)
 
-with rootpy.io.root_open(opts.out,'recreate') as outfile:
-    to_write = [
-        hdata_unfolded,        ## 0  
-        hdata_refolded,        ## 1
-        error_matrix,          ## 2
-        hcorrelations,         ## 3
+with rootpy.io.root_open(os.path.join(opts.dir, opts.out),'recreate') as outfile:
+    to_save.extend([
         myunfolding.truth,     ## 4
         myunfolding.measured,  ## 5
         myunfolding.matrix,    ## 6
@@ -126,8 +190,13 @@ with rootpy.io.root_open(opts.out,'recreate') as outfile:
         hreconstructed,        ## 8
         l_curve,               ## 9
         tau_curve,             ## 10
-        hbias,                 ## 11
-        ]
-    for i, j in enumerate(to_write):
+        graph_x,
+        graph_y,
+        ])
+
+    for i, j in enumerate(to_save):
+        logging.debug('Saving %s as %s' % (j.name, j.GetName()))
         j.Write()
+    getattr(resp_file, opts.var).reco_distribution.Write()
+    getattr(resp_file, opts.var).prefit_distribution.Write()
     myunfolding.write_to(outfile, 'urunfolder')
