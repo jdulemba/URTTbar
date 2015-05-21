@@ -4,12 +4,12 @@ import ROOT
 import rootpy.plotting as plotting
 import rootpy
 import rootpy.io as io
-from URAnalysis.Utilities.roottools import ArgSet
+from URAnalysis.Utilities.roottools import ArgSet, ArgList
 from pdb import set_trace
 import logging
 
 asrootpy = rootpy.asrootpy
-rootpy.log["/"].setLevel(rootpy.log.INFO)
+rootpy.log["/"].setLevel(rootpy.log.DEBUG)
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 
@@ -44,6 +44,8 @@ with io.root_open(args.fitresult) as results:
    norms = ArgSet(results.Get('norm_fit_s'))
    norms = [i for i in norms]
    fit_result = results.Get('fit_s')
+   pars = ArgList(fit_result.floatParsFinal())
+   pars = dict((i.GetName(), i) for i in pars)
    
    with io.root_open(args.out, 'recreate') as output:
       hcorr = asrootpy(fit_result.correlationHist())
@@ -72,6 +74,16 @@ with io.root_open(args.fitresult) as results:
                )
             fit_par_name = '%sYieldSF_%s' % (category, sample)
             if fit_par_name in fit_pars:
+               fit_par = pars[fit_par_name]
+               logging.debug('%s' % fit_par_name)
+               logging.debug('norm %.2f +/- %.2f' % (norm.getVal(), norm.getError()))
+               logging.debug('SF   %.4f +/- %.4f' % (fit_par.getVal(), fit_par.getError()))
+               logging.debug('norm unc. %.6f, SF unc. %.6f' % (
+                     norm.getError()/norm.getVal(),
+                     fit_par.getError()/fit_par.getVal()
+                     )
+                             )
+               # assert(norm.getError()/norm.getVal() == fit_par.getError()/fit_par.getVal())
                logging.debug(
                   'Assigning label %s to bin %i for %s/%s' % (fit_par_name, idx, category, sample)
                   )
