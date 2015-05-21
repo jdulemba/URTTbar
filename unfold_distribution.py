@@ -5,7 +5,9 @@ import rootpy.io as io
 import ROOT
 import math
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
-rootpy.log["/"].setLevel(rootpy.log.WARNING)
+rootpy.log["/"].setLevel(rootpy.log.INFO)
+log = rootpy.log["/URUnfolding"]
+rootpy.log.basic_config_colorized()
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 from argparse import ArgumentParser
@@ -77,6 +79,8 @@ def make_cov_matrix(full_cov, h_input):
             )
     return matrix
 
+
+
 resp_file = io.root_open(opts.truth_file)
 data_file = io.root_open(opts.fit_file)
 scale = 1.
@@ -85,10 +89,10 @@ myunfolding = URUnfolding()
 myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
 myunfolding.measured = getattr(data_file, opts.var).tt_right
 myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
-myunfolding.cov_matrix = make_cov_matrix(
-    data_file.correlation_matrix,
-    myunfolding.measured
-    )
+## myunfolding.cov_matrix = make_cov_matrix(
+##     data_file.correlation_matrix,
+##     myunfolding.measured
+##     )
 myunfolding.InitUnfolder()
 hdata = myunfolding.measured # Duplicate. Remove!
 
@@ -135,14 +139,11 @@ for mode in modes:
     canvas.SaveAs(os.path.join(opts.dir,'%s.png' % mode))
     canvas.SaveAs(os.path.join(opts.dir,'%s.pdf' % mode))
 
-
 for name, best_tau in best_taus.iteritems():
-    logging.warning('best tau option for %s: %.3f' % (name, best_tau))
+    log.warning('best tau option for %s: %.3f' % (name, best_tau))
     
-
 to_save = []
 for name, best_tau in best_taus.iteritems():
-    logging.warning('best tau option for %s: %.3f' % (name, best_tau))
     myunfolding.tau = best_tau
 
     hdata_unfolded = myunfolding.unfolded
@@ -166,17 +167,6 @@ htruth = myunfolding.truth
 hmatrix = myunfolding.matrix
 hmeasured = myunfolding.measured
 
-hgenerated = rootpy.asrootpy(hmatrix.ProjectionY())
-hgenerated.name = 'hgenerated'
-hreconstructed = rootpy.asrootpy(hmatrix.ProjectionX())
-hreconstructed.name = 'hreconstructed'
-
-#hdifference = hdata_unfolded - hgenerated
-#hdifference.SetName('hdifference')
-
-#hdifference_refolded = hdata_refolded - hreconstructed
-#hdifference_refolded.SetName('hdifference_refolded')
-
 numexp = 10
 myunfolding.unfoldingparam = 10
 #uncertainty10 = myunfolding.StatTest(numexp)
@@ -186,8 +176,6 @@ with rootpy.io.root_open(os.path.join(opts.dir, opts.out),'recreate') as outfile
         myunfolding.truth,     ## 4
         myunfolding.measured,  ## 5
         myunfolding.matrix,    ## 6
-        hgenerated,            ## 7
-        hreconstructed,        ## 8
         l_curve,               ## 9
         tau_curve,             ## 10
         graph_x,
@@ -195,7 +183,7 @@ with rootpy.io.root_open(os.path.join(opts.dir, opts.out),'recreate') as outfile
         ])
 
     for i, j in enumerate(to_save):
-        logging.debug('Saving %s as %s' % (j.name, j.GetName()))
+        log.debug('Saving %s as %s' % (j.name, j.GetName()))
         j.Write()
     getattr(resp_file, opts.var).reco_distribution.Write()
     getattr(resp_file, opts.var).prefit_distribution.Write()

@@ -300,15 +300,20 @@ if not opts.noshapes:
    to_fit = [("hadtop_pt" , pt_binning)]
 
    with io.root_open(fname, 'recreate') as mfile:
-      tt_view = plotter.get_view('ttJets_pu30')
+      tt_view = plotter.get_view('ttJets_pu30', 'unweighted_view')
       for var, binning in to_fit:
          mfile.mkdir('ptthad').cd() ##FIXME var) 
          matrix_view = plotter.rebin_view(tt_view, [pt_binning.gen, pt_binning.reco])
          mig_matrix = matrix_view.Get('RECO/truth_%s_matrix_fiducialtight' % var)
          mig_matrix.SetName('migration_matrix') ##FIXME var)
          mig_matrix.Write()
-         thruth_distro = mig_matrix.ProjectionX() 
+
          #plotter.rebin_view(tt_view, pt_binning.gen).Get('TRUTH/truth_response_%s_truth' % var)
+         tt_view = plotter.get_view('ttJets_pu30')
+         matrix_view = plotter.rebin_view(tt_view, [pt_binning.gen, pt_binning.reco])
+         mig_matrix = matrix_view.Get('RECO/truth_%s_matrix_fiducialtight' % var)
+
+         thruth_distro = mig_matrix.ProjectionX()          
          thruth_distro.SetName('true_distribution')
          thruth_distro.Write()
 
