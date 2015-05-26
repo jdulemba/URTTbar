@@ -19,6 +19,22 @@ ROOT.gStyle.SetOptStat(0)
 from argparse import ArgumentParser
 from URAnalysis.Utilities.struct import Struct
 
+##################
+#  DEFINITIONS
+##################
+
+pt_binning = Struct(
+   gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
+   reco = [0., 40., 60., 75., 90., 105., 120., 135., 150., 170., 195., 220., 260., 300., 500., 1000.],
+   )
+discriminant =  'massDiscr'
+phase_space = 'fiducialtight'
+   
+## eta_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0]
+## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
+## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
+## ttpt_binning = [0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.]
+
 parser = ArgumentParser()
 parser.add_argument('--noplots', dest='noplots', action='store_true',
                     help='skip plot making')
@@ -27,7 +43,8 @@ parser.add_argument('--noshapes', dest='noshapes', action='store_true',
 opts = parser.parse_args()
 
 class TTXSecPlotter(Plotter):
-   def __init__(self):
+   def __init__(self, ttbar_to_use='ttJets_pu30'):
+      self.ttbar_to_use = ttbar_to_use
       jobid = os.environ['jobid']
       files = glob.glob('results/%s/ttbarxsec/*.root' % jobid)
       if len(files) == 0:
@@ -55,38 +72,49 @@ class TTXSecPlotter(Plotter):
 
       self.views['ttJets_rightAssign'] = {
          'view' : self.create_tt_subsample(
-            'semilep_visible_right', 
+            ['semilep_visible_right'], 
             'tt, right cmb',
             '#6666b3'
             )
          }
       self.views['ttJets_rightThad'] = {
          'view' : self.create_tt_subsample(
-            'semilep_right_thad', 
+            ['semilep_right_thad'], 
             'tt, right t_{h}',
             ),
          }
       self.views['ttJets_rightTlep'] = {
          'view' : self.create_tt_subsample(
-            'semilep_right_tlep', 
+            ['semilep_right_tlep'], 
             'tt, right t_{l}',
             '#cccce6'
             )
          }
       self.views['ttJets_wrongAssign'] = {
          'view' : self.create_tt_subsample(
-            'semilep_wrong', 
+            ['semilep_wrong'], 
             'tt, wrong cmb',
             '#88a7c4'
             )
          }
       self.views['ttJets_other'] = {
          'view' : self.create_tt_subsample(
-            'other_tt_decay', 
+            ['other_tt_decay'], 
             'Other tt decay',
             '#668db3',
             )
          }
+
+      self.views['ttJets_wrong'] = {
+         'view' : self.create_tt_subsample(
+            ['semilep_wrong', 
+            'semilep_right_thad', 
+            'semilep_right_tlep',],
+            'tt, wrong cmb',
+            '#88a7c4'
+            )
+         }
+
 
       for sample in self.views:
          if not sample.startswith('ttJets'):
@@ -96,9 +124,7 @@ class TTXSecPlotter(Plotter):
          '[WZ]Jets',
          'single*',
          'ttJets_rightAssign',
-         'ttJets_rightThad',
-         'ttJets_rightTlep',
-         'ttJets_wrongAssign',
+         'ttJets_wrong',
          'ttJets_other'
          ]
 
@@ -106,8 +132,6 @@ class TTXSecPlotter(Plotter):
          'vjets',
          'single_top',
          'tt_right',
-         'tt_right_th',
-         'tt_right_tl',
          'tt_wrong',
          'tt_other'
          ]
@@ -130,12 +154,14 @@ class TTXSecPlotter(Plotter):
       self.card = None
       self.binning = {}
 
-   def create_tt_subsample(self, subdir, title, color='#9999CC'):
+   def create_tt_subsample(self, subdirs, title, color='#9999CC'):
       return views.StyleView(
          views.TitleView(
-            views.SubdirectoryView(
-               self.views['ttJets_pu30']['view'],
-               subdir
+            views.SumView(
+               *[views.SubdirectoryView(
+                  self.views[self.ttbar_to_use]['view'],
+                  subdir
+                  ) for subdir in subdirs]
                ),
             title
             ),
@@ -210,24 +236,10 @@ class TTXSecPlotter(Plotter):
       self.binning[var] = binning
 
 ##################
-#  DEFINITIONS
-##################
-
-plotter = TTXSecPlotter()
-
-pt_binning = Struct(
-   gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-   reco = [0., 40., 60., 75., 90., 105., 120., 135., 150., 170., 195., 220., 260., 300., 500., 1000.],
-   )
-   
-## eta_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0]
-## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
-## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
-## ttpt_binning = [0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.]
-
-##################
 #     PLOTS
 ##################
+plotter = TTXSecPlotter()
+
 if not opts.noplots:
    to_plot = [
       ('all_ptthad' , pt_binning.reco) ,
@@ -240,6 +252,7 @@ if not opts.noplots:
       ("all_ttpt"    , 4),
       ("all_costhetastar", 4),
       ("all_njet", 4),
+      ('all_%s' % discriminant, 2),
       ]
 
    for var, rebin in to_plot:
@@ -247,44 +260,36 @@ if not opts.noplots:
       plotter.save(var, pdf=False)
 
    plotter.plot_mc_vs_data(
-      '', 'all_fullDiscr_ptthad', leftside=False, 
+      '', 'all_%s_ptthad' % discriminant, leftside=False, 
       preprocess=lambda x: urviews.ProjectionView(x, 'X', [0, 1000])
       )
-   plotter.save('fullDiscr_from_projection', pdf=False)
+   plotter.save('%s_from_projection' % discriminant, pdf=False)
    
    previous = pt_binning.reco[0]
    for idx, ptbin in enumerate(pt_binning.reco[1:]):
       plotter.plot_mc_vs_data(
-         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning.reco, [4]],
+         '', 'all_%s_ptthad' % discriminant, leftside=False, rebin = [pt_binning.reco, [4]],
          preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, ptbin])
          )
       previous = ptbin
-      plotter.save('fullDiscr_slice_%i' % idx, pdf=False)
+      plotter.save('%s_slice_%i' % (discriminant, idx), pdf=False)
    
-   #TEST CASE FOR MARIO
-   plotter.plot_mc_vs_data(
-         '', 'all_fullDiscr_ptthad', leftside=False, rebin = [pt_binning.reco, [160]],
-         preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, ptbin])
-         )
-   plotter.save('mario_test', pdf=False, dotroot=True)
-
 ##################
 #     CARDS
 ##################
 if not opts.noshapes:
-   full_discr_binning = [5]#range(-15, 16)
+   full_discr_binning = [4]#range(-15, 16)
    to_fit = [
-      ("ptthad"	, pt_binning),
-      ("pttlep"	, pt_binning),
+      ("ptthad", 'ptthad', pt_binning),
+   ##    ("pttlep", 'leptop_pt', pt_binning),
    ##    ("etathad", eta_binning),
    ##    ("etatlep", eta_binning),
    ##    ("ttm"		, mass_binning),
    ##    ("tty"		, y_binning),
    ##    ("ttpt"   , ttpt_binning),
       ]
-   discriminant = 'fullDiscr'
-   
-   for var, binning in to_fit:
+
+   for var, _, binning in to_fit:
       plotter.set_subdir(var)
       plotter.write_shapes(
          '', 'all_%s_%s' % (discriminant, var), full_discr_binning, binning.reco
@@ -297,20 +302,18 @@ if not opts.noshapes:
    plotter.set_subdir('')
    fname = os.path.join(plotter.outputdir, 'migration_matrices.root')
 
-   to_fit = [("hadtop_pt" , pt_binning)]
-
    with io.root_open(fname, 'recreate') as mfile:
-      for var, binning in to_fit:
-         mfile.mkdir('ptthad').cd() ##FIXME var) 
-         matrix_path = 'RECO/truth_%s_matrix_fiducialtight' % var
-         tt_view = plotter.get_view('ttJets_pu30', 'unweighted_view')
+      for name, var, binning in to_fit:
+         mfile.mkdir(name).cd() ##FIXME var) 
+         matrix_path = 'RECO/truth_%s_matrix_%s' % (var, phase_space)
+         tt_view = plotter.get_view(plotter.ttbar_to_use, 'unweighted_view')
          matrix_view_unscaled = plotter.rebin_view(tt_view, [pt_binning.gen, pt_binning.reco])
          mig_matrix_unscaled = matrix_view_unscaled.Get(matrix_path)
          mig_matrix_unscaled.SetName('migration_matrix')
          mig_matrix_unscaled.Write()
 
          #plotter.rebin_view(tt_view, pt_binning.gen).Get('TRUTH/truth_response_%s_truth' % var)
-         tt_view = plotter.get_view('ttJets_pu30')
+         tt_view = plotter.get_view(plotter.ttbar_to_use)
          matrix_view = plotter.rebin_view(tt_view, [pt_binning.gen, pt_binning.reco])
          mig_matrix = matrix_view.Get(matrix_path)
          mig_matrix.SetName('migration_matrix_scaled')
