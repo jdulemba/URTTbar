@@ -22,6 +22,7 @@ parser.add_argument('-d', type=str, dest='dir', default='', help='output directo
 parser.add_argument('--no_cov_matrix', action='store_false', dest='no_cov_matrix', help='Do not use the custom covariant matrix and let TUnfold create one.')
 parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_truth', help='Use the reco from migration matrix')
 parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
+parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.00001,7)', help='Tau range to scan')
 
 ## parser.add_argument('--noplots', dest='noplots', action='store_true',
 ##                     help='skip plot making')
@@ -134,8 +135,7 @@ hdata = myunfolding.measured # Duplicate. Remove!
 
 #optimize
 best_taus = {}
-t_min = 0.00001
-t_max = 7
+t_min, t_max = eval(opts.tau_range)
 best_l, l_curve, graph_x, graph_y  = myunfolding.DoScanLcurve(100, t_min, t_max)
 best_taus['L_curve'] = best_l
 l_curve.SetName('lcurve')
@@ -185,6 +185,8 @@ for mode in modes:
     info.Draw()
     save(canvas, mode, 'L_curve')
 
+#force running without regularization
+best_taus['NoReg'] = 0
 for name, best_tau in best_taus.iteritems():
     log.warning('best tau option for %s: %.3f' % (name, best_tau))
     
@@ -210,6 +212,13 @@ for name, best_tau in best_taus.iteritems():
     to_save.append(hbias)
     canvas = overlay(myunfolding.truth, hdata_unfolded)
     save(canvas, name, 'unfolding')
+    
+    nbins = myunfolding.measured.GetNbinsX()
+    for i in range(1, nbins+1):
+        myunfolding.measured.GetXaxis().SetBinLabel(
+            i, 
+            '%.0f' % myunfolding.measured.GetXaxis().GetBinLowEdge(i)
+            )
     canvas = overlay(myunfolding.measured, hdata_refolded)
     save(canvas, name, 'refolded')
 
