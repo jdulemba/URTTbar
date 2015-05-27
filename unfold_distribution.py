@@ -19,7 +19,7 @@ parser.add_argument('fit_file', type=str, help='file where to find the fitting i
 parser.add_argument('truth_file', type=str, help='file where to find the truth info (migration matrix and true distribution)')
 parser.add_argument('-o', type=str, dest='out', default='result_unfolding.root', help='output file')
 parser.add_argument('-d', type=str, dest='dir', default='', help='output directory')
-parser.add_argument('--no_cov_matrix', action='store_false', dest='no_cov_matrix', help='Do not use the custom covariant matrix and let TUnfold create one.')
+parser.add_argument('--cov_matrix', type=str, dest='cov_matrix', default='full', help='Covariant matrix to use: full (diagonal+off-diagonal), diag (diagonal only), none (let TUnfold build a diagonal one).')
 parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_truth', help='Use the reco from migration matrix')
 parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
 parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.00001,7)', help='Tau range to scan')
@@ -65,6 +65,8 @@ def make_cov_matrix(full_cov, h_input):
                for i in range(1, nbins+1)]
     bin_map_new = dict((j, i+1) for i,j in enumerate(to_save))
     for i, j in itertools.product(to_save, to_save):
+        if i != j and opts.cov_matrix == 'diag':
+            continue
         full_i = bin_map_x[i]
         full_j = bin_map_y[j]
 
@@ -125,7 +127,7 @@ if opts.use_reco_truth:
 else:
     myunfolding.measured = getattr(data_file, opts.var).tt_right
 myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
-if not opts.no_cov_matrix:
+if opts.cov_matrix != 'none':
     myunfolding.cov_matrix = make_cov_matrix(
         data_file.correlation_matrix,
         getattr(data_file, opts.var).tt_right

@@ -5,20 +5,21 @@
 echo jobid is "$jobid"
 
 # Suffix is an editable string used to put the results of different jobs in different directories
-suffix="_massdiscriminant"
+suffix="_150526"
 # This array stores the variables for which the unfilding needs to be done
 variable_array=('ptthad')
 # Array of switches to turn on or off the use of the covariant matrix...
-cov_matrix_array=(' ' '--no_cov_matrix')
+cov_matrix_array=('--cov_matrix="diag"' '--cov_matrix="full"' '--cov_matrix="none"')
 # ...and corresponding strings to name the directories where the results will go
-cov_matrix_name_array=('withcov' 'nocov')
+cov_matrix_name_array=('diagcov' 'fullcov' 'nonecov')
 # Files in fit_file_array are "plots/${jobid}/ttxsec/${variable}/${variable}.${fit_file_array[$fit_file_index]}"...
-fit_file_array=('harvested.massdiscriminant.root' 'harvested.toy.massdiscriminant.root')
+# fit_file_array=('harvested.massdiscriminant.root' 'harvested.toy.massdiscriminant.root')
+fit_file_array=('harvested.root')
 #  ...and corresponding strings to name the directories where the results will go
-fit_file_name_array=('fit' 'toy')
+fit_file_name_array=('fit')
 # Array of switches to turn on or off the use of the reco "truth" (i.e. the reco from the transport matrix) as the distribution to be unfolded
 # Corresponding name is set automatically by the script
-reco_truth_array=(' ' '--use_reco_truth')
+reco_truth_array=(' ')
 # Array of transport (or "migration") matrices to use (this is also the directory name)...
 scaled_matrix_array=('notscaled')
 # ...and array of files in which each matrix is stored
@@ -45,9 +46,9 @@ do
             fit_file_name=${fit_file_name_array[$fit_file_index]}
           fi
           echo mkdir plots/${jobid}/ttxsec/${variable}_${cov_matrix_name_array[${cov_matrix_index}]}_reco${fit_file_name}_${scaled_matrix_array[$scaled_matrix_index]}${suffix}
-#           mkdir plots/${jobid}/ttxsec/${variable}_${cov_matrix_name_array[${cov_matrix_index}]}_reco${fit_file_name}_${scaled_matrix_array[$scaled_matrix_index]}${suffix}
+          mkdir plots/${jobid}/ttxsec/${variable}_${cov_matrix_name_array[${cov_matrix_index}]}_reco${fit_file_name}_${scaled_matrix_array[$scaled_matrix_index]}${suffix}
           echo python unfold_distribution.py ${variable} plots/${jobid}/ttxsec/${variable}/${variable}.${fit_file_array[$fit_file_index]} ${scaled_matrix_file_array[$scaled_matrix_index]}  ${cov_matrix_array[$cov_matrix_index]} ${reco_truth_array[$reco_truth_index]} -d plots/${jobid}/ttxsec/${variable}_${cov_matrix_name_array[${cov_matrix_index}]}_reco${fit_file_name}_${scaled_matrix_array[$scaled_matrix_index]}${suffix}
-#           python unfold_distribution.py ${variable} plots/${jobid}/ttxsec/${variable}/${variable}.${fit_file_array[$fit_file_index]} ${scaled_matrix_file_array[$scaled_matrix_index]}  ${cov_matrix_array[$cov_matrix_index]} ${reco_truth_array[$reco_truth_index]} -d plots/${jobid}/ttxsec/${variable}_${cov_matrix_name_array[${cov_matrix_index}]}_reco${fit_file_name}_${scaled_matrix_array[$scaled_matrix_index]}${suffix}
+          python unfold_distribution.py ${variable} plots/${jobid}/ttxsec/${variable}/${variable}.${fit_file_array[$fit_file_index]} ${scaled_matrix_file_array[$scaled_matrix_index]}  ${cov_matrix_array[$cov_matrix_index]} ${reco_truth_array[$reco_truth_index]} -d plots/${jobid}/ttxsec/${variable}_${cov_matrix_name_array[${cov_matrix_index}]}_reco${fit_file_name}_${scaled_matrix_array[$scaled_matrix_index]}${suffix}
         done
       done
     done
