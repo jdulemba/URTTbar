@@ -65,8 +65,6 @@ def make_cov_matrix(full_cov, h_input):
                for i in range(1, nbins+1)]
     bin_map_new = dict((j, i+1) for i,j in enumerate(to_save))
     for i, j in itertools.product(to_save, to_save):
-        if i != j and opts.cov_matrix == 'diag':
-            continue
         full_i = bin_map_x[i]
         full_j = bin_map_y[j]
 
@@ -79,6 +77,8 @@ def make_cov_matrix(full_cov, h_input):
 
         if i == j and cov_ij < 0:
             set_trace()
+        if new_i != new_j and opts.cov_matrix == 'diag':
+            continue
         matrix.SetBinContent(
             new_i,
             new_j,
@@ -118,6 +118,11 @@ def overlay(reference, target):
 canvas = plotting.Canvas(name='adsf', title='asdf')
 resp_file = io.root_open(opts.truth_file)
 data_file = io.root_open(opts.fit_file)
+if "toy" in opts.fit_file:
+    data_file_dir = 'toy_0/' + opts.var
+    data_file_basedir = 'toy_0/'
+else:
+    data_file_dir = opts.var
 scale = 1.
 myunfolding = URUnfolding(regmode = opts.reg_mode)
 myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
@@ -125,13 +130,21 @@ if opts.use_reco_truth:
     log.warning("Using the MC reco distribution for the unfolding!")
     myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
 else:
-    myunfolding.measured = getattr(data_file, opts.var).tt_right
+    myunfolding.measured = getattr(data_file, data_file_dir).tt_right
 myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
 if opts.cov_matrix != 'none':
-    myunfolding.cov_matrix = make_cov_matrix(
-        data_file.correlation_matrix,
-        getattr(data_file, opts.var).tt_right
-        )
+    if 'toy' in opts.fit_file:
+        input_cov_matrix = make_cov_matrix(
+            getattr(data_file, data_file_basedir).correlation_matrix,
+            getattr(data_file, data_file_dir).tt_right
+            )
+    else:
+        input_cov_matrix = make_cov_matrix(
+            data_file.correlation_matrix,
+            getattr(data_file, data_file_dir).tt_right
+            )
+    input_cov_matrix.name = 'input_cov_matrix'
+    myunfolding.cov_matrix = input_cov_matrix
 myunfolding.InitUnfolder()
 hdata = myunfolding.measured # Duplicate. Remove!
 
@@ -240,8 +253,11 @@ with rootpy.io.root_open(os.path.join(opts.dir, opts.out),'recreate') as outfile
         l_curve,               ## 9
         tau_curve,             ## 10
         graph_x,
-        graph_y,
+        graph_y
         ])
+
+    if opts.cov_matrix != 'none':
+       to_save.extend([input_cov_matrix])
 
     for i, j in enumerate(to_save):
         log.debug('Saving %s as %s' % (j.name, j.GetName()))
