@@ -1,5 +1,5 @@
 from pdb import set_trace
-import os, glob, sys, logging, rootpy, itertools, math
+import os, glob, sys, logging, rootpy, itertools, math, time
 import rootpy.plotting as plotting
 import rootpy.io as io
 import ROOT
@@ -86,8 +86,8 @@ def make_cov_matrix(full_cov, h_input):
             )
     return matrix
 
-def save(canvas, sub, name):
-    folder = os.path.join(opts.dir, sub)
+def save(canvas, sub, name, outdir):
+    folder = os.path.join(outdir, sub)
     if not os.path.isdir(folder):
         os.mkdir(folder)
     canvas.SaveAs(
@@ -114,154 +114,192 @@ def overlay(reference, target):
     reference.GetYaxis().SetRangeUser(miny, maxy)
     return canvas
 
-
-canvas = plotting.Canvas(name='adsf', title='asdf')
-resp_file = io.root_open(opts.truth_file)
-data_file = io.root_open(opts.fit_file)
-if "toy" in opts.fit_file:
-    data_file_dir = 'toy_0/' + opts.var
-    data_file_basedir = 'toy_0/'
-else:
-    data_file_dir = opts.var
-scale = 1.
-myunfolding = URUnfolding(regmode = opts.reg_mode)
-myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
-if opts.use_reco_truth:
-    log.warning("Using the MC reco distribution for the unfolding!")
-    myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
-else:
-    myunfolding.measured = getattr(data_file, data_file_dir).tt_right
-myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
-if opts.cov_matrix != 'none':
-    if 'toy' in opts.fit_file:
-        input_cov_matrix = make_cov_matrix(
-            getattr(data_file, data_file_basedir).correlation_matrix,
-            getattr(data_file, data_file_dir).tt_right
-            )
+def run_unfolder(itoy = 0, outdir = opts.dir):
+    canvas = plotting.Canvas(name='adsf', title='asdf')
+    if "toy" in opts.fit_file:
+        data_file_basedir = 'toy_' + str(itoy) + '/'
+        data_file_dir = data_file_basedir + opts.var
     else:
-        input_cov_matrix = make_cov_matrix(
-            data_file.correlation_matrix,
-            getattr(data_file, data_file_dir).tt_right
-            )
-    input_cov_matrix.name = 'input_cov_matrix'
-    myunfolding.cov_matrix = input_cov_matrix
-myunfolding.InitUnfolder()
-hdata = myunfolding.measured # Duplicate. Remove!
+        data_file_dir = opts.var
+    scale = 1.
+    myunfolding = URUnfolding(regmode = opts.reg_mode)
+    myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
+    if opts.use_reco_truth:
+        log.warning("Using the MC reco distribution for the unfolding!")
+        myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
+    else:
+        myunfolding.measured = getattr(data_file, data_file_dir).tt_right
+    myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
+    if opts.cov_matrix != 'none':
+        if 'toy' in opts.fit_file:
+            input_cov_matrix = make_cov_matrix(
+                getattr(data_file, data_file_basedir).correlation_matrix,
+                getattr(data_file, data_file_dir).tt_right
+                )
+        else:
+            input_cov_matrix = make_cov_matrix(
+                data_file.correlation_matrix,
+                getattr(data_file, data_file_dir).tt_right
+                )
+        input_cov_matrix.name = 'input_cov_matrix'
+        myunfolding.cov_matrix = input_cov_matrix
+    myunfolding.InitUnfolder()
+    hdata = myunfolding.measured # Duplicate. Remove!
 
-#optimize
-best_taus = {}
-t_min, t_max = eval(opts.tau_range)
-best_l, l_curve, graph_x, graph_y  = myunfolding.DoScanLcurve(100, t_min, t_max)
-best_taus['L_curve'] = best_l
-l_curve.SetName('lcurve')
-l_curve.name = 'lcurve'
-graph_x.name = 'l_scan_x'
-graph_y.name = 'l_scan_y'
-l_tau = math.log10(best_l)
-points = [(graph_x.GetX()[i], graph_x.GetY()[i], graph_y.GetY()[i]) 
-          for i in xrange(graph_x.GetN())]
-best = [(x,y) for i, x, y in points if l_tau == i]
-graph_best = plotting.Graph(1)
-graph_best.SetPoint(0, *best[0])
-graph_best.SetMarkerStyle(29)
-graph_best.SetMarkerSize(3)
-graph_best.SetMarkerColor(2)
-l_curve.Draw('ALP')
-graph_best.Draw('P SAME')
-info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
-info.SetFillColor(0)
-info.SetBorderSize(0)
-info.SetMargin(0.)
-info.AddText('#tau = %.5f' % best_l)
-info.Draw()
-save(canvas, 'L_curve', 'L_curve')
-
-modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
-for mode in modes:
-    best_tau, tau_curve = myunfolding.DoScanTau(100, t_min, t_max, mode)
-    best_taus[mode] = best_tau
-    tau_curve.SetName(mode)
-    tau_curve.SetMarkerStyle(1)
-    points = [(tau_curve.GetX()[i], tau_curve.GetY()[i])
-              for i in xrange(tau_curve.GetN())]
-    best = [(x,y) for x, y in points if math.log10(best_tau) == x]
+    #optimize
+    best_taus = {}
+    t_min, t_max = eval(opts.tau_range)
+    best_l, l_curve, graph_x, graph_y  = myunfolding.DoScanLcurve(100, t_min, t_max)
+    best_taus['L_curve'] = best_l
+    l_curve.SetName('lcurve')
+    l_curve.name = 'lcurve'
+    graph_x.name = 'l_scan_x'
+    graph_y.name = 'l_scan_y'
+    l_tau = math.log10(best_l)
+    points = [(graph_x.GetX()[i], graph_x.GetY()[i], graph_y.GetY()[i]) 
+              for i in xrange(graph_x.GetN())]
+    best = [(x,y) for i, x, y in points if l_tau == i]
     graph_best = plotting.Graph(1)
     graph_best.SetPoint(0, *best[0])
     graph_best.SetMarkerStyle(29)
     graph_best.SetMarkerSize(3)
     graph_best.SetMarkerColor(2)
-    tau_curve.Draw('ALP')
+    l_curve.Draw('ALP')
     graph_best.Draw('P SAME')
     info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
     info.SetFillColor(0)
     info.SetBorderSize(0)
     info.SetMargin(0.)
-    info.AddText('#tau = %.5f' % best_tau)
+    info.AddText('#tau = %.5f' % best_l)
     info.Draw()
-    save(canvas, mode, 'L_curve')
+    save(canvas, 'L_curve', 'L_curve', outdir)
 
-#force running without regularization
-best_taus['NoReg'] = 0
-for name, best_tau in best_taus.iteritems():
-    log.warning('best tau option for %s: %.3f' % (name, best_tau))
+    modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
+    for mode in modes:
+        best_tau, tau_curve, index_best = myunfolding.DoScanTau(100, t_min, t_max, mode)
+        best_taus[mode] = best_tau
+        tau_curve.SetName(mode)
+        tau_curve.SetMarkerStyle(1)
+        points = [(tau_curve.GetX()[i], tau_curve.GetY()[i])
+                  for i in xrange(tau_curve.GetN())]
+        best = [points[index_best]] 
+        #best = [(x,y) for x, y in points if math.log10(best_tau) == x]
+        #log.info('best = %s and best_from_index = %s' % (best,best_from_index))
+        #if  best_from_index != best[0]:
+            #log.error("Pair found by DoScanTau is different from pair found by this code!")
+            #os.abort()
+        #if itoy == 16 and mode == 'RhoSquareAvg':
+            #set_trace()
+        graph_best = plotting.Graph(1)
+        graph_best.SetPoint(0, *best[0])
+        graph_best.SetMarkerStyle(29)
+        graph_best.SetMarkerSize(3)
+        graph_best.SetMarkerColor(2)
+        tau_curve.Draw('ALP')
+        graph_best.Draw('P SAME')
+        info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
+        info.SetFillColor(0)
+        info.SetBorderSize(0)
+        info.SetMargin(0.)
+        info.AddText('#tau = %.5f' % best_tau)
+        info.Draw()
+        save(canvas, mode, 'L_curve', outdir)
+
+    #force running without regularization
+    best_taus['NoReg'] = 0
+    for name, best_tau in best_taus.iteritems():
+        log.warning('best tau option for %s: %.3f' % (name, best_tau))
     
-to_save = []
-for name, best_tau in best_taus.iteritems():
-    myunfolding.tau = best_tau
+    to_save = []
+    for name, best_tau in best_taus.iteritems():
+        myunfolding.tau = best_tau
 
-    hdata_unfolded = myunfolding.unfolded
-    hdata_unfolded.name = 'hdata_unfolded_%s' % name
-    to_save.append(hdata_unfolded)
-    hdata_refolded = myunfolding.refolded
-    hdata_refolded.name = 'hdata_refolded_%s' % name
-    to_save.append(hdata_refolded)
-    error_matrix = myunfolding.ematrix_total
-    error_matrix.name = 'error_matrix_%s' % name
-    to_save.append(error_matrix)
+        hdata_unfolded = myunfolding.unfolded
+        hdata_unfolded.name = 'hdata_unfolded_%s' % name
+        to_save.append(hdata_unfolded)
+        hdata_refolded = myunfolding.refolded
+        hdata_refolded.name = 'hdata_refolded_%s' % name
+        to_save.append(hdata_refolded)
+        error_matrix = myunfolding.ematrix_total
+        error_matrix.name = 'error_matrix_%s' % name
+        to_save.append(error_matrix)
 
-    hcorrelations = myunfolding.rhoI_total
-    hcorrelations.name = 'hcorrelations_%s' % name
-    to_save.append(error_matrix)
-    hbias = myunfolding.bias
-    hbias.name = 'bias_%s' % name
-    to_save.append(hbias)
-    canvas = overlay(myunfolding.truth, hdata_unfolded)
-    save(canvas, name, 'unfolding')
+        hcorrelations = myunfolding.rhoI_total
+        hcorrelations.name = 'hcorrelations_%s' % name
+        to_save.append(error_matrix)
+        hbias = myunfolding.bias
+        hbias.name = 'bias_%s' % name
+        to_save.append(hbias)
+        canvas = overlay(myunfolding.truth, hdata_unfolded)
+        save(canvas, name, 'unfolding', outdir)
     
-    nbins = myunfolding.measured.GetNbinsX()
-    for i in range(1, nbins+1):
-        myunfolding.measured.GetXaxis().SetBinLabel(
-            i, 
-            '%.0f' % myunfolding.measured.GetXaxis().GetBinLowEdge(i)
-            )
-    canvas = overlay(myunfolding.measured, hdata_refolded)
-    save(canvas, name, 'refolded')
+        nbins = myunfolding.measured.GetNbinsX()
+        for i in range(1, nbins+1):
+            myunfolding.measured.GetXaxis().SetBinLabel(
+                i, 
+                '%.0f' % myunfolding.measured.GetXaxis().GetBinLowEdge(i)
+                )
+        canvas = overlay(myunfolding.measured, hdata_refolded)
+        save(canvas, name, 'refolded', outdir)
 
-htruth = myunfolding.truth
-hmatrix = myunfolding.matrix
-hmeasured = myunfolding.measured
+    htruth = myunfolding.truth
+    hmatrix = myunfolding.matrix
+    hmeasured = myunfolding.measured
 
-numexp = 10
-myunfolding.unfoldingparam = 10
-#uncertainty10 = myunfolding.StatTest(numexp)
+    numexp = 10
+    myunfolding.unfoldingparam = 10
+    #uncertainty10 = myunfolding.StatTest(numexp)
 
-with rootpy.io.root_open(os.path.join(opts.dir, opts.out),'recreate') as outfile:
-    to_save.extend([
-        myunfolding.truth,     ## 4
-        myunfolding.measured,  ## 5
-        myunfolding.matrix,    ## 6
-        l_curve,               ## 9
-        tau_curve,             ## 10
-        graph_x,
-        graph_y
-        ])
+    with rootpy.io.root_open(os.path.join(outdir, opts.out),'recreate') as outfile:
+        to_save.extend([
+            myunfolding.truth,     ## 4
+            myunfolding.measured,  ## 5
+            myunfolding.matrix,    ## 6
+            l_curve,               ## 9
+            tau_curve,             ## 10
+            graph_x,
+            graph_y
+            ])
 
-    if opts.cov_matrix != 'none':
-       to_save.extend([input_cov_matrix])
+        if opts.cov_matrix != 'none':
+           to_save.extend([input_cov_matrix])
 
-    for i, j in enumerate(to_save):
-        log.debug('Saving %s as %s' % (j.name, j.GetName()))
-        j.Write()
-    getattr(resp_file, opts.var).reco_distribution.Write()
-    getattr(resp_file, opts.var).prefit_distribution.Write()
-    myunfolding.write_to(outfile, 'urunfolder')
+        for i, j in enumerate(to_save):
+            log.debug('Saving %s as %s' % (j.name, j.GetName()))
+            j.Write()
+        getattr(resp_file, opts.var).reco_distribution.Write()
+        getattr(resp_file, opts.var).prefit_distribution.Write()
+        myunfolding.write_to(outfile, 'urunfolder')
+
+
+resp_file = io.root_open(opts.truth_file)
+data_file = io.root_open(opts.fit_file)
+
+if 'toy' in opts.fit_file:
+    itoy = 0
+    while True:
+        time.sleep(0.2)
+        data_file_basedir = 'toy_' + str(itoy) + '/'
+        try:
+            getattr(data_file, data_file_basedir)
+        except rootpy.io.DoesNotExist:
+            break
+        log.info('Found directory %s in the rootfile' % data_file_basedir)
+
+        try:
+            os.mkdir(os.path.join(opts.dir,data_file_basedir))
+        except OSError as e:
+            if e.errno == 17:
+                log.warning('Directory %s already exists.' % data_file_basedir)
+            else:
+                os.abort()
+        outdir = os.path.join(opts.dir,data_file_basedir)
+        
+        run_unfolder(itoy, outdir)
+                
+        itoy = itoy + 1
+else:
+    run_unfolder()
+
+
+
