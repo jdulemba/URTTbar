@@ -33,6 +33,9 @@ class Permutation
 		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, Met* met);
 		void Reset();
 		bool IsComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0 && bjl_ != 0 && lep_ != 0 && met_ != 0);}
+		bool IsTHadComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0);}
+		bool IsWHadComplete() const {return(wja_ != 0 && wjb_ != 0);}
+		bool IsTLepComplete() const {return(bjl_ != 0 && lep_ != 0 && met_ != 0);}
 		int NumBJets() const {return((bjl_ != 0 ? 1 : 0) + (bjh_ != 0 ? 1 : 0));}
 		int NumWJets() const {return((wja_ != 0 ? 1 : 0) + (wjb_ != 0 ? 1 : 0));}
 		int NumTTBarJets() const {return(NumBJets() + NumWJets());}
@@ -102,6 +105,10 @@ class Permutation
 		bool IsCorrect(const Permutation& other) const
 		{
 			return(IsTLepCorrect(other) && IsTHadCorrect(other));
+		}
+		bool IsLooselyCorrect(const Permutation& other) const
+		{
+			return(IsTLepCorrect(other) && AreHadJetsCorrect(other));
 		}
 		bool IsTLepCorrect(const Permutation& other) const
     {
