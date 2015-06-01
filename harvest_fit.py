@@ -50,7 +50,14 @@ with io.root_open(args.fitresult) as results:
    dirs = ['']
    if args.toys:
       dirs = [i.GetName() for i in results.GetListOfKeys() if i.GetName().startswith('toy_')]
-
+      
+   norms_prefit = ArgSet(
+      results.Get(
+         'norm_prefit'
+         )
+      )
+   norms_prefit = dict((i.GetName(), i) for i in norms_prefit)
+   is_prefit_done = False
    with io.root_open(args.out, 'recreate') as output:
       for input_dir in dirs:
          norms = ArgSet(
@@ -62,6 +69,7 @@ with io.root_open(args.fitresult) as results:
                )
             )
          norms = [i for i in norms]
+
          fit_result = results.Get(
             join(
                input_dir,
@@ -84,6 +92,7 @@ with io.root_open(args.fitresult) as results:
             var_dir = tdir.mkdir(obs)
             var_dir.cd()
             hists = {}
+            hists_prefit = {}
             for norm in norms:
                category, sample = tuple(norm.GetName().split('/'))
                if category not in info: continue
@@ -92,6 +101,12 @@ with io.root_open(args.fitresult) as results:
                      info['edges'],
                      name = sample
                      )
+                  if not is_prefit_done:
+                     hists_prefit[sample] = plotting.Hist(
+                        info['edges'],
+                        name = sample
+                        )
+ 
                idx = info[category]['idx']+1
                hists[sample].SetBinContent(
                   idx, norm.getVal()
@@ -99,6 +114,14 @@ with io.root_open(args.fitresult) as results:
                hists[sample].SetBinError(
                   idx, norm.getError()
                   )
+               if not is_prefit_done:
+                  hists_prefit[sample].SetBinContent(
+                     idx, norms_prefit[norm.GetName()].getVal()
+                     )
+                  hists_prefit[sample].SetBinError(
+                     idx, norms_prefit[norm.GetName()].getError()
+                     )                  
+
                fit_par_name = '%sYieldSF_%s' % (category, sample)
                if fit_par_name in fit_pars:
                   fit_par = pars[fit_par_name]
@@ -118,4 +141,10 @@ with io.root_open(args.fitresult) as results:
 
             for h in hists.itervalues():
                logging.debug( h.Write() )
+               
+            if not is_prefit_done:
+               is_prefit_done = True
+               output.mkdir('prefit').cd()
+               for h in hists_prefit.itervalues():
+                  logging.debug( h.Write() )
             #var_dir.Write()
