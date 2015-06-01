@@ -13,3 +13,9 @@ Dict.h
 \#*\#
 *~
 jobid.sh
+*.out
+*.png
+*.pdf
+*.txt
+*.raw_txt
+*.log
