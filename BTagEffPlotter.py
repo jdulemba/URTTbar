@@ -21,6 +21,8 @@ ROOT.gStyle.SetOptStat(0)
 from argparse import ArgumentParser
 import math
 from uncertainties import ufloat
+from URAnalysis.Utilities.datacard import DataCard
+import re
 
 parser = ArgumentParser()
 parser.add_argument('--noplots', dest='noplots', action='store_true',
@@ -109,14 +111,33 @@ class BTagPlotter(Plotter):
          'ttJets_other'
          ]
 
+      self.card_names = {
+         'right_whad' : ['ttJets_allRight', 'ttJets_rightHad', 'ttJets_rightWHad'],
+         'wrong_whad' : ['ttJets_rightWLep', 'ttJets_semiWrong'],
+         'nonsemi_tt' : ['ttJets_other'],
+         'single_top' : ['single*'],
+         }
+      self.signal = 'right_whad'
+
       self.systematics = {
+         'lumi' : {
+            'type' : 'lnN',
+            'samples' : ['.*'],
+            'categories' : ['.*'],
+            'value' : 1.05,
+            },
          'JES' : {
-            'apply' : ['*'],
+            'samples' : ['.*'],
+            'categories' : ['.*'],
             'type' : 'shape',
             '+' : lambda x: x.replace('nosys', 'jes_up'),
             '-' : lambda x: x.replace('nosys', 'jes_down'),
+            'value' : 1.00,
             }
          }
+      self.card = None
+      self.binning = {}
+
 
    def create_tt_subsample(self, subdir, title, color='#9999CC'):
       return views.StyleView(
@@ -131,63 +152,66 @@ class BTagPlotter(Plotter):
          linecolor = color
          )
 
-   def write_mass_discriminant_shapes(self, tfolder, folders, rebin=1, 
+   def add_systematics(self):
+      if not plotter.card:
+         raise ValueError('The card is not defined!')
+      for sys_name, info in self.systematics.iteritems():
+         for category in info['categories']:
+            for sample in info['samples']:
+               plotter.card.add_systematic(
+                  sys_name, 
+                  info['type'], 
+                  category, 
+                  sample, 
+                  info['value']
+                  )
+      plotter.card.add_bbb_systematics('.*', '.*')
+
+   def save_card(self, name):
+      if not self.card:
+         raise RuntimeError('There is no card to save!')
+      self.card.save(name, self.outputdir)
+      self.card = None
+
+   def write_mass_discriminant_shapes(self, category_name, folders, rebin=1, 
                                       preprocess=None):
-      tfolder.cd()
-      category_name = tfolder.GetName()
+      if not self.card: self.card = DataCard(self.signal)
+      self.card.add_category(category_name)
+      category = self.card[category_name]
+
       paths = [os.path.join(i, 'mass_discriminant') for i in folders]
-      ritghtW_view = self.rebin_view( 
-         views.SumView(
-            self.get_view('ttJets_allRight'),
-            self.get_view('ttJets_rightHad'),
-            self.get_view('ttJets_rightWHad')
-            ), 
-         rebin
-         )
-      wrongW_view = self.rebin_view( 
-         views.SumView(
-            self.get_view('ttJets_rightWLep'),
-            self.get_view('ttJets_semiWrong')
-            ),
-         rebin
-         )
-      other_view = self.rebin_view( 
-         self.get_view('ttJets_other'),
-         rebin
-         )
-      singlet_view = self.rebin_view( 
-         self.get_view('single*'),
-         rebin
-         )
+      card_views = {}
+      for name, samples  in self.card_names.iteritems():
+         card_views[name] = self.rebin_view(
+            views.SumView(
+               *[self.get_view(i) for i in samples]
+               ),
+            rebin
+            )
 
       if preprocess:
-         ritghtW_view = preprocess(ritghtW_view)
-         wrongW_view  = preprocess(wrongW_view )
-         other_view   = preprocess(other_view  )
-         singlet_view = preprocess(singlet_view)
+         for name in card_views:
+            card_views[name] = preprocess(card_views[name])
 
-      shape_views = [ritghtW_view, wrongW_view,
-                     other_view, singlet_view]
-      shape_names = ['right_whad', 'wrong_whad',
-                     'nonsemi_tt', 'single_top']
-      fake_data = sum(ritghtW_view.Get(path).Clone() for path in paths)
-      fake_data.Reset()
-      fake_data.SetName('data_obs')
+      data_is_fake = False
+      if 'data_obs' not in card_views:
+         card_views['data_obs'] = views.SumView(*card_views.values())
+         data_is_fake = True
 
-      unc_conf_lines = set()
-      unc_vals_lines = []
-      for view, name in zip(shape_views, shape_names):
+      for name, view in card_views.iteritems():
          histo = sum(view.Get(path) for path in paths)
-         fake_data.Add(histo)
          integral = histo.Integral()
-         if name == 'right_whad':
+         if name == self.signal:
             histo.Scale(1./integral)
-         histo.SetName(name)
-         histo.Write()
+         elif name == 'data_obs' and data_is_fake:
+            int_int = float(int(integral))
+            histo.Scale(int_int/integral)
+         
+         category[name] = histo
          for sys_name, info in self.systematics.iteritems():
-            if not any(fnmatch(name, i) for i in info['apply']): continue
+            if not any(re.match(i, category_name) for i in info['categories']): continue
+            if not any(re.match(i, name) for i in info['samples']): continue
             shift = 1.0
-            unc_conf_lines.add('%s %s' % (sys_name, info['type']))
             paths_up = [info['+'](path) for path in paths] 
             paths_dw = [info['-'](path) for path in paths]
             if info['type'] == 'shape':
@@ -196,21 +220,8 @@ class BTagPlotter(Plotter):
                if name == 'right_whad':
                   hup.Scale(1./integral)
                   hdw.Scale(1./integral)
-               hup.SetName('%s_%sUp'   % (name, sys_name))
-               hdw.SetName('%s_%sDown' % (name, sys_name))
-               hup.Write()
-               hdw.Write()
-            elif info['type'] == 'lnN':
-               pass
-            unc_vals_lines.append(
-               '%s %s %s %.2f' % (category_name, name, sys_name, shift)
-               )
-
-      integral = fake_data.Integral()
-      int_int = float(int(integral))
-      fake_data.Scale(int_int/integral)
-      fake_data.Write()
-      return shape_names, unc_conf_lines, unc_vals_lines
+               category['%s_%sUp'   % (name, sys_name)] = hup
+               category['%s_%sDown' % (name, sys_name)] = hdw
 
    @staticmethod
    def compute_eff(jmap, jrank, qtype):
@@ -371,11 +382,11 @@ class BTagPlotter(Plotter):
          hist.fillstyle = 'hollow'
          hist.legendstyle = 'l'
          hist.linewidth = 2
+         hist.markercolor = hist.linecolor
          if show_err:
             hist.drawstyle = 'pe'
             hist.markerstyle = 20
             hist.legendstyle = 'pe'
-            hist.markercolor = hist.linecolor
 
          hist.GetXaxis().SetTitle(xaxis)
          if first:
@@ -390,7 +401,24 @@ class BTagPlotter(Plotter):
       if xrange:
          histos[0].GetXaxis().SetRangeUser(*tuple(xrange))
       self.add_legend(histos, leftside)
-   
+
+      samples = filt if filt else self.mc_samples
+      try:
+         ref_idx = samples.index('ttJets_allRight') 
+         ytitle='bkg / signal'
+      except ValueError:
+         ref_idx = 0
+         ytitle='other / %s' % histos[0].GetTitle()
+      try:
+         ref = histos[ref_idx]
+      except:
+         set_trace()
+      tests = histos[:ref_idx]+histos[ref_idx+1:]
+
+      self.add_ratio_plot(
+         ref, *tests, x_range=xrange,
+         ratio_range=3, ytitle=ytitle)
+
    def make_flavor_table(self, histo, fname='', to_json=False, to_txt=True):
       ids = {
          0 : 'pile-up',
@@ -654,9 +682,11 @@ if not args.noshapes:
    for order in orders:
       for wpoint in working_points:
          if wpoint == "notag": continue
-         shapedir = os.path.join(cwd, plotter.base_out_dir, order, wpoint)
-         fname = os.path.join(shapedir, 'shapes.root')
-         shape_file = ROOT.TFile(fname, 'RECREATE')
+         plotter.set_subdir(
+            os.path.join(order, wpoint)
+            )
+         ## fname = os.path.join(shapedir, 'shapes.root')
+         ## shape_file = ROOT.TFile(fname, 'RECREATE')
          
          #plotter.write_mass_discriminant_shapes(
          #   shape_file.mkdir('notused'),
@@ -668,58 +698,27 @@ if not args.noshapes:
          folders = [['both_untagged', 'sublead_tagged'], ['both_untagged', 'lead_tagged'], ['lead_tagged', 'both_tagged'], ['sublead_tagged', 'both_tagged']]\
             if args.inclusive else [['both_untagged'], ['lead_tagged'], ['sublead_tagged'], ['both_tagged']]
          base = os.path.join('nosys', order, wpoint)
-         samples = set()
-         unc_conf = set()
-         unc_vals = []
          for folders, category in zip(folders, categories):
-            sam, cfg, vals = plotter.write_mass_discriminant_shapes(
-               shape_file.mkdir(category),
+            plotter.write_mass_discriminant_shapes(
+               category,
                [os.path.join(base, i) for i in folders], 
                rebin=2
                )
-            samples.update(sam)
-            unc_conf.update(cfg)
-            unc_vals.extend(vals)
+         plotter.add_systematics()
 
-         shape_file.Close()
-         logging.info("%s created" % fname)
-         card_type = 'incl' if args.inclusive else 'excl'
-         syscheck('cp card_cfg/cgs.%s.conf %s/cgs.conf' % (card_type, shapedir))
-         with open('%s/unc.conf' % shapedir, 'w')as output:
-            with open('card_cfg/unc.%s.conf' % card_type) as default:
-               output.write(default.read())
-            output.write('\n'.join(unc_conf))
+         plotter.card.add_systematic('lead_cfrac', 'param', '', '', info[order]['leadCFrac'], 0.0001)
+         plotter.card.add_systematic('sub_cfrac' , 'param', '', '', info[order]['subCFrac'] , 0.0001)
+         plotter.card.add_systematic('mc_lead_charm_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_charmEff'], 0.0001)
+         plotter.card.add_systematic('mc_lead_light_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_lightEff'], 0.0001)
+         plotter.card.add_systematic('mc_sub_charm_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_charmEff'] , 0.0001)
+         plotter.card.add_systematic('mc_sub_light_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_lightEff'] , 0.0001)
+         plotter.card.add_systematic('signal_norm', 'param', '', '', info[order]['nevts'], 0.0001)
+         if args.noLightFit:
+            plotter.card.add_systematic('lightSF', 'param', '', '', 1.00, 0.1)
 
-         with open('%s/unc.vals' % shapedir, 'w')as output:
-            with open('card_cfg/unc.%s.vals' % card_type) as default:
-               output.write(default.read())
-            output.write('\n'.join(unc_vals))
+         plotter.save_card('datacard')
 
-         logging.info("datacard cfgs copied")
-         if not args.noBBB:
-            logging.info(
-               './add_bbb.sh %s "%s" "%s"' % (shapedir, ' '.join(categories), ' '.join(samples))
-               )
-            syscheck(
-               './add_bbb.sh %s "%s" "%s"' % (shapedir, ' '.join(categories), ' '.join(samples))
-               )
-            logging.info("bbb added")
-         os.chdir(shapedir)
-         syscheck('create-datacard.py -i shapes.root -o datacard.txt')
-         format = '%20s param %7.4f 0.001\n'
-         with open('datacard.txt', 'a') as datacard:
-            datacard.write(format % ('lead_cfrac', info[order]['leadCFrac']))
-            datacard.write(format % ('sub_cfrac', info[order]['subCFrac']))
-            datacard.write(format % ('mc_lead_charm_eff', info[order]['working_points'][wpoint]['lead_charmEff']))
-            datacard.write(format % ('mc_lead_light_eff', info[order]['working_points'][wpoint]['lead_lightEff']))
-            datacard.write(format % ('mc_sub_charm_eff' , info[order]['working_points'][wpoint]['sub_charmEff']))
-            datacard.write(format % ('mc_sub_light_eff' , info[order]['working_points'][wpoint]['sub_lightEff']))
-            datacard.write(format % ('signal_norm', info[order]['nevts']))
-            if args.noLightFit:
-               datacard.write('lightSF param 1.00 0.1\n')
-         os.chdir(cwd)
-         logging.info("datacard created")
-         with open(os.path.join(shapedir, 'make_workspace.sh'), 'w') as f:
+         with open(os.path.join(plotter.outputdir, 'make_workspace.sh'), 'w') as f:
             #set_trace()
             f.write("sed -i 's|$MASS||g' datacard.txt\n")
             f.write(r"sed -i 's|\x1b\[?1034h||g' datacard.txt"+'\n')
@@ -748,8 +747,4 @@ if not args.noshapes:
             ## f.write("combine -M MultiDimFit fitModel.root --algo=grid --points=900 "
             ##         "--setPhysicsModelParameterRanges charmSF=0,2:lightTagScale=0,2 > dataScan.log\n")
             ## f.write("mv higgsCombineTest.MultiDimFit.mH120.root DataScan.root\n")
-      tardir = os.path.join(cwd, plotter.base_out_dir, order)
-      os.chdir(tardir)
-      syscheck('tar -cvf tofit.tar */*.sh */datacard.txt */shapes.root')
-      os.chdir(cwd)
 
