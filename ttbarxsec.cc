@@ -255,17 +255,50 @@ void ttbar::begin()
 	truth2d.AddHist("etatlep_matrix_fullps", topetabins, topetabins, "gen", "reco");
 	truth2d.AddHist("ttm_matrix_fullps", ttmbins, ttmbins, "gen", "reco");
 
+	truth1d.AddHist("ptthad_gen_fullps", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("pttlep_gen_fullps", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("etathad_gen_fullps", topetabins, "gen", "Evts");
+	truth1d.AddHist("etatlep_gen_fullps", topetabins, "gen", "Evts");
+	truth1d.AddHist("ttm_gen_fullps", ttmbins, "gen", "Evts");
+	truth1d.AddHist("ptthad_reco_fullps",  topptbins, "reco"  , "Evts");
+	truth1d.AddHist("pttlep_reco_fullps",  topptbins, "reco"  , "Evts");
+	truth1d.AddHist("etathad_reco_fullps",  topetabins, "reco", "Evts");
+	truth1d.AddHist("etatlep_reco_fullps",  topetabins, "reco", "Evts");
+	truth1d.AddHist("ttm_reco_fullps", ttmbins, "reco", "Evts");
+
 	truth2d.AddHist("ptthad_matrix_fiducialtight", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("pttlep_matrix_fiducialtight", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("etathad_matrix_fiducialtight", topetabins, topetabins, "gen", "reco");
 	truth2d.AddHist("etatlep_matrix_fiducialtight", topetabins, topetabins, "gen", "reco");
 	truth2d.AddHist("ttm_matrix_fiducialtight", ttmbins, ttmbins, "gen", "reco");
 
+	truth1d.AddHist("ptthad_gen_fiducialtight", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("pttlep_gen_fiducialtight", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("etathad_gen_fiducialtight", topetabins, "gen", "Evts");
+	truth1d.AddHist("etatlep_gen_fiducialtight", topetabins, "gen", "Evts");
+	truth1d.AddHist("ttm_gen_fiducialtight", ttmbins, "gen", "Evts");
+	truth1d.AddHist("ptthad_reco_fiducialtight", topptbins, "reco", "Evts");
+	truth1d.AddHist("pttlep_reco_fiducialtight", topptbins, "reco", "Evts");
+	truth1d.AddHist("etathad_reco_fiducialtight", topetabins, "reco", "Evts");
+	truth1d.AddHist("etatlep_reco_fiducialtight", topetabins, "reco", "Evts");
+	truth1d.AddHist("ttm_reco_fiducialtight", ttmbins, "reco", "Evts");
+
 	truth2d.AddHist("ptthad_matrix_fiducialloose", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("pttlep_matrix_fiducialloose", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("etathad_matrix_fiducialloose", topetabins, topetabins, "gen", "reco");
 	truth2d.AddHist("etatlep_matrix_fiducialloose", topetabins, topetabins, "gen", "reco");
 	truth2d.AddHist("ttm_matrix_fiducialloose", ttmbins, ttmbins, "gen", "reco");
+
+	truth1d.AddHist("ptthad_gen_fiducialloose", topptbins, "gen", "Evts");
+	truth1d.AddHist("pttlep_gen_fiducialloose", topptbins, "gen", "Evts");
+	truth1d.AddHist("etathad_gen_fiducialloose", topetabins, "gen", "Evts");
+	truth1d.AddHist("etatlep_gen_fiducialloose", topetabins, "gen", "Evts");
+	truth1d.AddHist("ttm_gen_fiducialloose", ttmbins, "gen", "Evts");
+	truth1d.AddHist("ptthad_reco_fiducialloose", topptbins, "reco", "Evts");
+	truth1d.AddHist("pttlep_reco_fiducialloose", topptbins, "reco", "Evts");
+	truth1d.AddHist("etathad_reco_fiducialloose", topetabins, "reco", "Evts");
+	truth1d.AddHist("etatlep_reco_fiducialloose", topetabins, "reco", "Evts");
+	truth1d.AddHist("ttm_reco_fiducialloose", ttmbins, "reco", "Evts");
 
 	Logger::log().debug() << "semilep_visible_right" << endl;
 	outFile_.mkdir("semilep_visible_right")->cd();
@@ -933,13 +966,24 @@ void ttbar::ttanalysis()
 
 	if(SEMILEP)
 	{
-		if(rightper.IsComplete() && rightper.IsCorrect(bestper))
+		if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
 		{
 			truth2d["ptthad_matrix_fullps" ]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
 			truth2d["pttlep_matrix_fullps" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
 			truth2d["etathad_matrix_fullps"]->Fill(fabs(gentophad.Eta()), fabs(bestper.THad().Eta()), weight);
 			truth2d["etatlep_matrix_fullps"]->Fill(fabs(gentoplep.Eta()), fabs(bestper.TLep().Eta()), weight);
 			truth2d["ttm_matrix_fullps"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_gen_fullps"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fullps"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fullps" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fullps" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fullps"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+			truth1d["ptthad_reco_fullps" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fullps" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fullps"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fullps"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fullps"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
 		}
 		else
 		{
@@ -948,23 +992,46 @@ void ttbar::ttanalysis()
 			truth2d["etathad_matrix_fullps"]->Fill(fabs(gentophad.Eta()), -1, weight);
 			truth2d["etatlep_matrix_fullps"]->Fill(fabs(gentoplep.Eta()), -1, weight);
 			truth2d["ttm_matrix_fullps"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), -1, weight);
+
+			truth1d["ptthad_gen_fullps"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fullps"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fullps" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fullps" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fullps"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
 		}
 		
-		if(SEMILEPACC && rightper.IsComplete() && rightper.IsCorrect(bestper))
+		if(SEMILEPACC && rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
 		{
 			truth2d["ptthad_matrix_fiducialtight" ]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
 			truth2d["pttlep_matrix_fiducialtight" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
 			truth2d["etathad_matrix_fiducialtight"]->Fill(fabs(gentophad.Eta()), fabs(bestper.THad().Eta()), weight);
 			truth2d["etatlep_matrix_fiducialtight"]->Fill(fabs(gentoplep.Eta()), fabs(bestper.TLep().Eta()), weight);
 			truth2d["ttm_matrix_fiducialtight"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_gen_fiducialtight"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialtight"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialtight" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialtight" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialtight"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+			truth1d["ptthad_reco_fiducialtight" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialtight" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialtight"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialtight"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialtight"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
 		}
-		else if(rightper.IsComplete() && rightper.IsCorrect(bestper))
+		else if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
 		{
 			truth2d["ptthad_matrix_fiducialtight" ]->Fill(-1, bestper.THad().Pt(), weight);
 			truth2d["pttlep_matrix_fiducialtight" ]->Fill(-1, bestper.TLep().Pt(), weight);
 			truth2d["etathad_matrix_fiducialtight"]->Fill(-1, fabs(bestper.THad().Eta()), weight);
 			truth2d["etatlep_matrix_fiducialtight"]->Fill(-1, fabs(bestper.TLep().Eta()), weight);
 			truth2d["ttm_matrix_fiducialtight"       ]->Fill(-1, (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_reco_fiducialtight" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialtight" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialtight"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialtight"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialtight"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
 		}
 		else if(SEMILEPACC)
 		{
@@ -973,23 +1040,46 @@ void ttbar::ttanalysis()
 			truth2d["etathad_matrix_fiducialtight"]->Fill(fabs(gentophad.Eta()), -1, weight);
 			truth2d["etatlep_matrix_fiducialtight"]->Fill(fabs(gentoplep.Eta()), -1, weight);
 			truth2d["ttm_matrix_fiducialtight"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), -1, weight);
+
+			truth1d["ptthad_gen_fiducialtight"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialtight"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialtight" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialtight" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialtight"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
 		}
 		
-		if(SEMILEPACCLOOSE && rightper.IsComplete() && rightper.IsCorrect(bestper))
+		if(SEMILEPACCLOOSE && rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
 		{
 			truth2d["ptthad_matrix_fiducialloose" ]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
 			truth2d["pttlep_matrix_fiducialloose" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
 			truth2d["etathad_matrix_fiducialloose"]->Fill(fabs(gentophad.Eta()), fabs(bestper.THad().Eta()), weight);
 			truth2d["etatlep_matrix_fiducialloose"]->Fill(fabs(gentoplep.Eta()), fabs(bestper.TLep().Eta()), weight);
 			truth2d["ttm_matrix_fiducialloose"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_gen_fiducialloose"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialloose"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialloose" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialloose" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialloose"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+			truth1d["ptthad_reco_fiducialloose" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialloose" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialloose"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialloose"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialloose"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
 		}
-		else if(rightper.IsComplete() && rightper.IsCorrect(bestper))
+		else if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
 		{
 			truth2d["ptthad_matrix_fiducialloose" ]->Fill(-1, bestper.THad().Pt(), weight);
 			truth2d["pttlep_matrix_fiducialloose" ]->Fill(-1, bestper.TLep().Pt(), weight);
 			truth2d["etathad_matrix_fiducialloose"]->Fill(-1, fabs(bestper.THad().Eta()), weight);
 			truth2d["etatlep_matrix_fiducialloose"]->Fill(-1, fabs(bestper.TLep().Eta()), weight);
 			truth2d["ttm_matrix_fiducialloose"       ]->Fill(-1, (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_reco_fiducialloose" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialloose" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialloose"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialloose"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialloose"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
 		}
 		else if(SEMILEPACCLOOSE)
 		{
@@ -998,32 +1088,29 @@ void ttbar::ttanalysis()
 			truth2d["etathad_matrix_fiducialloose"]->Fill(fabs(gentophad.Eta()), -1, weight);
 			truth2d["etatlep_matrix_fiducialloose"]->Fill(fabs(gentoplep.Eta()), -1, weight);
 			truth2d["ttm_matrix_fiducialloose"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), -1, weight);
+
+			truth1d["ptthad_gen_fiducialloose"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialloose"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialloose" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialloose" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialloose"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
 		}
 		
 	}
 	
-	if(SEMILEP && rightper.IsComplete()) {
-		if(rightper.IsCorrect(bestper)) {
+	if(SEMILEP) {
+		if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper)) {
 			semilep_visible_right.Fill(bestper, lepcharge, weight);
-// 			truth2d["ptthad_matrix" ]->Fill(gentophad.Pt(), bestper.THad().Pt());
-// 			truth2d["pttlep_matrix" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt());
-// 			truth2d["etathad_matrix"]->Fill(gentophad.Eta(), bestper.THad().Eta());
-// 			truth2d["etatlep_matrix"]->Fill(gentoplep.Eta(), bestper.TLep().Eta());
-// 			truth2d["ttm_matrix"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);			
 		}
-		else if(bestper.IsTLepCorrect(rightper)) {
+		else if(rightper.IsTLepComplete() && bestper.IsTLepCorrect(rightper)) {
 			semilep_right_tlep.Fill(bestper, lepcharge, weight);
-// 			truth2d["pttlep_matrix" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt());
-// 			truth2d["etatlep_matrix"]->Fill(gentoplep.Eta(), bestper.TLep().Eta());
 		}
-		else if(bestper.IsTHadCorrect(rightper)) {
+		else if(rightper.IsTHadComplete() && bestper.AreHadJetsCorrect(rightper)) {
 			semilep_right_thad.Fill(bestper, lepcharge, weight);
-// 			truth2d["ptthad_matrix" ]->Fill(gentophad.Pt(), bestper.THad().Pt());
-// 			truth2d["etathad_matrix"]->Fill(gentophad.Eta(), bestper.THad().Eta());
 		}
-		else semilep_wrong.Fill(bestper, lepcharge, weight);
+		else {semilep_wrong.Fill(bestper, lepcharge, weight);}
 	}
-	else other_tt_decay.Fill(bestper, lepcharge, weight);
+	else {other_tt_decay.Fill(bestper, lepcharge, weight);}
 }
 
 //This method is called once every file, contains the event loop
