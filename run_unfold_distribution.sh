@@ -5,18 +5,18 @@
 echo jobid is "$jobid"
 
 # Suffix is an editable string used to put the results of different jobs in different directories
-suffix="_150526"
+suffix="_150529"
 # This array stores the variables for which the unfilding needs to be done
 variable_array=('ptthad')
 # Array of switches to turn on or off the use of the covariant matrix...
-cov_matrix_array=('--cov_matrix="diag"' '--cov_matrix="full"' '--cov_matrix="none"')
+cov_matrix_array=('--cov_matrix=full')
 # ...and corresponding strings to name the directories where the results will go
-cov_matrix_name_array=('diagcov' 'fullcov' 'nonecov')
+cov_matrix_name_array=('fullcov')
 # Files in fit_file_array are "plots/${jobid}/ttxsec/${variable}/${variable}.${fit_file_array[$fit_file_index]}"...
 # fit_file_array=('harvested.massdiscriminant.root' 'harvested.toy.massdiscriminant.root')
-fit_file_array=('harvested.root')
+fit_file_array=('toy.harvested.root')
 #  ...and corresponding strings to name the directories where the results will go
-fit_file_name_array=('fit')
+fit_file_name_array=('toy')
 # Array of switches to turn on or off the use of the reco "truth" (i.e. the reco from the transport matrix) as the distribution to be unfolded
 # Corresponding name is set automatically by the script
 reco_truth_array=(' ')
