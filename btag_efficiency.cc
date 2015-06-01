@@ -397,10 +397,10 @@ public:
 			// 	gen.wlep()->first << " b " << gen.b << " bb " << gen.bbar << endl;
 				//}
 			TTNaming name;
-			if(reco.IsCorrect(gen)) name = TTNaming::RIGHT;//"semilep_visible_right";
-			else if(reco.IsTHadCorrect(gen)) name = TTNaming::RIGHT_THAD; //"semilep_right_thad";
-			else if(reco.IsWHadCorrect(gen)) name = TTNaming::RIGHT_WHAD; //"semilep_right_whad";
-			else if(reco.IsTLepCorrect(gen)) name = TTNaming::RIGHT_TLEP; //"semilep_right_tlep";
+			if(gen.IsComplete() && reco.IsCorrect(gen)) name = TTNaming::RIGHT;//"semilep_visible_right";
+			else if(gen.IsTHadComplete() && reco.IsTHadCorrect(gen)) name = TTNaming::RIGHT_THAD; //"semilep_right_thad";
+			else if(gen.IsWHadComplete() && reco.IsWHadCorrect(gen)) name = TTNaming::RIGHT_WHAD; //"semilep_right_whad";
+			else if(gen.IsTLepComplete() && reco.IsTLepCorrect(gen)) name = TTNaming::RIGHT_TLEP; //"semilep_right_tlep";
 			else name = TTNaming::WRONG; //"semilep_wrong";
 
 			/*bool whad_matches = reco.IsWHadCorrect(gen);
