@@ -16,10 +16,12 @@ ROOT.gStyle.SetOptStat(0)
 
 import URAnalysis.Utilities.prettyjson as prettyjson
 from argparse import ArgumentParser
+import uuid
 
 parser = ArgumentParser()
 parser.add_argument('fitresult')
 parser.add_argument('binning')
+parser.add_argument('input_shape')
 parser.add_argument(
    '-o', dest='out', type=str, default='out.root',
    help='output')
@@ -46,17 +48,33 @@ for info in binning.itervalues():
    edges = sorted(list(edges))
    info['edges'] = edges
 
+prefit_norms = {}
+with io.root_open(args.input_shape) as shapes:
+   for key in shapes.keys():
+      obj = key.ReadObj()
+      if not obj.InheritsFrom('TDirectory'): continue
+      
+      for hkey in obj.GetListOfKeys():
+         hist = hkey.ReadObj()
+         if not hist.InheritsFrom('TH1'): continue
+         
+         err = ROOT.Double()
+         integral = hist.IntegralAndError(
+            1,
+            hist.GetNbinsX(),
+            err
+            )
+         val_id = uuid.uuid4().hex
+         val =  ROOT.RooRealVar(val_id, val_id, integral)
+         val.setError(err)
+         prefit_norms['%s/%s' % (obj.GetName(), hist.GetName())] = val
+            
+
 with io.root_open(args.fitresult) as results:
    dirs = ['']
    if args.toys:
       dirs = [i.GetName() for i in results.GetListOfKeys() if i.GetName().startswith('toy_')]
-      
-   norms_prefit = ArgSet(
-      results.Get(
-         'norm_prefit'
-         )
-      )
-   norms_prefit = dict((i.GetName(), i) for i in norms_prefit)
+   
    is_prefit_done = False
    with io.root_open(args.out, 'recreate') as output:
       for input_dir in dirs:
@@ -116,10 +134,10 @@ with io.root_open(args.fitresult) as results:
                   )
                if not is_prefit_done:
                   hists_prefit[sample].SetBinContent(
-                     idx, norms_prefit[norm.GetName()].getVal()
+                     idx, prefit_norms[norm.GetName()].getVal()
                      )
                   hists_prefit[sample].SetBinError(
-                     idx, norms_prefit[norm.GetName()].getError()
+                     idx, prefit_norms[norm.GetName()].getError()
                      )                  
 
                fit_par_name = '%sYieldSF_%s' % (category, sample)

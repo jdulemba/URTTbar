@@ -26,8 +26,8 @@ import re
 
 pt_binning = Struct(
    gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-   #reco = [0., 40., 60., 75., 90., 105., 120., 135., 150., 170., 195., 220., 260., 300., 500., 1000.],
-   reco = [0., 120., 1000.],
+   reco = [0., 40., 60., 75., 90., 105., 120., 135., 150., 170., 195., 220., 260., 300., 500., 1000.],
+   #reco = [0., 120., 1000.],
    )
 discriminant =  'massDiscr'
 phase_space = 'fiducialtight'
@@ -149,7 +149,7 @@ class TTXSecPlotter(Plotter):
       self.systematics = {
          'lumi' : {
             'type' : 'lnN',
-            'samples' : ['.*'],
+            'samples' : ['(?!tt_).*'],
             'categories' : ['.*'],
             'value' : 1.05,
             },
