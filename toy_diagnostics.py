@@ -21,6 +21,11 @@ log = rootpy.log["/toy_diagnostics"]
 import URAnalysis.Utilities.prettyjson as prettyjson
 from argparse import ArgumentParser
 
+def mkdir(path):
+   if not os.path.isdir(path):
+      os.makedirs(path)
+   
+
 parser = ArgumentParser()
 parser.add_argument('variable')
 parser.add_argument('harvested')
@@ -32,17 +37,15 @@ parser.add_argument(
 parser.add_argument('--noshapes', action='store_true')
 parser.add_argument('--nopars', action='store_true')
 parser.add_argument('--no-post-pulls', dest='postpulls', action='store_true')
-parser.add_argument('--nopars', action='store_true')
 
 args = parser.parse_args()
-if not os.path.isdir(args.out):
-   os.makedirs(args.out)
+mkdir(args.out)
 
 if not args.noshapes:
    #Overlays the prefit values of the different shapes with the envelope of 
    #what is fitted by the toys
    out = os.path.join(args.out, 'shapes')
-   os.makedirs(out)
+   mkdir(out)
    with io.root_open(args.harvested) as harvest:
       has_prefit = hasattr(harvest, 'prefit')
       prefit = harvest.prefit if has_prefit else None
@@ -78,24 +81,46 @@ if not args.noshapes:
          canvas.SaveAs('%s/%s.png' % (out, shape))
          canvas.SaveAs('%s/%s.pdf' % (out, shape))
 
-def make_hist(key, vals, out, prefix=''):
-   canvas = plotting.Canvas()
+
+def fill_hist(vals):
    low = min(vals)
    low = low*0.8 if low > 0 else low*1.2
    hi = max(vals)*1.2
    hist = plotting.Hist(50, low, hi, title='')
    for v in vals:
       hist.Fill(v)
+   return hist
+
+def make_hist(key, rfit_vals, out, prefix=''):
+   vals = [i.getVal() for i in rfit_vals]
+   hist = fill_hist(vals)
    hist.Draw()
    log.debug('%s has %i entries, %.0f integral' % (key, hist.GetEntries(), hist.Integral()))
    canvas.SaveAs('%s/%s%s.png' % (out, prefix, key.replace('/','_')))
    #canvas.SaveAs('%s/%s.pdf' % (out, key.replace('/','_')))
 
+def make_post_pulls(key, vals, out, prefix=''):
+   canvas = plotting.Canvas()
+   pulls = []
+   if 'YieldSF' in key:
+      pulls = [(i.getVal()-1)/i.getError() for i in vals]
+   else:
+      pulls = [i.getVal()/i.getError() for i in vals]
 
-if not args.nopars:
+   hist = fill_hist(pulls)
+   hist.Fit('gaus', 'IMES')
+   hist.Draw()
+   canvas.SaveAs('%s/%s%s.png' % (out, prefix, key.replace('/','_')))
+
+if not args.nopars and not args.postpulls:
    #Plots the post-fit distribution of the POI and nuisances
    out = os.path.join(args.out, 'floating_parameters')
-   os.makedirs(out)
+   mkdir(out)
+
+   #Plots the post-fit pulls (nuisance(post) - nuisance(pre))/unc(post)
+   pulls_dir = os.path.join(args.out, 'postfit_pulls')
+   mkdir(pulls_dir)
+
    with io.root_open(args.mlfit) as mlfit:
       pars = {}
       yields = {}
@@ -135,17 +160,19 @@ if not args.nopars:
                )
 
          for i in norms:
-            yields[i.GetName()].append(i.getVal())
+            yields[i.GetName()].append(i)
             
          for i in fit_pars:
-            pars[i.GetName()].append(i.getVal())
+            pars[i.GetName()].append(i)
 
-      for i, j in yields.iteritems():
-         make_hist(i, j, out, prefix='yield_')
+      if not args.nopars:
+         for i, j in yields.iteritems():
+            make_hist(i, j, out, prefix='yield_')
+            
+         for i, j in pars.iteritems():
+            make_hist(i, j, out, prefix='par_')
 
-      for i, j in pars.iteritems():
-         make_hist(i, j, out, prefix='par_')
-
-if not args.postpulls:
-   pass
-
+      if not args.postpulls:
+         ROOT.gStyle.SetOptFit(11111)
+         for i, j in pars.iteritems():
+            make_post_pulls(i, j, pulls_dir)
