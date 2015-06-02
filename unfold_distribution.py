@@ -5,6 +5,7 @@ import rootpy.io as io
 import ROOT
 import math
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
+from unfolding_toy_diagnostics import unfolding_toy_diagnostics
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 log = rootpy.log["/URUnfolding"]
 rootpy.log.basic_config_colorized()
@@ -22,7 +23,8 @@ parser.add_argument('-d', type=str, dest='dir', default='', help='output directo
 parser.add_argument('--cov_matrix', type=str, dest='cov_matrix', default='full', help='Covariant matrix to use: full (diagonal+off-diagonal), diag (diagonal only), none (let TUnfold build a diagonal one).')
 parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_truth', help='Use the reco from migration matrix')
 parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
-parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.00001,7)', help='Tau range to scan')
+parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.0000001,7)', help='Tau range to scan')
+#parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0,0)', help='Tau range to scan')
 
 ## parser.add_argument('--noplots', dest='noplots', action='store_true',
 ##                     help='skip plot making')
@@ -278,7 +280,6 @@ data_file = io.root_open(opts.fit_file)
 if 'toy' in opts.fit_file:
     itoy = 0
     while True:
-        time.sleep(0.2)
         data_file_basedir = 'toy_' + str(itoy) + '/'
         try:
             getattr(data_file, data_file_basedir)
@@ -295,11 +296,14 @@ if 'toy' in opts.fit_file:
                 raise e
         outdir = os.path.join(opts.dir,data_file_basedir)
         
-        run_unfolder(itoy, outdir)
+        #run_unfolder(itoy, outdir)
                 
         itoy = itoy + 1
 else:
     run_unfolder()
+    
+if 'toy' in opts.fit_file:
+    unfolding_toy_diagnostics(opts.dir, opts.var)
 
 
 
