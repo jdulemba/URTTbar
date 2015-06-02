@@ -292,7 +292,7 @@ if 'toy' in opts.fit_file:
             if e.errno == 17:
                 log.warning('Directory %s already exists.' % data_file_basedir)
             else:
-                os.abort()
+                raise e
         outdir = os.path.join(opts.dir,data_file_basedir)
         
         run_unfolder(itoy, outdir)
