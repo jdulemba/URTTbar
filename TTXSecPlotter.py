@@ -1,7 +1,7 @@
 from pdb import set_trace
 from URAnalysis.PlotTools.Plotter import Plotter
 import URAnalysis.PlotTools.views as urviews
-import os, glob, sys, logging, ROOT, rootpy
+import os, glob, sys, logging, ROOT, rootpy, itertools
 from URAnalysis.Utilities.datacard import DataCard
 from URAnalysis.Utilities.roottools import slice_hist
 from styles import styles
@@ -61,7 +61,7 @@ class TTXSecPlotter(Plotter):
             files[os.path.basename(ifile)].append(
                (os.path.basename(os.path.dirname(ifile)), io.root_open(ifile))
                )
-         files = dict((i, urviews.MultifileView(*j)) for i, j in files.iteritems())
+         files = dict((i, urviews.MultifileView(**dict(j))) for i, j in files.iteritems())
 
       logging.debug('files found %s' % files.__repr__())
       lumis = glob.glob('inputs/%s/*.lumi' % jobid)
@@ -110,12 +110,31 @@ class TTXSecPlotter(Plotter):
          }
 
       self.views['ttJets_wrong'] = {
-         'view' : self.create_tt_subsample(
-            ['semilep_wrong', 
-            'semilep_right_thad', 
-            'semilep_right_tlep',],
-            'tt, wrong cmb',
-            '#ab5555'
+         'view' : urviews.MultifileView(
+            **{'' : self.create_tt_subsample(
+                  ['semilep_wrong', 
+                   'other_tt_decay',
+                   'semilep_right_tlep',],
+                  'tt, wrong cmb',
+                  '#ab5555'
+                  ),
+               'otherTT_ratio_up' : self.create_tt_subsample(
+                  ['semilep_wrong', 
+                   'other_tt_decay',
+                   'semilep_right_tlep',],
+                  'tt, wrong cmb',
+                  '#ab5555',
+                  relative_scale=[1., 1.5, 1.]
+                  ),
+               'otherTT_ratio_down' : self.create_tt_subsample(
+                  ['semilep_wrong', 
+                   'other_tt_decay',
+                   'semilep_right_tlep',],
+                  'tt, wrong cmb',
+                  '#ab5555',
+                  relative_scale=[1., 0.5, 1.]
+                  )
+               }
             )
          }
 
@@ -141,8 +160,8 @@ class TTXSecPlotter(Plotter):
          'vjets' : ['[WZ]Jets'],
          'single_top' : ['single*'],
          'tt_right' : ['ttJets_rightAssign'],
-         'tt_wrong' : ['ttJets_rightTlep', 'ttJets_wrongAssign'],
-         'tt_other' : ['ttJets_other'],
+         'tt_wrong' : ['ttJets_wrong'],
+         #'tt_other' : ['ttJets_other'],
          'only_thad_right' : ['ttJets_rightThad']
          }
 
@@ -152,6 +171,15 @@ class TTXSecPlotter(Plotter):
             'samples' : ['(?!tt_).*'],
             'categories' : ['.*'],
             'value' : 1.05,
+            },
+         'otherTT_ratio' : {
+            'type' : 'shape',
+            'samples' : ['tt_wrong'],
+            'categories' : ['.*'],
+            '+' : lambda x: 'otherTT_ratio_up/%s' % x,
+            '-' : lambda x: 'otherTT_ratio_down/%s' % x,
+            'value' : 1.00,
+            'shape_only' : True,
             },
          ## 'JES' : {
          ##    'samples' : ['*'],
@@ -171,14 +199,20 @@ class TTXSecPlotter(Plotter):
       self.card = None
       self.binning = {}
 
-   def create_tt_subsample(self, subdirs, title, color='#9999CC'):
+   def create_tt_subsample(self, subdirs, title, color='#9999CC', relative_scale=itertools.repeat(1.)):
       return views.StyleView(
          views.TitleView(
             views.SumView(
-               *[views.SubdirectoryView(
-                  self.views[self.ttbar_to_use]['view'],
-                  subdir
-                  ) for subdir in subdirs]
+               *[
+                  views.ScaleView(
+                     views.SubdirectoryView(
+                        self.views[self.ttbar_to_use]['view'],
+                        subdir
+                        ),
+                     scale
+                     )
+                  for subdir, scale in zip(subdirs, relative_scale)
+                  ]
                ),
             title
             ),
@@ -236,6 +270,7 @@ class TTXSecPlotter(Plotter):
       card_hists2D = dict(
          (name, view.Get(path)) for name, view in card_views.iteritems()
          )
+      sys_hists2D = {}
 
       category_axis = 'GetNbinsX' if slice_along == 'Y' else 'GetNbinsY'
       nbins = getattr(card_hists2D.values()[0], category_axis)()
@@ -274,17 +309,35 @@ class TTXSecPlotter(Plotter):
                continue
 
             for sys_name, info in self.systematics.iteritems():
-               if not any(re.match(i, category_name) for i in info['categories']): continue
+               if not any(re.match(i, category_name+'$') for i in info['categories']): continue
                if not any(re.match(i, name) for i in info['samples']): continue
                shift = 1.0
                if info['type'] == 'shape':
-                  raise RuntimeError('Still to implement!')
-                  #this will not work, since we handle directly 2D histograms
-                  #we need to change the concept
-                  paths_up = [info['+'](path) for path in paths] 
-                  paths_dw = [info['-'](path) for path in paths]
-                  hup = sum(view.Get(i) for i in paths_up)
-                  hdw = sum(view.Get(i) for i in paths_dw)
+                  if sys_name not in sys_hists2D:
+                     sys_hists2D[sys_name] = {}
+                  if name not in sys_hists2D[sys_name]:
+                     path_up = info['+'](path) 
+                     path_dw = info['-'](path)
+                     h2Dup = card_views[name].Get(path_up)
+                     h2Ddw = card_views[name].Get(path_dw)
+                     sys_hists2D[sys_name][name] = {
+                        '+' : h2Dup,
+                        '-' : h2Ddw,
+                        }
+                  else:
+                     h2Dup = sys_hists2D[sys_name][name]['+']
+                     h2Ddw = sys_hists2D[sys_name][name]['-']
+
+                  hup = slice_hist(h2Dup, idx+1, axis=slice_along)
+                  hdw = slice_hist(h2Ddw, idx+1, axis=slice_along)
+                  if 'shape_only' in info and info['shape_only']:
+                     hup_integral = hup.Integral()
+                     hdw_integral = hdw.Integral()
+                     hct_integral = category[name].Integral()
+                     
+                     hup.Scale(hct_integral/hup_integral)
+                     hdw.Scale(hct_integral/hdw_integral)
+
                   category['%s_%sUp'   % (name, sys_name)] = hup
                   category['%s_%sDown' % (name, sys_name)] = hdw
                if info['type'] == 'stat':
@@ -298,7 +351,7 @@ class TTXSecPlotter(Plotter):
                   self.card.add_systematic(
                      '%s_%s_%s' % (name, category_name, sys_name), 
                      'lnN', 
-                     category_name, 
+                     category_name+'$', 
                      name, 
                      1.+rel_err*info['multiplier']
                      )
