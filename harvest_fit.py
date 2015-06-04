@@ -146,11 +146,15 @@ with io.root_open(args.fitresult) as results:
                   logging.debug('%s' % fit_par_name)
                   logging.debug('norm %.2f +/- %.2f' % (norm.getVal(), norm.getError()))
                   logging.debug('SF   %.4f +/- %.4f' % (fit_par.getVal(), fit_par.getError()))
-                  logging.debug('norm unc. %.6f, SF unc. %.6f' % (
-                        norm.getError()/norm.getVal() if norm.getVal() else -1,
-                        fit_par.getError()/fit_par.getVal() if fit_par.getVal() else -1
+                  rel_y_err = norm.getError()/norm.getVal() if norm.getVal() else -1
+                  rel_f_err = fit_par.getError()/fit_par.getVal() if fit_par.getVal() else -1
+                  logging.debug(
+                     'norm unc. %.6f, SF unc. %.6f, delta %.3f' % (
+                        rel_y_err,
+                        rel_f_err,
+                        abs(rel_y_err-rel_f_err)*2/(rel_y_err+rel_f_err)
                         )
-                                )
+                     )
                   # assert(norm.getError()/norm.getVal() == fit_par.getError()/fit_par.getVal())
                   logging.debug(
                      'Assigning label %s to bin %i for %s/%s' % (fit_par_name, idx, category, sample)
