@@ -1,5 +1,6 @@
 #! /bin/env python
 
+import re
 import ROOT
 import rootpy.plotting as plotting
 import rootpy
@@ -99,18 +100,40 @@ def make_hist(key, rfit_vals, out, prefix=''):
    canvas.SaveAs('%s/%s%s.png' % (out, prefix, key.replace('/','_')))
    #canvas.SaveAs('%s/%s.pdf' % (out, key.replace('/','_')))
 
-def make_post_pulls(key, vals, out, prefix=''):
+def make_post_pulls(key, vals, out, toys_mean_summary, toys_sigma_summary, prefix=''):
    canvas = plotting.Canvas()
    pulls = []
    if 'YieldSF' in key:
       pulls = [(i.getVal()-1)/i.getError() for i in vals]
    else:
       pulls = [i.getVal()/i.getError() for i in vals]
+      
+   print key
+   if filter(str.isdigit, key) != '':
+      index = int(filter(str.isdigit, key))
+   else:
+      index = 1
+   print index
+   
+   singlekey=key.replace("YieldSF","")
+   singlekey=singlekey.replace("Bin","")
+   singlekey=singlekey.replace("MCStat","")
+   singlekey=singlekey.strip("_1234567890")
 
    hist = fill_hist(pulls)
    hist.Fit('gaus', 'IMES')
    hist.Draw()
    canvas.SaveAs('%s/%s%s.png' % (out, prefix, key.replace('/','_')))
+   if not hist.GetFunction("gaus"):
+      log.warning("Function not found for histogram %s" % name)
+   mean = hist.GetFunction("gaus").GetParameter(1)
+   meanerror = hist.GetFunction("gaus").GetParError(1)
+   sigma = hist.GetFunction("gaus").GetParameter(2)
+   sigmaerror = hist.GetFunction("gaus").GetParError(2)
+   toys_mean_summary[singlekey].SetBinContent(index,mean)
+   toys_mean_summary[singlekey].SetBinError(index,meanerror)
+   toys_sigma_summary[singlekey].SetBinContent(index,sigma)
+   toys_sigma_summary[singlekey].SetBinError(index,sigmaerror)
 
 if not args.nopars and not args.postpulls:
    #Plots the post-fit distribution of the POI and nuisances
@@ -174,5 +197,46 @@ if not args.nopars and not args.postpulls:
 
       if not args.postpulls:
          ROOT.gStyle.SetOptFit(11111)
+         singlenames=set()
+         for name,value in pars.iteritems():
+            name=name.replace("YieldSF","")
+            name=name.replace("Bin","")
+            name=name.replace("MCStat","")
+            name=name.strip("_1234567890")
+            singlenames.add(name)
+            
+         toys_mean_summary={}
+         toys_sigma_summary={}
+         for name in singlenames:
+            nbins = 0
+            for fullname,value in pars.iteritems():
+               if name in fullname:
+                  nbins = nbins + 1
+            print name, nbins
+            hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_mean_summary" %name)
+            toys_mean_summary[name] = hist
+            hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_sigma_summary" %name)
+            toys_sigma_summary[name] = hist
+         
          for i, j in pars.iteritems():
-            make_post_pulls(i, j, pulls_dir)
+            make_post_pulls(i, j, pulls_dir, toys_mean_summary, toys_sigma_summary)
+         
+         for name,histo in toys_mean_summary.iteritems():
+            canvas = plotting.Canvas()
+            histo.Draw()
+            canvas.Update()
+            line = ROOT.TLine(histo.GetBinLowEdge(1),0,histo.GetBinLowEdge(histo.GetNbinsX()+1),0)
+            line.Draw("same")
+            canvas.Update()
+            canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
+            canvas.SaveAs('%s/%s.pdf' % (pulls_dir,histo.GetName()))
+         for name,histo in toys_sigma_summary.iteritems():
+            canvas = plotting.Canvas()
+            histo.Draw()
+            canvas.Update()
+            line = ROOT.TLine(histo.GetBinLowEdge(1),1,histo.GetBinLowEdge(histo.GetNbinsX()+1),1)
+            line.Draw("same")
+            canvas.Update()
+            canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
+            canvas.SaveAs('%s/%s.pdf' % (pulls_dir,histo.GetName()))
+         
