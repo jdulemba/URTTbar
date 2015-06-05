@@ -257,15 +257,6 @@ if not opts.noplots:
 #     CARDS
 ##################
 if not opts.noshapes:
-   to_fit = [
-      ("ptthad", 'ptthad', pt_binning),
-   ##    ("pttlep", 'leptop_pt', pt_binning),
-   ##    ("etathad", eta_binning),
-   ##    ("etatlep", eta_binning),
-   ##    ("ttm"		, mass_binning),
-   ##    ("tty"		, y_binning),
-   ##    ("ttpt"   , ttpt_binning),
-      ]
 
    for var, info in vars_to_unfold.iteritems(): 
       plotter.set_subdir(var)
@@ -294,7 +285,6 @@ if not opts.noshapes:
          mig_matrix_unscaled.SetName('migration_matrix')
          mig_matrix_unscaled.Write()
 
-         #plotter.rebin_view(tt_view, pt_binning.gen).Get('TRUTH/truth_response_%s_truth' % var)
          tt_view = plotter.get_view(plotter.ttbar_to_use)
          matrix_view = plotter.rebin_view(
             tt_view,
@@ -310,8 +300,9 @@ if not opts.noshapes:
          
          prefit_view = plotter.rebin_view(
             plotter.get_view('ttJets_rightAssign'), 
-            pt_binning.reco
+            info.binning.reco
             )
+         plotting.views.SumView.debug = True
          prefit_plot = prefit_view.Get('all_%s' % var)
          prefit_plot.name = 'prefit_distribution'
          prefit_plot.Write()
