@@ -29,7 +29,15 @@ parser.add_argument('--noplots', dest='noplots', action='store_true',
                     help='skip plot making')
 parser.add_argument('--noshapes', dest='noshapes', action='store_true',
                     help='skip shape making')
+parser.add_argument('--optimize_binning', type=str,
+                   help='map sample:[] first bin range for optimization'
+                    )
 opts = parser.parse_args()
+
+#when running optimization we do not want to
+#plot anything!
+if len(opts.optimize_binning):
+   opts.noplots = True
 
 pt_binning = Struct(
    gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
@@ -66,6 +74,20 @@ vars_to_unfold = {
       xtitle = '#eta(t_{had})'
       ),
 }
+
+dir_postfix = ''
+if len(opts.optimize_binning):
+   sample, binning = tuple(opts.optimize_binning.split(':'))
+   if sample not in vars_to_unfold:
+      raise ValueError('Sample %s is not among the ones I have to unfold!' % sample)
+   binning = eval(binning)
+   info = vars_to_unfold[sample]
+   #use ONLY the variable we want
+   vars_to_unfold = {
+      sample : info
+      }
+   vars_to_unfold[sample].binning.reco = binning
+   dir_postfix = '_%.1f_%.1f' % tuple(binning)
 
 plotter = TTXSecPlotter()
 
@@ -253,13 +275,19 @@ if not opts.noplots:
          plotter.save('%s_bkgslice_%i_shape' % (discriminant, idx), pdf=False)
          previous = vbin
 
+
+
 ##################
 #     CARDS
 ##################
 if not opts.noshapes:
 
    for var, info in vars_to_unfold.iteritems(): 
-      plotter.set_subdir(var)
+      plotter.set_subdir(
+         ''.join(
+            [var, dir_postfix]
+            )
+         )
       plotter.write_shapes(
          '', var, 'all_%s_%s' % (discriminant, var), full_discr_binning, 
          info.binning.reco
