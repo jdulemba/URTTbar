@@ -20,7 +20,7 @@ parser.add_argument('fit_file', type=str, help='file where to find the fitting i
 parser.add_argument('truth_file', type=str, help='file where to find the truth info (migration matrix and true distribution)')
 parser.add_argument('-o', type=str, dest='out', default='result_unfolding.root', help='output file')
 parser.add_argument('-d', type=str, dest='dir', default='', help='output directory')
-parser.add_argument('--cov_matrix', type=str, dest='cov_matrix', default='full', help='Covariant matrix to use: full (diagonal+off-diagonal), diag (diagonal only), none (let TUnfold build a diagonal one).')
+parser.add_argument('--cov_matrix', type=str, dest='cov_matrix', default='full', help='Covariance matrix to use: full (diagonal+off-diagonal), diag (diagonal only), none (let TUnfold build a diagonal one).')
 parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_truth', help='Use the reco from migration matrix')
 parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
 parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.0000001,7)', help='Tau range to scan')
@@ -87,6 +87,42 @@ def make_cov_matrix(full_cov, h_input):
             cov_ij
             )
     return matrix
+ 
+def make_corr_matrix(full_cov, h_input):
+    '''pick from the fit covariance matrix 
+    only the values we care about'''
+    nbins = h_input.GetNbinsX()
+    full_nbins = full_cov.GetNbinsX()
+    matrix = plotting.Hist2D(
+        nbins, h_input.GetBinLowEdge(1), h_input.GetBinLowEdge(nbins+1),
+        nbins, h_input.GetBinLowEdge(1), h_input.GetBinLowEdge(nbins+1)
+        )
+    bin_map_x = dict((full_cov.xaxis.GetBinLabel(i), i) 
+                   for i in range(1, full_nbins+1))
+    bin_map_y = dict((full_cov.yaxis.GetBinLabel(i), i) 
+                   for i in range(1, full_nbins+1))
+    to_save = [h_input.xaxis.GetBinLabel(i) 
+               for i in range(1, nbins+1)]
+    bin_map_new = dict((j, i+1) for i,j in enumerate(to_save))
+    for i, j in itertools.product(to_save, to_save):
+        full_i = bin_map_x[i]
+        full_j = bin_map_y[j]
+
+        new_i = bin_map_new[i]
+        new_j = bin_map_new[j]
+        
+        corr_ij = full_cov.GetBinContent(full_i,full_j)
+
+        if i == j and corr_ij < 0:
+            set_trace()
+        if new_i != new_j and opts.cov_matrix == 'diag':
+            continue
+        matrix.SetBinContent(
+            new_i,
+            new_j,
+            corr_ij
+            )
+    return matrix
 
 def save(canvas, sub, name, outdir):
     folder = os.path.join(outdir, sub)
@@ -138,12 +174,21 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
                 getattr(data_file, data_file_basedir).correlation_matrix,
                 getattr(data_file, data_file_dir).tt_right
                 )
+            input_corr_matrix = make_corr_matrix(
+                getattr(data_file, data_file_basedir).correlation_matrix,
+                getattr(data_file, data_file_dir).tt_right
+                )
         else:
             input_cov_matrix = make_cov_matrix(
                 data_file.correlation_matrix,
                 getattr(data_file, data_file_dir).tt_right
                 )
+            input_corr_matrix = make_corr_matrix(
+                data_file.correlation_matrix,
+                getattr(data_file, data_file_dir).tt_right
+                )
         input_cov_matrix.name = 'input_cov_matrix'
+        input_corr_matrix.name = 'input_corr_matrix'
         myunfolding.cov_matrix = input_cov_matrix
     myunfolding.InitUnfolder()
     hdata = myunfolding.measured # Duplicate. Remove!
@@ -265,6 +310,7 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
 
         if opts.cov_matrix != 'none':
            to_save.extend([input_cov_matrix])
+           to_save.extend([input_corr_matrix])
 
         for i, j in enumerate(to_save):
             log.debug('Saving %s as %s' % (j.name, j.GetName()))
@@ -296,7 +342,7 @@ if 'toy' in opts.fit_file:
                 raise e
         outdir = os.path.join(opts.dir,data_file_basedir)
         
-        run_unfolder(itoy, outdir)
+        #run_unfolder(itoy, outdir)
                 
         itoy = itoy + 1
 else:
