@@ -16,6 +16,7 @@ asrootpy = rootpy.asrootpy
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetOptFit(11111)
 ROOT.gROOT.SetBatch()
 log = rootpy.log["/toy_diagnostics"]
 
@@ -52,6 +53,8 @@ def unfolding_toy_diagnostics(indir, variable):
     pulls = {}
     pull_means = {}
     pull_sigmas = {}
+    pull_means_summary = {}
+    pull_sigmas_summary = {}
     curdir = os.getcwd()
     os.chdir(indir)
     toydirs = get_immediate_subdirectories(".")
@@ -76,6 +79,11 @@ def unfolding_toy_diagnostics(indir, variable):
                         pull_means[outname] = plotting.Hist(pull_mean_nbins, pull_mean_min, pull_mean_max, name = outname_mean)
                         outname_sigma = outname + "_sigma"
                         pull_sigmas[outname] = plotting.Hist(pull_sigma_nbins, pull_sigma_min, pull_sigma_max, name = outname_sigma)
+                        outname_mean_summary = outname + "_mean_summary"
+                        pull_means_summary[outname] = plotting.Hist(nbins, histo.GetXaxis().GetBinLowEdge(1), histo.GetXaxis().GetBinLowEdge(nbins+1), name = outname_mean_summary)
+                        outname_sigma_summary = outname + "_sigma_summary"
+                        pull_sigmas_summary[outname] = plotting.Hist(nbins, histo.GetXaxis().GetBinLowEdge(1), histo.GetXaxis().GetBinLowEdge(nbins+1), name = outname_sigma_summary)
+                        
                 histos_created = True
             true_distribution = keys.FindObject("true_distribution").ReadObj()
             for key in keys:
@@ -109,13 +117,29 @@ def unfolding_toy_diagnostics(indir, variable):
             log.warning("Function not found for histogram %s" % name)
             continue
         mean = histo.GetFunction("gaus").GetParameter(1)
+        meanError = histo.GetFunction("gaus").GetParError(1)
         sigma = histo.GetFunction("gaus").GetParameter(2)
+        sigmaError = histo.GetFunction("gaus").GetParError(2)
+        if filter(str.isdigit, name) != '':
+            index = int(filter(str.isdigit, name))
+        else:
+            index = 1
+        print index
         for name_mean, histo_mean in pull_means.iteritems():
             if name.startswith(name_mean):
                 pull_means[name_mean].Fill(mean)
         for name_sigma, histo_sigma in pull_sigmas.iteritems():
             if name.startswith(name_sigma):
                 pull_sigmas[name_sigma].Fill(sigma)
+        for name_mean_summary, histo_mean_summary in pull_means_summary.iteritems():
+            if name.startswith(name_mean_summary):
+                pull_means_summary[name_mean_summary].SetBinContent(index,mean)
+                pull_means_summary[name_mean_summary].SetBinError(index,meanError)
+        for name_sigma_summary, histo_sigma_summary in pull_sigmas_summary.iteritems():
+            if name.startswith(name_sigma_summary):
+                pull_sigmas_summary[name_sigma_summary].SetBinContent(index,sigma)
+                pull_sigmas_summary[name_sigma_summary].SetBinError(index,sigmaError)
+                
                 
         
     for name, histo in pulls.iteritems():
@@ -126,6 +150,30 @@ def unfolding_toy_diagnostics(indir, variable):
         histo.Write()
     for name, histo in pull_sigmas.iteritems():
         create_and_save_canvas(histo, "pull sigmas")
+        histo.Write()
+    for name, histo in pull_means_summary.iteritems():
+        canvas = plotting.Canvas()
+        histo.SetStats(True)
+        histo.GetXaxis().SetName("pull means summary")
+        histo.Draw()
+        canvas.Update()
+        line = ROOT.TLine(histo.GetBinLowEdge(1),0,histo.GetBinLowEdge(histo.GetNbinsX()+1),0)
+        line.Draw("same")
+        canvas.Update()
+        canvas.SaveAs('%s.png' % histo.GetName())
+        canvas.SaveAs('%s.pdf' % histo.GetName())
+        histo.Write()
+    for name, histo in pull_sigmas_summary.iteritems():
+        canvas = plotting.Canvas()
+        histo.SetStats(True)
+        histo.GetXaxis().SetName("pull sigmas summary")
+        histo.Draw()
+        canvas.Update()
+        line = ROOT.TLine(histo.GetBinLowEdge(1),1,histo.GetBinLowEdge(histo.GetNbinsX()+1),1)
+        line.Draw("same")
+        canvas.Update()
+        canvas.SaveAs('%s.png' % histo.GetName())
+        canvas.SaveAs('%s.pdf' % histo.GetName())
         histo.Write()
         
     outfile.close()
