@@ -11,6 +11,7 @@ from pdb import set_trace
 import logging
 from os.path import join
 import os
+import re
 
 asrootpy = rootpy.asrootpy
 rootpy.log["/"].setLevel(rootpy.log.INFO)
@@ -38,9 +39,30 @@ parser.add_argument(
 parser.add_argument('--noshapes', action='store_true')
 parser.add_argument('--nopars', action='store_true')
 parser.add_argument('--no-post-pulls', dest='postpulls', action='store_true')
+parser.add_argument('--filter-in-pars', dest='pars_regex', type=str)
+parser.add_argument('--filter-in-sample', dest='sample_regex', type=str)
+parser.add_argument('--filter-out-pars', dest='pars_out_regex', type=str)
+parser.add_argument('--filter-out-sample', dest='sample_out_regex', type=str)
 
 args = parser.parse_args()
 mkdir(args.out)
+canvas = plotting.Canvas()
+
+pars_regex = None
+if args.pars_regex:
+   pars_regex = re.compile(args.pars_regex)
+   
+sample_regex = None
+if args.sample_regex:
+   sample_regex = re.compile(args.sample_regex)
+
+pars_out_regex = None
+if args.pars_out_regex:
+   pars_out_regex = re.compile(args.pars_out_regex)
+   
+sample_out_regex = None
+if args.sample_out_regex:
+   sample_out_regex = re.compile(args.sample_out_regex)
 
 if not args.noshapes:
    #Overlays the prefit values of the different shapes with the envelope of 
@@ -58,7 +80,6 @@ if not args.noshapes:
       shapes = [i.GetName() for i in prefit.keys()]
       
       for shape in shapes:
-         canvas = plotting.Canvas()
          legend = plotting.Legend(4, rightmargin=0.07, topmargin=0.05, leftmargin=0.45)
          legend.SetBorderSize(0)
          if has_prefit:
@@ -81,7 +102,8 @@ if not args.noshapes:
          canvas.Update()
          canvas.SaveAs('%s/%s.png' % (out, shape))
          canvas.SaveAs('%s/%s.pdf' % (out, shape))
-
+         with open(os.path.join(out, '%s.json' % shape), 'w') as jfile:
+            jfile.write(toy_shape.json())
 
 def fill_hist(vals):
    low = min(vals)
@@ -150,7 +172,7 @@ def make_post_distributions(key, vals, out, mean_summary, sigma_summary, dist='p
          values = [(i.getVal()) for i in vals]
    else:
       log.error('Distribution named "%s" is not supported!' % dist)
-      
+
    print key
    if filter(str.isdigit, key) != '':
       index = int(filter(str.isdigit, key))
@@ -178,7 +200,7 @@ def make_post_distributions(key, vals, out, mean_summary, sigma_summary, dist='p
    sigma_summary[singlekey].SetBinContent(index,sigma)
    sigma_summary[singlekey].SetBinError(index,sigmaerror)
 
-if not args.nopars and not args.postpulls:
+if not args.nopars or not args.postpulls:
    #Plots the post-fit distribution of the POI and nuisances
    out = os.path.join(args.out, 'floating_parameters')
    mkdir(out)
@@ -194,21 +216,19 @@ if not args.nopars and not args.postpulls:
       toys = [i.GetName() for i in mlfit.keys() if i.GetName().startswith('toy_')]
       log.info('examining %i toys' % len(toys))
       for toy in toys:
+         toy_dir = mlfit.Get(toy)
+         keys = set([i.GetName() for i in toy_dir.GetListOfKeys()])
+         if 'norm_fit_s' not in keys or 'fit_s' not in keys:
+            continue
          norms = ArgSet(
-            mlfit.Get(
-               join(
-                  toy,
-                  'norm_fit_s'
-                  )
+            toy_dir.Get(
+               'norm_fit_s'
                )
             )
          norms = [i for i in norms]
 
-         fit_result = mlfit.Get(
-            join(
-               toy,
-               'fit_s'
-               )
+         fit_result = toy_dir.Get(
+            'fit_s'
             )
          fit_pars = ArgList(fit_result.floatParsFinal())
          
@@ -236,25 +256,29 @@ if not args.nopars and not args.postpulls:
             make_hist(i, j, out, prefix='yield_')
             
          for i, j in pars.iteritems():
+            if pars_regex and not pars_regex.match(i): continue
+            if pars_out_regex and pars_out_regex.match(i): continue
             make_hist(i, j, out, prefix='par_')
 
       if not args.postpulls:
          ROOT.gStyle.SetOptFit(11111)
          singlenames=set()
          for name,value in pars.iteritems():
+            if pars_regex and not pars_regex.match(name): continue
+            if pars_out_regex and pars_out_regex.match(i): continue
             name=name.replace("YieldSF","")
             name=name.replace("Bin","")
             name=name.replace("MCStat","")
             name=name.strip("_1234567890")
             singlenames.add(name)
-            
+         
          pulls_mean_summary={}
          pulls_sigma_summary={}
          deltas_mean_summary={}
          deltas_sigma_summary={}
          for name in singlenames:
             nbins = 0
-            for fullname,value in pars.iteritems():
+            for fullname in pars:
                if name in fullname:
                   nbins = nbins + 1
             print name, nbins
@@ -268,9 +292,10 @@ if not args.nopars and not args.postpulls:
             deltas_sigma_summary[name] = hist
          
          for i, j in pars.iteritems():
+            if pars_regex and not pars_regex.match(name): continue
+            if pars_out_regex and pars_out_regex.match(i): continue
             make_post_distributions(i, j, pulls_dir, pulls_mean_summary, pulls_sigma_summary,dist='pull')
             make_post_distributions(i, j, pulls_dir, deltas_mean_summary, deltas_sigma_summary,dist='delta')
-            
          
          for name,histo in pulls_mean_summary.iteritems():
             canvas = plotting.Canvas()
