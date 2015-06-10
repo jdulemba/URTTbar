@@ -60,9 +60,9 @@ rule /\.harvested\.root$/ => psub(/\.harvested\.root$/, '.mlfit.root') do |t|
 end
 
 def get_toy_harvest(fname)
-  vardir = fname.sub("plots/#{$jobid}/ttxsec/", "").split('/')[0]
-  var = vardir.sub(/_\d+\.\d_\d+\.\d/, '')
-  return "plots/#{$jobid}/ttxsec/#{vardir}/#{var}.toy.harvested.root"
+  harvesdir = fname.split('toys')[0]
+  var = fname.sub("plots/#{$jobid}/ttxsec/", "").split('/')[0]
+  return "#{harvesdir}/#{var}.toy.harvested.root"
 end
 
 rule /toys\/shapes\/tt_right.json$/ => proc {|name| get_toy_harvest(name)} do |t|
@@ -91,13 +91,13 @@ task :optimize_binning, [:var, :varmin, :vmin, :vmax, :vstep, :terminate] do |t,
   varmin = Float(args.varmin)
 
   (Float(args.vmin)..Float(args.vmax)).step(Float(args.vstep)) do |varmax|
-    sh "python runTTXSecPlotter.py --optimize_binning '#{args.var}:[#{varmin},#{varmax}]'"
+    sh "python runTTXSecPlotter.py --optimize_binning '#{args.var}:[#{varmin},#{varmax}]' --subdir=binning_optimization"
   end
 
   jsons = []
   (Float(args.vmin)..Float(args.vmax)).step(Float(args.vstep)) do |varmax|
-    vardir = "#{args.var}_#{format("%.1f", varmin)}_#{format("%.1f", varmax)}"
-    jfile = "plots/#{$jobid}/ttxsec/#{vardir}/toys/shapes/tt_right.json"
+    vardir = "#{format("%.1f", varmin)}_#{format("%.1f", varmax)}"
+    jfile = "plots/#{$jobid}/ttxsec/#{args.var}/binning_optimization/#{vardir}/toys/shapes/tt_right.json"
     Rake::Task[jfile].invoke
     jsons << jfile
   end
