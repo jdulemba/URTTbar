@@ -77,29 +77,27 @@ with io.root_open(args.fitresult) as results:
    
    is_prefit_done = False
    with io.root_open(args.out, 'recreate') as output:
-      for input_dir in dirs:
+      for dirname in dirs:
+         input_dir = results.Get(dirname) if dirname else results
+         keys = set([i.GetName() for i in input_dir.GetListOfKeys()])
+         if 'norm_fit_s' not in keys or 'fit_s' not in keys:
+            continue
          norms = ArgSet(
-            results.Get(
-               join(
-                  input_dir,
-                  'norm_fit_s'
-                  )
+            input_dir.Get(
+               'norm_fit_s'
                )
             )
          norms = [i for i in norms]
 
-         fit_result = results.Get(
-            join(
-               input_dir,
-               'fit_s'
-               )
+         fit_result = input_dir.Get(
+            'fit_s'
             )
          pars = ArgList(fit_result.floatParsFinal())
          pars = dict((i.GetName(), i) for i in pars)
    
          tdir = output
-         if input_dir: 
-            tdir = output.mkdir(input_dir)
+         if dirname: 
+            tdir = output.mkdir(dirname)
             tdir.cd()
          hcorr = asrootpy(fit_result.correlationHist())
          fit_pars = set(
