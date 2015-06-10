@@ -32,6 +32,9 @@ parser.add_argument('--noshapes', dest='noshapes', action='store_true',
 parser.add_argument('--optimize_binning', type=str,
                    help='map sample:[] first bin range for optimization'
                     )
+parser.add_argument('--subdir', type=str, default='',
+                   help='sub directory to store shapes'
+                    )
 opts = parser.parse_args()
 
 #when running optimization we do not want to
@@ -87,7 +90,7 @@ if len(opts.optimize_binning):
       sample : info
       }
    vars_to_unfold[sample].binning.reco = binning
-   dir_postfix = '_%.1f_%.1f' % tuple(binning)
+   dir_postfix = '_'.join(['%.1f' % i for i in binning])
 
 plotter = TTXSecPlotter()
 
@@ -184,15 +187,16 @@ plotter.systematics = {
       'categories' : ['.*'],
       'value' : 1.05,
       },
-   'otherTT_ratio' : {
-      'type' : 'shape',
-      'samples' : ['tt_wrong'],
-      'categories' : ['.*'],
-      '+' : lambda x: 'otherTT_ratio_up/%s' % x,
-      '-' : lambda x: 'otherTT_ratio_down/%s' % x,
-      'value' : 1.00,
-      'shape_only' : True,
-      },
+   ## 'otherTT_ratio' : {
+   ##    'type' : 'shape',
+   ##    'samples' : ['tt_wrong'],
+   ##    'categories' : ['.*'],
+   ##    '+' : lambda x: 'otherTT_ratio_up/%s' % x,
+   ##    '-' : lambda x: 'otherTT_ratio_down/%s' % x,
+   ##    'value' : 1.00,
+   ##    'shape_only' : True,
+   ##    },
+
    ## 'JES' : {
    ##    'samples' : ['*'],
    ##    'categories' : ['*'],
@@ -201,6 +205,7 @@ plotter.systematics = {
    ##    '-' : lambda x: x.replace('nosys', 'jes_down'),
    ##    'value' : 1.00,
    ##    },
+
    'MCStat' : {
       'samples' : ['only_thad_right'],
       'categories' : ['.*'],
@@ -284,8 +289,10 @@ if not opts.noshapes:
 
    for var, info in vars_to_unfold.iteritems(): 
       plotter.set_subdir(
-         ''.join(
-            [var, dir_postfix]
+         os.path.join(
+            var,
+            opts.subdir,
+            dir_postfix
             )
          )
       plotter.write_shapes(
