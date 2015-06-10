@@ -166,6 +166,7 @@ def make_post_distributions(key, vals, out, mean_summary, sigma_summary, dist='p
       else:
          values = [i.getVal()/i.getError() for i in vals]
    elif dist == 'delta':
+      prefix += dist
       if 'YieldSF' in key:
          values = [(i.getVal()-1) for i in vals]
       else:
@@ -175,7 +176,7 @@ def make_post_distributions(key, vals, out, mean_summary, sigma_summary, dist='p
 
    print key
    if filter(str.isdigit, key) != '':
-      index = int(filter(str.isdigit, key))
+      index = int(filter(str.isdigit, key))+1
    else:
       index = 1
    print index
@@ -184,7 +185,6 @@ def make_post_distributions(key, vals, out, mean_summary, sigma_summary, dist='p
    singlekey=singlekey.replace("Bin","")
    singlekey=singlekey.replace("MCStat","")
    singlekey=singlekey.strip("_1234567890")
-
    hist = fill_hist(values)
    hist.Fit(fitfunc, 'IMES')
    hist.Draw()
@@ -302,6 +302,7 @@ if not args.nopars or not args.postpulls:
             histo.Draw()
             canvas.Update()
             line = ROOT.TLine(histo.GetBinLowEdge(1),0,histo.GetBinLowEdge(histo.GetNbinsX()+1),0)
+            line.SetLineColor(2)
             line.Draw("same")
             canvas.Update()
             canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
@@ -321,6 +322,7 @@ if not args.nopars or not args.postpulls:
             histo.Draw()
             canvas.Update()
             line = ROOT.TLine(histo.GetBinLowEdge(1),0,histo.GetBinLowEdge(histo.GetNbinsX()+1),0)
+            line.SetLineColor(2)
             line.Draw("same")
             canvas.Update()
             canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
