@@ -46,7 +46,7 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
   end
   chdir(dir) do
-    sh "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --skipBOnlyFit #{toy_cmd}"
+    sh "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --skipBOnlyFit #{toy_cmd} -v -1"
     sh "cp mlfit.root #{File.basename(t.name)}"
   end
 end
@@ -65,10 +65,11 @@ def get_toy_harvest(fname)
   return "#{harvesdir}/#{var}.toy.harvested.root"
 end
 
+$quick_toy_check='' #urgh, global vars, really? Yes...
 rule /toys\/shapes\/tt_right.json$/ => proc {|name| get_toy_harvest(name)} do |t|
   vardir = File.dirname(t.source)
   var = File.basename(t.source).sub('.toy.harvested.root','')
-  sh "./toy_diagnostics.py #{var} #{t.source} #{vardir}/#{var}.toy.mlfit.root -o #{vardir}/toys"
+  sh "./toy_diagnostics.py #{var} #{t.source} #{vardir}/#{var}.toy.mlfit.root -o #{vardir}/toys #{$quick_toy_check}"
 end
 
 task :toy_diagnostics, [:vardir] do |t, args|
@@ -83,26 +84,97 @@ task :fit_toys, [:var] do |t, args|
   Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.toy.harvested.root"].invoke
 end
 
-task :optimize_binning, [:var, :varmin, :vmin, :vmax, :vstep, :terminate] do |t, args|
-  terminate = args.terminate
-  if not terminate
-    terminate = 0.1
-  end
-  varmin = Float(args.varmin)
+#
+#   BIN OPTIMIZATION
+#
 
-  (Float(args.vmin)..Float(args.vmax)).step(Float(args.vstep)) do |varmax|
-    sh "python runTTXSecPlotter.py --optimize_binning '#{args.var}:[#{varmin},#{varmax}]' --subdir=binning_optimization"
+def optimize_bin(var, varmin, vmin, vmax, vstep, bin_name='Bin0', predecessors='')
+  $quick_toy_check = '--nopars --no-post-pulls'
+  varmin = Float(varmin)
+  max_edges = []
+  vrange = Float(vmax) - varmin
+  (Float(vmin)..Float(vmax)).step(Float(vstep)) do |varmax|
+    max_edges << varmax
   end
+  sh "python runTTXSecPlotter.py --optimize_binning '#{var}:[#{predecessors}]:#{varmin}:[#{max_edges.join(',')}]' --subdir=binning_optimization"
 
   jsons = []
-  (Float(args.vmin)..Float(args.vmax)).step(Float(args.vstep)) do |varmax|
-    vardir = "#{format("%.1f", varmin)}_#{format("%.1f", varmax)}"
-    jfile = "plots/#{$jobid}/ttxsec/#{args.var}/binning_optimization/#{vardir}/toys/shapes/tt_right.json"
+  (Float(vmin)..Float(vmax)).step(Float(vstep)) do |varmax|
+    vardir = "#{predecessors.gsub(',','_')}#{format("%.1f", varmin)}_#{format("%.1f", varmax)}"
+    jfile = "plots/#{$jobid}/ttxsec/#{var}/binning_optimization/#{vardir}/toys/shapes/tt_right.json"
     Rake::Task[jfile].invoke
     jsons << jfile
   end
-  sh "./plot_optimization.py #{args.var} plots/#{$jobid}/ttxsec #{jsons.join(' ')}"
+  opt_dir = "plots/#{$jobid}/ttxsec/#{var}/binning_optimization"
+  sh "./plot_optimization.py #{var} #{opt_dir} #{vrange} #{jsons.join(' ')} --name=#{bin_name}"
+  $quick_toy_check=''
+  return "#{opt_dir}/#{bin_name}.json"
 end
+
+task :optimize_binning, [:var, :varmin, :vmin, :vmax, :vstep] do |t, args|
+  optimize_bin(args.var, args.varmin, args.vmin, args.vmax, args.vstep)
+end
+
+task :optimize_bins, [:var, :vmin, :vmax, :vstep, :maxsize, :already_done] do |t, args|
+  low_bounds = []
+  if args.already_done
+    low_bounds = args.already_done.split('_').map{|x| Float(x)}
+  end
+  low_bounds << Float(args.vmin)
+  vmax = Float(args.vmax)
+  maxsize = Float(args.maxsize)
+  vstep = Float(args.vstep)
+  var = args.var
+  while low_bounds[-1] < vmax do
+    limit = low_bounds[-1]+maxsize < vmax ? low_bounds[-1]+maxsize : vmax 
+    preced = ""
+    if low_bounds.size > 1
+      preced = "#{low_bounds[0..-2].join(',')},"
+    end
+    json_file = optimize_bin(
+                             var, 
+                             low_bounds[-1], 
+                             low_bounds[-1]+vstep, 
+                             limit, 
+                             vstep, 
+                             "Bin#{low_bounds.size}", 
+                             preced
+      )
+    jmap = JSON.parse(File.open(json_file).read)
+    low_bounds << jmap['best']
+  end
+  sh "echo #{low_bounds.join(' , ')} > #{var}.optimalbin.txt"
+end
+
+=begin
+def optimise_nbins(steering_file)
+  #TODO: write steering
+  
+  niter = 0
+  maxiter = 500
+  while niter < maxiter do
+    niter += 1
+    jmap = JSON.parse(File.open(steering_file).read)
+    binning = jmap['binning']
+    var = jmap['var']
+    opt_dir = "plots/#{$jobid}/ttxsec/#{var}/binning_optimization"
+    sh "echo #{steering_file} >> #{opt_dir}/iterations.txt"
+    output_dir = "#{opt_dir}/#{binning.map{|x| format("%.1f", x)}.join('_')}"
+    output_txt = "#{output_dir}/#{var}.txt"
+    if File.exist?(output_txt)
+      puts 'Circular reference found! Exiting'
+      break
+    end
+
+    sh "python runTTXSecPlotter.py --binning '#{var}:[#{binning.join(',')}]' --subdir=binning_optimization"
+    jfile = "#{output_dir}/toys/shapes/tt_right.json"
+    Rake::Task[jfile].invoke
+
+    sh "./find_next_iteration.py #{steering_file} #{jfile} #{output_dir}/steering.json"
+    steering_file="#{output_dir}/steering.json"
+  end
+end
+=end
 
 ###########################
 # Charm-tagging tasks
