@@ -152,7 +152,7 @@ class BTagPlotter(Plotter):
          linecolor = color
          )
 
-   def add_systematics(self):
+   def add_systematics(self, nobbb=False):
       if not plotter.card:
          raise ValueError('The card is not defined!')
       for sys_name, info in self.systematics.iteritems():
@@ -165,7 +165,8 @@ class BTagPlotter(Plotter):
                   sample, 
                   info['value']
                   )
-      plotter.card.add_bbb_systematics('.*', '.*')
+      if not nobbb:
+         plotter.card.add_bbb_systematics('.*', '.*')
 
    def save_card(self, name):
       if not self.card:
@@ -212,9 +213,9 @@ class BTagPlotter(Plotter):
             if not any(re.match(i, category_name) for i in info['categories']): continue
             if not any(re.match(i, name) for i in info['samples']): continue
             shift = 1.0
-            paths_up = [info['+'](path) for path in paths] 
-            paths_dw = [info['-'](path) for path in paths]
             if info['type'] == 'shape':
+               paths_up = [info['+'](path) for path in paths] 
+               paths_dw = [info['-'](path) for path in paths]
                hup = sum(view.Get(i) for i in paths_up)
                hdw = sum(view.Get(i) for i in paths_dw)
                if name == 'right_whad':
@@ -232,7 +233,7 @@ class BTagPlotter(Plotter):
       
       n_total = sum(jmap[i][jrank][qtype] for i in total)
       n_passing = sum(jmap[i][jrank][qtype] for i in passing)
-      return n_passing / n_total
+      return n_passing / n_total, math.sqrt(n_passing * (1 - n_passing / n_total)) / n_total
 
    def write_summary_table(self, orders, wpoints):
       right_wpoints = [i for i in wpoints if i <> 'notag']
@@ -327,16 +328,21 @@ class BTagPlotter(Plotter):
                      )
                   mc_effs[wp]['%s_err' %jtag] = err[0]
             
-            lead_ceff = BTagPlotter.compute_eff(info, 'leading', 'charm')
-            sub_ceff  = BTagPlotter.compute_eff(info, 'subleading', 'charm')
-            lead_leff = BTagPlotter.compute_eff(info, 'leading', 'light')
-            sub_leff  = BTagPlotter.compute_eff(info, 'subleading', 'light')
+            lead_ceff, lead_ceff_err = BTagPlotter.compute_eff(info, 'leading', 'charm')
+            sub_ceff , sub_ceff_err = BTagPlotter.compute_eff(info, 'subleading', 'charm')
+            lead_leff, lead_leff_err = BTagPlotter.compute_eff(info, 'leading', 'light')
+            sub_leff , sub_leff_err = BTagPlotter.compute_eff(info, 'subleading', 'light')
             
             mc_effs[wp].update({
                'lead_charmEff' : lead_ceff,
                'sub_charmEff'  : sub_ceff ,
                'lead_lightEff' : lead_leff,
                'sub_lightEff'  : sub_leff ,
+
+               'lead_charmEff_err' : lead_ceff_err,
+               'sub_charmEff_err'  : sub_ceff_err,
+               'lead_lightEff_err' : lead_leff_err,
+               'sub_lightEff_err'  : sub_leff_err,
                })
          info[order] = {
             'nevts' : nevt,
@@ -431,7 +437,10 @@ class BTagPlotter(Plotter):
          21: 'gluon',            
          }
       format = '%10s %10s +/- %10s %10s\n'
-      yields = {'light' : 0, 'charm' : 0, 'other' : 0, 'strange' : 0}
+      yields = {
+         'light' : 0, 'charm' : 0, 'other' : 0, 'strange' : 0,
+         'light_err' : 0, 'charm_err' : 0, 'other_err' : 0, 'strange_err' : 0,
+                }
       quark_yields = {}
       quark_errors = {}
       yield_names = {
@@ -459,7 +468,8 @@ class BTagPlotter(Plotter):
             f.write(header)
             f.write('-'*len(header)+'\n')
             for _, name in ids.iteritems():
-               f.write(format % (name, '%.0f' % entries, '%.0f' % error, '%.0f%%' % ((entries/total)*100)))
+               ratio = 0 if total == 0 else (entries/total)*100
+               f.write(format % (name, '%.0f' % entries, '%.0f' % error, '%.0f%%' % (ratio)))
 
       if to_json:
          with open(os.path.join(self.outputdir, fname.replace('.raw_txt','.json')), 'w') as f:
@@ -704,15 +714,15 @@ if not args.noshapes:
                [os.path.join(base, i) for i in folders], 
                rebin=2
                )
-         plotter.add_systematics()
+         plotter.add_systematics(args.noBBB)
 
-         plotter.card.add_systematic('lead_cfrac', 'param', '', '', info[order]['leadCFrac'], 0.0001)
-         plotter.card.add_systematic('sub_cfrac' , 'param', '', '', info[order]['subCFrac'] , 0.0001)
-         plotter.card.add_systematic('mc_lead_charm_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_charmEff'], 0.0001)
-         plotter.card.add_systematic('mc_lead_light_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_lightEff'], 0.0001)
-         plotter.card.add_systematic('mc_sub_charm_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_charmEff'] , 0.0001)
-         plotter.card.add_systematic('mc_sub_light_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_lightEff'] , 0.0001)
-         plotter.card.add_systematic('signal_norm', 'param', '', '', info[order]['nevts'], 0.0001)
+         plotter.card.add_systematic('lead_cfrac', 'param', '', '', info[order]['leadCFrac'], info[order]['leadCFrac_err'])
+         plotter.card.add_systematic('sub_cfrac' , 'param', '', '', info[order]['subCFrac'] , info[order]['subCFrac_err'] )
+         plotter.card.add_systematic('mc_lead_charm_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_charmEff'], info[order]['working_points'][wpoint]['lead_charmEff_err'])
+         plotter.card.add_systematic('mc_lead_light_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_lightEff'], info[order]['working_points'][wpoint]['lead_lightEff_err'])
+         plotter.card.add_systematic('mc_sub_charm_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_charmEff'] , info[order]['working_points'][wpoint]['sub_charmEff_err'] )
+         plotter.card.add_systematic('mc_sub_light_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_lightEff'] , info[order]['working_points'][wpoint]['sub_lightEff_err'] )
+         plotter.card.add_systematic('signal_norm', 'param', '', '', info[order]['nevts'], info[order]['nevts_err'])
          if args.noLightFit:
             plotter.card.add_systematic('lightSF', 'param', '', '', 1.00, 0.1)
 
