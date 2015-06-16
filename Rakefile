@@ -32,6 +32,14 @@ task :new_ttbar_plots, [:info] do |t, args|
   new_trial('', 'ttxsec', args.info)
 end
 
+task :publish_ttxsec do |t|
+  link = `ls -ld plots/#{$jobid}/ttxsec`.scan(/-> (.+)/).flatten.last
+  if not link
+    link = 'ttxsec'
+  end
+  publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{link}")
+end
+
 rule /\.model\.root$/ => psub(/\.model\.root$/, '.txt') do |t|
   dir = File.dirname(t.name)
   chdir(dir) do
@@ -208,31 +216,35 @@ end
 
 rule /MultiDimFit(:?Toy|Asimov)?.root$/ => psub(/MultiDimFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   toy_cmd = ''
+  seed = ""
   if t.name.include? 'Toy'
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
   elsif t.name.include? 'Asimov'
     toy_cmd = '--saveToys --expectSignal 1 -t -1'
+    seed = ".123456"
   end
   dir = File.dirname(t.name)
   chdir(dir) do
     puts 'running Multi-dimensional with Profile-Likelyhood errors'
     sh "combine fitModel.root -M MultiDimFit --algo=singles --setPhysicsModelParameterRanges charmSF=0,2:lightSF=0,2 #{toy_cmd} > #{File.basename(t.name).sub(/\.root$/,'.log')}"
-    sh "mv higgsCombineTest.MultiDimFit.mH120.root #{File.basename(t.name)}"
+    sh "mv higgsCombineTest.MultiDimFit.mH120#{seed}.root #{File.basename(t.name)}"
   end
 end
 
 rule /MultiDimScan(:?Toy|Asimov)?.root$/ => psub(/MultiDimScan(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   toy_cmd = ''
+  seed = ''
   if t.name.include? 'Toy'
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
   elsif t.name.include? 'Asimov'
     toy_cmd = '--saveToys --expectSignal 1 -t -1'
+    seed = ".123456"
   end
   dir = File.dirname(t.name)
   chdir(dir) do
     puts 'running Multi-dimensional with Profile-Likelyhood errors'
     sh "combine -M MultiDimFit fitModel.root --algo=grid --points=400 --setPhysicsModelParameterRanges charmSF=0.05,2.05:lightSF=0.05,2.05 #{toy_cmd} > #{File.basename(t.name).sub(/\.root$/,'.log')}"
-    sh "mv higgsCombineTest.MultiDimFit.mH120.root #{File.basename(t.name)}"
+    sh "mv higgsCombineTest.MultiDimFit.mH120#{seed}.root #{File.basename(t.name)}"
   end
 end
 
