@@ -184,6 +184,18 @@ task :new_ctag_trial, [:info] do |t, args|
   new_trial('btag_efficiency', 'btageff', args.info)
 end
 
+task :new_ctag_plots, [:info] do |t, args|
+  new_trial('', 'btageff', args.info)
+end
+
+task :publish_ctag do |t|
+  link = `ls -ld plots/#{$jobid}/btageff`.scan(/-> (.+)/).flatten.last
+  if not link
+    link = 'btageff'
+  end
+  publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{link}")
+end
+
 rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
   dir = File.dirname(t.name)
   chdir(dir) do
@@ -194,10 +206,12 @@ rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
   end
 end
 
-rule /MultiDimFit(:?Toy)?.root$/ => psub(/MultiDimFit(:?Toy)?.root$/, 'fitModel.root') do |t|
+rule /MultiDimFit(:?Toy|Asimov)?.root$/ => psub(/MultiDimFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   toy_cmd = ''
   if t.name.include? 'Toy'
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
+  elsif t.name.include? 'Asimov'
+    toy_cmd = '--saveToys --expectSignal 1 -t -1'
   end
   dir = File.dirname(t.name)
   chdir(dir) do
@@ -207,10 +221,12 @@ rule /MultiDimFit(:?Toy)?.root$/ => psub(/MultiDimFit(:?Toy)?.root$/, 'fitModel.
   end
 end
 
-rule /MultiDimScan(:?Toy)?.root$/ => psub(/MultiDimScan(:?Toy)?.root$/, 'fitModel.root') do |t|
+rule /MultiDimScan(:?Toy|Asimov)?.root$/ => psub(/MultiDimScan(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   toy_cmd = ''
   if t.name.include? 'Toy'
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
+  elsif t.name.include? 'Asimov'
+    toy_cmd = '--saveToys --expectSignal 1 -t -1'
   end
   dir = File.dirname(t.name)
   chdir(dir) do
@@ -220,9 +236,9 @@ rule /MultiDimScan(:?Toy)?.root$/ => psub(/MultiDimScan(:?Toy)?.root$/, 'fitMode
   end
 end
 
-rule /MaxLikeFit(:?Toy)?.root$/ => psub(/MaxLikeFit(:?Toy)?.root$/, 'fitModel.root') do |t|
-  toy_cmd = ''
+rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   dir = File.dirname(t.name)
+  bname = File.basename(t.name)
   chdir(dir) do
     if t.name.include? 'Toy'
       toy_cmd = '--saveToys --expectSignal 1 -t 200'
@@ -243,11 +259,23 @@ rule /MaxLikeFit(:?Toy)?.root$/ => psub(/MaxLikeFit(:?Toy)?.root$/, 'fitModel.ro
         end
       end
       sh 'condor_submit condor.mltoys.jdl'
+      sh 'hold.py --check_correctness=./ --maxResubmission=0'
+      sh "merge_toys.py #{bname} mlfit[0-9]*.root" 
     else
+      toy_cmd = ''
+      if t.name.include? 'Asimov'
+        toy_cmd = '--saveToys --expectSignal 1 -t -1'
+      end
       puts 'running MaxLikelihood fit with Profile-Likelyhood errors'
       sh "combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --minos=all --saveNLL #{toy_cmd}"
       sh "mv mlfit.root #{File.basename(t.name)}"      
     end
     #sh "mv higgsCombineTest.MultiDimFit.mH120.root MultiDimFit.root"
   end
+end
+
+task :ctag_toy_diagnostics, [:wp ] do |t, args|
+  toy_dir = "plots/#{$jobid}/btageff/mass_discriminant/#{args.wp}"
+  sh "mkdir #{toy_dir}/toys"
+  sh "python toy_diagnostics.py '' '' #{toy_dir}/MaxLikeFitToy.root -o #{toy_dir}/toys/ --use-prefit --noshapes --filter-out-pars='.*_bin_\d+$'"
 end
