@@ -266,6 +266,7 @@ def run_module(**kwargs):
          plotter.plot_mc_vs_data(
             '', 'all_%s' % var, 
             leftside=False, rebin=info.binning.reco, xaxis=info.xtitle)
+         plotter.save(var, pdf=False)
       
          previous = info.binning.reco[0]
          plotter.set_subdir('%s/slices' % var)
@@ -311,8 +312,8 @@ def run_module(**kwargs):
                )
             )
          plotter.write_shapes(
-            '', var, 'all_%s_%s' % (discriminant, var), full_discr_binning, 
-            info.binning.reco
+            '', var, 'all_%s_%s' % (discriminant, var), 
+            var_binning=info.binning.reco
             ) 
          plotter.add_systematics()
          #plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)

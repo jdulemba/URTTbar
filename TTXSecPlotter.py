@@ -110,17 +110,18 @@ class TTXSecPlotter(Plotter):
                   )
       #plotter.card.add_bbb_systematics('.*', '.*')
 
-   def write_shapes(self, folder, var, variable, xbinning, ybinning, 
+   def write_shapes(self, folder, var, variable, var_binning, disc_binning = lambda x, *args: 4, 
                     category_template='Bin%i', slice_along='X'):
       if not self.card: self.card = DataCard('tt_*')
       #keep it there for systematics
       card_views = {}
+      binning = [[1],var_binning] if slice_along.lower() == 'x' else [var_binning,[1]]
       for name, samples in self.card_names.iteritems():
          card_views[name] = self.rebin_view(
             views.SumView(
                *[self.get_view(i) for i in samples]
                 ),
-            [xbinning, ybinning]
+            binning
             )
 
       data_is_fake = False
@@ -161,8 +162,14 @@ class TTXSecPlotter(Plotter):
             'up_edge' : sliced_axis.GetBinUpEdge(idx+1)
             }
 
-         for name, hist in card_hists2D.iteritems():
-            category[name] = slice_hist(hist, idx+1, axis=slice_along)
+         #make 1D histograms
+         card_hists1D = dict(
+            (name, slice_hist(hist, idx+1, axis=slice_along))
+            for name, hist in card_hists2D.iteritems()
+            )
+         discriminator_binning = disc_binning(idx, *card_hists1D.items())
+         for name, hist in card_hists1D.iteritems():
+            category[name] = hist.Rebin(discriminator_binning)
             if data_is_fake and name == 'data_obs':
                integral = category[name].Integral()
                if integral != 0:
