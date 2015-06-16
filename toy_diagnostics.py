@@ -49,6 +49,10 @@ def run_module(**kwargs):
    if args.sample_out_regex:
       sample_out_regex = re.compile(args.sample_out_regex)
 
+   output_file = io.root_open('%s/output.root' % args.out, 'recreate')
+   fpars_tdir = output_file.mkdir('floating_pars')
+   pulls_tdir = output_file.mkdir('postfit_pulls')
+
    if not args.noshapes:
       #Overlays the prefit values of the different shapes with the envelope of 
       #what is fitted by the toys
@@ -93,7 +97,10 @@ def run_module(**kwargs):
    def fill_hist(vals):
       low = min(vals)
       low = low*0.8 if low > 0 else low*1.2
-      hi = max(vals)*1.2
+      hi = max(vals)
+      hi *= 1.2 if hi > 0 else 0.8
+      if low == hi: #0 == 0
+         low, hi = -0.1, 0.1
       hist = plotting.Hist(50, low, hi, title='')
       for v in vals:
          hist.Fill(v)
@@ -142,48 +149,67 @@ def run_module(**kwargs):
       #pulls_sigma_summary[singlekey].SetBinContent(index,sigma)
       #pulls_sigma_summary[singlekey].SetBinError(index,sigmaerror)
 
-   def make_post_distributions(key, vals, out, mean_summary, sigma_summary, dist='pull', fitfunc='gaus', prefix=''):
+   def make_post_distributions(key, vals, out, mean_summary, sigma_summary, 
+                               dist='pull', fitfunc='gaus', prefix='', prefit=None):
       canvas = plotting.Canvas()
       values = []
+      nvals  = len(vals)
+      prefit_val = 1. if 'YieldSF' in key else 0.
+      if prefit:
+         parname = vals[0].GetName()
+         prefit_val = prefit[parname].getVal() if parname in prefit else 1. #FIXME 1. assumption quite arbitrary
       if dist == 'pull':
-         if 'YieldSF' in key:
-            values = [(i.getVal()-1)/i.getError() for i in vals]
-         else:
-            values = [i.getVal()/i.getError() for i in vals]
+         values = [(i.getVal()-prefit_val)/i.getError() for i in vals]
       elif dist == 'delta':
          prefix += dist
-         if 'YieldSF' in key:
-            values = [(i.getVal()-1) for i in vals]
-         else:
-            values = [(i.getVal()) for i in vals]
+         values = [(i.getVal()-1) for i in vals]
       else:
          log.error('Distribution named "%s" is not supported!' % dist)
+         raise ValueError('Distribution named "%s" is not supported!' % dist)
 
-      print key
+      #print key
       if filter(str.isdigit, key) != '':
          index = int(filter(str.isdigit, key))+1
       else:
          index = 1
-      print index
+      #print index
       
       singlekey=key.replace("YieldSF","")
       singlekey=singlekey.replace("Bin","")
       singlekey=singlekey.replace("MCStat","")
       singlekey=singlekey.strip("_1234567890")
       hist = fill_hist(values)
-      hist.Fit(fitfunc, 'IMES')
+      function = None
+      if nvals > 1:
+         hist.Fit(fitfunc, 'IMES')
+         function = hist.GetFunction("gaus")
+         
       hist.Draw()
       canvas.SaveAs('%s/%s%s.png' % (out, prefix, key.replace('/','_')))
-      if not hist.GetFunction("gaus"):
+      pulls_tdir.WriteObject(hist, '%s%s' % (prefix, key.replace('/','_')))
+      if (not hist.GetFunction("gaus") and nvals > 1):
          log.warning("Function not found for histogram %s" % name)
-      mean = hist.GetFunction("gaus").GetParameter(1)
-      meanerror = hist.GetFunction("gaus").GetParError(1)
-      sigma = hist.GetFunction("gaus").GetParameter(2)
-      sigmaerror = hist.GetFunction("gaus").GetParError(2)
-      mean_summary[singlekey].SetBinContent(index,mean)
-      mean_summary[singlekey].SetBinError(index,meanerror)
-      sigma_summary[singlekey].SetBinContent(index,sigma)
-      sigma_summary[singlekey].SetBinError(index,sigmaerror)
+      else:
+         mean = function.GetParameter(1) if nvals > 1 else vals[0].getVal()
+         meanerror  = function.GetParError(1) if nvals > 1 else vals[0].getError()
+         sigma      = function.GetParameter(2) if nvals > 1 else 0
+         sigmaerror = function.GetParError(2) if nvals > 1 else 0
+
+         mean_summary[singlekey].SetBinContent(index,mean)
+         mean_summary[singlekey].SetBinError(index,meanerror)
+         sigma_summary[singlekey].SetBinContent(index,sigma)
+         sigma_summary[singlekey].SetBinError(index,sigmaerror)
+
+         index = min(
+            i for i in range(1, mean_summary['all'].GetNbinsX()+1) 
+            if mean_summary['all'].GetBinContent(i) == 0
+            )
+         mean_summary['all'].SetBinContent(index,mean)
+         mean_summary['all'].SetBinError(index,meanerror)
+         mean_summary['all'].GetXaxis().SetBinLabel(index,key)
+         sigma_summary['all'].SetBinContent(index,sigma)
+         sigma_summary['all'].SetBinError(index,sigmaerror)
+         sigma_summary['all'].GetXaxis().SetBinLabel(index,key)
 
    if not args.nopars or not args.postpulls:
       #Plots the post-fit distribution of the POI and nuisances
@@ -198,10 +224,14 @@ def run_module(**kwargs):
          pars = {}
          yields = {}
          first = True
-         toys = [i.GetName() for i in mlfit.keys() if i.GetName().startswith('toy_')]
+         toys = [i.GetName() for i in mlfit.keys() if i.GetName().startswith('toy_')] if not args.oneshot else [None]
          log.info('examining %i toys' % len(toys))
+         prefit_nuis = None
+         if args.useprefit:
+            prefit_nuis = ArgSet(mlfit.nuisances_prefit)
+
          for toy in toys:
-            toy_dir = mlfit.Get(toy)
+            toy_dir = mlfit.Get(toy) if not args.oneshot else mlfit
             keys = set([i.GetName() for i in toy_dir.GetListOfKeys()])
             if 'norm_fit_s' not in keys or 'fit_s' not in keys:
                continue
@@ -219,30 +249,29 @@ def run_module(**kwargs):
             
             if first:
                first = False
-               pars.update( 
-                  dict(
-                     (i.GetName(), []) for i in fit_pars
-                     )
-                  )
-               yields.update(
-                  dict(
-                     (i.GetName(), []) for i in norms
-                     )
-                  )
+               for i in fit_pars:
+                  if pars_regex and not pars_regex.match(i.GetName()): continue
+                  if pars_out_regex and pars_out_regex.match(i.GetName()): continue
+                  pars[i.GetName()] = []
+
+               for i in norms:
+                  if sample_regex and not sample_regex.match(i.GetName()): continue
+                  if sample_out_regex and sample_out_regex.match(i.GetName()): continue
+                  yields[i.GetName()] = []
 
             for i in norms:
-               yields[i.GetName()].append(i)
+               if i.GetName() in yields:
+                  yields[i.GetName()].append(i)
                
             for i in fit_pars:
-               pars[i.GetName()].append(i)
+               if i.GetName() in pars:
+                  pars[i.GetName()].append(i)
 
          if not args.nopars:
             for i, j in yields.iteritems():
                make_hist(i, j, out, prefix='yield_')
                
             for i, j in pars.iteritems():
-               if pars_regex and not pars_regex.match(i): continue
-               if pars_out_regex and pars_out_regex.match(i): continue
                make_hist(i, j, out, prefix='par_')
 
          if not args.postpulls:
@@ -266,7 +295,7 @@ def run_module(**kwargs):
                for fullname in pars:
                   if name in fullname:
                      nbins = nbins + 1
-               print name, nbins
+               #print name, nbins
                hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_pull_mean_summary" %name)
                pulls_mean_summary[name] = hist
                hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_pull_sigma_summary" %name)
@@ -275,12 +304,18 @@ def run_module(**kwargs):
                deltas_mean_summary[name] = hist
                hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_delta_sigma_summary" %name)
                deltas_sigma_summary[name] = hist
+
+            pulls_mean_summary[  'all'] = plotting.Hist(len(pars), 0.5, len(pars)+0.5, name = "all_pull_mean_summary"  )
+            pulls_sigma_summary[ 'all'] = plotting.Hist(len(pars), 0.5, len(pars)+0.5, name = "all_pull_sigma_summary" )
+            deltas_mean_summary[ 'all'] = plotting.Hist(len(pars), 0.5, len(pars)+0.5, name = "all_delta_mean_summary" )
+            deltas_sigma_summary['all'] = plotting.Hist(len(pars), 0.5, len(pars)+0.5, name = "all_delta_sigma_summary")
+
             
             for i, j in pars.iteritems():
-               if pars_regex and not pars_regex.match(name): continue
-               if pars_out_regex and pars_out_regex.match(i): continue
-               make_post_distributions(i, j, pulls_dir, pulls_mean_summary, pulls_sigma_summary,dist='pull')
-               make_post_distributions(i, j, pulls_dir, deltas_mean_summary, deltas_sigma_summary,dist='delta')
+               make_post_distributions(i, j, pulls_dir, pulls_mean_summary, 
+                                       pulls_sigma_summary,dist='pull', prefit=prefit_nuis)
+               make_post_distributions(i, j, pulls_dir, deltas_mean_summary, 
+                                       deltas_sigma_summary, dist='delta', prefit=prefit_nuis)
             
             for name,histo in pulls_mean_summary.iteritems():
                canvas = plotting.Canvas()
@@ -292,15 +327,18 @@ def run_module(**kwargs):
                canvas.Update()
                canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
                canvas.SaveAs('%s/%s.pdf' % (pulls_dir,histo.GetName()))
+               pulls_tdir.WriteObject(histo, histo.GetName())
             for name,histo in pulls_sigma_summary.iteritems():
                canvas = plotting.Canvas()
                histo.Draw()
                canvas.Update()
                line = ROOT.TLine(histo.GetBinLowEdge(1),1,histo.GetBinLowEdge(histo.GetNbinsX()+1),1)
+               line.SetLineColor(2)
                line.Draw("same")
                canvas.Update()
                canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
                canvas.SaveAs('%s/%s.pdf' % (pulls_dir,histo.GetName()))
+               pulls_tdir.WriteObject(histo, histo.GetName())
             
             for name,histo in deltas_mean_summary.iteritems():
                canvas = plotting.Canvas()
@@ -312,6 +350,7 @@ def run_module(**kwargs):
                canvas.Update()
                canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
                canvas.SaveAs('%s/%s.pdf' % (pulls_dir,histo.GetName()))
+               pulls_tdir.WriteObject(histo, histo.GetName())
             for name,histo in deltas_sigma_summary.iteritems():
                canvas = plotting.Canvas()
                histo.Draw()
@@ -321,6 +360,8 @@ def run_module(**kwargs):
                canvas.Update()
                canvas.SaveAs('%s/%s.png' % (pulls_dir,histo.GetName()))
                canvas.SaveAs('%s/%s.pdf' % (pulls_dir,histo.GetName()))
+               pulls_tdir.WriteObject(histo, histo.GetName())
+   output_file.Close()
 
 
 if __name__ == '__main__':
@@ -335,9 +376,12 @@ if __name__ == '__main__':
    parser.add_argument('--noshapes', action='store_true')
    parser.add_argument('--nopars', action='store_true')
    parser.add_argument('--no-post-pulls', dest='postpulls', action='store_true')
+   parser.add_argument('--use-prefit', dest='useprefit', action='store_true')
    parser.add_argument('--filter-in-pars', dest='pars_regex', type=str)
    parser.add_argument('--filter-in-sample', dest='sample_regex', type=str)
    parser.add_argument('--filter-out-pars', dest='pars_out_regex', type=str)
    parser.add_argument('--filter-out-sample', dest='sample_out_regex', type=str)
+   parser.add_argument('--oneshot', action='store_true', help='to use to store data/asimov runs')
+
    args = parser.parse_args()
    run_module(**dict(args._get_kwargs()))
