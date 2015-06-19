@@ -155,6 +155,7 @@ def run_module(**kwargs):
    pulls_tdir = output_file.mkdir('postfit_pulls')
 
    failed_fits = set()
+   fit_statuses = plotting.Hist(10, 0, 10)
    with io.root_open(args.mlfit) as mlfit:
       failed_results = []
       passes_results = []
@@ -199,6 +200,7 @@ def run_module(**kwargs):
                if sample_out_regex and sample_out_regex.match(i.GetName()): continue
                yields[i.GetName()] = []
 
+         fit_statuses.Fill(fit_result.status())
          fit_failed = any(i.getError() == 0 for i in fit_pars) or fit_result.status() != 0
          if fit_failed:
             log.error('Fit %s failed to converge properly. It has status %i!' % (toy, fit_result.status()))
@@ -221,6 +223,8 @@ def run_module(**kwargs):
          log.error('There were %i fit failed!' % nfailed)
       with open('%s/info.txt' % args.out, 'w') as info:
          info.write('There were %i fit failed!\n' % nfailed)
+      fit_statuses.Draw()
+      canvas.SaveAs('%s/fit_status.png' % args.out)
 
       if not args.nopars:
          #Plots the post-fit distribution of the POI and nuisances
