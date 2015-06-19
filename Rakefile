@@ -1,6 +1,8 @@
 $project_dir = ENV['URA_PROJECT']
 $fwk_dir = ENV['URA']+'/AnalysisFW'
 $jobid = ENV['jobid']
+$batch = ENV.fetch('batch', "0")
+$no_batch_submit = ENV.fetch('no_batch_submit', "0")
 
 tools = "#{$fwk_dir}/rake/tools.rb"
 require tools
@@ -54,8 +56,34 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
   end
   chdir(dir) do
-    sh "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --skipBOnlyFit #{toy_cmd} -v -1"
-    sh "cp mlfit.root #{File.basename(t.name)}"
+    combine_cmd = "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --skipBOnlyFit --minos=all"
+    if $batch == "1"
+      toy_cmd = '--saveToys --expectSignal 1 -t 10'
+      sh "cp #{ENV['URA']}/AnalysisTools/scripts/batch_job.sh ."
+      File.open('condor.mltoys.jdl', 'w') do |file|
+        file << "universe = vanilla\n"
+        file << "Executable = batch_job.sh\n"
+        file << "Should_Transfer_Files = YES\n"
+        file << "WhenToTransferOutput = ON_EXIT\n"
+        file << "Transfer_Input_Files = #{File.basename(t.source)}\n"
+        
+        (2345678...2545678).step(10000) do |seed|
+          file << "\n"
+          file << "Output = con_#{seed}.stdout\n"
+          file << "Error = con_#{seed}.stderr\n"
+          file << "Arguments = #{combine_cmd} #{toy_cmd} -n #{seed} -s #{seed}\n"
+          file << "Queue\n"
+        end
+      end
+      if $no_batch_submit == "0"
+        sh 'condor_submit condor.mltoys.jdl'
+        sh 'hold.py --check_correctness=./ --maxResubmission=0'
+        sh "merge_toys.py #{bname} mlfit[0-9]*.root" 
+      end
+    else
+      sh "#{combine_cmd} #{toy_cmd} &> #{File.basename(t.name).sub('.root','.log')}"
+      sh "cp mlfit.root #{File.basename(t.name)}"
+    end
   end
 end
 
@@ -96,31 +124,59 @@ end
 #   BIN OPTIMIZATION
 #
 
-def optimize_bin(var, varmin, vmin, vmax, vstep, bin_name='Bin0', predecessors='')
+def optimize_bin(var, varmin, vmin, vmax, vstep, vrange, bin_name='Bin0', predecessors='')
   $quick_toy_check = '--nopars --no-post-pulls'
+  prev_batch = $batch
+  $batch = '1'
+  prev_no_batch_submit = $no_batch_submit
+  $no_batch_submit = "1"
   varmin = Float(varmin)
   max_edges = []
-  vrange = Float(vmax) - varmin
   (Float(vmin)..Float(vmax)).step(Float(vstep)) do |varmax|
     max_edges << varmax
   end
   sh "python runTTXSecPlotter.py --optimize_binning '#{var}:[#{predecessors}]:#{varmin}:[#{max_edges.join(',')}]' --subdir=binning_optimization"
 
-  jsons = []
+  bin_dirs = []
   (Float(vmin)..Float(vmax)).step(Float(vstep)) do |varmax|
     vardir = "#{predecessors.gsub(',','_')}#{format("%.1f", varmin)}_#{format("%.1f", varmax)}"
-    jfile = "plots/#{$jobid}/ttxsec/#{var}/binning_optimization/#{vardir}/toys/shapes/tt_right.json"
+    bin_dir = "plots/#{$jobid}/ttxsec/#{var}/binning_optimization/#{vardir}"
+    mlfits = "#{bin_dir}/#{var}.toy.mlfit.root"
+    #creates model, creates condor.jdl DOES NOT SUBMIT IT
+    Rake::Task[mlfits].invoke
+    bin_dirs << bin_dir
+  end
+
+  bin_dirs.each do |bin_dir|
+    chdir(bin_dir) do
+      sh 'condor_submit condor.mltoys.jdl' 
+    end
+  end
+
+  bin_dirs.each do |bin_dir|
+    chdir(bin_dir) do  
+      sh "hold.py --check_correctness=./ --maxResubmission=0"
+      sh "merge_toys.py #{var}.toy.mlfit.root mlfit[0-9]*.root"
+    end
+  end
+
+  jsons = []
+  bin_dirs.each do |bin_dir|
+    jfile = "#{bin_dir}/toys/shapes/tt_right.json"
+    sh "date"
     Rake::Task[jfile].invoke
     jsons << jfile
   end
   opt_dir = "plots/#{$jobid}/ttxsec/#{var}/binning_optimization"
   sh "./plot_optimization.py #{var} #{opt_dir} #{vrange} #{jsons.join(' ')} --name=#{bin_name}"
   $quick_toy_check=''
+  $no_batch_submit=prev_no_batch_submit
+  $batch = prev_batch
   return "#{opt_dir}/#{bin_name}.json"
 end
 
 task :optimize_binning, [:var, :varmin, :vmin, :vmax, :vstep] do |t, args|
-  optimize_bin(args.var, args.varmin, args.vmin, args.vmax, args.vstep)
+  optimize_bin(args.var, args.varmin, args.vmin, args.vmax, args.vstep, Float(args.vmax)-Float(args.vmin))
 end
 
 task :optimize_bins, [:var, :vmin, :vmax, :vstep, :maxsize, :already_done] do |t, args|
@@ -139,12 +195,15 @@ task :optimize_bins, [:var, :vmin, :vmax, :vstep, :maxsize, :already_done] do |t
     if low_bounds.size > 1
       preced = "#{low_bounds[0..-2].join(',')},"
     end
+    sh "date"
+    sh "echo starting optimization of bin #{low_bounds.size}" 
     json_file = optimize_bin(
                              var, 
                              low_bounds[-1], 
                              low_bounds[-1]+vstep, 
                              limit, 
                              vstep, 
+                             maxsize,
                              "Bin#{low_bounds.size}", 
                              preced
       )
@@ -251,35 +310,42 @@ end
 rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   dir = File.dirname(t.name)
   bname = File.basename(t.name)
+  combine_cmd = "combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --minos=all --saveNLL  --skipBOnlyFit"
   chdir(dir) do
     if t.name.include? 'Toy'
-      toy_cmd = '--saveToys --expectSignal 1 -t 200'
-      sh "cp #{ENV['URA']}/AnalysisTools/scripts/batch_job.sh ."
-      File.open('condor.mltoys.jdl', 'w') do |file|
-        file << "universe = vanilla\n"
-        file << "Executable = batch_job.sh\n"
-        file << "Should_Transfer_Files = YES\n"
-        file << "WhenToTransferOutput = ON_EXIT\n"
-        file << "Transfer_Input_Files = #{Dir.pwd}/fitModel.root\n"
-        
-        (2345678...2545678).step(10000) do |seed|
-          file << "\n"
-          file << "Output = con_#{seed}.stdout\n"
-          file << "Error = con_#{seed}.stderr\n"
-          file << "Arguments = combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --saveToys --expectSignal 1 -t 10 -n #{seed} -s #{seed}\n"
-          file << "Queue\n"
+      if $batch == "1"
+        toy_cmd = '--saveToys --expectSignal 1 -t 10'
+        sh "cp #{ENV['URA']}/AnalysisTools/scripts/batch_job.sh ."
+        File.open('condor.mltoys.jdl', 'w') do |file|
+          file << "universe = vanilla\n"
+          file << "Executable = batch_job.sh\n"
+          file << "Should_Transfer_Files = YES\n"
+          file << "WhenToTransferOutput = ON_EXIT\n"
+          file << "Transfer_Input_Files = #{Dir.pwd}/fitModel.root\n"
+          
+          (2345678...2545678).step(10000) do |seed|
+            file << "\n"
+            file << "Output = con_#{seed}.stdout\n"
+            file << "Error = con_#{seed}.stderr\n"
+            file << "Arguments = #{combine_cmd} #{toy_cmd} -n #{seed} -s #{seed}\n"
+            file << "Queue\n"
+          end
         end
+        sh 'condor_submit condor.mltoys.jdl'
+        sh 'hold.py --check_correctness=./ --maxResubmission=0'
+        sh "merge_toys.py #{bname} mlfit[0-9]*.root" 
+      else
+        toy_cmd = '--saveToys --expectSignal 1 -t 200 -v -1'
+        sh "#{combine_cmd} #{toy_cmd}"
+        sh "mv mlfit.root #{File.basename(t.name)}"      
       end
-      sh 'condor_submit condor.mltoys.jdl'
-      sh 'hold.py --check_correctness=./ --maxResubmission=0'
-      sh "merge_toys.py #{bname} mlfit[0-9]*.root" 
     else
       toy_cmd = ''
       if t.name.include? 'Asimov'
         toy_cmd = '--saveToys --expectSignal 1 -t -1'
       end
       puts 'running MaxLikelihood fit with Profile-Likelyhood errors'
-      sh "combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --minos=all --saveNLL #{toy_cmd}"
+      sh "#{combine_cmd} #{toy_cmd}"
       sh "mv mlfit.root #{File.basename(t.name)}"      
     end
     #sh "mv higgsCombineTest.MultiDimFit.mH120.root MultiDimFit.root"
@@ -288,6 +354,6 @@ end
 
 task :ctag_toy_diagnostics, [:wp ] do |t, args|
   toy_dir = "plots/#{$jobid}/btageff/mass_discriminant/#{args.wp}"
-  sh "mkdir #{toy_dir}/toys"
+  sh "mkdir -p #{toy_dir}/toys"
   sh "python toy_diagnostics.py '' '' #{toy_dir}/MaxLikeFitToy.root -o #{toy_dir}/toys/ --use-prefit --noshapes --filter-out-pars='.*_bin_\d+$'"
 end
