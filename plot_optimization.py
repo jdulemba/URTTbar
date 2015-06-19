@@ -1,6 +1,7 @@
 #! /bin/env python
 
 import ROOT
+ROOT.gROOT.SetBatch(True)
 import rootpy.plotting as plotting
 import rootpy
 import rootpy.io as io
@@ -8,7 +9,6 @@ from URAnalysis.Utilities.roottools import ArgSet, ArgList
 from pdb import set_trace
 import logging
 import os
-ROOT.gROOT.SetBatch(True)
 from URAnalysis.PlotTools.Plotter import Plotter
 import math
 
@@ -70,7 +70,8 @@ def run_module(**kwargs):
    upbound_graph.Draw('APL')
    upbound_graph.GetXaxis().SetTitle('upper bin edge')
    upbound_graph.GetYaxis().SetTitle('relative fit uncertainty')
-   upbound_graph.GetYaxis().SetRangeUser(offset, max_unc*1.2)
+   if args.fullrange:
+      upbound_graph.GetYaxis().SetRangeUser(offset, max_unc*1.2)
    upbound_graph.GetXaxis().SetRangeUser(shift, (shift+bound_range)*1.2)
 
 
@@ -117,7 +118,8 @@ if __name__ == '__main__':
    parser.add_argument('outdir')
    parser.add_argument('vrange', type=float)
    parser.add_argument('results', type=str, nargs='+')
-   parser.add_argument('--name')
+   parser.add_argument('--name', help='name to give to the output files')
+   parser.add_argument('--fullrange', action='store_false', help='infer the Y-axis range from the points, rather than from the fit')
    
    args = parser.parse_args()
    run_module(**dict(args._get_kwargs()))
