@@ -233,7 +233,6 @@ def run_module(**kwargs):
    ##################
    #     PLOTS
    ##################
-
    if not opts.noplots:
       to_plot = [
          ('all_lep_pt'  , 4, 'p_{T}(l)'),
@@ -287,7 +286,7 @@ def run_module(**kwargs):
          
             plotter.plot_mc_shapes(
                '', 'all_%s_%s' % (discriminant, var), leftside=False, 
-               rebin = [pt_binning.reco, full_discr_binning], 
+               rebin = [info.binning.reco, full_discr_binning], 
                xaxis=discriminant, normalize=True, show_err=True, xrange=(1,9),
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]),
                use_only=set(['ttJets_rightTlep', 'ttJets_wrongAssign', 'ttJets_other']),
