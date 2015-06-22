@@ -78,7 +78,7 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
       if $no_batch_submit == "0"
         sh 'condor_submit condor.mltoys.jdl'
         sh 'hold.py --check_correctness=./ --maxResubmission=0'
-        sh "merge_toys.py #{bname} mlfit[0-9]*.root" 
+        sh "merge_toys.py #{File.basename(t.name)} mlfit[0-9]*.root" 
       end
     else
       sh "#{combine_cmd} #{toy_cmd} &> #{File.basename(t.name).sub('.root','.log')}"
