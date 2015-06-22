@@ -21,6 +21,7 @@ ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 ROOT.gROOT.SetBatch()
 log = rootpy.log["/toy_diagnostics"]
+rootpy.log["/toy_diagnostics"].setLevel(rootpy.log.DEBUG)
 
 import URAnalysis.Utilities.prettyjson as prettyjson
 from argparse import ArgumentParser
@@ -44,6 +45,7 @@ def fill_hist(vals):
    return hist
 
 def make_hist(key, rfit_vals, out, prefix=''):
+   canvas = plotting.Canvas()
    vals = [i.getVal() for i in rfit_vals]
    hist = fill_hist(vals)
    hist.Draw()
