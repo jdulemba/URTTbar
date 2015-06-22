@@ -402,7 +402,8 @@ class BTagPlotter(Plotter):
             hist.Draw('same')
          
          self.keep.append(hist)
-         m = max(m,max(bin for bin in hist))
+         m = max(m,max(bin.value for bin in hist))
+
       histos[0].GetYaxis().SetRangeUser(0., m*1.2)
       if xrange:
          histos[0].GetXaxis().SetRangeUser(*tuple(xrange))
