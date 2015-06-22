@@ -197,8 +197,10 @@ class TTXSecPlotter(Plotter):
                      hdw_integral = hdw.Integral()
                      hct_integral = category[name].Integral()
                      
-                     hup.Scale(hct_integral/hup_integral)
-                     hdw.Scale(hct_integral/hdw_integral)
+                     if hup_integral:
+                        hup.Scale(hct_integral/hup_integral)
+                     if hdw_integral:
+                        hdw.Scale(hct_integral/hdw_integral)
 
                   category['%s_%sUp'   % (name, sys_name)] = hup
                   category['%s_%sDown' % (name, sys_name)] = hdw
@@ -209,14 +211,15 @@ class TTXSecPlotter(Plotter):
                      category[name].GetNbinsX(),
                      err
                      )
-                  rel_err = err/integral
-                  self.card.add_systematic(
-                     '%s_%s_%s' % (name, category_name, sys_name), 
-                     'lnN', 
-                     category_name+'$', 
-                     name, 
-                     1.+rel_err*info['multiplier']
-                     )
+                  if integral:
+                     rel_err = err/integral
+                     self.card.add_systematic(
+                        '%s_%s_%s' % (name, category_name, sys_name), 
+                        'lnN', 
+                        category_name+'$', 
+                        name, 
+                        1.+rel_err*info['multiplier']
+                        )
 
       self.binning[var] = binning
 
