@@ -294,8 +294,8 @@ if not args.nopars or not args.postpulls:
          for i, j in pars.iteritems():
             if pars_regex and not pars_regex.match(name): continue
             if pars_out_regex and pars_out_regex.match(i): continue
-            make_post_distributions(i, j, pulls_dir, pulls_mean_summary, pulls_sigma_summary,dist='pull')
-            make_post_distributions(i, j, pulls_dir, deltas_mean_summary, deltas_sigma_summary,dist='delta')
+            make_post_distributions(i, j, pulls_dir, pulls_mean_summary, pulls_sigma_summary,dist='pull', prefix="pull_")
+            make_post_distributions(i, j, pulls_dir, deltas_mean_summary, deltas_sigma_summary,dist='delta', prefix="delta_")
          
          for name,histo in pulls_mean_summary.iteritems():
             canvas = plotting.Canvas()
