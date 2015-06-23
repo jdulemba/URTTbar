@@ -34,19 +34,10 @@ def run_module(**kwargs):
    if opts.binning and len(opts.binning):
       opts.noplots = True
 
-   pt_binning = Struct(
-      gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-      reco = [0.0, 30.0, 60.0, 95.0, 125.0, 160.0, 190.0, 220.0, 250.0, 280.0, 315.0, 345.0, 375.0, 405.0, 435.0, 1000.],
-      #reco = [0., 120., 1000.],
-      )
    discriminant =  'massDiscr'
    phase_space = 'fiducialtight'
    full_discr_binning = [4]#range(-15, 16)
       
-   eta_binning = Struct(
-      reco = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 8.0],
-      gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
-      )
    ## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
    ## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
    ## ttpt_binning = [0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.]
@@ -54,22 +45,35 @@ def run_module(**kwargs):
    vars_to_unfold = [
       Struct(
          var     = 'ptthad',
-         binning = pt_binning,
+         binning = Struct(
+            gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
+            reco = [0.0, 30.0, 60.0, 95.0, 125.0, 160.0, 190.0, 220.0, 250.0, 280.0, 315.0, 345.0, 375.0, 405.0, 435.0, 1000.],
+            #reco = [0., 120., 1000.],
+            ),
          xtitle  = 'p_{T}(t_{had})'
          ),
       Struct(
          var = 'pttlep',
-         binning = pt_binning,
+         binning = Struct(
+            gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
+            reco = [0.0, 30.0, 60.0, 90.0, 120.0, 150.0, 180.0, 210.0, 240.0, 270.0, 300.0, 330.0, 360.0, 390.0, 420.0, 450.0, 480.0, 1000.0]
+            ),
          xtitle = 'p_{T}(t_{lep})'
          ),
       Struct( 
          var = 'etatlep',
-         binning = eta_binning,
+         binning = Struct(
+            reco = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.3, 2.8, 8.0],
+            gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
+            ),
          xtitle = '#eta(t_{lep})'
          ),
       Struct( 
          var = 'etathad',
-         binning = eta_binning,
+         binning = Struct(
+            reco = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.3, 2.4, 2.5, 2.6, 2.8, 3.0],
+            gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
+            ),
          xtitle = '#eta(t_{had})'
          ),
    ]
@@ -235,10 +239,10 @@ def run_module(**kwargs):
    ##################
    if not opts.noplots:
       to_plot = [
-         ('all_lep_pt'  , 4, 'p_{T}(l)'),
-         ("all_ttm"     , 4, 'm(t#bar{t})'),
-         ("all_tty"     , 4, 'y(t#bar{t})'),
-         ("all_ttpt"    , 4, 'p_{T}(t#bar{t})'),
+         ('all_lep_pt' , 4, 'p_{T}(l)'),
+         ("all_ttm"    , 4, 'm(t#bar{t})'),
+         ("all_tty"    , 4, 'y(t#bar{t})'),
+         ("all_ttpt"   , 4, 'p_{T}(t#bar{t})'),
          ("all_costhetastar", 4, ''),
          ("all_njet", 4, '# of jets'),
          ('all_%s' % discriminant, 2, 'discriminant'),
