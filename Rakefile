@@ -210,7 +210,7 @@ task :optimize_bins, [:var, :vmin, :vmax, :vstep, :maxsize, :already_done] do |t
     jmap = JSON.parse(File.open(json_file).read)
     low_bounds << jmap['best']
   end
-  sh "echo #{low_bounds.join(' , ')} > #{var}.optimalbin.txt"
+  sh "echo #{low_bounds.join(' , ')} > plots/#{$jobid}/ttxsec/#{var}/#{var}.optimalbin.txt"
 end
 
 =begin
