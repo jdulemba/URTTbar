@@ -41,6 +41,8 @@ for hist, color in zip(hists, colors):
    hist.drawstyle = 'P'
    hist.inlegend = True
    hist.legendstyle = 'p'
+   hist.xaxis.title = 'Optimization iteration (Bin)'
+   hist.yaxis.title = 'Relative uncertainty'
 
 for idx, json in enumerate(jsons):
    for hist, fit_bin in zip(hists, json):
