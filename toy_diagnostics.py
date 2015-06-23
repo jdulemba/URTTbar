@@ -280,9 +280,9 @@ def run_module(**kwargs):
 
          
          for i, j in pars.iteritems():
-            make_post_distributions(i, j, pulls_dir, pulls_mean_summary, pulls_sigma_summary,
+            make_post_distributions(i, j, pulls_dir, pulls_mean_summary, pulls_sigma_summary, prefix='pull_',
                                     dist='pull', prefit=prefit_nuis, tdir=pulls_tdir, skipFit=args.skipFit)
-            make_post_distributions(i, j, pulls_dir, deltas_mean_summary, deltas_sigma_summary, 
+            make_post_distributions(i, j, pulls_dir, deltas_mean_summary, deltas_sigma_summary, prefix='delta_',
                                     dist='delta', prefit=prefit_nuis, tdir=pulls_tdir, skipFit=args.skipFit)
          
          for name,histo in pulls_mean_summary.iteritems():
@@ -400,3 +400,4 @@ if __name__ == '__main__':
 
    args = parser.parse_args()
    run_module(**dict(args._get_kwargs()))
+
