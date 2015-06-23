@@ -21,7 +21,7 @@ ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 ROOT.gROOT.SetBatch()
 log = rootpy.log["/toy_diagnostics"]
-rootpy.log["/toy_diagnostics"].setLevel(rootpy.log.DEBUG)
+rootpy.log["/toy_diagnostics"].setLevel(rootpy.log.INFO)
 
 import URAnalysis.Utilities.prettyjson as prettyjson
 from argparse import ArgumentParser
@@ -100,7 +100,7 @@ def make_post_distributions(key, vals, out, mean_summary, sigma_summary,
    if skipFit:
       return
    if nvals > 1:
-      hist.Fit(fitfunc, 'IMES')
+      hist.Fit(fitfunc, 'QIMES')
       function = hist.GetFunction("gaus")
       
    hist.Draw()
