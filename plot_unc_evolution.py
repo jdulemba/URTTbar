@@ -35,9 +35,12 @@ colors = ['#FFCC66', '#2aa198', '#9999CC', '#5555ab',
           '#a15d2a', '#000000', '#a206f4', '#06f4a2',
           '#f406cf', '#cff406']
 hists = [Hist(max_bins, 0.5, max_bins+0.5, title='Bin %i' % (i+1)) for i in range(max_bins)]
-for hist, color in zip(hists, colors):
+low_edge = args.binning[0]
+for hist, color, up_edge in zip(hists, colors, args.binning[1:]):
    hist.markercolor = color
    hist.fillcolor = color
+   hist.title += ' [%s, %s]' % (low_edge, up_edge)
+   low_edge = up_edge
    hist.drawstyle = 'P'
    hist.inlegend = True
    hist.legendstyle = 'p'
@@ -59,8 +62,10 @@ nhists = len(hists)
 nlegends = int(ceil(float(nhists) / 5))
 nhist_for_leg = int(ceil(float(nhists)/nlegends))
 legends = []
-left_margin = 0.1
-right_margin = 0.8
+#left_margin = 0.1
+#right_margin = 0.77
+left_margin = 0.05
+right_margin = 0.82
 for _ in range(nlegends-1):
    legends.append(
       Legend(
@@ -69,8 +74,9 @@ for _ in range(nlegends-1):
          rightmargin=right_margin
          )
       )
-   left_margin += 0.1
-   right_margin -= 0.1
+   legends[-1].SetBorderSize(0)
+   left_margin += 0.17
+   right_margin -= 0.17
 
 legends.append(
    Legend(
@@ -79,6 +85,7 @@ legends.append(
       rightmargin=right_margin
       )
    )
+legends[-1].SetBorderSize(0)
 
 for idx, i in enumerate(hists):
    legend_id = idx / nhist_for_leg
