@@ -58,6 +58,7 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
   chdir(dir) do
     combine_cmd = "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --skipBOnlyFit --minos=all"
     if $batch == "1"
+      sh "rm -f mlfit[0-9]*.root"
       toy_cmd = '--saveToys --expectSignal 1 -t 10'
       sh "cp #{ENV['URA']}/AnalysisTools/scripts/batch_job.sh ."
       File.open('condor.mltoys.jdl', 'w') do |file|
