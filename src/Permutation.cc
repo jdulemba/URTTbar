@@ -1,9 +1,10 @@
 #include "Permutation.h"
 #include "TTBarSolver.h"
+#include "IDMet.h"
 
 using namespace std;
 
-Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, Met* met) :
+Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met) :
 	wja_(wja),
 	wjb_(wjb),
 	bjh_(bjh),
@@ -34,11 +35,10 @@ double Permutation::Solve(TTBarSolver& ttsolver, bool kinfit)
 {
 	kinfit_ = kinfit;
 	ttsolver.Solve(bjh_, wjb_, wja_, bjl_, lep_, met_);
-	prob_ = ttsolver.Res();
 	nu_ = ttsolver.Nu();
-
-	nu_chisq_          = ttsolver.NSChi2() ;
-	nu_discriminant_   = ttsolver.NSRes()	 ;
+	prob_ = ttsolver.Res();
+	nu_chisq_          = ttsolver.NSChi2();
+	nu_discriminant_   = ttsolver.NSRes();
 	btag_discriminant_ = ttsolver.BTagRes();
 	mass_discriminant_ = ttsolver.MassRes();
 

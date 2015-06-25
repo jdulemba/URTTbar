@@ -8,19 +8,28 @@
 #include "IDMuon.h"
 #include "IDElectron.h"
 #include "IDJet.h"
+#include "IDMet.h"
 #include "GenObject.h"
+#include "TTBarGenPlots.h"
 #include "TTBarPlots.h"
 #include "TTBarSolver.h"
+#include "TTBarResponse.h"
 #include "Permutation.h"
 #include "BtagEff.h"
+#include "JetScale.h"
 
 using namespace std;
-
+class PDFuncertainty;
 
 class ttbar : public AnalyzerBase
 {
-	friend class TTBarPlots;
+	friend class TTBarGenPlots;
+    friend class TTBarPlots;
+    friend class TTBarResponse;
+
 	private:
+		double selectionprob;
+		PDFuncertainty* pdfunc;
 		//Collections
 		//Gen:
 		bool FULLHAD;
@@ -38,6 +47,9 @@ class ttbar : public AnalyzerBase
 		GenObject* genbh;
 		TLorentzVector gentoplep;
 		TLorentzVector gentophad;
+
+		list<Genjet> sgenjets;
+		vector<Genjet*> genaddjets;
 
 		//matched
 		//vector<Jet*> recbjets;
@@ -60,7 +72,7 @@ class ttbar : public AnalyzerBase
 		list<IDElectron> selectrons;
 		vector<IDElectron*> looseelectrons;
 		vector<IDElectron*> mediumelectrons;
-		Met met;
+		IDMet met;
 
 		//hists
 		TH1DCollection gen1d;
@@ -69,33 +81,35 @@ class ttbar : public AnalyzerBase
 		TH2DCollection reco2d;
 		TH1DCollection truth1d;
 		TH2DCollection truth2d;
+
+        TTBarGenPlots ttp_genall;
+        TTBarGenPlots ttp_genacc;
+
+		TTBarPlots ttp_truth;
 		TTBarPlots ttp_right;
 		TTBarPlots ttp_wrong;
 		TTBarPlots ttp_semi;
 		TTBarPlots ttp_other;
 		TTBarPlots ttp_all;
-		TTBarPlots ttp_right_incl;
-		TTBarPlots ttp_wrong_incl;
-		TTBarPlots ttp_semi_incl;
-		TTBarPlots ttp_other_incl;
-		TTBarPlots ttp_all_incl;
 
 		TTBarPlots ttp_jetspos_right;
 		TTBarPlots ttp_jetspos_wrong;
-		TTBarPlots ttp_hadjets_right;
-		TTBarPlots ttp_hadjets_wrong;
-		TTBarPlots ttp_jets_right;
-		TTBarPlots ttp_jets_wrong;
-		TTBarPlots ttp_blep_right;
-		TTBarPlots ttp_blep_wrong;
-		TTBarPlots ttp_jetspos_incl_right;
-		TTBarPlots ttp_jetspos_incl_wrong;
-		TTBarPlots ttp_hadjets_incl_right;
-		TTBarPlots ttp_hadjets_incl_wrong;
-		TTBarPlots ttp_jets_incl_right;
-		TTBarPlots ttp_jets_incl_wrong;
-		TTBarPlots ttp_blep_incl_right;
-		TTBarPlots ttp_blep_incl_wrong;
+	//	TTBarPlots ttp_hadjets_right;
+	//	TTBarPlots ttp_hadjets_wrong;
+	//	TTBarPlots ttp_jets_right;
+	//	TTBarPlots ttp_jets_wrong;
+	//	TTBarPlots ttp_blep_right;
+	//	TTBarPlots ttp_blep_wrong;
+		TTBarPlots ttp_whad_right;
+		TTBarPlots ttp_whad_wrong;
+
+		TTBarPlots ttp_tlepthad_right;
+		TTBarPlots ttp_tlep_right;
+		TTBarPlots ttp_thad_right;
+		TTBarPlots ttp_nn_right;
+		TTBarPlots ttp_nsemi_right;
+
+		TTBarResponse response;
 
 		BtagEff btageff;
 
@@ -103,8 +117,12 @@ class ttbar : public AnalyzerBase
 		TTBarSolver ttsolver;
 
 		//configuration
+		bool DATASIM;
 		bool PSEUDOTOP;
 		bool BTAGMODE;
+		bool JETSCALEMODE;
+		bool MUONS;
+		bool ELECTRONS;
 		int cnbtag;
 		size_t cnusedjets;
 		double cwjetptsoft;
@@ -121,8 +139,16 @@ class ttbar : public AnalyzerBase
 
 		//binning vectors
 		vector<double> topptbins;
-		vector<double> topetabins;
+		vector<double> topybins;
 		vector<double> ttmbins;
+		vector<double> ttybins;
+		vector<double> ttptbins;
+		vector<double> metbins;
+		vector<double> jetbins;
+
+		JetScale jetscale;
+
+		TH1D* puhist;
 	public:
 
 		ttbar(const std::string output_filename);
@@ -134,7 +160,7 @@ class ttbar : public AnalyzerBase
 
 		void SelectGenParticles(URStreamer& event);
 		void SelectRecoParticles(URStreamer& event);
-		void ttanalysis();
+		void ttanalysis(URStreamer& event);
 
 		static void setOptions() {}
 };

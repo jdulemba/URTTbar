@@ -14,6 +14,8 @@
 using namespace std;
 using namespace TMath;
 
+class IDMet;
+
 void myfuncln(Int_t& npar, Double_t* deriv, Double_t& val, Double_t* par, Int_t flag);
 
 class TTBarSolver
@@ -56,22 +58,24 @@ class TTBarSolver
 		double nstest;
 		double masstest;
 		double res;
+
 		bool USEBTAG;
 		bool USENS;
+		bool USEMASS;
 	public:
 		double Test(double* par);
 		static TTBarSolver* TTBS; 
 		TTBarSolver();
 		~TTBarSolver();
-		void Init(string filename, bool usebtag = true, bool usens = true);//provide root file with probability distribution, switches if btag and neutrino solver information should be used for final discriminant Res()
-		void Solve(Jet* bhad, Jet* j1had, Jet* j2had, Jet* blep, TLorentzVector* llep, Met* met);
+		void Init(string filename, bool usebtag = true, bool usens = true, bool usemass = true);//provide root file with probability distribution, switches if btag and neutrino solver information should be used for final discriminant Res()
+		void Solve(Jet* bhad, Jet* j1had, Jet* j2had, Jet* blep, TLorentzVector* llep, IDMet* met);
 
 		//extrem unlikely hypothesis will return a value >= 1E10
 		double Res() const {return res;}//final discriminant
 		double NSRes() const {return nstest;}//-log(l) of neutriosolver 
 		double BTagRes() const {return btagtest;} //-log(l) of btagging
 		double MassRes() const {return masstest;} //-log(l) of 2d-mass test
-	
+
 		double NSChi2() const {return nschi;}//chi2 of neutrinosolver
 
 		//improved objects: currently only usefull for neutrino

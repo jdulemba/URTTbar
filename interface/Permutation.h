@@ -9,6 +9,7 @@
 using namespace std;
 
 class TTBarSolver;
+class IDMet;
 
 class Permutation
 {
@@ -24,13 +25,13 @@ class Permutation
 		IDJet* bjl_ = 0;
 
 		TLorentzVector* lep_ = 0;
-		Met* met_ = 0;
+		IDMet* met_ = 0;
 		TLorentzVector nu_;
 		bool kinfit_ = false;
 		vector<TLorentzVector> improvedobjects;
 	public:
 		Permutation() {}
-		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, Met* met);
+		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met);
 		void Reset();
 		bool IsComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0 && bjl_ != 0 && lep_ != 0 && met_ != 0);}
 		int NumBJets() const {return((bjl_ != 0 ? 1 : 0) + (bjh_ != 0 ? 1 : 0));}
@@ -42,13 +43,13 @@ class Permutation
 		IDJet* BHad() const {return(bjh_);}
 		IDJet* BLep() const {return(bjl_);}
 		TLorentzVector* L() const {return(lep_);}
-		Met* MET() const {return(met_);}
+		IDMet* MET() const {return(met_);}
 		void WJa(IDJet* wja){wja_=wja;}
 		void WJb(IDJet* wjb){wjb_=wjb;}
 		void BHad(IDJet* bjh){bjh_=bjh;}
 		void BLep(IDJet* bjl){bjl_=bjl;}
 		void L(TLorentzVector* lep){lep_=lep;}
-		void MET(Met* met){met_=met;}
+		void MET(IDMet* met){met_=met;}
 
 		TLorentzVector Nu() const {return(nu_);}
 		TLorentzVector WHad() const {return((*WJa() + *WJb()));}
@@ -61,6 +62,14 @@ class Permutation
 		double NuDiscr() 	 const {return nu_discriminant_  ;}
 		double BDiscr()  	 const {return btag_discriminant_;}
 		double MassDiscr() const {return mass_discriminant_;}
+
+		bool IsValid() const
+		{
+			if(WJa() != 0 && WJa() == WJb()) {return(false);}
+			if(BHad() != 0 && (BHad() == WJa() || BHad() == WJb())) {return(false);}
+			if(BLep() != 0 && (BLep() == BHad() || BLep() == WJa() || BLep() == WJb())) {return(false);}
+			return(true);
+		}
 
 		bool AreBsCorrect(const Permutation& other) const //bjets are selected correct, but not necessarily at the right position!!!!!!!!!!
 		{
