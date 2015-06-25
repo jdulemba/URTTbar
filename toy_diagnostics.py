@@ -15,8 +15,8 @@ import re
 from URAnalysis.Utilities.struct import Struct
 
 asrootpy = rootpy.asrootpy
-rootpy.log["/"].setLevel(rootpy.log.ERROR)
-rootpy.log["/rootpy"].setLevel(rootpy.log.ERROR)
+rootpy.log["/"].setLevel(rootpy.log.INFO)
+rootpy.log["/rootpy"].setLevel(rootpy.log.INFO)
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 ROOT.gROOT.SetBatch()
@@ -157,7 +157,7 @@ def run_module(**kwargs):
    pulls_tdir = output_file.mkdir('postfit_pulls')
 
    failed_fits = set()
-   fit_statuses = plotting.Hist(10, 0, 10)
+   fit_statuses = plotting.Hist(10, -1.5, 8.5)
    with io.root_open(args.mlfit) as mlfit:
       failed_results = []
       passes_results = []
