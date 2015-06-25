@@ -23,7 +23,7 @@ reco_truth_array=(' ')
 # Array of transport (or "migration") matrices to use (this is also the directory name)...
 scaled_matrix_array=('notscaled')
 # ...and array of files in which each matrix is stored
-scaled_matrix_file_array=('plots/2015May05/ttxsec/migration_matrices_notscaled.root')
+scaled_matrix_file_array=('plots/2015May05/ttxsec/migration_matrices.root')
 
 for cov_matrix_index in "${!cov_matrix_array[@]}"
 do
