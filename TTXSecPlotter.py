@@ -110,7 +110,7 @@ class TTXSecPlotter(Plotter):
                   )
       #plotter.card.add_bbb_systematics('.*', '.*')
 
-   def write_shapes(self, folder, var, variable, var_binning, disc_binning = lambda x, *args: 4, 
+   def write_shapes(self, folder, var, variable, var_binning, disc_binning = lambda x, *args: 8, 
                     category_template='Bin%i', slice_along='X'):
       if not self.card: self.card = DataCard('tt_*')
       #keep it there for systematics
@@ -197,8 +197,10 @@ class TTXSecPlotter(Plotter):
                      h2Dup = sys_hists2D[sys_name][name]['+']
                      h2Ddw = sys_hists2D[sys_name][name]['-']
 
-                  hup = slice_hist(h2Dup, idx+1, axis=slice_along)
-                  hdw = slice_hist(h2Ddw, idx+1, axis=slice_along)
+                  hup = slice_hist( h2Dup, idx+1, 
+                     axis=slice_along).Rebin(discriminator_binning)
+                  hdw = slice_hist( h2Ddw, idx+1, 
+                     axis=slice_along).Rebin(discriminator_binning)
                   if 'shape_only' in info and info['shape_only']:
                      hup_integral = hup.Integral()
                      hdw_integral = hdw.Integral()

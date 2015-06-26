@@ -134,7 +134,7 @@ double TTBarSolver::Test(double* par)
 	//cout << nschi << " NS " << (metT_ + *llep_ + *blep_).M() << " " << (metT_ + *llep_).M() << endl;
 	if(nschi > -0.1 && nschi < 50.)
 	{
-		nstest = -1.*Log(N_right->Interpolate(nschi)/N_wrong->Interpolate(nschi));
+		nstest = -1.*Log(N_right->Interpolate(nschi));
 	}
 
 	double mwhad = (j1hadT_ + j2hadT_).M();
@@ -144,7 +144,7 @@ double TTBarSolver::Test(double* par)
 	}
 	else
 	{
-		masstest = -1.*Log(WTmass_right->Interpolate(mwhad, mthad)/Max(1., WTmass_wrong->Interpolate(mwhad, mthad)));
+		masstest = -1.*Log(WTmass_right->Interpolate(mwhad, mthad));
 	}
 
 	res = 0.;

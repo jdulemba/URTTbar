@@ -20,9 +20,9 @@ TTBarPlots::~TTBarPlots()
 void TTBarPlots::Init(ttbar* analysis)
 {
 	TTBarPlotsBase::Init(analysis);
-	int ta = 60.;
-	double tamin = 0.;
-	double tamax = 12.;
+	int ta = 120.;
+	double tamin = -10.;
+	double tamax = 2.;
 	int tb = 60.;
 	double tbmin = -20.;
 	double tbmax = 10.;
