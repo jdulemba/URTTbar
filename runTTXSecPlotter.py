@@ -47,7 +47,7 @@ def run_module(**kwargs):
          var     = 'ptthad',
          binning = Struct(
             gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-            reco = [0.0, 30.0, 60.0, 95.0, 125.0, 160.0, 190.0, 220.0, 250.0, 280.0, 315.0, 345.0, 375.0, 405.0, 435.0, 1000.],
+            reco = [30.0*i for i in range(11)]+[1000.],
             #reco = [0., 120., 1000.],
             ),
          xtitle  = 'p_{T}(t_{had})'
@@ -56,14 +56,14 @@ def run_module(**kwargs):
          var = 'pttlep',
          binning = Struct(
             gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-            reco = [0.0, 30.0, 60.0, 90.0, 120.0, 150.0, 180.0, 210.0, 240.0, 270.0, 300.0, 330.0, 360.0, 390.0, 420.0, 450.0, 480.0, 1000.0]
+            reco = [30.0*i for i in range(11)]+[1000.],
             ),
          xtitle = 'p_{T}(t_{lep})'
          ),
       Struct( 
          var = 'etatlep',
          binning = Struct(
-            reco = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.3, 2.8, 8.0],
+            reco = [0.2*i for i in range(11)]+[8.0],
             gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
             ),
          xtitle = '#eta(t_{lep})'
@@ -71,7 +71,7 @@ def run_module(**kwargs):
       Struct( 
          var = 'etathad',
          binning = Struct(
-            reco = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.3, 2.4, 2.5, 2.6, 2.8, 3.0],
+            reco = [0.2*i for i in range(11)]+[8.0],
             gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
             ),
          xtitle = '#eta(t_{had})'
@@ -250,12 +250,12 @@ def run_module(**kwargs):
 
       plotter.plot_mc_shapes(
          '', 'all_%s' % discriminant, rebin=2, xaxis=discriminant,
-         leftside=False, normalize=True, show_err=True, xrange=(1,9))
+         leftside=False, normalize=True, show_err=True, xrange=(-8,1))
       plotter.save('%s_full_shape' % (discriminant), pdf=False)
 
       plotter.plot_mc_shapes(
          '', 'all_%s' % discriminant, rebin=2, xaxis=discriminant,
-         leftside=False, normalize=True, show_err=True, xrange=(1,9),
+         leftside=False, normalize=True, show_err=True, xrange=(-8,1),
          use_only=set(['ttJets_rightTlep', 'ttJets_wrongAssign', 'ttJets_other']),
          ratio_range=1)
       plotter.save('%s_bkg_shape' % (discriminant), pdf=False)
@@ -276,22 +276,23 @@ def run_module(**kwargs):
          for idx, vbin in enumerate(info.binning.reco[1:]):
             plotter.plot_mc_vs_data(
                '', 'all_%s_%s' % (discriminant, var), leftside=False, 
-               rebin = [info.binning.reco, full_discr_binning], xaxis=discriminant,
+               rebin = full_discr_binning[0],
+               xaxis=discriminant,
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin])
                )
             plotter.save('%s_slice_%i' % (discriminant, idx), pdf=False)
       
             plotter.plot_mc_shapes(
                '', 'all_%s_%s' % (discriminant, var), leftside=False, 
-               rebin = [info.binning.reco, full_discr_binning], 
-               xaxis=discriminant, normalize=True, show_err=True, xrange=(1,9),
+               rebin = full_discr_binning[0],
+               xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]))
             plotter.save('%s_slice_%i_shape' % (discriminant, idx), pdf=False)
          
             plotter.plot_mc_shapes(
                '', 'all_%s_%s' % (discriminant, var), leftside=False, 
-               rebin = [info.binning.reco, full_discr_binning], 
-               xaxis=discriminant, normalize=True, show_err=True, xrange=(1,9),
+               rebin = full_discr_binning[0],
+               xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]),
                use_only=set(['ttJets_rightTlep', 'ttJets_wrongAssign', 'ttJets_other']),
                ratio_range=1)
@@ -316,7 +317,8 @@ def run_module(**kwargs):
             )
          plotter.write_shapes(
             '', var, 'all_%s_%s' % (discriminant, var), 
-            var_binning=info.binning.reco
+            var_binning=info.binning.reco,
+            disc_binning = lambda x, *args: full_discr_binning[0]
             ) 
          plotter.add_systematics()
          #plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)
