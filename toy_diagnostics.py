@@ -360,10 +360,32 @@ def run_module(**kwargs):
          shapes = [i.GetName() for i in harvest.get(first_toy).get(args.variable).keys() if i.GetName() not in not_shapes]
 
          for shape in shapes:
-            legend = plotting.Legend(5, rightmargin=0.07, topmargin=0.05, leftmargin=0.45)
-            legend.SetBorderSize(0)
+            canvas = plotting.Canvas()
+            canvas.SetCanvasSize( canvas.GetWw(), int(canvas.GetWh()*1.3) )
+            upper_pad = plotting.Pad(0, 0.33, 1., 1.)
+            lower_pad = plotting.Pad(0, 0., 1., 0.33)
+            upper_pad.set_bottom_margin(0.001)
+            lower_pad.set_top_margin(0.005)
+            lower_pad.set_bottom_margin(lower_pad.get_bottom_margin()*3)
+            upper_pad.Draw()
+            lower_pad.Draw()
+            upper_pad.cd()
+
             biased_shape = biased_shapes.get(shape, None)
+            toy_shape = toys.Get(shape)
+            pre_shape = None
+
+            legend = plotting.Legend(
+               3+int(has_prefit)+int(bool(biased_shape)), 
+               rightmargin=0.07, topmargin=0.05, leftmargin=0.45)
+            legend.SetBorderSize(0)
             
+            if biased_shape:
+               biased_shape.title = 'true shape'
+               biased_shape.legendstyle = 'p'
+               biased_shape.inlegend = True               
+               biased_shape.drawstyle = 'p'
+
             if has_prefit:
                pre_shape = prefit.Get(shape)
                pre_shape.title = 'input shape'
@@ -374,19 +396,13 @@ def run_module(**kwargs):
                   pre_shape.drawstyle = 'hist'
                   pre_shape.linecolor = 'blue'
                   pre_shape.fillstyle = 0
-            toy_shape = toys.Get(shape)
             
             toy_shape.Draw()
             if has_prefit:
                pre_shape.Draw('same')
-               
             if biased_shape:
-               biased_shape.title = 'true shape'
-               biased_shape.legendstyle = 'p'
-               biased_shape.inlegend = True               
-               biased_shape.drawstyle = 'p'
                biased_shape.Draw('same')
-
+               
             legend.AddEntry(toy_shape.two_sigma)
             legend.AddEntry(toy_shape.one_sigma)
             legend.AddEntry(toy_shape.median)
@@ -395,6 +411,30 @@ def run_module(**kwargs):
             if biased_shape:
                legend.AddEntry(biased_shape)
             legend.Draw()
+
+            #compute pulls
+            pulls = None
+            labelSizeFactor2 = (upper_pad.GetHNDC()+lower_pad.GetHNDC()) / lower_pad.GetHNDC()
+            labelSizeFactor1 = (upper_pad.GetHNDC()+lower_pad.GetHNDC()) / upper_pad.GetHNDC()
+            label_factor = labelSizeFactor2/labelSizeFactor1
+            if has_prefit or biased_shape:
+               lower_pad.cd()            
+               ref_histo = biased_shape if biased_shape else pre_shape
+               pulls = toy_shape.median.Clone()
+               pulls.Reset()
+               for ref, toy, pull in zip(ref_histo, toy_shape, pulls):
+                  if toy.error == (0.0, 0.0): continue
+                  abs_pull = toy.median-ref.value
+                  #pick correct side of the errors
+                  err = toy.error[1] if abs_pull < 0 else toy.error[0]
+                  pull.value = abs_pull/err
+               pulls.xaxis.title = args.variable
+               pulls.yaxis.title = 'pulls'
+               pulls.set_label_size(ROOT.gStyle.GetLabelSize()*label_factor, "XYZ")
+               pulls.set_title_size(ROOT.gStyle.GetTitleSize()*label_factor, "XYZ")
+               pulls.yaxis.set_title_offset(pulls.GetYaxis().GetTitleOffset()/label_factor)
+               
+               pulls.Draw()
 
             canvas.Update()
             canvas.SaveAs('%s/%s.png' % (out, shape))
