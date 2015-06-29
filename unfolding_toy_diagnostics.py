@@ -6,6 +6,7 @@ import rootpy.plotting as plotting
 import rootpy
 import rootpy.io as io
 from URAnalysis.PlotTools.views import EnvelopeView
+from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
 from URAnalysis.Utilities.roottools import ArgSet, ArgList
 from pdb import set_trace
 import logging
@@ -18,6 +19,7 @@ ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetOptFit(11111)
 ROOT.gROOT.SetBatch()
+ROOT.TH1.AddDirectory(False)
 log = rootpy.log["/toy_diagnostics"]
 
 pull_nbins = 400
@@ -48,45 +50,93 @@ def create_and_save_canvas(histo, xname):
     canvas.SaveAs('%s.png' % histo.GetName())
     canvas.SaveAs('%s.pdf' % histo.GetName())
 
-def unfolding_toy_diagnostics(indir, variable):
 
+def set_pretty_label(variable):
+    if variable == 'ptthad':
+        result = 'p_{T}(t_{had}) [GeV]'
+    elif variable == 'pttlep':
+        result = 'p_{T}(t_{lep}) [GeV]'
+    elif variable == 'etathad':
+        result == '|#eta(t_{had})|'
+    elif variable == 'etatlep':
+        result == '|#eta(t_{lep})|'
+    else:
+        result == variable
+    return result
+
+
+def unfolding_toy_diagnostics(indir, variable):
+    
+    plotter = BasePlotter()
+    
+    xaxislabel = set_pretty_label(variable)
+    
+    
+
+    curdir = os.getcwd()
+    os.chdir(indir)
+    toydirs = get_immediate_subdirectories(".")
     pulls = {}
     pull_means = {}
     pull_sigmas = {}
     pull_means_summary = {}
     pull_sigmas_summary = {}
-    curdir = os.getcwd()
-    os.chdir(indir)
-    toydirs = get_immediate_subdirectories(".")
-    histos_created = False
+    histos_created = False        
+    idir = 0
     for directory in toydirs:
         os.chdir(directory)
+        print('Iteration %s over the directories' % idir)
+        idir = idir + 1
+        i = 0
+
         with io.root_open("result_unfolding.root") as inputfile:
+            print ('Iteration %s over the file' % i)
+            i = i+1
             keys = inputfile.keys()
             if not histos_created:
                 for key in keys:
                     if key.GetName().startswith("hdata_unfolded"):
-                        histo = key.ReadObj()
+                        histo = asrootpy(key.ReadObj())
                         name = histo.GetName()
                         nbins = histo.GetXaxis().GetNbins()
                         print ("name = %s, n bins = %s" % (name,nbins))
                         for ibin in range(1,nbins+1):
+                            ROOT.TH1.AddDirectory(False)
                             outname = "pull_" + name + "_bin" + str(ibin)
-                            pulls[outname] = plotting.Hist(pull_nbins, pull_min, pull_max, name = outname)
+                            outtitle = 'Pulls - bin ' + str(ibin) + ' - ' + name + ';Pull;N_{toys}'
+                            pulls[outname] = plotting.Hist(pull_nbins, pull_min, pull_max, name = outname, title=outtitle)
                             print ("outname is %s, we are in bin %s" % (outname,ibin))
                         outname = "pull_" + name
                         outname_mean = outname + "_mean"
-                        pull_means[outname] = plotting.Hist(pull_mean_nbins, pull_mean_min, pull_mean_max, name = outname_mean)
+                        outtitle = "Pull means - " + name + ";Pull mean; N_{toys}"
+                        pull_means[outname] = plotting.Hist(pull_mean_nbins, pull_mean_min, pull_mean_max, name = outname_mean, title=outtitle)
                         outname_sigma = outname + "_sigma"
-                        pull_sigmas[outname] = plotting.Hist(pull_sigma_nbins, pull_sigma_min, pull_sigma_max, name = outname_sigma)
+                        outtitle_sigma = "Pull #sigma's - " + name + ";Pull #sigma; N_{toys}"
+                        pull_sigmas[outname] = plotting.Hist(pull_sigma_nbins, pull_sigma_min, pull_sigma_max, name = outname_sigma, title=outtitle_sigma)
                         outname_mean_summary = outname + "_mean_summary"
-                        pull_means_summary[outname] = plotting.Hist(nbins, histo.GetXaxis().GetBinLowEdge(1), histo.GetXaxis().GetBinLowEdge(nbins+1), name = outname_mean_summary)
+                        outtitle_mean_summary = "Pull mean summary - " + name
+                        histocloned = histo.Clone(outname_mean_summary)
+                        histocloned.Reset()
+                        histocloned.xaxis.title = xaxislabel
+                        histocloned.yaxis.title = 'Pull mean'
+                        histocloned.title = outtitle_mean_summary
+                        pull_means_summary[outname] = histocloned
                         outname_sigma_summary = outname + "_sigma_summary"
-                        pull_sigmas_summary[outname] = plotting.Hist(nbins, histo.GetXaxis().GetBinLowEdge(1), histo.GetXaxis().GetBinLowEdge(nbins+1), name = outname_sigma_summary)
+                        outtitle_sigma_summary = "Pull #sigma summary - " + name
+                        histocloned = histo.Clone(outname_sigma_summary)
+                        histocloned.Reset()
+                        histocloned.xaxis.title = xaxislabel
+                        histocloned.yaxis.title = 'Pull #sigma'
+                        histocloned.title = outtitle_sigma_summary
+                        pull_sigmas_summary[outname] = histocloned
                         
                 histos_created = True
-            true_distribution = keys.FindObject("true_distribution").ReadObj()
+            #true_distribution = keys.FindObject("true_distribution").ReadObj()
+            true_distribution = filter(lambda x: x.GetName() == 'true_distribution', keys)[0].ReadObj()
+            j = 0
             for key in keys:
+                print('Iteration %s over the keys' % j)
+                j = j+1
                 if key.GetName().startswith("hdata_unfolded"):
                     histo = key.ReadObj()
                     name = histo.GetName()
@@ -100,8 +150,13 @@ def unfolding_toy_diagnostics(indir, variable):
                         true_bin_error = true_distribution.GetBinError(ibin)
                         #total_bin_error = math.sqrt(unfolded_bin_error**2 + true_bin_error**2)
                         total_bin_error = math.sqrt(unfolded_bin_error**2)
-                        pull = (unfolded_bin_content-true_bin_content)/total_bin_error
+                        if(total_bin_error != 0):
+                            pull = (unfolded_bin_content-true_bin_content)/total_bin_error
+                        else:
+                            pull = 9999
                         print ('unfolded bin content %s +/- %s, true bin content %s, pull %s' % (unfolded_bin_content, unfolded_bin_error, true_bin_content, pull))
+                        print outname
+                        print pulls
                         pulls[outname].Fill(pull)
         
         os.chdir("..")
@@ -111,6 +166,7 @@ def unfolding_toy_diagnostics(indir, variable):
     outfile.cd()
 
     for name, histo in pulls.iteritems():
+        #set_trace()
         print("name is %s and object type is %s" % (name, type(histo)))
         histo.Fit("gaus")
         if not histo.GetFunction("gaus"):
@@ -143,38 +199,44 @@ def unfolding_toy_diagnostics(indir, variable):
                 
         
     for name, histo in pulls.iteritems():
-        create_and_save_canvas(histo, "pull")
-        histo.Write()
-    for name, histo in pull_means.iteritems():
-        create_and_save_canvas(histo, "pull means")
-        histo.Write()
-    for name, histo in pull_sigmas.iteritems():
-        create_and_save_canvas(histo, "pull sigmas")
-        histo.Write()
-    for name, histo in pull_means_summary.iteritems():
-        canvas = plotting.Canvas()
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
         histo.SetStats(True)
-        histo.GetXaxis().SetName("pull means summary")
-        histo.Draw()
         canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in pull_means.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in pull_sigmas.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in pull_means_summary.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        #histo.SetStats(True)
         line = ROOT.TLine(histo.GetBinLowEdge(1),0,histo.GetBinLowEdge(histo.GetNbinsX()+1),0)
         line.Draw("same")
+
         canvas.Update()
-        canvas.SaveAs('%s.png' % histo.GetName())
-        canvas.SaveAs('%s.pdf' % histo.GetName())
         histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
     for name, histo in pull_sigmas_summary.iteritems():
-        canvas = plotting.Canvas()
-        histo.SetStats(True)
-        histo.GetXaxis().SetName("pull sigmas summary")
-        histo.Draw()
-        canvas.Update()
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        #histo.SetStats(True)
         line = ROOT.TLine(histo.GetBinLowEdge(1),1,histo.GetBinLowEdge(histo.GetNbinsX()+1),1)
         line.Draw("same")
         canvas.Update()
-        canvas.SaveAs('%s.png' % histo.GetName())
-        canvas.SaveAs('%s.pdf' % histo.GetName())
         histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
         
     outfile.close()
     #os.chdir("..")

@@ -5,9 +5,9 @@
 echo jobid is "$jobid"
 
 # Suffix is an editable string used to put the results of different jobs in different directories
-suffix="_150605"
+suffix="_150626"
 # This array stores the variables for which the unfilding needs to be done
-variable_array=('ptthad' 'pttlep' 'etathad' 'etatlep')
+variable_array=('ptthad')
 # Array of switches to turn on or off the use of the covariant matrix...
 cov_matrix_array=('--cov_matrix=full')
 # ...and corresponding strings to name the directories where the results will go

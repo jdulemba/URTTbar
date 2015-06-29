@@ -5,12 +5,14 @@ import rootpy.io as io
 import ROOT
 import math
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
+from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
 from unfolding_toy_diagnostics import unfolding_toy_diagnostics
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 log = rootpy.log["/URUnfolding"]
 rootpy.log.basic_config_colorized()
-ROOT.gStyle.SetOptTitle(0)
-ROOT.gStyle.SetOptStat(0)
+#ROOT.gStyle.SetOptTitle(0)
+ROOT.gStyle.SetOptStat(False)
+ROOT.gStyle.SetObjectStat(False)
 ROOT.gROOT.SetBatch()
 from argparse import ArgumentParser
 
@@ -152,13 +154,30 @@ def overlay(reference, target):
     reference.GetYaxis().SetRangeUser(miny, maxy)
     return canvas
 
+def set_pretty_label(variable):
+    if variable == 'ptthad':
+        result = 'p_{T}(t_{had}) [GeV]'
+    elif variable == 'pttlep':
+        result = 'p_{T}(t_{lep}) [GeV]'
+    elif variable == 'etathad':
+        result == '|#eta(t_{had})|'
+    elif variable == 'etatlep':
+        result == '|#eta(t_{lep})|'
+    else:
+        result == variable
+    return result
+
 def run_unfolder(itoy = 0, outdir = opts.dir):
-    canvas = plotting.Canvas(name='adsf', title='asdf')
+    
+    plotter = BasePlotter()
+    
+    #canvas = plotting.Canvas(name='adsf', title='asdf')
     if "toy" in opts.fit_file:
-        data_file_basedir = 'toy_' + str(itoy) + '/'
-        data_file_dir = data_file_basedir + opts.var
+        data_file_basedir = 'toy_' + str(itoy)
+        data_file_dir = data_file_basedir + '/' + opts.var
     else:
         data_file_dir = opts.var
+    xaxislabel = set_pretty_label(opts.var)
     scale = 1.
     myunfolding = URUnfolding(regmode = opts.reg_mode)
     myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
@@ -207,18 +226,24 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
               for i in xrange(graph_x.GetN())]
     best = [(x,y) for i, x, y in points if l_tau == i]
     graph_best = plotting.Graph(1)
+    plotter.set_graph_style(graph_best,29,2)
     graph_best.SetPoint(0, *best[0])
-    graph_best.SetMarkerStyle(29)
     graph_best.SetMarkerSize(3)
-    graph_best.SetMarkerColor(2)
-    l_curve.Draw('ALP')
+    #l_curve.Draw('ALP')
+    #graph_best.Draw('P SAME')
+    canvas = plotter.create_and_write_graph_canvas('c'+l_curve.GetName(),[0],[1],False,False,[l_curve],write=False)
     graph_best.Draw('P SAME')
-    info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
+    
+    info = ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
+    info.UseCurrentStyle()
+    info.SetTextAlign(32)
     info.SetFillColor(0)
     info.SetBorderSize(0)
     info.SetMargin(0.)
+    info.SetTextSize(0.037)
     info.AddText('#tau = %.5f' % best_l)
     info.Draw()
+    canvas.Update()
     save(canvas, 'L_curve', 'L_curve', outdir)
 
     modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
@@ -242,15 +267,19 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
         graph_best.SetMarkerStyle(29)
         graph_best.SetMarkerSize(3)
         graph_best.SetMarkerColor(2)
-        tau_curve.Draw('ALP')
+        
+        canvas = plotter.create_and_write_graph_canvas('c'+tau_curve.GetName(),[0],[1],False,False,[tau_curve],write=False)
+    
         graph_best.Draw('P SAME')
-        info = ROOT.TPaveText(.9,0.9,.999,0.999, "brNDC")
+        info = ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
+        info.UseCurrentStyle()
         info.SetFillColor(0)
         info.SetBorderSize(0)
         info.SetMargin(0.)
         info.AddText('#tau = %.5f' % best_tau)
         info.Draw()
-        save(canvas, mode, 'L_curve', outdir)
+        canvas.Update()
+        save(canvas, mode, 'Tau_curve', outdir)
 
     #force running without regularization
     best_taus['NoReg'] = 0
@@ -277,17 +306,28 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
         hbias = myunfolding.bias
         hbias.name = 'bias_%s' % name
         to_save.append(hbias)
-        canvas = overlay(myunfolding.truth, hdata_unfolded)
-        save(canvas, name, 'unfolding', outdir)
+        #canvas = overlay(myunfolding.truth, hdata_unfolded)
+        leg = LegendDefinition(title=name,labels=['Truth','Unfolded'],position='ne')
+        myunfolding.truth.xaxis.title = xaxislabel
+        hdata_unfolded.xaxis.title = xaxislabel
+        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_pull', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='pull')
+        save(canvas, name, 'unfolding_pull', outdir)
+        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_ratio', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='ratio')
+        save(canvas, name, 'unfolding_ratio', outdir)
     
         nbins = myunfolding.measured.GetNbinsX()
-        for i in range(1, nbins+1):
-            myunfolding.measured.GetXaxis().SetBinLabel(
-                i, 
-                '%.0f' % myunfolding.measured.GetXaxis().GetBinLowEdge(i)
-                )
-        canvas = overlay(myunfolding.measured, hdata_refolded)
-        save(canvas, name, 'refolded', outdir)
+        #for i in range(1, nbins+1):
+            #myunfolding.measured.GetXaxis().SetBinLabel(
+                #i, 
+                #'%.0f' % myunfolding.measured.GetXaxis().GetBinLowEdge(i)
+                #)
+        leg = LegendDefinition(title=name,labels=['Reco','Refolded'],position='ne')
+        myunfolding.measured.xaxis.title = xaxislabel
+        hdata_refolded.xaxis.title = xaxislabel
+        canvas = plotter.create_and_write_canvas_with_comparison('refolded_pull', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='pull')
+        save(canvas, name, 'refolded_pull', outdir)
+        canvas = plotter.create_and_write_canvas_with_comparison('refolded_ratio', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='ratio')
+        save(canvas, name, 'refolded_ratio', outdir)
 
     htruth = myunfolding.truth
     hmatrix = myunfolding.matrix
@@ -326,10 +366,12 @@ data_file = io.root_open(opts.fit_file)
 if 'toy' in opts.fit_file:
     itoy = 0
     while True:
-        data_file_basedir = 'toy_' + str(itoy) + '/'
+        data_file_basedir = 'toy_' + str(itoy)
         try:
             getattr(data_file, data_file_basedir)
-        except rootpy.io.DoesNotExist:
+        #except rootpy.io.DoesNotExist as err:
+        except AttributeError as err:
+            log.warning('Directory %s not found in the rootfile! Breaking the loop.' % data_file_basedir)
             break
         log.info('Found directory %s in the rootfile' % data_file_basedir)
 
@@ -340,11 +382,14 @@ if 'toy' in opts.fit_file:
                 log.warning('Directory %s already exists.' % data_file_basedir)
             else:
                 raise e
+
         outdir = os.path.join(opts.dir,data_file_basedir)
         
         run_unfolder(itoy, outdir)
                 
         itoy = itoy + 1
+        if itoy > 10:
+            break
 else:
     run_unfolder()
     
