@@ -34,6 +34,24 @@ pull_sigma_nbins = 100
 pull_sigma_min = 0
 pull_sigma_max = 5
 
+delta_nbins = 400
+delta_min = -10000
+delta_max = 10000
+
+delta_mean_nbins = 100
+delta_mean_min = -5000
+delta_mean_max = 5000
+
+delta_sigma_nbins = 100
+delta_sigma_min = 0
+delta_sigma_max = 5000
+
+unfolded_nbins = 400
+unfolded_min = -20000
+unfolded_max = 20000
+
+
+
 import URAnalysis.Utilities.prettyjson as prettyjson
 
 def get_immediate_subdirectories(a_dir):
@@ -71,6 +89,7 @@ def unfolding_toy_diagnostics(indir, variable):
     
     xaxislabel = set_pretty_label(variable)
     
+    true_distribution = None
     
 
     curdir = os.getcwd()
@@ -81,7 +100,14 @@ def unfolding_toy_diagnostics(indir, variable):
     pull_sigmas = {}
     pull_means_summary = {}
     pull_sigmas_summary = {}
-    histos_created = False        
+    deltas = {}
+    delta_means = {}
+    delta_sigmas = {}
+    delta_means_summary = {}
+    delta_sigmas_summary = {}
+    unfoldeds = {}
+    unfolded_summary = {}
+    histos_created = False
     idir = 0
     for directory in toydirs:
         os.chdir(directory)
@@ -106,6 +132,14 @@ def unfolding_toy_diagnostics(indir, variable):
                             outtitle = 'Pulls - bin ' + str(ibin) + ' - ' + name + ';Pull;N_{toys}'
                             pulls[outname] = plotting.Hist(pull_nbins, pull_min, pull_max, name = outname, title=outtitle)
                             print ("outname is %s, we are in bin %s" % (outname,ibin))
+                            outname = "delta_" + name + "_bin" + str(ibin)
+                            outtitle = 'Deltas - bin ' + str(ibin) + ' - ' + name + ';Delta;N_{toys}'
+                            deltas[outname] = plotting.Hist(delta_nbins, delta_min, delta_max, name = outname, title=outtitle)
+                            print ("outname is %s, we are in bin %s" % (outname,ibin))
+                            outname = "unfolded_" + name + "_bin" + str(ibin)
+                            outtitle = 'Unfoldeds - bin ' + str(ibin) + ' - ' + name + ';Unfolded;N_{toys}'
+                            unfoldeds[outname] = plotting.Hist(unfolded_nbins, unfolded_min, unfolded_max, name = outname, title=outtitle)
+                            print ("outname is %s, we are in bin %s" % (outname,ibin))
                         outname = "pull_" + name
                         outname_mean = outname + "_mean"
                         outtitle = "Pull means - " + name + ";Pull mean; N_{toys}"
@@ -129,6 +163,42 @@ def unfolding_toy_diagnostics(indir, variable):
                         histocloned.yaxis.title = 'Pull #sigma'
                         histocloned.title = outtitle_sigma_summary
                         pull_sigmas_summary[outname] = histocloned
+                        
+                        
+                        outname = "delta_" + name
+                        outname_mean = outname + "_mean"
+                        outtitle = "Delta means - " + name + ";Delta mean; N_{toys}"
+                        delta_means[outname] = plotting.Hist(delta_mean_nbins, delta_mean_min, delta_mean_max, name = outname_mean, title=outtitle)
+                        outname_sigma = outname + "_sigma"
+                        outtitle_sigma = "Delta #sigma's - " + name + ";Delta #sigma; N_{toys}"
+                        delta_sigmas[outname] = plotting.Hist(delta_sigma_nbins, delta_sigma_min, delta_sigma_max, name = outname_sigma, title=outtitle_sigma)
+                        outname_mean_summary = outname + "_mean_summary"
+                        outtitle_mean_summary = "Delta mean summary - " + name
+                        histocloned = histo.Clone(outname_mean_summary)
+                        histocloned.Reset()
+                        histocloned.xaxis.title = xaxislabel
+                        histocloned.yaxis.title = 'Delta mean'
+                        histocloned.title = outtitle_mean_summary
+                        delta_means_summary[outname] = histocloned
+                        outname_sigma_summary = outname + "_sigma_summary"
+                        outtitle_sigma_summary = "Delta #sigma summary - " + name
+                        histocloned = histo.Clone(outname_sigma_summary)
+                        histocloned.Reset()
+                        histocloned.xaxis.title = xaxislabel
+                        histocloned.yaxis.title = 'Delta #sigma'
+                        histocloned.title = outtitle_sigma_summary
+                        delta_sigmas_summary[outname] = histocloned
+                        
+                        outname = 'unfolded_' + name
+                        outname_unfolded_summary = name + "_unfolded_summary"
+                        outtitle_unfolded_summary = "Unfolded summary - " + name
+                        histocloned = histo.Clone(outname_unfolded_summary)
+                        histocloned.Reset()
+                        histocloned.xaxis.title = xaxislabel
+                        histocloned.yaxis.title = 'N_{events}'
+                        histocloned.title = outtitle_unfolded_summary
+                        unfolded_summary[outname] = histocloned
+                        
                         
                 histos_created = True
             #true_distribution = keys.FindObject("true_distribution").ReadObj()
@@ -158,6 +228,14 @@ def unfolding_toy_diagnostics(indir, variable):
                         print outname
                         print pulls
                         pulls[outname].Fill(pull)
+                        outname = "delta_" + name + "_bin" + str(ibin)
+                        delta = unfolded_bin_content-true_bin_content
+                        print ('unfolded bin content %s +/- %s, true bin content %s, delta %s' % (unfolded_bin_content, unfolded_bin_error, true_bin_content, delta))
+                        print outname
+                        print deltas
+                        deltas[outname].Fill(delta)
+                        outname = "unfolded_" + name + "_bin" + str(ibin)
+                        unfoldeds[outname].Fill(unfolded_bin_content)
         
         os.chdir("..")
     
@@ -196,7 +274,59 @@ def unfolding_toy_diagnostics(indir, variable):
                 pull_sigmas_summary[name_sigma_summary].SetBinContent(index,sigma)
                 pull_sigmas_summary[name_sigma_summary].SetBinError(index,sigmaError)
                 
-                
+  
+  
+    for name, histo in deltas.iteritems():
+        #set_trace()
+        print("name is %s and object type is %s" % (name, type(histo)))
+        histo.Fit("gaus")
+        if not histo.GetFunction("gaus"):
+            log.warning("Function not found for histogram %s" % name)
+            continue
+        mean = histo.GetFunction("gaus").GetParameter(1)
+        meanError = histo.GetFunction("gaus").GetParError(1)
+        sigma = histo.GetFunction("gaus").GetParameter(2)
+        sigmaError = histo.GetFunction("gaus").GetParError(2)
+        if filter(str.isdigit, name) != '':
+            index = int(filter(str.isdigit, name))
+        else:
+            index = 1
+        print index
+        for name_mean, histo_mean in delta_means.iteritems():
+            if name.startswith(name_mean):
+                delta_means[name_mean].Fill(mean)
+        for name_sigma, histo_sigma in delta_sigmas.iteritems():
+            if name.startswith(name_sigma):
+                delta_sigmas[name_sigma].Fill(sigma)
+        for name_mean_summary, histo_mean_summary in delta_means_summary.iteritems():
+            if name.startswith(name_mean_summary):
+                delta_means_summary[name_mean_summary].SetBinContent(index,mean)
+                delta_means_summary[name_mean_summary].SetBinError(index,meanError)
+        for name_sigma_summary, histo_sigma_summary in delta_sigmas_summary.iteritems():
+            if name.startswith(name_sigma_summary):
+                delta_sigmas_summary[name_sigma_summary].SetBinContent(index,sigma)
+                delta_sigmas_summary[name_sigma_summary].SetBinError(index,sigmaError)
+    
+    for name, histo in unfoldeds.iteritems():
+        #set_trace()
+        print("name is %s and object type is %s" % (name, type(histo)))
+        histo.Fit("gaus")
+        if not histo.GetFunction("gaus"):
+            log.warning("Function not found for histogram %s" % name)
+            continue
+        mean = histo.GetFunction("gaus").GetParameter(1)
+        meanError = histo.GetFunction("gaus").GetParError(1)
+        sigma = histo.GetFunction("gaus").GetParameter(2)
+        sigmaError = histo.GetFunction("gaus").GetParError(2)
+        if filter(str.isdigit, name) != '':
+            index = int(filter(str.isdigit, name))
+        else:
+            index = 1
+        print index
+        for name_unfolded_summary, histo_unfolded_summary in unfolded_summary.iteritems():
+            if name.startswith(name_unfolded_summary):
+                unfolded_summary[name_unfolded_summary].SetBinContent(index, mean)
+                unfolded_summary[name_unfolded_summary].SetBinError(index, meanError)   
         
     for name, histo in pulls.iteritems():
         canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
@@ -221,7 +351,6 @@ def unfolding_toy_diagnostics(indir, variable):
         #histo.SetStats(True)
         line = ROOT.TLine(histo.GetBinLowEdge(1),0,histo.GetBinLowEdge(histo.GetNbinsX()+1),0)
         line.Draw("same")
-
         canvas.Update()
         histo.Write()
         canvas.Write()
@@ -237,6 +366,73 @@ def unfolding_toy_diagnostics(indir, variable):
         canvas.Write()
         canvas.SaveAs('%s.png' % canvas.GetName())
         canvas.SaveAs('%s.pdf' % canvas.GetName())
+        
+
+    for name, histo in deltas.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in delta_means.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in delta_sigmas.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in delta_means_summary.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        #histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in delta_sigmas_summary.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        #histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+
+
+    for name, histo in unfoldeds.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in unfolded_summary.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+    for name, histo in unfolded_summary.iteritems():
+        leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
+        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'pull')
+        canvas.Update()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+        canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'ratio')
+        canvas.Update()
+        canvas.Write()
+        canvas.SaveAs('%s.png' % canvas.GetName())
+        canvas.SaveAs('%s.pdf' % canvas.GetName())
+        
         
     outfile.close()
     #os.chdir("..")

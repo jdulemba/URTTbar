@@ -198,6 +198,8 @@ task :fit_toys_wbias, [:var, :biasID] do |t, args|
       sh "cp ../#{args.var}/#{args.var}.model.root #{new_varname}.model.root"
     end
   end
+  
+  sh "python make_skewed_matrices.py #{args.var} #{args.biasID}"
 
   #disable batch, we are quick
   #set external toy source
