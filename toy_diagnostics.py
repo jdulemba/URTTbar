@@ -335,6 +335,16 @@ def run_module(**kwargs):
       #what is fitted by the toys
       out = os.path.join(args.out, 'shapes')
       mkdir(out)
+      biased_shapes={}
+      if args.biasFile:
+         with io.root_open(args.biasFile) as biased:
+            biased_dir= biased.prefit \
+               if hasattr(biased, 'prefit') else \
+               None
+            ROOT.TH1.AddDirectory(False)
+            for key in biased_dir.keys():
+               biased_shapes[key.name] = asrootpy(key.ReadObj().Clone())
+
       with io.root_open(args.harvested) as harvest:
          has_prefit = hasattr(harvest, 'prefit')
          prefit = harvest.prefit if has_prefit else None
@@ -350,23 +360,40 @@ def run_module(**kwargs):
          shapes = [i.GetName() for i in harvest.get(first_toy).get(args.variable).keys() if i.GetName() not in not_shapes]
 
          for shape in shapes:
-            legend = plotting.Legend(4, rightmargin=0.07, topmargin=0.05, leftmargin=0.45)
+            legend = plotting.Legend(5, rightmargin=0.07, topmargin=0.05, leftmargin=0.45)
             legend.SetBorderSize(0)
+            biased_shape = biased_shapes.get(shape, None)
+            
             if has_prefit:
                pre_shape = prefit.Get(shape)
                pre_shape.title = 'input shape'
                pre_shape.legendstyle = 'p'
+               pre_shape.drawstyle = 'p'
+               if biased_shape:
+                  pre_shape.legendstyle = 'l'
+                  pre_shape.drawstyle = 'hist'
+                  pre_shape.linecolor = 'blue'
+                  pre_shape.fillstyle = 0
             toy_shape = toys.Get(shape)
             
             toy_shape.Draw()
             if has_prefit:
-               pre_shape.Draw('P same')
+               pre_shape.Draw('same')
+               
+            if biased_shape:
+               biased_shape.title = 'true shape'
+               biased_shape.legendstyle = 'p'
+               biased_shape.inlegend = True               
+               biased_shape.drawstyle = 'p'
+               biased_shape.Draw('same')
 
             legend.AddEntry(toy_shape.two_sigma)
             legend.AddEntry(toy_shape.one_sigma)
             legend.AddEntry(toy_shape.median)
             if has_prefit:
                legend.AddEntry(pre_shape)
+            if biased_shape:
+               legend.AddEntry(biased_shape)
             legend.Draw()
 
             canvas.Update()
@@ -397,6 +424,8 @@ if __name__ == '__main__':
    parser.add_argument('--filter-out-sample', dest='sample_out_regex', type=str)
    parser.add_argument('--oneshot', action='store_true', help='to use to store data/asimov runs')
    parser.add_argument('--skipFit', action='store_true', help='skips pulls fit, when really nothing works')
+   parser.add_argument('--biasFile', help='fit harvest of the biased toys with biased shapes.\n'
+                       'Used to get the values of the REAL prefit shapes in case of bias tests')
 
    args = parser.parse_args()
    run_module(**dict(args._get_kwargs()))
