@@ -32,6 +32,8 @@ class ttbar : public AnalyzerBase
 		bool FULLLEP;
 		bool SEMILEPACC;
 		bool SEMILEPACCLOOSE;
+		bool skew_pt_distro;
+		bool is_ttbar;
 		list<GenObject> sgenparticles;
 		vector<GenObject*> genwpartons;
 		vector<GenObject*> gencls;

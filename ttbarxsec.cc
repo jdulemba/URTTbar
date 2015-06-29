@@ -3,6 +3,8 @@
 
 #include "Permutation.h"
 #include "PDFuncertainty.h"
+#include <boost/algorithm/string/predicate.hpp>
+#include "URParser.h"
 
 using namespace std;
 
@@ -10,7 +12,7 @@ ttbar::ttbar(const std::string output_filename):
 	AnalyzerBase("ttbar", output_filename),
 	gen1d("gen"),
 	gen2d("gen"),
-    ttp_gen("gen_test"),
+	ttp_gen("gen_test"),
 	reco1d("reco"),
 	reco2d("reco"),
 	truth1d("truth"),
@@ -48,7 +50,8 @@ ttbar::ttbar(const std::string output_filename):
 	other_tt_decay("all"),
 	PSEUDOTOP(false),
 	BTAGMODE(false), //set true for the b-tag efficiency measurement
-	cnbtag(1), //1: one thight b-jet, 2: two medium b-jets
+	cnbtag(2), //1: one thight b-jet, 2: two medium b-jets
+	skew_pt_distro(true),
 	cnusedjets(10000), //only nused jets, ordered by pT are used for the permutations
 	cwjetptsoft(25.), //min pT of softer W-jet
 	cwjetpthard(35.), //min pT of harder W-jet 
@@ -66,6 +69,16 @@ ttbar::ttbar(const std::string output_filename):
 	clptmin_fiducialloose(25.), //min pT of lepton (el or mu)
 	cletamax_fiducialloose(2.6)//max |eta| of leptons (max allowed value is 2.4) 
 {
+	opts::variables_map &values = URParser::instance().values();
+	string output_file = values["output"].as<std::string>();
+	size_t slash = output_file.rfind("/") + 1;
+	string basename(output_file, slash, output_file.size() - slash);
+	is_ttbar = boost::starts_with(basename, "ttJets");
+
+	Logger::log().info() << "N BTags: " << cnbtag << endl <<
+		"skew_pt_distro: " << skew_pt_distro << endl <<
+		"PSEUDOTOP mode: " << PSEUDOTOP << endl <<
+		"is TTBar: " << is_ttbar << endl;
 
 	jetptmin = min(cwjetptsoft, cbjetptsoft);
 	int n(0);
@@ -391,12 +404,16 @@ void ttbar::SelectGenParticles(URStreamer& event)
 		const vector<Genparticle>& gps = event.genParticles();
 		for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp)
 		{
-			//if(gp->pdgId() == 6)
-			//{
-			//	weight = 1.+(gp->Pt()-200.)/200.;
-			//}
 			if(gp->status() > 21 && gp->status() < 30 && gp->momIdx().size() != 0)
 			{
+				//skew top pT distribution
+				if(skew_pt_distro && is_ttbar && gp->pdgId() == 6)
+				{
+					double lweight=1.+(gp->Pt()-200.)/1000.;
+					weight *= lweight;//1.+(gp->Pt()-200.)/200.;
+					//Logger::log().debug() << "pT weight: " << weight << " lweight: " << lweight << endl;
+				}
+
 				if(Abs(gp->pdgId()) == 6)
 				{
 					topcounter++;
@@ -862,6 +879,7 @@ void ttbar::ttanalysis()
 	}
 	if(bestper.Prob() > 1E9){return;}
 	reco1d["counter"]->Fill(4.5, weight);
+	//Logger::log().debug() << "MassDisc: " << bestper.MassDiscr() << endl;
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(7.5, weight);
 	//Fill reconstructed hists
 	ttp_all.Fill(bestper, lepcharge, weight);
