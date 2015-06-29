@@ -389,7 +389,7 @@ if 'toy' in opts.fit_file:
 
         outdir = os.path.join(opts.dir,data_file_basedir)
         
-        #run_unfolder(itoy, outdir)
+        run_unfolder(itoy, outdir)
                 
         itoy = itoy + 1
         #if itoy > 10:
