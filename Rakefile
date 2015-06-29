@@ -34,6 +34,42 @@ task :new_ttbar_plots, [:info] do |t, args|
   new_trial('', 'ttxsec', args.info)
 end
 
+task :set_trial,[:trialID] do |t, args|
+  chdir("results/#{$jobid}") do
+    link  = "ttbarxsec"
+    results = "#{link}_#{args.trialID}"
+    if File.exist? link
+      if not File.symlink? link
+        throw "#{link} MUST be a symlink in the first place to work!"
+      end
+      sh "rm -f #{link}"
+    end
+  
+    if not File.exist? results
+      throw "trial ID not found!"
+    end
+
+    sh "ln -s #{results} #{link}"
+  end
+
+  chdir("plots/#{$jobid}") do
+    link  = "ttxsec"
+    results = "#{link}_#{args.trialID}"
+    if File.exist? link
+      if not File.symlink? link
+        throw "#{link} MUST be a symlink in the first place to work!"
+      end
+      sh "rm -f #{link}"
+    end
+    
+    if not File.exist? results
+      throw "trial ID not found!"
+    end
+
+    sh "ln -s #{results} #{link}"
+  end
+end
+
 task :publish_ttxsec do |t|
   link = `ls -ld plots/#{$jobid}/ttxsec`.scan(/-> (.+)/).flatten.last
   if not link
@@ -49,16 +85,22 @@ rule /\.model\.root$/ => psub(/\.model\.root$/, '.txt') do |t|
   end
 end
 
+$external_toys=''
 rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root') do |t|
   dir = File.dirname(t.name)
   toy_cmd = ''
   if t.name.include? '.toy.'
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
   end
+
+  if not $external_toys.empty?
+    toy_cmd += " --toysFile #{$external_toys}"
+  end
+
   chdir(dir) do
     combine_cmd = "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --skipBOnlyFit --minos=all"
     if $batch == "1"
-      sh "rm -f mlfit[0-9]*.root"
+      sh "rm -f mlfit[0-9]*.root higgsCombine[0-9]*.MaxLikelihoodFit.mH120.[0-9]*.root"
       toy_cmd = '--saveToys --expectSignal 1 -t 10'
       sh "cp #{ENV['URA']}/AnalysisTools/scripts/batch_job.sh ."
       File.open('condor.mltoys.jdl', 'w') do |file|
@@ -80,9 +122,13 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
         sh 'condor_submit condor.mltoys.jdl'
         sh 'hold.py --check_correctness=./ --maxResubmission=0'
         sh "merge_toys.py #{File.basename(t.name)} mlfit[0-9]*.root" 
+        sh "merge_toy_experiments.py toy_experiments.root higgsCombine[0-9]*.MaxLikelihoodFit.mH120.[0-9]*.root"
       end
     else
       sh "#{combine_cmd} #{toy_cmd} &> #{File.basename(t.name).sub('.root','.log')}"
+      if t.name.include? '.toy.'
+        sh "mv higgsCombineTest.MaxLikelihoodFit.mH120.123456.root toy_experiments.root"
+      end
       sh "cp mlfit.root #{File.basename(t.name)}"
     end
   end
@@ -103,23 +149,75 @@ def get_toy_harvest(fname)
 end
 
 $quick_toy_check='' #urgh, global vars, really? Yes...
+$bias_cmd=''
 rule /toys\/shapes\/tt_right.json$/ => proc {|name| get_toy_harvest(name)} do |t|
   vardir = File.dirname(t.source)
   var = File.basename(t.source).sub('.toy.harvested.root','')
-  sh "./toy_diagnostics.py #{var} #{t.source} #{vardir}/#{var}.toy.mlfit.root -o #{vardir}/toys #{$quick_toy_check}"
+  sh "./toy_diagnostics.py #{var} #{t.source} #{vardir}/#{var}.toy.mlfit.root -o #{vardir}/toys #{$quick_toy_check} #{$bias_cmd}"
 end
 
-task :toy_diagnostics, [:vardir] do |t, args|
-  Rake::Task["plots/#{$jobid}/ttxsec/#{args.vardir}/toys/shapes/tt_right.json"].invoke
+task :toy_diagnostics, [:vardir, :biasID] do |t, args|
+  puts args.vardir, args.biasID
+  bias_potfix=''
+  if args.biasID 
+    bias_harvest="plots/#{$jobid}/ttxsec_#{args.biasID}/#{args.vardir}/#{args.vardir}.toy.harvested.root"
+    Rake::Task[bias_harvest].invoke
+    $bias_cmd="--biasFile=#{ENV['URA_PROJECT']}/#{bias_harvest}"
+    bias_potfix+="_#{args.biasID}"
+  end
+  
+  Rake::Task["plots/#{$jobid}/ttxsec/#{args.vardir}#{bias_potfix}/toys/shapes/tt_right.json"].invoke
 end
 
 task :fit, [:var] do |t, args|
   Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.harvested.root"].invoke
 end
 
+task :make_toys, [:var] do |t, args|
+  Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.toy.mlfit.root"].invoke
+end
+
 task :fit_toys, [:var] do |t, args|
   Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.toy.harvested.root"].invoke
 end
+
+task :fit_toys_wbias, [:var, :biasID] do |t, args|
+  #Make toys with bias (provided in a different trial directory)
+  Rake::Task["plots/#{$jobid}/ttxsec_#{args.biasID}/#{args.var}/#{args.var}.toy.mlfit.root"].invoke
+  
+  #create a clone of the variable directory
+  #with the datacard and model (if any)
+  new_varname = "#{args.var}_#{args.biasID}"
+  sh "mkdir -p plots/#{$jobid}/ttxsec/#{new_varname}"
+  chdir("plots/#{$jobid}/ttxsec/#{new_varname}") do
+    sh "cp ../#{args.var}/#{args.var}.txt #{new_varname}.txt"
+    sh "cp ../#{args.var}/#{args.var}.root #{new_varname}.root"
+    sh "cp ../#{args.var}/#{args.var}.binning.json #{new_varname}.binning.json"
+    sh "sed -i 's|#{args.var}|#{new_varname}|g' #{new_varname}.binning.json"
+    if File.exists? "../#{args.var}/#{args.var}.model.root"
+      sh "cp ../#{args.var}/#{args.var}.model.root #{new_varname}.model.root"
+    end
+  end
+
+  #disable batch, we are quick
+  #set external toy source
+  biased_toys = "plots/#{$jobid}/ttxsec_#{args.biasID}/#{args.var}/toy_experiments.root"
+  puts biased_toys
+  if not File.exists? biased_toys
+    throw "The biased toys do not exist!"
+  end
+  $external_toys="#{ENV['URA_PROJECT']}/#{biased_toys}"
+  pbatch = $batch
+  $batch="0"
+
+  #run fit
+  Rake::Task["plots/#{$jobid}/ttxsec/#{new_varname}/#{new_varname}.toy.harvested.root"].invoke
+
+  #clean up the environment
+  $external_toys=''
+  $batch=pbatch
+end
+
 
 #
 #   BIN OPTIMIZATION
