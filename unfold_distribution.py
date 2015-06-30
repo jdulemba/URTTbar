@@ -28,6 +28,7 @@ parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_trut
 parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
 #parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.0000001,7)', help='Tau range to scan')
 parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0,20)', help='Tau range to scan')
+parser.add_argument('--no_area_constraint', action='store_true', dest='no_area_constraint', help='Do not use the area constraint in the unfolding')
 #parser.add_argument('--bias_id', type=str, dest='bias_id', default='', help='bias applied to the true distribution')
 
 ## parser.add_argument('--noplots', dest='noplots', action='store_true',
@@ -181,7 +182,11 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
         data_file_dir = opts.var
     xaxislabel = set_pretty_label(opts.var)
     scale = 1.
-    myunfolding = URUnfolding(regmode = opts.reg_mode)
+    if opts.no_area_constraint:
+        area_constraint='None'
+    else:
+        area_constraint='Area'
+    myunfolding = URUnfolding(regmode = opts.reg_mode, constraint = area_constraint)
     myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
     if opts.use_reco_truth:
         log.warning("Using the MC reco distribution for the unfolding!")
