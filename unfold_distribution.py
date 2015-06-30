@@ -7,8 +7,9 @@ import math
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
 from unfolding_toy_diagnostics import unfolding_toy_diagnostics
-rootpy.log["/"].setLevel(rootpy.log.INFO)
+rootpy.log["/"].setLevel(rootpy.log.ERROR)
 log = rootpy.log["/URUnfolding"]
+log.setLevel(rootpy.log.INFO)
 rootpy.log.basic_config_colorized()
 #ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(False)
@@ -288,7 +289,7 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
     #force running without regularization
     best_taus['NoReg'] = 0
     for name, best_tau in best_taus.iteritems():
-        log.warning('best tau option for %s: %.3f' % (name, best_tau))
+        log.info('best tau option for %s: %.3f' % (name, best_tau))
     
     to_save = []
     for name, best_tau in best_taus.iteritems():
