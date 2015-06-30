@@ -28,7 +28,7 @@ parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_trut
 parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
 #parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.0000001,7)', help='Tau range to scan')
 parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0,20)', help='Tau range to scan')
-parser.add_argument('--bias_id', type=str, dest='bias_id', default='', help='bias applied to the true distribution')
+#parser.add_argument('--bias_id', type=str, dest='bias_id', default='', help='bias applied to the true distribution')
 
 ## parser.add_argument('--noplots', dest='noplots', action='store_true',
 ##                     help='skip plot making')
@@ -157,17 +157,17 @@ def overlay(reference, target):
     return canvas
 
 def set_pretty_label(variable):
-    if variable == 'ptthad':
-        result = 'p_{T}(t_{had}) [GeV]'
-    elif variable == 'pttlep':
-        result = 'p_{T}(t_{lep}) [GeV]'
-    elif variable == 'etathad':
-        result == '|#eta(t_{had})|'
-    elif variable == 'etatlep':
-        result == '|#eta(t_{lep})|'
+    if 'ptthad' in variable:
+        return 'p_{T}(t_{had}) [GeV]'
+    elif 'pttlep' in variable:
+        return 'p_{T}(t_{lep}) [GeV]'
+    elif 'etathad' in variable:
+        return '|#eta(t_{had})|'
+    elif 'etatlep' in variable:
+        return '|#eta(t_{lep})|'
     else:
-        result == variable
-    return result
+        return variable
+    return ''
 
 def run_unfolder(itoy = 0, outdir = opts.dir):
     
@@ -188,10 +188,11 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
         myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
     else:
         myunfolding.measured = getattr(data_file, data_file_dir).tt_right
-    if opts.bias_id == '':
-        myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
-    else:
-        myunfolding.truth    = getattr(resp_file, opts.var + '_' + opts.bias_id).true_distribution
+    #if opts.bias_id == '':
+        #myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
+    #else:
+        #myunfolding.truth    = getattr(resp_file, opts.var + opts.bias_id).true_distribution
+    myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
     if opts.cov_matrix != 'none':
         if 'toy' in opts.fit_file:
             input_cov_matrix = make_cov_matrix(
