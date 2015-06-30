@@ -52,17 +52,17 @@ def create_and_save_canvas(histo, xname):
 
 
 def set_pretty_label(variable):
-    if variable == 'ptthad':
-        result = 'p_{T}(t_{had}) [GeV]'
-    elif variable == 'pttlep':
-        result = 'p_{T}(t_{lep}) [GeV]'
-    elif variable == 'etathad':
-        result == '|#eta(t_{had})|'
-    elif variable == 'etatlep':
-        result == '|#eta(t_{lep})|'
+    if 'ptthad' in variable:
+        return 'p_{T}(t_{had}) [GeV]'
+    elif 'pttlep' in variable:
+        return 'p_{T}(t_{lep}) [GeV]'
+    elif 'etathad' in variable:
+        return '|#eta(t_{had})|'
+    elif 'etatlep' in variable:
+        return '|#eta(t_{lep})|'
     else:
-        result == variable
-    return result
+        return variable
+    return ''
 
 
 def unfolding_toy_diagnostics(indir, variable):
@@ -266,7 +266,6 @@ def unfolding_toy_diagnostics(indir, variable):
     delta_sigmas = {}
     delta_means_summary = {}
     delta_sigmas_summary = {}
-    unfolded_summary = {}
     
     for outname, pmeans in pull_means_lists.iteritems():
         outname_mean = outname + "_mean"
@@ -365,6 +364,8 @@ def unfolding_toy_diagnostics(indir, variable):
             histocloned[idx].error = delta_sigma_errors_lists[outname][idx]
         histocloned.yaxis.SetRangeUser(min(dsigmas.values()), max(dsigmas.values()))
 
+    unfolded_summary = {}
+    unfolded_average = {}
     for name, histo in unfoldeds.iteritems():
         log.debug("name is %s and object type is %s" % (name, type(histo)))
         histo.Fit("gaus",'Q')
@@ -388,8 +389,13 @@ def unfolding_toy_diagnostics(indir, variable):
             histo.title = outtitle_unfolded_summary
             unfolded_summary[general_name] = histo
 
+            unfolded_average[general_name] = histo.Clone("%s_unfolded_average" % general_name)
+
         unfolded_summary[general_name][idx].value = mean
         unfolded_summary[general_name][idx].error = meanError
+
+        unfolded_average[general_name][idx].value = mean
+        unfolded_average[general_name][idx].error = sigma
     
     subdir = 'pulls'
     if not os.path.isdir(subdir):
@@ -508,14 +514,30 @@ def unfolding_toy_diagnostics(indir, variable):
         canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'pull')
         canvas.Update()
         canvas.Write()
-        canvas.SaveAs('%s%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s%s.pdf' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
         canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'ratio')
         canvas.Update()
         canvas.Write()
-        canvas.SaveAs('%s%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s%s.pdf' % (subdir, canvas.GetName()))
-        
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+
+    subdir = 'unfolded_average'
+    if not os.path.isdir(subdir):
+        os.makedirs(subdir)
+    for name, histo in unfolded_average.iteritems():
+        leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
+        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'pull')
+        canvas.Update()
+        canvas.Write()
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'ratio')
+        canvas.Update()
+        canvas.Write()
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+
     outfile.close()
     os.chdir(curdir)
 
