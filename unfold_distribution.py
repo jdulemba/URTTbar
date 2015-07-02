@@ -4,6 +4,7 @@ import rootpy.plotting as plotting
 import rootpy.io as io
 import ROOT
 import math
+from math import sqrt
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
 from unfolding_toy_diagnostics import unfolding_toy_diagnostics
@@ -321,6 +322,49 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
         leg = LegendDefinition(title=name,labels=['Truth','Unfolded'],position='ne')
         myunfolding.truth.xaxis.title = xaxislabel
         hdata_unfolded.xaxis.title = xaxislabel
+        n_neg_bins = 0
+        for ibin in range(1,hdata_unfolded.GetNbinsX()+1):
+            if hdata_unfolded.GetBinContent(ibin) < 0:
+                n_neg_bins = n_neg_bins + 1
+        hn_neg_bins = plotting.Hist(2,-1, 1, name = 'nneg_bins_' + hdata_unfolded.GetName(), title = 'Negative bins in ' + hdata_unfolded.GetName()+ ';Bin sign; N_{bins}')
+        hn_neg_bins.SetBinContent(1,n_neg_bins)
+        hn_neg_bins.SetBinContent(2,hdata_unfolded.GetNbinsX()-n_neg_bins)
+        canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hn_neg_bins, write=False)
+        to_save.append(hn_neg_bins)
+        save(canvas, name, 'unfolding_bins_sign', outdir)
+
+
+        sumofpulls = 0
+        sumofratios = 0
+        for ibin in range(1,myunfolding.truth.GetNbinsX()+1):
+            binContent1 = myunfolding.truth.GetBinContent(ibin)
+            binContent2 = hdata_unfolded.GetBinContent(ibin)
+            binError1 = myunfolding.truth.GetBinError(ibin)
+            binError2 = hdata_unfolded.GetBinError(ibin)
+            error = sqrt(binError1*binError1 + binError2*binError2)
+            if error != 0:
+                pull = (binContent2-binContent1)/error
+            else:
+                pull = 9999
+            if binContent1 != 0:
+                ratio = binContent2/binContent1
+            sumofpulls = sumofpulls + pull
+            sumofratios = sumofratios + ratio
+        sumofpulls = sumofpulls / myunfolding.truth.GetNbinsX()
+        sumofratios = sumofratios / myunfolding.truth.GetNbinsX()
+        
+        hsum_of_pulls = plotting.Hist(1,0, 1, name = 'sum_of_pulls_' + hdata_unfolded.GetName(), title = 'Sum of pulls wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(pulls) / N_{bins}')
+        hsum_of_pulls.SetBinContent(1, sumofpulls)
+        canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hsum_of_pulls, write=False)
+        to_save.append(hsum_of_pulls)
+        save(canvas, name, 'unfolding_sum_of_pulls', outdir)
+        
+        hsum_of_ratios = plotting.Hist(1,0, 1, name = 'sum_of_ratios_' + hdata_unfolded.GetName(), title = 'Sum of ratios wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(ratios) / N_{bins}')
+        hsum_of_ratios.SetBinContent(1, sumofratios)
+        canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hsum_of_ratios, write=False)
+        to_save.append(hsum_of_ratios)
+        save(canvas, name, 'unfolding_sum_of_ratios', outdir)
+
         canvas = plotter.create_and_write_canvas_with_comparison('unfolding_pull', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='pull')
         save(canvas, name, 'unfolding_pull', outdir)
         canvas = plotter.create_and_write_canvas_with_comparison('unfolding_ratio', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='ratio')

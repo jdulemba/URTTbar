@@ -36,6 +36,8 @@ delta_sigma_nbins = 20
 
 unfolded_nbins = 20
 
+
+
 def get_immediate_subdirectories(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
@@ -81,6 +83,7 @@ def unfolding_toy_diagnostics(indir, variable):
     pulls_lists = {}
     pull_means_lists = {}
     pull_mean_errors_lists = {}
+    pull_sums_lists = {}
     pull_sigmas_lists = {}
     pull_sigma_errors_lists = {}
     deltas_lists = {}
@@ -88,6 +91,8 @@ def unfolding_toy_diagnostics(indir, variable):
     delta_mean_errors_lists = {}
     delta_sigmas_lists = {}
     delta_sigma_errors_lists = {}
+    ratio_sums_lists = {}
+    nneg_bins_lists = {}
     unfoldeds_lists = {}
     unfolded_sigmas_lists = {}
     
@@ -138,6 +143,7 @@ def unfolding_toy_diagnostics(indir, variable):
                     delta_sigmas_lists[outname] = {}
                     delta_sigma_errors_lists[outname] = {}
                     
+                    
                 for ibin in range(1,nbins+1):
                     outname = "pull_" + name + "_bin" + str(ibin)
                     unfolded_bin_content = histo.GetBinContent(ibin)
@@ -158,8 +164,49 @@ def unfolding_toy_diagnostics(indir, variable):
                     outname = "unfolded_" + name + "_bin" + str(ibin)
                     unfoldeds_lists[outname].append(unfolded_bin_content)
                     unfolded_sigmas_lists[outname].append(unfolded_bin_error)
+            
+            nneg_bins_hists = [i for i in inputfile.keys() if i.GetName().startswith("nneg_bins")]
+            nneg_bins_hists = [asrootpy(i.ReadObj()) for i in nneg_bins_hists]
+            for histo in nneg_bins_hists:
+                #create pull/delta containers during first iteration
+                name = histo.name
+                nbins = histo.nbins()
+                log.debug("name = %s, n bins = %s" % (name,nbins))
+                if not lists_created:
+                    outname = name
+                    nneg_bins_lists[outname] = []
+                outname = name
+                nneg_bins_lists[outname].append(histo.GetBinContent(1))
+            
+            pull_sums_hists = [i for i in inputfile.keys() if i.GetName().startswith("sum_of_pulls")]
+            pull_sums_hists = [asrootpy(i.ReadObj()) for i in pull_sums_hists]
+            for histo in pull_sums_hists:
+                #create pull/delta containers during first iteration
+                name = histo.name
+                nbins = histo.nbins()
+                log.debug("name = %s, n bins = %s" % (name,nbins))
+                if not lists_created:
+                    outname = name
+                    pull_sums_lists[outname] = []
+                outname = name
+                pull_sums_lists[outname].append(histo.GetBinContent(1))
+ 
+            ratio_sums_hists = [i for i in inputfile.keys() if i.GetName().startswith("sum_of_ratios")]
+            ratio_sums_hists = [asrootpy(i.ReadObj()) for i in ratio_sums_hists]
+            for histo in ratio_sums_hists:
+                #create ratio/delta containers during first iteration
+                name = histo.name
+                nbins = histo.nbins()
+                log.debug("name = %s, n bins = %s" % (name,nbins))
+                if not lists_created:
+                    outname = name
+                    ratio_sums_lists[outname] = []
+                outname = name
+                ratio_sums_lists[outname].append(histo.GetBinContent(1))
+ 
             #after the first iteration on the file all the lists are created
             lists_created=True
+
         os.chdir("..")
        
     #create histograms
@@ -212,12 +259,65 @@ def unfolding_toy_diagnostics(indir, variable):
             method = 'L_curve'
             binno = name.split('_')[-1]
         else:
-            _, _, _, method, binno = tuple(name.split('_'))
+           _, _, _, method, binno = tuple(name.split('_'))
         title = 'Unfoldeds - %s - %s ;Unfolded;N_{toys}' % (binno, method)
         histo = Hist(unfolded_nbins, val_min, val_max, name=name, title=title)
         for val in vals:
             histo.Fill(val)
         unfoldeds[name] = histo
+        
+    nneg_bins = {}
+    for name, vals, in nneg_bins_lists.iteritems():
+        ROOT.TH1.AddDirectory(False) #repeat, you never know     
+        val_min = min(vals)
+        val_min = 0 if val_min > 0 else val_min-1
+        val_max = max(vals)
+        val_max = 0 if val_max < 0 else val_max+1
+        if 'L_curve' in name:
+            method = 'L_curve'
+            binno = name.split('_')[-1]
+        else:
+            _, _, _, _, method = tuple(name.split('_'))
+        title = 'N of negative bins - %s ;N. neg bins;N_{toys}' % method
+        histo = Hist(int(val_max-val_min+1), val_min, val_max, name=name, title=title)
+        for val in vals:
+            histo.Fill(val)
+        nneg_bins[name] = histo
+        
+    pull_sums = {}
+    for name, vals in pull_sums_lists.iteritems():
+        ROOT.TH1.AddDirectory(False) #repeat, you never know     
+        val_min = min(vals)
+        val_min = 0.8*val_min if val_min > 0 else 1.2*val_min
+        val_max = max(vals)
+        val_max = 0.8*val_max if val_max < 0 else 1.2*val_max
+        if 'L_curve' in name:
+            method = 'L_curve'
+        else:
+            _, _, _, _, _, method = tuple(name.split('_'))
+        title = 'Pull sums - %s ;#Sigma(pull)/N_{bins};N_{toys}' % method
+        histo = Hist(unfolded_nbins, val_min, val_max, name=name, title=title)
+        for val in vals:
+            histo.Fill(val)
+        pull_sums[name] = histo
+
+    ratio_sums = {}
+    for name, vals in ratio_sums_lists.iteritems():
+        ROOT.TH1.AddDirectory(False) #repeat, you never know     
+        val_min = min(vals)
+        val_min = 0.8*val_min if val_min > 0 else 1.2*val_min
+        val_max = max(vals)
+        val_max = 0.8*val_max if val_max < 0 else 1.2*val_max
+        if 'L_curve' in name:
+            method = 'L_curve'
+            binno = name.split('_')[-1]
+        else:
+            _, _, _, _, _, method = tuple(name.split('_'))
+        title = 'Ratio sums - %s;#Sigma(ratio)/N_{bins};N_{toys}' % method
+        histo = Hist(unfolded_nbins, val_min, val_max, name=name, title=title)
+        for val in vals:
+            histo.Fill(val)
+        ratio_sums[name] = histo
 
     unfolded_sigmas = {}
     for name, vals in unfolded_sigmas_lists.iteritems():
@@ -593,6 +693,36 @@ def unfolding_toy_diagnostics(indir, variable):
         canvas.Write()
         canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
         canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        
+    subdir = 'figures_of_merit'
+    if not os.path.isdir(subdir):
+        os.makedirs(subdir)
+    for name, histo in nneg_bins.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+    for name, histo in pull_sums.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+    for name, histo in ratio_sums.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+
+
 
     outfile.close()
     os.chdir(curdir)
