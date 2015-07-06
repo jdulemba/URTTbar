@@ -43,7 +43,7 @@ public:
 		}
 		return(true);
 	}
-	bool Clean(const vector<IDMuon*>& muons, const vector<IDElectron*>& electrons, double distpar = 0.3)
+	bool Clean(const vector<IDMuon*>& muons, const vector<IDElectron*>& electrons, double distpar = 0.4)
 	{
 		for(const IDMuon* mu : muons)
 		{
