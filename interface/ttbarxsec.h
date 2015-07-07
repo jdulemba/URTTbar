@@ -36,6 +36,9 @@ class ttbar : public AnalyzerBase
 		bool SEMILEP;
 		bool FULLLEP;
 		bool SEMILEPACC;
+		bool SEMILEPACCLOOSE;
+		bool skew_pt_distro;
+		bool is_ttbar;
 		list<GenObject> sgenparticles;
 		vector<GenObject*> genwpartons;
 		vector<GenObject*> gencls;
@@ -82,8 +85,12 @@ class ttbar : public AnalyzerBase
 		TH1DCollection truth1d;
 		TH2DCollection truth2d;
 
-        TTBarGenPlots ttp_genall;
-        TTBarGenPlots ttp_genacc;
+// <<<<<<< HEAD
+// 		TTBarGenPlots ttp_gen;
+// =======
+		TTBarGenPlots ttp_genall;
+		TTBarGenPlots ttp_genacc;
+// >>>>>>> master
 
 		TTBarPlots ttp_truth;
 		TTBarPlots ttp_right;
@@ -111,6 +118,13 @@ class ttbar : public AnalyzerBase
 
 		TTBarResponse response;
 
+		TTBarPlots semilep_visible_right;
+		TTBarPlots semilep_right_thad;
+		TTBarPlots semilep_right_tlep;
+		TTBarPlots semilep_wrong;
+		TTBarPlots other_tt_decay;
+
+
 		BtagEff btageff;
 
 		//ttbar solver
@@ -132,6 +146,14 @@ class ttbar : public AnalyzerBase
 		double cjetetamax;
 		double clptmin;
 		double cletamax;
+		// For the fiducial loose phase space
+		double cwjetptsoft_fiducialloose;
+		double cwjetpthard_fiducialloose;
+		double cbjetptsoft_fiducialloose;
+		double cbjetpthard_fiducialloose;
+		double cjetetamax_fiducialloose;
+		double clptmin_fiducialloose;
+		double cletamax_fiducialloose;
 		//
 		double jetptmin;
 	
@@ -140,8 +162,10 @@ class ttbar : public AnalyzerBase
 		//binning vectors
 		vector<double> topptbins;
 		vector<double> topybins;
+		vector<double> topetabins;
 		vector<double> ttmbins;
 		vector<double> ttybins;
+		vector<double> ttetabins;
 		vector<double> ttptbins;
 		vector<double> metbins;
 		vector<double> jetbins;
