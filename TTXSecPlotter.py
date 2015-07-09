@@ -21,7 +21,7 @@ from URAnalysis.Utilities.struct import Struct
 import re
 
 class TTXSecPlotter(Plotter):
-   def __init__(self, ttbar_to_use='ttJets_pu30'):
+   def __init__(self, ttbar_to_use='ttJets'):
       self.ttbar_to_use = ttbar_to_use
       jobid = os.environ['jobid']
       files = glob.glob('results/%s/ttbarxsec/*.root' % jobid)
