@@ -121,13 +121,54 @@ ttbar::ttbar(const std::string output_filename):
 //	ttptbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 500.};
 //	metbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.};
 	
-	topptbins = {0., 66.0, 100.0, 134.0, 174.0, 234.0, 800.};
-	topybins = {0., 0.35, 0.70, 1.05, 1.45, 1.9, 4};
-	ttmbins = {280., 394.0, 442.0, 494.0, 562.0, 676.0, 2000.};
-	ttybins = {0., 0.2, 0.4, 0.6, 0.8, 1.1, 3.};
-	ttptbins = {0., 26.0, 42.0, 60.0, 86.0, 138.0, 800.};
-	metbins = {0., 24.0, 36.0, 48.0, 66.0, 98.0, 400.};
-	jetbins = {-0.5, 0.5, 1.5, 2.5, 10.};
+// 	topptbins = {0., 66.0, 100.0, 134.0, 174.0, 234.0, 800.};
+// 	topybins = {0., 0.35, 0.70, 1.05, 1.45, 1.9, 4};
+// 	ttmbins = {280., 394.0, 442.0, 494.0, 562.0, 676.0, 2000.};
+// 	ttybins = {0., 0.2, 0.4, 0.6, 0.8, 1.1, 3.};
+// 	ttptbins = {0., 26.0, 42.0, 60.0, 86.0, 138.0, 800.};
+// 	metbins = {0., 24.0, 36.0, 48.0, 66.0, 98.0, 400.};
+// 	jetbins = {-0.5, 0.5, 1.5, 2.5, 10.};
+	
+		int n(0);
+	topptbins.resize(500/5 + 1);
+	std::generate(topptbins.begin(), topptbins.end(), [&]{ return (n++)*5; }); 
+	topptbins.push_back(1000.); //oflow   
+	Logger::log().debug() << "topptbins: ";
+	for(auto i: topptbins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	n = 0;
+	topetabins.resize(61);
+	std::generate(topetabins.begin(), topetabins.end(), [&]{ return (n++)*0.05; }); 
+	topetabins.push_back(8.); //oflow
+	Logger::log().debug() << "topetabins: ";
+	for(auto i: topetabins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	n = 0;
+	ttmbins.resize((900-250)/5+1);
+	std::generate(ttmbins.begin(), ttmbins.end(), [&]{ return (n++)*5+250; });
+	ttmbins.push_back(5000.); //oflow
+	Logger::log().debug() << "ttmbins: ";
+	for(auto i: ttmbins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	n = 0;
+	ttybins.resize(61);
+	std::generate(ttybins.begin(), ttybins.end(), [&]{ return (n++)*0.05s; }); 
+	ttybins.push_back(8.); //oflow
+	Logger::log().debug() << "ttybins: ";
+	for(auto i: ttybins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
+	n = 0;
+	ttptbins.resize(300/5 + 1);
+	std::generate(ttptbins.begin(), ttptbins.end(), [&]{ return (n++)*5; }); 
+	ttptbins.push_back(1000.); //oflow   
+	Logger::log().debug() << "ttptbins: ";
+	for(auto i: ttptbins) Logger::log().debug()<< i << ", ";
+	Logger::log().debug()<< endl;
+
 
 	//vector<string> testpdf = {"CT10", "CT10as", "NNPDF30_nnlo_as_0118"};
 	vector<string> testpdf = {"CT10nlo", "NNPDF30_nlo_as_0118", "MMHT2014nlo68clas118"};
@@ -251,7 +292,6 @@ void ttbar::begin()
 	reco1d.AddHist("counter", 20, 0., 20., "counter", "Events");
 	ttp_all.Init(this);
 
-	// FIXME: the other prob_parton files are missing! Recover them.
 	string probfilename("Prob_parton.root");
 // 	string probfilename("Prob_parton_jeccen.root");
 	//string probfilename("Prob_parton_jecp2.root");
@@ -276,46 +316,6 @@ void ttbar::begin()
 	puhist = (TH1D*)f->Get("PUweight");
 
 	// M&M histo init start
-	int n(0);
-	topptbins.resize(500/5 + 1);
-	std::generate(topptbins.begin(), topptbins.end(), [&]{ return (n++)*5; }); 
-	topptbins.push_back(1000.); //oflow   
-	Logger::log().debug() << "topptbins: ";
-	for(auto i: topptbins) Logger::log().debug()<< i << ", ";
-	Logger::log().debug()<< endl;
-
-	n = 0;
-	topetabins.resize(31);
-	std::generate(topetabins.begin(), topetabins.end(), [&]{ return (n++)*0.1; }); 
-	topetabins.push_back(8.); //oflow
-	Logger::log().debug() << "topetabins: ";
-	for(auto i: topetabins) Logger::log().debug()<< i << ", ";
-	Logger::log().debug()<< endl;
-
-	n = 0;
-	ttmbins.resize((900-250)/5+1);
-	std::generate(ttmbins.begin(), ttmbins.end(), [&]{ return (n++)*5+250; });
-	ttmbins.push_back(5000.); //oflow
-	Logger::log().debug() << "ttmbins: ";
-	for(auto i: ttmbins) Logger::log().debug()<< i << ", ";
-	Logger::log().debug()<< endl;
-
-	n = 0;
-	ttybins.resize(31);
-	std::generate(ttybins.begin(), ttybins.end(), [&]{ return (n++)*0.1; }); 
-	ttybins.push_back(8.); //oflow
-	Logger::log().debug() << "ttybins: ";
-	for(auto i: ttybins) Logger::log().debug()<< i << ", ";
-	Logger::log().debug()<< endl;
-
-	n = 0;
-	ttptbins.resize(300/5 + 1);
-	std::generate(ttptbins.begin(), ttptbins.end(), [&]{ return (n++)*5; }); 
-	ttptbins.push_back(1000.); //oflow   
-	Logger::log().debug() << "ttptbins: ";
-	for(auto i: ttptbins) Logger::log().debug()<< i << ", ";
-	Logger::log().debug()<< endl;
-	
 	
 	truth2d.AddHist("ptthad_matrix_fullps", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("pttlep_matrix_fullps", topptbins, topptbins, "gen", "reco");
@@ -1032,10 +1032,7 @@ void ttbar::ttanalysis(URStreamer& event)
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(7.5, weight);
 	//Fill reconstructed hists
 	ttp_all.Fill(bestper, lepcharge, weight);
-
-
-
-
+	
 	//Fill reconstructed hists with matching information
 	if(rightper.IsCorrect(bestper))
 	{
