@@ -55,7 +55,7 @@ class BTagPlotter(Plotter):
       
       outdir= 'plots/%s/btageff' % jobid
       super(BTagPlotter, self).__init__(
-         files, lumis, outdir, styles, None, 1000
+         files, lumis, outdir, styles, None
          )
       self.jobid = jobid
 
