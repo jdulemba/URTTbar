@@ -76,6 +76,7 @@ ttbar::ttbar(const std::string output_filename):
 	size_t slash = output_file.rfind("/") + 1;
 	string basename(output_file, slash, output_file.size() - slash);
 	is_ttbar = boost::starts_with(basename, "ttJets");
+	is_data = boost::starts_with(basename, "data");
 
 	Logger::log().info() << "N BTags: " << cnbtag << endl <<
 	"skew_pt_distro: " << skew_pt_distro << endl <<
@@ -1311,17 +1312,20 @@ void ttbar::analyze()
 		weight = 1.;	
 
 		// FIXME: check that taking element #0 is the correct thing to do (OOT PU?)
-		double npu = event.PUInfos()[0].nPU();
-		truth1d["npuorig"]->Fill(npu, weight);
-		if(npu > 0)
+		if(!is_data)
 		{
-			weight *= puhist->GetBinContent(puhist->FindFixBin(npu));
+			double npu = event.PUInfos()[0].nPU();
+			truth1d["npuorig"]->Fill(npu, weight);
+			if(npu > 0)
+			{
+				weight *= puhist->GetBinContent(puhist->FindFixBin(npu));
+			}
+			else
+			{
+				weight = 0.;
+			}
+			truth1d["npu"]->Fill(npu, weight);
 		}
-		else
-		{
-			weight = 0.;
-		}
-		truth1d["npu"]->Fill(npu, weight);
 		sgenparticles.clear();
 		genwpartons.clear();
 		gencls.clear();
