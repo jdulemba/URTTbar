@@ -129,7 +129,7 @@ ttbar::ttbar(const std::string output_filename):
 // 	metbins = {0., 24.0, 36.0, 48.0, 66.0, 98.0, 400.};
 // 	jetbins = {-0.5, 0.5, 1.5, 2.5, 10.};
 	
-		int n(0);
+	int n(0);
 	topptbins.resize(500/5 + 1);
 	std::generate(topptbins.begin(), topptbins.end(), [&]{ return (n++)*5; }); 
 	topptbins.push_back(1000.); //oflow   
@@ -155,7 +155,7 @@ ttbar::ttbar(const std::string output_filename):
 
 	n = 0;
 	ttybins.resize(61);
-	std::generate(ttybins.begin(), ttybins.end(), [&]{ return (n++)*0.05s; }); 
+	std::generate(ttybins.begin(), ttybins.end(), [&]{ return (n++)*0.05; }); 
 	ttybins.push_back(8.); //oflow
 	Logger::log().debug() << "ttybins: ";
 	for(auto i: ttybins) Logger::log().debug()<< i << ", ";
@@ -313,6 +313,11 @@ void ttbar::begin()
 	}
 	
 	TFile* f = TFile::Open("PUweight.root");
+	if(!f)
+	{
+		Logger::log().error() << "Could not open PUweight.root!" << endl;
+		throw 49;
+	}
 	puhist = (TH1D*)f->Get("PUweight");
 
 	// M&M histo init start
