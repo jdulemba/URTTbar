@@ -21,6 +21,8 @@
 #include "TRandom3.h"
 #include "Permutation.h"
 #include <set>
+#include "IDMet.h"
+#include "TUUID.h"   
 
 using namespace TMath;
 
@@ -35,14 +37,15 @@ private:
 	map<TTNaming, string> naming_;
 	CutFlowTracker tracker_;
 	TTBarSolver solver_;
-	TRandom3 randomizer_ = TRandom3(98765);
+	TRandom3 randomizer_;// = TRandom3(98765);
 
 	//switches
 	bool isData_, isTTbar_, run_jes_;
 
 	//CUTS
-	float (Jet::*btag_id_)() const = &Jet::csvIncl;
-	float btag_cut_ = 0.941;
+	//float (Jet::*btag_id_)() const = &Jet::csvIncl;
+	//float btag_cut_ = 0.941;
+	IDJet::BTag btag_id_ = IDJet::BTag::CSVTIGHT; 
 	float bjet_pt_cut_ = 30;
 	float DR_match_to_gen_ = 0.3;
 	std::function<bool(const IDJet &)> jet_selection_ = [](const IDJet &jet) {return  (jet.Pt() > 20 && Abs(jet.Eta()) < 2.4);};
@@ -68,9 +71,13 @@ public:
 		tracker_(),
 		ordering_(),
 		working_points_(),
-		solver_()
+		solver_(),
+		randomizer_() 
 	{
-		solver_.Init("Prob.root");
+		TUUID id;  
+		randomizer_.SetSeed(id.Hash());   
+
+		solver_.Init("Prob_parton.root");
 		opts::variables_map &values = URParser::instance().values();
 		string output_file = values["output"].as<std::string>();
 		size_t slash = output_file.rfind("/") + 1;
@@ -79,10 +86,6 @@ public:
 		isTTbar_ = boost::starts_with(basename, "ttJets");
 		run_jes_ = !isData_;
 		
-		// btag_id_ = &Jet::csvIncl;
-		// btag_cut_ = 0.941;
-		// bjet_pt_cut_ = 30;
-		// DR_match_to_gen_ = 0.3;
 
     // SYSTEMATCIS
 		systematics_ = {NOSYS};
@@ -106,9 +109,9 @@ public:
 		naming_[TTNaming::OTHER ] = 	"other"              ;
 
 		working_points_["notag"]     = [](const IDJet* jet) {return false;};
-		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->csvIncl() > 0.941;};
-		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->csvIncl() > 0.814;};
-		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->csvIncl() > 0.423;};
+		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
+		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
+		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);};
 		working_points_["rndm10"]    = [](const IDJet* jet) {return jet->rndm() < 0.1;};
 		// working_points_["ssvHiPur"] = [](const Jet* jet) {return (bool) jet->ssvHiPur()};
 		// working_points_["ssvHiEff"] = [](const Jet* jet) {return (bool) jet->ssvHiEff()};
@@ -137,7 +140,7 @@ public:
 		// book<TH1F>(folder, "nu_chisq"         , "", 520,  -2., 50.);
 		// book<TH1F>(folder, "nu_discriminant"	, "", 110,  -1., 10.);
 		// book<TH1F>(folder, "btag_discriminant", "", 300, -30.,  0.);
-		book<TH1F>(folder, "mass_discriminant", "", 100,   0., 10.);
+		book<TH1F>(folder, "mass_discriminant", "", 200,   0., 20.);
 		book<TH1F>(folder, "full_discriminant", "", 200, -10., 10.);
 		
 		// book<TH1F>(folder, "btag_value", "", 100, 0., 1.);
@@ -192,7 +195,6 @@ public:
 		for(auto& genCategory : folders){			
 			for(auto& sys : systematics_){
 				string sys_name = sys_names_[sys];
-				//book_combo_plots(sys_name +"/"+genCategory+"/discriminators");
 				for(auto& item : ordering_) {
 					string criterion = item.first;
 					for(auto& wp_item : working_points_) {
@@ -200,12 +202,11 @@ public:
 						string base;
 						if(!genCategory.empty()) base  = genCategory +"/";
 						base += sys_name + "/" + criterion + "/" + working_point;
-						// if(genCategory.empty()) folder  = sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
-						// else folder  = genCategory +"/"+ sys_name + "/" + criterion + "/" + working_point + "/" + tag; 
-						book<TH2F>(base, "passing_jpt_massDiscriminant"  , "", 100, 0., 500., 100, 0., 10.);
-						book<TH2F>(base, "failing_jpt_massDiscriminant"  , "", 100, 0., 500., 100, 0., 10.);
+						book<TH2F>(base, "passing_jpt_massDiscriminant"  , "", 100, 0., 500., 200, 0., 20.);
+						book<TH2F>(base, "failing_jpt_massDiscriminant"  , "", 100, 0., 500., 200, 0., 20.);
 						book<TH2F>(base, "csvL_csvS"  , ";m_{t}(had) (GeV)", 100, 0., 1., 100, 0., 1.);
 						for(auto& tag : tagging){
+							if(working_point == "notag" && tag != "both_untagged") continue;
 							string folder = base + "/" + tag;
 							Logger::log().debug() << "creating plots for folder: " << folder << std::endl;
 						
@@ -225,11 +226,11 @@ public:
 								book<TH1F>(current, "nneutral", "", 50, 0., 50.);						
 								book<TH1F>(current, "ntotal"  , "", 50, 0., 50.);						
 							}
-
-							if(genCategory == "semilep_visible_right"){
+							Logger::log().debug() << "...Done" << endl;
+							//if(genCategory == "semilep_visible_right"){
 								// book<TH1F>(folder, "nu_DR"    , "#DeltaR between gen and reco #nu;#DeltaR;counts", 140, 0., 7.);
 								// book<TH1F>(folder, "nu_DE"    , "#DeltaE between gen and reco #nu;#DeltaE (GeV);counts", 250, -250, 250.);
-							}
+							//}
 						}//for(auto& tag : tagging)
 					}//for(auto& wp_item : working_points_)
 				}//for(auto& criterion : criteria)
@@ -237,6 +238,7 @@ public:
 		}//for(auto& genCategory : folders)
 
 		string folder = "preselection";
+		Logger::log().debug() << "creating plots for folder: " << folder << std::endl;
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
 		book<TH1F>(folder, "nleadjets", "", 10, 0., 10.);
 		book<TH1F>(folder, "nbjets"   , "", 50, 0., 50.);
@@ -247,6 +249,10 @@ public:
 		book<TH1F>(folder, "el_char"  , "Tight electrons charge;charge_{e}", 2, -1, 1);
 		book<TH1F>(folder, "cjets_pt" , "Charm jet pt;p_{T} (GeV)", 500, 0., 500.);
 		book<TH1F>(folder, "cbjets_pt", "B-Tagged charm jet pt;p_{T} (GeV)", 500, 0., 500.);
+		book<TH1F>(folder, "nperms", "number of possible permutations", 40, -0.5, 39.5);
+		book<TH1F>(folder, "matchable", "do we have the right permutation among the selected ones", 5, -0.5, 4.5);
+		book<TH1F>(folder, "matching", "do we match the gen?", 5, -0.5, 4.5);
+		book<TH1F>(folder, "decay", "which top decay is?", 5, -0.5, 4.5);
   }
 
 	void fill_gen_info(string folder, const TTbarHypothesis &reco, const TTbarHypothesis &gen){
@@ -263,7 +269,6 @@ public:
 	}
 
 	void fill_jet_info(string folder, const IDJet* jet){//, const Genparticle* genp=0){
-		Logger::log().debug() << folder << endl;
 		auto dir = histos_.find(folder);
 		dir->second["eta"	 ].fill(jet->Eta());
 		dir->second["pt" 	 ].fill(jet->Pt() );
@@ -277,7 +282,6 @@ public:
 		dir->second["ntotal"  ].fill(jet->numChargedHadrons()+jet->numNeutralHadrons());
 
 		//const IDJet* idjet = (const IDJet*) jet;
-		Logger::log().debug() << "fill_jet_info " << jet->partonFlavour() << " " << jet->flavor() << endl;
 		dir->second["pflav_smart"].fill(jet->flavor());
 		dir->second["abs_pflav_smart"].fill(fabs(jet->flavor()));
 	}
@@ -293,8 +297,6 @@ public:
 
 		double whad_mass = hyp.WHad().M();
 		double thad_mass = hyp.THad().M();
-		// dir->second["btag_value"       ].fill((hyp.BHad()->*btag_id_)());
-		// dir->second["btag_value"       ].fill((hyp.BLep()->*btag_id_)());
 		dir->second["Wmasshad_tmasshad"].fill(whad_mass, thad_mass);
 		// dir->second["WtMass_special"   ].fill(whad_mass + thad_mass, thad_mass - whad_mass);
 		double r = Sqrt(pow(whad_mass,2) + pow(thad_mass,2));
@@ -332,7 +334,6 @@ public:
 		dir->second["hjet_pts" ].fill(lead, sub);//*/
 
 		//if(folder == "gen") return;
-		Logger::log().debug() <<"analyzer::fill " << folder << endl;
 		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
 		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
 
@@ -345,7 +346,6 @@ public:
 		//FILL JET INFORMATION
 		fill_jet_info(folder + "/leading", leading);
 		fill_jet_info(folder + "/subleading", subleading);
-		//if((subleading->*btag_id_)() > btag_cut_) fill_jet_info(folder + "/subleading/tagged", subleading, gen_subleading);
 	}
 
 	void fill_other_jet_plots(string folder, Permutation &hyp, vector<IDJet*>& jets, std::function<bool(const IDJet*)>& fcn) {
@@ -415,9 +415,27 @@ public:
 			else if(lep_matches && lepb_matches) xcheck =  TTNaming::RIGHT_TLEP; //"semilep_right_tlep";
 			else xcheck = TTNaming::WRONG; //"semilep_wrong";
 
-			if(name != xcheck){
-				Logger::log().debug() << naming_[name] << " " << naming_[xcheck] << " differ." << endl;
-				}*/
+			if(name == TTNaming::WRONG){
+				Logger::log().error() << naming_[name] << " " << naming_[xcheck] << " differ." << endl;
+				Logger::log().error() << "Gen completeness: " << endl <<
+					"   L: " << gen.L() << " Bl: " << gen.BLep() << " Bh: " << gen.BHad() <<
+					" Wj: " << gen.WJa() << ", " << gen.WJb() << endl << 
+					"		gen.IsTHadComplete(): " << gen.IsTHadComplete() << endl <<
+					"		gen.IsWHadComplete(): " << gen.IsWHadComplete() << endl <<
+					"		gen.IsTLepComplete(): " << gen.IsTLepComplete() << endl <<
+					"Gen matching: " << endl <<
+					"   L: " << reco.L() << " Bl: " << reco.BLep() << " Bh: " << reco.BHad() <<
+          " Wj: " << reco.WJa() << ", " << reco.WJb() << endl <<
+					"   reco.IsTHadCorrect(gen): " << reco.IsTHadCorrect(gen)	<< endl <<
+					"   reco.IsWHadCorrect(gen): " << reco.IsWHadCorrect(gen)	<< endl <<
+					"   reco.IsBHadCorrect(gen): " << reco.IsBHadCorrect(gen)	<< endl <<
+					"   reco.IsTLepCorrect(gen): " << reco.IsTLepCorrect(gen)	<< endl <<
+					"   reco.IsBLepCorrect(gen): " << reco.IsBLepCorrect(gen)	<< endl <<
+					"   reco.L() == gen.L()    : " << (reco.L() == gen.L())  	<< endl;
+				char c;
+				cin >> c;
+				
+			}//*/
 			return name;
 		}
 		else {
@@ -505,10 +523,10 @@ public:
 
 		vector<Jet*> bjets; bjets.reserve(selected_jets.size());
 		for(auto jet : selected_jets){
-			if((jet->*btag_id_)() > btag_cut_) bjets.push_back(jet);
+			if(jet->BTagId(btag_id_)) bjets.push_back(jet);
 		}
 			
-		Met met = event.METs()[0];
+		IDMet met(event.METs()[0]);
 
 		if(bjets.size() < 2) return;
 		tracker_.track("2 bjets");
@@ -544,8 +562,10 @@ public:
 		do {
 			ncombos++;
 			tracker_.track("Combination start");
-			if((leading_jets[0]->*btag_id_)() < btag_cut_) continue;
-			if((leading_jets[1]->*btag_id_)() < btag_cut_) continue;
+			if(!leading_jets[0]->BTagId(btag_id_)) continue;
+			if(!leading_jets[1]->BTagId(btag_id_)) continue;
+			//if(leading_jets[0]->csvIncl()) continue;
+			//if(leading_jets[1]->csvIncl()) continue;
 			tracker_.track("Bjet Tag cuts");
 			if(leading_jets[0]->Pt() < bjet_pt_cut_) continue;
 			if(leading_jets[1]->Pt() < bjet_pt_cut_) continue;
@@ -584,6 +604,7 @@ public:
 		// 	" nleadjets: " << leading_jets.size() << " njets: " <<  selected_jets.size() <<
 		// 	" nbjets: "  << bjets.size() << endl;
 
+		histos_["preselection"]["nperms"].fill(combinations.size());
 		if(combinations.size() == 0) return;
 		tracker_.track("one ttbar hypothesis");
 
@@ -602,16 +623,24 @@ public:
 				tight_muons,
 				DR_match_to_gen_
 				);
-				
-			//Logger::log().debug() << "lepton: "<< gen_hyp.wlep()->second->Pt() <<" Jets: ";
-			// for(const Jet * jet : leading_jets) Logger::log().debug() << jet << " ";
-			// Logger::log().debug() << endl;
-			// for(auto& combo : combinations){
-			// 	Logger::log().debug() << "#Combo: " << combinations.size() << endl;
-			// 	TTNaming dir_id = get_ttdir_name(matched_hyp, combo, gen_hyp.decay);
-			// 	string dirname  = naming_[dir_id];
-			// 	//fill_discriminator_info(dirname+"/discriminators", combo);
-			// }
+			matched_hyp.SetMET(&met);
+			size_t count=0;
+			for(auto& perm : combinations){
+				if(get_ttdir_name(matched_hyp, perm, gen_hyp.decay) == TTNaming::RIGHT) 
+					count++;
+			}
+			histos_["preselection"]["matchable"].fill(count);
+
+			size_t code=0;
+			if(gen_hyp.decay == DecayType::SEMILEP){
+				if(matched_hyp.IsComplete()) code=4;
+				else if(matched_hyp.IsTHadComplete()) code=3;
+				else if(matched_hyp.IsWHadComplete()) code=2;
+				else if(matched_hyp.IsTLepComplete()) code=1;
+				else code=0;
+				histos_["preselection"]["matching"].fill(code);
+			}
+			histos_["preselection"]["decay"].fill(gen_hyp.decay);
 		}
 
 		string sys_dir = sys_names_[shift];
@@ -673,7 +702,7 @@ public:
 				return;
 			}
 			evt_idx++;
-			Logger::log().debug() << "Beginning event" << endl;
+			//Logger::log().debug() << "Beginning event" << endl;
 
 			//long and time consuming
 			TTbarHypothesis gen_hyp;
