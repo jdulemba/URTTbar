@@ -46,6 +46,7 @@ def syscheck(cmd):
 
 class BTagPlotter(Plotter):
    def __init__(self):
+      self.tt_to_use = 'ttJets_madgraph'
       jobid = os.environ['jobid']
       files = glob.glob('results/%s/btag_efficiency/*.root' % jobid)
       logging.debug('files found %s' % files.__repr__())
@@ -143,7 +144,7 @@ class BTagPlotter(Plotter):
       return views.StyleView(
          views.TitleView(
             views.SubdirectoryView(
-               self.views['ttJets_pu30']['view'],
+               self.views[self.tt_to_use]['view'],
                subdir
                ),
             title
@@ -242,7 +243,7 @@ class BTagPlotter(Plotter):
          self.get_view('ttJets_rightHad'),
          self.get_view('ttJets_rightWHad')
          )
-      mc_weight = self.views['ttJets_pu30']['weight']
+      mc_weight = self.views[self.tt_to_use]['weight']
 
       info = {}
       pflav_path = 'nosys/{order}/{wpoint}/{jtag}/{jrank}/abs_pflav_smart'
@@ -537,7 +538,7 @@ variables = [
   #("nu_chisq"         , "nu_chisq"         , 1, [0, 20]),
 	#("nu_discriminant"	, "nu_discriminant"	 , 1, None),
 	#("btag_discriminant", "btag_discriminant", 1, [-11, -2]),
-	("mass_discriminant", "mass_discriminant", 2, [1, 7]),
+	("mass_discriminant", "mass_discriminant", 2, None), #[5, 20]),
 	("full_discriminant", "full_discriminant", 1, None),
 ]
 
@@ -600,7 +601,7 @@ additional_opts = {
 }
 
 if not args.noplots:
-   cut_flow = plotter.get_view('ttJets_pu30').Get('cut_flow')
+   cut_flow = plotter.get_view(plotter.tt_to_use).Get('cut_flow')
    cut_flow.Draw()
    cut_flow.GetYaxis().SetRangeUser(1, 10**7)
    #plotter.pad.SetLogy()
