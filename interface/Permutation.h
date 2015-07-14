@@ -47,6 +47,7 @@ class Permutation
 		IDJet* BLep() const {return(bjl_);}
 		TLorentzVector* L() const {return(lep_);}
 		IDMet* MET() const {return(met_);}
+		void SetMET(IDMet* met) {met_ = met;}
 		void WJa(IDJet* wja){wja_=wja;}
 		void WJb(IDJet* wjb){wjb_=wjb;}
 		void BHad(IDJet* bjh){bjh_=bjh;}
