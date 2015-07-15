@@ -17,6 +17,7 @@ ROOT.gStyle.SetOptStat(False)
 ROOT.gStyle.SetObjectStat(False)
 ROOT.gROOT.SetBatch()
 from argparse import ArgumentParser
+import URAnalysis.Utilities.prettyjson as prettyjson
 
 parser = ArgumentParser()
 parser.add_argument('var', type=str, help='varible to unfold')
@@ -412,6 +413,8 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
             j.Write()
         getattr(resp_file, opts.var).reco_distribution.Write()
         getattr(resp_file, opts.var).prefit_distribution.Write()
+        json = ROOT.TText(0., 0., prettyjson.dumps(best_taus))
+        outfile.WriteTObject(json, 'best_taus')
         myunfolding.write_to(outfile, 'urunfolder')
 
 

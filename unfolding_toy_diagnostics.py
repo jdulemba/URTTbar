@@ -26,6 +26,7 @@ ROOT.TH1.AddDirectory(False)
 log = rootpy.log["/toy_diagnostics"]
 log.setLevel(rootpy.log.INFO)
 
+tau_nbins = 20
 pull_nbins = 20
 pull_mean_nbins = 20
 pull_sigma_nbins = 20
@@ -95,6 +96,7 @@ def unfolding_toy_diagnostics(indir, variable):
     nneg_bins_lists = {}
     unfoldeds_lists = {}
     unfolded_sigmas_lists = {}
+    taus_lists = {}
     
     histos_created = False
     lists_created = False
@@ -116,6 +118,11 @@ def unfolding_toy_diagnostics(indir, variable):
             true_distribution = inputfile.true_distribution
             ROOT.TH1.AddDirectory(False)
             true_distro = true_distribution.Clone()
+            taus = prettyjson.loads(inputfile.best_taus.GetTitle())
+            if len(taus_lists) == 0:
+                taus_lists = dict((i, []) for i in taus)
+            for i, t in taus.iteritems():
+                taus_lists[i].append(t)
 
             for histo in unfolded_hists:
                 #create pull/delta containers during first iteration
@@ -211,6 +218,21 @@ def unfolding_toy_diagnostics(indir, variable):
        
     #create histograms
     #histo containers
+    taus = {}
+    for name, vals in taus_lists.iteritems():
+        ROOT.TH1.AddDirectory(False) #repeat, you never know
+        val_min = min(vals)
+        val_min = 0.8*val_min if val_min > 0 else 1.2*val_min
+        val_max = max(vals)
+        val_max = 0.8*val_max if val_max < 0 else 1.2*val_max
+        if val_min == val_max:
+            val_min, val_max = val_min-0.1, val_min+0.1
+        title = '#tau choice - %s ;#tau;N_{toys}' % (name)
+        histo = Hist(tau_nbins, val_min, val_max, name=name, title=title)
+        for val in vals:
+            histo.Fill(val)
+        taus[name] = histo        
+
     pulls = {}
     for name, vals in pulls_lists.iteritems():
         ROOT.TH1.AddDirectory(False) #repeat, you never know
@@ -523,8 +545,19 @@ def unfolding_toy_diagnostics(indir, variable):
         unfolded_average[general_name][idx].value = mean
         unfolded_average[general_name][idx].error = \
            unfolded_sigmas['%s_bin%i' % (general_name, idx)].GetMean()
-        
     
+    subdir = 'taus'
+    if not os.path.isdir(subdir):
+        os.makedirs(subdir)
+    for name, histo in taus.iteritems():
+        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo.SetStats(True)
+        canvas.Update()
+        histo.Write()
+        canvas.Write()
+        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
+        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+
     subdir = 'pulls'
     if not os.path.isdir(subdir):
         os.makedirs(subdir)
