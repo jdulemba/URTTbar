@@ -21,7 +21,7 @@ from URAnalysis.Utilities.struct import Struct
 import re
 
 class TTXSecPlotter(Plotter):
-   def __init__(self, ttbar_to_use='ttJets'):
+   def __init__(self, ttbar_to_use='ttJets', lumi=None):
       self.ttbar_to_use = ttbar_to_use
       jobid = os.environ['jobid']
       files = glob.glob('results/%s/ttbarxsec/*.root' % jobid)
@@ -44,7 +44,7 @@ class TTXSecPlotter(Plotter):
       
       outdir= 'plots/%s/ttxsec' % jobid
       super(TTXSecPlotter, self).__init__(
-         files, lumis, outdir, styles, None, 10**3
+         files, lumis, outdir, styles, None, lumi
          )
       self.jobid = jobid
 

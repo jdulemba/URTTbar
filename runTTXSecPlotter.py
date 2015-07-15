@@ -112,7 +112,8 @@ def run_module(**kwargs):
          info
          ]
 
-   plotter = TTXSecPlotter()
+   flumi = None if opts.lumi == -1. else opts.lumi
+   plotter = TTXSecPlotter(lumi=flumi)
 
    plotter.views['ttJets_rightAssign'] = {
       'view' : plotter.create_tt_subsample(
@@ -396,6 +397,9 @@ if __name__ == '__main__':
                        )
    parser.add_argument('--subdir', type=str, default='',
                        help='sub directory to store shapes'
+                       )
+   parser.add_argument('--lumi', type=float, default=-1.,
+                       help='force luminosity'
                        )
    opts = parser.parse_args()
    run_module(**dict(opts._get_kwargs()))
