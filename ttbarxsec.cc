@@ -244,14 +244,14 @@ void ttbar::begin()
 	truth2d.AddHist("Murho_iso_4", 10, 0., 50., 100, 0., 150, "rho", "iso");
 	truth1d.AddHist("TTRECO", 20, 0, 20, "ttreco", "Events");
 
-	response.AddMatrix("thadpt", topptbins, topptbins, "p_{T}(t_{h}) [GeV]");
-	response.AddMatrix("thady", topybins, topybins, "|y(t_{h})|");
-	response.AddMatrix("tleppt", topptbins, topptbins, "p_{T}(t_{l}) [GeV]");
-	response.AddMatrix("tlepy", topybins, topybins, "|y(t_{l})|");
-	response.AddMatrix("ttm", ttmbins, ttmbins, "m(t#bar{t}) [GeV]");
-	response.AddMatrix("ttpt", ttptbins, ttptbins, "p_{T}(t#bar{t}) [GeV]");
-	response.AddMatrix("tty", ttybins, ttybins, "|y(t#bar{t})|");
-	response.AddMatrix("njet", jetbins, jetbins, "n-jets");
+	response.AddMatrix("thadpt", -1., topptbins, topptbins, "p_{T}(t_{h}) [GeV]");
+	response.AddMatrix("thady" , -1., topybins, topybins, "|y(t_{h})|");
+	response.AddMatrix("tleppt", -1., topptbins, topptbins, "p_{T}(t_{l}) [GeV]");
+	response.AddMatrix("tlepy" , -1., topybins, topybins, "|y(t_{l})|");
+	response.AddMatrix("ttm"   , -1., ttmbins, ttmbins, "m(t#bar{t}) [GeV]");
+	response.AddMatrix("ttpt"  , -1., ttptbins, ttptbins, "p_{T}(t#bar{t}) [GeV]");
+	response.AddMatrix("tty"   , -1., ttybins, ttybins, "|y(t#bar{t})|");
+	response.AddMatrix("njet"  , -1., jetbins, jetbins, "n-jets");
 
 	pdfunc->Add1dHist("pdfunc_thadpt", topptbins, "p_{T}(t_{h}) [GeV]", "Events");
 	pdfunc->Add1dHist("pdfunc_tleppt", topptbins, "p_{T}(t_{l}) [GeV]", "Events");
@@ -322,7 +322,7 @@ void ttbar::begin()
 	puhist = (TH1D*)f->Get("PUweight");
 
 	// M&M histo init start
-	
+	dir_reco->cd();
 	truth2d.AddHist("ptthad_matrix_fullps", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("pttlep_matrix_fullps", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("etathad_matrix_fullps", topetabins, topetabins, "gen", "reco");
@@ -778,6 +778,7 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 
 void ttbar::ttanalysis(URStreamer& event)
 {
+	Logger::log().debug() << "Evt weight: " << weight <<endl;
 	truth1d["counter"]->Fill(19.5, weight);
 	reco1d["counter"]->Fill(0.5, weight);
 	if(SEMILEP) 
@@ -1039,6 +1040,7 @@ void ttbar::ttanalysis(URStreamer& event)
 	//Fill reconstructed hists
 	ttp_all.Fill(bestper, lepcharge, weight);
 	
+	Logger::log().debug() << "Evt weight: " << weight <<endl;
 	//Fill reconstructed hists with matching information
 	if(rightper.IsCorrect(bestper))
 	{
@@ -1187,7 +1189,7 @@ void ttbar::ttanalysis(URStreamer& event)
 			truth2d["pttlep_matrix_fiducialtight" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
 			truth2d["etathad_matrix_fiducialtight"]->Fill(fabs(gentophad.Eta()), fabs(bestper.THad().Eta()), weight);
 			truth2d["etatlep_matrix_fiducialtight"]->Fill(fabs(gentoplep.Eta()), fabs(bestper.TLep().Eta()), weight);
-			truth2d["ttm_matrix_fiducialtight"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+			truth2d["ttm_matrix_fiducialtight"    ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
 
 			truth1d["ptthad_gen_fiducialtight"  ]->Fill(gentophad.Pt(), weight);
 			truth1d["pttlep_gen_fiducialtight"  ]->Fill(gentoplep.Pt(), weight);
@@ -1307,7 +1309,7 @@ void ttbar::analyze()
 	while(event.next())
 	{
 		nevent++;
-		if(nevent % 1000 == 0)cout << "Event:" << nevent << endl;
+		if(nevent % 1000 == 0) Logger::log().debug() << "Event:" << nevent << endl;
 		truth1d["counter"]->Fill(0.5);
 		weight = 1.;	
 
@@ -1371,6 +1373,7 @@ void ttbar::analyze()
 			SelectGenParticles(event);
 			SelectRecoParticles(event);
 			ttanalysis(event);
+			response.Flush();
 		}
 
 	}
