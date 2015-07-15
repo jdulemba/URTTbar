@@ -75,7 +75,7 @@ task :publish_ttxsec do |t|
   if not link
     link = 'ttxsec'
   end
-  publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{link}")
+  publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{$jobid}/#{link}")
 end
 
 rule /\.model\.root$/ => psub(/\.model\.root$/, '.txt') do |t|
