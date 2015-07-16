@@ -45,6 +45,7 @@ def run_module(**kwargs):
    vars_to_unfold = [
       Struct(
          var     = 'ptthad',
+         alias = 'thadpt',
          binning = Struct(
             gen = [0., 60., 120., 180., 240., 300., 1000.],
             #gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
@@ -55,6 +56,7 @@ def run_module(**kwargs):
          ),
       Struct(
          var = 'pttlep',
+         alias = 'tleppt',
          binning = Struct(
             gen = [0., 60., 120., 180., 240., 300., 1000.],
             #gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
@@ -62,24 +64,25 @@ def run_module(**kwargs):
             ),
          xtitle = 'p_{T}(t_{lep})'
          ),
-      Struct( 
-         var = 'etatlep',
-         binning = Struct(
-            gen  = [0., 0.4, 0.8, 1.2, 1.6, 2.0, 8.0],
-            #gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
-            reco = [0.2*i for i in range(11)]+[8.0],
-            ),
-         xtitle = '#eta(t_{lep})'
-         ),
-      Struct( 
-         var = 'etathad',
-         binning = Struct(
-            gen  = [0., 0.4, 0.8, 1.2, 1.6, 2.0, 8.0],
-            #gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
-            reco = [0.2*i for i in range(11)]+[8.0],
-            ),
-         xtitle = '#eta(t_{had})'
-         ),
+      ## Struct( 
+      ##    var = 'etatlep',
+      ##    #other_name = 'tleppt',
+      ##    binning = Struct(
+      ##       gen  = [0., 0.4, 0.8, 1.2, 1.6, 2.0, 8.0],
+      ##       #gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
+      ##       reco = [0.2*i for i in range(11)]+[8.0],
+      ##       ),
+      ##    xtitle = '#eta(t_{lep})'
+      ##    ),
+      ## Struct( 
+      ##    var = 'etathad',
+      ##    binning = Struct(
+      ##       gen  = [0., 0.4, 0.8, 1.2, 1.6, 2.0, 8.0],
+      ##       #gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
+      ##       reco = [0.2*i for i in range(11)]+[8.0],
+      ##       ),
+      ##    xtitle = '#eta(t_{had})'
+      ##    ),
    ]
 
    dir_postfix = ''
@@ -336,11 +339,12 @@ def run_module(**kwargs):
       with io.root_open(fname, 'recreate') as mfile:
          for info in vars_to_unfold:
             var = info.var
+            alias = info.alias
             dirname = var
             if hasattr(info, 'dir_postfix'):
                dirname += '_%s' % info.dir_postfix
             mfile.mkdir(dirname).cd()
-            matrix_path = 'RECO/truth_%s_matrix_%s' % (var, phase_space)
+            matrix_path = 'TRUTH/response/%s_matrix' % alias #FIXME: move alias to var? Fill different phase spaces
             tt_view = plotter.get_view(plotter.ttbar_to_use, 'unweighted_view')
             matrix_view_unscaled = plotter.rebin_view(
                tt_view, 
@@ -375,7 +379,8 @@ def run_module(**kwargs):
             thruth_distro = plotter.rebin_view(
                tt_view,
                info.binning.gen
-               ).Get('RECO/truth_%s_gen_%s' % (var, phase_space))
+               ).Get(
+               'TRUTH/response/%s_truth' % alias) #FIXME: move alias to var? Fill different phase spaces   
             thruth_distro.SetName('true_distribution')
             thruth_distro.Write()         
 
