@@ -226,7 +226,12 @@ def unfolding_toy_diagnostics(indir, variable):
         val_max = max(vals)
         val_max = 0.8*val_max if val_max < 0 else 1.2*val_max
         if val_min == val_max:
-            val_min, val_max = val_min-0.1, val_min+0.1
+            if tau_nbins % 2: #if odd
+                val_min, val_max = val_min-0.01, val_min+0.01
+            else:
+                brange = 0.02
+                bwidth = brange/tau_nbins
+                val_min, val_max = val_min-0.01+bwidth/2., val_min+0.01+bwidth/2.
         title = '#tau choice - %s ;#tau;N_{toys}' % (name)
         histo = Hist(tau_nbins, val_min, val_max, name=name, title=title)
         for val in vals:
@@ -552,6 +557,20 @@ def unfolding_toy_diagnostics(indir, variable):
     for name, histo in taus.iteritems():
         canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
         histo.SetStats(True)
+
+        info = ROOT.TPaveText(canvas.GetBottomMargin(), canvas.GetTopMargin(), 0.3, 0.025, "brNDC")
+        info.UseCurrentStyle()
+        info.SetTextAlign(32)
+        info.SetFillColor(0)
+        info.SetBorderSize(0)
+        info.SetMargin(0.)
+        info.SetTextSize(0.037)        
+        #set_trace()
+        info.AddText(
+            'mode #tau = %.5f' % 
+            histo[histo.GetMaximumBin()].x.center)
+        info.Draw()
+
         canvas.Update()
         histo.Write()
         canvas.Write()
