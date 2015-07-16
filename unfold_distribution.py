@@ -30,6 +30,9 @@ parser.add_argument('--use_reco_truth', action='store_true', dest='use_reco_trut
 parser.add_argument('--reg_mode', type=str, dest='reg_mode', default='Curvature', help='Regularization mode to use: None, Size, Derivative, Curvature (default), Mixed.')
 #parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0.0000001,7)', help='Tau range to scan')
 parser.add_argument('--tau_range', type=str, dest='tau_range', default='(0,20)', help='Tau range to scan')
+parser.add_argument('--tau', type=float, default=-1., help='Fix tau')
+parser.add_argument('--mintoy', type=int, default=0, help='Limit toy analysis (>=)')
+parser.add_argument('--maxtoy', type=int, default=-1., help='Limit toy analysis (<)')
 parser.add_argument('--no_area_constraint', action='store_true', dest='no_area_constraint', help='Do not use the area constraint in the unfolding')
 #parser.add_argument('--bias_id', type=str, dest='bias_id', default='', help='bias applied to the true distribution')
 
@@ -172,7 +175,7 @@ def set_pretty_label(variable):
         return variable
     return ''
 
-def run_unfolder(itoy = 0, outdir = opts.dir):
+def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
     
     plotter = BasePlotter()
     
@@ -227,77 +230,80 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
 
     #optimize
     best_taus = {}
-    t_min, t_max = eval(opts.tau_range)
-    best_l, l_curve, graph_x, graph_y  = myunfolding.DoScanLcurve(100, t_min, t_max)
-    best_taus['L_curve'] = best_l
-    l_curve.SetName('lcurve')
-    l_curve.name = 'lcurve'
-    graph_x.name = 'l_scan_x'
-    graph_y.name = 'l_scan_y'
-    l_tau = math.log10(best_l)
-    points = [(graph_x.GetX()[i], graph_x.GetY()[i], graph_y.GetY()[i]) 
-              for i in xrange(graph_x.GetN())]
-    best = [(x,y) for i, x, y in points if l_tau == i]
-    graph_best = plotting.Graph(1)
-    plotter.set_graph_style(graph_best,29,2)
-    graph_best.SetPoint(0, *best[0])
-    graph_best.SetMarkerSize(3)
-    #l_curve.Draw('ALP')
-    #graph_best.Draw('P SAME')
-    canvas = plotter.create_and_write_graph_canvas('c'+l_curve.GetName(),[0],[1],False,False,[l_curve],write=False)
-    graph_best.Draw('P SAME')
-    
-    info = ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
-    info.UseCurrentStyle()
-    info.SetTextAlign(32)
-    info.SetFillColor(0)
-    info.SetBorderSize(0)
-    info.SetMargin(0.)
-    info.SetTextSize(0.037)
-    info.AddText('#tau = %.5f' % best_l)
-    info.Draw()
-    canvas.Update()
-    save(canvas, 'L_curve', 'L_curve', outdir)
-
-    modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
-    for mode in modes:
-        best_tau, tau_curve, index_best = myunfolding.DoScanTau(100, t_min, t_max, mode)
-        best_taus[mode] = best_tau
-        tau_curve.SetName(mode)
-        tau_curve.SetMarkerStyle(1)
-        points = [(tau_curve.GetX()[i], tau_curve.GetY()[i])
-                  for i in xrange(tau_curve.GetN())]
-        best = [points[index_best]] 
-        #best = [(x,y) for x, y in points if math.log10(best_tau) == x]
-        #log.info('best = %s and best_from_index = %s' % (best,best_from_index))
-        #if  best_from_index != best[0]:
-            #log.error("Pair found by DoScanTau is different from pair found by this code!")
-            #os.abort()
-        #if itoy == 16 and mode == 'RhoSquareAvg':
-            #set_trace()
+    if tau >= 0:
+        best_taus['External'] = tau
+    else:
+        t_min, t_max = eval(opts.tau_range)
+        best_l, l_curve, graph_x, graph_y  = myunfolding.DoScanLcurve(100, t_min, t_max)
+        best_taus['L_curve'] = best_l
+        l_curve.SetName('lcurve')
+        l_curve.name = 'lcurve'
+        graph_x.name = 'l_scan_x'
+        graph_y.name = 'l_scan_y'
+        l_tau = math.log10(best_l)
+        points = [(graph_x.GetX()[i], graph_x.GetY()[i], graph_y.GetY()[i]) 
+                  for i in xrange(graph_x.GetN())]
+        best = [(x,y) for i, x, y in points if l_tau == i]
         graph_best = plotting.Graph(1)
+        plotter.set_graph_style(graph_best,29,2)
         graph_best.SetPoint(0, *best[0])
-        graph_best.SetMarkerStyle(29)
         graph_best.SetMarkerSize(3)
-        graph_best.SetMarkerColor(2)
-        
-        canvas = plotter.create_and_write_graph_canvas('c'+tau_curve.GetName(),[0],[1],False,False,[tau_curve],write=False)
-    
+        #l_curve.Draw('ALP')
+        #graph_best.Draw('P SAME')
+        canvas = plotter.create_and_write_graph_canvas('c'+l_curve.GetName(),[0],[1],False,False,[l_curve],write=False)
         graph_best.Draw('P SAME')
+    
         info = ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
         info.UseCurrentStyle()
+        info.SetTextAlign(32)
         info.SetFillColor(0)
         info.SetBorderSize(0)
         info.SetMargin(0.)
-        info.AddText('#tau = %.5f' % best_tau)
+        info.SetTextSize(0.037)
+        info.AddText('#tau = %.5f' % best_l)
         info.Draw()
         canvas.Update()
-        save(canvas, mode, 'Tau_curve', outdir)
+        save(canvas, 'L_curve', 'L_curve', outdir)
 
-    #force running without regularization
-    best_taus['NoReg'] = 0
-    for name, best_tau in best_taus.iteritems():
-        log.info('best tau option for %s: %.3f' % (name, best_tau))
+        modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
+        for mode in modes:
+            best_tau, tau_curve, index_best = myunfolding.DoScanTau(100, t_min, t_max, mode)
+            best_taus[mode] = best_tau
+            tau_curve.SetName(mode)
+            tau_curve.SetMarkerStyle(1)
+            points = [(tau_curve.GetX()[i], tau_curve.GetY()[i])
+                      for i in xrange(tau_curve.GetN())]
+            best = [points[index_best]] 
+            #best = [(x,y) for x, y in points if math.log10(best_tau) == x]
+            #log.info('best = %s and best_from_index = %s' % (best,best_from_index))
+            #if  best_from_index != best[0]:
+                #log.error("Pair found by DoScanTau is different from pair found by this code!")
+                #os.abort()
+            #if itoy == 16 and mode == 'RhoSquareAvg':
+                #set_trace()
+            graph_best = plotting.Graph(1)
+            graph_best.SetPoint(0, *best[0])
+            graph_best.SetMarkerStyle(29)
+            graph_best.SetMarkerSize(3)
+            graph_best.SetMarkerColor(2)
+            
+            canvas = plotter.create_and_write_graph_canvas('c'+tau_curve.GetName(),[0],[1],False,False,[tau_curve],write=False)
+    
+            graph_best.Draw('P SAME')
+            info = ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
+            info.UseCurrentStyle()
+            info.SetFillColor(0)
+            info.SetBorderSize(0)
+            info.SetMargin(0.)
+            info.AddText('#tau = %.5f' % best_tau)
+            info.Draw()
+            canvas.Update()
+            save(canvas, mode, 'Tau_curve', outdir)
+
+        #force running without regularization
+        best_taus['NoReg'] = 0
+        for name, best_tau in best_taus.iteritems():
+            log.info('best tau option for %s: %.3f' % (name, best_tau))
     
     to_save = []
     for name, best_tau in best_taus.iteritems():
@@ -380,6 +386,7 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
         leg = LegendDefinition(title=name,labels=['Reco','Refolded'],position='ne')
         myunfolding.measured.xaxis.title = xaxislabel
         hdata_refolded.xaxis.title = xaxislabel
+        myunfolding.measured.drawoptions = 'e1'
         canvas = plotter.create_and_write_canvas_with_comparison('refolded_pull', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='pull')
         save(canvas, name, 'refolded_pull', outdir)
         canvas = plotter.create_and_write_canvas_with_comparison('refolded_ratio', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='ratio')
@@ -397,12 +404,14 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
         to_save.extend([
             myunfolding.truth,     ## 4
             myunfolding.measured,  ## 5
-            myunfolding.matrix,    ## 6
-            l_curve,               ## 9
-            tau_curve,             ## 10
-            graph_x,
-            graph_y
-            ])
+            myunfolding.matrix,])  ## 6
+        if opts.tau < 0:
+            to_save.extend([
+                    l_curve,               ## 9
+                    tau_curve,             ## 10
+                    graph_x,
+                    graph_y
+                    ])
 
         if opts.cov_matrix != 'none':
            to_save.extend([input_cov_matrix])
@@ -421,18 +430,60 @@ def run_unfolder(itoy = 0, outdir = opts.dir):
 resp_file = io.root_open(opts.truth_file)
 data_file = io.root_open(opts.fit_file)
 
-if 'toy' in opts.fit_file:
-    itoy = 0
-    while True:
-        data_file_basedir = 'toy_' + str(itoy)
-        try:
-            getattr(data_file, data_file_basedir)
-        #except rootpy.io.DoesNotExist as err:
-        except AttributeError as err:
-            log.warning('Directory %s not found in the rootfile! Breaking the loop.' % data_file_basedir)
-            break
-        log.info('Found directory %s in the rootfile' % data_file_basedir)
+#Draw migration matrix and its errors (w/ Under/Over-flow)
+migration_matrix   = getattr(resp_file, opts.var).migration_matrix
+xbins = set(i.x.high for i in migration_matrix) 
+xbins.update(
+    set(i.x.low for i in migration_matrix)
+    )
+xbins = list(xbins)
+xbins.sort()
 
+ybins = set(i.y.high for i in migration_matrix)
+ybins.update(
+    set(i.y.low for i in migration_matrix)
+    )
+ybins = list(ybins)
+ybins.sort()
+
+full_matrix = plotting.Hist2D(xbins, ybins)
+for bin in migration_matrix:
+    ibin = full_matrix.FindFixBin(
+        bin.x.center, bin.y.center
+        )
+    full_matrix[ibin].value = bin.value
+    full_matrix[ibin].error = bin.error
+
+canvas = plotting.Canvas(1000, 800)
+BasePlotter.set_canvas_style(canvas)
+full_matrix.SetStats(False)
+full_matrix.Draw('colz')
+canvas.Update()
+canvas.SetLogz(True)
+canvas.SaveAs('%s/migration_matrix.png' % opts.dir)
+
+#make relative uncertainty
+for bin in full_matrix:
+    if not bin.value: continue
+    bin.value = bin.error / bin.value 
+full_matrix.Draw('colz')
+canvas.Update()
+print '%s/migration_matrix.png' % opts.dir
+canvas.SaveAs('%s/migration_matrix_unc.png' % opts.dir)
+
+if 'toy' in opts.fit_file:
+    toys = [i.name for i in data_file.keys()]
+    toys = [(i, int(i.replace('toy_',''))) for i in toys if i.startswith('toy_')]
+    toys = [(i, j) for i, j in toys if j >= opts.mintoy]
+    if opts.maxtoy > 0:
+        if opts.mintoy >= opts.maxtoy:
+            raise ValueError(
+                'You ran with option --maxtoy=%i, but the option'
+                ' --mintoy=%i, which makes no sense!' % (opts.maxtoy, opts.mintoy)
+                )
+        toys = [(i, j) for i, j in toys if j < opts.maxtoy]
+    for data_file_basedir, itoy in toys:
+        log.info('Found directory %s in the rootfile' % data_file_basedir)
         try:
             os.mkdir(os.path.join(opts.dir,data_file_basedir))
         except OSError as e:
@@ -441,17 +492,13 @@ if 'toy' in opts.fit_file:
             else:
                 raise e
 
-        outdir = os.path.join(opts.dir,data_file_basedir)
-        
+        outdir = os.path.join(opts.dir,data_file_basedir)        
         run_unfolder(itoy, outdir)
-                
-        itoy = itoy + 1
-        #if itoy > 10:
-            #break
 else:
     run_unfolder()
     
 if 'toy' in opts.fit_file:
+    print "unfolding_toy_diagnostics %s %s" % (opts.dir, opts.var)
     unfolding_toy_diagnostics(opts.dir, opts.var)
 
 
