@@ -39,6 +39,10 @@ class ttbar : public AnalyzerBase
 		bool SEMILEP;
 		bool FULLLEP;
 		bool SEMILEPACC;
+		bool SEMILEPACCLOOSE;
+		bool skew_pt_distro;
+		bool is_ttbar;
+		bool is_data;
 		list<GenObject> sgenparticles;
 		vector<GenObject*> genwpartons;
 		vector<GenObject*> gencls;
@@ -84,8 +88,8 @@ class ttbar : public AnalyzerBase
 		TH1DCollection truth1d;
 		TH2DCollection truth2d;
 
-        TTBarGenPlots ttp_genall;
-        TTBarGenPlots ttp_genacc;
+		TTBarGenPlots ttp_genall;
+		TTBarGenPlots ttp_genacc;
 
 		TTBarPlots ttp_truth;
 		TTBarPlots ttp_right;
@@ -113,6 +117,13 @@ class ttbar : public AnalyzerBase
 
 		TTBarResponse response;
 
+		TTBarPlots semilep_visible_right;
+		TTBarPlots semilep_right_thad;
+		TTBarPlots semilep_right_tlep;
+		TTBarPlots semilep_wrong;
+		TTBarPlots other_tt_decay;
+
+
 		BtagEff btageff;
 
 		//ttbar solver
@@ -138,6 +149,7 @@ class ttbar : public AnalyzerBase
 		double cjetetamax;
 		double clptmin;
 		double cletamax;
+		// For the fiducial loose phase space
 		double cpwjetptsoft;
 		double cpwjetpthard;
 		double cpbjetptsoft;
@@ -145,13 +157,13 @@ class ttbar : public AnalyzerBase
 		double cpjetetamax;
 		double cplptmin;
 		double cpletamax;
+		//uncertainties
 		double csigmajet;
 		double csigmamet;
 		double ctopptweight;
 		int cfacscale;
 		int crenscale;
 		int crandomseed;
-		//
 		double jetptmin;
 	
 		double weight;

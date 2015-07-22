@@ -2,6 +2,7 @@
 #include <URStreamer.h>
 #include <Permutation.h>
 #include <ttbarxsec.h>
+#include "Logger.h"
 
 #include <sstream>
 
@@ -29,6 +30,7 @@ void TTBarPlots::Init(ttbar* analysis)
 	//double tbmax = 10.;
 	double tbmin = 0.;
 	double tbmax = 80.;
+	
 	plot1d.AddHist("MET", 500, 0, 2000, "MET", "Events");
 	plot1d.AddHist("njets", 15, 0, 15, "n-jets", "Events");
 	plot1d.AddHist("ptaddjets", 200, 0, 400, "p_{T}(add. jets) [GeV]", "Events");
@@ -43,29 +45,29 @@ void TTBarPlots::Init(ttbar* analysis)
 	{
 		stringstream jb;
 		if(jn != -1) jb << jn << "_";
-		plot2d.AddHist("test_"+jb.str()+"thadpt", ta, tamin, tamax, an->topptbins, "test", "p_{T}(t_{had}) [GeV]");
-		plot2d.AddHist("testb_"+jb.str()+"thadpt", tb, tbmin, tbmax, an->topptbins, "testb", "p_{T}(t_{had}) [GeV]");
-		plot2d.AddHist("test_"+jb.str()+"nobin", ta, tamin, tamax, an->nobins, "test", "all");
-		plot2d.AddHist("testb_"+jb.str()+"nobin", tb, tbmin, tbmax, an->nobins, "testb", "all");
-		plot2d.AddHist("test_"+jb.str()+"tleppt", ta, tamin, tamax, an->topptbins, "test", "p_{T}(t_{lep}) [GeV]");
-		plot2d.AddHist("testb_"+jb.str()+"tleppt", tb, tbmin, tbmax, an->topptbins, "testb", "p_{T}(t_{lep}) [GeV]");
-		plot2d.AddHist("test_"+jb.str()+"thady", ta, tamin, tamax, an->topybins, "test", "|y(t_{had})|");
-		plot2d.AddHist("testb_"+jb.str()+"thady", tb, tbmin, tbmax, an->topybins, "testb", "|y(t_{had})|");
-		plot2d.AddHist("test_"+jb.str()+"tlepy", ta, tamin, tamax, an->topybins, "test", "|y(t_{lep})|");
-		plot2d.AddHist("testb_"+jb.str()+"tlepy", tb, tbmin, tbmax, an->topybins, "testb", "|y(t_{lep})|");
-		plot2d.AddHist("test_"+jb.str()+"ttm", ta, tamin, tamax, an->ttmbins, "test", "M(tt) [GeV]");
-		plot2d.AddHist("testb_"+jb.str()+"ttm", tb, tbmin, tbmax, an->ttmbins, "testb", "M(tt) [GeV]");
-		plot2d.AddHist("test_"+jb.str()+"tty", ta, tamin, tamax, an->ttybins, "test", "y(tt)");
-		plot2d.AddHist("testb_"+jb.str()+"tty", tb, tbmin, tbmax, an->ttybins, "testb", "y(tt)");
-		plot2d.AddHist("test_"+jb.str()+"ttpt", ta, tamin, tamax, an->ttptbins, "test", "p_{T}(tt) [GeV]");
-		plot2d.AddHist("testb_"+jb.str()+"ttpt", tb, tbmin, tbmax, an->ttptbins, "testb", "p_{T}(tt) [GeV]");
-		plot2d.AddHist("test_"+jb.str()+"costhetastar", ta, tamin, tamax, 10, -1., 1., "test", "cos(#Theta*)");
-		plot2d.AddHist("testb_"+jb.str()+"costhetastar", tb, tbmin, tbmax, 10, -1., 1., "testb", "cos(#Theta*)");
-		plot2d.AddHist("test_"+jb.str()+"njet", ta, tamin, tamax, an->jetbins, "test", "n-jets");
-		plot2d.AddHist("testb_"+jb.str()+"njet", tb, tbmin, tbmax, an->jetbins, "testb", "n-jets");
-		plot2d.AddHist("test_"+jb.str()+"met", ta, tamin, tamax, an->metbins, "test", "MET [GeV]");
-		plot2d.AddHist("testb_"+jb.str()+"met", tb, tbmin, tbmax, an->metbins, "testb", "MET [GeV]");
-		plot2d.AddHist("test_"+jb.str()+"testb", ta, tamin, tamax, tb, tbmin, tbmax, "test", "testb");
+		plot2d.AddHist("massDiscr_"+jb.str()+"thadpt", ta, tamin, tamax, an->topptbins, "#lambda_{m}", "p_{T}(t_{had}) [GeV]");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"thadpt", tb, tbmin, tbmax, an->topptbins, "D_{min}", "p_{T}(t_{had}) [GeV]");
+		plot2d.AddHist("massDiscr_"+jb.str()+"nobin", ta, tamin, tamax, an->nobins, "#lambda_{m}", "all");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"nobin", tb, tbmin, tbmax, an->nobins, "D_{min}", "all");
+		plot2d.AddHist("massDiscr_"+jb.str()+"tleppt", ta, tamin, tamax, an->topptbins, "#lambda_{m}", "p_{T}(t_{lep}) [GeV]");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"tleppt", tb, tbmin, tbmax, an->topptbins, "D_{min}", "p_{T}(t_{lep}) [GeV]");
+		plot2d.AddHist("massDiscr_"+jb.str()+"thady", ta, tamin, tamax, an->topybins, "#lambda_{m}", "|y(t_{had})|");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"thady", tb, tbmin, tbmax, an->topybins, "D_{min}", "|y(t_{had})|");
+		plot2d.AddHist("massDiscr_"+jb.str()+"tlepy", ta, tamin, tamax, an->topybins, "#lambda_{m}", "|y(t_{lep})|");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"tlepy", tb, tbmin, tbmax, an->topybins, "D_{min}", "|y(t_{lep})|");
+		plot2d.AddHist("massDiscr_"+jb.str()+"ttm", ta, tamin, tamax, an->ttmbins, "#lambda_{m}", "M(tt) [GeV]");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"ttm", tb, tbmin, tbmax, an->ttmbins, "D_{min}", "M(tt) [GeV]");
+		plot2d.AddHist("massDiscr_"+jb.str()+"tty", ta, tamin, tamax, an->ttybins, "#lambda_{m}", "y(tt)");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"tty", tb, tbmin, tbmax, an->ttybins, "D_{min}", "y(tt)");
+		plot2d.AddHist("massDiscr_"+jb.str()+"ttpt", ta, tamin, tamax, an->ttptbins, "#lambda_{m}", "p_{T}(tt) [GeV]");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"ttpt", tb, tbmin, tbmax, an->ttptbins, "D_{min}", "p_{T}(tt) [GeV]");
+		plot2d.AddHist("massDiscr_"+jb.str()+"costhetastar", ta, tamin, tamax, 10, -1., 1., "#lambda_{m}", "cos(#Theta*)");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"costhetastar", tb, tbmin, tbmax, 10, -1., 1., "D_{min}", "cos(#Theta*)");
+		plot2d.AddHist("massDiscr_"+jb.str()+"njet", ta, tamin, tamax, an->jetbins, "#lambda_{m}", "n-jets");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"njet", tb, tbmin, tbmax, an->jetbins, "D_{min}", "n-jets");
+		plot2d.AddHist("massDiscr_"+jb.str()+"met", ta, tamin, tamax, an->metbins, "#lambda_{m}", "MET [GeV]");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"met", tb, tbmin, tbmax, an->metbins, "D_{min}", "MET [GeV]");
+		plot2d.AddHist("massDiscr_"+jb.str()+"D_{min}", ta, tamin, tamax, tb, tbmin, tbmax, "#lambda_{m}", "nsDiscr");
 	}
 }
 
@@ -73,11 +75,13 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 {
 	TLorentzVector nu(per.Nu());
 	TTBarPlotsBase::Fill(per.BHad(), per.WJa(), per.WJb(), per.BLep(), per.L(), &nu, lepcharge, weight);
-	double test = per.MassDiscr();
+	double massDiscr = per.MassDiscr();
 	//double testb = per.BDiscr();
-	double testb = Sqrt(per.NuChisq());
+	double nsDiscr = Sqrt(per.NuChisq());
 	//double testb = (*per.BLep() + *per.L()).Mt(); 
-	if(test == numeric_limits<double>::max()) {test = 0; testb = 0;}
+	//double full_disc = per.Prob();
+	
+	if(massDiscr == numeric_limits<double>::max()) {massDiscr = 0; nsDiscr = 0;}
 	plot1d["MET"]->Fill(an->met.Pt(), weight);
 	plot1d["njets"]->Fill(an->cleanedjets.size()-4, weight);
 	double drminw = 100.;
@@ -93,7 +97,7 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 	}
 	plot1d["DRminWjets"]->Fill(drminw, weight);
 	plot1d["DRminbjets"]->Fill(drminb, weight);
-	plot2d["METvsChi"]->Fill(an->met.Pt(), testb, weight);
+	plot2d["METvsChi"]->Fill(an->met.Pt(), nsDiscr, weight);
 	plot1d["DPhiMET_Nu"]->Fill(Abs(nu.DeltaPhi(an->met)), weight);
 	plot2d["METvsDPhiMET_Nu"]->Fill(an->met.Pt(), Abs(nu.DeltaPhi(an->met)), weight);
 	double Mt_W = Sqrt(2.*an->met.Pt()*per.L()->Pt()-2.*(an->met.Px()*per.L()->Px() + an->met.Py()*per.L()->Py()));
@@ -105,29 +109,29 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 		if(jn != -1) jb << jn << "_";
 		if((jn == -1) || (an->reducedjets.size() - 4 == size_t(jn)) || (jn == jetbins.back() && an->reducedjets.size() - 4 > size_t(jn)))
 		{
-			plot2d["test_"+jb.str()+"testb"]->Fill(test, testb, weight);
-			plot2d["test_"+jb.str()+"thadpt"]->Fill(test, thad.Pt(), weight);
-			plot2d["testb_"+jb.str()+"thadpt"]->Fill(testb, thad.Pt(), weight);
-			plot2d["test_"+jb.str()+"nobin"]->Fill(test, thad.Pt(), weight);
-			plot2d["testb_"+jb.str()+"nobin"]->Fill(testb, thad.Pt(), weight);
-			plot2d["test_"+jb.str()+"tleppt"]->Fill(test, tlep.Pt(), weight);
-			plot2d["testb_"+jb.str()+"tleppt"]->Fill(testb, tlep.Pt(), weight);
-			plot2d["test_"+jb.str()+"thady"]->Fill(test, Abs(thad.Rapidity()), weight);
-			plot2d["testb_"+jb.str()+"thady"]->Fill(testb, Abs(thad.Rapidity()), weight);
-			plot2d["test_"+jb.str()+"tlepy"]->Fill(test, Abs(tlep.Rapidity()), weight);
-			plot2d["testb_"+jb.str()+"tlepy"]->Fill(testb, Abs(tlep.Rapidity()), weight);
-			plot2d["test_"+jb.str()+"ttm"]->Fill(test, tt.M(), weight);
-			plot2d["testb_"+jb.str()+"ttm"]->Fill(testb, tt.M(), weight);
-			plot2d["test_"+jb.str()+"tty"]->Fill(test, Abs(tt.Rapidity()), weight);
-			plot2d["testb_"+jb.str()+"tty"]->Fill(testb, Abs(tt.Rapidity()), weight);
-			plot2d["test_"+jb.str()+"ttpt"]->Fill(test, tt.Pt(), weight);
-			plot2d["testb_"+jb.str()+"ttpt"]->Fill(testb, tt.Pt(), weight);
-			plot2d["test_"+jb.str()+"costhetastar"]->Fill(test, tCMS.CosTheta(), weight);
-			plot2d["testb_"+jb.str()+"costhetastar"]->Fill(testb, tCMS.CosTheta(), weight);
-			plot2d["test_"+jb.str()+"njet"]->Fill(test, an->cleanedjets.size()-4, weight);
-			plot2d["testb_"+jb.str()+"njet"]->Fill(testb, an->cleanedjets.size()-4, weight);
-			plot2d["test_"+jb.str()+"met"]->Fill(test, an->met.Pt(), weight);
-			plot2d["testb_"+jb.str()+"met"]->Fill(testb, an->met.Pt(), weight);
+			plot2d["massDiscr_"+jb.str()+"nsDiscr"]->Fill(massDiscr, nsDiscr, weight);
+			plot2d["massDiscr_"+jb.str()+"thadpt"]->Fill(massDiscr, thad.Pt(), weight);
+			plot2d["nsDiscr_"+jb.str()+"thadpt"]->Fill(nsDiscr, thad.Pt(), weight);
+			plot2d["massDiscr_"+jb.str()+"nobin"]->Fill(massDiscr, thad.Pt(), weight);
+			plot2d["nsDiscr_"+jb.str()+"nobin"]->Fill(nsDiscr, thad.Pt(), weight);
+			plot2d["massDiscr_"+jb.str()+"tleppt"]->Fill(massDiscr, tlep.Pt(), weight);
+			plot2d["nsDiscr_"+jb.str()+"tleppt"]->Fill(nsDiscr, tlep.Pt(), weight);
+			plot2d["massDiscr_"+jb.str()+"thady"]->Fill(massDiscr, Abs(thad.Rapidity()), weight);
+			plot2d["nsDiscr_"+jb.str()+"thady"]->Fill(nsDiscr, Abs(thad.Rapidity()), weight);
+			plot2d["massDiscr_"+jb.str()+"tlepy"]->Fill(massDiscr, Abs(tlep.Rapidity()), weight);
+			plot2d["nsDiscr_"+jb.str()+"tlepy"]->Fill(nsDiscr, Abs(tlep.Rapidity()), weight);
+			plot2d["massDiscr_"+jb.str()+"ttm"]->Fill(massDiscr, tt.M(), weight);
+			plot2d["nsDiscr_"+jb.str()+"ttm"]->Fill(nsDiscr, tt.M(), weight);
+			plot2d["massDiscr_"+jb.str()+"tty"]->Fill(massDiscr, Abs(tt.Rapidity()), weight);
+			plot2d["nsDiscr_"+jb.str()+"tty"]->Fill(nsDiscr, Abs(tt.Rapidity()), weight);
+			plot2d["massDiscr_"+jb.str()+"ttpt"]->Fill(massDiscr, tt.Pt(), weight);
+			plot2d["nsDiscr_"+jb.str()+"ttpt"]->Fill(nsDiscr, tt.Pt(), weight);
+			plot2d["massDiscr_"+jb.str()+"costhetastar"]->Fill(massDiscr, tCMS.CosTheta(), weight);
+			plot2d["nsDiscr_"+jb.str()+"costhetastar"]->Fill(nsDiscr, tCMS.CosTheta(), weight);
+			plot2d["massDiscr_"+jb.str()+"njet"]->Fill(massDiscr, an->cleanedjets.size()-4, weight);
+			plot2d["nsDiscr_"+jb.str()+"njet"]->Fill(nsDiscr, an->cleanedjets.size()-4, weight);
+			plot2d["massDiscr_"+jb.str()+"met"]->Fill(massDiscr, an->met.Pt(), weight);
+			plot2d["nsDiscr_"+jb.str()+"met"]->Fill(nsDiscr, an->met.Pt(), weight);
 		}
 	}
 }

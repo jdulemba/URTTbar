@@ -4,7 +4,6 @@
 #include <ttbarxsec.h>
 #include <TDirectory.h>
 
-
 TTBarResponse::TTBarResponse(string prefix, ttbar* an) : prefix_(prefix), an_(an), dir(0), plot1d(""), plot2d("")
 {
 }
@@ -41,27 +40,50 @@ void TTBarResponse::AddMatrix(string name, const vector<double>& Mbins, const ve
 
 void TTBarResponse::FillTruth(string name, double val, double weight)
 {
-	int njet = Min(an_->genaddjets.size(), size_t(3));
-	stringstream hname;
-	hname << name << "_truth_" << njet;
-	plot1d[hname.str()]->Fill(val, weight);
-	plot1d[name + "_truth"]->Fill(val, weight);
+	weight_ = weight;
+	values_[name].first = val;
+	genjets = Min(an_->genaddjets.size(), size_t(3));
 }
 
 void TTBarResponse::FillReco(string name, double val, double weight)
 {
-	int njet = Min(an_->reducedjets.size() - 4, size_t(3));
-	stringstream hname;
-	hname << name << "_reco_" << njet;
-	plot1d[hname.str()]->Fill(val, weight);
-	plot1d[name+"_reco"]->Fill(val, weight);
+	weight_ = weight;
+	values_[name].second =val;
+	recojets = Min(an_->reducedjets.size() - 4, size_t(3));
 }
 
 void TTBarResponse::FillTruthReco(string name, double tval, double rval, double weight)
 {
-	int njet = Min(an_->reducedjets.size() - 4, size_t(3));
-	stringstream hname;
-	hname << name << "_matrix_" << njet;
-	plot2d[hname.str()]->Fill(tval, rval, weight);
-	plot2d[name+"_matrix"]->Fill(tval, rval, weight);
+	weight_ = weight;
+	values_[name].first = tval;
+	values_[name].second = rval;
+}
+
+void TTBarResponse::Flush()
+{
+	for(auto& entry : values_)
+	{
+		plot1d[entry.first + "_truth"]->Fill(entry.second.first, weight_);
+		plot1d[entry.first + "_reco" ]->Fill(entry.second.second, weight_);
+		plot2d[entry.first +"_matrix"]->Fill(entry.second.first, entry.second.second, weight_);
+
+		stringstream hname;
+		hname << entry.first << "_matrix_" << recojets;
+		plot2d[hname.str()]->Fill(entry.second.first, entry.second.second, weight_);
+		hname.str("");
+		hname << entry.first << "_reco_" << recojets;
+		plot1d[hname.str()]->Fill(entry.second.second, weight_);
+		hname.str("");
+		hname << entry.first << "_truth_" << genjets;
+		plot1d[hname.str()]->Fill(entry.second.first, weight_);
+
+	}
+
+	//reset defaults
+	for(auto& entry : values_)
+	{
+		entry.second.first = plot1d[entry.first + "_matrix"]->GetXaxis()->GetXmin()-1.;
+		entry.second.second = plot1d[entry.first + "_matrix"]->GetYaxis()->GetXmin()-1.;
+	}
+	weight_=1;
 }

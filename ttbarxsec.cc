@@ -5,6 +5,8 @@
 #include "PDFuncertainty.h"
 #include "NeutrinoSolver.h"
 #include "ConfigParser.h"
+#include <boost/algorithm/string/predicate.hpp>
+#include "URParser.h"
 
 using namespace std;
 
@@ -39,6 +41,11 @@ ttbar::ttbar(const std::string output_filename):
 	ttp_thad_right("ttp_thad_right"),
 	ttp_nn_right("ttp_nn_right"),
 	ttp_nsemi_right("ttp_nsemi_right"),
+	semilep_visible_right("all"),
+	semilep_right_thad("all"),
+	semilep_right_tlep("all"),
+	semilep_wrong("all"),
+	other_tt_decay("all"),
 	response("response", this),
 	jetscaler("jetuncertainty.root"),
 	DATASIM(false),
@@ -50,6 +57,7 @@ ttbar::ttbar(const std::string output_filename):
 	B_TIGHT(0.97),
 	B_MEDIUM(0.89),
 	cnbtag(2), //1: one thight b-jet, 2: two medium b-jets
+	skew_pt_distro(true),
 	cnusedjets(100), //only nused jets, ordered by pT are used for the permutations
 	cwjetptsoft(25.), //min pT of softer W-jet
 	cwjetpthard(35.), //min pT of harder W-jet 
@@ -141,18 +149,25 @@ ttbar::ttbar(const std::string output_filename):
 
 	jetptmin = min(cwjetptsoft, cbjetptsoft);
 //	topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 800.};
-//	topetabins = {0., 0.2, 0.4, 0.6,  0.8,  1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 4.0};
+//	topybins = {0., 0.2, 0.4, 0.6,  0.8,  1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 4.0};
 //	ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 770., 900, 1500.};
 //	ttybins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.};
 //	ttptbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 500.};
 //	metbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.};
 	
-	topptbins = {0.0, 65.0, 100.0, 135.0, 175.0, 240.0, 775.0};
-	topybins = {0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.5};
-	ttmbins = {280., 400.0, 450.0, 510.0, 580.0, 720.0, 2000.0};
-	ttybins = {0.0, 0.2, 0.4, 0.6, 0.85, 1.25, 2.5};
-	ttptbins = {0.0, 25.0, 40.0, 60.0, 85.0, 150.0, 500.0};
-	metbins = {0.0, 30.0, 45.0, 60.0, 80.0, 120.0, 580.0};
+//	topptbins = {0.0, 65.0, 100.0, 135.0, 175.0, 240.0, 775.0};
+//	topybins = {0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.5};
+//	ttmbins = {280., 400.0, 450.0, 510.0, 580.0, 720.0, 2000.0};
+//	ttybins = {0.0, 0.2, 0.4, 0.6, 0.85, 1.25, 2.5};
+//	ttptbins = {0.0, 25.0, 40.0, 60.0, 85.0, 150.0, 500.0};
+//	metbins = {0.0, 30.0, 45.0, 60.0, 80.0, 120.0, 580.0};
+//	jetbins = {-0.5, 0.5, 1.5, 2.5, 10.};
+
+	setbinning(topptbins, 0., 800., 5.);
+	setbinning(topybins, 0., 2.5, 0.1);
+	setbinning(ttmbins, 250., 2000., 5.);
+	setbinning(ttptbins, 0., 500., 5.);
+	setbinning(ttybins, 0., 2.5, 0.1);
 	jetbins = {-0.5, 0.5, 1.5, 2.5, 10.};
 	nobins = {0., 13000.};
 
@@ -171,14 +186,6 @@ void ttbar::begin()
 	gen1d.AddHist("TYP", 4, 0., 4., "Decay TYP", "Events");
 	gen1d.AddHist("DRW", 600, 0., 6., "DR", "Events");
 	gen1d.AddHist("DRB", 600, 0., 6., "DR", "Events");
-	//gen2d.AddHist("wjets_eta", 100, 0., 5., 100, 0, 5, "W-jet #eta_{min}", "W-jet #eta_{max}");
-	//gen2d.AddHist("bjets_eta", 100, 0., 5., 100, 0, 5, "b-jet #eta_{min}", "b-jet #eta_{max}");
-	//gen2d.AddHist("wjets_pt", 200, 0, 400, 200, 0., 400, "W-jet p_{T,min} [GeV]", "W-jet p_{T,max} [GeV]");
-	//gen2d.AddHist("bjets_pt", 200, 0, 400, 200, 0., 400, "b-jet p_{T,min} [GeV]", "b-jet p_{T,max} [GeV]");
-	//gen2d.AddHist("t_pt", 200, 0, 600, 200, 0., 600, "t p_{T,min} [GeV]", "t p_{T,max} [GeV]");
-	//gen1d.AddHist("bjets_dr", 100, 0, 5, "b-jets #DeltaR", "Events");
-	//gen1d.AddHist("wjets_dr", 100, 0, 5, "W-jets #DeltaR", "Events");
-	//gen2d.AddHist("Wmasshad_tmasshad", 2000, 0., 500., 2000, 0., 500, "M(W) [GeV]", "M(t) [GeV]");
     ttp_genall.Init(this);
     ttp_genacc.Init(this);
 
@@ -232,7 +239,6 @@ void ttbar::begin()
 	truth2d.AddHist("Murho_iso_3", 10, 0., 50., 100, 0., 150, "rho", "iso");
 	truth2d.AddHist("Murho_iso_4", 10, 0., 50., 100, 0., 150, "rho", "iso");
 	truth1d.AddHist("TTRECO", 20, 0, 20, "ttreco", "Events");
-
 
 	response.AddMatrix("thadpt", topptbins, topptbins, "p_{T}(t_{h}) [GeV]");
 	response.AddMatrix("thady", topybins, topybins, "|y(t_{h})|");
@@ -297,11 +303,7 @@ void ttbar::begin()
 	reco1d.AddHist("Mt_W", 200, 0, 200, "M_{t}(W) [GeV]", "Events");
 	ttp_all.Init(this);
 
-	//string probfilename("Prob_parton.root");
-	string probfilename("Prob_parton_jeccen.root");
-	//string probfilename("Prob_parton_jecp2.root");
-	//string probfilename("Prob_parton_jecm2.root");
-	//string probfilename("Prob_parton_jeccenS5.root");
+	string probfilename("Prob_parton.root");
 	if(PSEUDOTOP){probfilename = "Prob_pseudo.root";}
 	if(BTAGMODE)
 	{
@@ -317,15 +319,91 @@ void ttbar::begin()
 		ttsolver.Init(probfilename, false, true, true);
 		//ttsolver.Init(probfilename, false, true);
 	}
-
+	
 	TFile* f = TFile::Open("PUweight.root");
+	if(!f)
+	{
+		Logger::log().error() << "Could not open PUweight.root!" << endl;
+		throw 49;
+	}
 	puhist = (TH1D*)f->Get("PUweight");
 
+	// M&M histo init start
+	dir_reco->cd();
+	truth2d.AddHist("ptthad_matrix_fullps", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("pttlep_matrix_fullps", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("etathad_matrix_fullps", topybins, topybins, "gen", "reco");
+	truth2d.AddHist("etatlep_matrix_fullps", topybins, topybins, "gen", "reco");
+	truth2d.AddHist("ttm_matrix_fullps", ttmbins, ttmbins, "gen", "reco");
+
+	truth1d.AddHist("ptthad_gen_fullps", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("pttlep_gen_fullps", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("etathad_gen_fullps", topybins, "gen", "Evts");
+	truth1d.AddHist("etatlep_gen_fullps", topybins, "gen", "Evts");
+	truth1d.AddHist("ttm_gen_fullps", ttmbins, "gen", "Evts");
+	truth1d.AddHist("ptthad_reco_fullps",  topptbins, "reco"  , "Evts");
+	truth1d.AddHist("pttlep_reco_fullps",  topptbins, "reco"  , "Evts");
+	truth1d.AddHist("etathad_reco_fullps",  topybins, "reco", "Evts");
+	truth1d.AddHist("etatlep_reco_fullps",  topybins, "reco", "Evts");
+	truth1d.AddHist("ttm_reco_fullps", ttmbins, "reco", "Evts");
+
+	truth2d.AddHist("ptthad_matrix_fiducialtight", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("pttlep_matrix_fiducialtight", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("etathad_matrix_fiducialtight", topybins, topybins, "gen", "reco");
+	truth2d.AddHist("etatlep_matrix_fiducialtight", topybins, topybins, "gen", "reco");
+	truth2d.AddHist("ttm_matrix_fiducialtight", ttmbins, ttmbins, "gen", "reco");
+
+	truth1d.AddHist("ptthad_gen_fiducialtight", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("pttlep_gen_fiducialtight", topptbins, "gen"  , "Evts");
+	truth1d.AddHist("etathad_gen_fiducialtight", topybins, "gen", "Evts");
+	truth1d.AddHist("etatlep_gen_fiducialtight", topybins, "gen", "Evts");
+	truth1d.AddHist("ttm_gen_fiducialtight", ttmbins, "gen", "Evts");
+	truth1d.AddHist("ptthad_reco_fiducialtight", topptbins, "reco", "Evts");
+	truth1d.AddHist("pttlep_reco_fiducialtight", topptbins, "reco", "Evts");
+	truth1d.AddHist("etathad_reco_fiducialtight", topybins, "reco", "Evts");
+	truth1d.AddHist("etatlep_reco_fiducialtight", topybins, "reco", "Evts");
+	truth1d.AddHist("ttm_reco_fiducialtight", ttmbins, "reco", "Evts");
+
+	truth2d.AddHist("ptthad_matrix_fiducialloose", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("pttlep_matrix_fiducialloose", topptbins, topptbins, "gen", "reco");
+	truth2d.AddHist("etathad_matrix_fiducialloose", topybins, topybins, "gen", "reco");
+	truth2d.AddHist("etatlep_matrix_fiducialloose", topybins, topybins, "gen", "reco");
+	truth2d.AddHist("ttm_matrix_fiducialloose", ttmbins, ttmbins, "gen", "reco");
+
+	truth1d.AddHist("ptthad_gen_fiducialloose", topptbins, "gen", "Evts");
+	truth1d.AddHist("pttlep_gen_fiducialloose", topptbins, "gen", "Evts");
+	truth1d.AddHist("etathad_gen_fiducialloose", topybins, "gen", "Evts");
+	truth1d.AddHist("etatlep_gen_fiducialloose", topybins, "gen", "Evts");
+	truth1d.AddHist("ttm_gen_fiducialloose", ttmbins, "gen", "Evts");
+	truth1d.AddHist("ptthad_reco_fiducialloose", topptbins, "reco", "Evts");
+	truth1d.AddHist("pttlep_reco_fiducialloose", topptbins, "reco", "Evts");
+	truth1d.AddHist("etathad_reco_fiducialloose", topybins, "reco", "Evts");
+	truth1d.AddHist("etatlep_reco_fiducialloose", topybins, "reco", "Evts");
+	truth1d.AddHist("ttm_reco_fiducialloose", ttmbins, "reco", "Evts");
+
+	Logger::log().debug() << "semilep_visible_right" << endl;
+	outFile_.mkdir("semilep_visible_right")->cd();
+	semilep_visible_right.Init(this);
+
+	Logger::log().debug() << "semilep_right_thad" << endl;
+	outFile_.mkdir("semilep_right_thad")->cd();
+	semilep_right_thad.Init(this);
+
+	Logger::log().debug() << "semilep_right_tlep" << endl;
+	outFile_.mkdir("semilep_right_tlep")->cd();
+	semilep_right_tlep.Init(this);
+
+	Logger::log().debug() << "semilep_wrong" << endl;
+	outFile_.mkdir("semilep_wrong")->cd();
+	semilep_wrong.Init(this);
+
+	Logger::log().debug() << "other_tt_decay" << endl;
+	outFile_.mkdir("other_tt_decay")->cd();
+	other_tt_decay.Init(this);
 }
 
 ttbar::~ttbar()
 {
-	
 	int lscounter = 0;
 	for(map<int, set<int> >::const_iterator ita = runinfo.begin() ; ita != runinfo.end() ; ++ita)
 	{
@@ -444,7 +522,7 @@ void ttbar::SelectGenParticles(URStreamer& event)
 			if(Abs(gp->pdgId()) > 500 && Abs(gp->pdgId()) < 600)
 			{
 				bpartons.push_back(*gp);
-					//cout << gp-gps.begin() << " " << gp->pdgId() << " " << gp->status() << " " << (gp->momIdx().size() != 0 ? gps[gp->momIdx()[0]].pdgId():0) << endl;
+				//cout << gp-gps.begin() << " " << gp->pdgId() << " " << gp->status() << " " << (gp->momIdx().size() != 0 ? gps[gp->momIdx()[0]].pdgId():0) << endl;
 			}
 			if(gp->status() > 21 && gp->status() < 30 && gp->momIdx().size() != 0)
 			{
@@ -531,91 +609,92 @@ void ttbar::SelectGenParticles(URStreamer& event)
 	{
 		SEMILEP = true;
 		if(gencls[0]->pdgId() > 0){genbl = genbbar; genbh = genb;} else {genbh = genbbar; genbl = genb;}
-		if(false)
-		{
-			const vector<Genjet>& genjets = event.genjets();
-			vector<Genjet> genbjets;
-			vector<Genjet> genlightjets;
-			for(vector<Genjet>::const_iterator gja = genjets.begin(); gja != genjets.end(); ++gja)
-			{
-				if(gja->Pt() < 20. || Abs(gja->Eta()) > 2.4){continue;}
-				if(gja->DeltaR(*gencls[0]) < 0.4) {continue;}
-				if(gja->DeltaR(*gennls[0]) < 0.4) {continue;}
-				for(int bp = 0 ; bp < bpartons.size() ; ++bp)
-				{
-					if(bpartons[bp].DeltaR(*gja) < 0.4)
-					{
-						genbjets.push_back(*gja);
-						goto nextjet;
-					}
-				}
-				genlightjets.push_back(*gja);
-nextjet: continue;
-			}
-			//cout << bpartons.size() << " " << genbjets.size() << endl;
-			if(genbjets.size() < 2 || genlightjets.size() < 2)
-			{
-				SEMILEP = false;
-			}
-			else
-			{		
-				double vmin = 1000000000; 
-				vector<Genjet> res(4);
-				for(size_t wja = 0 ; wja < genlightjets.size() ; ++wja)
-				{
-					for(size_t wjb = 0 ; wjb < wja ; ++wjb)
-					{
-						for(size_t bja = 0 ; bja < genbjets.size();  ++bja)
-						{
-							for(size_t bjb = 0 ; bjb < genbjets.size();  ++bjb)
-							{
-								if(bja == bjb) continue;
-								//if(gjd->DeltaR(*genbl) > 1.) continue;
+		//fast pseudotop defintion
+		//if(false)
+		//{
+		//	const vector<Genjet>& genjets = event.genjets();
+		//	vector<Genjet> genbjets;
+		//	vector<Genjet> genlightjets;
+		//	for(vector<Genjet>::const_iterator gja = genjets.begin(); gja != genjets.end(); ++gja)
+		//	{
+		//		if(gja->Pt() < 20. || Abs(gja->Eta()) > 2.4){continue;}
+		//		if(gja->DeltaR(*gencls[0]) < 0.4) {continue;}
+		//		if(gja->DeltaR(*gennls[0]) < 0.4) {continue;}
+		//		for(int bp = 0 ; bp < bpartons.size() ; ++bp)
+		//		{
+		//			if(bpartons[bp].DeltaR(*gja) < 0.4)
+		//			{
+		//				genbjets.push_back(*gja);
+		//				goto nextjet;
+		//			}
+		//		}
+		//		genlightjets.push_back(*gja);
+		//nextjet: continue;
+		//	}
+		//	//cout << bpartons.size() << " " << genbjets.size() << endl;
+		//	if(genbjets.size() < 2 || genlightjets.size() < 2)
+		//	{
+		//		SEMILEP = false;
+		//	}
+		//	else
+		//	{		
+		//		double vmin = 1000000000; 
+		//		vector<Genjet> res(4);
+		//		for(size_t wja = 0 ; wja < genlightjets.size() ; ++wja)
+		//		{
+		//			for(size_t wjb = 0 ; wjb < wja ; ++wjb)
+		//			{
+		//				for(size_t bja = 0 ; bja < genbjets.size();  ++bja)
+		//				{
+		//					for(size_t bjb = 0 ; bjb < genbjets.size();  ++bjb)
+		//					{
+		//						if(bja == bjb) continue;
+		//						//if(gjd->DeltaR(*genbl) > 1.) continue;
 
-								double mw = (genlightjets[wja] + genlightjets[wjb]).M();
-								double mth = (genlightjets[wja] + genlightjets[wjb] + genbjets[bja]).M();
-								double mtl = (*genfincls[0] + *gennls[0] + genbjets[bjb]).M();
-								double v = Power(mw-80., 2) + Power(mth-172.5, 2) + Power(mtl-172.5, 2);
-								if(vmin > v)
-								{
-									vmin = v;
-									res[0] = genlightjets[wja];
-									res[1] = genlightjets[wjb];
-									res[2] = genbjets[bja];
-									res[3] = genbjets[bjb];
-								}
-							}
-						}
-					}
-				}
-				//if(res[0].DeltaR(*genwpartons[0]) < 0.4 || res[0].DeltaR(*genwpartons[1]) < 0.4)
-				//{
-				//	cout << "WA" << endl;
-				//}
-				//if(res[1].DeltaR(*genwpartons[0]) < 0.4 || res[1].DeltaR(*genwpartons[1]) < 0.4)
-				//{
-				//	cout << "WB" << endl;
-				//}
-				//if(res[2].DeltaR(*genbh) < 0.4)
-				//{
-				//	cout << "Bh" << endl;
-				//}
-				//if(res[3].DeltaR(*genbl) < 0.4)
-				//{
-				//	cout << "Bl" << endl;
-				//}
-				//cout << vmin << " " << bpartons.size() << " " << genbjets.size() << " " << genlightjets.size() << endl;
-				sgenparticles.push_back(res[0]);
-				genwpartons[0] = &(sgenparticles.back());
-				sgenparticles.push_back(res[1]);
-				genwpartons[1] = &(sgenparticles.back());
-				sgenparticles.push_back(res[2]);
-				genbh = &(sgenparticles.back());
-				sgenparticles.push_back(res[3]);
-				genbl = &(sgenparticles.back());
-				if(gencls[0]->pdgId() > 0) {genbbar = genbl; genb = genbh;} else {genb = genbl; genbbar = genbh;}
-			}
-		}
+		//						double mw = (genlightjets[wja] + genlightjets[wjb]).M();
+		//						double mth = (genlightjets[wja] + genlightjets[wjb] + genbjets[bja]).M();
+		//						double mtl = (*genfincls[0] + *gennls[0] + genbjets[bjb]).M();
+		//						double v = Power(mw-80., 2) + Power(mth-172.5, 2) + Power(mtl-172.5, 2);
+		//						if(vmin > v)
+		//						{
+		//							vmin = v;
+		//							res[0] = genlightjets[wja];
+		//							res[1] = genlightjets[wjb];
+		//							res[2] = genbjets[bja];
+		//							res[3] = genbjets[bjb];
+		//						}
+		//					}
+		//				}
+		//			}
+		//		}
+		//		//if(res[0].DeltaR(*genwpartons[0]) < 0.4 || res[0].DeltaR(*genwpartons[1]) < 0.4)
+		//		//{
+		//		//	cout << "WA" << endl;
+		//		//}
+		//		//if(res[1].DeltaR(*genwpartons[0]) < 0.4 || res[1].DeltaR(*genwpartons[1]) < 0.4)
+		//		//{
+		//		//	cout << "WB" << endl;
+		//		//}
+		//		//if(res[2].DeltaR(*genbh) < 0.4)
+		//		//{
+		//		//	cout << "Bh" << endl;
+		//		//}
+		//		//if(res[3].DeltaR(*genbl) < 0.4)
+		//		//{
+		//		//	cout << "Bl" << endl;
+		//		//}
+		//		//cout << vmin << " " << bpartons.size() << " " << genbjets.size() << " " << genlightjets.size() << endl;
+		//		sgenparticles.push_back(res[0]);
+		//		genwpartons[0] = &(sgenparticles.back());
+		//		sgenparticles.push_back(res[1]);
+		//		genwpartons[1] = &(sgenparticles.back());
+		//		sgenparticles.push_back(res[2]);
+		//		genbh = &(sgenparticles.back());
+		//		sgenparticles.push_back(res[3]);
+		//		genbl = &(sgenparticles.back());
+		//		if(gencls[0]->pdgId() > 0) {genbbar = genbl; genb = genbh;} else {genb = genbl; genbbar = genbh;}
+		//	}
+		//}
 
 		sort(genwpartons.begin(), genwpartons.end(), [](GenObject* A, GenObject* B){return(A->Pt() > B->Pt());});
 		gentophad = (*genwpartons[0] + *genwpartons[1] + *genbh);
@@ -625,20 +704,21 @@ nextjet: continue;
 		{
 			if(Min(genwpartons[0]->Pt(), genwpartons[1]->Pt()) > cpwjetptsoft && Max(genwpartons[0]->Pt(), genwpartons[1]->Pt()) > cpwjetpthard && Min(genb->Pt(), genbbar->Pt()) > cpbjetptsoft && Max(genb->Pt(), genbbar->Pt()) > cpbjetpthard)
 			{
+				// FIXME: add config parameter for the common threshold at 0.4
 				if(genwpartons[0]->DeltaR(*genwpartons[1]) > 0.4 && genwpartons[0]->DeltaR(*genb) > 0.4 && genwpartons[0]->DeltaR(*genbbar) > 0.4 && genwpartons[1]->DeltaR(*genb) > 0.4 && genwpartons[1]->DeltaR(*genbbar) > 0.4 && genb->DeltaR(*genbbar) > 0.4)
 				{
 					SEMILEPACC = true;
 				}
 			}
 		}
-	}
-	else
-	{
-		genwpartons.clear();
-		gencls.clear();
-		gennls.clear();
-		genb = 0;
-		genbbar = 0;
+		else
+		{
+			genwpartons.clear();
+			gencls.clear();
+			gennls.clear();
+			genb = 0;
+			genbbar = 0;
+		}
 	}
 
 	if(SEMILEPACC)
@@ -815,14 +895,6 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 		for(size_t j = 0 ; j < cleanedjets.size() ; ++j)
 		{
 			IDJet* jet = cleanedjets[j];
-		//	double jetsep = 0;
-		//	for(size_t k = 0 ; k < cleanedjets.size() ; ++k)
-		//	{
-		//		if(k != j && jet->DeltaR(*cleanedjets[k]) < 0.8)
-		//		{
-		//			jetsep += cleanedjets[k]->Pt();
-		//		}
-		//	}
 			
 			if(jet->DeltaR(*genb) < 0.4 && jet->Pt() > ptbmax)
 			{
@@ -873,6 +945,7 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 
 void ttbar::ttanalysis(URStreamer& event)
 {
+	Logger::log().debug() << "Evt weight: " << weight <<endl;
 	truth1d["counter"]->Fill(19.5, weight);
 	reco1d["counter"]->Fill(0.5, weight);
 	if(SEMILEP) 
@@ -1116,10 +1189,8 @@ void ttbar::ttanalysis(URStreamer& event)
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(7.5, weight);
 	//Fill reconstructed hists
 	ttp_all.Fill(bestper, lepcharge, weight);
-
-
-
-
+	
+	Logger::log().debug() << "Evt weight: " << weight <<endl;
 	//Fill reconstructed hists with matching information
 	if(rightper.IsCorrect(bestper))
 	{
@@ -1227,6 +1298,153 @@ void ttbar::ttanalysis(URStreamer& event)
 	}
 
 	if(BTAGMODE){btageff.Fill(bestper, rightper.IsCorrect(bestper), weight);}
+	
+	if(SEMILEP)
+	{
+		if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
+		{
+			truth2d["ptthad_matrix_fullps" ]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
+			truth2d["pttlep_matrix_fullps" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
+			truth2d["etathad_matrix_fullps"]->Fill(fabs(gentophad.Eta()), fabs(bestper.THad().Eta()), weight);
+			truth2d["etatlep_matrix_fullps"]->Fill(fabs(gentoplep.Eta()), fabs(bestper.TLep().Eta()), weight);
+			truth2d["ttm_matrix_fullps"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_gen_fullps"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fullps"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fullps" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fullps" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fullps"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+			truth1d["ptthad_reco_fullps" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fullps" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fullps"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fullps"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fullps"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
+		}
+		else
+		{
+			truth2d["ptthad_matrix_fullps" ]->Fill(gentophad.Pt(), -1, weight);
+			truth2d["pttlep_matrix_fullps" ]->Fill(gentoplep.Pt(), -1, weight);
+			truth2d["etathad_matrix_fullps"]->Fill(fabs(gentophad.Eta()), -1, weight);
+			truth2d["etatlep_matrix_fullps"]->Fill(fabs(gentoplep.Eta()), -1, weight);
+			truth2d["ttm_matrix_fullps"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), -1, weight);
+
+			truth1d["ptthad_gen_fullps"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fullps"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fullps" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fullps" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fullps"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+		}
+		
+		if(SEMILEPACC && rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
+		{
+			truth2d["ptthad_matrix_fiducialtight" ]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
+			truth2d["pttlep_matrix_fiducialtight" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
+			truth2d["etathad_matrix_fiducialtight"]->Fill(fabs(gentophad.Eta()), fabs(bestper.THad().Eta()), weight);
+			truth2d["etatlep_matrix_fiducialtight"]->Fill(fabs(gentoplep.Eta()), fabs(bestper.TLep().Eta()), weight);
+			truth2d["ttm_matrix_fiducialtight"    ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_gen_fiducialtight"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialtight"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialtight" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialtight" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialtight"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+			truth1d["ptthad_reco_fiducialtight" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialtight" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialtight"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialtight"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialtight"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
+		}
+		else if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
+		{
+			truth2d["ptthad_matrix_fiducialtight" ]->Fill(-1, bestper.THad().Pt(), weight);
+			truth2d["pttlep_matrix_fiducialtight" ]->Fill(-1, bestper.TLep().Pt(), weight);
+			truth2d["etathad_matrix_fiducialtight"]->Fill(-1, fabs(bestper.THad().Eta()), weight);
+			truth2d["etatlep_matrix_fiducialtight"]->Fill(-1, fabs(bestper.TLep().Eta()), weight);
+			truth2d["ttm_matrix_fiducialtight"       ]->Fill(-1, (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_reco_fiducialtight" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialtight" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialtight"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialtight"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialtight"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
+		}
+		else if(SEMILEPACC)
+		{
+			truth2d["ptthad_matrix_fiducialtight" ]->Fill(gentophad.Pt(), -1, weight);
+			truth2d["pttlep_matrix_fiducialtight" ]->Fill(gentoplep.Pt(), -1, weight);
+			truth2d["etathad_matrix_fiducialtight"]->Fill(fabs(gentophad.Eta()), -1, weight);
+			truth2d["etatlep_matrix_fiducialtight"]->Fill(fabs(gentoplep.Eta()), -1, weight);
+			truth2d["ttm_matrix_fiducialtight"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), -1, weight);
+
+			truth1d["ptthad_gen_fiducialtight"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialtight"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialtight" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialtight" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialtight"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+		}
+		
+		if(SEMILEPACCLOOSE && rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
+		{
+			truth2d["ptthad_matrix_fiducialloose" ]->Fill(gentophad.Pt(), bestper.THad().Pt(), weight);
+			truth2d["pttlep_matrix_fiducialloose" ]->Fill(gentoplep.Pt(), bestper.TLep().Pt(), weight);
+			truth2d["etathad_matrix_fiducialloose"]->Fill(fabs(gentophad.Eta()), fabs(bestper.THad().Eta()), weight);
+			truth2d["etatlep_matrix_fiducialloose"]->Fill(fabs(gentoplep.Eta()), fabs(bestper.TLep().Eta()), weight);
+			truth2d["ttm_matrix_fiducialloose"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_gen_fiducialloose"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialloose"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialloose" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialloose" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialloose"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+			truth1d["ptthad_reco_fiducialloose" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialloose" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialloose"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialloose"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialloose"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
+		}
+		else if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper))
+		{
+			truth2d["ptthad_matrix_fiducialloose" ]->Fill(-1, bestper.THad().Pt(), weight);
+			truth2d["pttlep_matrix_fiducialloose" ]->Fill(-1, bestper.TLep().Pt(), weight);
+			truth2d["etathad_matrix_fiducialloose"]->Fill(-1, fabs(bestper.THad().Eta()), weight);
+			truth2d["etatlep_matrix_fiducialloose"]->Fill(-1, fabs(bestper.TLep().Eta()), weight);
+			truth2d["ttm_matrix_fiducialloose"       ]->Fill(-1, (bestper.THad() + bestper.TLep()).M(), weight);
+
+			truth1d["ptthad_reco_fiducialloose" ]->Fill(bestper.THad().Pt(), weight);
+			truth1d["pttlep_reco_fiducialloose" ]->Fill(bestper.TLep().Pt(), weight);
+			truth1d["etathad_reco_fiducialloose"]->Fill(fabs(bestper.THad().Eta()), weight);
+			truth1d["etatlep_reco_fiducialloose"]->Fill(fabs(bestper.TLep().Eta()), weight);
+			truth1d["ttm_reco_fiducialloose"    ]->Fill((bestper.THad() + bestper.TLep()).M(), weight);
+		}
+		else if(SEMILEPACCLOOSE)
+		{
+			truth2d["ptthad_matrix_fiducialloose" ]->Fill(gentophad.Pt(), -1, weight);
+			truth2d["pttlep_matrix_fiducialloose" ]->Fill(gentoplep.Pt(), -1, weight);
+			truth2d["etathad_matrix_fiducialloose"]->Fill(fabs(gentophad.Eta()), -1, weight);
+			truth2d["etatlep_matrix_fiducialloose"]->Fill(fabs(gentoplep.Eta()), -1, weight);
+			truth2d["ttm_matrix_fiducialloose"       ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), -1, weight);
+
+			truth1d["ptthad_gen_fiducialloose"  ]->Fill(gentophad.Pt(), weight);
+			truth1d["pttlep_gen_fiducialloose"  ]->Fill(gentoplep.Pt(), weight);
+			truth1d["etathad_gen_fiducialloose" ]->Fill(fabs(gentophad.Eta()), weight);
+			truth1d["etatlep_gen_fiducialloose" ]->Fill(fabs(gentoplep.Eta()), weight);
+			truth1d["ttm_gen_fiducialloose"     ]->Fill((*genbl + *gencls[0] + *gennls[0] + *genbh + *genwpartons[0] + *genwpartons[1]).M(), weight);
+		}
+	}
+	
+	if(SEMILEP) {
+		if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper)) {
+			semilep_visible_right.Fill(bestper, lepcharge, weight);
+		}
+		else if(rightper.IsTLepComplete() && bestper.IsTLepCorrect(rightper)) {
+			semilep_right_tlep.Fill(bestper, lepcharge, weight);
+		}
+		else if(rightper.IsTHadComplete() && bestper.AreHadJetsCorrect(rightper)) {
+			semilep_right_thad.Fill(bestper, lepcharge, weight);
+		}
+		else {semilep_wrong.Fill(bestper, lepcharge, weight);}
+	}
+	else {other_tt_decay.Fill(bestper, lepcharge, weight);}
 }
 
 //This method is called once every file, contains the event loop
@@ -1299,24 +1517,27 @@ void ttbar::analyze()
 		{
 			if(selectionprob > 1.){weight *= selectionprob;}
 			SelectGenParticles(event);
-			SelectRecoParticles(event);
-			ttanalysis(event);
+			if(
+					(event.trigger().HLT_IsoMu27() == 1 || event.trigger().HLT_Ele27_WP85_Gsf() == 1) //MC
+			  )
+			{
+				SelectRecoParticles(event);
+				ttanalysis(event);
+			}
 		}
 
-		//if(Abs(event.trigger().HLT_IsoMu24_eta2p1()) != 1) cout << "No mu trigger" << endl;
-		//if(Abs(event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf()) != 1) cout << "No el trigger" << endl;
-
-		else if(!DATASIM)
+		if(!DATASIM)
 		{
 			SelectGenParticles(event);
 			if(
 (event.trigger().HLT_IsoMu27() == 1 || event.trigger().HLT_Ele27_WP85_Gsf() == 1) //MC
-|| event.trigger().HLT_IsoMu24_eta2p1() == 1
-|| (event.trigger().HLT_IsoMu24_eta2p1() == -1 && event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1)
+//|| event.trigger().HLT_IsoMu24_eta2p1() == 1
+//|| (event.trigger().HLT_IsoMu24_eta2p1() == -1 && event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1)
 )
 			{
 				SelectRecoParticles(event);
 				ttanalysis(event);
+				response.Flush();
 			}
 		}
 

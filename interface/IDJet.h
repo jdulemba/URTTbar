@@ -8,13 +8,37 @@
 
 class IDJet : public Jet, public MCMatchable
 {
+private:
+	double rndm_;
 public:
-	IDJet(const Jet el):
+	enum BTag {CSVLOOSE, CSVMEDIUM, CSVTIGHT};
+	IDJet(const Jet el, double rndm):
 		Jet(el),
-    MCMatchable()
+    MCMatchable(),
+		rndm_(rndm)
 		{
 		}
+
+	IDJet(const Jet el):
+		Jet(el),
+    MCMatchable(),
+		rndm_(-1)
+		{
+		}
+
 	int flavor() const {return (match()) ? match()->pdgId() : partonFlavour();}
+
+	double rndm() const {return rndm_;}
+
+	bool BTagId(BTag wp) const
+	{
+		double threshold = -1.;
+		if(wp == BTag::CSVLOOSE) threshold = 0.605;
+		else if(wp == BTag::CSVMEDIUM) threshold = 0.890;
+		else if(wp == BTag::CSVTIGHT) threshold = 0.970;
+		
+		return csvIncl() > threshold;
+	}
 
 	bool ID()
 	{

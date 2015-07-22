@@ -34,6 +34,9 @@ class Permutation
 		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met);
 		void Reset();
 		bool IsComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0 && bjl_ != 0 && lep_ != 0 && met_ != 0 && wja_ != wjb_ && wja_ != bjh_ && wja_ != bjl_ && wjb_ != bjl_ && wjb_ != bjh_ && bjl_ != bjh_);}
+		bool IsTHadComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0);}
+		bool IsWHadComplete() const {return(wja_ != 0 && wjb_ != 0);}
+		bool IsTLepComplete() const {return(bjl_ != 0 && lep_ != 0 && met_ != 0);}
 		int NumBJets() const {return((bjl_ != 0 ? 1 : 0) + (bjh_ != 0 ? 1 : 0));}
 		int NumWJets() const {return((wja_ != 0 ? 1 : 0) + (wjb_ != 0 ? 1 : 0));}
 		int NumTTBarJets() const {return(NumBJets() + NumWJets());}
@@ -44,6 +47,7 @@ class Permutation
 		IDJet* BLep() const {return(bjl_);}
 		TLorentzVector* L() const {return(lep_);}
 		IDMet* MET() const {return(met_);}
+		void SetMET(IDMet* met) {met_ = met;}
 		void WJa(IDJet* wja){wja_=wja;}
 		void WJb(IDJet* wjb){wjb_=wjb;}
 		void BHad(IDJet* bjh){bjh_=bjh;}
@@ -110,16 +114,21 @@ class Permutation
 		}
 		bool IsCorrect(const Permutation& other) const
 		{
-			return(IsBLepCorrect(other) && IsTHadCorrect(other));
+			return(IsTLepCorrect(other) && IsTHadCorrect(other));
 		}
 		bool IsJetIn(IDJet* jet)
 		{
 			return(jet == WJa() || jet == WJb() || jet == BHad() || jet == BLep());
 		}
 
-		
-		
-		
+		bool IsLooselyCorrect(const Permutation& other) const
+		{
+			return(IsTLepCorrect(other) && AreHadJetsCorrect(other));
+		}
+		bool IsTLepCorrect(const Permutation& other) const
+		{
+			return(IsBLepCorrect(other) && (L() == other.L()) );
+		}		
 };
 
 bool operator<(const Permutation& A, const Permutation& B);
