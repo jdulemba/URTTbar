@@ -67,7 +67,7 @@ void TTBarPlots::Init(ttbar* analysis)
 		plot2d.AddHist("nsDiscr_"+jb.str()+"njet", tb, tbmin, tbmax, an->jetbins, "D_{min}", "n-jets");
 		plot2d.AddHist("massDiscr_"+jb.str()+"met", ta, tamin, tamax, an->metbins, "#lambda_{m}", "MET [GeV]");
 		plot2d.AddHist("nsDiscr_"+jb.str()+"met", tb, tbmin, tbmax, an->metbins, "D_{min}", "MET [GeV]");
-		plot2d.AddHist("massDiscr_"+jb.str()+"D_{min}", ta, tamin, tamax, tb, tbmin, tbmax, "#lambda_{m}", "nsDiscr");
+		plot2d.AddHist("massDiscr_"+jb.str()+"nsDiscr", ta, tamin, tamax, tb, tbmin, tbmax, "#lambda_{m}", "nsDiscr");
 	}
 }
 
@@ -109,7 +109,6 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 		if(jn != -1) jb << jn << "_";
 		if((jn == -1) || (an->reducedjets.size() - 4 == size_t(jn)) || (jn == jetbins.back() && an->reducedjets.size() - 4 > size_t(jn)))
 		{
-			plot2d["massDiscr_"+jb.str()+"nsDiscr"]->Fill(massDiscr, nsDiscr, weight);
 			plot2d["massDiscr_"+jb.str()+"thadpt"]->Fill(massDiscr, thad.Pt(), weight);
 			plot2d["nsDiscr_"+jb.str()+"thadpt"]->Fill(nsDiscr, thad.Pt(), weight);
 			plot2d["massDiscr_"+jb.str()+"nobin"]->Fill(massDiscr, thad.Pt(), weight);
@@ -132,6 +131,7 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 			plot2d["nsDiscr_"+jb.str()+"njet"]->Fill(nsDiscr, an->cleanedjets.size()-4, weight);
 			plot2d["massDiscr_"+jb.str()+"met"]->Fill(massDiscr, an->met.Pt(), weight);
 			plot2d["nsDiscr_"+jb.str()+"met"]->Fill(nsDiscr, an->met.Pt(), weight);
+			plot2d["massDiscr_"+jb.str()+"nsDiscr"]->Fill(massDiscr, nsDiscr, weight);
 		}
 	}
 }

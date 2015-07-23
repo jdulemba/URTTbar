@@ -148,12 +148,6 @@ ttbar::ttbar(const std::string output_filename):
 	}
 
 	jetptmin = min(cwjetptsoft, cbjetptsoft);
-//	topptbins = {0., 40., 55., 65., 75., 85., 95., 105., 115., 125., 135., 145., 155., 170., 185., 200., 220., 240., 265., 300., 350., 400., 800.};
-//	topybins = {0., 0.2, 0.4, 0.6,  0.8,  1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.8, 4.0};
-//	ttmbins = {250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 770., 900, 1500.};
-//	ttybins = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.};
-//	ttptbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 500.};
-//	metbins = {0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.};
 	
 //	topptbins = {0.0, 65.0, 100.0, 135.0, 175.0, 240.0, 775.0};
 //	topybins = {0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.5};
@@ -162,12 +156,14 @@ ttbar::ttbar(const std::string output_filename):
 //	ttptbins = {0.0, 25.0, 40.0, 60.0, 85.0, 150.0, 500.0};
 //	metbins = {0.0, 30.0, 45.0, 60.0, 80.0, 120.0, 580.0};
 //	jetbins = {-0.5, 0.5, 1.5, 2.5, 10.};
+//	nobins = {0., 13000.};
 
 	setbinning(topptbins, 0., 800., 5.);
 	setbinning(topybins, 0., 2.5, 0.1);
 	setbinning(ttmbins, 250., 2000., 5.);
 	setbinning(ttptbins, 0., 500., 5.);
 	setbinning(ttybins, 0., 2.5, 0.1);
+	setbinning(metbins, 0., 600, 10.);
 	jetbins = {-0.5, 0.5, 1.5, 2.5, 10.};
 	nobins = {0., 13000.};
 
@@ -184,8 +180,6 @@ void ttbar::begin()
 	TDirectory* dir_gen = outFile_.mkdir("GEN");
 	dir_gen->cd();
 	gen1d.AddHist("TYP", 4, 0., 4., "Decay TYP", "Events");
-	gen1d.AddHist("DRW", 600, 0., 6., "DR", "Events");
-	gen1d.AddHist("DRB", 600, 0., 6., "DR", "Events");
     ttp_genall.Init(this);
     ttp_genacc.Init(this);
 
@@ -329,7 +323,8 @@ void ttbar::begin()
 	puhist = (TH1D*)f->Get("PUweight");
 
 	// M&M histo init start
-	dir_reco->cd();
+	TDirectory* dir_other = outFile_.mkdir("OTHER");
+	dir_other->cd();
 	truth2d.AddHist("ptthad_matrix_fullps", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("pttlep_matrix_fullps", topptbins, topptbins, "gen", "reco");
 	truth2d.AddHist("etathad_matrix_fullps", topybins, topybins, "gen", "reco");
@@ -452,7 +447,6 @@ void ttbar::SelectGenParticles(URStreamer& event)
 {
 	int lepdecays = 0;
 	int topcounter = 0;
-	vector<Genparticle> bpartons;	
 	if(PSEUDOTOP)
 	{
 		const vector<Pst>& pseudotops = event.PSTs();
@@ -519,11 +513,6 @@ void ttbar::SelectGenParticles(URStreamer& event)
 		for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp)
 		{
 			//if(Abs(gp->pdgId()) == 5 && gp->status() <=70 && gp->status() > 21)
-			if(Abs(gp->pdgId()) > 500 && Abs(gp->pdgId()) < 600)
-			{
-				bpartons.push_back(*gp);
-				//cout << gp-gps.begin() << " " << gp->pdgId() << " " << gp->status() << " " << (gp->momIdx().size() != 0 ? gps[gp->momIdx()[0]].pdgId():0) << endl;
-			}
 			if(gp->status() > 21 && gp->status() < 30 && gp->momIdx().size() != 0)
 			{
 				if(gp->pdgId() == 6)
@@ -609,92 +598,6 @@ void ttbar::SelectGenParticles(URStreamer& event)
 	{
 		SEMILEP = true;
 		if(gencls[0]->pdgId() > 0){genbl = genbbar; genbh = genb;} else {genbh = genbbar; genbl = genb;}
-		//fast pseudotop defintion
-		//if(false)
-		//{
-		//	const vector<Genjet>& genjets = event.genjets();
-		//	vector<Genjet> genbjets;
-		//	vector<Genjet> genlightjets;
-		//	for(vector<Genjet>::const_iterator gja = genjets.begin(); gja != genjets.end(); ++gja)
-		//	{
-		//		if(gja->Pt() < 20. || Abs(gja->Eta()) > 2.4){continue;}
-		//		if(gja->DeltaR(*gencls[0]) < 0.4) {continue;}
-		//		if(gja->DeltaR(*gennls[0]) < 0.4) {continue;}
-		//		for(int bp = 0 ; bp < bpartons.size() ; ++bp)
-		//		{
-		//			if(bpartons[bp].DeltaR(*gja) < 0.4)
-		//			{
-		//				genbjets.push_back(*gja);
-		//				goto nextjet;
-		//			}
-		//		}
-		//		genlightjets.push_back(*gja);
-		//nextjet: continue;
-		//	}
-		//	//cout << bpartons.size() << " " << genbjets.size() << endl;
-		//	if(genbjets.size() < 2 || genlightjets.size() < 2)
-		//	{
-		//		SEMILEP = false;
-		//	}
-		//	else
-		//	{		
-		//		double vmin = 1000000000; 
-		//		vector<Genjet> res(4);
-		//		for(size_t wja = 0 ; wja < genlightjets.size() ; ++wja)
-		//		{
-		//			for(size_t wjb = 0 ; wjb < wja ; ++wjb)
-		//			{
-		//				for(size_t bja = 0 ; bja < genbjets.size();  ++bja)
-		//				{
-		//					for(size_t bjb = 0 ; bjb < genbjets.size();  ++bjb)
-		//					{
-		//						if(bja == bjb) continue;
-		//						//if(gjd->DeltaR(*genbl) > 1.) continue;
-
-		//						double mw = (genlightjets[wja] + genlightjets[wjb]).M();
-		//						double mth = (genlightjets[wja] + genlightjets[wjb] + genbjets[bja]).M();
-		//						double mtl = (*genfincls[0] + *gennls[0] + genbjets[bjb]).M();
-		//						double v = Power(mw-80., 2) + Power(mth-172.5, 2) + Power(mtl-172.5, 2);
-		//						if(vmin > v)
-		//						{
-		//							vmin = v;
-		//							res[0] = genlightjets[wja];
-		//							res[1] = genlightjets[wjb];
-		//							res[2] = genbjets[bja];
-		//							res[3] = genbjets[bjb];
-		//						}
-		//					}
-		//				}
-		//			}
-		//		}
-		//		//if(res[0].DeltaR(*genwpartons[0]) < 0.4 || res[0].DeltaR(*genwpartons[1]) < 0.4)
-		//		//{
-		//		//	cout << "WA" << endl;
-		//		//}
-		//		//if(res[1].DeltaR(*genwpartons[0]) < 0.4 || res[1].DeltaR(*genwpartons[1]) < 0.4)
-		//		//{
-		//		//	cout << "WB" << endl;
-		//		//}
-		//		//if(res[2].DeltaR(*genbh) < 0.4)
-		//		//{
-		//		//	cout << "Bh" << endl;
-		//		//}
-		//		//if(res[3].DeltaR(*genbl) < 0.4)
-		//		//{
-		//		//	cout << "Bl" << endl;
-		//		//}
-		//		//cout << vmin << " " << bpartons.size() << " " << genbjets.size() << " " << genlightjets.size() << endl;
-		//		sgenparticles.push_back(res[0]);
-		//		genwpartons[0] = &(sgenparticles.back());
-		//		sgenparticles.push_back(res[1]);
-		//		genwpartons[1] = &(sgenparticles.back());
-		//		sgenparticles.push_back(res[2]);
-		//		genbh = &(sgenparticles.back());
-		//		sgenparticles.push_back(res[3]);
-		//		genbl = &(sgenparticles.back());
-		//		if(gencls[0]->pdgId() > 0) {genbbar = genbl; genb = genbh;} else {genb = genbl; genbbar = genbh;}
-		//	}
-		//}
 
 		sort(genwpartons.begin(), genwpartons.end(), [](GenObject* A, GenObject* B){return(A->Pt() > B->Pt());});
 		gentophad = (*genwpartons[0] + *genwpartons[1] + *genbh);
@@ -711,30 +614,14 @@ void ttbar::SelectGenParticles(URStreamer& event)
 				}
 			}
 		}
-		else
-		{
-			genwpartons.clear();
-			gencls.clear();
-			gennls.clear();
-			genb = 0;
-			genbbar = 0;
-		}
 	}
-
-	if(SEMILEPACC)
+	else
 	{
-		const vector<Genparticle>& gps = event.genParticles();
-		for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp)
-		{
-			if(gp->status() == 1)
-			{
-				gen1d["DRW"]->Fill(genwpartons[0]->DeltaR(*gp), gp->E()/genwpartons[0]->E());
-				gen1d["DRW"]->Fill(genwpartons[1]->DeltaR(*gp), gp->E()/genwpartons[1]->E());
-				gen1d["DRB"]->Fill(genb->DeltaR(*gp), gp->E()/genb->E());
-				gen1d["DRB"]->Fill(genbbar->DeltaR(*gp), gp->E()/genbbar->E());
-			}
-
-		}
+		genwpartons.clear();
+		gencls.clear();
+		gennls.clear();
+		genb = 0;
+		genbbar = 0;
 	}
 
 	if(SEMILEP)

@@ -4,7 +4,7 @@
 #include <ttbarxsec.h>
 #include <TDirectory.h>
 
-TTBarResponse::TTBarResponse(string prefix, ttbar* an) : prefix_(prefix), an_(an), dir(0), plot1d(""), plot2d("")
+TTBarResponse::TTBarResponse(string prefix, ttbar* an) : prefix_(prefix), an_(an), dir(0), plot1d(""), plot2d(""), recojets(-1), genjets(-1)
 {
 }
 
@@ -36,6 +36,8 @@ void TTBarResponse::AddMatrix(string name, const vector<double>& Mbins, const ve
 	}
 
 	olddir->cd();
+	values_[name].first = Tbins.front() - 1.;
+	values_[name].second = Mbins.front() - 1.;
 }
 
 void TTBarResponse::FillTruth(string name, double val, double weight)
@@ -61,29 +63,39 @@ void TTBarResponse::FillTruthReco(string name, double tval, double rval, double 
 
 void TTBarResponse::Flush()
 {
+	stringstream hname;
 	for(auto& entry : values_)
 	{
-		plot1d[entry.first + "_truth"]->Fill(entry.second.first, weight_);
-		plot1d[entry.first + "_reco" ]->Fill(entry.second.second, weight_);
+		if(genjets != -1)
+		{
+			plot1d[entry.first + "_truth"]->Fill(entry.second.first, weight_);
+			hname.str("");
+			hname << entry.first << "_truth_" << genjets;
+			plot1d[hname.str()]->Fill(entry.second.first, weight_);
+		}
+
+		if(recojets != -1)
+		{
+			plot1d[entry.first + "_reco" ]->Fill(entry.second.second, weight_);
+			hname.str("");
+			hname << entry.first << "_reco_" << recojets;
+			plot1d[hname.str()]->Fill(entry.second.second, weight_);
+
+			hname.str("");
+			hname << entry.first << "_matrix_" << recojets;
+			plot2d[hname.str()]->Fill(entry.second.first, entry.second.second, weight_);
+		}
+
 		plot2d[entry.first +"_matrix"]->Fill(entry.second.first, entry.second.second, weight_);
-
-		stringstream hname;
-		hname << entry.first << "_matrix_" << recojets;
-		plot2d[hname.str()]->Fill(entry.second.first, entry.second.second, weight_);
-		hname.str("");
-		hname << entry.first << "_reco_" << recojets;
-		plot1d[hname.str()]->Fill(entry.second.second, weight_);
-		hname.str("");
-		hname << entry.first << "_truth_" << genjets;
-		plot1d[hname.str()]->Fill(entry.second.first, weight_);
-
 	}
 
 	//reset defaults
 	for(auto& entry : values_)
 	{
-		entry.second.first = plot1d[entry.first + "_matrix"]->GetXaxis()->GetXmin()-1.;
-		entry.second.second = plot1d[entry.first + "_matrix"]->GetYaxis()->GetXmin()-1.;
+		entry.second.first = plot2d[entry.first + "_matrix"]->GetXaxis()->GetXmin()-1.;
+		entry.second.second = plot2d[entry.first + "_matrix"]->GetYaxis()->GetXmin()-1.;
 	}
+	genjets = -1;
+	recojets = -1;
 	weight_=1;
 }
