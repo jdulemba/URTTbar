@@ -63,4 +63,6 @@ bool ptlvsortpt(const TLorentzVector* JA, const TLorentzVector* JB);
 bool ptlvsortetaabs(const TLorentzVector* JA, const TLorentzVector* JB);
 bool ptlvsorteta(const TLorentzVector* JA, const TLorentzVector* JB);
 
+void setbinning(vector<double>& vec, double min, double max, double step);
+
 #endif

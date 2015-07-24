@@ -2,6 +2,7 @@
 #define TTBARAN_H
 #include <iostream>
 #include <list>
+#include <set>
 #include "AnalyzerBase.h"
 #include "URStreamer.h"
 #include "URDriver.h"
@@ -17,6 +18,7 @@
 #include "Permutation.h"
 #include "BtagEff.h"
 #include "JetScale.h"
+#include "JetScaler.h"
 
 using namespace std;
 class PDFuncertainty;
@@ -28,6 +30,7 @@ class ttbar : public AnalyzerBase
     friend class TTBarResponse;
 
 	private:
+		map<int, set<int> >  runinfo;
 		double selectionprob;
 		PDFuncertainty* pdfunc;
 		//Collections
@@ -64,7 +67,6 @@ class ttbar : public AnalyzerBase
 		//Jet* recbljet;
 		//int nttjets;
 		Permutation rightper;
-		vector<IDJet*> recotherjets;
 
 		//reco
 		list<IDJet> sjets;
@@ -86,12 +88,8 @@ class ttbar : public AnalyzerBase
 		TH1DCollection truth1d;
 		TH2DCollection truth2d;
 
-// <<<<<<< HEAD
-// 		TTBarGenPlots ttp_gen;
-// =======
 		TTBarGenPlots ttp_genall;
 		TTBarGenPlots ttp_genacc;
-// >>>>>>> master
 
 		TTBarPlots ttp_truth;
 		TTBarPlots ttp_right;
@@ -131,6 +129,8 @@ class ttbar : public AnalyzerBase
 		//ttbar solver
 		TTBarSolver ttsolver;
 
+		JetScaler jetscaler;
+
 		//configuration
 		bool DATASIM;
 		bool PSEUDOTOP;
@@ -138,6 +138,8 @@ class ttbar : public AnalyzerBase
 		bool JETSCALEMODE;
 		bool MUONS;
 		bool ELECTRONS;
+		double B_TIGHT;
+		double B_MEDIUM;
 		int cnbtag;
 		size_t cnusedjets;
 		double cwjetptsoft;
@@ -148,14 +150,20 @@ class ttbar : public AnalyzerBase
 		double clptmin;
 		double cletamax;
 		// For the fiducial loose phase space
-		double cwjetptsoft_fiducialloose;
-		double cwjetpthard_fiducialloose;
-		double cbjetptsoft_fiducialloose;
-		double cbjetpthard_fiducialloose;
-		double cjetetamax_fiducialloose;
-		double clptmin_fiducialloose;
-		double cletamax_fiducialloose;
-		//
+		double cpwjetptsoft;
+		double cpwjetpthard;
+		double cpbjetptsoft;
+		double cpbjetpthard;
+		double cpjetetamax;
+		double cplptmin;
+		double cpletamax;
+		//uncertainties
+		double csigmajet;
+		double csigmamet;
+		double ctopptweight;
+		int cfacscale;
+		int crenscale;
+		int crandomseed;
 		double jetptmin;
 	
 		double weight;
@@ -163,13 +171,12 @@ class ttbar : public AnalyzerBase
 		//binning vectors
 		vector<double> topptbins;
 		vector<double> topybins;
-		vector<double> topetabins;
 		vector<double> ttmbins;
 		vector<double> ttybins;
-		vector<double> ttetabins;
 		vector<double> ttptbins;
 		vector<double> metbins;
 		vector<double> jetbins;
+		vector<double> nobins;
 
 		JetScale jetscale;
 
@@ -177,10 +184,12 @@ class ttbar : public AnalyzerBase
 	public:
 
 		ttbar(const std::string output_filename);
+		~ttbar();
 
 		//This method is called once per job at the beginning of the analysis
 		//book here your histograms/tree and run every initialization needed
 		virtual void begin();
+		//virtual void end();
 		virtual void analyze();
 
 		void SelectGenParticles(URStreamer& event);
