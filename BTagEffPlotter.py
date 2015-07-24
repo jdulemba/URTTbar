@@ -35,6 +35,8 @@ parser.add_argument('--noBBB', action='store_true',
                     help='do not run bin-by-bin uncertainties')
 parser.add_argument('--inclusive', action='store_true',
                     help='use inclusive categories')
+parser.add_argument('--lumi', type=float, default=-1.,
+                    help='use inclusive categories')
 args = parser.parse_args()
 
 def syscheck(cmd):
@@ -45,7 +47,8 @@ def syscheck(cmd):
       raise RuntimeError("command %s failed executing" % cmd)
 
 class BTagPlotter(Plotter):
-   def __init__(self):
+   def __init__(self, lumi=None):
+      lumi = lumi if lumi > 0 else None
       self.tt_to_use = 'ttJets_madgraph'
       jobid = os.environ['jobid']
       files = glob.glob('results/%s/btag_efficiency/*.root' % jobid)
@@ -55,7 +58,7 @@ class BTagPlotter(Plotter):
       
       outdir= 'plots/%s/btageff' % jobid
       super(BTagPlotter, self).__init__(
-         files, lumis, outdir, styles, None
+         files, lumis, outdir, styles, None, lumi
          )
       self.jobid = jobid
 
@@ -464,15 +467,18 @@ class BTagPlotter(Plotter):
                yields[name] += entries
 
       if to_txt:
-         with open(os.path.join(self.outputdir, fname), 'w') as f:
+         fullname = os.path.join(self.outputdir, fname)
+         with open(fullname, 'w') as f:
             f.write('Total events: %.0f\n' % total)
             header = format % ('quarks', 'yield', 'error', 'relative')
             f.write(header)
             f.write('-'*len(header)+'\n')
             for _, name in ids.iteritems():
+               entries = quark_yields[name]
+               error = quark_errors[name]
                ratio = 0 if total == 0 else (entries/total)*100
-               f.write(format % (name, '%.0f' % entries, '%.0f' % error, '%.0f%%' % (ratio)))
-
+               f.write(format % (name, '%.1f' % entries, '%.1f' % error, '%.f%%' % (ratio)))
+         logging.info('Wrote to %s' % fullname)
       if to_json:
          with open(os.path.join(self.outputdir, fname.replace('.raw_txt','.json')), 'w') as f:
             f.write(prettyjson.dumps(yields))
@@ -510,7 +516,7 @@ class BTagPlotter(Plotter):
       wright = wright_view.Get(var) + right_cmb
       self.make_flavor_table(wright, 'flavors_rightw.raw_txt', to_json=True)
    
-plotter = BTagPlotter()
+plotter = BTagPlotter(args.lumi)
 
 jet_variables = [
    ('pt' ,  10, '%s jet p_{T} (GeV)', None),
