@@ -21,6 +21,7 @@ from argparse import ArgumentParser
 from URAnalysis.Utilities.struct import Struct
 import re
 from TTXSecPlotter import TTXSecPlotter
+from array import array
 
 def run_module(**kwargs):
    ##################
@@ -47,8 +48,10 @@ def run_module(**kwargs):
          var     = 'ptthad',
          alias = 'thadpt',
          binning = Struct(
-            gen = [0., 60., 120., 180., 240., 300., 1000.],
-            #gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
+            #gen = [0., 60., 120., 180., 240., 300., 1000.],
+            #"staggered" binning scheme
+            gen = [0., 45., 105., 165., 225., 285., 1000.],
+            #gen = [0., 75., 135., 195., 255., 300., 1000.],
             reco = [30.0*i for i in range(11)]+[1000.],
             #reco = [0., 120., 1000.],
             ),
@@ -331,8 +334,10 @@ def run_module(**kwargs):
          plotter.add_systematics()
          #plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)
          plotter.save_card(var)
-      
-      #Migration matrices
+
+      ########################################
+      #         MIGRATION MATRICES
+      ########################################
       plotter.set_subdir('')
       fname = os.path.join(plotter.outputdir, 'migration_matrices.root')
 
@@ -353,6 +358,14 @@ def run_module(**kwargs):
             mig_matrix_unscaled = matrix_view_unscaled.Get(matrix_path)
             mig_matrix_unscaled.SetName('migration_matrix')
             mig_matrix_unscaled.Write()
+
+            thruth_unscaled = plotter.rebin_view(tt_view, info.binning.gen).Get('TRUTH/response/%s_truth' % alias)            
+            thruth_unscaled.name = 'thruth_unscaled'
+            thruth_unscaled.Write()
+            
+            reco_unscaled = plotter.rebin_view(tt_view, info.binning.reco).Get('TRUTH/response/%s_reco' % alias)
+            reco_unscaled.name = 'reco_unscaled'
+            reco_unscaled.Write()
 
             tt_view = plotter.get_view(plotter.ttbar_to_use)
             matrix_view = plotter.rebin_view(
