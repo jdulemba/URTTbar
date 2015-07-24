@@ -81,6 +81,7 @@ def unfolding_toy_diagnostics(indir, variable):
     os.chdir(indir)
     toydirs = get_immediate_subdirectories(".")
     
+    methods = []
     pulls_lists = {}
     pull_means_lists = {}
     pull_mean_errors_lists = {}
@@ -112,12 +113,21 @@ def unfolding_toy_diagnostics(indir, variable):
         with io.root_open("result_unfolding.root") as inputfile:
             log.debug('Iteration %s over the file' % i)
             i = i+1
-            keys = inputfile.keys()
-            unfolded_hists = [i for i in inputfile.keys() if i.GetName().startswith("hdata_unfolded")]
-            unfolded_hists = [asrootpy(i.ReadObj()) for i in unfolded_hists]
-            true_distribution = inputfile.true_distribution
-            ROOT.TH1.AddDirectory(False)
-            true_distro = true_distribution.Clone()
+            if not methods:
+                keys = [i.name for i in inputfile.keys()]
+                for key in keys:
+                    if hasattr(getattr(inputfile, key), "hdata_unfolded"):
+                        methods.append(key)
+                    
+            unfolded_hists = [inputfile.get('%s/hdata_unfolded' % i) for i in methods]
+            unfolded_wps_hists = [inputfile.get('%s/hdata_unfolded_ps_corrected' % i) for i in methods]
+            for unf, unfps, method in zip(unfolded_hists, unfolded_wps_hists, methods):
+                unf.name = method
+                unfps.name = method
+            if true_distro is None:
+                true_distribution = inputfile.true_distribution
+                ROOT.TH1.AddDirectory(False)
+                true_distro = true_distribution.Clone()
             taus = prettyjson.loads(inputfile.best_taus.GetTitle())
             if len(taus_lists) == 0:
                 taus_lists = dict((i, []) for i in taus)
@@ -155,8 +165,8 @@ def unfolding_toy_diagnostics(indir, variable):
                     outname = "pull_" + name + "_bin" + str(ibin)
                     unfolded_bin_content = histo.GetBinContent(ibin)
                     unfolded_bin_error = histo.GetBinError(ibin)
-                    true_bin_content = true_distribution.GetBinContent(ibin)
-                    true_bin_error = true_distribution.GetBinError(ibin)
+                    true_bin_content = true_distro.GetBinContent(ibin)
+                    true_bin_error = true_distro.GetBinError(ibin)
                     total_bin_error = math.sqrt(unfolded_bin_error**2) #???
                     if(total_bin_error != 0):
                         pull = (unfolded_bin_content-true_bin_content)/total_bin_error
@@ -250,7 +260,7 @@ def unfolding_toy_diagnostics(indir, variable):
             method = 'L_curve'
             binno = name.split('_')[-1]
         else:
-            _, _, _, method, binno = tuple(name.split('_'))
+            _, method, binno = tuple(name.split('_'))
         title = 'Pulls - %s - %s ;Pull;N_{toys}' % (binno, method)
         histo = Hist(pull_nbins, -abs_max, abs_max, name=name, title=title)
         for val in vals:
@@ -268,7 +278,7 @@ def unfolding_toy_diagnostics(indir, variable):
             method = 'L_curve'
             binno = name.split('_')[-1]
         else:
-            _, _, _, method, binno = tuple(name.split('_'))
+            _, method, binno = tuple(name.split('_'))
         title = 'Deltas - %s - %s ;Delta;N_{toys}' % (binno, method)
         histo = Hist(delta_nbins, val_min, val_max, name=name, title=title)
         for val in vals:
@@ -286,7 +296,7 @@ def unfolding_toy_diagnostics(indir, variable):
             method = 'L_curve'
             binno = name.split('_')[-1]
         else:
-           _, _, _, method, binno = tuple(name.split('_'))
+            _, method, binno = tuple(name.split('_'))
         title = 'Unfoldeds - %s - %s ;Unfolded;N_{toys}' % (binno, method)
         histo = Hist(unfolded_nbins, val_min, val_max, name=name, title=title)
         for val in vals:
@@ -302,9 +312,9 @@ def unfolding_toy_diagnostics(indir, variable):
         val_max = 0 if val_max < 0 else val_max+1
         if 'L_curve' in name:
             method = 'L_curve'
-            binno = name.split('_')[-1]
         else:
-            _, _, _, _, method = tuple(name.split('_'))
+            set_trace()
+            _, method, _ = tuple(name.split('_'))
         title = 'N of negative bins - %s ;N. neg bins;N_{toys}' % method
         histo = Hist(int(val_max-val_min+1), val_min, val_max, name=name, title=title)
         for val in vals:
@@ -321,6 +331,7 @@ def unfolding_toy_diagnostics(indir, variable):
         if 'L_curve' in name:
             method = 'L_curve'
         else:
+            set_trace()
             _, _, _, _, _, method = tuple(name.split('_'))
         title = 'Pull sums - %s ;#Sigma(pull)/N_{bins};N_{toys}' % method
         histo = Hist(unfolded_nbins, val_min, val_max, name=name, title=title)
@@ -339,6 +350,7 @@ def unfolding_toy_diagnostics(indir, variable):
             method = 'L_curve'
             binno = name.split('_')[-1]
         else:
+            set_trace()
             _, _, _, _, _, method = tuple(name.split('_'))
         title = 'Ratio sums - %s;#Sigma(ratio)/N_{bins};N_{toys}' % method
         histo = Hist(unfolded_nbins, val_min, val_max, name=name, title=title)
@@ -357,7 +369,7 @@ def unfolding_toy_diagnostics(indir, variable):
             method = 'L_curve'
             binno = name.split('_')[-1]
         else:
-            _, _, _, method, binno = tuple(name.split('_'))
+            _, method, binno = tuple(name.split('_'))
         title = 'Unfolded uncertainties - %s - %s ;Uncertainty;N_{toys}' % (binno, method)
         histo = Hist(unfolded_nbins, val_min, val_max, name=name, title=title)
         for val in vals:
@@ -703,12 +715,15 @@ def unfolding_toy_diagnostics(indir, variable):
         canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
     for name, histo in unfolded_summary.iteritems():
         leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
-        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'pull')
+        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'pull')
         canvas.Update()
         canvas.Write()
         canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
         canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-        canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'ratio')
+        canvas = plotter.create_and_write_canvas_with_comparison(
+            'Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, 
+            [true_distro, histo], write=False, comparison = 'ratio',
+            bottom_range=[0.4,1.6])
         canvas.Update()
         canvas.Write()
         canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
@@ -719,12 +734,15 @@ def unfolding_toy_diagnostics(indir, variable):
         os.makedirs(subdir)
     for name, histo in unfolded_average.iteritems():
         leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
-        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'pull')
+        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'pull')
         canvas.Update()
         canvas.Write()
         canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
         canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-        canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'ratio')
+        canvas = plotter.create_and_write_canvas_with_comparison(
+            'Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, 
+            [true_distro, histo], write=False, comparison = 'ratio',
+            bottom_range=[0.4,1.6])
         canvas.Update()
         canvas.Write()
         canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
@@ -735,12 +753,12 @@ def unfolding_toy_diagnostics(indir, variable):
         os.makedirs(subdir)
     for name, histo in unfolded_envelope.iteritems():
         leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
-        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'pull')
+        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'pull')
         canvas.Update()
         canvas.Write()
         canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
         canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-        canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distribution, histo], write=False, comparison = 'ratio')
+        canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'ratio')
         canvas.Update()
         canvas.Write()
         canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
