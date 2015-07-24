@@ -110,7 +110,7 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
         file << "WhenToTransferOutput = ON_EXIT\n"
         file << "Transfer_Input_Files = #{File.basename(t.source)}\n"
         
-        (2345678...2545678).step(10000) do |seed|
+        (2345678...2745678).step(10000) do |seed|
           file << "\n"
           file << "Output = con_#{seed}.stdout\n"
           file << "Error = con_#{seed}.stderr\n"
