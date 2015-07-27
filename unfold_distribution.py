@@ -7,6 +7,7 @@ import math
 from math import sqrt
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
+from URAnalysis.Utilities.quad import quad
 from unfolding_toy_diagnostics import unfolding_toy_diagnostics
 rootpy.log["/"].setLevel(rootpy.log.ERROR)
 log = rootpy.log["/URUnfolding"]
@@ -34,6 +35,7 @@ parser.add_argument('--tau', type=float, default=-1., help='Fix tau')
 parser.add_argument('--mintoy', type=int, default=0, help='Limit toy analysis (>=)')
 parser.add_argument('--maxtoy', type=int, default=-1., help='Limit toy analysis (<)')
 parser.add_argument('--no_area_constraint', action='store_true', dest='no_area_constraint', help='Do not use the area constraint in the unfolding')
+parser.add_argument('--runHandmade', action='store_true', help='Run the handmade tau scan')
 #parser.add_argument('--bias_id', type=str, dest='bias_id', default='', help='bias applied to the true distribution')
 
 ## parser.add_argument('--noplots', dest='noplots', action='store_true',
@@ -163,13 +165,13 @@ def overlay(reference, target):
     return canvas
 
 def set_pretty_label(variable):
-    if 'ptthad' in variable:
+    if 'thadpt' in variable:
         return 'p_{T}(t_{had}) [GeV]'
-    elif 'pttlep' in variable:
+    elif 'tleppt' in variable:
         return 'p_{T}(t_{lep}) [GeV]'
-    elif 'etathad' in variable:
+    elif 'thadeta' in variable:
         return '|#eta(t_{had})|'
-    elif 'etatlep' in variable:
+    elif 'tlepeta' in variable:
         return '|#eta(t_{lep})|'
     else:
         return variable
@@ -192,17 +194,72 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
     else:
         area_constraint='Area'
     myunfolding = URUnfolding(regmode = opts.reg_mode, constraint = area_constraint)
-    myunfolding.matrix   = getattr(resp_file, opts.var).migration_matrix
+
+    ## Migration matrix preprocessing
+    ## remove oflow bins
+    var_dir = getattr(resp_file, opts.var)
+    migration_matrix = var_dir.migration_matrix
+    for bin in migration_matrix: 
+        if bin.overflow:
+            bin.value = 0 
+            bin.error = 0
+    myunfolding.matrix = migration_matrix
+    thruth_unscaled = var_dir.thruth_unscaled
+    reco_unscaled = var_dir.reco_unscaled
+    project_reco = 'X' if myunfolding.orientation == 'Vertical' else 'Y'
+    project_gen = 'Y' if myunfolding.orientation == 'Vertical' else 'X'
+    reco_project = rootpy.asrootpy(
+        getattr(migration_matrix, 'Projection%s' % project_reco)()
+        )
+    gen_project = rootpy.asrootpy(
+        getattr(migration_matrix, 'Projection%s' % project_gen)()
+        )
+    eff_correction = ROOT.TGraphAsymmErrors(gen_project, thruth_unscaled)
+    purity_correction = ROOT.TGraphAsymmErrors(reco_project, reco_unscaled)
+
+    #flush graphs into histograms (easier to handle)
+    eff_hist = gen_project.Clone()
+    eff_hist.reset()
+    eff_hist.name = 'eff_hist'
+    for idx in range(eff_correction.GetN()):
+        eff_hist[idx+1].value = eff_correction.GetY()[idx]
+        eff_hist[idx+1].error = max(
+            eff_correction.GetEYhigh()[idx],
+            eff_correction.GetEYlow()[idx]
+            )
+
+    purity_hist = reco_project.Clone()
+    purity_hist.reset()
+    purity_hist.name = 'purity_hist'
+    for idx in range(purity_correction.GetN()):
+        purity_hist[idx+1].value = purity_correction.GetY()[idx]
+        purity_hist[idx+1].error = max(
+            purity_correction.GetEYhigh()[idx],
+            purity_correction.GetEYlow()[idx]
+            )
+
+    #Get measured histogram
+    measured = None
     if opts.use_reco_truth:
         log.warning("Using the MC reco distribution for the unfolding!")
-        myunfolding.measured = getattr(resp_file, opts.var).reco_distribution
+        measured = getattr(resp_file, opts.var).reco_distribution
     else:
-        myunfolding.measured = getattr(data_file, data_file_dir).tt_right
-    #if opts.bias_id == '':
-        #myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
-    #else:
-        #myunfolding.truth    = getattr(resp_file, opts.var + opts.bias_id).true_distribution
-    myunfolding.truth    = getattr(resp_file, opts.var).true_distribution
+        measured = getattr(data_file, data_file_dir).tt_right
+
+    measured_no_correction = measured.Clone()
+    measured_no_correction.name = 'measured_no_correction'
+    measured.name = 'measured'
+    measured.multiply(purity_hist)
+    myunfolding.measured = measured
+
+    #get gen-level distribution
+    gen_distro = getattr(resp_file, opts.var).true_distribution.Clone()
+    full_true  = gen_distro.Clone()
+    full_true.name = 'complete_true_distro'
+    gen_distro.multiply(eff_hist)
+    gen_distro.name = 'true_distribution'    
+    myunfolding.truth = gen_distro
+    
     if opts.cov_matrix != 'none':
         if 'toy' in opts.fit_file:
             input_cov_matrix = make_cov_matrix(
@@ -227,6 +284,15 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
         myunfolding.cov_matrix = input_cov_matrix
     myunfolding.InitUnfolder()
     hdata = myunfolding.measured # Duplicate. Remove!
+
+    #plot covariance matrix
+    canvas = plotting.Canvas()
+    BasePlotter.set_canvas_style(canvas)
+    input_corr_matrix.SetStats(False)
+    input_corr_matrix.Draw('colz')
+    canvas.Update()
+    canvas.SetLogz(True)
+    canvas.SaveAs('%s/correlation_matrix.png' % outdir)
 
     #optimize
     best_taus = {}
@@ -269,18 +335,12 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
         for mode in modes:
             best_tau, tau_curve, index_best = myunfolding.DoScanTau(100, t_min, t_max, mode)
             best_taus[mode] = best_tau
-            tau_curve.SetName(mode)
+            tau_curve.SetName('%s_scan' % mode)
             tau_curve.SetMarkerStyle(1)
             points = [(tau_curve.GetX()[i], tau_curve.GetY()[i])
                       for i in xrange(tau_curve.GetN())]
             best = [points[index_best]] 
-            #best = [(x,y) for x, y in points if math.log10(best_tau) == x]
-            #log.info('best = %s and best_from_index = %s' % (best,best_from_index))
-            #if  best_from_index != best[0]:
-                #log.error("Pair found by DoScanTau is different from pair found by this code!")
-                #os.abort()
-            #if itoy == 16 and mode == 'RhoSquareAvg':
-                #set_trace()
+
             graph_best = plotting.Graph(1)
             graph_best.SetPoint(0, *best[0])
             graph_best.SetMarkerStyle(29)
@@ -304,40 +364,78 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
         best_taus['NoReg'] = 0
         for name, best_tau in best_taus.iteritems():
             log.info('best tau option for %s: %.3f' % (name, best_tau))
-    
+
+        if opts.runHandmade:
+            #hand-made tau scan
+            unc_scan, bias_scan = myunfolding.scan_tau(
+                200, 10**-6, 50, os.path.join(outdir, 'Handmade', 'scan_info.root'))
+
+            bias_scan.name = 'Handmade'
+            bias_scan.title = 'Avg. Bias - Handmade'
+            bias_scan.markerstyle = 20
+            bias_scan.markersize = 2
+            canvas = plotter.create_and_write_graph_canvas('bias_scan',[0],[1],True,True,[bias_scan],write=False)
+            save(canvas, 'Handmade', 'bias_scan', outdir)
+
+            unc_scan.name = 'Handmade'
+            unc_scan.title = 'Avg. Unc. - Handmade'
+            unc_scan.markerstyle = 20
+            unc_scan.markersize = 2
+            canvas = plotter.create_and_write_graph_canvas('unc_scan',[0],[1],True,True,[unc_scan],write=False)
+            save(canvas, 'Handmade', 'unc_scan', outdir)
+        
+            bias_points = [(bias_scan.GetX()[i], bias_scan.GetY()[i])
+                           for i in xrange(bias_scan.GetN())]
+            unc_points = [(unc_scan.GetX()[i], unc_scan.GetY()[i])
+                           for i in xrange(unc_scan.GetN())]
+            fom_scan = plotting.Graph(unc_scan.GetN())
+            for idx, info in enumerate(zip(bias_points, unc_points)):
+                binfo, uinfo = info
+                tau, bias = binfo
+                _, unc = uinfo
+                fom_scan.SetPoint(idx, tau, quad(bias, unc))
+            fom_scan.name = 'Handmade'
+            fom_scan.title = 'Figure of merit - Handmade'
+            fom_scan.markerstyle = 20
+            fom_scan.markersize = 2
+            canvas = plotter.create_and_write_graph_canvas('unc_scan',[0],[1],True,True,[fom_scan],write=False)
+            save(canvas, 'Handmade', 'fom_scan', outdir)
+
     to_save = []
+    outfile = rootpy.io.root_open(os.path.join(outdir, opts.out),'recreate')
     for name, best_tau in best_taus.iteritems():
+        method_dir = outfile.mkdir(name)
         myunfolding.tau = best_tau
 
         hdata_unfolded = myunfolding.unfolded
-        hdata_unfolded.name = 'hdata_unfolded_%s' % name
-        to_save.append(hdata_unfolded)
+        #apply phase space efficiency corrections
+        hdata_unfolded_ps_corrected = hdata_unfolded.Clone()
+        hdata_unfolded_ps_corrected.Divide(eff_hist)
+
         hdata_refolded = myunfolding.refolded
-        hdata_refolded.name = 'hdata_refolded_%s' % name
-        to_save.append(hdata_refolded)
+        #apply purity corrections
+        hdata_refolded_wpurity = hdata_refolded.Clone()
+
         error_matrix = myunfolding.ematrix_total
-        error_matrix.name = 'error_matrix_%s' % name
-        to_save.append(error_matrix)
 
         hcorrelations = myunfolding.rhoI_total
-        hcorrelations.name = 'hcorrelations_%s' % name
-        to_save.append(error_matrix)
         hbias = myunfolding.bias
-        hbias.name = 'bias_%s' % name
-        to_save.append(hbias)
         #canvas = overlay(myunfolding.truth, hdata_unfolded)
-        leg = LegendDefinition(title=name,labels=['Truth','Unfolded'],position='ne')
+        leg = LegendDefinition(
+            title=name,
+            labels=['Truth','Unfolded'],
+            position='ne'
+            )
         myunfolding.truth.xaxis.title = xaxislabel
         hdata_unfolded.xaxis.title = xaxislabel
         n_neg_bins = 0
         for ibin in range(1,hdata_unfolded.GetNbinsX()+1):
             if hdata_unfolded.GetBinContent(ibin) < 0:
                 n_neg_bins = n_neg_bins + 1
-        hn_neg_bins = plotting.Hist(2,-1, 1, name = 'nneg_bins_' + hdata_unfolded.GetName(), title = 'Negative bins in ' + hdata_unfolded.GetName()+ ';Bin sign; N_{bins}')
+        hn_neg_bins = plotting.Hist(2,-1, 1, name = 'nneg_bins', title = 'Negative bins in ' + hdata_unfolded.GetName()+ ';Bin sign; N_{bins}')
         hn_neg_bins.SetBinContent(1,n_neg_bins)
         hn_neg_bins.SetBinContent(2,hdata_unfolded.GetNbinsX()-n_neg_bins)
         canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hn_neg_bins, write=False)
-        to_save.append(hn_neg_bins)
         save(canvas, name, 'unfolding_bins_sign', outdir)
 
 
@@ -363,19 +461,22 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
         hsum_of_pulls = plotting.Hist(1,0, 1, name = 'sum_of_pulls_' + hdata_unfolded.GetName(), title = 'Sum of pulls wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(pulls) / N_{bins}')
         hsum_of_pulls.SetBinContent(1, sumofpulls)
         canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hsum_of_pulls, write=False)
-        to_save.append(hsum_of_pulls)
         save(canvas, name, 'unfolding_sum_of_pulls', outdir)
         
         hsum_of_ratios = plotting.Hist(1,0, 1, name = 'sum_of_ratios_' + hdata_unfolded.GetName(), title = 'Sum of ratios wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(ratios) / N_{bins}')
         hsum_of_ratios.SetBinContent(1, sumofratios)
         canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hsum_of_ratios, write=False)
-        to_save.append(hsum_of_ratios)
         save(canvas, name, 'unfolding_sum_of_ratios', outdir)
 
         canvas = plotter.create_and_write_canvas_with_comparison('unfolding_pull', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='pull')
         save(canvas, name, 'unfolding_pull', outdir)
         canvas = plotter.create_and_write_canvas_with_comparison('unfolding_ratio', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='ratio')
         save(canvas, name, 'unfolding_ratio', outdir)
+
+        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_weff_pull', [1,0],[0,21], [2,1], leg, False, False, [full_true, hdata_unfolded_ps_corrected], write=False, comparison='pull')
+        save(canvas, name, 'unfolding_weff_pull', outdir)
+        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_weff_ratio', [1,0],[0,21], [2,1], leg, False, False, [full_true, hdata_unfolded_ps_corrected], write=False, comparison='ratio')
+        save(canvas, name, 'unfolding_weff_ratio', outdir)
     
         nbins = myunfolding.measured.GetNbinsX()
         #for i in range(1, nbins+1):
@@ -383,49 +484,68 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
                 #i, 
                 #'%.0f' % myunfolding.measured.GetXaxis().GetBinLowEdge(i)
                 #)
-        leg = LegendDefinition(title=name,labels=['Reco','Refolded'],position='ne')
+        input_distro = getattr(resp_file, opts.var).prefit_distribution
+        leg = LegendDefinition(title=name,labels=['Reco','Refolded','Input'],position='ne')
         myunfolding.measured.xaxis.title = xaxislabel
         hdata_refolded.xaxis.title = xaxislabel
-        myunfolding.measured.drawoptions = 'e1'
-        canvas = plotter.create_and_write_canvas_with_comparison('refolded_pull', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='pull')
+        myunfolding.measured.drawstyle = 'e1'
+        canvas = plotter.create_and_write_canvas_with_comparison('refolded_pull', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='pull')
         save(canvas, name, 'refolded_pull', outdir)
-        canvas = plotter.create_and_write_canvas_with_comparison('refolded_ratio', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='ratio')
+        canvas = plotter.create_and_write_canvas_with_comparison('refolded_ratio', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='ratio')
         save(canvas, name, 'refolded_ratio', outdir)
+
+        measured_no_correction.drawstyle = 'e1'
+        canvas = plotter.create_and_write_canvas_with_comparison('refolded_wpurity_pull', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [measured_no_correction, hdata_refolded_wpurity, input_distro], write=False, comparison='pull')
+        save(canvas, name, 'refolded_wpurity_pull', outdir)
+        canvas = plotter.create_and_write_canvas_with_comparison('refolded_wpurity_ratio', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [measured_no_correction, hdata_refolded_wpurity, input_distro], write=False, comparison='ratio')
+        save(canvas, name, 'refolded_wpurity_ratio', outdir)
+
+        method_dir.WriteTObject(hdata_unfolded, 'hdata_unfolded')
+        method_dir.WriteTObject(hdata_unfolded_ps_corrected, 'hdata_unfolded_ps_corrected')
+        method_dir.WriteTObject(hdata_refolded, 'hdata_refolded')
+        method_dir.WriteTObject(hdata_refolded_wpurity, 'hdata_refolded_wpurity')
+        method_dir.WriteTObject(error_matrix, 'error_matrix')
+        method_dir.WriteTObject(hbias, 'bias')
+        method_dir.WriteTObject(hn_neg_bins, 'hn_neg_bins')
+        method_dir.WriteTObject(hsum_of_pulls, 'hsum_of_pulls')
+        method_dir.WriteTObject(hsum_of_ratios, 'hsum_of_ratios')
+
 
     htruth = myunfolding.truth
     hmatrix = myunfolding.matrix
     hmeasured = myunfolding.measured
 
-    numexp = 10
-    myunfolding.unfoldingparam = 10
-    #uncertainty10 = myunfolding.StatTest(numexp)
-
-    with rootpy.io.root_open(os.path.join(outdir, opts.out),'recreate') as outfile:
+    #with rootpy.io.root_open(os.path.join(outdir, opts.out),'recreate') as outfile:
+    outfile.cd()
+    to_save.extend([
+        measured_no_correction,
+        eff_hist,
+        purity_hist,
+        full_true,
+        myunfolding.truth,     ## 4
+        myunfolding.measured,  ## 5
+        myunfolding.matrix,])  ## 6
+    if opts.tau < 0:
         to_save.extend([
-            myunfolding.truth,     ## 4
-            myunfolding.measured,  ## 5
-            myunfolding.matrix,])  ## 6
-        if opts.tau < 0:
-            to_save.extend([
-                    l_curve,               ## 9
-                    tau_curve,             ## 10
-                    graph_x,
-                    graph_y
-                    ])
+                l_curve,               ## 9
+                tau_curve,             ## 10
+                graph_x,
+                graph_y
+                ])
 
-        if opts.cov_matrix != 'none':
-           to_save.extend([input_cov_matrix])
-           to_save.extend([input_corr_matrix])
+    if opts.cov_matrix != 'none':
+       to_save.extend([input_cov_matrix])
+       to_save.extend([input_corr_matrix])
 
-        for i, j in enumerate(to_save):
-            log.debug('Saving %s as %s' % (j.name, j.GetName()))
-            j.Write()
-        getattr(resp_file, opts.var).reco_distribution.Write()
-        getattr(resp_file, opts.var).prefit_distribution.Write()
-        json = ROOT.TText(0., 0., prettyjson.dumps(best_taus))
-        outfile.WriteTObject(json, 'best_taus')
-        myunfolding.write_to(outfile, 'urunfolder')
-
+    for i, j in enumerate(to_save):
+        log.debug('Saving %s as %s' % (j.name, j.GetName()))
+        j.Write()
+    getattr(resp_file, opts.var).reco_distribution.Write()
+    getattr(resp_file, opts.var).prefit_distribution.Write()
+    json = ROOT.TText(0., 0., prettyjson.dumps(best_taus))
+    outfile.WriteTObject(json, 'best_taus')
+    myunfolding.write_to(outfile, 'urunfolder')
+    outfile.Close()
 
 resp_file = io.root_open(opts.truth_file)
 data_file = io.root_open(opts.fit_file)
@@ -468,7 +588,6 @@ for bin in full_matrix:
     bin.value = bin.error / bin.value 
 full_matrix.Draw('colz')
 canvas.Update()
-print '%s/migration_matrix.png' % opts.dir
 canvas.SaveAs('%s/migration_matrix_unc.png' % opts.dir)
 
 if 'toy' in opts.fit_file:

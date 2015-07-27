@@ -21,6 +21,7 @@ from argparse import ArgumentParser
 from URAnalysis.Utilities.struct import Struct
 import re
 from TTXSecPlotter import TTXSecPlotter
+from array import array
 
 def run_module(**kwargs):
    ##################
@@ -44,23 +45,23 @@ def run_module(**kwargs):
 
    vars_to_unfold = [
       Struct(
-         var     = 'ptthad',
-         alias = 'thadpt',
+         var = 'thadpt',
          binning = Struct(
-            gen = [0., 60., 120., 180., 240., 300., 1000.],
-            #gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-            reco = [30.0*i for i in range(11)]+[1000.],
+            #gen = [0., 60., 120., 180., 240., 300., 1000.],
+            #"staggered" binning scheme
+            gen = [0., 45., 105., 165., 225., 285., 800.],
+            #gen = [0., 75., 135., 195., 255., 300., 1000.],
+            reco = [30.0*i for i in range(11)]+[800.],
             #reco = [0., 120., 1000.],
             ),
          xtitle  = 'p_{T}(t_{had})'
          ),
       Struct(
-         var = 'pttlep',
-         alias = 'tleppt',
+         var = 'tleppt',
          binning = Struct(
-            gen = [0., 60., 120., 180., 240., 300., 1000.],
+            gen = [0., 60., 120., 180., 240., 300., 800.],
             #gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-            reco = [30.0*i for i in range(11)]+[1000.],
+            reco = [30.0*i for i in range(11)]+[800.],
             ),
          xtitle = 'p_{T}(t_{lep})'
          ),
@@ -248,11 +249,11 @@ def run_module(**kwargs):
    if not opts.noplots:
       to_plot = [
          ('all_lep_pt' , 4, 'p_{T}(l)'),
-         ("all_ttm"    , 4, 'm(t#bar{t})'),
+         ("all_ttM"    , 4, 'm(t#bar{t})'),
          ("all_tty"    , 4, 'y(t#bar{t})'),
          ("all_ttpt"   , 4, 'p_{T}(t#bar{t})'),
          ("all_costhetastar", 4, ''),
-         ("all_njet", 4, '# of jets'),
+         ("all_njets", 4, '# of jets'),
          ('all_%s' % discriminant, 2, 'discriminant'),
          ]
 
@@ -260,7 +261,7 @@ def run_module(**kwargs):
          '', 'all_%s' % discriminant, rebin=2, xaxis=discriminant,
          leftside=False, normalize=True, show_err=True, xrange=(-8,1))
       plotter.save('%s_full_shape' % (discriminant), pdf=False)
-
+      
       plotter.plot_mc_shapes(
          '', 'all_%s' % discriminant, rebin=2, xaxis=discriminant,
          leftside=False, normalize=True, show_err=True, xrange=(-8,1),
@@ -289,14 +290,14 @@ def run_module(**kwargs):
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin])
                )
             plotter.save('%s_slice_%i' % (discriminant, idx), pdf=False)
-      
+            
             plotter.plot_mc_shapes(
                '', 'all_%s_%s' % (discriminant, var), leftside=False, 
                rebin = full_discr_binning[0],
                xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]))
             plotter.save('%s_slice_%i_shape' % (discriminant, idx), pdf=False)
-         
+            
             plotter.plot_mc_shapes(
                '', 'all_%s_%s' % (discriminant, var), leftside=False, 
                rebin = full_discr_binning[0],
@@ -331,20 +332,21 @@ def run_module(**kwargs):
          plotter.add_systematics()
          #plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)
          plotter.save_card(var)
-      
-      #Migration matrices
+
+      ########################################
+      #         MIGRATION MATRICES
+      ########################################
       plotter.set_subdir('')
       fname = os.path.join(plotter.outputdir, 'migration_matrices.root')
 
       with io.root_open(fname, 'recreate') as mfile:
          for info in vars_to_unfold:
             var = info.var
-            alias = info.alias
             dirname = var
             if hasattr(info, 'dir_postfix'):
                dirname += '_%s' % info.dir_postfix
             mfile.mkdir(dirname).cd()
-            matrix_path = 'TRUTH/response/%s_matrix' % alias #FIXME: move alias to var? Fill different phase spaces
+            matrix_path = 'TRUTH/response/%s_matrix' % var
             tt_view = plotter.get_view(plotter.ttbar_to_use, 'unweighted_view')
             matrix_view_unscaled = plotter.rebin_view(
                tt_view, 
@@ -353,6 +355,14 @@ def run_module(**kwargs):
             mig_matrix_unscaled = matrix_view_unscaled.Get(matrix_path)
             mig_matrix_unscaled.SetName('migration_matrix')
             mig_matrix_unscaled.Write()
+
+            thruth_unscaled = plotter.rebin_view(tt_view, info.binning.gen).Get('TRUTH/response/%s_truth' % var)            
+            thruth_unscaled.name = 'thruth_unscaled'
+            thruth_unscaled.Write()
+            
+            reco_unscaled = plotter.rebin_view(tt_view, info.binning.reco).Get('TRUTH/response/%s_reco' % var)
+            reco_unscaled.name = 'reco_unscaled'
+            reco_unscaled.Write()
 
             tt_view = plotter.get_view(plotter.ttbar_to_use)
             matrix_view = plotter.rebin_view(
@@ -380,7 +390,7 @@ def run_module(**kwargs):
                tt_view,
                info.binning.gen
                ).Get(
-               'TRUTH/response/%s_truth' % alias) #FIXME: move alias to var? Fill different phase spaces   
+               'TRUTH/response/%s_truth' % var) 
             thruth_distro.SetName('true_distribution')
             thruth_distro.Write()         
 

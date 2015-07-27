@@ -41,6 +41,7 @@ void TTBarPlots::Init(ttbar* analysis)
 	plot2d.AddHist("METvsChi", 120, 0, 1200, 25, 0., 100., "MET [GeV]", "#chi");
 	plot1d.AddHist("Mt_W", 500, 0, 500, "M_{t}(W) [GeV]", "Events");
 	plot2d.AddHist("METunc", 100, 0, 0.5, 100, 0., .5, "#sigma(MET_{x})/MET_{x}", "#sigma(MET_{y})/MET_{y}");
+	plot1d.AddHist("massDiscr", ta, tamin, tamax, "#lambda_{m}", "p_{T}(t_{had}) [GeV]");
 	for(int jn : jetbins)
 	{
 		stringstream jb;
@@ -95,6 +96,7 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 		if(drminb > per.BLep()->DeltaR(*an->cleanedjets[j])) {drminb = per.BLep()->DeltaR(*an->cleanedjets[j]);}
 		plot1d["ptaddjets"]->Fill(an->cleanedjets[j]->Pt(), weight);
 	}
+	plot1d["massDiscr"]->Fill(massDiscr);
 	plot1d["DRminWjets"]->Fill(drminw, weight);
 	plot1d["DRminbjets"]->Fill(drminb, weight);
 	plot2d["METvsChi"]->Fill(an->met.Pt(), nsDiscr, weight);
