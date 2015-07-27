@@ -53,20 +53,18 @@ def create_and_save_canvas(histo, xname):
     canvas.SaveAs('%s.png' % histo.GetName())
     canvas.SaveAs('%s.pdf' % histo.GetName())
 
-
 def set_pretty_label(variable):
-    if 'ptthad' in variable:
+    if 'thadpt' in variable:
         return 'p_{T}(t_{had}) [GeV]'
-    elif 'pttlep' in variable:
+    elif 'tleppt' in variable:
         return 'p_{T}(t_{lep}) [GeV]'
-    elif 'etathad' in variable:
+    elif 'thadeta' in variable:
         return '|#eta(t_{had})|'
-    elif 'etatlep' in variable:
+    elif 'tlepeta' in variable:
         return '|#eta(t_{lep})|'
     else:
         return variable
     return ''
-
 
 def unfolding_toy_diagnostics(indir, variable):
     
