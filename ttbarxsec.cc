@@ -1378,6 +1378,7 @@ void ttbar::analyze()
 		weight = 1.;	
 		if(event.PUInfos().size() > 0)
 		{
+			isMC == true;
 			const Geninfo& info = event.genInfo();
 			weight *= info.weight()/Abs(info.weight());
 			const vector<Mcweight>& ws =  event.MCWeights();
@@ -1396,7 +1397,6 @@ void ttbar::analyze()
 		}
 		else
 		{
-			if(event.run < 251244) {return;}
 			runinfo[event.run].insert(event.lumi);
 		}
 
@@ -1416,11 +1416,22 @@ void ttbar::analyze()
 		if(!DATASIM)
 		{
 			SelectGenParticles(event);
-			if(
-(event.trigger().HLT_IsoMu27() == 1 || event.trigger().HLT_Ele27_WP85_Gsf() == 1) //MC
-//|| event.trigger().HLT_IsoMu24_eta2p1() == 1
-//|| (event.trigger().HLT_IsoMu24_eta2p1() == -1 && event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1)
-)
+            if(
+                    (
+                     isMC &&
+                     (
+                      event.trigger().HLT_IsoMu27() == 1
+                      || event.trigger().HLT_Ele27_WP85_Gsf() == 1
+                     )
+                    ) ||
+                    (
+                     !isMC &&
+                     (
+                      event.trigger().HLT_IsoMu24_eta2p1() == 1
+                      || (event.trigger().HLT_IsoMu24_eta2p1() == -1 && event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1)
+                     )
+                    )
+              )
 			{
 				SelectRecoParticles(event);
 				ttanalysis(event);
