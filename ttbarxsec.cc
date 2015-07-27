@@ -832,7 +832,7 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 
 void ttbar::ttanalysis(URStreamer& event)
 {
-	Logger::log().debug() << "Evt weight: " << weight <<endl;
+	//Logger::log().debug() << "Evt weight: " << weight <<endl;
 	truth1d["counter"]->Fill(19.5, weight);
 	reco1d["counter"]->Fill(0.5, weight);
 	if(SEMILEP) 
@@ -1077,7 +1077,7 @@ void ttbar::ttanalysis(URStreamer& event)
 	//Fill reconstructed hists
 	ttp_all.Fill(bestper, lepcharge, weight);
 	
-	Logger::log().debug() << "Evt weight: " << weight <<endl;
+	//Logger::log().debug() << "Evt weight: " << weight <<endl;
 	//Fill reconstructed hists with matching information
 	if(rightper.IsCorrect(bestper))
 	{
