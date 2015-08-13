@@ -125,9 +125,11 @@ class TTXSecPlotter(Plotter):
             )
 
       data_is_fake = False
-      if 'data_obs' not in card_views:
+      if 'data' not in self.views:
          card_views['data_obs'] = views.SumView(*card_views.values())
          data_is_fake = True
+      else:
+         card_views['data_obs'] = self.rebin_view(self.get_view('data'), binning)
 
       path = os.path.join(folder, variable)
       card_hists2D = dict(
