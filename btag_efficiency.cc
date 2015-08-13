@@ -43,9 +43,7 @@ private:
 	bool isData_, isTTbar_, run_jes_;
 
 	//CUTS
-	//float (Jet::*btag_id_)() const = &Jet::csvIncl;
-	//float btag_cut_ = 0.941;
-	IDJet::BTag btag_id_ = IDJet::BTag::CSVTIGHT; 
+	IDJet::BTag btag_id_ = IDJet::BTag::CSVMEDIUM; //IDJet::BTag::CSVTIGHT; 
 	float bjet_pt_cut_ = 30;
 	float DR_match_to_gen_ = 0.3;
 	std::function<bool(const IDJet &)> jet_selection_ = [](const IDJet &jet) {return  (jet.Pt() > 20 && Abs(jet.Eta()) < 2.4);};
