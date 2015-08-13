@@ -39,4 +39,12 @@ styles = {
       'name' : "ttbar",
       'fillstyle': 'solid',
       },
+   'QCD*' : {
+      'legendstyle' : 'f',
+      'drawstyle' : 'hist',
+      'fillcolor' : '#0055ff',
+      'linecolor' : '#0055ff',
+      'name' : "QCD",
+      'fillstyle': 'solid',
+      },
    }
