@@ -186,6 +186,7 @@ def run_module(**kwargs):
       }
                
    plotter.mc_samples = [
+      'QCD*',
       '[WZ]Jets',
       'single*',
       'ttJets_rightAssign',
@@ -204,7 +205,8 @@ def run_module(**kwargs):
       'tt_right' : ['ttJets_rightAssign'],
       'tt_wrong' : ['ttJets_wrong'],
       #'tt_other' : ['ttJets_other'],
-      'only_thad_right' : ['ttJets_rightThad']
+      'only_thad_right' : ['ttJets_rightThad'],
+      'qcd' : ['QCD*'],
       }
 
    plotter.systematics = {
@@ -274,7 +276,7 @@ def run_module(**kwargs):
       for var, rebin, xaxis in to_plot:
          plotter.plot_mc_vs_data('', var, leftside=False, rebin=rebin, xaxis=xaxis)
          plotter.save(var, pdf=False)
-
+      
       for info in vars_to_unfold:
          var = info.var
          plotter.plot_mc_vs_data(
