@@ -80,8 +80,9 @@ end
 
 rule /\.model\.root$/ => psub(/\.model\.root$/, '.txt') do |t|
   dir = File.dirname(t.name)
+  json_file = File.basename(t.source).sub(/.txt$/, '.json')
   chdir(dir) do
-    sh "text2workspace.py #{File.basename(t.source)} -P URAnalysis.AnalysisTools.statistics.TTBarXsecFitter:ttxsecfitter -o #{File.basename(t.name)}"
+    sh "text2workspace.py #{File.basename(t.source)} -P URAnalysis.AnalysisTools.statistics.TTBarXsecFitter:ttxsecfitterWJetCategories --PO yieldsJson=#{json_file} -o #{File.basename(t.name)}"
   end
 end
 
@@ -361,7 +362,7 @@ task :publish_ctag do |t|
   if not link
     link = 'btageff'
   end
-  publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{link}")
+  publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{$jobid}/#{link}")
 end
 
 rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|

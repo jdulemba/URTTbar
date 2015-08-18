@@ -12,6 +12,8 @@ import URAnalysis.Utilities.prettyjson as prettyjson
 from argparse import ArgumentParser
 import uuid
 from URAnalysis.Utilities.struct import Struct
+import re
+import copy
 
 asrootpy = rootpy.asrootpy
 rootpy.log["/"].setLevel(rootpy.log.ERROR)
@@ -22,9 +24,25 @@ ROOT.gROOT.SetBatch(True)
 
 def run_module(**kwargs):
    args = Struct(**kwargs)
-   binning = {}
+   redundant_binning = {}
    with open(args.binning) as bins:
-      binning = prettyjson.loads(bins.read())
+      redundant_binning = prettyjson.loads(bins.read())
+
+   #group binning to merge jet categories
+   grouping = re.compile('^(?P<base_category>[A-Za-z0-9]+)_\d+Jets$')
+   binning = {}
+   for var, categories in redundant_binning.iteritems():
+      if var not in binning: binning[var] = {}
+      for category, bin_info in categories.iteritems():
+         m = grouping.match(category)
+         if not m:
+            raise ValueError('Category name %s did not match the regex!' % category)
+         base = m.group('base_category')
+         if base not in binning[var]:
+            binning[var][base] = copy.deepcopy(bin_info)
+         else:
+            #make sure that all jet categories have the same bin edges
+            assert(binning[var][base] == bin_info)
 
    for info in binning.itervalues():
       edges = set(
@@ -65,42 +83,31 @@ def run_module(**kwargs):
       if args.toys:
          dirs = [i.GetName() for i in results.GetListOfKeys() if i.GetName().startswith('toy_')]
       
-      is_prefit_done = False
       with io.root_open(args.out, 'recreate') as output:
+         is_prefit_done = False
          for dirname in dirs:
             input_dir = results.Get(dirname) if dirname else results
-            keys = set([i.GetName() for i in input_dir.GetListOfKeys()])
-            if 'norm_fit_s' not in keys or 'fit_s' not in keys:
+            if not hasattr(input_dir, 'fit_s'):
                continue
-            norms = ArgSet(
-               input_dir.Get(
-                  'norm_fit_s'
-                  )
-               )
-            norms = [i for i in norms]
 
-            fit_result = input_dir.Get(
-               'fit_s'
-               )
-            pars = ArgList(fit_result.floatParsFinal())
-            pars = dict((i.GetName(), i) for i in pars)
-      
+            fit_result = input_dir.fit_s
+            pars = asrootpy(fit_result.floatParsFinal())
+            prefit_pars = asrootpy(fit_result.floatParsInit())
             tdir = output
             if dirname: 
                tdir = output.mkdir(dirname)
                tdir.cd()
             hcorr = asrootpy(fit_result.correlationHist())
-            fit_pars = set(
-               hcorr.xaxis.GetBinLabel(i) for i in range(1,hcorr.xaxis.GetNbins()+1)
-               )
+            par_names = set([i.name for i in pars])
+            yield_par_names = filter(lambda x: '_FullYield_' in x, par_names)
             hcorr.Write()
-            for obs, info in binning.iteritems():
-               var_dir = tdir.mkdir(obs)
+            for observable, info in binning.iteritems():
+               var_dir = tdir.mkdir(observable)
                var_dir.cd()
                hists = {}
                hists_prefit = {}
-               for norm in norms:
-                  category, sample = tuple(norm.GetName().split('/'))
+               for rvar_name in yield_par_names:
+                  category, sample = tuple(rvar_name.split('_FullYield_'))
                   if category not in info: continue
                   if sample not in hists:
                      hists[sample] = plotting.Hist(
@@ -114,44 +121,21 @@ def run_module(**kwargs):
                            )
     
                   idx = info[category]['idx']+1
-                  hists[sample].SetBinContent(
-                     idx, norm.getVal()
-                     )
-                  hists[sample].SetBinError(
-                     idx, norm.getError()
-                     )
-                  if not is_prefit_done:
-                     hists_prefit[sample].SetBinContent(
-                        idx, prefit_norms[norm.GetName()].getVal()
-                        )
-                     hists_prefit[sample].SetBinError(
-                        idx, prefit_norms[norm.GetName()].getError()
-                        )                  
+                  hists[sample][idx].value = pars[rvar_name].value
+                  hists[sample][idx].error = max(pars[rvar_name].error) #get max of asym error
 
-                  fit_par_name = '%sYieldSF_%s' % (category, sample)
-                  if fit_par_name in fit_pars:
-                     fit_par = pars[fit_par_name]
-                     logging.debug('%s' % fit_par_name)
-                     logging.debug('norm %.2f +/- %.2f' % (norm.getVal(), norm.getError()))
-                     logging.debug('SF   %.4f +/- %.4f' % (fit_par.getVal(), fit_par.getError()))
-                     rel_y_err = norm.getError()/norm.getVal() if norm.getVal() else -1
-                     rel_f_err = fit_par.getError()/fit_par.getVal() if fit_par.getVal() else -1
-                     ## logging.debug(
-                     ##    'norm unc. %.6f, SF unc. %.6f, delta %.3f' % (
-                     ##       rel_y_err,
-                     ##       rel_f_err,
-                     ##       abs(rel_y_err-rel_f_err)*2/(rel_y_err+rel_f_err)
-                     ##       )
-                     ##    )
-                     # assert(norm.getError()/norm.getVal() == fit_par.getError()/fit_par.getVal())
-                     logging.debug(
-                        'Assigning label %s to bin %i for %s/%s' % (fit_par_name, idx, category, sample)
-                        )
-                     hists[sample].xaxis.SetBinLabel(idx, fit_par_name)
+                  if not is_prefit_done:
+                     hists_prefit[sample][idx].value = prefit_pars[rvar_name].value
+                  ## Pre-fit floating parameters have no uncertainties
+                  ## hists_prefit[sample][idx].error = max(prefit_pars[rvar_name].error)
+                  logging.debug(
+                     'Assigning label %s to bin %i for %s/%s' % (rvar_name, idx, category, sample)
+                     )
+                  hists[sample].xaxis.SetBinLabel(idx, rvar_name)
 
                for h in hists.itervalues():
                   logging.debug( h.Write() )
-                  
+
                if not is_prefit_done:
                   is_prefit_done = True
                   output.mkdir('prefit').cd()

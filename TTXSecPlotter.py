@@ -85,6 +85,7 @@ class TTXSecPlotter(Plotter):
    def save_card(self, name):
       if not self.card:
          raise RuntimeError('There is no card to save!')
+      self.card.normalize_signals()
       self.card.save(name, self.outputdir)
       self.card = None
 
@@ -110,7 +111,7 @@ class TTXSecPlotter(Plotter):
                   )
       #plotter.card.add_bbb_systematics('.*', '.*')
 
-   def write_shapes(self, folder, var, variable, var_binning, disc_binning = lambda x, *args: 8, 
+   def write_shapes(self, folder, var, variables, var_binning, disc_binning = lambda x, *args: 8, 
                     category_template='Bin%i', slice_along='X'):
       if not self.card: self.card = DataCard('tt_*')
       #keep it there for systematics
@@ -131,10 +132,10 @@ class TTXSecPlotter(Plotter):
       else:
          card_views['data_obs'] = self.rebin_view(self.get_view('data'), binning)
 
-      path = os.path.join(folder, variable)
-      card_hists2D = dict(
-         (name, view.Get(path)) for name, view in card_views.iteritems()
-         )
+      paths = [os.path.join(folder, i) for i in variables]
+      card_hists2D = {}
+      for name, view in card_views.iteritems():
+         card_hists2D[name] = sum(view.Get(i) for i in paths)
       sys_hists2D = {}
 
       category_axis = 'GetNbinsX' if slice_along == 'Y' else 'GetNbinsY'
@@ -187,10 +188,10 @@ class TTXSecPlotter(Plotter):
                   if sys_name not in sys_hists2D:
                      sys_hists2D[sys_name] = {}
                   if name not in sys_hists2D[sys_name]:
-                     path_up = info['+'](path) 
-                     path_dw = info['-'](path)
-                     h2Dup = card_views[name].Get(path_up)
-                     h2Ddw = card_views[name].Get(path_dw)
+                     paths_up = [info['+'](i) for i in paths] 
+                     paths_dw = [info['-'](i) for i in paths]
+                     h2Dup = sum(card_views[name].Get(i) for i in paths_up)
+                     h2Ddw = sum(card_views[name].Get(i) for i in paths_dw)
                      sys_hists2D[sys_name][name] = {
                         '+' : h2Dup,
                         '-' : h2Ddw,
@@ -232,7 +233,9 @@ class TTXSecPlotter(Plotter):
                         1.+rel_err*info['multiplier']
                         )
 
-      self.binning[var] = binning
+      if var not in self.binning: 
+         self.binning[var] = {}
+      self.binning[var].update(binning)
 
    def plot_mc_shapes(self, folder, variable, rebin=1, xaxis='',
                       leftside=True, xrange=None, preprocess=None,
