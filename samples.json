@@ -175,5 +175,25 @@
    "name" : "QCD_EM_300toInf",
    "DBSName" : "/QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v2/MINIAODSIM",
    "xsection" : 135
+ },
+  {
+   "name" : "data_SingleMuon_17Jul2015",
+   "DBSName" : "/SingleMuon/Run2015B-17Jul2015-v1/MINIAOD",
+   "lumimask" : "../inputs/lumimasks/Cert_246908-251883_13TeV_17Jul2015_Collisions15_JSON_v2.txt"
+ },
+  {
+   "name" : "data_SingleMuon_PromptReco",
+   "DBSName" : "/SingleMuon/Run2015B-PromptReco-v1/MINIAOD",
+   "lumimask" : "../inputs/lumimasks/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt"
+ },
+  {
+   "name" : "data_SingleElectron_17Jul2015",
+   "DBSName" : "/SingleElectron/Run2015B-17Jul2015-v1/MINIAOD",
+   "lumimask" : "../inputs/lumimasks/Cert_246908-251883_13TeV_17Jul2015_Collisions15_JSON_v2.txt"
+ },
+  {
+   "name" : "data_SingleElectron_PromptReco",
+   "DBSName" : "/SingleElectron/Run2015B-PromptReco-v1/MINIAOD",
+   "lumimask" : "../inputs/lumimasks/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt"
  }
 ]
