@@ -60,6 +60,9 @@ private:
 	};
 	vector<SysShift> systematics_;
 
+	//Scale factors
+	TH1D *electron_sf_, *muon_sf_;
+	TH1F *pu_sf_;
   // Nothing by default
   // Add your private variables/methods here
 
@@ -84,6 +87,20 @@ public:
 		isTTbar_ = boost::starts_with(basename, "ttJets");
 		run_jes_ = !isData_;
 		
+		//A sort of FileInPath would be MUCH better!
+		if(isData_){
+			electron_sf_=0;
+			muon_sf_=0;
+			pu_sf_=0;			
+		} else {
+			TH1::AddDirectory(false);
+			TFile lsf("Lepton_SF.root");
+			electron_sf_ = (TH1D*) lsf.Get("Scale_ElTOT_Pt")->Clone();
+			muon_sf_ = (TH1D*) lsf.Get("Scale_MuTOT_Pt")->Clone();
+			TFile pusf("vtxs.root");
+			pu_sf_ = (TH1F*) pusf.Get("vtx_reweigt")->Clone();
+			TH1::AddDirectory(true);
+		}
 
     // SYSTEMATCIS
 		systematics_ = {NOSYS};
@@ -107,10 +124,10 @@ public:
 		naming_[TTNaming::OTHER ] = 	"other"              ;
 
 		working_points_["notag"]     = [](const IDJet* jet) {return false;};
-		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
-		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
 		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);};
-		working_points_["rndm10"]    = [](const IDJet* jet) {return jet->rndm() < 0.1;};
+		// working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
+		// working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
+		// working_points_["rndm10"]    = [](const IDJet* jet) {return jet->rndm() < 0.1;};
 		// working_points_["ssvHiPur"] = [](const Jet* jet) {return (bool) jet->ssvHiPur()};
 		// working_points_["ssvHiEff"] = [](const Jet* jet) {return (bool) jet->ssvHiEff()};
 		// working_points_["trkHiPur"] = [](const Jet* jet) {return (bool) jet->trkHiPur()};
@@ -192,7 +209,12 @@ public:
 		//if(isTTbar_) book_hyp_plots("gen");
 		for(auto& genCategory : folders){			
 			for(auto& sys : systematics_){
+				string gcategory;
+				if(!genCategory.empty()) gcategory  = genCategory +"/";
 				string sys_name = sys_names_[sys];
+				book<TH1F>(gcategory+sys_name, "nvtx_noweight", "", 100, 0., 100.);
+				book<TH1F>(gcategory+sys_name, "nvtx", "", 100, 0., 100.);
+				book<TH1F>(gcategory+sys_name, "weight", "", 100, 0., 20.);
 				for(auto& item : ordering_) {
 					string criterion = item.first;
 					for(auto& wp_item : working_points_) {
@@ -253,7 +275,7 @@ public:
 		book<TH1F>(folder, "decay", "which top decay is?", 5, -0.5, 4.5);
   }
 
-	void fill_gen_info(string folder, const TTbarHypothesis &reco, const TTbarHypothesis &gen){
+	void fill_gen_info(string folder, const TTbarHypothesis &reco, const TTbarHypothesis &gen, float weight){
 		auto dir = histos_.find(folder);
     if(dir == histos_.end()) {
 			Logger::log().error() << "histogram folder: " << folder <<
@@ -262,47 +284,47 @@ public:
     }
 		const WHypothesis &reco_wlep = reco.wplus.isLeptonic ? reco.wplus : reco.wminus;
     const WHypothesis &gen_wlep  = reco.wplus.isLeptonic ? gen.wplus : gen.wminus;
-		// dir->second["nu_DR"].fill(reco_wlep.second->DeltaR(*gen_wlep.second));
-		// dir->second["nu_DE"].fill(reco_wlep.second->E() - gen_wlep.second->E());
+		// dir->second["nu_DR"].fill(reco_wlep.second->DeltaR(*gen_wlep.second)  , weight);
+		// dir->second["nu_DE"].fill(reco_wlep.second->E() - gen_wlep.second->E(), weight);
 	}
 
-	void fill_jet_info(string folder, const IDJet* jet){//, const Genparticle* genp=0){
+	void fill_jet_info(string folder, const IDJet* jet, float weight){//, const Genparticle* genp=0){
 		auto dir = histos_.find(folder);
-		dir->second["eta"	 ].fill(jet->Eta());
-		dir->second["pt" 	 ].fill(jet->Pt() );
-		dir->second["phi"	 ].fill(jet->Phi());
+		dir->second["eta"	 ].fill(jet->Eta(), weight);
+		dir->second["pt" 	 ].fill(jet->Pt() , weight);
+		dir->second["phi"	 ].fill(jet->Phi(), weight);
 		//dir->second["pflav"].fill(jet->partonFlavour());
-		dir->second["hflav"].fill(jet->hadronFlavour());
-		dir->second["energy"].fill(jet->E());
+		dir->second["hflav"].fill(jet->hadronFlavour(), weight);
+		dir->second["energy"].fill(jet->E(), weight);
 
-		dir->second["ncharged"].fill(jet->numChargedHadrons());
-		dir->second["nneutral"].fill(jet->numNeutralHadrons());
-		dir->second["ntotal"  ].fill(jet->numChargedHadrons()+jet->numNeutralHadrons());
+		dir->second["ncharged"].fill(jet->numChargedHadrons(), weight);
+		dir->second["nneutral"].fill(jet->numNeutralHadrons(), weight);
+		dir->second["ntotal"  ].fill(jet->numChargedHadrons()+jet->numNeutralHadrons(), weight);
 
 		//const IDJet* idjet = (const IDJet*) jet;
-		dir->second["pflav_smart"].fill(jet->flavor());
-		dir->second["abs_pflav_smart"].fill(fabs(jet->flavor()));
+		dir->second["pflav_smart"].fill(jet->flavor(), weight);
+		dir->second["abs_pflav_smart"].fill(fabs(jet->flavor()), weight);
 	}
 
-	void fill_discriminator_info(string folder, const Permutation &hyp){
+	void fill_discriminator_info(string folder, const Permutation &hyp, float weight){
 		//Logger::log().warning() << "filling " << hyp.btag_discriminant << endl;
 		auto dir = histos_.find(folder);
-		dir->second["full_discriminant"].fill(hyp.Prob() );
+		dir->second["full_discriminant"].fill(hyp.Prob(), weight );
 		// dir->second["nu_chisq"         ].fill(hyp.NuChisq() );
 		// dir->second["nu_discriminant"	 ].fill(hyp.NuDiscr()	);
 		// dir->second["btag_discriminant"].fill(hyp.BDiscr() );
-		dir->second["mass_discriminant"].fill(hyp.MassDiscr());
+		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), weight);
 
 		double whad_mass = hyp.WHad().M();
 		double thad_mass = hyp.THad().M();
-		dir->second["Wmasshad_tmasshad"].fill(whad_mass, thad_mass);
+		dir->second["Wmasshad_tmasshad"].fill(whad_mass, thad_mass, weight);
 		// dir->second["WtMass_special"   ].fill(whad_mass + thad_mass, thad_mass - whad_mass);
 		double r = Sqrt(pow(whad_mass,2) + pow(thad_mass,2));
 		double phi = ATan(thad_mass/whad_mass);
-		dir->second["WtMass_rphi"      ].fill(r, phi);
+		dir->second["WtMass_rphi"      ].fill(r, phi, weight);
 	}
 
-	void fill(string folder, Permutation &hyp, size_t njets, size_t nbjets){//, TTbarHypothesis *genHyp=0) {
+	void fill(string folder, Permutation &hyp, size_t njets, size_t nbjets, float weight){//, TTbarHypothesis *genHyp=0) {
 		auto dir = histos_.find(folder);
 		if(dir == histos_.end()) {
 			Logger::log().error() << "histogram folder: " << folder <<
@@ -310,26 +332,26 @@ public:
 			return;
 		}
 
-		fill_discriminator_info(folder, hyp);
+		fill_discriminator_info(folder, hyp, weight);
 		
 		//dir->second["Wlep_char"].fill(charge);
-		dir->second["njets"    ].fill(njets );
-		dir->second["nbjets"   ].fill(nbjets);
-		dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt());
-		dir->second["had_b_pt" ].fill(hyp.BHad()->Pt());
-		dir->second["lep_pt"   ].fill(hyp.L()->Pt());
+		dir->second["njets"    ].fill(njets , weight);
+		dir->second["nbjets"   ].fill(nbjets, weight);
+		dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt(), weight);
+		dir->second["had_b_pt" ].fill(hyp.BHad()->Pt(), weight);
+		dir->second["lep_pt"   ].fill(hyp.L()->Pt(), weight);
 		// dir->second["Wlep_mass"].fill(hyp.WLep().M());
-		dir->second["Whad_mass"].fill(hyp.WHad().M());
-		dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()));
+		dir->second["Whad_mass"].fill(hyp.WHad().M(), weight);
+		dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()), weight);
 		// dir->second["tlep_mass"].fill(hyp.TLep().M());
-		dir->second["thad_mass"].fill(hyp.THad().M());
-		dir->second["hjet_pt"  ].fill(hyp.WJa()->Pt());
-		dir->second["hjet_pt"  ].fill(hyp.WJb()->Pt());
-		dir->second["jetCSV"   ].fill(hyp.WJa()->csvIncl());
-		dir->second["jetCSV"   ].fill(hyp.WJb()->csvIncl());
+		dir->second["thad_mass"].fill(hyp.THad().M() , weight);
+		dir->second["hjet_pt"  ].fill(hyp.WJa()->Pt(), weight);
+		dir->second["hjet_pt"  ].fill(hyp.WJb()->Pt(), weight);
+		dir->second["jetCSV"   ].fill(hyp.WJa()->csvIncl(), weight);
+		dir->second["jetCSV"   ].fill(hyp.WJb()->csvIncl(), weight);
 		float lead = (hyp.WJa()->Pt() > hyp.WJb()->Pt()) ? hyp.WJa()->Pt() : hyp.WJb()->Pt();
 		float sub  = (hyp.WJa()->Pt() > hyp.WJb()->Pt()) ? hyp.WJb()->Pt() : hyp.WJa()->Pt();
-		dir->second["hjet_pts" ].fill(lead, sub);//*/
+		dir->second["hjet_pts" ].fill(lead, sub, weight);//*/
 
 		//if(folder == "gen") return;
 		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
@@ -339,14 +361,14 @@ public:
 		// dir->second["Whad_sublead_DR" ].fill(hyp.WHad().DeltaR(*subleading));
 		// dir->second["Whad_lead_sub_DR"].fill(hyp.WHad().DeltaR(*leading), hyp.WHad().DeltaR(*subleading));
 		// dir->second["Whad_pt_lead_pt" ].fill(hyp.WHad().Pt(), leading->Pt());		
-		dir->second["hjet_es"  ].fill(leading->E(), subleading->E());
+		dir->second["hjet_es"  ].fill(leading->E(), subleading->E(), weight);
 
 		//FILL JET INFORMATION
-		fill_jet_info(folder + "/leading", leading);
-		fill_jet_info(folder + "/subleading", subleading);
+		fill_jet_info(folder + "/leading", leading, weight);
+		fill_jet_info(folder + "/subleading", subleading, weight);
 	}
 
-	void fill_other_jet_plots(string folder, Permutation &hyp, vector<IDJet*>& jets, std::function<bool(const IDJet*)>& fcn) {
+	void fill_other_jet_plots(string folder, Permutation &hyp, vector<IDJet*>& jets, std::function<bool(const IDJet*)>& fcn, float weight) {
 		//folder += sys_name + "/" + criterion + "/" + working_point;
 		auto dir = histos_.find(folder);
 		if(dir == histos_.end()) {
@@ -356,7 +378,7 @@ public:
 		}
 		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
 		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
-		dir->second["csvL_csvS" ].fill(leading->csvIncl(), subleading->csvIncl());
+		dir->second["csvL_csvS" ].fill(leading->csvIncl(), subleading->csvIncl(), weight);
 
 		set<IDJet*> hypjets;
 		hypjets.insert(hyp.WJa());
@@ -366,9 +388,9 @@ public:
 		for(IDJet* jet : jets) {
 			if(hypjets.find(jet) == hypjets.end()){
 				if(fcn(jet))
-					dir->second["passing_jpt_massDiscriminant"].fill(jet->Pt(), hyp.MassDiscr());
+					dir->second["passing_jpt_massDiscriminant"].fill(jet->Pt(), hyp.MassDiscr(), weight);
 				else
-					dir->second["failing_jpt_massDiscriminant"].fill(jet->Pt(), hyp.MassDiscr());
+					dir->second["failing_jpt_massDiscriminant"].fill(jet->Pt(), hyp.MassDiscr(), weight);
 			}
 		}
 	}
@@ -444,6 +466,25 @@ public:
 
 	void process_evt(SysShift shift, URStreamer &event, TTbarHypothesis &gen_hyp){
 		tracker_.track("start");
+		float weight = 1.;
+
+		bool mu_trg, el_trg;
+		if(isData_){
+			mu_trg = (event.trigger().HLT_IsoMu24_eta2p1() == 1);
+			el_trg = (event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1);
+		}	else {
+			mu_trg = (event.trigger().HLT_IsoMu27() == 1);
+			el_trg = (event.trigger().HLT_Ele27_WP85_Gsf() == 1);
+		}
+		if(!(mu_trg || el_trg)) return;
+		tracker_.track("trigger");
+
+		string sys_name = sys_names_[shift];
+		if(!isData_) weight *= pu_sf_->GetBinContent(
+			pu_sf_->FindFixBin(event.vertexs().size())
+			);
+		histos_[sys_name]["nvtx"].fill(event.vertexs().size(), weight);
+		histos_[sys_name]["nvtx_noweight"].fill(event.vertexs().size());
 		const vector<Muon>& muons = event.muons();
 		list<  IDMuon> keep_muons;
 		vector<IDMuon*> tight_muons; tight_muons.reserve(muons.size());
@@ -454,8 +495,11 @@ public:
 				keep_muons.push_back(mu);
 				loose_muons.push_back(&keep_muons.back());
 				if(mu.ID(IDMuon::TIGHT_12Db) && mu.Pt() > 30.){
-					histos_["preselection"]["tlep_char"].fill(muon->charge()*0.5);
-					histos_["preselection"]["mu_char"].fill(muon->charge()*0.5);
+					if(!isData_) weight *= muon_sf_->GetBinContent(
+						muon_sf_->FindFixBin(mu.Pt())
+						);
+					histos_["preselection"]["tlep_char"].fill(muon->charge()*0.5, weight);
+					histos_["preselection"]["mu_char"].fill(muon->charge()*0.5  , weight);
 					tight_muons.push_back(&keep_muons.back());
 				}
 			}
@@ -475,16 +519,28 @@ public:
 				keep_electrons.push_back(el);
 				loose_electrons.push_back(&keep_electrons.back());
 				if(el.ID(IDElectron::MEDIUM_12Db) && el.Pt() > 30.){
-					histos_["preselection"]["tlep_char"].fill(electron->charge()*0.5);
-					histos_["preselection"]["el_char"].fill(electron->charge()*0.5);
+					if(!isData_) weight *= electron_sf_->GetBinContent(
+						electron_sf_->FindFixBin(el.Pt())
+						);
+					histos_["preselection"]["tlep_char"].fill(electron->charge()*0.5, weight);
+					histos_["preselection"]["el_char"].fill(electron->charge()*0.5  , weight);
 					tight_electrons.push_back(&keep_electrons.back());
 				}
 			}
 		}
 		if(loose_electrons.size() > 1) return;
 		tracker_.track("electron veto");
+
 		if(tight_muons.size() + tight_electrons.size() != 1) return;
+		//remove mismatch in trgger and selected object 
+		if(mu_trg && tight_electrons.size() == 1) return;
+		if(el_trg && tight_muons.size() == 1) return;
 		tracker_.track("One lepton");
+		TLorentzVector* lepton = tight_muons.size() ? (TLorentzVector*) tight_muons[0] : (TLorentzVector*) tight_electrons[0];
+		if(weight == 0){
+			Logger::log().debug() << "PU*lepton weight: " << weight << endl;
+			Logger::log().debug() << "# vtx: "<< event.vertexs().size() << ", muons "<< tight_muons.size() <<", electrons: " << tight_electrons.size()  << ", lepton.pt: " << lepton->Pt() << endl;
+		}
 
 		const vector<Jet>& jets = event.jets();
 		list<IDJet> keep_jets;
@@ -529,22 +585,21 @@ public:
 		if(bjets.size() < 2) return;
 		tracker_.track("2 bjets");
 
-		TLorentzVector* lepton = tight_muons.size() ? (TLorentzVector*) tight_muons[0] : (TLorentzVector*) tight_electrons[0];
 		int lep_charge = tight_muons.size() ? tight_muons[0]->charge() : tight_electrons[0]->charge();
 		//sort jets by pt
 		sort(selected_jets.begin(), selected_jets.end(), [](const Jet* one, const Jet* two) {return  one->Pt() > two->Pt();});
-		size_t pick = selected_jets.size() == 4 ? 4 : 5; //avoid vector out of bounds
+		size_t pick = selected_jets.size() < 7  ? selected_jets.size() : 7; //avoid vector out of bounds
 		vector<IDJet*> leading_jets(selected_jets.begin(), selected_jets.begin()+pick); //pick first 4-5 
 		//at least two jets with pt > 30
 		if(leading_jets[1]->Pt() < bjet_pt_cut_) return;
 		tracker_.track("bjets pt cut");
 
 		if(shift == NOSYS){
-			histos_["preselection"]["nleadjets"].fill(leading_jets.size());
-			histos_["preselection"]["njets"   ].fill(selected_jets.size());
-			histos_["preselection"]["nbjets"  ].fill(bjets.size());
-			histos_["preselection"]["lep_pt"  ].fill(lepton->Pt());
-			histos_["preselection"]["lep_char"].fill(lep_charge*0.5);
+			histos_["preselection"]["nleadjets"].fill(leading_jets.size(), weight);
+			histos_["preselection"]["njets"   ].fill(selected_jets.size(), weight);
+			histos_["preselection"]["nbjets"  ].fill(bjets.size(), weight);
+			histos_["preselection"]["lep_pt"  ].fill(lepton->Pt(), weight);
+			histos_["preselection"]["lep_char"].fill(lep_charge*0.5, weight);
 		}
 		// for(auto& jet : leading_jets) Logger::log().debug() << jet << " ";
 		// Logger::log().debug() << " " << endl;
@@ -602,7 +657,7 @@ public:
 		// 	" nleadjets: " << leading_jets.size() << " njets: " <<  selected_jets.size() <<
 		// 	" nbjets: "  << bjets.size() << endl;
 
-		histos_["preselection"]["nperms"].fill(combinations.size());
+		histos_["preselection"]["nperms"].fill(combinations.size(), weight);
 		if(combinations.size() == 0) return;
 		tracker_.track("one ttbar hypothesis");
 
@@ -627,7 +682,7 @@ public:
 				if(get_ttdir_name(matched_hyp, perm, gen_hyp.decay) == TTNaming::RIGHT) 
 					count++;
 			}
-			histos_["preselection"]["matchable"].fill(count);
+			histos_["preselection"]["matchable"].fill(count, weight);
 
 			size_t code=0;
 			if(gen_hyp.decay == DecayType::SEMILEP){
@@ -636,12 +691,13 @@ public:
 				else if(matched_hyp.IsWHadComplete()) code=2;
 				else if(matched_hyp.IsTLepComplete()) code=1;
 				else code=0;
-				histos_["preselection"]["matching"].fill(code);
+				histos_["preselection"]["matching"].fill(code, weight);
 			}
-			histos_["preselection"]["decay"].fill(gen_hyp.decay);
+			histos_["preselection"]["decay"].fill(gen_hyp.decay, weight);
 		}
 
 		string sys_dir = sys_names_[shift];
+		histos_[sys_dir]["weight"].fill(weight);
 		//Logger::log().debug() << "\n\nShift: " << shift << " name: " << root_dir << endl;
 		for(auto item = ordering_.begin(); item != ordering_.end(); ++item){
 			//sort(combinations.begin(), combinations.end(), item->second);
@@ -651,10 +707,10 @@ public:
 				for(auto& wpoint : working_points_){
 					string jet_category = get_wjet_category(best, wpoint.second);
 					string folder = sys_dir+"/"+item->first+"/"+wpoint.first;
-					fill_other_jet_plots(folder, best, selected_jets, wpoint.second);
+					fill_other_jet_plots(folder, best, selected_jets, wpoint.second, weight);
 					folder += jet_category;
 					//Logger::log().debug() << "filling: " << folder << endl;
-					fill(folder, best, selected_jets.size(), bjets.size());
+					fill(folder, best, selected_jets.size(), bjets.size(), weight);
 				}
 			} else {
 				//define which subdir we fall in
@@ -670,11 +726,11 @@ public:
 					string jet_category = get_wjet_category(best, wpoint.second);
 					string folder = ttsubdir+"/"+sys_dir+"/"+item->first+"/"+wpoint.first;
 
-					fill_other_jet_plots(folder, best, selected_jets, wpoint.second);
+					fill_other_jet_plots(folder, best, selected_jets, wpoint.second, weight);
 					folder += jet_category;
 
 					//Logger::log().debug() << "filling: " << folder << endl;
-					fill(folder, best, selected_jets.size(), bjets.size());
+					fill(folder, best, selected_jets.size(), bjets.size(), weight);
 					//if(dir_id == TTNaming::RIGHT) fill_gen_info("semilep_visible_right/"+item->first+"/all", best, gen_hyp);
 				}
 			} //if(!isTTbar_)

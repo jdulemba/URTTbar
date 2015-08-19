@@ -12,6 +12,7 @@ from array import array
 import ROOT
 from pdb import set_trace
 import rootpy
+import rootpy.io as io
 from fnmatch import fnmatch
 import URAnalysis.Utilities.prettyjson as prettyjson
 import URAnalysis.Utilities.quad as quad
@@ -73,6 +74,7 @@ class BTagPlotter(Plotter):
          'view' : self.create_tt_subsample(
             'semilep_right_thad', 
             'tt, right t_{h}',
+            '#aaaad5'
             ),
          }
       self.views['ttJets_rightWHad'] = {
@@ -86,14 +88,14 @@ class BTagPlotter(Plotter):
          'view' : self.create_tt_subsample(
             'semilep_right_tlep', 
             'tt, right t_{l}',
-            '#aac0d5'
+            '#ab5555'
             )
          }
       self.views['ttJets_semiWrong'] = {
          'view' : self.create_tt_subsample(
             'semilep_wrong', 
             'tt, wrong cmb',
-            '#88a7c4'
+            '#d5aaaa'
             )
          }
       self.views['ttJets_other'] = {
@@ -105,6 +107,7 @@ class BTagPlotter(Plotter):
          }
 
       self.mc_samples = [
+         'QCD*',
          '[WZ]Jets',
          'single*',
          'ttJets_allRight',
@@ -116,6 +119,7 @@ class BTagPlotter(Plotter):
          ]
 
       self.card_names = {
+         'qcd' : ['QCD*'],
          'right_whad' : ['ttJets_allRight', 'ttJets_rightHad', 'ttJets_rightWHad'],
          'wrong_whad' : ['ttJets_rightWLep', 'ttJets_semiWrong'],
          'nonsemi_tt' : ['ttJets_other'],
@@ -564,10 +568,10 @@ orders = [
 
 working_points = [
    "notag",
-   "csvTight",
-   "csvMedium",
-   "csvLoose",
-   "rndm10",
+   ## "csvTight",
+   ## "csvMedium",
+   ## "csvLoose",
+   ## "rndm10",
 ]
 
 both_tag_binning = {
@@ -607,13 +611,64 @@ additional_opts = {
 }
 
 if not args.noplots:
-   cut_flow = plotter.get_view(plotter.tt_to_use).Get('cut_flow')
-   cut_flow.Draw()
-   cut_flow.GetYaxis().SetRangeUser(1, 10**7)
-   #plotter.pad.SetLogy()
+   views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, plotter.mc_samples)
+   views_to_flow.append(plotter.tt_to_use)
+   stack = plotting.HistStack()
+   qcd_samples = [i for i in plotter.views if 'QCD' in i]
+
+   for vtf in views_to_flow:
+      histo = plotter.get_view(vtf).Get('cut_flow')
+      plotter.keep.append(histo)
+      stack.Add(
+         histo
+         )
+
+   #QCD may not have all the bins filled, needs special care
+   qcd_histo = histo.Clone()
+   qcd_histo.Reset()
+   for sample in qcd_samples:
+      qcd_flow = plotter.get_view(sample).Get('cut_flow')
+      qcd_histo = qcd_histo.decorate(
+         **qcd_flow.decorators
+         )
+      qcd_histo.title = qcd_flow.title
+      for sbin, qbin in zip(qcd_histo, qcd_flow):
+         sbin.value += qbin.value
+         sbin.error = quad.quad(sbin.error, qbin.error)
+   stack.Add(qcd_histo)
+
+   histo.Draw() #set the proper axis labels
+   data = plotter.get_view('data').Get('cut_flow')
+   smin = min(stack.min(), data.min(), 1.2)
+   smax = max(stack.max(), data.max())
+   histo.yaxis.range_user = smin*0.8, smax*1.2
+   stack.Draw('same')
+   data.Draw('same')
+   plotter.add_legend([stack, data], False, entries=len(views_to_flow)+1)
+   plotter.pad.SetLogy()
+   plotter.add_ratio_plot(data, stack, ratio_range=0.4)
+   plotter.lower_pad.SetLogy(False)
+   #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
    plotter.save('cut_flow', pdf=False)
 
    for order in orders:
+      plotter.plot_mc_vs_data(
+         'nosys', 'nvtx', sort=True,
+         xaxis="# vtx", leftside=False, 
+         show_ratio=True, ratio_range=0.5)
+      plotter.save('nvtx', pdf=False)
+
+      with io.root_open(os.path.join(plotter.outputdir, 'vtxs.root'), 'recreate') as out:
+         vtx_stack = plotter.make_stack(folder='nosys').Get('nvtx')
+         vtx_data = plotter.get_view('data').Get('nosys/nvtx')
+         vtx_data.Scale(1./vtx_data.Integral())
+         ratio = sum(vtx_stack.hists)
+         ratio.Scale(1./ratio.Integral())
+         for rbin, dbin in zip(ratio, vtx_data):
+            rbin.value = dbin.value/rbin.value if rbin.value else 0.
+            rbin.error = 0.
+         out.WriteTObject(ratio, 'vtx_reweigt')
+
       for wpoint in working_points:
         for jet_cat in jet_categories:
           if wpoint == 'notag' and jet_cat <> "both_untagged": continue
@@ -627,7 +682,7 @@ if not args.noplots:
                 plotter.plot_mc_vs_data(
                    folder, var, rebin, sort=True,
                    xaxis=axis % jtype, leftside=False, 
-                   xrange=x_range)
+                   xrange=x_range, show_ratio=True, ratio_range=0.5)
                 if 'pflav' in var:
                    for h in plotter.keep:
                       if isinstance(h, plotting.HistStack):
@@ -647,7 +702,8 @@ if not args.noplots:
              plotter.plot_mc_vs_data(
                 folder, var, rebin, sort=True,
                 xaxis=axis, leftside=False,
-                xrange=x_range)
+                xrange=x_range, show_ratio=True, 
+                ratio_range=0.5)
              plotter.save(var, pdf=False)
              if var in shapes:
                 if var == "mass_discriminant" and "_tagged" in jet_cat: rebin = 4
