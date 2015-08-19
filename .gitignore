@@ -19,3 +19,4 @@ jobid.sh
 *.txt
 *.raw_txt
 *.log
+production/crab_*_cfg.py
