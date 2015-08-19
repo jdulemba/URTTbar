@@ -1,10 +1,11 @@
 # Project-related environment variables 
+whereIam=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P)
 
 #This part should be changed by the user(s)
 export jobid=NOTSET
-if [ -e jobid.sh ] 
+if [ -e $whereIam/jobid.sh ] 
 then
-		source jobid.sh
+		source $whereIam/jobid.sh
 else
 		echo "I did not find jobid.sh, are you sure you do not want to set the jobid and leave it to $jobid?"
 fi

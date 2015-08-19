@@ -38,6 +38,13 @@ def run_module(**kwargs):
    discriminant =  'massDiscr'
    phase_space = 'fiducialtight'
    full_discr_binning = [4]#range(-15, 16)
+
+   jet_categories = [
+      ('0Jets', ['0']), 
+      ('1Jets', ['1']), 
+      ('2Jets', ['2']), 
+      ('3Jets', ['3']), 
+      ]
       
    ## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
    ## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
@@ -328,11 +335,13 @@ def run_module(**kwargs):
                info.dir_postfix if hasattr(info, 'dir_postfix') else ''
                )
             )
-         plotter.write_shapes(
-            '', var, 'all_%s_%s' % (discriminant, var), 
-            var_binning=info.binning.reco,
-            disc_binning = lambda x, *args: full_discr_binning[0]
-            ) 
+         for category_name, hist_names in jet_categories:
+            plotter.write_shapes(
+               '', var, ['all_%s_%s_%s' % (discriminant, i, var) for i in hist_names], 
+               var_binning=info.binning.reco,
+               disc_binning = lambda x, *args: full_discr_binning[0],
+               category_template='Bin%i_'+category_name
+               ) 
          plotter.add_systematics()
          #plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)
          plotter.save_card(var)

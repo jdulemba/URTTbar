@@ -1348,7 +1348,7 @@ void ttbar::analyze()
 	while(event.next())
 	{
 		nevent++;
-		if(nevent % 1000 == 0)cout << "Event:" << nevent << " " << event.run << endl;
+		if(nevent % 1000 == 0) Logger::log().debug() << "Event:" << nevent << " " << event.run << endl;
 		sgenparticles.clear();
 		genwpartons.clear();
 		gencls.clear();
