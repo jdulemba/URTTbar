@@ -54,7 +54,8 @@ ttbar::ttbar(const std::string output_filename):
 	JETSCALEMODE(false), //set true for the b-tag efficiency measurement
 	ELECTRONS(true),
 	MUONS(true),
-	B_TIGHT(0.97),
+	B_TIGHT(0.89),
+	//B_TIGHT(0.97),
 	B_MEDIUM(0.89),
 	cnbtag(2), //1: one thight b-jet, 2: two medium b-jets
 	skew_pt_distro(true),
@@ -73,11 +74,15 @@ ttbar::ttbar(const std::string output_filename):
 	cpjetetamax(2.4),//max |eta| for jets
 	cplptmin(30.), //min pT of lepton (el or mu)
 	cpletamax(2.1),//max |eta| of leptons (max allowed value is 2.4) 
+	cpjetsep(0.),
 	csigmajet(0.),
+	cjetres(0.),
 	csigmamet(0.),
 	ctopptweight(0.),
+	cttptweight(0.),
 	crenscale(0),
-	cfacscale(0)
+	cfacscale(0),
+	HERWIGPP(false)
 {
 	
 	ConfigParser CP("ttbarxsec.cfg");
@@ -85,8 +90,8 @@ ttbar::ttbar(const std::string output_filename):
 	BTAGMODE = CP.Get<bool>("BTAGMODE");
 	ELECTRONS = CP.Get<bool>("ELECTRONS");
 	MUONS = CP.Get<bool>("MUONS");
-	IDMuon::USEISO = CP.Get<bool>("LEPTONISO");
-	IDElectron::USEISO = CP.Get<bool>("LEPTONISO");
+	// IDMuon::USEISO = CP.Get<bool>("LEPTONISO");
+	// IDElectron::USEISO = CP.Get<bool>("LEPTONISO");
 	cnbtag = CP.Get<int>("nbtag");
 
 	cwjetptsoft = CP.Get<double>("wjetptsoft"); 
@@ -104,10 +109,13 @@ ttbar::ttbar(const std::string output_filename):
 	cpjetetamax = CP.Get<double>("Pjetetamax");
 	cplptmin = CP.Get<double>("Plptmin"); 
 	cpletamax = CP.Get<double>("Pletamax");
+	cpjetsep = CP.Get<double>("Pjetsep");
 
 	csigmajet = CP.Get<double>("sigmajet");
+	cjetres = CP.Get<double>("jetres");
 	csigmamet = CP.Get<double>("sigmamet");
 	ctopptweight = CP.Get<double>("topptweight");
+	cttptweight = CP.Get<double>("ttptweight");
 	if(output_filename.find("tt_PowhegP8") != string::npos)
 	{
 		cfacscale = CP.Get<int>("facscale");
@@ -146,6 +154,7 @@ ttbar::ttbar(const std::string output_filename):
 	{
 		selectionprob = lumi*806./1656654.;
 	}
+	if(output_filename.find("tt_PowhegHpp") != string::npos){HERWIGPP = true;}
 
 	jetptmin = min(cwjetptsoft, cbjetptsoft);
 	
@@ -322,6 +331,15 @@ void ttbar::begin()
 	}
 	puhist = (TH1D*)f->Get("PUweight");
 
+	TFile* fl = TFile::Open("Lep_SF.root");
+	if(!fl)
+	{
+		Logger::log().error() << "Could not open Lep_SF.root!" << endl;
+		throw 49;
+	}	
+	musfhist = (TH1D*)fl->Get("Scale_MuTOT_Pt");
+	elsfhist = (TH1D*)fl->Get("Scale_ElTOT_Pt");
+
 	// M&M histo init start
 	TDirectory* dir_other = outFile_.mkdir("OTHER");
 	dir_other->cd();
@@ -447,6 +465,7 @@ void ttbar::SelectGenParticles(URStreamer& event)
 {
 	int lepdecays = 0;
 	int topcounter = 0;
+	//vector<Genparticle> bpartons;	
 	if(PSEUDOTOP)
 	{
 		const vector<Pst>& pseudotops = event.PSTs();
@@ -507,21 +526,92 @@ void ttbar::SelectGenParticles(URStreamer& event)
 		}
 		//else {cout << "no pseudotop" << endl;}
 	}
+	else if(HERWIGPP)
+	{
+		const vector<Genparticle>& gps = event.genParticles();
+		for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp)
+		{
+			if(gp->status() == 11)
+			{
+				if(gp->pdgId() == 6 && gps[gp->firstDaughtIdx()].pdgId() != 6)
+				{
+					//cout << gps[gp->firstDaughtIdx()].pdgId() << endl;
+					weight *= 1.+ctopptweight*(gp->Pt()-200.)/1000.;
+					topcounter++;
+					sgenparticles.push_back(*gp);
+					gent = &(sgenparticles.back());
+				}
+				else if(gp->pdgId() == -6 && gps[gp->firstDaughtIdx()].pdgId() != -6)
+				{
+					//cout << "P1 " << gps[gp->firstDaughtIdx()].pdgId() << endl;
+					topcounter++;
+					sgenparticles.push_back(*gp);
+					gentbar = &(sgenparticles.back());
+				}
+				else if(gp->pdgId() == 5 && gps[gp->momIdx()[0]].pdgId() == 6)
+				{
+					sgenparticles.push_back(*gp);
+					genb = &(sgenparticles.back());
+				}
+				else if(gp->pdgId() == -5 && gps[gp->momIdx()[0]].pdgId() == -6)
+				{
+					sgenparticles.push_back(*gp);
+					genbbar = &(sgenparticles.back());
+				}
+				else if(Abs(gp->pdgId()) < 6 && gp->momIdx().size() != 0 && Abs(gps[gp->momIdx()[0]].pdgId()) == 24)
+				{
+					sgenparticles.push_back(*gp);
+					genwpartons.push_back(&(sgenparticles.back()));
+				}
+				else if(gp->momIdx().size() != 0 && Abs(gps[gp->momIdx()[0]].pdgId()) == 24)
+				{
+					if(Abs(gp->pdgId()) == 11 || Abs(gp->pdgId()) == 13)
+					{
+						sgenparticles.push_back(*gp);
+						gencls.push_back(&(sgenparticles.back()));
+						genfincls.push_back(&(sgenparticles.back()));	
+					}
+					if(Abs(gp->pdgId()) == 12 || Abs(gp->pdgId()) == 14)
+					{
+						sgenparticles.push_back(*gp);
+						gennls.push_back(&(sgenparticles.back()));	
+						lepdecays++;
+					}
+					if(Abs(gp->pdgId()) == 16)
+					{
+						lepdecays++;
+					}
+				}
+			}
+			//if(gp->status() == 1 && gp->momIdx().size() != 0 && (Abs(gps[gp->momIdx()[0]].pdgId()) == 24 || gp->pdgId() == gps[gp->momIdx()[0]].pdgId()))
+			//{
+			//	if(Abs(gp->pdgId()) == 11 || Abs(gp->pdgId()) == 13)
+			//	{
+			//		sgenparticles.push_back(*gp);
+			//		genfincls.push_back(&(sgenparticles.back()));	
+			//	}
+			//}
+		}
+	}
 	else
 	{
 		const vector<Genparticle>& gps = event.genParticles();
 		for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp)
 		{
-			//if(Abs(gp->pdgId()) == 5 && gp->status() <=70 && gp->status() > 21)
 			if(gp->status() > 21 && gp->status() < 30 && gp->momIdx().size() != 0)
 			{
 				if(gp->pdgId() == 6)
 				{
 					weight *= 1.+ctopptweight*(gp->Pt()-200.)/1000.;
+					topcounter++;
+					sgenparticles.push_back(*gp);
+					gent = &(sgenparticles.back());
 				}
-				if(Abs(gp->pdgId()) == 6)
+				else if(gp->pdgId() == -6)
 				{
 					topcounter++;
+					sgenparticles.push_back(*gp);
+					gentbar = &(sgenparticles.back());
 				}
 				else if(gp->pdgId() == 5 && gps[gp->momIdx()[0]].pdgId() != 24)
 				{
@@ -574,8 +664,10 @@ void ttbar::SelectGenParticles(URStreamer& event)
 	SEMILEP = false;
 	FULLLEP = false;
 	SEMILEPACC = false;
+	//cout << topcounter << " " << lepdecays << " " << genwpartons.size() << " " << genfincls.size() << endl;
 	if(topcounter == 2 && genb != 0 && genbbar != 0)
 	{
+		weight *= 1.+cttptweight*((*gent + *gentbar).Pt()-100.)/500.;
 		if(lepdecays == 2 && genwpartons.size() == 0)
 		{ 
 			FULLLEP = true; gen1d["TYP"]->Fill(0.5, weight);
@@ -607,8 +699,7 @@ void ttbar::SelectGenParticles(URStreamer& event)
 		{
 			if(Min(genwpartons[0]->Pt(), genwpartons[1]->Pt()) > cpwjetptsoft && Max(genwpartons[0]->Pt(), genwpartons[1]->Pt()) > cpwjetpthard && Min(genb->Pt(), genbbar->Pt()) > cpbjetptsoft && Max(genb->Pt(), genbbar->Pt()) > cpbjetpthard)
 			{
-				// FIXME: add config parameter for the common threshold at 0.4
-				if(genwpartons[0]->DeltaR(*genwpartons[1]) > 0.4 && genwpartons[0]->DeltaR(*genb) > 0.4 && genwpartons[0]->DeltaR(*genbbar) > 0.4 && genwpartons[1]->DeltaR(*genb) > 0.4 && genwpartons[1]->DeltaR(*genbbar) > 0.4 && genb->DeltaR(*genbbar) > 0.4)
+				if(genwpartons[0]->DeltaR(*genwpartons[1]) > cpjetsep && genwpartons[0]->DeltaR(*genb) > cpjetsep && genwpartons[0]->DeltaR(*genbbar) > cpjetsep && genwpartons[1]->DeltaR(*genb) > cpjetsep && genwpartons[1]->DeltaR(*genbbar) > cpjetsep && genb->DeltaR(*genbbar) > cpjetsep)
 				{
 					SEMILEPACC = true;
 				}
@@ -671,7 +762,7 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 	const vector<Muon>& muons = event.muons();
 	for(vector<Muon>::const_iterator muon = muons.begin(); muon != muons.end(); ++muon)
 	{
-		IDMuon mu(*muon);
+		IDMuon mu(*muon, event.rho().value());
 		//if(mu.ID(IDMuon::TIGHT_12) && mu.Pt() > 15.)
 		if(gencls.size() == 1 && mu.DeltaR(*gencls[0]) < 0.4)
 		{
@@ -695,7 +786,7 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 	const vector<Electron>& electrons = event.electrons();
 	for(vector<Electron>::const_iterator electron = electrons.begin(); electron != electrons.end(); ++electron)
 	{
-		IDElectron el(*electron);
+		IDElectron el(*electron, event.rho().value());
 		if(gencls.size() == 1 && el.DeltaR(*gencls[0]) < 0.4)
 		{
 			double eta = Abs(TVector3(el.x(), el.y(), el.z()).Eta());
@@ -727,7 +818,11 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 		double sf = csigmajet;
 		if(sf < 0.){sf *= jetscaler.GetUncM(jet);}
 		if(sf > 0.){sf *= jetscaler.GetUncP(jet);}
-
+		if(cjetres > 0.)
+		{
+			sf = gRandom->Gaus(sf, cjetres);
+		}
+		
 		sf += 1;
 		//double sf = 1. + sigma*0.177829 * Power(jet.Pt(), -0.58647);
 		metcorrx -= (sf-1)*jet.Px(); 
@@ -740,6 +835,7 @@ void ttbar::SelectRecoParticles(URStreamer& event)
 		cleanedjets.push_back(&(sjets.back()));
 	}
 
+	//const vector<Nohfmet>& mets = event.NoHFMETs();
 	const vector<Met>& mets = event.METs();
 	if(mets.size() == 1)
 	{
@@ -894,15 +990,18 @@ void ttbar::ttanalysis(URStreamer& event)
 	double nvtx = event.vertexs().size();
 	reco1d["NumVertices"]->Fill(nvtx , weight);
 
-	if(event.PUInfos().size() > 0)
+	if(isMC)
 	{
 		double npu = event.vertexs().size();
-		truth1d["npuorig"]->Fill(npu, weight);
-		if(npu > 4)
+		truth1d["npuorig"]->Fill(npu+0.5, weight);
+		if(npu > 0)
 		{
-			weight *= puhist->Interpolate(npu);
+			weight *= puhist->GetBinContent(npu+1);
 		}
-		truth1d["npu"]->Fill(npu, weight);
+		truth1d["npu"]->Fill(npu+0.5, weight);
+		
+		if(tightmuons.size() == 1){weight *= musfhist->GetBinContent(musfhist->FindFixBin(Min(lep->Pt(), 95.)));}
+		if(mediumelectrons.size() == 1){weight *= elsfhist->GetBinContent(elsfhist->FindFixBin(Min(lep->Pt(), 95.)));}
 	}
 	reco1d["NumVerticesWeighted"]->Fill(nvtx , weight);
 
@@ -979,7 +1078,7 @@ void ttbar::ttanalysis(URStreamer& event)
 		truth2d["Wmasshad_tmasshad_right"]->Fill(rightper.WHad().M(), rightper.THad().M(), weight);
 	}
 
-	int nbtaglocal = cnbtag;
+	int nbtaglocal = 2; //cnbtag;
 	for(size_t i = nbtaglocal ; i < reducedjets.size() ; ++i)
 	{
 		for(size_t j = nbtaglocal ; j < i ; ++j)
@@ -1072,6 +1171,7 @@ void ttbar::ttanalysis(URStreamer& event)
 		
 	}
 	if(bestper.Prob() > 1E9){return;}
+	if(bestper.MassDiscr() > 10){return;}
 	reco1d["counter"]->Fill(4.5, weight);
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(7.5, weight);
 	//Fill reconstructed hists
@@ -1152,22 +1252,27 @@ void ttbar::ttanalysis(URStreamer& event)
 	if(bestper.IsCorrect(rightper))
 	{
 		ttp_tlepthad_right.Fill(bestper, lepcharge, weight);
+		semilep_visible_right.Fill(bestper, lepcharge, weight);
 	}
 	else if(bestper.IsTHadCorrect(rightper))
 	{
 		ttp_thad_right.Fill(bestper, lepcharge, weight);
+		semilep_right_thad.Fill(bestper, lepcharge, weight);
 	}
 	else if(bestper.IsBLepCorrect(rightper))
 	{
 		ttp_tlep_right.Fill(bestper, lepcharge, weight);
+		semilep_right_tlep.Fill(bestper, lepcharge, weight);
 	}
 	else if(SEMILEP)
 	{
 		ttp_nn_right.Fill(bestper, lepcharge, weight);
+		semilep_wrong.Fill(bestper, lepcharge, weight);
 	}
 	else
 	{
 		ttp_nsemi_right.Fill(bestper, lepcharge, weight);
+		other_tt_decay.Fill(bestper, lepcharge, weight);
 	}
 
 	if(JETSCALEMODE)
@@ -1319,19 +1424,19 @@ void ttbar::ttanalysis(URStreamer& event)
 		}
 	}
 	
-	if(SEMILEP) {
-		if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper)) {
-			semilep_visible_right.Fill(bestper, lepcharge, weight);
-		}
-		else if(rightper.IsTLepComplete() && bestper.IsTLepCorrect(rightper)) {
-			semilep_right_tlep.Fill(bestper, lepcharge, weight);
-		}
-		else if(rightper.IsTHadComplete() && bestper.AreHadJetsCorrect(rightper)) {
-			semilep_right_thad.Fill(bestper, lepcharge, weight);
-		}
-		else {semilep_wrong.Fill(bestper, lepcharge, weight);}
-	}
-	else {other_tt_decay.Fill(bestper, lepcharge, weight);}
+// 	if(SEMILEP) {
+// 		if(rightper.IsComplete() && rightper.IsLooselyCorrect(bestper)) {
+// 			semilep_visible_right.Fill(bestper, lepcharge, weight);
+// 		}
+// 		else if(rightper.IsTLepComplete() && bestper.IsTLepCorrect(rightper)) {
+// 			semilep_right_tlep.Fill(bestper, lepcharge, weight);
+// 		}
+// 		else if(rightper.IsTHadComplete() && bestper.AreHadJetsCorrect(rightper)) {
+// 			semilep_right_thad.Fill(bestper, lepcharge, weight);
+// 		}
+// 		else {semilep_wrong.Fill(bestper, lepcharge, weight);}
+// 	}
+// 	else {other_tt_decay.Fill(bestper, lepcharge, weight);}
 }
 
 //This method is called once every file, contains the event loop
@@ -1341,8 +1446,8 @@ void ttbar::analyze()
 
 	int nevent = 0;
 	URStreamer event(tree_);
-	IDElectron::streamer = &event;
-	IDMuon::streamer = &event;
+	//IDElectron::streamer = &event;
+	//IDMuon::streamer = &event;
 	PDFuncertainty::streamer = &event;
 	TRandom3 rand(crandomseed);
 	while(event.next())
@@ -1378,7 +1483,7 @@ void ttbar::analyze()
 		weight = 1.;	
 		if(event.PUInfos().size() > 0)
 		{
-			isMC == true;
+			isMC = true;
 			const Geninfo& info = event.genInfo();
 			weight *= info.weight()/Abs(info.weight());
 			const vector<Mcweight>& ws =  event.MCWeights();
@@ -1412,8 +1517,7 @@ void ttbar::analyze()
 				ttanalysis(event);
 			}
 		}
-
-		if(!DATASIM)
+		else if(!DATASIM)
 		{
 			SelectGenParticles(event);
             if(
