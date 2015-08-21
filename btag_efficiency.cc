@@ -26,6 +26,22 @@
 
 using namespace TMath;
 
+static map<string, IDJet::BTag> available_bjet_id = {
+	{"none"     , IDJet::BTag::NONE},
+	{"csvMedium", IDJet::BTag::CSVMEDIUM},
+	{"csvLoose" , IDJet::BTag::CSVLOOSE},
+	{"csvTight" , IDJet::BTag::CSVTIGHT},
+};	
+
+static map<string, std::function<bool(const Permutation &, const Permutation &)> > available_ordering = {
+	{"full_discriminant", [](const Permutation &one, const Permutation &two) {return  one.Prob()  < two.Prob() ;}         },
+	{"nu_chisq"         , [](const Permutation &one, const Permutation &two) {return  one.NuChisq() 	 < two.NuChisq() ;}	},
+	{"nu_discriminant"	 , [](const Permutation &one, const Permutation &two) {return  one.NuDiscr() 	 < two.NuDiscr() ;}	},
+	{"btag_discriminant", [](const Permutation &one, const Permutation &two) {return  one.BDiscr()  	 < two.BDiscr()  ;}	},
+	{"mass_discriminant", [](const Permutation &one, const Permutation &two) {return  one.MassDiscr() < two.MassDiscr();} },
+	};
+
+
 class btag_efficiency : public AnalyzerBase
 {
 public:
@@ -43,15 +59,16 @@ private:
 	bool isData_, isTTbar_, run_jes_;
 
 	//CUTS
-	IDJet::BTag btag_id_ = IDJet::BTag::CSVMEDIUM; //IDJet::BTag::CSVTIGHT; 
-	float bjet_pt_cut_ = 30;
+	float cut_lmuon_pt_, cut_lmuon_eta_, cut_tmuon_pt_, cut_tmuon_eta_, cut_whad_mass_, cut_thad_mass_;
+	float cut_lelectron_pt_, cut_lelectron_eta_, cut_telectron_pt_, cut_telectron_eta_;
+	float cut_jet_pt_, cut_jet_eta_, cut_leadB_pt_, cut_subB_pt_, cut_leadJet_pt_, cut_subJet_pt_;
+	size_t cut_njets_permutated_;
+	IDJet::BTag cut_leadB_ID_, cut_subB_ID_;
+	string cut_ordering_;
+
 	float DR_match_to_gen_ = 0.3;
-	std::function<bool(const IDJet &)> jet_selection_ = [](const IDJet &jet) {return  (jet.Pt() > 20 && Abs(jet.Eta()) < 2.4);};
 
-	float jet_pt_cut_  = 20;
-	float jet_eta_cut_ = 2.4;
-
-	map<string, std::function<bool(const Permutation &, const Permutation &)> > ordering_;
+	std::function<bool(const Permutation &, const Permutation &)> ordering_fcn_;
 	map<string, std::function<bool(const IDJet*)> > working_points_;
 	map<SysShift, string> sys_names_ = {
 		{NOSYS, "nosys"}, 
@@ -70,7 +87,6 @@ public:
   btag_efficiency(const std::string output_filename):
     AnalyzerBase("btag_efficiency", output_filename), 
 		tracker_(),
-		ordering_(),
 		working_points_(),
 		solver_(),
 		randomizer_() 
@@ -109,12 +125,31 @@ public:
 			systematics_.push_back(JES_DOWN);
 		}
 
+		//SET CUTS FROM CFG
+		cut_ordering_ = URParser::instance().getCfgPar<string>("permutations.ordering");
+		cut_leadB_ID_ = available_bjet_id[
+			URParser::instance().getCfgPar<string>("permutations.leadB_ID")];
+		cut_subB_ID_  = available_bjet_id[
+			URParser::instance().getCfgPar<string>("permutations.subB_ID")];
+		ordering_fcn_ = available_ordering[cut_ordering_];
 
-		//ordering_["full_discriminant"] = [](const Permutation &one, const Permutation &two) {return  one.Prob()  < two.Prob() ;};
-		//ordering_["nu_chisq"         ] = [](const Permutation &one, const Permutation &two) {return  one.NuChisq() 	 < two.NuChisq() 	;};
-		//ordering_["nu_discriminant"	 ] = [](const Permutation &one, const Permutation &two) {return  one.NuDiscr() 	 < two.NuDiscr() 	;};
-		//ordering_["btag_discriminant"] = [](const Permutation &one, const Permutation &two) {return  one.BDiscr()  	 < two.BDiscr()  	;};
-		ordering_["mass_discriminant"] = [](const Permutation &one, const Permutation &two) {return  one.MassDiscr() < two.MassDiscr();}; 
+		cut_lmuon_pt_  		 		= URParser::instance().getCfgPar<float>("looseMuons.pt");
+		cut_lmuon_eta_ 		 		= URParser::instance().getCfgPar<float>("looseMuons.abseta");
+		cut_tmuon_pt_  		 		= URParser::instance().getCfgPar<float>("tightMuons.pt");
+		cut_tmuon_eta_ 		 		= URParser::instance().getCfgPar<float>("tightMuons.abseta");
+		cut_lelectron_pt_  		= URParser::instance().getCfgPar<float>("looseElectrons.pt");
+		cut_lelectron_eta_ 		= URParser::instance().getCfgPar<float>("looseElectrons.abseta");
+		cut_telectron_pt_  		= URParser::instance().getCfgPar<float>("tightElectrons.pt");
+		cut_telectron_eta_ 		= URParser::instance().getCfgPar<float>("tightElectrons.abseta");
+		cut_jet_pt_   		 		= URParser::instance().getCfgPar<float>("jets.pt");
+		cut_jet_eta_  		 		= URParser::instance().getCfgPar<float>("jets.abseta");
+		cut_leadB_pt_ 		 		= URParser::instance().getCfgPar<float>("permutations.leadB_pt");
+		cut_subB_pt_  		 		= URParser::instance().getCfgPar<float>("permutations.subB_pt");
+		cut_leadJet_pt_ 	 		= URParser::instance().getCfgPar<float>("permutations.leadJet_pt");
+		cut_subJet_pt_  	 		= URParser::instance().getCfgPar<float>("permutations.subJet_pt");
+		cut_njets_permutated_ = URParser::instance().getCfgPar<size_t>("permutations.njets_permutated");
+		cut_whad_mass_        = URParser::instance().getCfgPar<float>("permutations.whad_mass");
+		cut_thad_mass_        = URParser::instance().getCfgPar<float>("permutations.thad_mass");
 
 		naming_[TTNaming::RIGHT ] = "semilep_visible_right";
 		naming_[TTNaming::RIGHT_THAD ] = "semilep_right_thad" 	 ;
@@ -125,8 +160,8 @@ public:
 
 		working_points_["notag"]     = [](const IDJet* jet) {return false;};
 		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);};
-		// working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
-		// working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
+		//working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
+		//working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
 		// working_points_["rndm10"]    = [](const IDJet* jet) {return jet->rndm() < 0.1;};
 		// working_points_["ssvHiPur"] = [](const Jet* jet) {return (bool) jet->ssvHiPur()};
 		// working_points_["ssvHiEff"] = [](const Jet* jet) {return (bool) jet->ssvHiEff()};
@@ -215,45 +250,43 @@ public:
 				book<TH1F>(gcategory+sys_name, "nvtx_noweight", "", 100, 0., 100.);
 				book<TH1F>(gcategory+sys_name, "nvtx", "", 100, 0., 100.);
 				book<TH1F>(gcategory+sys_name, "weight", "", 100, 0., 20.);
-				for(auto& item : ordering_) {
-					string criterion = item.first;
-					for(auto& wp_item : working_points_) {
-						string working_point = wp_item.first;
-						string base;
-						if(!genCategory.empty()) base  = genCategory +"/";
-						base += sys_name + "/" + criterion + "/" + working_point;
-						book<TH2F>(base, "passing_jpt_massDiscriminant"  , "", 100, 0., 500., 200, 0., 20.);
-						book<TH2F>(base, "failing_jpt_massDiscriminant"  , "", 100, 0., 500., 200, 0., 20.);
-						book<TH2F>(base, "csvL_csvS"  , ";m_{t}(had) (GeV)", 100, 0., 1., 100, 0., 1.);
-						for(auto& tag : tagging){
-							if(working_point == "notag" && tag != "both_untagged") continue;
-							string folder = base + "/" + tag;
-							Logger::log().debug() << "creating plots for folder: " << folder << std::endl;
+				string criterion = cut_ordering_;
+				for(auto& wp_item : working_points_) {
+					string working_point = wp_item.first;
+					string base;
+					if(!genCategory.empty()) base  = genCategory +"/";
+					base += sys_name + "/" + criterion + "/" + working_point;
+					book<TH2F>(base, "passing_jpt_massDiscriminant"  , "", 100, 0., 500., 200, 0., 20.);
+					book<TH2F>(base, "failing_jpt_massDiscriminant"  , "", 100, 0., 500., 200, 0., 20.);
+					book<TH2F>(base, "csvL_csvS"  , ";m_{t}(had) (GeV)", 100, 0., 1., 100, 0., 1.);
+					for(auto& tag : tagging){
+						if(working_point == "notag" && tag != "both_untagged") continue;
+						string folder = base + "/" + tag;
+						Logger::log().debug() << "creating plots for folder: " << folder << std::endl;
 						
-							book_combo_plots(folder);
-							book_hyp_plots(folder);
+						book_combo_plots(folder);
+						book_hyp_plots(folder);
 
-							for(auto& w_folder : wjet_folders){
-								string current = folder + "/" + w_folder;
-								book<TH1F>(current, "eta"	,"eta"	, 100, -5, 5);
-								book<TH1F>(current, "pt" 	,"pt" 	, 100, 0 , 500);
-								book<TH1F>(current, "phi"	,"phi"	, 100, -4, 4);
-								book<TH1F>(current, "pflav_smart","pflav", 55, -27.5, 27.5);
-								book<TH1F>(current, "abs_pflav_smart","pflav", 28, -0.5, 27.5);
-								book<TH1F>(current, "hflav","hflav", 55, -27.5, 27.5);
-								book<TH1F>(current, "energy", ";E_{jet} (GeV)", 100, 0., 500.);
-								book<TH1F>(current, "ncharged", "", 50, 0., 50.);						
-								book<TH1F>(current, "nneutral", "", 50, 0., 50.);						
-								book<TH1F>(current, "ntotal"  , "", 50, 0., 50.);						
-							}
-							Logger::log().debug() << "...Done" << endl;
-							//if(genCategory == "semilep_visible_right"){
-								// book<TH1F>(folder, "nu_DR"    , "#DeltaR between gen and reco #nu;#DeltaR;counts", 140, 0., 7.);
-								// book<TH1F>(folder, "nu_DE"    , "#DeltaE between gen and reco #nu;#DeltaE (GeV);counts", 250, -250, 250.);
-							//}
-						}//for(auto& tag : tagging)
-					}//for(auto& wp_item : working_points_)
-				}//for(auto& criterion : criteria)
+						for(auto& w_folder : wjet_folders){
+							string current = folder + "/" + w_folder;
+							book<TH1F>(current, "eta"	,"eta"	, 100, -5, 5);
+							book<TH1F>(current, "pt" 	,"pt" 	, 100, 0 , 500);
+							book<TH1F>(current, "phi"	,"phi"	, 100, -4, 4);
+							book<TH1F>(current, "pflav_smart","pflav", 55, -27.5, 27.5);
+							book<TH1F>(current, "abs_pflav_smart","pflav", 28, -0.5, 27.5);
+							book<TH1F>(current, "hflav","hflav", 55, -27.5, 27.5);
+							book<TH1F>(current, "energy", ";E_{jet} (GeV)", 100, 0., 500.);
+							book<TH1F>(current, "ncharged", "", 50, 0., 50.);						
+							book<TH1F>(current, "nneutral", "", 50, 0., 50.);						
+							book<TH1F>(current, "ntotal"  , "", 50, 0., 50.);						
+						}
+						Logger::log().debug() << "...Done" << endl;
+						//if(genCategory == "semilep_visible_right"){
+						// book<TH1F>(folder, "nu_DR"    , "#DeltaR between gen and reco #nu;#DeltaR;counts", 140, 0., 7.);
+						// book<TH1F>(folder, "nu_DE"    , "#DeltaE between gen and reco #nu;#DeltaE (GeV);counts", 250, -250, 250.);
+						//}
+					}//for(auto& tag : tagging)
+				}//for(auto& wp_item : working_points_)
 			}//for(auto& sys : systematics){
 		}//for(auto& genCategory : folders)
 
@@ -485,16 +518,18 @@ public:
 			);
 		histos_[sys_name]["nvtx"].fill(event.vertexs().size(), weight);
 		histos_[sys_name]["nvtx_noweight"].fill(event.vertexs().size());
+		
+		const double rho = event.rho().value();
 		const vector<Muon>& muons = event.muons();
 		list<  IDMuon> keep_muons;
 		vector<IDMuon*> tight_muons; tight_muons.reserve(muons.size());
 		vector<IDMuon*> loose_muons; loose_muons.reserve(muons.size());
 		for(vector<Muon>::const_iterator muon = muons.begin(); muon != muons.end(); ++muon){
-			IDMuon mu(*muon);
-			if(mu.ID(IDMuon::LOOSE_12Db) && mu.Pt() > 15.){
+			IDMuon mu(*muon, rho);
+			if(mu.ID(IDMuon::LOOSE_12) && mu.Pt() > cut_lmuon_pt_ && abs(mu.Eta()) < cut_lmuon_eta_){
 				keep_muons.push_back(mu);
 				loose_muons.push_back(&keep_muons.back());
-				if(mu.ID(IDMuon::TIGHT_12Db) && mu.Pt() > 30.){
+				if(mu.ID(IDMuon::TIGHT_12) && mu.Pt() > cut_tmuon_pt_ && abs(mu.Eta()) < cut_tmuon_eta_){
 					if(!isData_) weight *= muon_sf_->GetBinContent(
 						muon_sf_->FindFixBin(mu.Pt())
 						);
@@ -514,11 +549,11 @@ public:
 		vector<IDElectron*> tight_electrons; tight_electrons.reserve(electrons.size());
 		vector<IDElectron*> loose_electrons; loose_electrons.reserve(electrons.size());
 		for(vector<Electron>::const_iterator electron = electrons.begin(); electron != electrons.end(); ++electron){
-			IDElectron el(*electron);
-			if(el.ID(IDElectron::LOOSE_12Db) && el.Pt() > 15.){
+			IDElectron el(*electron, rho);
+			if(el.ID(IDElectron::LOOSE_12) && el.Pt() > cut_lelectron_pt_ && abs(el.Eta()) < cut_lelectron_eta_){
 				keep_electrons.push_back(el);
 				loose_electrons.push_back(&keep_electrons.back());
-				if(el.ID(IDElectron::MEDIUM_12Db) && el.Pt() > 30.){
+				if(el.ID(IDElectron::MEDIUM_12) && el.Pt() > cut_telectron_pt_ && abs(el.Eta()) < cut_telectron_eta_){
 					if(!isData_) weight *= electron_sf_->GetBinContent(
 						electron_sf_->FindFixBin(el.Pt())
 						);
@@ -550,7 +585,7 @@ public:
 			if(shift == JES_UP)	idjet.SetPxPyPzE(jet->Px()*1.02, jet->Py()*1.02, jet->Pz()*1.02, jet->E()*1.02);
 			else if(shift == JES_DOWN) idjet.SetPxPyPzE(jet->Px()*0.98, jet->Py()*0.98, jet->Pz()*0.98, jet->E()*0.98);
 
-			if(!jet_selection_(idjet)) continue;
+			if(!(idjet.Pt() > cut_jet_pt_ && Abs(idjet.Eta()) < cut_jet_eta_)) continue;
 
 			bool overlaps = false;
 			for(auto mu : loose_muons){
@@ -577,7 +612,7 @@ public:
 
 		vector<Jet*> bjets; bjets.reserve(selected_jets.size());
 		for(auto jet : selected_jets){
-			if(jet->BTagId(btag_id_)) bjets.push_back(jet);
+			if(jet->BTagId(cut_leadB_ID_) || jet->BTagId(cut_subB_ID_)) bjets.push_back(jet);
 		}
 			
 		IDMet met(event.METs()[0]);
@@ -588,11 +623,19 @@ public:
 		int lep_charge = tight_muons.size() ? tight_muons[0]->charge() : tight_electrons[0]->charge();
 		//sort jets by pt
 		sort(selected_jets.begin(), selected_jets.end(), [](const Jet* one, const Jet* two) {return  one->Pt() > two->Pt();});
-		size_t pick = selected_jets.size() < 7  ? selected_jets.size() : 7; //avoid vector out of bounds
-		vector<IDJet*> leading_jets(selected_jets.begin(), selected_jets.begin()+pick); //pick first 4-5 
-		//at least two jets with pt > 30
-		if(leading_jets[1]->Pt() < bjet_pt_cut_) return;
-		tracker_.track("bjets pt cut");
+		size_t pick = selected_jets.size() < cut_njets_permutated_  ? selected_jets.size() : cut_njets_permutated_; //avoid vector out of bounds
+		vector<IDJet*> leading_jets(selected_jets.begin(), selected_jets.begin()+pick); //pick first njets_permutated
+		if(leading_jets.size() > 20){
+			Logger::log().debug() << "#Jets: " << leading_jets.size() << endl;
+		}
+
+		//check that the pt theshold are satisfied
+		float pt_thresholds[4] = {cut_leadB_pt_, cut_subB_pt_, cut_leadJet_pt_, cut_subJet_pt_};
+		sort(pt_thresholds, pt_thresholds+4);
+		for(int i=0; i<4; i++){
+			if(leading_jets[i]->Pt() < pt_thresholds[i]) return;
+		}
+		tracker_.track("jets pt cut");
 
 		if(shift == NOSYS){
 			histos_["preselection"]["nleadjets"].fill(leading_jets.size(), weight);
@@ -601,64 +644,74 @@ public:
 			histos_["preselection"]["lep_pt"  ].fill(lepton->Pt(), weight);
 			histos_["preselection"]["lep_char"].fill(lep_charge*0.5, weight);
 		}
-		// for(auto& jet : leading_jets) Logger::log().debug() << jet << " ";
-		// Logger::log().debug() << " " << endl;
-
-		// for(auto& jet : leading_jets) Logger::log().debug() << jet->Pt() << " ";
-		// Logger::log().debug() << " " << endl;
 		
 		//sort leading jets to make next_permutation to work properly
 		sort(leading_jets.begin(), leading_jets.end());
 
-		vector< Permutation > combinations;
+		Permutation best_permutation;
+		double figure_of_merit = std::numeric_limits<double>::max();
 		size_t ncombos=0;
-		do {
-			ncombos++;
-			tracker_.track("Combination start");
-			if(!leading_jets[0]->BTagId(btag_id_)) continue;
-			if(!leading_jets[1]->BTagId(btag_id_)) continue;
-			//if(leading_jets[0]->csvIncl()) continue;
-			//if(leading_jets[1]->csvIncl()) continue;
-			tracker_.track("Bjet Tag cuts");
-			if(leading_jets[0]->Pt() < bjet_pt_cut_) continue;
-			if(leading_jets[1]->Pt() < bjet_pt_cut_) continue;
-			tracker_.track("Bjet PT cuts");
-			//remove W had ambiguity
-			if(leading_jets[2]->Pt() < leading_jets[3]->Pt()) continue;
-			tracker_.track("Ambiguity cut");
+		size_t n_passing_combos=0;
+		for(auto bjet1 : leading_jets){
+			for(auto bjet2 : leading_jets){
+				if(bjet1 == bjet2) continue;
+				for(auto wjet1 : leading_jets){
+					if(wjet1 == bjet1) continue;
+					if(wjet1 == bjet2) continue;
+					for(auto wjet2 : leading_jets){
+						if(wjet2 == bjet1) continue;
+						if(wjet2 == bjet2) continue;
+						if(wjet2 == wjet1) continue;
+						if(wjet1->Pt() < wjet2->Pt()) continue;
+						ncombos++;
+						tracker_.track("Combination start");
+						auto lead_b = (bjet1->Pt() > bjet2->Pt()) ? bjet1 : bjet2;
+						auto sub_b  = (bjet1->Pt() > bjet2->Pt()) ? bjet2 : bjet1;
+						
+						if(!lead_b->BTagId(cut_leadB_ID_)) continue;
+						if(!sub_b->BTagId(cut_subB_ID_)) continue;
+						tracker_.track("Bjet Tag cuts");
+						
+						if(lead_b->Pt() < cut_leadB_pt_) continue;
+						if(sub_b->Pt() < cut_subB_pt_) continue;
+						tracker_.track("Bjet PT cuts");
+						
+						//remove W had ambiguity			
+						if(wjet1->Pt() < cut_leadJet_pt_) continue;
+						if(wjet2->Pt() < cut_subJet_pt_) continue;
+						tracker_.track("Ambiguity cut");
+						
+						Permutation hyp(
+							wjet1, 
+							wjet2, 
+							bjet1, 
+							bjet2, 
+							lepton, 
+							&met
+							);
+						hyp.Solve(solver_);
+						
+						//Hypothesis selection (rough cuts so far)
+						if(fabs(hyp.WHad().M() - 80) > cut_whad_mass_) continue;
+						tracker_.track("W mass cut");
+						if(fabs(hyp.THad().M() - 173) > cut_thad_mass_) continue;
+						tracker_.track("Top mass cut");
+						if(hyp.NuChisq() < 0) continue;
+						tracker_.track("Neutrino chisquare cut");
+						//if(hyp.mass_discriminant > 4) continue;
+						
+						n_passing_combos++;
+						if(ordering_fcn_(hyp, best_permutation)){
+							best_permutation = hyp;
+						}
+					} //for(auto wjet2 : leading_jets){
+				} //for(auto wjet1 : leading_jets){
+			} //for(auto bjet2 : leading_jets){
+		} //for(auto bjet1 : leading_jets){
 
-			Permutation hyp(
-				leading_jets[2], 
-				leading_jets[3], 
-				leading_jets[0], 
-				leading_jets[1], 
-				lepton, 
-				&met
-				);
-			hyp.Solve(solver_);
 
-			//Hypothesis selection (rough cuts so far)
-			//if(fabs(hyp.wplus.mass()  - 80) > 40) continue;
-			if(fabs(hyp.WHad().M() - 80) > 40) continue;
-			tracker_.track("W mass cut");
-			//if(fabs(hyp.top_mass() - 173) > 50) continue;
-			if(fabs(hyp.THad().M() - 173) > 50) continue;
-			tracker_.track("Top mass cut");
-			if(hyp.NuChisq() < 0) continue;
-			tracker_.track("Neutrino chisquare cut");
-			//if(hyp.mass_discriminant > 4) continue;
-
-			combinations.push_back(hyp);
-		} while(std::next_permutation(leading_jets.begin(), leading_jets.end()));
-		//check that we have the right number of combinations
-		if((leading_jets.size() == 4 && ncombos != 24) || (leading_jets.size() == 5 && ncombos != 120)) throw 20;
-		// Logger::log().debug() << "HOOK: event: " << event.run << " " << event.lumi << " " << 
-		// 	event.evt << endl << "n total cmbs: " << ncombos << ", passing: " << combinations.size() << endl <<
-		// 	" nleadjets: " << leading_jets.size() << " njets: " <<  selected_jets.size() <<
-		// 	" nbjets: "  << bjets.size() << endl;
-
-		histos_["preselection"]["nperms"].fill(combinations.size(), weight);
-		if(combinations.size() == 0) return;
+		histos_["preselection"]["nperms"].fill(n_passing_combos, weight);
+		if(best_permutation.WJa() == 0) return;
 		tracker_.track("one ttbar hypothesis");
 
 		/*
@@ -677,12 +730,6 @@ public:
 				DR_match_to_gen_
 				);
 			matched_hyp.SetMET(&met);
-			size_t count=0;
-			for(auto& perm : combinations){
-				if(get_ttdir_name(matched_hyp, perm, gen_hyp.decay) == TTNaming::RIGHT) 
-					count++;
-			}
-			histos_["preselection"]["matchable"].fill(count, weight);
 
 			size_t code=0;
 			if(gen_hyp.decay == DecayType::SEMILEP){
@@ -699,42 +746,35 @@ public:
 		string sys_dir = sys_names_[shift];
 		histos_[sys_dir]["weight"].fill(weight);
 		//Logger::log().debug() << "\n\nShift: " << shift << " name: " << root_dir << endl;
-		for(auto item = ordering_.begin(); item != ordering_.end(); ++item){
-			//sort(combinations.begin(), combinations.end(), item->second);
-			Permutation best = *min_element(combinations.begin(), combinations.end(), item->second);// *combinations.begin();
-			if(!isTTbar_){
-				//fill("all/"+item->first+"/all", best, selected_jets.size(), bjets.size());
-				for(auto& wpoint : working_points_){
-					string jet_category = get_wjet_category(best, wpoint.second);
-					string folder = sys_dir+"/"+item->first+"/"+wpoint.first;
-					fill_other_jet_plots(folder, best, selected_jets, wpoint.second, weight);
-					folder += jet_category;
-					//Logger::log().debug() << "filling: " << folder << endl;
-					fill(folder, best, selected_jets.size(), bjets.size(), weight);
-				}
-			} else {
-				//define which subdir we fall in
-				TTNaming dir_id = get_ttdir_name(matched_hyp, best, gen_hyp.decay);
-				string ttsubdir = naming_[dir_id];
-				TTbarHypothesis *gen = 0;
+		if(!isTTbar_){
+			for(auto& wpoint : working_points_){
+				string jet_category = get_wjet_category(best_permutation, wpoint.second);
+				string folder = sys_dir+"/"+cut_ordering_+"/"+wpoint.first;
+				fill_other_jet_plots(folder, best_permutation, selected_jets, wpoint.second, weight);
+				folder += jet_category;
+				//Logger::log().debug() << "filling: " << folder << endl;
+				fill(folder, best_permutation, selected_jets.size(), bjets.size(), weight);
+			}
+		} else {
+			//define which subdir we fall in
+			TTNaming dir_id = get_ttdir_name(matched_hyp, best_permutation, gen_hyp.decay);
+			string ttsubdir = naming_[dir_id];
+			TTbarHypothesis *gen = 0;
 
-				//Logger::log().debug() << ttsubdir << " " << dir_id << " " << TTNaming::RIGHT_WHAD << endl;
-				if(dir_id <= TTNaming::RIGHT_WHAD) gen = &gen_hyp;
+			//Logger::log().debug() << ttsubdir << " " << dir_id << " " << TTNaming::RIGHT_WHAD << endl;
+			if(dir_id <= TTNaming::RIGHT_WHAD) gen = &gen_hyp;
 
-				//fill(ttsubdir+"/"+item->first+"/all", best, selected_jets.size(), bjets.size(), gen);
-				for(auto& wpoint : working_points_){
-					string jet_category = get_wjet_category(best, wpoint.second);
-					string folder = ttsubdir+"/"+sys_dir+"/"+item->first+"/"+wpoint.first;
+			for(auto& wpoint : working_points_){
+				string jet_category = get_wjet_category(best_permutation, wpoint.second);
+				string folder = ttsubdir+"/"+sys_dir+"/"+cut_ordering_+"/"+wpoint.first;
 
-					fill_other_jet_plots(folder, best, selected_jets, wpoint.second, weight);
-					folder += jet_category;
+				fill_other_jet_plots(folder, best_permutation, selected_jets, wpoint.second, weight);
+				folder += jet_category;
 
-					//Logger::log().debug() << "filling: " << folder << endl;
-					fill(folder, best, selected_jets.size(), bjets.size(), weight);
-					//if(dir_id == TTNaming::RIGHT) fill_gen_info("semilep_visible_right/"+item->first+"/all", best, gen_hyp);
-				}
-			} //if(!isTTbar_)
-		} // for(auto item = ordering_.begin(); item != ordering_.end(); ++item)
+				//Logger::log().debug() << "filling: " << folder << endl;
+				fill(folder, best_permutation, selected_jets.size(), bjets.size(), weight);
+			}
+		} //if(!isTTbar_)
 	}
 
   //This method is called once every file, contains the event loop
@@ -746,6 +786,7 @@ public:
 
     opts::variables_map &values = URParser::instance().values();
 		int limit = values["limit"].as<int>();
+		int skip  = values["skip"].as<int>();
 
 		tracker_.deactivate();
     while(event.next())
@@ -756,7 +797,10 @@ public:
 				return;
 			}
 			evt_idx++;
-			//Logger::log().debug() << "Beginning event" << endl;
+			if(skip > 0 && evt_idx < skip) {
+				continue;
+			}
+			if(evt_idx % 100 == 0 || (evt_idx > 6900 && evt_idx < 7000)) Logger::log().debug() << "Beginning event " << evt_idx << endl;
 
 			//long and time consuming
 			TTbarHypothesis gen_hyp;
@@ -790,7 +834,46 @@ public:
 		URParser &parser = URParser::instance();
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
 		opts.add_options()
-      ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file");
+      ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+      ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file");
+
+		opts::options_description &loose_mu_cfg = parser.optionGroup("looseMuons", "Loose muons selections", URParser::CFG);
+		loose_mu_cfg.add_options()
+			("looseMuons.pt", opts::value<float>()->default_value(15.))
+			("looseMuons.abseta", opts::value<float>()->default_value(8.));
+			
+		opts::options_description &tight_mu_cfg = parser.optionGroup("tightMuons", "Tight muons selections", URParser::CFG);
+		tight_mu_cfg.add_options()
+      ("tightMuons.pt", opts::value<float>()->default_value(30.))
+      ("tightMuons.abseta", opts::value<float>()->default_value(8.));
+
+		opts::options_description &loose_el_cfg = parser.optionGroup("looseElectrons", "Loose electrons selections", URParser::CFG);
+		loose_el_cfg.add_options()
+      ("looseElectrons.pt", opts::value<float>()->default_value(15.))
+      ("looseElectrons.abseta", opts::value<float>()->default_value(8.));
+
+		opts::options_description &tight_el_cfg = parser.optionGroup("tightElectrons", "Tight electrons selections", URParser::CFG);
+		tight_el_cfg.add_options()
+      ("tightElectrons.pt", opts::value<float>()->default_value(30.))
+      ("tightElectrons.abseta", opts::value<float>()->default_value(8.));
+
+		opts::options_description &jets_cfg = parser.optionGroup("jets", "Jets selections", URParser::CFG);
+		tight_el_cfg.add_options()
+      ("jets.pt", opts::value<float>()->default_value(20.))
+      ("jets.abseta", opts::value<float>()->default_value(2.4));
+
+		opts::options_description &permutations_cfg = parser.optionGroup("permutations", "permutations selections", URParser::CFG);
+		permutations_cfg.add_options()
+			("permutations.njets_permutated", opts::value<size_t>()->default_value(400)) //All of them
+			("permutations.leadB_pt", opts::value<float>()->default_value(30.))
+			("permutations.leadB_ID", opts::value<string>()->default_value("csvMedium"))
+			("permutations.subB_pt", opts::value<float>()->default_value(30.))
+			("permutations.subB_ID", opts::value<string>()->default_value("csvMedium"))
+			("permutations.leadJet_pt", opts::value<float>()->default_value(20.))
+			("permutations.subJet_pt", opts::value<float>()->default_value(20.))
+			("permutations.whad_mass", opts::value<float>()->default_value(40.))
+			("permutations.thad_mass", opts::value<float>()->default_value(50.))
+			("permutations.ordering", opts::value<string>()->default_value("mass_discriminant"));
 	}
 };
 
