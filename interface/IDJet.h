@@ -11,7 +11,7 @@ class IDJet : public Jet, public MCMatchable
 private:
 	double rndm_;
 public:
-	enum BTag {CSVLOOSE, CSVMEDIUM, CSVTIGHT};
+	enum BTag {NONE, CSVLOOSE, CSVMEDIUM, CSVTIGHT};
 	IDJet(const Jet el, double rndm):
 		Jet(el),
     MCMatchable(),
@@ -33,7 +33,8 @@ public:
 	bool BTagId(BTag wp) const
 	{
 		double threshold = -1.;
-		if(wp == BTag::CSVLOOSE) threshold = 0.605;
+		if(wp == BTag::NONE) return true;
+		else if(wp == BTag::CSVLOOSE) threshold = 0.605;
 		else if(wp == BTag::CSVMEDIUM) threshold = 0.890;
 		else if(wp == BTag::CSVTIGHT) threshold = 0.970;
 		
