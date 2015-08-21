@@ -1,10 +1,14 @@
 #include <IDMuon.h>
 #include <TMath.h>
 #include <iostream>
+#include "Logger.h"
 
 using namespace TMath;
 
-IDMuon::IDMuon(const Muon mu) : Muon(mu), MCMatchable()
+IDMuon::IDMuon(const Muon mu, double rho): 
+	Muon(mu), 
+	MCMatchable(),
+	rho_(rho)
 {
 }
 
@@ -23,11 +27,8 @@ double IDMuon::CorPFIsolation2015()
 	else if(eta < 2.2){ effarea = 0.0728;}
 	else if(eta < 2.5){ effarea = 0.1177;}
 
-	if(streamer != 0)
-	{
-		effarea *= Max(streamer->rho().value(), 0.);
-	}
-	else {effarea = 0; cerr << "initialize IDElectron::stream = URStreamer object for rho correction" << endl;}
+	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation" << endl;}
+	effarea *= Max(rho_, 0.);
 	return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
 }
 
@@ -63,5 +64,4 @@ bool IDMuon::ID(IDS idtyp)
 	return(false);
 }
 
-URStreamer* IDMuon::streamer = 0;
 bool IDMuon::USEISO = true;

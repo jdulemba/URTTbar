@@ -1,6 +1,7 @@
 #include "IDElectron.h"
 #include <TMath.h>
 #include <iostream>
+#include "Logger.h"
 
 using namespace TMath;
 
@@ -15,11 +16,8 @@ double IDElectron::CorPFIsolation2012(double eta) const
 	else if(eta < 2.3){ effarea = 0.11;}
 	else if(eta < 2.4){ effarea = 0.11;}
 
-	if(streamer != 0)
-	{
-		effarea *= Max(streamer->rho().value(), 0.);
-	}
-	else {effarea = 0; cerr << "initialize IDElectron::stream = URStreamer object for rho correction" << endl;}
+	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation" << endl;}
+	effarea *= Max(rho_, 0.);
 	//return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
 	return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
 }
@@ -34,11 +32,8 @@ double IDElectron::CorPFIsolation2015() const
 	else if(eta < 2.2){ effarea = 0.0842;}
 	else if(eta < 2.5){ effarea = 0.1530;}
 
-	if(streamer != 0)
-	{
-		effarea *= Max(streamer->rho().value(), 0.);
-	}
-	else {effarea = 0; cerr << "initialize IDElectron::stream = URStreamer object for rho correction" << endl;}
+	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation" << endl;}
+	effarea *= Max(rho_, 0.);
 	//return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
 	return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
 }
@@ -184,6 +179,5 @@ bool IDElectron::ID(IDS idtyp)
 	return(false);
 }
 
-URStreamer* IDElectron::streamer = 0;
 bool IDElectron::USEISO = true;
 
