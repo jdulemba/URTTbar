@@ -47,7 +47,8 @@ ttbar::ttbar(const std::string output_filename):
 	semilep_wrong("all"),
 	other_tt_decay("all"),
 	response("response", this),
-	jetscaler("jetuncertainty.root"),
+// 	jetscaler("#INPUTSDIR""/jetuncertainty.root"),
+  jetscaler(TOSTRING(INPUTSDIR)"jetuncertainty.root"),
 	DATASIM(false),
 	PSEUDOTOP(true),
 	BTAGMODE(false), //set true for the b-tag efficiency measurement
@@ -306,8 +307,8 @@ void ttbar::begin()
 	reco1d.AddHist("Mt_W", 200, 0, 200, "M_{t}(W) [GeV]", "Events");
 	ttp_all.Init(this);
 
-	string probfilename("Prob_parton.root");
-	if(PSEUDOTOP){probfilename = "Prob_pseudo.root";}
+	string probfilename(TOSTRING(INPUTSDIR)"Prob_parton.root");
+	if(PSEUDOTOP){probfilename = TOSTRING(INPUTSDIR)"Prob_pseudo.root";}
 	if(BTAGMODE)
 	{
 		cnbtag = 1;
@@ -323,7 +324,7 @@ void ttbar::begin()
 		//ttsolver.Init(probfilename, false, true);
 	}
 	
-	TFile* f = TFile::Open("PUweight.root");
+	TFile* f = TFile::Open(TOSTRING(INPUTSDIR)"PUweight.root");
 	if(!f)
 	{
 		Logger::log().error() << "Could not open PUweight.root!" << endl;
@@ -331,7 +332,7 @@ void ttbar::begin()
 	}
 	puhist = (TH1D*)f->Get("PUweight");
 
-	TFile* fl = TFile::Open("Lep_SF.root");
+	TFile* fl = TFile::Open(TOSTRING(INPUTSDIR)"Lep_SF.root");
 	if(!fl)
 	{
 		Logger::log().error() << "Could not open Lep_SF.root!" << endl;
