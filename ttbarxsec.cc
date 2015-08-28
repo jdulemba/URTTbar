@@ -997,12 +997,16 @@ void ttbar::ttanalysis(URStreamer& event)
 		truth1d["npuorig"]->Fill(npu+0.5, weight);
 		if(npu > 0)
 		{
-			weight *= puhist->GetBinContent(npu+1);
+			weight *= puhist->GetBinContent(puhist->FindFixBin(npu));
 		}
 		truth1d["npu"]->Fill(npu+0.5, weight);
 		
-		if(tightmuons.size() == 1){weight *= musfhist->GetBinContent(musfhist->FindFixBin(Min(lep->Pt(), 95.)));}
-		if(mediumelectrons.size() == 1){weight *= elsfhist->GetBinContent(elsfhist->FindFixBin(Min(lep->Pt(), 95.)));}
+		if(tightmuons.size() == 1){
+			weight *= musfhist->GetBinContent(musfhist->FindFixBin(Min(lep->Pt(), 95.)));
+		}
+		if(mediumelectrons.size() == 1){
+			weight *= elsfhist->GetBinContent(elsfhist->FindFixBin(Min(lep->Pt(), 95.)));
+		}
 	}
 	reco1d["NumVerticesWeighted"]->Fill(nvtx , weight);
 

@@ -32,6 +32,7 @@ void TTBarPlots::Init(ttbar* analysis)
 	double tbmax = 80.;
 	
 	plot1d.AddHist("MET", 500, 0, 2000, "MET", "Events");
+	plot1d.AddHist("weight", 200, -5, 5, "weight", "Events");
 	plot1d.AddHist("njets", 15, 0, 15, "n-jets", "Events");
 	plot1d.AddHist("ptaddjets", 200, 0, 400, "p_{T}(add. jets) [GeV]", "Events");
 	plot1d.AddHist("DRminWjets", 200, 0, 10, "#DeltaR_{min W-jet}", "Events");
@@ -85,6 +86,7 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 	if(massDiscr == numeric_limits<double>::max()) {massDiscr = 0; nsDiscr = 0;}
 	plot1d["MET"]->Fill(an->met.Pt(), weight);
 	plot1d["njets"]->Fill(an->cleanedjets.size()-4, weight);
+	plot1d["weight"]->Fill(weight);
 	double drminw = 100.;
 	double drminb = 100.;
 	for(size_t j = 0 ; j < an->cleanedjets.size() ; ++j)
@@ -96,7 +98,7 @@ void TTBarPlots::Fill(Permutation& per, int lepcharge, double weight)
 		if(drminb > per.BLep()->DeltaR(*an->cleanedjets[j])) {drminb = per.BLep()->DeltaR(*an->cleanedjets[j]);}
 		plot1d["ptaddjets"]->Fill(an->cleanedjets[j]->Pt(), weight);
 	}
-	plot1d["massDiscr"]->Fill(massDiscr);
+	plot1d["massDiscr"]->Fill(massDiscr, weight);
 	plot1d["DRminWjets"]->Fill(drminw, weight);
 	plot1d["DRminbjets"]->Fill(drminb, weight);
 	plot2d["METvsChi"]->Fill(an->met.Pt(), nsDiscr, weight);
