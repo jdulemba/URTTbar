@@ -92,6 +92,9 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
   toy_cmd = ''
   if t.name.include? '.toy.'
     toy_cmd = '--saveToys --expectSignal 1 -t 200'
+  else
+    #if there are no toys make plots!
+    toy_cmd = '--saveShapes'
   end
 
   if not $external_toys.empty?
