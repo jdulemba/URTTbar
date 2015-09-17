@@ -1,13 +1,30 @@
 import rootpy.io as io
 import rootpy
-rootpy.log["/"].setLevel(rootpy.log.ERROR)
+rootpy.log["/"].setLevel(rootpy.log.INFO)
+rootpy.log["/data_views"].setLevel(rootpy.log.WARNING)
 log = rootpy.log["/make_postfit_plots"]
-log.setLevel(rootpy.log.INFO)
+log.setLevel(rootpy.log.WARNING)
+from rootpy.plotting import Hist
 from argparse import ArgumentParser
 import os
 import re
+import ROOT
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
+import URAnalysis.Utilities.prettyjson as prettyjson
+from URAnalysis.Utilities.quad import quad
 from styles import styles
+from pdb import set_trace
+
+def fix_binning(postfit, correct_bin):
+   ret = correct_bin.Clone()
+   ret.Reset()
+   ret.title = postfit.title
+   ret.decorate(**postfit.decorators)
+   assert(ret.nbins() == postfit.nbins())
+   for rbin, pbin in zip(ret, postfit):
+      rbin.value = pbin.value
+      rbin.error = pbin.error
+   return ret
 
 parser = ArgumentParser()
 parser.add_argument('varname')
@@ -21,6 +38,10 @@ mlfit_file = io.root_open(
 datacard_file = io.root_open(
    '%s/%s.root' % (input_dir, args.varname)
 ) #contains data
+binning_file = prettyjson.loads(
+   open('%s/%s.binning.json' % (input_dir, args.varname)).read()
+)
+
 postfit_shapes = mlfit_file.shapes_fit_s
 categories = [i.name for i in postfit_shapes.keys()]
 regex = re.compile('^(?P<base_category>[A-Za-z0-9]+)_(?P<njets>\d+)Jets$')
@@ -33,7 +54,7 @@ plotter = BasePlotter(
          'drawstyle' : 'hist',
          'fillcolor' : '#d5aaaa',
          'linecolor' : '#d5aaaa',
-         'name' : "tt, right t_{h}",
+         'title' : "tt, right t_{h}",
          'fillstyle': 'solid',
          },
       'qcd *' : styles['QCD*'],
@@ -44,11 +65,20 @@ plotter = BasePlotter(
          'drawstyle' : 'hist',
          'fillcolor' : '#ab5555',
          'linecolor' : '#ab5555',
-         'name' : "tt, wrong cmb",
+         'title' : "tt, wrong cmb",
          'fillstyle': 'solid',
          },
       'vjets *' : styles['[WZ]Jets*'],
       'data_obs' : styles['data*'],
+      'Total signal+background *' : {
+         'legendstyle' : 'f',
+         'drawstyle' : 'PE2',
+         'linewidth' : 0,
+         'title' : "postfit unc.",
+         'markersize' : 0,
+         'fillcolor' : 1,
+         'fillstyle' : 3013
+         }
       }
 )
 
@@ -68,36 +98,98 @@ for base, categories in groups.iteritems():
    sample_sums = {}
    plotter.set_subdir(base)
    for cat_name in categories:
-      cat_dir = postfit_shapes.Get(cat_name)
       data_dir = datacard_file.Get(cat_name)
+      cat_dir = postfit_shapes.Get(cat_name)
+      data = data_dir.data_obs
+      data.title = 'data_obs'
+      hsum = fix_binning(cat_dir.total, data)
+      if first:
+      	sample_sums[data.title] = data.Clone()
+        sample_sums['postfit S+B'] = hsum.Clone()
+      else:
+      	sample_sums[data.title] += data
+        sample_sums['postfit S+B'] += hsum
+
       sample_names = [i.name for i in cat_dir.keys() if not i.name.startswith('total')]
-      samples = [cat_dir.Get(i) for i in sample_names]
+      samples = [fix_binning(cat_dir.Get(i), data) for i in sample_names]
       for i, j in zip(sample_names, samples):
          if first:
             sample_sums[i] = j.Clone()
          else:
             sample_sums[i] += j
 
-      data = data_dir.data_obs
-      data.title = 'data_obs'
-      if first:
-      	sample_sums[data.title] = data.Clone()
-      else:
-      	sample_sums[data.title] += data
       first = False
-      	
+      
+      stack = plotter.create_stack(*samples)
+      legend = LegendDefinition(position='NE')
       plotter.overlay( 
-      	[plotter.create_stack(*samples), data],
+      	[stack, hsum, data],
       	writeTo=cat_name,
-      	legend_def = LegendDefinition(position='NE')
+      	legend_def = legend
       	)
-   samples = [j for i, j in sample_sums.iteritems() if i <> data.title]
-   data = sample_sums[data.title]
+   samples = [j for i, j in sample_sums.iteritems() if i <> 'data_obs' 
+              if i <> 'postfit S+B']
+   data = sample_sums['data_obs']
+   hsum = sample_sums['postfit S+B']
+
    plotter.overlay(
-   	[plotter.create_stack(*samples), data],
-   	writeTo=cat_name,
+   	[plotter.create_stack(*samples), hsum, data],
+   	writeTo=base,
    	legend_def = LegendDefinition(position='NE'),
    	)
 	
       
+#global summary plots are best gathered from the samples normalizations
+#to take into account at least a bit of nuisance correlations
+norms = mlfit_file.norm_fit_s
+edges = set()
+binning = binning_file[args.varname]
+for i in binning.itervalues():
+   edges.add(i['up_edge'])
+   edges.add(i['low_edge'])
+edges = sorted(list(edges))
+template_hist = Hist(edges)
+samples = set(i.name.split('/')[-1] for i in norms)
+fit_histos = {}
+for name in samples:
+   fit_histos[name] = template_hist.Clone()
+   fit_histos[name].title = '%s ' % name
+data = template_hist.Clone()
+data.title = 'data_obs'
 
+for categories in groups.itervalues():
+   #check that all categories have identical bin index
+   assert(len(set(binning[i]['idx'] for i in categories)) <= 1)
+   bin_idx = binning[categories[0]]['idx']+1
+   for sample in samples:
+      val = sum(
+         norms['%s/%s' % (i, sample)].value 
+         for i in categories
+         if '%s/%s' % (i, sample) in norms
+         )
+      err = quad(*[
+            norms['%s/%s' % (i, sample)].error
+            for i in categories
+            if '%s/%s' % (i, sample) in norms
+            ])
+      log.debug("Setting value of %s bin %i to %.2f +/- %.2f" % (sample, bin_idx, val, err))
+      fit_histos[sample][bin_idx].value = val
+      fit_histos[sample][bin_idx].error = err
+   #WARNING! this will break if the jet categories have 
+   #different disciminator binning!
+   data_of_cat = sum(
+      datacard_file.Get('%s/data_obs' % i) 
+      for i in categories      
+      )
+   integral_err = ROOT.Double()
+   data[bin_idx].value = data_of_cat.IntegralAndError(1, data_of_cat.nbins(), integral_err)
+   data[bin_idx].error = integral_err
+
+samples_sum = sum(i for i in fit_histos.itervalues())
+samples_sum.title = 'Total signal+background '
+plotter.set_subdir('')
+plotter.overlay(
+   [plotter.create_stack(*fit_histos.values()), samples_sum, data],
+   writeTo='%s_postfit' % args.varname,
+   legend_def = LegendDefinition(position='NE'),
+   )
