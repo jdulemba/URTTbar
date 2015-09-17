@@ -37,13 +37,16 @@ def run_module(**kwargs):
 
    discriminant =  'massDiscr'
    phase_space = 'fiducialtight'
-   full_discr_binning = [4]#range(-15, 16)
+   full_discr_binning = [2]#range(-15, 16)
 
-   jet_categories = [
-      ('0Jets', ['0']), 
-      ('1Jets', ['1']), 
-      ('2Jets', ['2']), 
-      ('3Jets', ['3']), 
+   ## jet_categories = [
+   ##    ('0Jets', ['0']), 
+   ##    ('1Jets', ['1']), 
+   ##    ('2Jets', ['2']), 
+   ##    ('3Jets', ['3']), 
+   ##    ]
+   jet_categories = [ 
+      ('0Jets', ['0', '1', '2', '3'])
       ]
       
    ## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
@@ -259,6 +262,7 @@ def run_module(**kwargs):
    ##################
    if not opts.noplots:
       to_plot = [
+         ('all_weight' , 5, 'event weight'),
          ('all_lep_pt' , 4, 'p_{T}(l)'),
          ("all_ttM"    , 4, 'm(t#bar{t})'),
          ("all_tty"    , 4, 'y(t#bar{t})'),
@@ -282,6 +286,7 @@ def run_module(**kwargs):
 
       for var, rebin, xaxis in to_plot:
          plotter.plot_mc_vs_data('', var, leftside=False, rebin=rebin, xaxis=xaxis)
+         print var, sum(plotter.keep[0].hists).Integral(), plotter.keep[1].Integral()
          plotter.save(var, pdf=False)
       
       for info in vars_to_unfold:
