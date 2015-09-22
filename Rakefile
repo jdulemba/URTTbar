@@ -177,7 +177,7 @@ task :fit, [:var] do |t, args|
   Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.harvested.root"].invoke
 end
 
-task :make_toys, [:var] do |t, args|
+task :toys, [:var] do |t, args|
   Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.toy.mlfit.root"].invoke
 end
 
@@ -222,6 +222,10 @@ task :fit_toys_wbias, [:var, :biasID] do |t, args|
   #clean up the environment
   $external_toys=''
   $batch=pbatch
+end
+
+task :postfit_plots, [:var] do |t, args|
+  sh "python make_postfit_plots.py #{args.var}"
 end
 
 
@@ -374,7 +378,7 @@ rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
     #sh "sed -i 's|$MASS||g' datacard.txt"
     #sh "sed -i 's|\x1b\[?1034h||g' datacard.txt"
     puts 'creating workspace'
-    sh "text2workspace.py datacard.txt -P HiggsAnalysis.CombinedLimit.CTagEfficiencies:ctagEfficiency -o #{File.basename(t.name)}"
+    sh "text2workspace.py datacard.txt -P URAnalysis.AnalysisTools.statistics.CTagEfficiencies:ctagEfficiency -o #{File.basename(t.name)}"
   end
 end
 
