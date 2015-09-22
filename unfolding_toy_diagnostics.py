@@ -12,6 +12,7 @@ from URAnalysis.Utilities.roottools import ArgSet, ArgList
 from pdb import set_trace
 import logging
 from os.path import join
+from labels import set_pretty_label
 import os
 import URAnalysis.Utilities.prettyjson as prettyjson
 import re
@@ -53,22 +54,31 @@ def create_and_save_canvas(histo, xname):
     canvas.SaveAs('%s.png' % histo.GetName())
     canvas.SaveAs('%s.pdf' % histo.GetName())
 
-def set_pretty_label(variable):
-    if 'thadpt' in variable:
-        return 'p_{T}(t_{had}) [GeV]'
-    elif 'tleppt' in variable:
-        return 'p_{T}(t_{lep}) [GeV]'
-    elif 'thadeta' in variable:
-        return '|#eta(t_{had})|'
-    elif 'tlepeta' in variable:
-        return '|#eta(t_{lep})|'
-    else:
-        return variable
-    return ''
-
 def unfolding_toy_diagnostics(indir, variable):
     
-    plotter = BasePlotter()
+    plotter = BasePlotter(
+        defaults={
+            'clone' : False,
+            'name_canvas' : True,
+            'show_title' : True,
+            'save' : {'png' : True, 'pdf' : False}
+            },
+        )
+    styles = {
+        'dots' : {
+            'linestyle' : 0, 
+            'markerstyle' : 21, 
+            'markercolor' : 1
+            },
+        'compare' : {
+            'linesstyle' : [1,0],
+            'markerstyle' : [0,21],
+            'markercolor' : [2,1],
+            'linecolor' : [2,1],
+            'drawstyle' : ['hist', 'pe'],
+            'legendstyle' : ['l', 'p']
+            }
+        }
     
     xaxislabel = set_pretty_label(variable)
     
@@ -108,6 +118,8 @@ def unfolding_toy_diagnostics(indir, variable):
         log.debug('Inspecting toy %s' % directory)
         idir = idir + 1
         i = 0
+        if not os.path.isfile("result_unfolding.root"):
+            raise ValueError('root file not found in %s' % os.getcwd())
         with io.root_open("result_unfolding.root") as inputfile:
             log.debug('Iteration %s over the file' % i)
             i = i+1
@@ -561,235 +573,171 @@ def unfolding_toy_diagnostics(indir, variable):
         unfolded_average[general_name][idx].error = \
            unfolded_sigmas['%s_bin%i' % (general_name, idx)].GetMean()
     
-    subdir = 'taus'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('taus')
     for name, histo in taus.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        #canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        plotter.canvas.cd()
+        histo = plotter.plot(
+            histo, **styles['dots']
+            )
         histo.SetStats(True)
 
-        info = ROOT.TPaveText(canvas.GetBottomMargin(), canvas.GetTopMargin(), 0.3, 0.025, "brNDC")
-        info.UseCurrentStyle()
-        info.SetTextAlign(32)
-        info.SetFillColor(0)
-        info.SetBorderSize(0)
-        info.SetMargin(0.)
-        info.SetTextSize(0.037)        
-        #set_trace()
-        info.AddText(
-            'mode #tau = %.5f' % 
-            histo[histo.GetMaximumBin()].x.center)
+        info = plotter.make_text_box(
+            'mode #tau = %.5f' % histo[histo.GetMaximumBin()].x.center,
+            position=(plotter.pad.GetLeftMargin(), plotter.pad.GetTopMargin(), 0.3, 0.025)
+            )
         info.Draw()
-
-        canvas.Update()
+        
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
 
-    subdir = 'pulls'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+
+    plotter.set_subdir('pulls')
     for name, histo in pulls.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
     for name, histo in pull_means.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.save()
     for name, histo in pull_sigmas.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.save()
 
-
-    subdir = 'pull_summaries'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('pull_summaries')
     for name, histo in pull_means_summary.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         #histo.SetStats(True)
         line = ROOT.TLine(histo.GetBinLowEdge(1),0,histo.GetBinLowEdge(histo.GetNbinsX()+1),0)
         line.Draw("same")
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
     for name, histo in pull_sigmas_summary.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         #histo.SetStats(True)
         line = ROOT.TLine(histo.GetBinLowEdge(1),1,histo.GetBinLowEdge(histo.GetNbinsX()+1),1)
         line.Draw("same")
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
         
-    subdir = 'deltas'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('deltas')
     for name, histo in deltas.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
     for name, histo in delta_means.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.save()
     for name, histo in delta_sigmas.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.save()
 
-    subdir = 'delta_summaries'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('delta_summaries')
     for name, histo in delta_means_summary.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         #histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
     for name, histo in delta_sigmas_summary.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         #histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
 
-    subdir = 'unfolding_unc'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('unfolding_unc')
     for name, histo in unfolded_sigmas.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
         
-    subdir = 'unfolded'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('unfolded')
     for name, histo in unfoldeds.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
 
-    subdir = 'unfolded_summaries'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('unfolded_summaries')
     for name, histo in unfolded_summary.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-    for name, histo in unfolded_summary.iteritems():
-        leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
-        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'pull')
-        canvas.Update()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-        canvas = plotter.create_and_write_canvas_with_comparison(
-            'Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, 
-            [true_distro, histo], write=False, comparison = 'ratio',
-            bottom_range=[0.4,1.6])
-        canvas.Update()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
 
-    subdir = 'unfolded_average'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    for name, histo in unfolded_summary.iteritems():
+        leg = LegendDefinition("Unfolding comparison", 'NE', labels=['Truth', 'Unfolded'])
+        plotter.overlay_and_compare([true_distro], histo, legend_def=leg, **styles['compare'])
+        plotter.canvas.name = 'Pull_'+name
+        plotter.save()
+        plotter.canvas.Write()
+        plotter.overlay_and_compare(
+            [true_distro], histo, legend_def=leg, method='ratio', **styles['compare']
+            )
+        plotter.canvas.name = 'Ratio_'+name
+        plotter.save()
+        plotter.canvas.Write()
+
+    plotter.set_subdir('unfolded_average')
     for name, histo in unfolded_average.iteritems():
-        leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
-        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'pull')
-        canvas.Update()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-        canvas = plotter.create_and_write_canvas_with_comparison(
-            'Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, 
-            [true_distro, histo], write=False, comparison = 'ratio',
-            bottom_range=[0.4,1.6])
-        canvas.Update()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        leg = LegendDefinition("Unfolding comparison", 'NE', labels=['Truth', 'Unfolded'])
+        #set_trace()
+        plotter.overlay_and_compare([true_distro], histo, legend_def=leg, **styles['compare'])
+        plotter.canvas.name = 'Pull_'+name
+        plotter.save()
+        plotter.canvas.Write()
+        plotter.overlay_and_compare([true_distro], histo, legend_def=leg, method='ratio', **styles['compare'])
+        plotter.canvas.name = 'Ratio_'+name
+        plotter.save()
+        plotter.canvas.Write()
 
-    subdir = 'unfolded_envelope'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('unfolded_envelope')
     for name, histo in unfolded_envelope.iteritems():
-        leg = LegendDefinition("Unfolding comparison", ['Truth', 'Unfolded'], 'NE')
-        canvas = plotter.create_and_write_canvas_with_comparison('Pull_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'pull')
-        canvas.Update()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-        canvas = plotter.create_and_write_canvas_with_comparison('Ratio_'+name,[1,0],[0,21],[2,1], leg, False, False, [true_distro, histo], write=False, comparison = 'ratio')
-        canvas.Update()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        leg = LegendDefinition("Unfolding comparison", 'NE', labels=['Truth', 'Unfolded'])
+        plotter.overlay_and_compare([true_distro], histo, legend_def=leg, **styles['compare'])
+        plotter.canvas.name = 'Pull_'+name
+        plotter.save()
+        plotter.canvas.Write()
+        plotter.overlay_and_compare([true_distro], histo, legend_def=leg, method='ratio', **styles['compare'])
+        plotter.canvas.name = 'Ratio_'+name
+        plotter.save()
+        plotter.canvas.Write()
         
-    subdir = 'figures_of_merit'
-    if not os.path.isdir(subdir):
-        os.makedirs(subdir)
+    plotter.set_subdir('figures_of_merit')
     for name, histo in nneg_bins.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
     for name, histo in pull_sums.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
+        plotter.canvas.Write()
     for name, histo in ratio_sums.iteritems():
-        canvas = plotter.create_and_write_canvas_single(0, 21, 1, False, False, histo, write=False)
+        histo = plotter.plot(histo, **styles['dots'])
         histo.SetStats(True)
-        canvas.Update()
+        plotter.save()
         histo.Write()
-        canvas.Write()
-        canvas.SaveAs('%s/%s.png' % (subdir, canvas.GetName()))
-        canvas.SaveAs('%s/%s.pdf' % (subdir, canvas.GetName()))
-
+        plotter.canvas.Write()
 
 
     outfile.close()

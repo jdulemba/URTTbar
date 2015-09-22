@@ -14,6 +14,7 @@ import URAnalysis.Utilities.prettyjson as prettyjson
 from URAnalysis.Utilities.quad import quad
 from styles import styles
 from pdb import set_trace
+from labels import set_pretty_label
 
 def fix_binning(postfit, correct_bin):
    ret = correct_bin.Clone()
@@ -81,7 +82,7 @@ plotter = BasePlotter(
          }
       }
 )
-
+xlabel = set_pretty_label(args.varname)
 groups = {}
 for category in categories:
    m = regex.match(category)
@@ -93,7 +94,7 @@ for category in categories:
       groups[base] = []
    groups[base].append(category)
 
-for base, categories in groups.iteritems():
+for base, categories in groups.items()[:1]:
    first = True
    sample_sums = {}
    plotter.set_subdir(base)
@@ -125,7 +126,9 @@ for base, categories in groups.iteritems():
       plotter.overlay( 
       	[stack, hsum, data],
       	writeTo=cat_name,
-      	legend_def = legend
+      	legend_def = legend,
+        xtitle='discriminant',
+        ytitle='Events'
       	)
    samples = [j for i, j in sample_sums.iteritems() if i <> 'data_obs' 
               if i <> 'postfit S+B']
@@ -136,6 +139,8 @@ for base, categories in groups.iteritems():
    	[plotter.create_stack(*samples), hsum, data],
    	writeTo=base,
    	legend_def = LegendDefinition(position='NE'),
+    xtitle='discriminant',
+    ytitle='Events'
    	)
 	
       
@@ -188,8 +193,18 @@ for categories in groups.itervalues():
 samples_sum = sum(i for i in fit_histos.itervalues())
 samples_sum.title = 'Total signal+background '
 plotter.set_subdir('')
+plotter.overlay_and_compare(
+   [plotter.create_stack(*fit_histos.values()), samples_sum],
+   data,
+   writeTo='%s_postfit_compare' % args.varname,
+   legend_def = LegendDefinition(position='NE'),
+   xtitle=xlabel,
+   ytitle='Events'
+   )
 plotter.overlay(
    [plotter.create_stack(*fit_histos.values()), samples_sum, data],
    writeTo='%s_postfit' % args.varname,
    legend_def = LegendDefinition(position='NE'),
+   xtitle=xlabel,
+   ytitle='Events'
    )

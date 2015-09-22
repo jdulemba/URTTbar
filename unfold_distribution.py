@@ -4,6 +4,7 @@ import rootpy.plotting as plotting
 import rootpy.io as io
 import ROOT
 import math
+from labels import set_pretty_label
 from math import sqrt
 from URAnalysis.AnalysisTools.unfolding.urunfolding import URUnfolding
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
@@ -164,22 +165,33 @@ def overlay(reference, target):
     reference.GetYaxis().SetRangeUser(miny, maxy)
     return canvas
 
-def set_pretty_label(variable):
-    if 'thadpt' in variable:
-        return 'p_{T}(t_{had}) [GeV]'
-    elif 'tleppt' in variable:
-        return 'p_{T}(t_{lep}) [GeV]'
-    elif 'thadeta' in variable:
-        return '|#eta(t_{had})|'
-    elif 'tlepeta' in variable:
-        return '|#eta(t_{lep})|'
-    else:
-        return variable
-    return ''
-
 def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
     
-    plotter = BasePlotter()
+    styles = {
+        'scan_overlay' : {
+            'markerstyle':[0, 29], 'linecolor':[1,1], 
+            'markercolor':[1,2], 'drawstyle':['ALP', 'P'],
+            'markersize':[0,3]
+            },
+        'data_overlay' : {
+            'linestyle' : [1,0], 'markerstyle':[0,21], 
+            'linecolor' : [2,1], 'markercolor':[2,1],
+            'drawstyle' : ['hist', 'p'], 'legendstyle' : ['l', 'p']
+            },
+        'dots' : {
+            'markerstyle' : 20, 'markersize' : 2,
+            'linestyle' : 0, 'drawstyle' : 'P'
+            },
+        'line' : {
+            'linestyle':1, 'markerstyle':0
+            },
+        }
+    plotter = BasePlotter(
+        outdir, defaults = {
+            'clone' : False,
+            'show_title' : True,
+            }
+        )
     
     #canvas = plotting.Canvas(name='adsf', title='asdf')
     if "toy" in opts.fit_file:
@@ -215,7 +227,8 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
         getattr(migration_matrix, 'Projection%s' % project_gen)()
         )
     eff_correction = ROOT.TGraphAsymmErrors(gen_project, thruth_unscaled)
-    purity_correction = ROOT.TGraphAsymmErrors(reco_project, reco_unscaled)
+    #FIXME sort out what's going on
+    #purity_correction = ROOT.TGraphAsymmErrors(reco_project, reco_unscaled)
 
     #flush graphs into histograms (easier to handle)
     eff_hist = gen_project.Clone()
@@ -231,12 +244,13 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
     purity_hist = reco_project.Clone()
     purity_hist.reset()
     purity_hist.name = 'purity_hist'
-    for idx in range(purity_correction.GetN()):
-        purity_hist[idx+1].value = purity_correction.GetY()[idx]
-        purity_hist[idx+1].error = max(
-            purity_correction.GetEYhigh()[idx],
-            purity_correction.GetEYlow()[idx]
-            )
+    #for idx in range(purity_correction.GetN()):
+    for bin in purity_hist:
+        bin.value = 1. #purity_correction.GetY()[idx]
+        bin.error = 0. #max(
+        #    purity_correction.GetEYhigh()[idx],
+        #    purity_correction.GetEYlow()[idx]
+        #    )
 
     #Get measured histogram
     measured = None
@@ -286,13 +300,11 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
     hdata = myunfolding.measured # Duplicate. Remove!
 
     #plot covariance matrix
-    canvas = plotting.Canvas()
-    BasePlotter.set_canvas_style(canvas)
+    plotter.pad.cd()
     input_corr_matrix.SetStats(False)
     input_corr_matrix.Draw('colz')
-    canvas.Update()
-    canvas.SetLogz(True)
-    canvas.SaveAs('%s/correlation_matrix.png' % outdir)
+    plotter.pad.SetLogz(True)
+    plotter.save('correlation_matrix.png')
 
     #optimize
     best_taus = {}
@@ -311,28 +323,23 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
                   for i in xrange(graph_x.GetN())]
         best = [(x,y) for i, x, y in points if l_tau == i]
         graph_best = plotting.Graph(1)
-        plotter.set_graph_style(graph_best,29,2)
         graph_best.SetPoint(0, *best[0])
-        graph_best.SetMarkerSize(3)
-        #l_curve.Draw('ALP')
-        #graph_best.Draw('P SAME')
-        canvas = plotter.create_and_write_graph_canvas('c'+l_curve.GetName(),[0],[1],False,False,[l_curve],write=False)
-        graph_best.Draw('P SAME')
+        plotter.reset()
+        plotter.overlay(
+            [l_curve, graph_best], **styles['scan_overlay']
+            )
+        plotter.canvas.name = 'L_curve'
     
-        info = ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
-        info.UseCurrentStyle()
-        info.SetTextAlign(32)
-        info.SetFillColor(0)
-        info.SetBorderSize(0)
-        info.SetMargin(0.)
-        info.SetTextSize(0.037)
-        info.AddText('#tau = %.5f' % best_l)
+        info = plotter.make_text_box('#tau = %.5f' % best_l, 'NE')
+        #ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
         info.Draw()
         canvas.Update()
-        save(canvas, 'L_curve', 'L_curve', outdir)
+        plotter.set_subdir('L_curve')
+        plotter.save()
 
         modes = ['RhoMax', 'RhoSquareAvg', 'RhoAvg']
         for mode in modes:
+            plotter.set_subdir(mode)
             best_tau, tau_curve, index_best = myunfolding.DoScanTau(100, t_min, t_max, mode)
             best_taus[mode] = best_tau
             tau_curve.SetName('%s_scan' % mode)
@@ -343,22 +350,15 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
 
             graph_best = plotting.Graph(1)
             graph_best.SetPoint(0, *best[0])
-            graph_best.SetMarkerStyle(29)
-            graph_best.SetMarkerSize(3)
-            graph_best.SetMarkerColor(2)
-            
-            canvas = plotter.create_and_write_graph_canvas('c'+tau_curve.GetName(),[0],[1],False,False,[tau_curve],write=False)
-    
-            graph_best.Draw('P SAME')
-            info = ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
-            info.UseCurrentStyle()
-            info.SetFillColor(0)
-            info.SetBorderSize(0)
-            info.SetMargin(0.)
-            info.AddText('#tau = %.5f' % best_tau)
+            plotter.overlay(
+                [tau_curve, graph_best], **styles['scan_overlay']
+                )
+            plotter.canvas.name = 'c'+tau_curve.GetName()
+
+            info = plotter.make_text_box('#tau = %.5f' % best_tau, 'NE') 
+            #ROOT.TPaveText(0.65,1-canvas.GetTopMargin(),1-canvas.GetRightMargin(),0.999, "brNDC")
             info.Draw()
-            canvas.Update()
-            save(canvas, mode, 'Tau_curve', outdir)
+            plotter.save('Tau_curve')
 
         #force running without regularization
         best_taus['NoReg'] = 0
@@ -367,22 +367,20 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
 
         if opts.runHandmade:
             #hand-made tau scan
+            plotter.set_subdir('Handmade')
             unc_scan, bias_scan = myunfolding.scan_tau(
                 200, 10**-6, 50, os.path.join(outdir, 'Handmade', 'scan_info.root'))
 
             bias_scan.name = 'Handmade'
             bias_scan.title = 'Avg. Bias - Handmade'
-            bias_scan.markerstyle = 20
-            bias_scan.markersize = 2
-            canvas = plotter.create_and_write_graph_canvas('bias_scan',[0],[1],True,True,[bias_scan],write=False)
-            save(canvas, 'Handmade', 'bias_scan', outdir)
+            
+            plotter.plot(bias_scan, logx=True, logy=True, **styles['dots'])
+            plotter.save('bias_scan')
 
             unc_scan.name = 'Handmade'
             unc_scan.title = 'Avg. Unc. - Handmade'
-            unc_scan.markerstyle = 20
-            unc_scan.markersize = 2
-            canvas = plotter.create_and_write_graph_canvas('unc_scan',[0],[1],True,True,[unc_scan],write=False)
-            save(canvas, 'Handmade', 'unc_scan', outdir)
+            plotter.plot(unc_scan, logx=True, logy=True, **styles['dots'])
+            plotter.save('unc_scan')
         
             bias_points = [(bias_scan.GetX()[i], bias_scan.GetY()[i])
                            for i in xrange(bias_scan.GetN())]
@@ -396,14 +394,13 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
                 fom_scan.SetPoint(idx, tau, quad(bias, unc))
             fom_scan.name = 'Handmade'
             fom_scan.title = 'Figure of merit - Handmade'
-            fom_scan.markerstyle = 20
-            fom_scan.markersize = 2
-            canvas = plotter.create_and_write_graph_canvas('unc_scan',[0],[1],True,True,[fom_scan],write=False)
-            save(canvas, 'Handmade', 'fom_scan', outdir)
+            plotter.plot(fom_scan, logx=True, logy=True, **styles['dots'])
+            plotter.save('fom_scan')
 
     to_save = []
     outfile = rootpy.io.root_open(os.path.join(outdir, opts.out),'recreate')
     for name, best_tau in best_taus.iteritems():
+        plotter.set_subdir(name)
         method_dir = outfile.mkdir(name)
         myunfolding.tau = best_tau
 
@@ -421,24 +418,27 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
         hcorrelations = myunfolding.rhoI_total
         hbias = myunfolding.bias
         #canvas = overlay(myunfolding.truth, hdata_unfolded)
-        leg = LegendDefinition(
-            title=name,
-            labels=['Truth','Unfolded'],
-            position='ne'
-            )
         myunfolding.truth.xaxis.title = xaxislabel
         hdata_unfolded.xaxis.title = xaxislabel
         n_neg_bins = 0
         for ibin in range(1,hdata_unfolded.GetNbinsX()+1):
             if hdata_unfolded.GetBinContent(ibin) < 0:
                 n_neg_bins = n_neg_bins + 1
-        hn_neg_bins = plotting.Hist(2,-1, 1, name = 'nneg_bins', title = 'Negative bins in ' + hdata_unfolded.GetName()+ ';Bin sign; N_{bins}')
+        hn_neg_bins = plotting.Hist(
+            2,-1, 1, name = 'nneg_bins', 
+            title = 'Negative bins in ' + hdata_unfolded.GetName()+ ';Bin sign; N_{bins}'
+            )
         hn_neg_bins.SetBinContent(1,n_neg_bins)
         hn_neg_bins.SetBinContent(2,hdata_unfolded.GetNbinsX()-n_neg_bins)
-        canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hn_neg_bins, write=False)
-        save(canvas, name, 'unfolding_bins_sign', outdir)
+        plotter.plot(
+            hn_neg_bins, writeTo='unfolding_bins_sign', **styles['line']
+            )
 
-
+        leg = LegendDefinition(
+            title=name,
+            labels=['Truth','Unfolded'],
+            position='ne'
+            )
         sumofpulls = 0
         sumofratios = 0
         for ibin in range(1,myunfolding.truth.GetNbinsX()+1):
@@ -458,47 +458,82 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
         sumofpulls = sumofpulls / myunfolding.truth.GetNbinsX()
         sumofratios = sumofratios / myunfolding.truth.GetNbinsX()
         
-        hsum_of_pulls = plotting.Hist(1,0, 1, name = 'sum_of_pulls_' + hdata_unfolded.GetName(), title = 'Sum of pulls wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(pulls) / N_{bins}')
-        hsum_of_pulls.SetBinContent(1, sumofpulls)
-        canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hsum_of_pulls, write=False)
-        save(canvas, name, 'unfolding_sum_of_pulls', outdir)
+        hsum_of_pulls = plotting.Hist(
+            1, 0, 1, name = 'sum_of_pulls_' + hdata_unfolded.GetName(), 
+            title = 'Sum of pulls wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(pulls) / N_{bins}'
+            )
+        hsum_of_pulls[1].value = sumofpulls
+        plotter.plot(hsum_of_pulls, writeTo='unfolding_sum_of_pulls', **styles['line'])
         
-        hsum_of_ratios = plotting.Hist(1,0, 1, name = 'sum_of_ratios_' + hdata_unfolded.GetName(), title = 'Sum of ratios wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(ratios) / N_{bins}')
-        hsum_of_ratios.SetBinContent(1, sumofratios)
-        canvas = plotter.create_and_write_canvas_single(1,0,1,False,False,hsum_of_ratios, write=False)
-        save(canvas, name, 'unfolding_sum_of_ratios', outdir)
+        hsum_of_ratios = plotting.Hist(
+            1, 0, 1, name = 'sum_of_ratios_' + hdata_unfolded.GetName(), 
+            title = 'Sum of ratios wrt truth for ' + hdata_unfolded.GetName()+ ';None; #Sigma(ratios) / N_{bins}'
+            )
+        hsum_of_ratios[1].value = sumofratios
+        plotter.plot(hsum_of_ratios, writeTo='unfolding_sum_of_ratios', **styles['line'])
 
-        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_pull', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='pull')
-        save(canvas, name, 'unfolding_pull', outdir)
-        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_ratio', [1,0],[0,21], [2,1], leg, False, False, [myunfolding.truth, hdata_unfolded], write=False, comparison='ratio')
-        save(canvas, name, 'unfolding_ratio', outdir)
+        
+        plotter.overlay_and_compare(
+            [myunfolding.truth], hdata_unfolded, 
+            legend_def=leg,
+            writeTo='unfolding_pull', **styles['data_overlay']
+            )
+        plotter.overlay_and_compare(
+            [myunfolding.truth], hdata_unfolded, 
+            legend_def=leg, method='ratio',
+            writeTo='unfolding_ratio', **styles['data_overlay']
+            )
 
-        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_weff_pull', [1,0],[0,21], [2,1], leg, False, False, [full_true, hdata_unfolded_ps_corrected], write=False, comparison='pull')
-        save(canvas, name, 'unfolding_weff_pull', outdir)
-        canvas = plotter.create_and_write_canvas_with_comparison('unfolding_weff_ratio', [1,0],[0,21], [2,1], leg, False, False, [full_true, hdata_unfolded_ps_corrected], write=False, comparison='ratio')
-        save(canvas, name, 'unfolding_weff_ratio', outdir)
+        plotter.overlay_and_compare(
+            [full_true], hdata_unfolded_ps_corrected, 
+            legend_def=leg,
+            writeTo='unfolding_pull', **styles['data_overlay']
+            )
+        plotter.overlay_and_compare(
+            [full_true], hdata_unfolded_ps_corrected, 
+            legend_def=leg, method='ratio',
+            writeTo='unfolding_ratio', **styles['data_overlay']
+            )
     
         nbins = myunfolding.measured.GetNbinsX()
-        #for i in range(1, nbins+1):
-            #myunfolding.measured.GetXaxis().SetBinLabel(
-                #i, 
-                #'%.0f' % myunfolding.measured.GetXaxis().GetBinLowEdge(i)
-                #)
         input_distro = getattr(resp_file, opts.var).prefit_distribution
-        leg = LegendDefinition(title=name,labels=['Reco','Refolded','Input'],position='ne')
+        leg = LegendDefinition(title=name, position='ne')
         myunfolding.measured.xaxis.title = xaxislabel
         hdata_refolded.xaxis.title = xaxislabel
         myunfolding.measured.drawstyle = 'e1'
-        canvas = plotter.create_and_write_canvas_with_comparison('refolded_pull', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='pull')
-        save(canvas, name, 'refolded_pull', outdir)
-        canvas = plotter.create_and_write_canvas_with_comparison('refolded_ratio', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [myunfolding.measured, hdata_refolded], write=False, comparison='ratio')
-        save(canvas, name, 'refolded_ratio', outdir)
 
+        style = {'linestyle':[1, 0], 'markerstyle':[20, 20],
+                 'markercolor':[2,4], 'linecolor':[2,4],
+                 'drawstyle' : ['hist', 'e1'], 'legendstyle' : ['l', 'p'],
+                 'title' : ['Refolded', 'Reco']
+                 }
+        plotter.overlay_and_compare(
+            [hdata_refolded], myunfolding.measured,
+            legend_def=leg,
+            writeTo='refolded_pull', **style
+            )
+        plotter.overlay_and_compare(
+            [hdata_refolded], myunfolding.measured, 
+            legend_def=leg, method='ratio',
+            writeTo='refolded_ratio', **style
+            )
+        
+        style = {'linestyle':[1,0,0], 'markerstyle':[20,21,21],
+                 'markercolor':[2,4,1], 'linecolor':[2,4,1],
+                 'drawstyle' : ['hist', 'e1', 'e1'], 'legendstyle' : ['l', 'p', 'p'],
+                 'title' : ['Refolded', 'Reco', 'Input']
+                 }
         measured_no_correction.drawstyle = 'e1'
-        canvas = plotter.create_and_write_canvas_with_comparison('refolded_wpurity_pull', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [measured_no_correction, hdata_refolded_wpurity, input_distro], write=False, comparison='pull')
-        save(canvas, name, 'refolded_wpurity_pull', outdir)
-        canvas = plotter.create_and_write_canvas_with_comparison('refolded_wpurity_ratio', [1,0,1],[0,21,0], [2,1,4], leg, False, False, [measured_no_correction, hdata_refolded_wpurity, input_distro], write=False, comparison='ratio')
-        save(canvas, name, 'refolded_wpurity_ratio', outdir)
+        plotter.overlay_and_compare(
+            [hdata_refolded_wpurity, measured_no_correction], input_distro, 
+            legend_def=leg,
+            writeTo='refolded_wpurity_pull', **style
+            )
+        plotter.overlay_and_compare(
+            [hdata_refolded_wpurity, measured_no_correction], input_distro, 
+            legend_def=leg, method='ratio',
+            writeTo='refolded_wpurity_ratio', **style
+            )
 
         method_dir.WriteTObject(hdata_unfolded, 'hdata_unfolded')
         method_dir.WriteTObject(hdata_unfolded_ps_corrected, 'hdata_unfolded_ps_corrected')
