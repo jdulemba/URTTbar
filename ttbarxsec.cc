@@ -1176,7 +1176,7 @@ void ttbar::ttanalysis(URStreamer& event)
 		
 	}
 	if(bestper.Prob() > 1E9){return;}
-	if(bestper.MassDiscr() > 10){return;}
+	//if(bestper.MassDiscr() > 10){return;}
 	reco1d["counter"]->Fill(4.5, weight);
 	if(SEMILEPACC && rightper.IsComplete()) truth1d["counter"]->Fill(7.5, weight);
 	//Fill reconstructed hists
