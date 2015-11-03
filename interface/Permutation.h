@@ -5,6 +5,7 @@
 #include <TLorentzVector.h>
 #include <URStreamer.h>
 #include <IDJet.h>
+#include <iostream>
 
 using namespace std;
 
@@ -29,6 +30,7 @@ class Permutation
 		TLorentzVector nu_;
 		bool kinfit_ = false;
 		vector<TLorentzVector> improvedobjects;
+    size_t perm_jets_ = 0; //number of jets used for permutations
 	public:
 		Permutation() {}
 		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met);
@@ -45,6 +47,8 @@ class Permutation
 		IDJet* WJb() const {return(wjb_);}
 		IDJet* BHad() const {return(bjh_);}
 		IDJet* BLep() const {return(bjl_);}
+    int permutating_jets() const {return perm_jets_;}
+    void permutating_jets(int njets) { perm_jets_=njets;}
 		TLorentzVector* L() const {return(lep_);}
 		IDMet* MET() const {return(met_);}
 		void SetMET(IDMet* met) {met_ = met;}
@@ -54,6 +58,7 @@ class Permutation
 		void BLep(IDJet* bjl){bjl_=bjl;}
 		void L(TLorentzVector* lep){lep_=lep;}
 		void MET(IDMet* met){met_=met;}
+  friend std::ostream & operator<<(std::ostream &os, const Permutation& p);
 
 		TLorentzVector Nu() const {return(nu_);}
 		TLorentzVector WHad() const {return((*WJa() + *WJb()));}

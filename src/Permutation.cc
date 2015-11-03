@@ -64,3 +64,7 @@ bool operator>(const Permutation& A, const Permutation& B)
 	return(A.Prob() > B.Prob());
 }
 
+std::ostream & operator<<(std::ostream &os, const Permutation& p) {
+  return os << "l: " << p.lep_ << ", b_l: " << p.bjl_ << ", b_h: " << p.bjh_ << ", j1: " << p.wja_ << ", j1: " << p.wjb_ << std::endl
+            << ", full discr: " << p.prob_ << ", mass disc: " << p.mass_discriminant_;
+}

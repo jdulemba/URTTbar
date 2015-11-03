@@ -5,6 +5,8 @@
 #include "IDMuon.h"
 #include "IDElectron.h"
 #include <TMath.h>
+#include <unordered_map>
+#include <string>
 
 class IDJet : public Jet, public MCMatchable
 {
@@ -12,6 +14,9 @@ private:
 	double rndm_;
 public:
 	enum BTag {NONE, CSVLOOSE, CSVMEDIUM, CSVTIGHT};
+  static const std::unordered_map<std::string, IDJet::BTag> tag_names;
+  static IDJet::BTag tag(std::string label);
+
 	IDJet(const Jet el, double rndm):
 		Jet(el),
     MCMatchable(),
@@ -75,4 +80,5 @@ public:
 	}
 
 };
+
 #endif

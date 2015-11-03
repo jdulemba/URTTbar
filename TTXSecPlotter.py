@@ -24,10 +24,10 @@ class TTXSecPlotter(Plotter):
    def __init__(self, ttbar_to_use='ttJets', lumi=None):
       self.ttbar_to_use = ttbar_to_use
       jobid = os.environ['jobid']
-      files = glob.glob('results/%s/ttbarxsec/*.root' % jobid)
+      files = glob.glob('results/%s/ttxs/*.root' % jobid)
       if len(files) == 0:
          logging.info('No file found, must be Otto\'s format...')
-         all_files = glob.glob('results/%s/ttbarxsec/*/*.root' % jobid)
+         all_files = glob.glob('results/%s/ttxs/*/*.root' % jobid)
          files = {}
          for ifile in all_files:
             base = os.path.basename(ifile)
@@ -44,7 +44,7 @@ class TTXSecPlotter(Plotter):
       
       outdir= 'plots/%s/ttxsec' % jobid
       super(TTXSecPlotter, self).__init__(
-         files, lumis, outdir, styles, None, lumi
+         files, lumis, outdir, styles, None, lumi, lumi_scaling=0.5
          )
       self.jobid = jobid
 

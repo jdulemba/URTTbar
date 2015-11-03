@@ -5,6 +5,23 @@
 
 using namespace TMath;
 
+const std::map<std::string, IDMuon::IDS> IDMuon::id_names = {
+  {"TIGHT_12"  , IDMuon::IDS::TIGHT_12},
+  {"LOOSE_12"  , IDMuon::IDS::LOOSE_12},
+  {"TIGHT_12Db", IDMuon::IDS::TIGHT_12Db},
+  {"LOOSE_12Db", IDMuon::IDS::LOOSE_12Db}
+};
+
+IDMuon::IDS IDMuon::id(const std::string label) {
+  try {
+    return IDMuon::id_names.at(label);
+  }
+  catch (std::out_of_range e){
+    Logger::log().error() << "Requested IDMuon ID label: " << label << " does not exist!" << std::endl;
+    throw 49;
+  }
+}
+
 IDMuon::IDMuon(const Muon mu, double rho): 
 	Muon(mu), 
 	MCMatchable(),

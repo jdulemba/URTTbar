@@ -5,6 +5,25 @@
 
 using namespace TMath;
 
+const std::map<std::string, IDElectron::IDS> IDElectron::id_names = {
+	{"MEDIUM_12"  , IDElectron::IDS::MEDIUM_12  },
+  {"LOOSE_12"   , IDElectron::IDS::LOOSE_12   },
+  {"MEDIUM_12Db", IDElectron::IDS::MEDIUM_12Db},
+  {"LOOSE_12Db" , IDElectron::IDS::LOOSE_12Db },
+  {"MEDIUM_15"  , IDElectron::IDS::MEDIUM_15  },
+  {"LOOSE_15"   , IDElectron::IDS::LOOSE_15   }
+};
+
+IDElectron::IDS IDElectron::id(const std::string label) {
+  try {
+    return IDElectron::id_names.at(label);
+  }
+  catch (std::out_of_range e){
+    Logger::log().error() << "Requested IDElectron ID label: " << label << " does not exist!" << std::endl;
+    throw 49;
+  }
+}
+
 double IDElectron::CorPFIsolation2012(double eta) const
 {
 	double effarea = 0.;

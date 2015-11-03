@@ -7,15 +7,12 @@
 
 using namespace std;
 
-class ttbar;
-
 class TTBarPlotsBase
 {
 	protected:
 		string prefix_;
 		TH1DCollection plot1d;	
 		TH2DCollection plot2d;	
-		ttbar* an;
 
 		TLorentzVector whad;
 		TLorentzVector thad;
@@ -26,7 +23,7 @@ class TTBarPlotsBase
 	public:
 		TTBarPlotsBase(string prefix);
 		~TTBarPlotsBase();
-		void Init(ttbar* analysis);
+		void Init();
 		void Fill(TLorentzVector* Hb, TLorentzVector* Hwa, TLorentzVector* Hwb, TLorentzVector* Lb, TLorentzVector* Ll, TLorentzVector* Ln, int lepcharge, double weight);
 };
 

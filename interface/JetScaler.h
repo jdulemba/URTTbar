@@ -44,6 +44,31 @@ class JetScaler
 
 			olddir->cd();
 		}
+
+  JetScaler():
+    Heta(0),
+    HptsP(),
+    HptsM() {}
+
+  void Init(const string filename) {//like the constructior, but outside it
+			TDirectory* olddir = gDirectory;
+			TFile* f = new TFile(filename.c_str());
+			Heta = dynamic_cast<TH1D*>(f->Get("eta"));
+			for(int i = 0 ; i < Heta->GetNbinsX() ; ++i)
+			{
+				stringstream hn;
+				hn << "down_" << i;
+				HptsP.push_back(dynamic_cast<TH1D*>(f->Get(hn.str().c_str())));
+			}	
+			for(int i = 0 ; i < Heta->GetNbinsX() ; ++i)
+			{
+				stringstream hn;
+				hn << "up_" << i;
+				HptsM.push_back(dynamic_cast<TH1D*>(f->Get(hn.str().c_str())));
+			}	
+
+			olddir->cd();    
+  }
 		double GetUncP(const IDJet& jet)
 		{
 			int etabin = Heta->FindFixBin(jet.Eta()) -1;

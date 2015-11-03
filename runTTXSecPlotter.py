@@ -194,6 +194,7 @@ def run_module(**kwargs):
             }
          )
       }
+   plotter.initviews() #FIXME: to be removed
                
    plotter.mc_samples = [
       'QCD*',
@@ -254,45 +255,44 @@ def run_module(**kwargs):
          }
       }
 
-   plotter.initviews()
-      
 
    ##################
    #     PLOTS
    ##################
    if not opts.noplots:
       to_plot = [
-         ('all_weight' , 5, 'event weight'),
-         ('all_lep_pt' , 4, 'p_{T}(l)'),
-         ("all_ttM"    , 4, 'm(t#bar{t})'),
-         ("all_tty"    , 4, 'y(t#bar{t})'),
-         ("all_ttpt"   , 4, 'p_{T}(t#bar{t})'),
-         ("all_costhetastar", 4, ''),
-         ("all_njets", 4, '# of jets'),
-         ('all_%s' % discriminant, 2, 'discriminant'),
+         ('weight' , 5, 'event weight'),
+         ('lep_pt' , 4, 'p_{T}(l)'),
+         ("ttM"    , 4, 'm(t#bar{t})'),
+         ("tty"    , 4, 'y(t#bar{t})'),
+         ("ttpt"   , 4, 'p_{T}(t#bar{t})'),
+         ("costhetastar", 4, ''),
+         ("njets", 4, '# of jets'),
+         (discriminant, 2, 'discriminant'),
          ]
 
       plotter.plot_mc_shapes(
-         '', 'all_%s' % discriminant, rebin=2, xaxis=discriminant,
+         'nosys', discriminant, rebin=2, xaxis=discriminant,
          leftside=False, normalize=True, show_err=True, xrange=(-8,1))
       plotter.save('%s_full_shape' % (discriminant), pdf=False)
       
       plotter.plot_mc_shapes(
-         '', 'all_%s' % discriminant, rebin=2, xaxis=discriminant,
+         'nosys', discriminant, rebin=2, xaxis=discriminant,
          leftside=False, normalize=True, show_err=True, xrange=(-8,1),
          use_only=set(['ttJets_rightTlep', 'ttJets_wrongAssign', 'ttJets_other']),
          ratio_range=1)
       plotter.save('%s_bkg_shape' % (discriminant), pdf=False)
 
       for var, rebin, xaxis in to_plot:
-         plotter.plot_mc_vs_data('', var, leftside=False, rebin=rebin, xaxis=xaxis)
-         print var, sum(plotter.keep[0].hists).Integral(), plotter.keep[1].Integral()
+         plotter.plot_mc_vs_data('nosys', var, leftside=False, rebin=rebin, xaxis=xaxis)
+         #print var, sum(plotter.keep[0].hists).Integral(), plotter.keep[1].Integral()
+         plotter.add_cms_blurb(13, lumiformat='%0.3f')
          plotter.save(var, pdf=False)
       
       for info in vars_to_unfold:
          var = info.var
          plotter.plot_mc_vs_data(
-            '', 'all_%s' % var, 
+            'nosys', '%s' % var, 
             leftside=False, rebin=info.binning.reco, xaxis=info.xtitle)
          plotter.save(var, pdf=False)
       
@@ -300,7 +300,7 @@ def run_module(**kwargs):
          plotter.set_subdir('%s/slices' % var)
          for idx, vbin in enumerate(info.binning.reco[1:]):
             plotter.plot_mc_vs_data(
-               '', 'all_%s_%s' % (discriminant, var), leftside=False, 
+               'nosys', '%s_%s' % (discriminant, var), leftside=False, 
                rebin = full_discr_binning[0],
                xaxis=discriminant,
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin])
@@ -308,14 +308,14 @@ def run_module(**kwargs):
             plotter.save('%s_slice_%i' % (discriminant, idx), pdf=False)
             
             plotter.plot_mc_shapes(
-               '', 'all_%s_%s' % (discriminant, var), leftside=False, 
+               'nosys', '%s_%s' % (discriminant, var), leftside=False, 
                rebin = full_discr_binning[0],
                xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]))
             plotter.save('%s_slice_%i_shape' % (discriminant, idx), pdf=False)
             
             plotter.plot_mc_shapes(
-               '', 'all_%s_%s' % (discriminant, var), leftside=False, 
+               'nosys', '%s_%s' % (discriminant, var), leftside=False, 
                rebin = full_discr_binning[0],
                xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
                preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]),
@@ -342,7 +342,7 @@ def run_module(**kwargs):
             )
          for category_name, hist_names in jet_categories:
             plotter.write_shapes(
-               '', var, ['all_%s_%s_%s' % (discriminant, i, var) for i in hist_names], 
+               'nosys', var, ['%s_%s_%s' % (discriminant, i, var) for i in hist_names], 
                var_binning=info.binning.reco,
                disc_binning = lambda x, *args: full_discr_binning[0],
                category_template='Bin%i_'+category_name
@@ -358,13 +358,14 @@ def run_module(**kwargs):
       fname = os.path.join(plotter.outputdir, 'migration_matrices.root')
 
       with io.root_open(fname, 'recreate') as mfile:
+         response_dir = 'semilep_visible_right/nosys/response'
          for info in vars_to_unfold:
             var = info.var
             dirname = var
             if hasattr(info, 'dir_postfix'):
                dirname += '_%s' % info.dir_postfix
             mfile.mkdir(dirname).cd()
-            matrix_path = 'TRUTH/response/%s_matrix' % var
+            matrix_path = '%s/%s_matrix' % (response_dir, var)
             tt_view = plotter.get_view(plotter.ttbar_to_use, 'unweighted_view')
             matrix_view_unscaled = plotter.rebin_view(
                tt_view, 
@@ -374,11 +375,11 @@ def run_module(**kwargs):
             mig_matrix_unscaled.SetName('migration_matrix')
             mig_matrix_unscaled.Write()
 
-            thruth_unscaled = plotter.rebin_view(tt_view, info.binning.gen).Get('TRUTH/response/%s_truth' % var)            
+            thruth_unscaled = plotter.rebin_view(tt_view, info.binning.gen).Get('%s/%s_truth' % (response_dir, var))            
             thruth_unscaled.name = 'thruth_unscaled'
             thruth_unscaled.Write()
             
-            reco_unscaled = plotter.rebin_view(tt_view, info.binning.reco).Get('TRUTH/response/%s_reco' % var)
+            reco_unscaled = plotter.rebin_view(tt_view, info.binning.reco).Get('%s/%s_reco' % (response_dir, var))
             reco_unscaled.name = 'reco_unscaled'
             reco_unscaled.Write()
 
@@ -400,7 +401,7 @@ def run_module(**kwargs):
                info.binning.reco
                )
             plotting.views.SumView.debug = True
-            prefit_plot = prefit_view.Get('all_%s' % var)
+            prefit_plot = prefit_view.Get('nosys/%s' % var)
             prefit_plot.name = 'prefit_distribution'
             prefit_plot.Write()
 
@@ -408,7 +409,7 @@ def run_module(**kwargs):
                tt_view,
                info.binning.gen
                ).Get(
-               'TRUTH/response/%s_truth' % var) 
+               '%s/%s_truth' % (response_dir, var) )
             thruth_distro.SetName('true_distribution')
             thruth_distro.Write()         
 

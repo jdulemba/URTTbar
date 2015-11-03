@@ -1,10 +1,9 @@
 #include <TTBarResponse.h>
 #include <sstream>
-
-#include <ttbarxsec.h>
+#include "TMath.h"
 #include <TDirectory.h>
 
-TTBarResponse::TTBarResponse(string prefix, ttbar* an) : prefix_(prefix), an_(an), dir(0), plot1d(""), plot2d(""), recojets(-1), genjets(-1)
+TTBarResponse::TTBarResponse(string prefix) : prefix_(prefix), dir(0), plot1d(""), plot2d(""), recojets(-1), genjets(-1)
 {
 }
 
@@ -40,18 +39,18 @@ void TTBarResponse::AddMatrix(string name, const vector<double>& Mbins, const ve
 	values_[name].second = Mbins.front() - 1.;
 }
 
-void TTBarResponse::FillTruth(string name, double val, double weight)
+void TTBarResponse::FillTruth(string name, double val, size_t njets, double weight)
 {
 	weight_ = weight;
 	values_[name].first = val;
-	genjets = Min(an_->genaddjets.size(), size_t(3));
+	genjets = TMath::Min(njets, size_t(3));
 }
 
-void TTBarResponse::FillReco(string name, double val, double weight)
+void TTBarResponse::FillReco(string name, double val, size_t njets, double weight)
 {
 	weight_ = weight;
 	values_[name].second =val;
-	recojets = Min(an_->reducedjets.size() - 4, size_t(3));
+	recojets = TMath::Min(njets - 4, size_t(3));
 }
 
 void TTBarResponse::FillTruthReco(string name, double tval, double rval, double weight)
