@@ -226,31 +226,63 @@ def run_unfolder(itoy = 0, outdir = opts.dir, tau = opts.tau):
     gen_project = rootpy.asrootpy(
         getattr(migration_matrix, 'Projection%s' % project_gen)()
         )
-    eff_correction = ROOT.TGraphAsymmErrors(gen_project, thruth_unscaled)
-    #FIXME sort out what's going on
-    #purity_correction = ROOT.TGraphAsymmErrors(reco_project, reco_unscaled)
+    if gen_project.Integral() < thruth_unscaled.Integral():
+        eff_correction = ROOT.TGraphAsymmErrors(gen_project, thruth_unscaled)
+    elif gen_project.Integral() == thruth_unscaled.Integral():
+        eff_correction = None
+    else:
+        log.warning(
+            'Efficiency correction: The visible part of the migration matrix'
+            ' has a larger integral than the full one! (%.3f vs. %.3f).\n'
+            'It might be a rounding error, but please check!'\
+                % (reco_project.Integral(), reco_unscaled.Integral())
+            )
+        eff_correction = None
+
+    if reco_project.Integral() < reco_unscaled.Integral():
+        purity_correction = ROOT.TGraphAsymmErrors(reco_project, reco_unscaled)
+    elif reco_project.Integral() == reco_unscaled.Integral():
+        purity_correction = None
+    else:
+        log.warning(
+            'Purity correction: The visible part of the migration matrix'
+            ' has a larger integral than the full one! (%.3f vs. %.3f).\n'
+            'It might be a rounding error, but please check!'\
+                % (reco_project.Integral(), reco_unscaled.Integral())
+            )
+        purity_correction = None
+
 
     #flush graphs into histograms (easier to handle)
     eff_hist = gen_project.Clone()
     eff_hist.reset()
     eff_hist.name = 'eff_hist'
-    for idx in range(eff_correction.GetN()):
-        eff_hist[idx+1].value = eff_correction.GetY()[idx]
-        eff_hist[idx+1].error = max(
-            eff_correction.GetEYhigh()[idx],
-            eff_correction.GetEYlow()[idx]
-            )
+    if eff_correction:
+        for idx in range(eff_correction.GetN()):
+            eff_hist[idx+1].value = eff_correction.GetY()[idx]
+            eff_hist[idx+1].error = max(
+                eff_correction.GetEYhigh()[idx],
+                eff_correction.GetEYlow()[idx]
+                )
+    else:
+        for b in eff_hist:
+            b.value = 1.
+            b.error = 0.
 
     purity_hist = reco_project.Clone()
     purity_hist.reset()
     purity_hist.name = 'purity_hist'
-    #for idx in range(purity_correction.GetN()):
-    for bin in purity_hist:
-        bin.value = 1. #purity_correction.GetY()[idx]
-        bin.error = 0. #max(
-        #    purity_correction.GetEYhigh()[idx],
-        #    purity_correction.GetEYlow()[idx]
-        #    )
+    if purity_correction:
+        for idx in range(purity_correction.GetN()):
+            bin.value = purity_correction.GetY()[idx]
+            bin.error = max(
+                purity_correction.GetEYhigh()[idx],
+                purity_correction.GetEYlow()[idx]
+                )
+    else:
+        for bin in purity_hist:
+            bin.value = 1.
+            bin.error = 0.
 
     #Get measured histogram
     measured = None
@@ -602,6 +634,8 @@ ybins = list(ybins)
 ybins.sort()
 
 full_matrix = plotting.Hist2D(xbins, ybins)
+full_matrix.xaxis.title = migration_matrix.xaxis.title
+full_matrix.yaxis.title = migration_matrix.yaxis.title
 for bin in migration_matrix:
     ibin = full_matrix.FindFixBin(
         bin.x.center, bin.y.center
@@ -612,7 +646,7 @@ for bin in migration_matrix:
 canvas = plotting.Canvas(1000, 800)
 BasePlotter.set_canvas_style(canvas)
 full_matrix.SetStats(False)
-full_matrix.Draw('colz')
+full_matrix.Draw('colz TEXT')
 canvas.Update()
 canvas.SetLogz(True)
 canvas.SaveAs('%s/migration_matrix.png' % opts.dir)
@@ -621,7 +655,7 @@ canvas.SaveAs('%s/migration_matrix.png' % opts.dir)
 for bin in full_matrix:
     if not bin.value: continue
     bin.value = bin.error / bin.value 
-full_matrix.Draw('colz')
+full_matrix.Draw('colz txt')
 canvas.Update()
 canvas.SaveAs('%s/migration_matrix_unc.png' % opts.dir)
 
