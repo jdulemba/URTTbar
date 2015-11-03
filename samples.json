@@ -2,52 +2,82 @@
  {
    "name" : "ttJets",
    "DBSName" : "/TT_TuneCUETP8M1_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2_ext3-v1/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_amcatnlo",
    "DBSName" : "TO BE FIXED! -- /TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_madgraph",
    "DBSName" : "TO BE FIXED! -- /TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_mtopdown",
    "DBSName" : "/TT_TuneCUETP8M1_mtop1695_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_mtopup",
    "DBSName" : "/TT_TuneCUETP8M1_mtop1755_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_amcatnlo_mtopdown",
    "DBSName" : "TO BE FIXED! -- /TTJets_mtop1695_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v3/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_amcatnlo_mtopup",
    "DBSName" : "TO BE FIXED! -- /TTJets_mtop1755_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v1/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_scaledown",
    "DBSName" : "/TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8/RunIISpring15MiniAODv2-Asympt50ns_74X_mcRun2_asymptotic50ns_v0-v1/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_scaleup",
    "DBSName" : "TO BE FIXED! -- /TT_TuneCUETP8M1_13TeV-powheg-scaleup-pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v3/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "ttJets_pythia6",
    "DBSName" : "TO BE FIXED! -- /TT_TuneZ2star_13TeV-powheg-pythia6-tauola/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v3/MINIAODSIM",
-   "xsection" : 832
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
  },
  {
    "name" : "singlet_tW",
