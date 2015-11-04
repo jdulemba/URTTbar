@@ -194,7 +194,6 @@ def run_module(**kwargs):
             }
          )
       }
-   plotter.initviews() #FIXME: to be removed
                
    plotter.mc_samples = [
       'QCD*',
@@ -260,6 +259,11 @@ def run_module(**kwargs):
    #     PLOTS
    ##################
    if not opts.noplots:
+
+      plotter.cut_flow()
+      plotter.save('cut_flow')
+
+      plotter.initviews() #FIXME: to be removed
       to_plot = [
          ('weight' , 5, 'event weight'),
          ('lep_pt' , 4, 'p_{T}(l)'),

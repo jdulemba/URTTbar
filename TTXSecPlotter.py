@@ -61,6 +61,49 @@ class TTXSecPlotter(Plotter):
          if not sample.startswith('ttJets'):
             self.views[sample]['view'] = views.SubdirectoryView(self.views[sample]['view'], 'RECO')
 
+   def cut_flow(self):
+      views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, self.mc_samples)
+      views_to_flow.append(self.ttbar_to_use)
+      stack = plotting.HistStack()
+      self.keep.append(stack)
+      qcd_samples = [i for i in self.views if 'QCD' in i]
+
+      for vtf in views_to_flow:
+         histo = self.get_view(vtf).Get('cut_flow')
+         self.keep.append(histo)
+         stack.Add(
+            histo
+            )
+
+      #QCD may not have all the bins filled, needs special care
+      qcd_histo = histo.Clone()
+      qcd_histo.Reset()
+      for sample in qcd_samples:
+         qcd_flow = self.get_view(sample).Get('cut_flow')
+         qcd_histo = qcd_histo.decorate(
+            **qcd_flow.decorators
+            )
+         qcd_histo.title = qcd_flow.title
+         for sbin, qbin in zip(qcd_histo, qcd_flow):
+            sbin.value += qbin.value
+            sbin.error = quad.quad(sbin.error, qbin.error)
+      stack.Add(qcd_histo)
+      self.keep.append(qcd_histo)
+
+      histo.Draw() #set the proper axis labels
+      data = self.get_view('data').Get('cut_flow')
+      smin = min(stack.min(), data.min(), 1.2)
+      smax = max(stack.max(), data.max())
+      histo.yaxis.range_user = smin*0.8, smax*1.2
+      stack.Draw('same')
+      data.Draw('same')
+      self.keep.append(data)
+      self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
+      self.pad.SetLogy()
+      self.add_ratio_plot(data, stack, ratio_range=0.4)
+      self.lower_pad.SetLogy(False)
+      #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
+
    def create_tt_subsample(self, subdirs, title, color='#9999CC', relative_scale=itertools.repeat(1.)):
       return views.StyleView(
          views.TitleView(
