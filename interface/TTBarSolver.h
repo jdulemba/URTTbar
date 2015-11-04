@@ -15,6 +15,7 @@ using namespace std;
 using namespace TMath;
 
 class IDMet;
+class TDirectory;
 
 void myfuncln(Int_t& npar, Double_t* deriv, Double_t& val, Double_t* par, Int_t flag);
 
@@ -68,6 +69,8 @@ class TTBarSolver
 		TTBarSolver();
 		~TTBarSolver();
 		void Init(string filename, bool usebtag = true, bool usens = true, bool usemass = true);//provide root file with probability distribution, switches if btag and neutrino solver information should be used for final discriminant Res()
+    void Init(TDirectory* dir=0, bool usebtag=false, bool usens=false, bool usemass=false, string wtname="mWhad_vs_mtophad", string bname="btag_value", string nuname="nusolver_chi2");
+
 		void Solve(Jet* bhad, Jet* j1had, Jet* j2had, Jet* blep, TLorentzVector* llep, IDMet* met);
 
 		//extrem unlikely hypothesis will return a value >= 1E10

@@ -9,7 +9,10 @@ using namespace std;
 TTPermutator::TTPermutator():
   URSelector("permutations"),
   jets_(),
-  capped_jets_() {jet_pos_ = {0, 0, 0, 0};}
+  capped_jets_() {
+  jet_pos_ = {0, 0, 0, 0};
+  configure();
+}
 
 void TTPermutator::configure() {
   URSelector::configure();
@@ -33,7 +36,6 @@ void TTPermutator::configure() {
     cut_wjetpt_soft_ = getCfgParameter<float>( "softw_pt" );
     cut_tight_b_ = IDJet::tag(getCfgParameter<std::string>("tightb"));
     cut_loose_b_ = IDJet::tag(getCfgParameter<std::string>("looseb"));
-
     is_configured_ = true;
   }
 }
@@ -52,7 +54,9 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
   
   //check b-tagging conditions
   sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
-  if(!capped_jets_[0]->BTagId(cut_tight_b_) || !capped_jets_[1]->BTagId(cut_loose_b_)){return false;}
+  if(!capped_jets_[0]->BTagId(cut_tight_b_) || !capped_jets_[1]->BTagId(cut_loose_b_)){
+    return false;
+  }
   return true;
 }
 

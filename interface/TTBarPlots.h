@@ -11,6 +11,7 @@ using namespace std;
 class Jet;
 class Permutation;
 class TTObjectSelector;
+class URStreamer;
 
 class TTBarPlots : public TTBarPlotsBase
 {
@@ -24,7 +25,7 @@ class TTBarPlots : public TTBarPlotsBase
 		void Init(const vector<double>& topptbins, const vector<double>& topybins, const vector<double>& ttmbins,
               const vector<double>& ttybins  , const vector<double>& ttptbins, const vector<double>& metbins,
               const vector<double>& jetbins  , const vector<double>& nobins);
-		void Fill(Permutation& per, TTObjectSelector& objects, double weight);
+		void Fill(Permutation& per, TTObjectSelector& objects, URStreamer &evt, double weight);
 };
 
 #endif

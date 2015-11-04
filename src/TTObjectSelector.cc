@@ -7,25 +7,6 @@
 
 using namespace TMath;
 
-const std::map<std::string, TTObjectSelector::SysShifts> TTObjectSelector::name_to_shift = {
-  {"nosys", TTObjectSelector::SysShifts::NOSYS}, 
-  {"jes_up", TTObjectSelector::SysShifts::JES_UP}, 
-  {"jes_down", TTObjectSelector::SysShifts::JES_DW}, 
-  {"jer_up", TTObjectSelector::SysShifts::JER_UP},
-  {"jer_down", TTObjectSelector::SysShifts::JER_DW}, 
-  {"met_up", TTObjectSelector::SysShifts::MET_UP},
-  {"met_down", TTObjectSelector::SysShifts::MET_DW}
-};
-const std::map<TTObjectSelector::SysShifts, std::string> TTObjectSelector::shift_to_name = {
-  {TTObjectSelector::SysShifts::NOSYS , "nosys"   }, 
-  {TTObjectSelector::SysShifts::JES_UP, "jes_up"  }, 
-  {TTObjectSelector::SysShifts::JES_DW, "jes_down"}, 
-  {TTObjectSelector::SysShifts::JER_UP, "jer_up"  },
-  {TTObjectSelector::SysShifts::JER_DW, "jer_down"}, 
-  {TTObjectSelector::SysShifts::MET_UP, "met_up"  },
-  {TTObjectSelector::SysShifts::MET_DW, "met_down"}
-};
-
 TTObjectSelector::TTObjectSelector():
   sel_jets_(),
   clean_jets_(),
@@ -101,7 +82,7 @@ void TTObjectSelector::reset() {
   medium_electrons_.clear();
 }
 
-bool TTObjectSelector::select_muons(URStreamer &event, SysShifts shift) {
+bool TTObjectSelector::select_muons(URStreamer &event, systematics::SysShifts shift) {
 	const vector<Muon>& muons = event.muons();
 	for(vector<Muon>::const_iterator muon = muons.begin(); muon != muons.end(); ++muon)	{
 		IDMuon mu(*muon, event.rho().value());
@@ -113,10 +94,10 @@ bool TTObjectSelector::select_muons(URStreamer &event, SysShifts shift) {
 			}
 		}
 	}
-  return loose_muons_.size() > 0;
+  return (loose_muons_.size() > 0);
 }
 
-bool TTObjectSelector::select_electrons(URStreamer &event, SysShifts shift) {
+bool TTObjectSelector::select_electrons(URStreamer &event, systematics::SysShifts shift) {
 	const vector<Electron>& electrons = event.electrons();
 	for(vector<Electron>::const_iterator electron = electrons.begin(); electron != electrons.end(); ++electron)	{
 		IDElectron el(*electron, event.rho().value());
@@ -128,10 +109,10 @@ bool TTObjectSelector::select_electrons(URStreamer &event, SysShifts shift) {
 			}
 		}
 	}
-  return loose_electrons_.size() > 0;
+  return (loose_electrons_.size() > 0);
 }
 
-bool TTObjectSelector::select_jetmet(URStreamer &event, SysShifts shift) {
+bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts shift) {
 	double  metcorrx = 0.;
 	double  metcorry = 0.;
 	const vector<Jet>& jets = event.jets();
@@ -140,10 +121,10 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, SysShifts shift) {
 		IDJet jet(*jetit);
 		//double sf = gRandom->Gaus(1., 0.05);
 		double sf = 1; //csigmajet; ??
-		if(shift == SysShifts::JES_DW){sf *= -1*Abs(jet_scaler_.GetUncM(jet));}
-		if(shift == SysShifts::JES_UP){sf *= Abs(jet_scaler_.GetUncP(jet));}
-		if(shift == SysShifts::JER_UP){sf *= gRandom->Gaus(sf, 0.1);} //FIXME, update as soon as available
-		//if(shift == SysShifts::JER_DW){sf *= gRandom->Gaus(sf, cjetres);}
+		if(shift == systematics::SysShifts::JES_DW){sf *= -1*Abs(jet_scaler_.GetUncM(jet));}
+		if(shift == systematics::SysShifts::JES_UP){sf *= Abs(jet_scaler_.GetUncP(jet));}
+		if(shift == systematics::SysShifts::JER_UP){sf *= gRandom->Gaus(sf, 0.1);} //FIXME, update as soon as available
+		//if(shift == systematics::SysShifts::JER_DW){sf *= gRandom->Gaus(sf, cjetres);}
 		sf += 1;
 
     //set corrections for MET
@@ -164,8 +145,8 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, SysShifts shift) {
 	const vector<Met>& mets = event.METs();
 	if(mets.size() == 1) {
     float shift = 0;
-    if(shift == SysShifts::MET_DW) shift = 11.0;
-    if(shift == SysShifts::MET_UP) shift = 1.0;
+    if(shift == systematics::SysShifts::MET_DW) shift = 11.0;
+    if(shift == systematics::SysShifts::MET_UP) shift = 1.0;
 		met_ = mets[0];
 		met_.SetPx(met_.Px() + metcorrx + shift*met_.pxunc());
 		met_.SetPy(met_.Py() + metcorry + shift*met_.pyunc());
@@ -178,15 +159,15 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, SysShifts shift) {
 }
 
 
-bool TTObjectSelector::select(URStreamer &event, SysShifts shift) {
+bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   reset();
 
   //Trigger!
-  /*bool isMC = (event.run == 1);
+  bool isMC = (event.run == 1);
   bool electron_trig = (isMC) ? (event.trigger().HLT_Ele27_WP85_Gsf() == 1) : (event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1);
   bool muon_trig = (isMC) ? (event.trigger().HLT_IsoMu27() == 1) : (event.trigger().HLT_IsoMu24_eta2p1() == 1);
   if(!(electron_trig || muon_trig)) return false;
-  if(tracker_) tracker_->track("trigger");*/
+  if(tracker_) tracker_->track("trigger");
 
   bool has_muons = select_muons(event, shift);
   bool has_electrons = select_electrons(event, shift);
@@ -195,16 +176,19 @@ bool TTObjectSelector::select(URStreamer &event, SysShifts shift) {
 
   if(tight_muons_.size()+medium_electrons_.size() != 1) return false;
   //1 tight lepton and no loose ones
-  if(loose_electrons_.size() + loose_muons_.size() > 1) return false;
+  if(loose_electrons_.size() + loose_muons_.size() != 1) return false;
   if(tracker_) tracker_->track("lepton veto");
   
   //right trigger
-  /*if(has_muons && !muon_trig) return false;
-    if(has_electrons && !electron_trig) return false;
-  if(tracker_) tracker_->track("right trigger");*/
+  if(has_muons && !muon_trig) return false;
+  if(has_electrons && !electron_trig) return false;
+  if(tracker_) tracker_->track("right trigger");
   
   select_jetmet(event, shift);
-  return (clean_jets_.size() >= cut_nminjets_);
+  if(clean_jets_.size() < cut_nminjets_) return false;
+ 
+  if(tracker_) tracker_->track("has N jets");
+  return true;
 }
 
 TLorentzVector* TTObjectSelector::lepton() {

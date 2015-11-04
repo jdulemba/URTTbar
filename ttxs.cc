@@ -15,6 +15,8 @@
 #include "TTGenMatcher.h"
 #include "TRandom3.h"
 #include "helper.h"
+#include "systematics.h"
+#include "MCWeightProducer.h"
 //#include <map>
 
 using namespace std;
@@ -27,8 +29,8 @@ private:
 	//histograms and helpers
 	CutFlowTracker tracker_;
   vector<string> dir_names_ = {"RECO", "semilep_visible_right", "semilep_right_thad", "semilep_right_tlep", "semilep_wrong", "other_tt_decay"};
-  map<TTNaming, map<TTObjectSelector::SysShifts, TTBarPlots> > ttplots_; //not optimal for write one read many, but still (better unordered map)
-  map<TTObjectSelector::SysShifts, TTBarResponse> responses_;
+  map<TTNaming, map<systematics::SysShifts, TTBarPlots> > ttplots_; //not optimal for write one read many, but still (better unordered map)
+  map<systematics::SysShifts, TTBarResponse> responses_;
   //binning vectors
   vector<double> topptbins_;
   vector<double> topybins_;
@@ -47,15 +49,15 @@ private:
   TTObjectSelector object_selector_;
   TTPermutator permutator_;
   TTGenMatcher matcher_;
-  TTBarSolver solver_;
+  map<systematics::SysShifts, TTBarSolver> solvers_;
   float evt_weight_;
 	TRandom3 randomizer_;// = TRandom3(98765);
+  MCWeightProducer mc_weights_;
 
-	vector<TTObjectSelector::SysShifts> systematics_;
+	vector<systematics::SysShifts> systematics_;
 
 	//Scale factors
 	TH1D *electron_sf_, *muon_sf_;
-	TH1D *pu_sf_;
   
 public:
   ttxs(const std::string output_filename):
@@ -64,10 +66,12 @@ public:
     object_selector_(),
     permutator_(),
     matcher_(),
-    solver_(),
+    solvers_(),
+    mc_weights_(),
     evt_weight_(1.) {
 
     //set tracker
+    tracker_.use_weight(&evt_weight_);
     object_selector_.set_tracker(&tracker_);
     permutator_.set_tracker(&tracker_);
 
@@ -78,31 +82,25 @@ public:
 
     //find out which sample are we running on
 		string output_file = values["output"].as<std::string>();
-    DataFile solver_input(values["general.ttsolver_input"].as<std::string>());
-		size_t slash = output_file.rfind("/") + 1;
-		string basename(output_file, slash, output_file.size() - slash);
-		isData_  = boost::starts_with(basename, "data");
-		isTTbar_ = boost::starts_with(basename, "ttJets");
+		string sample = systematics::get_sample(output_file);
+		isData_  = boost::starts_with(sample, "data");
+		isTTbar_ = boost::starts_with(sample, "ttJets");
     Logger::log().debug() << "isData_: " << isData_ << ", isTTbar_: " << isTTbar_ << endl;
 
     //choose systematics to run based on sample
-    vector<TTObjectSelector::SysShifts> nosys = {TTObjectSelector::SysShifts::NOSYS};
-    vector<TTObjectSelector::SysShifts> allsys = {
-          TTObjectSelector::SysShifts::NOSYS, TTObjectSelector::SysShifts::JES_UP, TTObjectSelector::SysShifts::JES_DW, 
-          TTObjectSelector::SysShifts::JER_UP, TTObjectSelector::SysShifts::MET_UP, TTObjectSelector::SysShifts::MET_DW}; //FIXME JER_DW still to implement
-    if(isData_) systematics_ = nosys;
-    else {
-      if(isTTbar_) { //not all tt samples need the ful sys, as they are ALREADY a systematic!
-        if(basename.find("mtopdown") != string::npos ||  //FIXME: add the samples as they come
-           basename.find("mtopup") != string::npos || 
-           basename.find("scaledown") != string::npos || 
-           basename.find("scaleup") != string::npos ) systematics_ = nosys;
-        else systematics_ = allsys;
-      }
-      else systematics_ = allsys;
+    systematics_ = systematics::get_systematics(output_file);    
+    
+    //Init solver
+    string filename = (isTTbar_) ? "prob_"+sample+".root" : "prob_ttJets.root";
+    Logger::log().debug() << "solver file: " << filename << endl;
+    TFile probfile(DataFile(filename).path().c_str());
+    for(auto shift : systematics_) {
+      TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(shift).c_str());
+      if(!td) td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());      
+      solvers_[shift];
+      solvers_[shift].Init(td, false, true, true);
     }
     
-    solver_.Init(solver_input.path(), false, true, true);
     if(values["general.pseudotop"].as<int>() == 0) genp_selector_ = TTGenParticleSelector(); //FIXME allow for herwig setting
     else genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::PSEUDOTOP);
 
@@ -112,12 +110,10 @@ public:
     TH1::AddDirectory(false);
     electron_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_ElTOT_Pt"))->Clone("electron_sf");
     muon_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_MuTOT_Pt"))->Clone("muon_sf");
+    TH1::AddDirectory(true);
 
     DataFile pu_filename("PUweight.root"); //FIXME, use better recipe
-    Logger::log().debug() << "PU sf file: " << pu_filename.path() << endl;
-    TFile* pu_file = TFile::Open(pu_filename.path().c_str()); 
-    pu_sf_ = (TH1D*) ((TH1D*)pu_file->Get("PUweight"))->Clone("pu_weight");
-    TH1::AddDirectory(true);
+    mc_weights_.init(pu_filename);
     
     //Set binning
     Logger::log().debug() << "-- Setting binning --" << endl;
@@ -134,7 +130,6 @@ public:
   ~ttxs() {
     delete electron_sf_;
     delete muon_sf_;
-    delete pu_sf_;
   }
 
   //This method is called once per job at the beginning of the analysis
@@ -149,7 +144,7 @@ public:
       TDirectory* dir_type = outFile_.mkdir(dir_names_[evt_type].c_str());
       dir_type->cd();
       for(auto shift : systematics_) {
-        TDirectory* dir_sys = dir_type->mkdir(TTObjectSelector::shift_to_name.at(shift).c_str());
+        TDirectory* dir_sys = dir_type->mkdir(systematics::shift_to_name.at(shift).c_str());
         dir_sys->cd();
         ttplots_[evt_type][shift];
         ttplots_[evt_type][shift].Init(topptbins_, topybins_, ttmbins_,
@@ -173,7 +168,7 @@ public:
     }
   }
   
-  void process_evt(URStreamer &event, TTObjectSelector::SysShifts shift=TTObjectSelector::SysShifts::NOSYS) {
+  void process_evt(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS) {
     tracker_.track("start");
     //Fill truth of resp matrix
     if(isTTbar_ && genp_selector_.is_in_acceptance()) {
@@ -212,6 +207,7 @@ public:
         );
       matched_perm.SetMET(object_selector_.met());
     }
+    tracker_.track("matched perm");
       
     //Find best permutation
     bool go_on = true;
@@ -221,20 +217,20 @@ public:
       ncycles_++;
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
-        test_perm.Solve(solver_);
+        test_perm.Solve(solvers_[shift]);
         if(test_perm.MassDiscr() < best_perm.MassDiscr())	{
           best_perm = test_perm;
         }
       }
     }
+    if(!best_perm.IsComplete()) return;
+    tracker_.track("best perm");
+
     size_t capped_jets_size = permutator_.capped_jets().size();
     best_perm.permutating_jets(capped_jets_size);
 
-    //Logger::log().debug() << "ncycles: " << ncycles_ << ", best_perm.L(): " << best_perm.L() << endl;
     //find mc weight
-    if(!isData_) { //FIXME, use real PU!
-      double npu = event.vertexs().size();
-      if(npu > 0)	evt_weight_ *= pu_sf_->GetBinContent(pu_sf_->FindFixBin(npu));		
+    if(!isData_) { 
       if(object_selector_.tight_muons().size() == 1)
         evt_weight_ *= muon_sf_->GetBinContent(muon_sf_->FindFixBin(Min(best_perm.L()->Pt(), 95.)));
       if(object_selector_.medium_electrons().size() == 1)
@@ -242,15 +238,17 @@ public:
 		}
 
     //Fill appropriate plots
+    tracker_.track("filling plots..");
     if(!isTTbar_) {
-      ttplots_[TTNaming::NOTSET][shift].Fill(best_perm, object_selector_, evt_weight_);
+      ttplots_[TTNaming::NOTSET][shift].Fill(best_perm, object_selector_, event, evt_weight_);
     } //if(!isTTbar_)
     else {
       // if(matched_perm.IsComplete())
-      //   Logger::log().debug() << "-- Matched -- " << matched_perm << endl <<
+      //   Logger::log().debug() << "tt type:" << genp_selector_.ttbar_system().type << endl <<
+      //     "-- Matched -- " << matched_perm << endl <<
       //     "-- Best --" << best_perm << endl;
       if(best_perm.IsCorrect(matched_perm)){
-        ttplots_[TTNaming::RIGHT][shift].Fill(best_perm, object_selector_, evt_weight_);
+        ttplots_[TTNaming::RIGHT][shift].Fill(best_perm, object_selector_, event, evt_weight_);
         responses_[shift].FillReco("thadpt", best_perm.THad().Pt(), capped_jets_size, evt_weight_);
         responses_[shift].FillReco("nobin", best_perm.THad().Pt(), capped_jets_size, evt_weight_);
         responses_[shift].FillReco("thady", Abs(best_perm.THad().Rapidity()), capped_jets_size, evt_weight_);
@@ -261,10 +259,18 @@ public:
         responses_[shift].FillReco("tty", Abs((best_perm.THad() + best_perm.TLep()).Rapidity()), capped_jets_size, evt_weight_);
         responses_[shift].FillReco("njet", object_selector_.clean_jets().size() - 4, capped_jets_size, evt_weight_);
       }
-      else if(best_perm.IsTHadCorrect(matched_perm)) ttplots_[TTNaming::RIGHT_THAD][shift].Fill(best_perm, object_selector_, evt_weight_);
-      else if(best_perm.IsBLepCorrect(matched_perm)) ttplots_[TTNaming::RIGHT_TLEP][shift].Fill(best_perm, object_selector_, evt_weight_);
-      else if(genp_selector_.ttbar_system().type == GenTTBar::DecayType::SEMILEP) ttplots_[TTNaming::WRONG][shift].Fill(best_perm, object_selector_, evt_weight_);
-      else ttplots_[TTNaming::OTHER][shift].Fill(best_perm, object_selector_, evt_weight_);
+      else if(best_perm.IsTHadCorrect(matched_perm)) {
+        ttplots_[TTNaming::RIGHT_THAD][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+      }
+      else if(best_perm.IsBLepCorrect(matched_perm)) {
+        ttplots_[TTNaming::RIGHT_TLEP][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+      }
+      else if(genp_selector_.ttbar_system().type == GenTTBar::DecayType::SEMILEP) {
+        ttplots_[TTNaming::WRONG][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+      }
+      else {
+        ttplots_[TTNaming::OTHER][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+      }
     } //else -- if(!isTTbar_)
   }
 
@@ -281,6 +287,7 @@ public:
 		int skip  = values["skip"].as<int>();
     Logger::log().debug() << "--DONE--" << endl;
 
+    //tracker_.verbose(true);
 		tracker_.deactivate();
     while(event.next()) {
 			if(limit > 0 && evt_idx > limit) {
@@ -298,14 +305,14 @@ public:
 			if(isTTbar_){
 				genp_selector_.select(event);			
 			}
-
+      
 			for(auto shift : systematics_){
-        evt_weight_ = 1;
-				if(shift == TTObjectSelector::SysShifts::NOSYS) tracker_.activate();
+        evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
+				if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
 				//Logger::log().debug() << "processing: " << shift << endl;
 				process_evt(event, shift);
         responses_[shift].Flush();
-				if(shift == TTObjectSelector::SysShifts::NOSYS) tracker_.deactivate();
+				if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
 			}
 
     }  //while(event.next())

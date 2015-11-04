@@ -5,6 +5,7 @@
 #include "TTObjectSelector.h"
 
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace TMath;
@@ -36,6 +37,8 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 	plot1d.AddHist("MET", 500, 0, 2000, "MET", "Events");
 	plot1d.AddHist("weight", 200, -5, 5, "weight", "Events");
 	plot1d.AddHist("njets", 15, 0, 15, "n-jets", "Events");
+	plot1d.AddHist("nvtx", 50, 0, 50, "n-vertices", "Events");
+	plot1d.AddHist("rho", 30, 0, 30, "rho", "Events");
 	plot1d.AddHist("ptaddjets", 200, 0, 400, "p_{T}(add. jets) [GeV]", "Events");
 	plot1d.AddHist("DRminWjets", 200, 0, 10, "#DeltaR_{min W-jet}", "Events");
 	plot1d.AddHist("DRminbjets", 200, 0, 10, "#DeltaR_{min b-jet}", "Events");
@@ -75,7 +78,7 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 	}
 }
 
-void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, double weight)
+void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, URStreamer &evt, double weight)
 {
 	TLorentzVector nu(per.Nu());
 	TTBarPlotsBase::Fill(per.BHad(), per.WJa(), per.WJb(), per.BLep(), per.L(), &nu, objects.lepton_charge(), weight);
@@ -100,6 +103,8 @@ void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, double weight
 		if(drminb > per.BLep()->DeltaR(*objects.clean_jets()[j])) {drminb = per.BLep()->DeltaR(*objects.clean_jets()[j]);}
 		plot1d["ptaddjets"]->Fill(objects.clean_jets()[j]->Pt(), weight);
 	}
+	plot1d["nvtx"]->Fill(evt.rho().value(), weight);
+	plot1d["rho" ]->Fill(evt.vertexs().size(), weight);
 	plot1d["massDiscr"]->Fill(massDiscr, weight);
 	plot1d["DRminWjets"]->Fill(drminw, weight);
 	plot1d["DRminbjets"]->Fill(drminb, weight);

@@ -26,6 +26,7 @@ public:
   static const std::map<std::string, IDElectron::IDS> id_names;
 
   static IDS id(std::string label);
+  double rho() {return rho_;}
 	double CorPFIsolation2012(double eta) const;
 	double CorPFIsolation2015() const;
 	double PFIsoDb() const;

@@ -17,6 +17,13 @@ TTBarSolver::TTBarSolver() : minuit(9), probfile(0)
 TTBarSolver::~TTBarSolver()
 {
 	if(probfile != 0) {probfile->Close();}
+  else if(WTmass_right) {
+    delete WTmass_right;
+    delete WTmass_wrong;
+    delete BTag_right;
+    delete N_right;
+    delete N_wrong;
+  }
 }
 
 void TTBarSolver::Init(string filename, bool usebtag, bool usens, bool usemass)
@@ -24,21 +31,45 @@ void TTBarSolver::Init(string filename, bool usebtag, bool usens, bool usemass)
 	USEBTAG = usebtag;
 	USENS = usens;
 	USEMASS = usemass;
-	TDirectory* dir = gDirectory;
-	probfile = new TFile(filename.c_str(), "READ");
-	WTmass_right = dynamic_cast<TH2D*>(probfile->Get("TRUTH/truth_Wmasshad_tmasshad_right"));
-	WTmass_right->Scale(1./WTmass_right->Integral("width"));
-	WTmass_wrong = dynamic_cast<TH2D*>(probfile->Get("TRUTH/truth_Wmasshad_tmasshad_wrong"));
-	WTmass_wrong->Scale(1./WTmass_wrong->Integral("width"));
-	BTag_right = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_btag_true"));
-	BTag_right->Scale(1./BTag_right->Integral("width"));
-	BTag_wrong = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_btag_wrong"));
-	BTag_wrong->Scale(1./BTag_wrong->Integral("width"));
-	N_right = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_nschi_right"));
-	N_right->Scale(1./N_right->Integral("width"));
-	N_wrong = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_nschi_wrong"));
-	N_wrong->Scale(1./N_wrong->Integral("width"));
-	dir->cd();
+  if(!filename.empty()) {
+    TDirectory* dir = gDirectory;
+    probfile = new TFile(filename.c_str(), "READ");
+    WTmass_right = dynamic_cast<TH2D*>(probfile->Get("TRUTH/truth_Wmasshad_tmasshad_right"));
+    WTmass_right->Scale(1./WTmass_right->Integral("width"));
+    WTmass_wrong = dynamic_cast<TH2D*>(probfile->Get("TRUTH/truth_Wmasshad_tmasshad_wrong"));
+    WTmass_wrong->Scale(1./WTmass_wrong->Integral("width"));
+    BTag_right = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_btag_true"));
+    BTag_right->Scale(1./BTag_right->Integral("width"));
+    BTag_wrong = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_btag_wrong"));
+    BTag_wrong->Scale(1./BTag_wrong->Integral("width"));
+    N_right = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_nschi_right"));
+    N_right->Scale(1./N_right->Integral("width"));
+    N_wrong = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_nschi_wrong"));
+    N_wrong->Scale(1./N_wrong->Integral("width"));
+    dir->cd();
+  }  
+}
+
+void TTBarSolver::Init(TDirectory* dir, bool usebtag, bool usens, bool usemass, string wtname, string bname, string nuname) {
+	USEBTAG = usebtag;
+	USENS = usens;
+	USEMASS = usemass;
+  if(!dir) {
+    TH1::AddDirectory(false);
+    WTmass_right = (TH2D*) (dynamic_cast<TH2D*>( dir->Get( (wtname+"_right").c_str() ) )->Clone("wt_right"));
+    WTmass_right->Scale(1./WTmass_right->Integral("width"));
+    WTmass_wrong = (TH2D*) (dynamic_cast<TH2D*>( probfile->Get( (wtname+"_wrong").c_str() ) )->Clone("wt_wrong"));
+    WTmass_wrong->Scale(1./WTmass_wrong->Integral("width"));
+    BTag_right = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (bname+"_right").c_str() ) )->Clone("b_right"));
+    BTag_right->Scale(1./BTag_right->Integral("width"));
+    BTag_wrong = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (bname+"_wrong").c_str() ) )->Clone("b_wrong"));
+    BTag_wrong->Scale(1./BTag_wrong->Integral("width"));
+    N_right = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (nuname+"_right").c_str() ) )->Clone("nu_right"));
+    N_right->Scale(1./N_right->Integral("width"));
+    N_wrong = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (nuname+"_wrong").c_str() ) )->Clone("nu_wrong"));
+    N_wrong->Scale(1./N_wrong->Integral("width"));
+    TH1::AddDirectory(true);
+  }  
 }
 
 void TTBarSolver::Solve(Jet* bhad, Jet* j1had, Jet* j2had, Jet* blep, TLorentzVector* llep, IDMet* met)
@@ -68,11 +99,13 @@ void TTBarSolver::Solve(Jet* bhad, Jet* j1had, Jet* j2had, Jet* blep, TLorentzVe
 	nstest = 1.E10;
 	masstest = 1.E10;
 	//cout << bhad->csvIncl() << " " << blep->csvIncl() << " " << j1had->csvIncl() << " " << j2had->csvIncl() << endl;
-	btagtest = -1.*Log(BTag_right->Interpolate(bhad->csvIncl())/BTag_wrong->Interpolate(bhad->csvIncl()));
-	btagtest -= Log(BTag_right->Interpolate(blep->csvIncl())/BTag_wrong->Interpolate(blep->csvIncl()));
-	btagtest -= Log(BTag_wrong->Interpolate(j1had->csvIncl())/BTag_right->Interpolate(j1had->csvIncl()));
-	btagtest -= Log(BTag_wrong->Interpolate(j2had->csvIncl())/BTag_right->Interpolate(j2had->csvIncl()));
-	
+  if(BTag_right && BTag_wrong) {
+    btagtest = -1.*Log(BTag_right->Interpolate(bhad->csvIncl())/BTag_wrong->Interpolate(bhad->csvIncl()));
+    btagtest -= Log(BTag_right->Interpolate(blep->csvIncl())/BTag_wrong->Interpolate(blep->csvIncl()));
+    btagtest -= Log(BTag_wrong->Interpolate(j1had->csvIncl())/BTag_right->Interpolate(j1had->csvIncl()));
+    btagtest -= Log(BTag_wrong->Interpolate(j2had->csvIncl())/BTag_right->Interpolate(j2had->csvIncl()));
+	}
+
 	TTBS = this;
 	minuit.SetFCN(myfuncln);
 	minuit.SetPrintLevel(-1);
@@ -134,14 +167,14 @@ double TTBarSolver::Test(double* par)
 	NeutrinoSolver NS(&llepT_, &blepT_, par[1], par[0]);
 	metT_ = TLorentzVector(NS.GetBest(met_->Px()*par[7], met_->Py()*par[8], umetx_, umety_, rhomet_, nschi));
 	//cout << nschi << " NS " << (metT_ + *llep_ + *blep_).M() << " " << (metT_ + *llep_).M() << endl;
-	if(nschi > 0. && nschi < 10000.)
+	if(nschi > 0. && nschi < 10000. && N_right)
 	{
 		nstest = -1.*Log(N_right->Interpolate(Sqrt(nschi)));
 	}
 
 	double mwhad = (j1hadT_ + j2hadT_).M();
 	double mthad = (j1hadT_ + j2hadT_ + bhadT_).M();
-	if(mthad < 500. && mwhad < 500.)
+	if(mthad < 500. && mwhad < 500. && WTmass_right)
 	{
 		double massdisval = WTmass_right->Interpolate(mwhad, mthad);
 		if(massdisval > 1.0E-10) {masstest = -1.*Log(massdisval);}

@@ -13,19 +13,17 @@
 #include <map>
 #include <string>
 #include "CutFlowTracker.h"
+#include "systematics.h"
 
 using namespace std;
 class CutFlowTracker;
 
 class TTObjectSelector {
 public:
-  enum SysShifts {NOSYS, JES_UP, JES_DW, JER_UP, JER_DW, MET_UP, MET_DW};
-  static const std::map<std::string, TTObjectSelector::SysShifts> name_to_shift;
-  static const std::map<TTObjectSelector::SysShifts, std::string> shift_to_name;
   TTObjectSelector();
   
   void reset();
-  bool select(URStreamer &event, SysShifts shift=SysShifts::NOSYS);
+  bool select(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
 
   //getters for selected objects
   vector<IDMuon*>& loose_muons() {return loose_muons_;}
@@ -44,9 +42,9 @@ public:
 
 private:
 
-  bool select_muons(URStreamer &event, SysShifts shift=SysShifts::NOSYS);
-  bool select_electrons(URStreamer &event, SysShifts shift=SysShifts::NOSYS);
-  bool select_jetmet(URStreamer &event, SysShifts shift=SysShifts::NOSYS);
+  bool select_muons(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
+  bool select_electrons(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
+  bool select_jetmet(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
 
   list<IDJet> sel_jets_;
   vector<IDJet*> clean_jets_;
