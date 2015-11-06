@@ -102,12 +102,12 @@
  {
    "name" : "ZJets",
    "DBSName" : "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 6024
+   "xsection" : 6104
  },
  {
    "name" : "WJets",
    "DBSName" : "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 61524
+   "xsection" : 60290
  },
  {
    "name" : "QCD_Mu_15to20",
