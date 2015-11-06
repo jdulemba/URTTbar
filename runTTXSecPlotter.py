@@ -266,12 +266,14 @@ def run_module(**kwargs):
       plotter.initviews() #FIXME: to be removed
       to_plot = [
          ('weight' , 5, 'event weight'),
+         ('nvtx' , 2, '# vertices'),
+         ('rho' , 5, '#rho'),
          ('lep_pt' , 4, 'p_{T}(l)'),
-         ("ttM"    , 4, 'm(t#bar{t})'),
+         ("ttM"    ,20, 'm(t#bar{t})'),
          ("tty"    , 4, 'y(t#bar{t})'),
-         ("ttpt"   , 4, 'p_{T}(t#bar{t})'),
+         ("ttpt"   , 5, 'p_{T}(t#bar{t})'),
          ("costhetastar", 4, ''),
-         ("njets", 4, '# of jets'),
+         ("njets", 3, '# of jets'),
          (discriminant, 2, 'discriminant'),
          ]
 
