@@ -112,8 +112,7 @@ public:
     muon_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_MuTOT_Pt"))->Clone("muon_sf");
     TH1::AddDirectory(true);
 
-    DataFile pu_filename("PUweight.root"); //FIXME, use better recipe
-    mc_weights_.init(pu_filename);
+    if(!isData_) mc_weights_.init(sample);
     
     //Set binning
     Logger::log().debug() << "-- Setting binning --" << endl;
@@ -223,7 +222,7 @@ public:
         }
       }
     }
-    if(!best_perm.IsComplete()) return;
+    if(!best_perm.IsComplete() || best_perm.Prob() > 1E9) return; //FIXME, is right??? best_perm.Prob() > 1E9
     tracker_.track("best perm");
 
     size_t capped_jets_size = permutator_.capped_jets().size();
