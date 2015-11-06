@@ -7,6 +7,11 @@ namespace systematics {
     std::string basename(outname, slash, outname.size() - slash);
     size_t dot = basename.find(".");
     std::string sample(basename, 0, dot);
+    if(sample.find("_out_") != std::string::npos){
+      size_t out = sample.find("_out_");
+      std::string real(sample, 0, out);
+      sample = real;
+    }
     return sample;
   }
 

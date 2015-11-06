@@ -1,7 +1,7 @@
 #include "TTBarSolver.h"
 #include "NeutrinoSolver.h"
 #include "IDMet.h"
-
+#include <iostream>
 
 TTBarSolver* TTBarSolver::TTBS = 0; 
 
@@ -54,19 +54,19 @@ void TTBarSolver::Init(TDirectory* dir, bool usebtag, bool usens, bool usemass, 
 	USEBTAG = usebtag;
 	USENS = usens;
 	USEMASS = usemass;
-  if(!dir) {
+  if(dir) {
     TH1::AddDirectory(false);
     WTmass_right = (TH2D*) (dynamic_cast<TH2D*>( dir->Get( (wtname+"_right").c_str() ) )->Clone("wt_right"));
     WTmass_right->Scale(1./WTmass_right->Integral("width"));
-    WTmass_wrong = (TH2D*) (dynamic_cast<TH2D*>( probfile->Get( (wtname+"_wrong").c_str() ) )->Clone("wt_wrong"));
+    WTmass_wrong = (TH2D*) (dynamic_cast<TH2D*>( dir->Get( (wtname+"_wrong").c_str() ) )->Clone("wt_wrong"));
     WTmass_wrong->Scale(1./WTmass_wrong->Integral("width"));
-    BTag_right = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (bname+"_right").c_str() ) )->Clone("b_right"));
+    BTag_right = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (bname+"_right").c_str() ) )->Clone("b_right"));
     BTag_right->Scale(1./BTag_right->Integral("width"));
-    BTag_wrong = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (bname+"_wrong").c_str() ) )->Clone("b_wrong"));
+    BTag_wrong = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (bname+"_wrong").c_str() ) )->Clone("b_wrong"));
     BTag_wrong->Scale(1./BTag_wrong->Integral("width"));
-    N_right = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (nuname+"_right").c_str() ) )->Clone("nu_right"));
+    N_right = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (nuname+"_right").c_str() ) )->Clone("nu_right"));
     N_right->Scale(1./N_right->Integral("width"));
-    N_wrong = (TH1D*) (dynamic_cast<TH1D*>( probfile->Get( (nuname+"_wrong").c_str() ) )->Clone("nu_wrong"));
+    N_wrong = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (nuname+"_wrong").c_str() ) )->Clone("nu_wrong"));
     N_wrong->Scale(1./N_wrong->Integral("width"));
     TH1::AddDirectory(true);
   }  

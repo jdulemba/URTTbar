@@ -39,6 +39,13 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 	plot1d.AddHist("njets", 15, 0, 15, "n-jets", "Events");
 	plot1d.AddHist("nvtx", 50, 0, 50, "n-vertices", "Events");
 	plot1d.AddHist("rho", 30, 0, 30, "rho", "Events");
+	plot1d.AddHist("trigger", 9, 0, 9, "trigger", "Events");
+  TAxis *xax = plot1d["trigger"]->GetXaxis();
+  xax->SetBinLabel(1, "HLT_IsoMu24_eta2p1");
+  xax->SetBinLabel(2, "HLT_IsoMu20_eta2p1");
+  xax->SetBinLabel(3, "HLT_IsoMu22");
+  xax->SetBinLabel(4, "HLT_IsoMu20");
+  xax->SetBinLabel(5, "HLT_IsoMu27");
 	plot1d.AddHist("ptaddjets", 200, 0, 400, "p_{T}(add. jets) [GeV]", "Events");
 	plot1d.AddHist("DRminWjets", 200, 0, 10, "#DeltaR_{min W-jet}", "Events");
 	plot1d.AddHist("DRminbjets", 200, 0, 10, "#DeltaR_{min b-jet}", "Events");
@@ -105,6 +112,14 @@ void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, URStreamer &e
 	}
 	plot1d["nvtx"]->Fill(evt.rho().value(), weight);
 	plot1d["rho" ]->Fill(evt.vertexs().size(), weight);
+
+  if(evt.trigger().HLT_IsoMu24_eta2p1() == 1)  plot1d["trigger"]->Fill(0.5, weight);
+  if(evt.trigger().HLT_IsoMu20_eta2p1() == 1)  plot1d["trigger"]->Fill(1.5, weight);
+  if(evt.trigger().HLT_IsoMu22() == 1)  plot1d["trigger"]->Fill(2.5, weight);
+  if(evt.trigger().HLT_IsoMu20() == 1)  plot1d["trigger"]->Fill(3.5, weight);
+  if(evt.trigger().HLT_IsoMu27() == 1)  plot1d["trigger"]->Fill(4.5, weight);
+
+
 	plot1d["massDiscr"]->Fill(massDiscr, weight);
 	plot1d["DRminWjets"]->Fill(drminw, weight);
 	plot1d["DRminbjets"]->Fill(drminb, weight);
