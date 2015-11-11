@@ -25,6 +25,9 @@ public:
 
   void set_tracker(CutFlowTracker *t) {tracker_ = t;}
 
+  IDJet::BTag tight_bID_cut() {return cut_tight_b_;}
+  IDJet::BTag loose_bID_cut() {return cut_loose_b_;}
+
 private:
   std::vector<IDJet*> jets_;
   std::vector<IDJet*> capped_jets_;

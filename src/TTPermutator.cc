@@ -54,9 +54,11 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
   
   //check b-tagging conditions
   sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
-  if(!capped_jets_[0]->BTagId(cut_tight_b_) || !capped_jets_[1]->BTagId(cut_loose_b_)){
-    return false;
-  }
+  if(!capped_jets_[0]->BTagId(cut_tight_b_))  return false;
+  tracker_->track("tight b cut");
+  if(!capped_jets_[1]->BTagId(cut_loose_b_)) return false;
+  tracker_->track("loose b cut");
+
   return true;
 }
 

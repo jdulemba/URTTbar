@@ -76,9 +76,8 @@ public:
     //find out which sample are we running on
 		string output_file = values["output"].as<std::string>();
     //DataFile solver_input(values["general.ttsolver_input"].as<std::string>());
-		size_t slash = output_file.rfind("/") + 1;
-		string basename(output_file, slash, output_file.size() - slash);
-		isTTbar_ = boost::starts_with(basename, "ttJets");
+		string sample = systematics::get_sample(output_file);
+		isTTbar_ = boost::starts_with(sample, "ttJets");
 
     //choose systematics to run based on sample
     systematics_ = systematics::get_systematics(output_file);
@@ -99,9 +98,9 @@ public:
     TH1::AddDirectory(false);
     electron_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_ElTOT_Pt"))->Clone("electron_sf");
     muon_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_MuTOT_Pt"))->Clone("muon_sf");
+    TH1::AddDirectory(true);
 
-    DataFile pu_filename("PUweight.root"); //FIXME, use better recipe
-    mc_weights_.init(pu_filename);
+    mc_weights_.init(sample);
   };
   
   ~permProbComputer() {
@@ -114,7 +113,6 @@ public:
   virtual void begin() {
     outFile_.cd();
     vector<TTNaming> evt_types = {RIGHT, RIGHT_THAD, RIGHT_TLEP, WRONG, OTHER};
-
     for(auto evt_type : evt_types){
       TDirectory* dir_type = outFile_.mkdir(dir_names_[evt_type].c_str());
       dir_type->cd();
@@ -124,7 +122,25 @@ public:
         //TODO add plots
         histos_[shift][evt_type]["mWhad_vs_mtophad"] = RObject::book<TH2D>("mWhad_vs_mtophad", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
         histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", 75, 0., 150.);
-        histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", 75, 0., 150.);        
+        if(evt_type == RIGHT) {
+          histos_[shift][evt_type]["btag_loose_bjet_pass"]= RObject::book<TH2D>("btag_loose_bjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_loose_bjet_all" ]= RObject::book<TH2D>("btag_loose_bjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+                                                                                                      
+          histos_[shift][evt_type]["btag_loose_cjet_pass"]= RObject::book<TH2D>("btag_loose_cjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_loose_cjet_all" ]= RObject::book<TH2D>("btag_loose_cjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+                                                                                                      
+          histos_[shift][evt_type]["btag_loose_ljet_pass"]= RObject::book<TH2D>("btag_loose_ljet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_loose_ljet_all" ]= RObject::book<TH2D>("btag_loose_ljet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+                                                                                                      
+          histos_[shift][evt_type]["btag_tight_bjet_pass"]= RObject::book<TH2D>("btag_tight_bjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_tight_bjet_all" ]= RObject::book<TH2D>("btag_tight_bjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+                                                                                                      
+          histos_[shift][evt_type]["btag_tight_cjet_pass"]= RObject::book<TH2D>("btag_tight_cjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_tight_cjet_all" ]= RObject::book<TH2D>("btag_tight_cjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+                                                                                                      
+          histos_[shift][evt_type]["btag_tight_ljet_pass"]= RObject::book<TH2D>("btag_tight_ljet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_tight_ljet_all" ]= RObject::book<TH2D>("btag_tight_ljet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+        }
         if(evt_type == RIGHT || evt_type == WRONG){
           histos_[shift][evt_type]["btag_value"] = RObject::book<TH1D>("btag_value", ";CSV raw value;# Events", 100, 0., 1.);
           histos_[shift][evt_type]["btag_first_idx"] = RObject::book<TH1D>("btag_first_idx", ";idx;# Events", 41, -0.5, 40.5);
@@ -144,16 +160,49 @@ public:
  
     //select reco objects
     if( !object_selector_.select(event, shift) ) return;
-    if( !permutator_.preselection(
-          object_selector_.clean_jets(), object_selector_.lepton(), object_selector_.met()
-          ) ) return;
+    bool preselection_pass = permutator_.preselection(
+      object_selector_.clean_jets(), object_selector_.lepton(), object_selector_.met()
+      );
 
     //find mc weight
-    double npu = event.vertexs().size();
     if(object_selector_.tight_muons().size() == 1)
       evt_weight_ *= muon_sf_->GetBinContent(muon_sf_->FindFixBin(Min(object_selector_.lepton()->Pt(), 95.)));
     if(object_selector_.medium_electrons().size() == 1)
       evt_weight_ *= electron_sf_->GetBinContent(electron_sf_->FindFixBin(Min(object_selector_.lepton()->Pt(), 95.)));
+
+    //get needed histo map
+    auto plots = histos_.find(shift)->second;
+
+    //fill BTagging SF BEFORE preselection (it already cuts on the BTag value of the jets
+    for(auto jet : permutator_.capped_jets()) {
+      int jet_flav = Abs(jet->partonFlavour());
+      if(jet_flav == ura::PDGID::b) {
+        if(jet->BTagId(permutator_.loose_bID_cut())) 
+          plots[TTNaming::RIGHT]["btag_loose_bjet_pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+        if(jet->BTagId(permutator_.tight_bID_cut()))         
+          plots[TTNaming::RIGHT]["btag_tight_bjet_pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+        plots[TTNaming::RIGHT]["btag_loose_bjet_all" ].fill(jet->Pt(), jet->Eta(), evt_weight_);
+        plots[TTNaming::RIGHT]["btag_tight_bjet_all" ].fill(jet->Pt(), jet->Eta(), evt_weight_);
+      }
+      else if(jet_flav == ura::PDGID::c) {
+        if(jet->BTagId(permutator_.loose_bID_cut())) 
+          plots[TTNaming::RIGHT]["btag_loose_cjet_pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+        plots[TTNaming::RIGHT]["btag_loose_cjet_all" ].fill(jet->Pt(), jet->Eta(), evt_weight_);
+
+        if(jet->BTagId(permutator_.tight_bID_cut()))         
+          plots[TTNaming::RIGHT]["btag_tight_cjet_pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+        plots[TTNaming::RIGHT]["btag_tight_cjet_all" ].fill(jet->Pt(), jet->Eta(), evt_weight_);
+      } else {
+        if(jet->BTagId(permutator_.loose_bID_cut())) 
+          plots[TTNaming::RIGHT]["btag_loose_ljet_pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+        plots[TTNaming::RIGHT]["btag_loose_ljet_all" ].fill(jet->Pt(), jet->Eta(), evt_weight_);
+
+        if(jet->BTagId(permutator_.tight_bID_cut()))         
+          plots[TTNaming::RIGHT]["btag_tight_ljet_pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+        plots[TTNaming::RIGHT]["btag_tight_ljet_all" ].fill(jet->Pt(), jet->Eta(), evt_weight_);
+      }
+    }
+    if( !preselection_pass ) return;
 
     //Gen matching
     Permutation matched_perm;
@@ -166,9 +215,6 @@ public:
         );
     }
     matched_perm.SetMET(object_selector_.met());
-
-    //get needed histo map
-    auto plots = histos_.find(shift)->second;
 
     //get selected jets
     auto jets = object_selector_.clean_jets();
@@ -289,7 +335,10 @@ public:
 
   //this method is called at the end of the job, by default saves
   //every histogram/tree produced, override it if you need something more
-  //virtual void end();
+  virtual void end(){
+		outFile_.Write();
+		tracker_.writeTo(outFile_);
+	}
 
   //do you need command-line or cfg options? If so implement this 
   //method to book the options you need. CLI parsing is provided

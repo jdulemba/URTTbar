@@ -17,6 +17,7 @@
 #include "helper.h"
 #include "systematics.h"
 #include "MCWeightProducer.h"
+#include "BTagSFProducer.h"
 //#include <map>
 
 using namespace std;
@@ -25,12 +26,13 @@ class ttxs : public AnalyzerBase
 {
 public:
 	enum TTNaming {NOTSET, RIGHT, RIGHT_THAD, RIGHT_TLEP, WRONG, OTHER};
+	enum LeptonType {MUON, ELECTRON};  
 private:
 	//histograms and helpers
 	CutFlowTracker tracker_;
   vector<string> dir_names_ = {"RECO", "semilep_visible_right", "semilep_right_thad", "semilep_right_tlep", "semilep_wrong", "other_tt_decay"};
-  map<TTNaming, map<systematics::SysShifts, TTBarPlots> > ttplots_; //not optimal for write one read many, but still (better unordered map)
-  map<systematics::SysShifts, TTBarResponse> responses_;
+  map< LeptonType, map<TTNaming, map<systematics::SysShifts, TTBarPlots> > > ttplots_; //not optimal for write one read many, but still (better unordered map)
+  map< LeptonType, map<systematics::SysShifts, TTBarResponse> > responses_;
   //binning vectors
   vector<double> topptbins_;
   vector<double> topybins_;
@@ -53,6 +55,7 @@ private:
   float evt_weight_;
 	TRandom3 randomizer_;// = TRandom3(98765);
   MCWeightProducer mc_weights_;
+  BTagSFProducer btag_sf_;
 
 	vector<systematics::SysShifts> systematics_;
 
@@ -68,6 +71,7 @@ public:
     matcher_(),
     solvers_(),
     mc_weights_(),
+    btag_sf_(permutator_),
     evt_weight_(1.) {
 
     //set tracker
@@ -139,29 +143,35 @@ public:
     if(isTTbar_) evt_types = {RIGHT, RIGHT_THAD, RIGHT_TLEP, WRONG, OTHER};
     else evt_types = {NOTSET};
 
+    vector<LeptonType> lep_types = {LeptonType::MUON, LeptonType::ELECTRON};
+    
     for(auto evt_type : evt_types){
       TDirectory* dir_type = outFile_.mkdir(dir_names_[evt_type].c_str());
       dir_type->cd();
-      for(auto shift : systematics_) {
-        TDirectory* dir_sys = dir_type->mkdir(systematics::shift_to_name.at(shift).c_str());
-        dir_sys->cd();
-        ttplots_[evt_type][shift];
-        ttplots_[evt_type][shift].Init(topptbins_, topybins_, ttmbins_,
-                                       ttybins_  , ttptbins_, metbins_,
-                                       jetbins_  , nobins_);
+      for(auto lep_type : lep_types) {
+        TDirectory* dir_lep = dir_type->mkdir((lep_type == LeptonType::MUON) ? "muons" : "electrons");
+        dir_lep->cd();
+        for(auto shift : systematics_) {
+          TDirectory* dir_sys = dir_lep->mkdir(systematics::shift_to_name.at(shift).c_str());
+          dir_sys->cd();
+          ttplots_[lep_type][evt_type][shift];
+          ttplots_[lep_type][evt_type][shift].Init(topptbins_, topybins_, ttmbins_,
+                                         ttybins_  , ttptbins_, metbins_,
+                                         jetbins_  , nobins_);
         
-        //create response matrixes
-        if(isTTbar_ && evt_type == RIGHT){
-          responses_[shift] = TTBarResponse("response");
-          responses_[shift].AddMatrix("thadpt", topptbins_, topptbins_, "p_{T}(t_{h}) [GeV]");
-          responses_[shift].AddMatrix("thady", topybins_, topybins_, "|y(t_{h})|");
-          responses_[shift].AddMatrix("tleppt", topptbins_, topptbins_, "p_{T}(t_{l}) [GeV]");
-          responses_[shift].AddMatrix("tlepy", topybins_, topybins_, "|y(t_{l})|");
-          responses_[shift].AddMatrix("ttm", ttmbins_, ttmbins_, "m(t#bar{t}) [GeV]");
-          responses_[shift].AddMatrix("ttpt", ttptbins_, ttptbins_, "p_{T}(t#bar{t}) [GeV]");
-          responses_[shift].AddMatrix("tty", ttybins_, ttybins_, "|y(t#bar{t})|");
-          responses_[shift].AddMatrix("njet", jetbins_, jetbins_, "n-jets");
-          responses_[shift].AddMatrix("nobin", nobins_, nobins_, "total");
+          //create response matrixes
+          if(isTTbar_ && evt_type == RIGHT){
+            responses_[lep_type][shift] = TTBarResponse("response");
+            responses_[lep_type][shift].AddMatrix("thadpt", topptbins_, topptbins_, "p_{T}(t_{h}) [GeV]");
+            responses_[lep_type][shift].AddMatrix("thady", topybins_, topybins_, "|y(t_{h})|");
+            responses_[lep_type][shift].AddMatrix("tleppt", topptbins_, topptbins_, "p_{T}(t_{l}) [GeV]");
+            responses_[lep_type][shift].AddMatrix("tlepy", topybins_, topybins_, "|y(t_{l})|");
+            responses_[lep_type][shift].AddMatrix("ttm", ttmbins_, ttmbins_, "m(t#bar{t}) [GeV]");
+            responses_[lep_type][shift].AddMatrix("ttpt", ttptbins_, ttptbins_, "p_{T}(t#bar{t}) [GeV]");
+            responses_[lep_type][shift].AddMatrix("tty", ttybins_, ttybins_, "|y(t#bar{t})|");
+            responses_[lep_type][shift].AddMatrix("njet", jetbins_, jetbins_, "n-jets");
+            responses_[lep_type][shift].AddMatrix("nobin", nobins_, nobins_, "total");
+          }
         }
       }
     }
@@ -172,26 +182,30 @@ public:
     //Fill truth of resp matrix
     if(isTTbar_ && genp_selector_.is_in_acceptance()) {
       GenTTBar &ttbar = genp_selector_.ttbar_system();
-
-      if(skew_tt_distro_) evt_weight_ *= 1.+0.05*(ttbar.top.Pt()-200.)/1000.;
-      size_t added_jets = genp_selector_.additional_jets().size();
-      responses_[shift].FillTruth("thadpt", ttbar.had_top()->Pt(), added_jets, evt_weight_);
-      responses_[shift].FillTruth("nobin", ttbar.had_top()->Pt(), added_jets, evt_weight_);
-      responses_[shift].FillTruth("thady", Abs(ttbar.had_top()->Rapidity()), added_jets, evt_weight_);
-      responses_[shift].FillTruth("tleppt", ttbar.lep_top()->Pt(), added_jets, evt_weight_);
-      responses_[shift].FillTruth("tlepy", Abs(ttbar.lep_top()->Rapidity()), added_jets, evt_weight_);
-      responses_[shift].FillTruth("ttm", ttbar.M(), added_jets, evt_weight_);
-      responses_[shift].FillTruth("ttpt", ttbar.Pt(), added_jets, evt_weight_);
-      responses_[shift].FillTruth("tty", Abs(ttbar.Rapidity()), added_jets, evt_weight_);
-      responses_[shift].FillTruth("njet", genp_selector_.additional_jets().size(), added_jets, evt_weight_);
+      if(ttbar.type == GenTTBar::DecayType::SEMILEP) {
+        LeptonType lep_type = (ttbar.lepton()->pdgId() == ura::PDGID::mu) ? LeptonType::MUON : LeptonType::ELECTRON;
+        if(skew_tt_distro_) evt_weight_ *= 1.+0.05*(ttbar.top.Pt()-200.)/1000.;
+        size_t added_jets = genp_selector_.additional_jets().size();
+        responses_[lep_type][shift].FillTruth("thadpt", ttbar.had_top()->Pt(), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("nobin", ttbar.had_top()->Pt(), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("thady", Abs(ttbar.had_top()->Rapidity()), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("tleppt", ttbar.lep_top()->Pt(), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("tlepy", Abs(ttbar.lep_top()->Rapidity()), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("ttm", ttbar.M(), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("ttpt", ttbar.Pt(), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("tty", Abs(ttbar.Rapidity()), added_jets, evt_weight_);
+        responses_[lep_type][shift].FillTruth("njet", genp_selector_.additional_jets().size(), added_jets, evt_weight_);
+      }
     }
 
     //select reco objects
     if( !object_selector_.select(event, shift) ) return;
     tracker_.track("object selection");
+    LeptonType lep_type = (object_selector_.tight_muons().size() > 0) ? LeptonType::MUON : LeptonType::ELECTRON;
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
           object_selector_.met() ) ) return;
+    if(!isData_) evt_weight_ *= btag_sf_.scale_factor(permutator_, shift);
     tracker_.track("perm preselection");
 
     //Gen matching
@@ -239,7 +253,7 @@ public:
     //Fill appropriate plots
     tracker_.track("filling plots..");
     if(!isTTbar_) {
-      ttplots_[TTNaming::NOTSET][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+      ttplots_[lep_type][TTNaming::NOTSET][shift].Fill(best_perm, object_selector_, event, evt_weight_);
     } //if(!isTTbar_)
     else {
       // if(matched_perm.IsComplete())
@@ -247,28 +261,28 @@ public:
       //     "-- Matched -- " << matched_perm << endl <<
       //     "-- Best --" << best_perm << endl;
       if(best_perm.IsCorrect(matched_perm)){
-        ttplots_[TTNaming::RIGHT][shift].Fill(best_perm, object_selector_, event, evt_weight_);
-        responses_[shift].FillReco("thadpt", best_perm.THad().Pt(), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("nobin", best_perm.THad().Pt(), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("thady", Abs(best_perm.THad().Rapidity()), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("tleppt", best_perm.TLep().Pt(), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("tlepy", Abs(best_perm.TLep().Rapidity()), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("ttm", (best_perm.THad() + best_perm.TLep()).M(), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("ttpt", (best_perm.THad() + best_perm.TLep()).Pt(), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("tty", Abs((best_perm.THad() + best_perm.TLep()).Rapidity()), capped_jets_size, evt_weight_);
-        responses_[shift].FillReco("njet", object_selector_.clean_jets().size() - 4, capped_jets_size, evt_weight_);
+        ttplots_[lep_type][TTNaming::RIGHT][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+        responses_[lep_type][shift].FillReco("thadpt", best_perm.THad().Pt(), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("nobin", best_perm.THad().Pt(), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("thady", Abs(best_perm.THad().Rapidity()), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("tleppt", best_perm.TLep().Pt(), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("tlepy", Abs(best_perm.TLep().Rapidity()), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("ttm", (best_perm.THad() + best_perm.TLep()).M(), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("ttpt", (best_perm.THad() + best_perm.TLep()).Pt(), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("tty", Abs((best_perm.THad() + best_perm.TLep()).Rapidity()), capped_jets_size, evt_weight_);
+        responses_[lep_type][shift].FillReco("njet", object_selector_.clean_jets().size() - 4, capped_jets_size, evt_weight_);
       }
       else if(best_perm.IsTHadCorrect(matched_perm)) {
-        ttplots_[TTNaming::RIGHT_THAD][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+        ttplots_[lep_type][TTNaming::RIGHT_THAD][shift].Fill(best_perm, object_selector_, event, evt_weight_);
       }
       else if(best_perm.IsBLepCorrect(matched_perm)) {
-        ttplots_[TTNaming::RIGHT_TLEP][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+        ttplots_[lep_type][TTNaming::RIGHT_TLEP][shift].Fill(best_perm, object_selector_, event, evt_weight_);
       }
       else if(genp_selector_.ttbar_system().type == GenTTBar::DecayType::SEMILEP) {
-        ttplots_[TTNaming::WRONG][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+        ttplots_[lep_type][TTNaming::WRONG][shift].Fill(best_perm, object_selector_, event, evt_weight_);
       }
       else {
-        ttplots_[TTNaming::OTHER][shift].Fill(best_perm, object_selector_, event, evt_weight_);
+        ttplots_[lep_type][TTNaming::OTHER][shift].Fill(best_perm, object_selector_, event, evt_weight_);
       }
     } //else -- if(!isTTbar_)
   }
@@ -310,7 +324,8 @@ public:
 				if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
 				//Logger::log().debug() << "processing: " << shift << endl;
 				process_evt(event, shift);
-        responses_[shift].Flush();
+        responses_[LeptonType::MUON][shift].Flush();
+        responses_[LeptonType::ELECTRON][shift].Flush();
 				if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
 			}
 
