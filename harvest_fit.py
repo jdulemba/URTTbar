@@ -122,7 +122,8 @@ def run_module(**kwargs):
     
                   idx = info[category]['idx']+1
                   hists[sample][idx].value = pars[rvar_name].value
-                  hists[sample][idx].error = max(pars[rvar_name].error) #get max of asym error
+                  error = pars[rvar_name].error
+                  hists[sample][idx].error = max(abs(i) for i in error) if isinstance(error, tuple) else error #get max of asym error
 
                   if not is_prefit_done:
                      hists_prefit[sample][idx].value = prefit_pars[rvar_name].value

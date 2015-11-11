@@ -39,15 +39,15 @@ def run_module(**kwargs):
    phase_space = 'fiducialtight'
    full_discr_binning = [2]#range(-15, 16)
 
-   ## jet_categories = [
-   ##    ('0Jets', ['0']), 
-   ##    ('1Jets', ['1']), 
-   ##    ('2Jets', ['2']), 
+   jet_categories = [
+      ('0Jets', ['0']), 
+      ('1Jets', ['1']), 
+      ('2Jets', ['2', '3']), 
    ##    ('3Jets', ['3']), 
-   ##    ]
-   jet_categories = [ 
-      ('0Jets', ['0', '1', '2', '3'])
       ]
+   ## jet_categories = [ 
+   ##    ('0Jets', ['0', '1', '2', '3'])
+   ##    ]
       
    ## mass_binning = [250., 350., 370., 390., 410., 430., 450., 470., 490., 510., 530., 550., 575., 600., 630., 670., 720., 800., 900, 5000.]
    ## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
@@ -227,15 +227,15 @@ def run_module(**kwargs):
          'value' : 1.05,
          },
 
-      'otherTT_ratio' : {
-         'type' : 'shape',
-         'samples' : ['tt_wrong'],
-         'categories' : ['.*'],
-         '+' : lambda x: 'otherTT_ratio_up/%s' % x,
-         '-' : lambda x: 'otherTT_ratio_down/%s' % x,
-         'value' : 1.00,
-         'shape_only' : True,
-         },
+      ## 'otherTT_ratio' : {
+      ##    'type' : 'shape',
+      ##    'samples' : ['tt_wrong'],
+      ##    'categories' : ['.*'],
+      ##    '+' : lambda x: 'otherTT_ratio_up/%s' % x,
+      ##    '-' : lambda x: 'otherTT_ratio_down/%s' % x,
+      ##    'value' : 1.00,
+      ##    'shape_only' : True,
+      ##    },
 
       ## 'JES' : {
       ##    'samples' : ['*'],
@@ -260,10 +260,35 @@ def run_module(**kwargs):
    ##################
    if not opts.noplots:
 
+      #cut flow
       plotter.cut_flow()
       plotter.save('cut_flow')
 
-      plotter.initviews() #FIXME: to be removed
+      #rate evolution
+      plotter.initviews()
+      lumi = plotter.views['data']['intlumi']
+      MC_sum = sum(plotter.make_stack(folder='electrons/nosys').Get('byrun').hists)
+      electrons_expectation = MC_sum[0].value/lumi
+      print electrons_expectation
+      plotter.plot('data', 'electrons/nosys/byrun')
+      ref_function = ROOT.TF1('f', "%s" % electrons_expectation, 0., 12.)
+      ref_function.SetLineWidth(3)
+      ref_function.SetLineStyle(2)
+      ref_function.Draw('same')      
+      plotter.save('run_evolution_electrons', pdf=False)
+
+
+      MC_sum = sum(plotter.make_stack(folder='muons/nosys').Get('byrun').hists)
+      muons_expectation = MC_sum[0].value/lumi
+      print muons_expectation
+      plotter.plot('data', 'muons/nosys/byrun')
+      ref_function = ROOT.TF1('f', "%s" % muons_expectation, 0., 12.)
+      ref_function.SetLineWidth(3)
+      ref_function.SetLineStyle(2)
+      ref_function.Draw('same')      
+      plotter.save('run_evolution_muons', pdf=False)
+
+      plotter.merge_leptons()
       to_plot = [
          ('weight' , 5, 'event weight'),
          ('nvtx' , 2, '# vertices'),
@@ -290,7 +315,9 @@ def run_module(**kwargs):
       plotter.save('%s_bkg_shape' % (discriminant), pdf=False)
 
       for var, rebin, xaxis in to_plot:
-         plotter.plot_mc_vs_data('nosys', var, leftside=False, rebin=rebin, xaxis=xaxis)
+         plotter.plot_mc_vs_data(
+            'nosys', var, leftside=False, rebin=rebin, xaxis=xaxis, show_ratio=True,
+            ratio_range=0.5)
          #print var, sum(plotter.keep[0].hists).Integral(), plotter.keep[1].Integral()
          plotter.add_cms_blurb(13, lumiformat='%0.3f')
          plotter.save(var, pdf=False)
@@ -299,7 +326,8 @@ def run_module(**kwargs):
          var = info.var
          plotter.plot_mc_vs_data(
             'nosys', '%s' % var, 
-            leftside=False, rebin=info.binning.reco, xaxis=info.xtitle)
+            leftside=False, rebin=info.binning.reco, xaxis=info.xtitle,
+            show_ratio=True, ratio_range=0.5)
          plotter.save(var, pdf=False)
       
          previous = info.binning.reco[0]
@@ -336,6 +364,7 @@ def run_module(**kwargs):
    #     CARDS
    ##################
    if not opts.noshapes:
+      plotter.merge_leptons()
 
       for info in vars_to_unfold:
          var = info.var
@@ -364,7 +393,7 @@ def run_module(**kwargs):
       fname = os.path.join(plotter.outputdir, 'migration_matrices.root')
 
       with io.root_open(fname, 'recreate') as mfile:
-         response_dir = 'semilep_visible_right/nosys/response'
+         response_dir = 'nosys/response'
          for info in vars_to_unfold:
             var = info.var
             dirname = var
@@ -372,7 +401,15 @@ def run_module(**kwargs):
                dirname += '_%s' % info.dir_postfix
             mfile.mkdir(dirname).cd()
             matrix_path = '%s/%s_matrix' % (response_dir, var)
-            tt_view = plotter.get_view(plotter.ttbar_to_use, 'unweighted_view')
+            tt_view = views.SubdirectoryView(
+               plotter.get_view(plotter.ttbar_to_use, 'unweighted_view'),
+               'semilep_visible_right'
+               )
+            tt_view = views.SumView(
+               views.SubdirectoryView(tt_view, 'muons'),
+               views.SubdirectoryView(tt_view, 'electrons')
+               )
+               
             matrix_view_unscaled = plotter.rebin_view(
                tt_view, 
                [info.binning.gen, info.binning.reco]
@@ -389,7 +426,7 @@ def run_module(**kwargs):
             reco_unscaled.name = 'reco_unscaled'
             reco_unscaled.Write()
 
-            tt_view = plotter.get_view(plotter.ttbar_to_use)
+            tt_view = plotter.get_view('ttJets_rightAssign')
             matrix_view = plotter.rebin_view(
                tt_view,
                [info.binning.gen, info.binning.reco]

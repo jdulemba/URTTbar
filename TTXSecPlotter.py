@@ -55,11 +55,25 @@ class TTXSecPlotter(Plotter):
 
       self.card = None
       self.binning = {}
+      self.initialized = False
+      self.merged_leptons=False
 
    def initviews(self):
+      if self.initialized: return
       for sample in self.views:
          if not sample.startswith('ttJets'):
             self.views[sample]['view'] = views.SubdirectoryView(self.views[sample]['view'], 'RECO')
+      self.initialized = True
+
+   def merge_leptons(self):
+      if self.merged_leptons: return
+      self.initviews()
+      for sample in self.views:
+         self.views[sample]['view'] = views.SumView(
+            views.SubdirectoryView(self.views[sample]['view'], 'muons'),
+            views.SubdirectoryView(self.views[sample]['view'], 'electrons'),
+            )
+      self.merged_leptons = True
 
    def cut_flow(self):
       views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, self.mc_samples)

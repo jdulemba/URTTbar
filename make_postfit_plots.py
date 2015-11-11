@@ -95,7 +95,6 @@ for category in categories:
    groups[base].append(category)
 
 for base, categories in groups.items()[:1]:
-   first = True
    sample_sums = {}
    plotter.set_subdir(base)
    for cat_name in categories:
@@ -104,7 +103,7 @@ for base, categories in groups.items()[:1]:
       data = data_dir.data_obs
       data.title = 'data_obs'
       hsum = fix_binning(cat_dir.total, data)
-      if first:
+      if data.title not in sample_sums:
       	sample_sums[data.title] = data.Clone()
         sample_sums['postfit S+B'] = hsum.Clone()
       else:
@@ -114,13 +113,11 @@ for base, categories in groups.items()[:1]:
       sample_names = [i.name for i in cat_dir.keys() if not i.name.startswith('total')]
       samples = [fix_binning(cat_dir.Get(i), data) for i in sample_names]
       for i, j in zip(sample_names, samples):
-         if first:
+         if i not in sample_sums:
             sample_sums[i] = j.Clone()
          else:
             sample_sums[i] += j
 
-      first = False
-      
       stack = plotter.create_stack(*samples)
       legend = LegendDefinition(position='NE')
       plotter.overlay( 

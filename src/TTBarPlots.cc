@@ -46,6 +46,8 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
   xax->SetBinLabel(3, "HLT_IsoMu22");
   xax->SetBinLabel(4, "HLT_IsoMu20");
   xax->SetBinLabel(5, "HLT_IsoMu27");
+	plot1d.AddHist("byrun", 12, 0, 12, "run period", "Events");
+
 	plot1d.AddHist("ptaddjets", 200, 0, 400, "p_{T}(add. jets) [GeV]", "Events");
 	plot1d.AddHist("DRminWjets", 200, 0, 10, "#DeltaR_{min W-jet}", "Events");
 	plot1d.AddHist("DRminbjets", 200, 0, 10, "#DeltaR_{min b-jet}", "Events");
@@ -87,6 +89,21 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 
 void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, URStreamer &evt, double weight)
 {
+  //JUST FOR DEBUGGING! (hardcoded)
+  if(evt.run < 254231) plot1d["byrun"]->Fill(-1, weight);
+  else if(evt.run <= 256867) plot1d["byrun"]->Fill(0.5, weight/100.277);
+  else if(evt.run <= 257613) plot1d["byrun"]->Fill(1.5, weight/148.921);
+  else if(evt.run <= 257751) plot1d["byrun"]->Fill(2.5, weight/111.578);
+  else if(evt.run <= 257969) plot1d["byrun"]->Fill(3.5, weight/112.884);
+  else if(evt.run <= 258158) plot1d["byrun"]->Fill(4.5, weight/124.804);
+  else if(evt.run <= 258177) plot1d["byrun"]->Fill(5.5, weight/153.204);
+  else if(evt.run <= 258434) plot1d["byrun"]->Fill(6.5, weight/129.955);
+  else if(evt.run <= 258445) plot1d["byrun"]->Fill(7.5, weight/107.733);
+  else if(evt.run <= 258702) plot1d["byrun"]->Fill(8.5, weight/120.934);
+  else if(evt.run <= 258706) plot1d["byrun"]->Fill(9.5, weight/122.005);
+  else if(evt.run <= 258742) plot1d["byrun"]->Fill(10.5, weight/147.071);
+  else if(evt.run <= 258750) plot1d["byrun"]->Fill(11.5, weight/101.017);
+
 	TLorentzVector nu(per.Nu());
 	TTBarPlotsBase::Fill(per.BHad(), per.WJa(), per.WJb(), per.BLep(), per.L(), &nu, objects.lepton_charge(), weight);
 	double massDiscr = per.MassDiscr();
