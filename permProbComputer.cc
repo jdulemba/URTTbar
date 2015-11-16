@@ -123,23 +123,23 @@ public:
         histos_[shift][evt_type]["mWhad_vs_mtophad"] = RObject::book<TH2D>("mWhad_vs_mtophad", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
         histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", 75, 0., 150.);
         if(evt_type == RIGHT) {
-          histos_[shift][evt_type]["btag_loose_bjet_pass"]= RObject::book<TH2D>("btag_loose_bjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
-          histos_[shift][evt_type]["btag_loose_bjet_all" ]= RObject::book<TH2D>("btag_loose_bjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_loose_bjet_pass"]= RObject::book<TH2D>("btag_loose_bjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
+          histos_[shift][evt_type]["btag_loose_bjet_all" ]= RObject::book<TH2D>("btag_loose_bjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
                                                                                                       
-          histos_[shift][evt_type]["btag_loose_cjet_pass"]= RObject::book<TH2D>("btag_loose_cjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
-          histos_[shift][evt_type]["btag_loose_cjet_all" ]= RObject::book<TH2D>("btag_loose_cjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_loose_cjet_pass"]= RObject::book<TH2D>("btag_loose_cjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
+          histos_[shift][evt_type]["btag_loose_cjet_all" ]= RObject::book<TH2D>("btag_loose_cjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
                                                                                                       
-          histos_[shift][evt_type]["btag_loose_ljet_pass"]= RObject::book<TH2D>("btag_loose_ljet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
-          histos_[shift][evt_type]["btag_loose_ljet_all" ]= RObject::book<TH2D>("btag_loose_ljet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_loose_ljet_pass"]= RObject::book<TH2D>("btag_loose_ljet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
+          histos_[shift][evt_type]["btag_loose_ljet_all" ]= RObject::book<TH2D>("btag_loose_ljet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
                                                                                                       
-          histos_[shift][evt_type]["btag_tight_bjet_pass"]= RObject::book<TH2D>("btag_tight_bjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
-          histos_[shift][evt_type]["btag_tight_bjet_all" ]= RObject::book<TH2D>("btag_tight_bjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_tight_bjet_pass"]= RObject::book<TH2D>("btag_tight_bjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
+          histos_[shift][evt_type]["btag_tight_bjet_all" ]= RObject::book<TH2D>("btag_tight_bjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
                                                                                                       
-          histos_[shift][evt_type]["btag_tight_cjet_pass"]= RObject::book<TH2D>("btag_tight_cjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
-          histos_[shift][evt_type]["btag_tight_cjet_all" ]= RObject::book<TH2D>("btag_tight_cjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_tight_cjet_pass"]= RObject::book<TH2D>("btag_tight_cjet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
+          histos_[shift][evt_type]["btag_tight_cjet_all" ]= RObject::book<TH2D>("btag_tight_cjet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
                                                                                                       
-          histos_[shift][evt_type]["btag_tight_ljet_pass"]= RObject::book<TH2D>("btag_tight_ljet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
-          histos_[shift][evt_type]["btag_tight_ljet_all" ]= RObject::book<TH2D>("btag_tight_ljet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, 0, 3);
+          histos_[shift][evt_type]["btag_tight_ljet_pass"]= RObject::book<TH2D>("btag_tight_ljet_pass", "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
+          histos_[shift][evt_type]["btag_tight_ljet_all" ]= RObject::book<TH2D>("btag_tight_ljet_all" , "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 30, -3, 3);
         }
         if(evt_type == RIGHT || evt_type == WRONG){
           histos_[shift][evt_type]["btag_value"] = RObject::book<TH1D>("btag_value", ";CSV raw value;# Events", 100, 0., 1.);
@@ -175,7 +175,7 @@ public:
 
     //fill BTagging SF BEFORE preselection (it already cuts on the BTag value of the jets
     for(auto jet : permutator_.capped_jets()) {
-      int jet_flav = Abs(jet->partonFlavour());
+      int jet_flav = Abs(jet->hadronFlavour());
       if(jet_flav == ura::PDGID::b) {
         if(jet->BTagId(permutator_.loose_bID_cut())) 
           plots[TTNaming::RIGHT]["btag_loose_bjet_pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);

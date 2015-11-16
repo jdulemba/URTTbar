@@ -25,8 +25,9 @@ void TTBarPlotsBase::Init()
   plot1d.AddHist("nu_eta", 200, -5, 5., "#eta(#nu)", "Events");
   plot1d.AddHist("lepp_eta", 200, -5, 5., "#eta(l+)", "Events");
   plot1d.AddHist("lepm_eta", 200, -5, 5., "#eta(l-)", "Events");
-  plot1d.AddHist("thad_mass", 250, 0, 500, "p_{T}(t_{had}) [GeV]", "Events");
-  plot1d.AddHist("whad_mass", 250, 0, 500, "p_{T}(t_{had}) [GeV]", "Events");
+  plot1d.AddHist("thadmass", 250, 0, 500, "M(t_{had}) [GeV]", "Events");
+  plot1d.AddHist("whadmass", 250, 0, 500, "M(W_{had}) [GeV]", "Events");
+  plot1d.AddHist("thadpt", 400, 0, 800, "p_{T}(t_{had}) [GeV]", "Events");
   plot1d.AddHist("tleppt", 400, 0, 800, "p_{T}(t_{lep}) [GeV]", "Events");
   plot1d.AddHist("thadeta", 200, -5, 5, "#eta(t_{had})", "Events");
   plot1d.AddHist("tlepeta", 200, -5, 5, "#eta(t_{lep})", "Events");
@@ -69,8 +70,8 @@ void TTBarPlotsBase::Fill(TLorentzVector* Hb, TLorentzVector* Hwa, TLorentzVecto
 	plot1d["lep_pt"]->Fill(Ll->Pt(), weight);
 	if(lepcharge > 0) {plot1d["lepp_eta"]->Fill(Ll->Eta(), weight);}
 	if(lepcharge < 0) {plot1d["lepm_eta"]->Fill(Ll->Eta(), weight);}
-  plot1d["thad_mass"]->Fill(thad.M(), weight);
-  plot1d["whad_mass"]->Fill(whad.M(), weight);
+  plot1d["thadmass"]->Fill(thad.M(), weight);
+  plot1d["whadmass"]->Fill(whad.M(), weight);
 	plot1d["nu_pt"]->Fill(Ln->Pt(), weight);
 	plot1d["nu_eta"]->Fill(Ln->Eta(), weight);
 	plot1d["thadpt"]->Fill(thad.Pt(), weight);

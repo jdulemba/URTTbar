@@ -71,8 +71,8 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 		plot2d.AddHist("nsDiscr_"+jb.str()+"thady", tb, tbmin, tbmax, topybins, "D_{min}", "|y(t_{had})|");
 		plot2d.AddHist("massDiscr_"+jb.str()+"tlepy", ta, tamin, tamax, topybins, "#lambda_{m}", "|y(t_{lep})|");
 		plot2d.AddHist("nsDiscr_"+jb.str()+"tlepy", tb, tbmin, tbmax, topybins, "D_{min}", "|y(t_{lep})|");
-		plot2d.AddHist("massDiscr_"+jb.str()+"ttm", ta, tamin, tamax, ttmbins, "#lambda_{m}", "M(tt) [GeV]");
-		plot2d.AddHist("nsDiscr_"+jb.str()+"ttm", tb, tbmin, tbmax, ttmbins, "D_{min}", "M(tt) [GeV]");
+		plot2d.AddHist("massDiscr_"+jb.str()+"ttM", ta, tamin, tamax, ttmbins, "#lambda_{m}", "M(tt) [GeV]");
+		plot2d.AddHist("nsDiscr_"+jb.str()+"ttM", tb, tbmin, tbmax, ttmbins, "D_{min}", "M(tt) [GeV]");
 		plot2d.AddHist("massDiscr_"+jb.str()+"tty", ta, tamin, tamax, ttybins, "#lambda_{m}", "y(tt)");
 		plot2d.AddHist("nsDiscr_"+jb.str()+"tty", tb, tbmin, tbmax, ttybins, "D_{min}", "y(tt)");
 		plot2d.AddHist("massDiscr_"+jb.str()+"ttpt", ta, tamin, tamax, ttptbins, "#lambda_{m}", "p_{T}(tt) [GeV]");
@@ -162,8 +162,8 @@ void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, URStreamer &e
 			plot2d["nsDiscr_"+jb.str()+"thady"]->Fill(nsDiscr, Abs(thad.Rapidity()), weight);
 			plot2d["massDiscr_"+jb.str()+"tlepy"]->Fill(massDiscr, Abs(tlep.Rapidity()), weight);
 			plot2d["nsDiscr_"+jb.str()+"tlepy"]->Fill(nsDiscr, Abs(tlep.Rapidity()), weight);
-			plot2d["massDiscr_"+jb.str()+"ttm"]->Fill(massDiscr, tt.M(), weight);
-			plot2d["nsDiscr_"+jb.str()+"ttm"]->Fill(nsDiscr, tt.M(), weight);
+			plot2d["massDiscr_"+jb.str()+"ttM"]->Fill(massDiscr, tt.M(), weight);
+			plot2d["nsDiscr_"+jb.str()+"ttM"]->Fill(nsDiscr, tt.M(), weight);
 			plot2d["massDiscr_"+jb.str()+"tty"]->Fill(massDiscr, Abs(tt.Rapidity()), weight);
 			plot2d["nsDiscr_"+jb.str()+"tty"]->Fill(nsDiscr, Abs(tt.Rapidity()), weight);
 			plot2d["massDiscr_"+jb.str()+"ttpt"]->Fill(massDiscr, tt.Pt(), weight);

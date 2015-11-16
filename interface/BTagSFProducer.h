@@ -2,7 +2,7 @@
 #define BTagSFProducer_h
 
 #include "BTagCalibrationStandalone.h"
-#include "TH1D.h"
+#include "TH2D.h"
 #include "systematics.h"
 #include "TFile.h"
 #include <string>
@@ -27,9 +27,9 @@ private:
   BTagCalibrationReader readers_tight_[3]; //[down, central, up]
   BTagCalibrationReader readers_loose_[3]; //[down, central, up]
 
-  TH1D *eff_light_loose, *eff_light_tight;
-  TH1D *eff_charm_loose, *eff_charm_tight;
-  TH1D *eff_bottom_loose, *eff_bottom_tight;
+  TH2D *eff_light_loose, *eff_light_tight;
+  TH2D *eff_charm_loose, *eff_charm_tight;
+  TH2D *eff_bottom_loose, *eff_bottom_tight;
 };
 
 #endif

@@ -6,6 +6,7 @@
 #include "DataFile.h"
 #include "Logger.h"
 #include "TFile.h"
+#include <cmath>
 
 BTagSFProducer::BTagSFProducer(TTPermutator &permutator) {
   URParser &parser = URParser::instance();
@@ -34,25 +35,31 @@ BTagSFProducer::BTagSFProducer(TTPermutator &permutator) {
   }
 
   //
-  calibration_ = BTagCalibration("csvv2", sf_file.path());
-  readers_tight_[0] = BTagCalibrationReader(&calibration_, wp_tight, "comb", "down"); //[down, central, up]
-  readers_tight_[1] = BTagCalibrationReader(&calibration_, wp_tight, "comb", "central"); //[down, central, up]
-  readers_tight_[2] = BTagCalibrationReader(&calibration_, wp_tight, "comb", "up"); //[down, central, up]
+  try {
+    calibration_ = BTagCalibration("csvv2", sf_file.path());
+  } catch(std::exception e) {
+    Logger::log().fatal() << "BTagSFProducer::BTagSFProducer caught an exception in instantiating the BTagCalibration with input file: " <<
+      sf_file.path() << std::endl;
+    throw 42;
+  }
+  readers_tight_[0] = BTagCalibrationReader(&calibration_, wp_tight, "mujets", "down"); //[down, central, up]
+  readers_tight_[1] = BTagCalibrationReader(&calibration_, wp_tight, "mujets", "central"); //[down, central, up]
+  readers_tight_[2] = BTagCalibrationReader(&calibration_, wp_tight, "mujets", "up"); //[down, central, up]
 
-  readers_loose_[0] = BTagCalibrationReader(&calibration_, wp_loose, "comb", "down"); //[down, central, up]
-  readers_loose_[1] = BTagCalibrationReader(&calibration_, wp_loose, "comb", "central"); //[down, central, up]
-  readers_loose_[2] = BTagCalibrationReader(&calibration_, wp_loose, "comb", "up"); //[down, central, up]
+  readers_loose_[0] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "down"); //[down, central, up]
+  readers_loose_[1] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "central"); //[down, central, up]
+  readers_loose_[2] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "up"); //[down, central, up]
 
   TH1::AddDirectory(false);
   TFile eff_tfile(eff_file.path().c_str());
-  eff_light_tight  = get_from<TH1D>(eff_tfile, "light/tight_eff", "t_eff");
-  eff_charm_tight  = get_from<TH1D>(eff_tfile, "charm/tight_eff", "t_eff");
-  eff_bottom_tight = get_from<TH1D>(eff_tfile, "bottom/tight_eff", "t_eff");
+  eff_light_tight  = get_from<TH2D>(eff_tfile, "light/tight_eff", "t_eff");
+  eff_charm_tight  = get_from<TH2D>(eff_tfile, "charm/tight_eff", "t_eff");
+  eff_bottom_tight = get_from<TH2D>(eff_tfile, "bottom/tight_eff", "t_eff");
   
   if(!no_loose_cut_){
-    eff_light_loose = get_from<TH1D>(eff_tfile, "light/loose_eff", "l_eff");
-    eff_charm_loose = get_from<TH1D>(eff_tfile, "charm/loose_eff", "l_eff");
-    eff_bottom_loose = get_from<TH1D>(eff_tfile, "bottom/loose_eff", "l_eff");
+    eff_light_loose = get_from<TH2D>(eff_tfile, "light/loose_eff", "l_eff");
+    eff_charm_loose = get_from<TH2D>(eff_tfile, "charm/loose_eff", "l_eff");
+    eff_bottom_loose = get_from<TH2D>(eff_tfile, "bottom/loose_eff", "l_eff");
   }
   else {
     eff_light_loose  = eff_light_tight ;
@@ -89,41 +96,55 @@ double BTagSFProducer::scale_factor(TTPermutator &permutator, systematics::SysSh
   for(auto jet : permutator.capped_jets()) {
     BTagEntry::JetFlavor jet_flav;
     double jpt = jet->Pt();
+    double jeta = jet->Eta();
     double eff_loose=0;
     double eff_tight=0;
-    switch(TMath::Abs(jet->partonFlavour())) {
+    switch(TMath::Abs(jet->hadronFlavour())) {
     case ura::PDGID::b: 
       jet_flav=BTagEntry::JetFlavor::FLAV_B;
-      eff_loose = eff_bottom_loose->GetBinContent(eff_bottom_loose->FindFixBin(jpt));
-      eff_tight = eff_bottom_tight->GetBinContent(eff_bottom_tight->FindFixBin(jpt));
+      eff_loose = eff_bottom_loose->GetBinContent(eff_bottom_loose->FindFixBin(jpt, jeta));
+      eff_tight = eff_bottom_tight->GetBinContent(eff_bottom_tight->FindFixBin(jpt, jeta));
       break;
     case ura::PDGID::c: 
       jet_flav=BTagEntry::JetFlavor::FLAV_C; 
-      eff_loose = eff_charm_loose->GetBinContent(eff_charm_loose->FindFixBin(jpt));
-      eff_tight = eff_charm_tight->GetBinContent(eff_charm_tight->FindFixBin(jpt));
+      eff_loose = eff_charm_loose->GetBinContent(eff_charm_loose->FindFixBin(jpt, jeta));
+      eff_tight = eff_charm_tight->GetBinContent(eff_charm_tight->FindFixBin(jpt, jeta));
       break;
     default: 
       jet_flav=BTagEntry::JetFlavor::FLAV_UDSG; 
-      eff_loose = eff_light_loose->GetBinContent(eff_light_loose->FindFixBin(jpt));
-      eff_tight = eff_light_tight->GetBinContent(eff_light_tight->FindFixBin(jpt));
+      eff_loose = eff_light_loose->GetBinContent(eff_light_loose->FindFixBin(jpt, jeta));
+      eff_tight = eff_light_tight->GetBinContent(eff_light_tight->FindFixBin(jpt, jeta));
       break;
-    } //switch(Abs(jet->partonFlavour()))  
+    } //switch(Abs(jet->hadronFlavour()))  
+
+    //access SF now, so we can catch exceptions!
+    double tight_sf = -1.;
+    double loose_sf = -1.;
+    try { 
+      tight_sf = reader_tight->eval(jet_flav, jet->Eta(), jet->Pt());
+      loose_sf = reader_loose->eval(jet_flav, jet->Eta(), jet->Pt());
+    } catch(std::out_of_range e) {
+      Logger::log().fatal() << "Problem accessing BTV SF for jet: " << jet_flav <<
+        ", " << jet->Eta() << ", " << jet->Pt() << std::endl;
+      throw 42;
+    }
 
     if(jet->BTagId(tight_b)) {
       mc_prob *= eff_tight;
-      data_like_prob *= eff_tight*reader_tight->eval(jet_flav, jet->Eta(), jet->Pt());
+      data_like_prob *= eff_tight*tight_sf;
     }
     else if(loose_b != IDJet::BTag::NONE && jet->BTagId(loose_b)) {
       mc_prob *= (eff_loose - eff_tight);
       data_like_prob *= (
-        eff_loose*reader_loose->eval(jet_flav, jet->Eta(), jet->Pt()) -
-        eff_tight*reader_tight->eval(jet_flav, jet->Eta(), jet->Pt())
+        eff_loose*loose_sf - 
+        eff_tight*tight_sf
         );
     }
     else {
       mc_prob *= (1-eff_loose);
-      data_like_prob *= (1 - eff_loose*reader_loose->eval(jet_flav, jet->Eta(), jet->Pt()));
+      data_like_prob *= (1 - eff_loose*loose_sf);
     }
   } //for(auto jet : permutator.capped_jets())
-  return data_like_prob/mc_prob;
+
+  return (mc_prob != 0.) ? data_like_prob/mc_prob : 0.;
 }

@@ -53,47 +53,72 @@ def run_module(**kwargs):
    ## y_binning = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 3.]
    ## ttpt_binning = [0., 20., 30., 40., 50., 60., 70., 90., 110., 140., 180., 250., 1000.]
 
+   def flat_bin(width, strt, stop): 
+      ret = []
+      val = strt
+      while val <= stop:
+         ret.append(val)
+         val += width
+      return ret
+
    vars_to_unfold = [
       Struct(
          var = 'thadpt',
          binning = Struct(
-            #gen = [0., 60., 120., 180., 240., 300., 1000.],
-            #"staggered" binning scheme
-            gen = [0., 45., 105., 165., 225., 285., 800.],
-            #gen = [0., 75., 135., 195., 255., 300., 1000.],
-            reco = [30.0*i for i in range(11)]+[800.],
-            #reco = [0., 120., 1000.],
+            gen  = flat_bin(40, 0, 500),#[0., 45., 105., 165., 225., 285., 800.],
+            reco = flat_bin(40, 0, 500),#[20.0*i for i in range(11)]+[800.],
             ),
          xtitle  = 'p_{T}(t_{had})'
          ),
       Struct(
          var = 'tleppt',
          binning = Struct(
-            gen = [0., 60., 120., 180., 240., 300., 800.],
-            #gen = [0., 40., 75., 105., 135., 170., 220., 300., 1000.],
-            reco = [30.0*i for i in range(11)]+[800.],
+            gen  = flat_bin(40, 0, 500),#[0., 60., 120., 180., 240., 300., 800.],
+            reco = flat_bin(40, 0, 500),#[20.0*i for i in range(11)]+[800.],
             ),
          xtitle = 'p_{T}(t_{lep})'
          ),
-      ## Struct( 
-      ##    var = 'etatlep',
-      ##    #other_name = 'tleppt',
-      ##    binning = Struct(
-      ##       gen  = [0., 0.4, 0.8, 1.2, 1.6, 2.0, 8.0],
-      ##       #gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
-      ##       reco = [0.2*i for i in range(11)]+[8.0],
-      ##       ),
-      ##    xtitle = '#eta(t_{lep})'
-      ##    ),
-      ## Struct( 
-      ##    var = 'etathad',
-      ##    binning = Struct(
-      ##       gen  = [0., 0.4, 0.8, 1.2, 1.6, 2.0, 8.0],
-      ##       #gen  = [0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.4,1.8, 2.3, 2.8, 8.0],
-      ##       reco = [0.2*i for i in range(11)]+[8.0],
-      ##       ),
-      ##    xtitle = '#eta(t_{had})'
-      ##    ),
+      Struct( 
+         var = 'tlepy',
+         #other_name = 'tleppt',
+         binning = Struct(
+            gen  = flat_bin(0.25, 0, 2.5),#
+            reco = flat_bin(0.25, 0, 2.5),#
+            ),
+         xtitle = 'y(t_{lep})'
+         ),
+      Struct( 
+         var = 'thady',
+         binning = Struct(
+            gen  = flat_bin(0.25, 0, 2.5),#
+            reco = flat_bin(0.25, 0, 2.5),#
+            ),
+         xtitle = 'y(t_{had})'
+         ),
+      Struct( 
+         var = 'tty',
+         binning = Struct(
+            gen  = flat_bin(0.25, 0, 2.5),#
+            reco = flat_bin(0.25, 0, 2.5),#
+            ),
+         xtitle = 'y(tt)'
+         ),
+      Struct(
+         var = 'ttpt',
+         binning = Struct(
+            gen = flat_bin(20, 0, 500),#[0., 45., 105., 165., 225., 285., 800.],
+            reco = flat_bin(20, 0, 500),#[20.0*i for i in range(11)]+[800.],
+            ),
+         xtitle  = 'p_{T}(tt)'
+         ),
+      Struct(
+         var = 'ttM',
+         binning = Struct(
+            gen = flat_bin(100, 200, 1500),
+            reco = flat_bin(100, 200, 1500),
+            ),
+         xtitle  = 'M(tt)'
+         ),
    ]
 
    dir_postfix = ''
@@ -199,14 +224,13 @@ def run_module(**kwargs):
       'QCD*',
       '[WZ]Jets',
       'single*',
-      'ttJets_rightAssign',
       
       'ttJets_rightThad',
       'ttJets_rightTlep',
       'ttJets_wrongAssign',
-      
       #'ttJets_wrong',
-      'ttJets_other'
+      'ttJets_other',
+      'ttJets_rightAssign',
       ]
 
    plotter.card_names = {
@@ -280,7 +304,6 @@ def run_module(**kwargs):
 
       MC_sum = sum(plotter.make_stack(folder='muons/nosys').Get('byrun').hists)
       muons_expectation = MC_sum[0].value/lumi
-      print muons_expectation
       plotter.plot('data', 'muons/nosys/byrun')
       ref_function = ROOT.TF1('f', "%s" % muons_expectation, 0., 12.)
       ref_function.SetLineWidth(3)
@@ -290,16 +313,16 @@ def run_module(**kwargs):
 
       plotter.merge_leptons()
       to_plot = [
-         ('weight' , 5, 'event weight'),
-         ('nvtx' , 2, '# vertices'),
-         ('rho' , 5, '#rho'),
-         ('lep_pt' , 4, 'p_{T}(l)'),
-         ("ttM"    ,20, 'm(t#bar{t})'),
-         ("tty"    , 4, 'y(t#bar{t})'),
-         ("ttpt"   , 5, 'p_{T}(t#bar{t})'),
-         ("costhetastar", 4, ''),
-         ("njets", 3, '# of jets'),
-         (discriminant, 2, 'discriminant'),
+         ('weight' , 5, 'event weight', {'postprocess' : lambda x: urviews.OverflowView(x)}),
+         ('nvtx' , 2, '# vertices', {}),
+         ('rho' , 5, '#rho', {}),
+         ('lep_pt' , 4, 'p_{T}(l)', {}),
+         ## ("ttM"    ,20, 'm(t#bar{t})', {}),
+         ## ("tty"    , 4, 'y(t#bar{t})', {}),
+         ## ("ttpt"   , 5, 'p_{T}(t#bar{t})', {}),
+         ("costhetastar", 4, '', {}),
+         ("njets", 3, '# of jets', {}),
+         (discriminant, 2, 'discriminant', {}),
          ]
 
       plotter.plot_mc_shapes(
@@ -314,10 +337,12 @@ def run_module(**kwargs):
          ratio_range=1)
       plotter.save('%s_bkg_shape' % (discriminant), pdf=False)
 
-      for var, rebin, xaxis in to_plot:
+      for var, rebin, xaxis, kwargs in to_plot:
          plotter.plot_mc_vs_data(
             'nosys', var, leftside=False, rebin=rebin, xaxis=xaxis, show_ratio=True,
-            ratio_range=0.5)
+            ratio_range=0.5, **kwargs)
+         #set_trace()
+         #plotter.reset(); plotter.plot_mc_vs_data('nosys', var, leftside=False, rebin=rebin, xaxis=xaxis, show_ratio=True,ratio_range=0.5)
          #print var, sum(plotter.keep[0].hists).Integral(), plotter.keep[1].Integral()
          plotter.add_cms_blurb(13, lumiformat='%0.3f')
          plotter.save(var, pdf=False)
@@ -331,32 +356,32 @@ def run_module(**kwargs):
          plotter.save(var, pdf=False)
       
          previous = info.binning.reco[0]
-         plotter.set_subdir('%s/slices' % var)
-         for idx, vbin in enumerate(info.binning.reco[1:]):
-            plotter.plot_mc_vs_data(
-               'nosys', '%s_%s' % (discriminant, var), leftside=False, 
-               rebin = full_discr_binning[0],
-               xaxis=discriminant,
-               preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin])
-               )
-            plotter.save('%s_slice_%i' % (discriminant, idx), pdf=False)
-            
-            plotter.plot_mc_shapes(
-               'nosys', '%s_%s' % (discriminant, var), leftside=False, 
-               rebin = full_discr_binning[0],
-               xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
-               preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]))
-            plotter.save('%s_slice_%i_shape' % (discriminant, idx), pdf=False)
-            
-            plotter.plot_mc_shapes(
-               'nosys', '%s_%s' % (discriminant, var), leftside=False, 
-               rebin = full_discr_binning[0],
-               xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
-               preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]),
-               use_only=set(['ttJets_rightTlep', 'ttJets_wrongAssign', 'ttJets_other']),
-               ratio_range=1)
-            plotter.save('%s_bkgslice_%i_shape' % (discriminant, idx), pdf=False)
-            previous = vbin
+         ##plotter.set_subdir('%s/slices' % var)
+         ##for idx, vbin in enumerate(info.binning.reco[1:]):
+         ##   plotter.plot_mc_vs_data(
+         ##      'nosys', '%s_%s' % (discriminant, var), leftside=False, 
+         ##      rebin = full_discr_binning[0],
+         ##      xaxis=discriminant,
+         ##      preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin])
+         ##      )
+         ##   plotter.save('%s_slice_%i' % (discriminant, idx), pdf=False)
+         ##   
+         ##   plotter.plot_mc_shapes(
+         ##      'nosys', '%s_%s' % (discriminant, var), leftside=False, 
+         ##      rebin = full_discr_binning[0],
+         ##      xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
+         ##      preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]))
+         ##   plotter.save('%s_slice_%i_shape' % (discriminant, idx), pdf=False)
+         ##   
+         ##   plotter.plot_mc_shapes(
+         ##      'nosys', '%s_%s' % (discriminant, var), leftside=False, 
+         ##      rebin = full_discr_binning[0],
+         ##      xaxis=discriminant, normalize=True, show_err=True, xrange=(-8,1),
+         ##      preprocess=lambda x: urviews.ProjectionView(x, 'X', [previous, vbin]),
+         ##      use_only=set(['ttJets_rightTlep', 'ttJets_wrongAssign', 'ttJets_other']),
+         ##      ratio_range=1)
+         ##   plotter.save('%s_bkgslice_%i_shape' % (discriminant, idx), pdf=False)
+         ##   previous = vbin
 
 
 

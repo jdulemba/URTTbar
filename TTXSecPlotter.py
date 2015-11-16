@@ -84,6 +84,7 @@ class TTXSecPlotter(Plotter):
 
       for vtf in views_to_flow:
          histo = self.get_view(vtf).Get('cut_flow')
+         print vtf, len(histo)
          self.keep.append(histo)
          stack.Add(
             histo

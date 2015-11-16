@@ -73,6 +73,7 @@ public:
     mc_weights_(),
     btag_sf_(permutator_),
     evt_weight_(1.) {
+    Logger::log().debug() << "ttxs::ttxs" << endl;
 
     //set tracker
     tracker_.use_weight(&evt_weight_);
@@ -138,6 +139,8 @@ public:
   //This method is called once per job at the beginning of the analysis
   //book here your histograms/tree and run every initialization needed
   virtual void begin() {
+    Logger::log().debug() << "ttxs::begin()" << endl;
+
     outFile_.cd();
     vector<TTNaming> evt_types;
     if(isTTbar_) evt_types = {RIGHT, RIGHT_THAD, RIGHT_TLEP, WRONG, OTHER};
@@ -310,7 +313,7 @@ public:
 			if(skip > 0 && evt_idx < skip) {
 				continue;
 			}
-			if(evt_idx % 1000 == 0) Logger::log().debug() << "Beginning event " << evt_idx << endl;
+			if(evt_idx % 1000 == 1) Logger::log().debug() << "Beginning event " << evt_idx << endl;
       // Logger::log().debug() << " *************************************************** " << endl;
       // Logger::log().debug() << "Beginning event " << evt_idx << endl;
 
@@ -324,6 +327,10 @@ public:
 				if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
 				//Logger::log().debug() << "processing: " << shift << endl;
 				process_evt(event, shift);
+        if(std::isnan(evt_weight_)) {
+          Logger::log().error() << "NaN at evt: " << evt_idx << endl;
+          throw 99;
+        }
         responses_[LeptonType::MUON][shift].Flush();
         responses_[LeptonType::ELECTRON][shift].Flush();
 				if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
