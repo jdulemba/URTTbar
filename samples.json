@@ -260,48 +260,48 @@
  {
    "name" : "data_SingleElectron_Run2015C_PromptReco",
    "DBSName" : "/SingleElectron/Run2015C-PromptReco-v1/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
  {
    "name" : "data_SingleElectron_Run2015C_28Aug2015",
    "DBSName" : "/SingleElectron/Run2015C-28Aug2015-v1/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
  {
    "name" : "data_SingleElectron_Run2015C_05Oct2015",
    "DBSName" : "/SingleElectron/Run2015C_25ns-05Oct2015-v1/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
  {
    "name" : "data_SingleMuon_2015C_PromptReco",
    "DBSName" : "/SingleMuon/Run2015C-PromptReco-v1/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
  {
    "name" : "data_SingleMuon_2015C_05Oct2015",
    "DBSName" : "/SingleMuon/Run2015C_25ns-05Oct2015-v1/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
 
 
  {
    "name" : "data_SingleElectron_Run2015D_PromptReco",
    "DBSName" : "/SingleElectron/Run2015D-PromptReco-v4/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
  {
    "name" : "data_SingleElectron_Run2015D_05Oct2015",
    "DBSName" : "/SingleElectron/Run2015D-05Oct2015-v1/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
  {
    "name" : "data_SingleMuon_2015D_PromptReco",
    "DBSName" : "/SingleMuon/Run2015D-PromptReco-v4/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  },
  {
    "name" : "data_SingleMuon_2015D_05Oct2015",
    "DBSName" : "/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD",
-   "lumimask" : "inputs/lumimasks/lumimask_2015D.json"
+   "lumimask" : "inputs/lumimasks/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
  }
 ]
