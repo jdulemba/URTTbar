@@ -27,7 +27,7 @@ def psubs(target, *subs)
 end
 
 task :new_ttbar_trial, [:info] do |t, args|
-  new_trial('ttbarxsec', 'ttxsec', args.info)
+  new_trial('ttxs', 'ttxsec', args.info)
 end
 
 task :new_ttbar_plots, [:info] do |t, args|
