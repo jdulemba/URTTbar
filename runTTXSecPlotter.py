@@ -68,7 +68,7 @@ def run_module(**kwargs):
             gen  = flat_bin(40, 0, 500),#[0., 45., 105., 165., 225., 285., 800.],
             reco = flat_bin(40, 0, 500),#[20.0*i for i in range(11)]+[800.],
             ),
-         xtitle  = 'p_{T}(t_{had})'
+         xtitle  = 'p_{T}(t_{had}) [GeV]'
          ),
       Struct(
          var = 'tleppt',
@@ -76,30 +76,30 @@ def run_module(**kwargs):
             gen  = flat_bin(40, 0, 500),#[0., 60., 120., 180., 240., 300., 800.],
             reco = flat_bin(40, 0, 500),#[20.0*i for i in range(11)]+[800.],
             ),
-         xtitle = 'p_{T}(t_{lep})'
+         xtitle = 'p_{T}(t_{lep}) [GeV]'
          ),
       Struct( 
          var = 'tlepy',
          #other_name = 'tleppt',
          binning = Struct(
-            gen  = flat_bin(0.25, 0, 2.5),#
-            reco = flat_bin(0.25, 0, 2.5),#
+            gen  = flat_bin(0.2, 0, 2.5),#
+            reco = flat_bin(0.2, 0, 2.5),#
             ),
          xtitle = 'y(t_{lep})'
          ),
       Struct( 
          var = 'thady',
          binning = Struct(
-            gen  = flat_bin(0.25, 0, 2.5),#
-            reco = flat_bin(0.25, 0, 2.5),#
+            gen  = flat_bin(0.2, 0, 2.5),#
+            reco = flat_bin(0.2, 0, 2.5),#
             ),
          xtitle = 'y(t_{had})'
          ),
       Struct( 
          var = 'tty',
          binning = Struct(
-            gen  = flat_bin(0.25, 0, 2.5),#
-            reco = flat_bin(0.25, 0, 2.5),#
+            gen  = flat_bin(0.2, 0, 2.5),#
+            reco = flat_bin(0.2, 0, 2.5),#
             ),
          xtitle = 'y(tt)'
          ),
@@ -109,15 +109,15 @@ def run_module(**kwargs):
             gen = flat_bin(20, 0, 500),#[0., 45., 105., 165., 225., 285., 800.],
             reco = flat_bin(20, 0, 500),#[20.0*i for i in range(11)]+[800.],
             ),
-         xtitle  = 'p_{T}(tt)'
+         xtitle  = 'p_{T}(tt) [GeV]'
          ),
       Struct(
          var = 'ttM',
          binning = Struct(
-            gen = flat_bin(100, 200, 1500),
-            reco = flat_bin(100, 200, 1500),
+            gen  = flat_bin(100, 250, 1450),
+            reco = flat_bin(100, 250, 1450),
             ),
-         xtitle  = 'M(tt)'
+         xtitle  = 'M(tt) [GeV]'
          ),
    ]
 
@@ -316,7 +316,15 @@ def run_module(**kwargs):
          ('weight' , 5, 'event weight', {'postprocess' : lambda x: urviews.OverflowView(x)}),
          ('nvtx' , 2, '# vertices', {}),
          ('rho' , 5, '#rho', {}),
-         ('lep_pt' , 4, 'p_{T}(l)', {}),
+         ('lep_pt' , 10, 'p_{T}(l) [GeV]', {}),
+         ('lepp_eta' , 8, '#eta(l+)', {}),
+         ('lepm_eta' , 8, '#eta(l-)', {}),
+         ('bjet_pt'  , 4, 'p_{T}(b) [GeV]', {}),
+         ('wjet_pt'  , 4, 'p_{T}(wj) [GeV]', {}),
+         ('bjet_eta' , 4, '#eta(b)', {}),
+         ('wjet_eta' , 4, '#eta(wj)', {}),
+         ('thadmass' , 5, 'M(t_{had})', {}),
+         ('whadmass' , 5, 'M(W_{had})', {}),
          ## ("ttM"    ,20, 'm(t#bar{t})', {}),
          ## ("tty"    , 4, 'y(t#bar{t})', {}),
          ## ("ttpt"   , 5, 'p_{T}(t#bar{t})', {}),
@@ -353,6 +361,7 @@ def run_module(**kwargs):
             'nosys', '%s' % var, 
             leftside=False, rebin=info.binning.reco, xaxis=info.xtitle,
             show_ratio=True, ratio_range=0.5)
+         plotter.add_cms_blurb(13, lumiformat='%0.3f')
          plotter.save(var, pdf=False)
       
          previous = info.binning.reco[0]
@@ -393,6 +402,7 @@ def run_module(**kwargs):
 
       for info in vars_to_unfold:
          var = info.var
+         rootpy.log["/"].info('Making cards for %s' % var)
          plotter.set_subdir(
             os.path.join(
                var,
@@ -411,6 +421,8 @@ def run_module(**kwargs):
          #plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)
          plotter.save_card(var)
 
+   if not opts.nomatrices:
+      print "\n\n MIGRATION MATRICES  \n\n"
       ########################################
       #         MIGRATION MATRICES
       ########################################
@@ -505,6 +517,9 @@ if __name__ == '__main__':
                        )
    parser.add_argument('--nodata', action='store_true',
                        help='do not use data (best used with --lumi)'
+                       )
+   parser.add_argument('--nomatrices', action='store_true',
+                       help='do not produce matrices'
                        )
    opts = parser.parse_args()
    run_module(**dict(opts._get_kwargs()))

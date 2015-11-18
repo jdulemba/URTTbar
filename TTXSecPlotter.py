@@ -1,5 +1,5 @@
 from pdb import set_trace
-from URAnalysis.PlotTools.Plotter import Plotter
+from URAnalysis.PlotTools.Plotter import Plotter, BasePlotter
 import URAnalysis.PlotTools.views as urviews
 import os, glob, sys, logging, ROOT, rootpy, itertools
 from URAnalysis.Utilities.datacard import DataCard
@@ -76,6 +76,10 @@ class TTXSecPlotter(Plotter):
       self.merged_leptons = True
 
    def cut_flow(self):
+      BasePlotter.set_canvas_style(self.canvas)
+      BasePlotter.set_canvas_style(self.pad)
+      lab_f1, _ = self.dual_pad_format()
+      self.label_factor = lab_f1
       views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, self.mc_samples)
       views_to_flow.append(self.ttbar_to_use)
       stack = plotting.HistStack()
@@ -105,7 +109,11 @@ class TTXSecPlotter(Plotter):
       stack.Add(qcd_histo)
       self.keep.append(qcd_histo)
 
+      self.style_histo(stack)
+      self.style_histo(histo, **histo.decorators)
+
       histo.Draw() #set the proper axis labels
+      histo.yaxis.title = 'Events'
       data = self.get_view('data').Get('cut_flow')
       smin = min(stack.min(), data.min(), 1.2)
       smax = max(stack.max(), data.max())
