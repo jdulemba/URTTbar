@@ -3,7 +3,7 @@ import rootpy
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 rootpy.log["/data_views"].setLevel(rootpy.log.WARNING)
 log = rootpy.log["/make_postfit_plots"]
-log.setLevel(rootpy.log.WARNING)
+log.setLevel(rootpy.log.INFO)
 from rootpy.plotting import Hist
 from argparse import ArgumentParser
 import os
@@ -98,6 +98,7 @@ for base, categories in groups.items():
    sample_sums = {}
    plotter.set_subdir(base)
    for cat_name in categories:
+      log.info("making plots for %s" % cat_name)
       data_dir = datacard_file.Get(cat_name)
       cat_dir = postfit_shapes.Get(cat_name)
       data = data_dir.data_obs
@@ -120,24 +121,26 @@ for base, categories in groups.items():
 
       stack = plotter.create_stack(*samples)
       legend = LegendDefinition(position='NE')
-      plotter.overlay( 
-      	[stack, hsum, data],
+      plotter.overlay_and_compare( 
+      	[stack, hsum], data,
       	writeTo=cat_name,
       	legend_def = legend,
         xtitle='discriminant',
-        ytitle='Events'
+        ytitle='Events',
+        method='ratio'
       	)
    samples = [j for i, j in sample_sums.iteritems() if i <> 'data_obs' 
               if i <> 'postfit S+B']
    data = sample_sums['data_obs']
    hsum = sample_sums['postfit S+B']
 
-   plotter.overlay(
-   	[plotter.create_stack(*samples), hsum, data],
+   plotter.overlay_and_compare(
+   	[plotter.create_stack(*samples), hsum], data,
    	writeTo=base,
    	legend_def = LegendDefinition(position='NE'),
     xtitle='discriminant',
-    ytitle='Events'
+    ytitle='Events',
+    method='ratio'
    	)
 	
       
@@ -196,12 +199,14 @@ plotter.overlay_and_compare(
    writeTo='%s_postfit_compare' % args.varname,
    legend_def = LegendDefinition(position='NE'),
    xtitle=xlabel,
-   ytitle='Events'
+   ytitle='Events',
+   method='ratio'
    )
 plotter.overlay(
    [plotter.create_stack(*fit_histos.values()), samples_sum, data],
    writeTo='%s_postfit' % args.varname,
    legend_def = LegendDefinition(position='NE'),
    xtitle=xlabel,
-   ytitle='Events'
+   ytitle='Events',
+   method='ratio'
    )
