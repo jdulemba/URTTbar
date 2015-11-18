@@ -6,6 +6,7 @@
 #include "systematics.h"
 #include "TFile.h"
 #include <string>
+#include "Logger.h"
 
 class TTPermutator;
 
@@ -18,7 +19,12 @@ public:
 private:
   template <class T>
   T* get_from(TFile &file, std::string path, std::string newname) {
-    return (T*) (dynamic_cast<T*>( file.Get( path.c_str() ) )->Clone(newname.c_str()));
+    T* ptr = (T*) ( (T*) ( file.Get( path.c_str() ) )->Clone(newname.c_str()));
+    if(!ptr) {
+      Logger::log().fatal() << "Could not get " << path << " from the file!" << std::endl;
+      throw 42;
+    }
+    return ptr;
   }
 
   bool no_loose_cut_=false;

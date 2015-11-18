@@ -145,6 +145,10 @@ double BTagSFProducer::scale_factor(TTPermutator &permutator, systematics::SysSh
       data_like_prob *= (1 - eff_loose*loose_sf);
     }
   } //for(auto jet : permutator.capped_jets())
-
+  
+  if(mc_prob == 0) {
+    Logger::log().error() << "MC Probability is 0!" << std::endl;
+    throw 49;
+  }
   return (mc_prob != 0.) ? data_like_prob/mc_prob : 0.;
 }
