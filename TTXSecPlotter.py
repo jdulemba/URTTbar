@@ -175,7 +175,9 @@ class TTXSecPlotter(Plotter):
                   sample, 
                   info['value']
                   )
-      #plotter.card.add_bbb_systematics('.*', '.*')
+      self.card.add_bbb_systematics('.*', 'vjets')
+      self.card.add_bbb_systematics('.*', 'single_top')
+      self.card.add_bbb_systematics('.*', 'qcd')
 
    def write_shapes(self, folder, var, variables, var_binning, disc_binning = lambda x, *args: 8, 
                     category_template='Bin%i', slice_along='X'):

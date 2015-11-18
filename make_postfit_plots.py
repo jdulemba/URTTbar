@@ -94,7 +94,7 @@ for category in categories:
       groups[base] = []
    groups[base].append(category)
 
-for base, categories in groups.items()[:1]:
+for base, categories in groups.items():
    sample_sums = {}
    plotter.set_subdir(base)
    for cat_name in categories:
