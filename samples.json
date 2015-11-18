@@ -82,12 +82,12 @@
  {
    "name" : "singlet_tW",
    "DBSName" : "/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 35.6
+   "xsection" : 38.1
  },
  {
    "name" : "singletbar_tW",
    "DBSName" : "/ST_tW_antitop_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 35.6
+   "xsection" : 38.1
  },
  {
    "name" : "singlet_tchannel",
@@ -97,7 +97,7 @@
  {
    "name" : "singlet_schannel",
    "DBSName" : "/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 217
+   "xsection" : 10
  },
  {
    "name" : "ZJets",
