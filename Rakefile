@@ -177,6 +177,22 @@ task :fit, [:var] do |t, args|
   Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.harvested.root"].invoke
 end
 
+task :fit_all do |t|
+  candidates = Dir.glob("plots/#{$jobid}/ttxsec/*/*.txt")
+  vars = []
+  candidates.each do |candidate|
+    txt_var = File.basename(candidate, '.txt')
+    dir_var = File.basename(File.dirname(candidate))
+    if txt_var == dir_var
+      vars << txt_var
+    end
+  end
+  
+  vars.each do |var|
+    Rake::Task["plots/#{$jobid}/ttxsec/#{var}/#{var}.harvested.root"].invoke
+  end
+end
+
 task :toys, [:var] do |t, args|
   Rake::Task["plots/#{$jobid}/ttxsec/#{args.var}/#{args.var}.toy.mlfit.root"].invoke
 end
@@ -226,6 +242,23 @@ end
 
 task :postfit_plots, [:var] do |t, args|
   sh "python make_postfit_plots.py #{args.var}"
+end
+
+task :fit_all do |t|
+  candidates = Dir.glob("plots/#{$jobid}/ttxsec/*/*.txt")
+  vars = []
+  candidates.each do |candidate|
+    txt_var = File.basename(candidate, '.txt')
+    dir_var = File.basename(File.dirname(candidate))
+    if txt_var == dir_var
+      vars << txt_var
+    end
+  end
+  
+  vars.each do |var|
+    Rake::Task["plots/#{$jobid}/ttxsec/#{var}/#{var}.harvested.root"].invoke
+    sh "python make_postfit_plots.py #{var}"
+  end
 end
 
 
