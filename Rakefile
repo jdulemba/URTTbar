@@ -82,7 +82,7 @@ rule /\.model\.root$/ => psub(/\.model\.root$/, '.txt') do |t|
   dir = File.dirname(t.name)
   json_file = File.basename(t.source).sub(/.txt$/, '.json')
   chdir(dir) do
-    sh "text2workspace.py #{File.basename(t.source)} -P URAnalysis.AnalysisTools.statistics.TTBarXsecFitter:ttxsecfitterWJetCategories --PO yieldsJson=#{json_file} -o #{File.basename(t.name)}"
+    sh "text2workspace.py #{File.basename(t.source)} --X-allow-no-background -P URAnalysis.AnalysisTools.statistics.TTBarXsecFitter:ttxsecfitterWJetCategories --PO yieldsJson=#{json_file} -o #{File.basename(t.name)}"
   end
 end
 
@@ -244,7 +244,7 @@ task :postfit_plots, [:var] do |t, args|
   sh "python make_postfit_plots.py #{args.var}"
 end
 
-task :fit_all do |t|
+task :postfit_all do |t|
   candidates = Dir.glob("plots/#{$jobid}/ttxsec/*/*.txt")
   vars = []
   candidates.each do |candidate|
