@@ -27,15 +27,6 @@ void TTBarPlotsBase::Init()
   plot1d.AddHist("lepm_eta", 200, -5, 5., "#eta(l-)", "Events");
   plot1d.AddHist("thadmass", 250, 0, 500, "M(t_{had}) [GeV]", "Events");
   plot1d.AddHist("whadmass", 250, 0, 500, "M(W_{had}) [GeV]", "Events");
-  plot1d.AddHist("thadpt", 400, 0, 800, "p_{T}(t_{had}) [GeV]", "Events");
-  plot1d.AddHist("tleppt", 400, 0, 800, "p_{T}(t_{lep}) [GeV]", "Events");
-  plot1d.AddHist("thadeta", 200, -5, 5, "#eta(t_{had})", "Events");
-  plot1d.AddHist("tlepeta", 200, -5, 5, "#eta(t_{lep})", "Events");
-  plot1d.AddHist("thady", 200, 0, 5, "|y(t_{had})|", "Events");
-  plot1d.AddHist("tlepy", 200, 0, 5, "|y(t_{lep})|", "Events");
-  plot1d.AddHist("ttM", 1000, 0, 2000, "M(t#bar{t}) [GeV]", "Events");
-  plot1d.AddHist("ttpt", 250, 0, 500, "p_{T}(t#bar{t}) [GeV]", "Events");
-  plot1d.AddHist("tty", 200, 0, 10., "|y(t#bar{t})|", "Events");
   plot1d.AddHist("tt_DeltaPhi", 200, -Pi(), Pi(), "#Delta#Phi(t#bar{t})", "Events");
   plot1d.AddHist("whad_pt", 100, 0, 200, "p_{T}(W_{had}) [GeV]", "Events");
   plot1d.AddHist("wj_dphi", 100, -Pi(), Pi(), "#Delta#phi(j_{whad})", "Events");

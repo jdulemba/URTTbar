@@ -123,7 +123,7 @@ public:
     Logger::log().debug() << "-- Setting binning --" << endl;
     setbinning(topptbins_, 0., 800., 5.);
     setbinning(topybins_, 0., 2.5, 0.1);
-    setbinning(ttmbins_, 250., 2000., 5.);
+    setbinning(ttmbins_, 200., 2000., 5.);
     setbinning(ttptbins_, 0., 500., 5.);
     setbinning(ttybins_, 0., 2.5, 0.1);
     setbinning(metbins_, 0., 600, 10.);

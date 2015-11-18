@@ -57,6 +57,17 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 	plot1d.AddHist("Mt_W", 500, 0, 500, "M_{t}(W) [GeV]", "Events");
 	plot2d.AddHist("METunc", 100, 0, 0.5, 100, 0., .5, "#sigma(MET_{x})/MET_{x}", "#sigma(MET_{y})/MET_{y}");
 	plot1d.AddHist("massDiscr", ta, tamin, tamax, "#lambda_{m}", "p_{T}(t_{had}) [GeV]");
+
+  plot1d.AddHist("thadpt" , topptbins, "p_{T}(t_{had}) [GeV]", "Events");
+  plot1d.AddHist("tleppt" , topptbins, "p_{T}(t_{lep}) [GeV]", "Events");
+  plot1d.AddHist("thadeta", 200, -5, 5   , "#eta(t_{had})", "Events");
+  plot1d.AddHist("tlepeta", 200, -5, 5   , "#eta(t_{lep})", "Events");
+  plot1d.AddHist("thady"  , topybins, "|y(t_{had})|", "Events");
+  plot1d.AddHist("tlepy"  , topybins, "|y(t_{lep})|", "Events");
+  plot1d.AddHist("ttM"    , ttmbins, "M(t#bar{t}) [GeV]", "Events");
+  plot1d.AddHist("ttpt"   , ttptbins, "p_{T}(t#bar{t}) [GeV]", "Events");
+  plot1d.AddHist("tty"    , ttybins, "|y(t#bar{t})|", "Events");
+
 	for(int jn : jetbins_)
 	{
 		stringstream jb;
