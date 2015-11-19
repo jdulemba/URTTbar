@@ -261,6 +261,26 @@ task :postfit_all do |t|
   end
 end
 
+task :prefit_plots, [:var] do |t, args|
+  sh "python make_prefit_plots.py #{args.var}"
+end
+
+task :prefit_all do |t|
+  candidates = Dir.glob("plots/#{$jobid}/ttxsec/*/*.txt")
+  vars = []
+  candidates.each do |candidate|
+    txt_var = File.basename(candidate, '.txt')
+    dir_var = File.basename(File.dirname(candidate))
+    if txt_var == dir_var
+      vars << txt_var
+    end
+  end
+  
+  vars.each do |var|
+    sh "python make_prefit_plots.py #{var}"
+  end
+end
+
 
 #
 #   BIN OPTIMIZATION
