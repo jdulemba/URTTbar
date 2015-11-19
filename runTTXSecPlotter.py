@@ -85,7 +85,7 @@ def run_module(**kwargs):
             gen  = flat_bin(0.2, 0, 2.5),#
             reco = flat_bin(0.2, 0, 2.5),#
             ),
-         xtitle = 'y(t_{lep})'
+         xtitle = '|y(t_{lep})|'
          ),
       Struct( 
          var = 'thady',
@@ -93,7 +93,7 @@ def run_module(**kwargs):
             gen  = flat_bin(0.2, 0, 2.5),#
             reco = flat_bin(0.2, 0, 2.5),#
             ),
-         xtitle = 'y(t_{had})'
+         xtitle = '|y(t_{had})|'
          ),
       Struct( 
          var = 'tty',
@@ -101,7 +101,7 @@ def run_module(**kwargs):
             gen  = flat_bin(0.2, 0, 2.5),#
             reco = flat_bin(0.2, 0, 2.5),#
             ),
-         xtitle = 'y(tt)'
+         xtitle = '|y(tt)|'
          ),
       Struct(
          var = 'ttpt',
@@ -410,12 +410,13 @@ def run_module(**kwargs):
                info.dir_postfix if hasattr(info, 'dir_postfix') else ''
                )
             )
-         for category_name, hist_names in jet_categories:
+         for category_name, njets in jet_categories:
             plotter.write_shapes(
-               'nosys', var, ['%s_%s_%s' % (discriminant, i, var) for i in hist_names], 
-               var_binning=info.binning.reco,
-               disc_binning = lambda x, *args: full_discr_binning[0],
-               category_template='Bin%i_'+category_name
+               'nosys', var, discriminant, njets, var_binning=info.binning.reco, 
+               disc_binning = lambda x, *args: full_discr_binning[0], 
+               category_template='Bin%i_'+category_name,
+               special_cases = {'qcd' : plotter.make_single_shape, 
+                                'vjets' : plotter.make_single_shape}
                ) 
          plotter.add_systematics()
          #plotter.card.add_systematic('lumi', 'lnN', '.*', '[^t]+.*', 1.05)

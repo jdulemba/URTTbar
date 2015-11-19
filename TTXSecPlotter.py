@@ -175,13 +175,47 @@ class TTXSecPlotter(Plotter):
                   sample, 
                   info['value']
                   )
-      self.card.add_bbb_systematics('.*', 'vjets')
-      self.card.add_bbb_systematics('.*', 'single_top')
-      self.card.add_bbb_systematics('.*', 'qcd')
+      ## self.card.add_bbb_systematics('.*', 'vjets')
+      ## self.card.add_bbb_systematics('.*', 'single_top')
+      ## self.card.add_bbb_systematics('.*', 'qcd')
 
-   def write_shapes(self, folder, var, variables, var_binning, disc_binning = lambda x, *args: 8, 
-                    category_template='Bin%i', slice_along='X'):
+   def make_single_shape(self, card_name, path, h2d, slice_along='X'):
+      '''makes a single template as the sum of all possible categories and uses it
+      instead of the one given in input, provinding the proper normalization'''
+      #infer discriminant binning from h2d
+      nbins_disc = h2d.nbins(0 if slice_along == 'X' else 1)
+      nbins_var  = h2d.nbins(1 if slice_along == 'X' else 0)
+      axis = getattr(h2d, 'xaxis' if slice_along == 'X' else 'yaxis')
+      edges = [axis.get_bin_low_edge(i) for i in range(1, nbins_disc+2)]
+
+      #get the one and only histogram, rebinned as h2d
+      card_histogram = self.rebin_view(
+         views.SumView(
+            *[self.get_view(i) for i in self.card_names[card_name]]
+             ),
+         edges
+         ).Get(path)
+      shape_norm = card_histogram.Integral()
+
+      #now, clone h2d and fill each row/column with the same shape, rescaled accordingly
+      ret = h2d.Clone()
+      ret.reset()
+      for varbin_idx in range(1,nbins_var+1):
+         shape = card_histogram.Clone()
+         #now, get h2 slice and get normalization
+         slice_norm = slice_hist(h2d, varbin_idx, axis=slice_along).Integral()
+         if slice_norm <= 0.: continue
+         shape.scale(slice_norm/shape_norm)
+         for discbin_idx in range(1, nbins_disc+1):
+            proxy = ret[discbin_idx, varbin_idx] if slice_along == 'X' else ret[varbin_idx, discbin_idx]
+            proxy.value = shape[discbin_idx].value
+            proxy.error = shape[discbin_idx].error
+      return ret
+      
+   def write_shapes(self, folder, var, discriminant, njets, var_binning, disc_binning = lambda x, *args: 8, 
+                    category_template='Bin%i', slice_along='X', special_cases={}):
       if not self.card: self.card = DataCard('tt_*')
+      variables = ['_'.join([discriminant, i, var]) for i in njets]
       #keep it there for systematics
       card_views = {}
       binning = [[1],var_binning] if slice_along.lower() == 'x' else [var_binning,[1]]
@@ -201,9 +235,16 @@ class TTXSecPlotter(Plotter):
          card_views['data_obs'] = self.rebin_view(self.get_view('data'), binning)
 
       paths = [os.path.join(folder, i) for i in variables]
+      single_path = os.path.join(folder, discriminant)
       card_hists2D = {}
       for name, view in card_views.iteritems():
-         card_hists2D[name] = sum(view.Get(i) for i in paths)
+         if name not in special_cases:
+            card_hists2D[name] = sum(view.Get(i) for i in paths)
+         else:
+            h2d = sum(view.Get(i) for i in paths) #get h2d for normalization
+            card_hists2D[name] = special_cases[name](
+               name, single_path, h2d, slice_along
+               )
       sys_hists2D = {}
 
       category_axis = 'GetNbinsX' if slice_along == 'Y' else 'GetNbinsY'
@@ -240,7 +281,7 @@ class TTXSecPlotter(Plotter):
             )
          discriminator_binning = disc_binning(idx, *card_hists1D.items())
          for name, hist in card_hists1D.iteritems():
-            category[name] = hist.Rebin(discriminator_binning)
+            category[name] = DataCard.remove_negative_bins( hist.Rebin(discriminator_binning) )            
             if data_is_fake and name == 'data_obs':
                integral = category[name].Integral()
                if integral != 0:
@@ -260,6 +301,17 @@ class TTXSecPlotter(Plotter):
                      paths_dw = [info['-'](i) for i in paths]
                      h2Dup = sum(card_views[name].Get(i) for i in paths_up)
                      h2Ddw = sum(card_views[name].Get(i) for i in paths_dw)
+                     if name in special_cases:
+                        single_path_up = info['+'](single_path)
+                        single_path_dw = info['-'](single_path)
+                        h2Dup = special_cases[name](
+                           name, single_path_up,
+                           h2Dup, slice_along
+                           )
+                        h2Ddw = special_cases[name](
+                           name, single_path_dw,
+                           h2Ddw, slice_along
+                           )
                      sys_hists2D[sys_name][name] = {
                         '+' : h2Dup,
                         '-' : h2Ddw,
@@ -268,10 +320,14 @@ class TTXSecPlotter(Plotter):
                      h2Dup = sys_hists2D[sys_name][name]['+']
                      h2Ddw = sys_hists2D[sys_name][name]['-']
 
-                  hup = slice_hist( h2Dup, idx+1, 
-                     axis=slice_along).Rebin(discriminator_binning)
-                  hdw = slice_hist( h2Ddw, idx+1, 
-                     axis=slice_along).Rebin(discriminator_binning)
+                  hup = DataCard.remove_negative_bins(
+                     slice_hist( h2Dup, idx+1, 
+                                 axis=slice_along).Rebin(discriminator_binning)
+                     )
+                  hdw = DataCard.remove_negative_bins(
+                     slice_hist( h2Ddw, idx+1, 
+                                 axis=slice_along).Rebin(discriminator_binning)
+                     )
                   if 'shape_only' in info and info['shape_only']:
                      hup_integral = hup.Integral()
                      hdw_integral = hdw.Integral()
