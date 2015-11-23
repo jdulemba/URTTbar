@@ -82,17 +82,14 @@ class TTXSecPlotter(Plotter):
       self.label_factor = lab_f1
       views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, self.mc_samples)
       views_to_flow.append(self.ttbar_to_use)
-      stack = plotting.HistStack()
-      self.keep.append(stack)
       qcd_samples = [i for i in self.views if 'QCD' in i]
+      samples = []
 
       for vtf in views_to_flow:
          histo = self.get_view(vtf).Get('cut_flow')
          print vtf, len(histo)
          self.keep.append(histo)
-         stack.Add(
-            histo
-            )
+         samples.append(histo)
 
       #QCD may not have all the bins filled, needs special care
       qcd_histo = histo.Clone()
@@ -106,8 +103,13 @@ class TTXSecPlotter(Plotter):
          for sbin, qbin in zip(qcd_histo, qcd_flow):
             sbin.value += qbin.value
             sbin.error = quad.quad(sbin.error, qbin.error)
-      stack.Add(qcd_histo)
+      samples.append(qcd_histo)
       self.keep.append(qcd_histo)
+      samples.sort(key=lambda x: x[-2].value)
+      stack = plotting.HistStack()
+      self.keep.append(stack)
+      for i in samples:         
+         stack.Add(i)
 
       self.style_histo(stack)
       self.style_histo(histo, **histo.decorators)

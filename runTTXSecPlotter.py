@@ -323,8 +323,8 @@ def run_module(**kwargs):
          ('wjet_pt'  , 4, 'p_{T}(wj) [GeV]', {}),
          ('bjet_eta' , 4, '#eta(b)', {}),
          ('wjet_eta' , 4, '#eta(wj)', {}),
-         ('thadmass' , 5, 'M(t_{had})', {}),
-         ('whadmass' , 5, 'M(W_{had})', {}),
+         ('thadmass' ,10, 'M(t_{had})', {'leftside' : True}),
+         ('whadmass' ,10, 'M(W_{had})', {}),
          ## ("ttM"    ,20, 'm(t#bar{t})', {}),
          ## ("tty"    , 4, 'y(t#bar{t})', {}),
          ## ("ttpt"   , 5, 'p_{T}(t#bar{t})', {}),
@@ -346,8 +346,11 @@ def run_module(**kwargs):
       plotter.save('%s_bkg_shape' % (discriminant), pdf=False)
 
       for var, rebin, xaxis, kwargs in to_plot:
+         leftside=kwargs.get('leftside', False)
+         if 'leftside' in kwargs:
+            del kwargs['leftside']
          plotter.plot_mc_vs_data(
-            'nosys', var, leftside=False, rebin=rebin, xaxis=xaxis, show_ratio=True,
+            'nosys', var, leftside=leftside, rebin=rebin, xaxis=xaxis, show_ratio=True,
             ratio_range=0.5, **kwargs)
          #set_trace()
          #plotter.reset(); plotter.plot_mc_vs_data('nosys', var, leftside=False, rebin=rebin, xaxis=xaxis, show_ratio=True,ratio_range=0.5)
