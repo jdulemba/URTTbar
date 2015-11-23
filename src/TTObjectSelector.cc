@@ -165,7 +165,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   //Trigger!
   bool isMC = (event.run == 1);
   bool electron_trig = (isMC) ? (event.trigger().HLT_Ele27_WP85_Gsf() == 1) : (event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1);
-  bool muon_trig = (isMC) ? (event.trigger().HLT_IsoMu27() == 1) : (event.trigger().HLT_IsoMu20() == 1);
+  bool muon_trig = (isMC) ? (event.trigger().HLT_IsoMu27() == 1) : (event.trigger().HLT_IsoMu20() == 1 || event.trigger().HLT_IsoTkMu20());
   if(!(electron_trig || muon_trig)) return false;
   if(tracker_) tracker_->track("trigger");
 
