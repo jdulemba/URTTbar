@@ -25,7 +25,7 @@ void TTBarPlotsBase::Init()
   plot1d.AddHist("nu_eta", 200, -5, 5., "#eta(#nu)", "Events");
   plot1d.AddHist("lepp_eta", 200, -5, 5., "#eta(l+)", "Events");
   plot1d.AddHist("lepm_eta", 200, -5, 5., "#eta(l-)", "Events");
-  plot1d.AddHist("thadmass", 250, 0, 500, "M(t_{had}) [GeV]", "Events");
+  plot1d.AddHist("thadmass", 250, 0, 1000, "M(t_{had}) [GeV]", "Events");
   plot1d.AddHist("whadmass", 250, 0, 500, "M(W_{had}) [GeV]", "Events");
   plot1d.AddHist("tt_DeltaPhi", 200, -Pi(), Pi(), "#Delta#Phi(t#bar{t})", "Events");
   plot1d.AddHist("whad_pt", 100, 0, 200, "p_{T}(W_{had}) [GeV]", "Events");
