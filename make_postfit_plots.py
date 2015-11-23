@@ -43,6 +43,14 @@ binning_file = prettyjson.loads(
    open('%s/%s.binning.json' % (input_dir, args.varname)).read()
 )
 
+def ordering(histo):
+   multiplier = 1.
+   if histo.title.startswith('tt_wrong'):
+      multiplier = 20.
+   elif histo.title.startswith('tt_right'):
+      multiplier = 100000.
+   return multiplier*histo.Integral()
+
 postfit_shapes = mlfit_file.shapes_fit_s
 categories = [i.name for i in postfit_shapes.keys()]
 regex = re.compile('^(?P<base_category>[A-Za-z0-9]+)_(?P<njets>\d+)Jets$')
@@ -118,8 +126,9 @@ for base, categories in groups.items():
             sample_sums[i] = j.Clone()
          else:
             sample_sums[i] += j
+      samples.sort(key=ordering)
 
-      stack = plotter.create_stack(*samples)
+      stack = plotter.create_stack(*samples, sort=False)
       legend = LegendDefinition(position='NE')
       plotter.overlay_and_compare( 
       	[stack, hsum], data,
@@ -131,11 +140,12 @@ for base, categories in groups.items():
       	)
    samples = [j for i, j in sample_sums.iteritems() if i <> 'data_obs' 
               if i <> 'postfit S+B']
+   samples.sort(key=ordering)
    data = sample_sums['data_obs']
    hsum = sample_sums['postfit S+B']
 
    plotter.overlay_and_compare(
-   	[plotter.create_stack(*samples), hsum], data,
+   	[plotter.create_stack(*samples, sort=False), hsum], data,
    	writeTo=base,
    	legend_def = LegendDefinition(position='NE'),
     xtitle='discriminant',
@@ -192,9 +202,13 @@ for categories in groups.itervalues():
 
 samples_sum = sum(i for i in fit_histos.itervalues())
 samples_sum.title = 'Total signal+background '
+
+samples_histos = fit_histos.values()
+samples_histos.sort(key=ordering)
+
 plotter.set_subdir('')
 plotter.overlay_and_compare(
-   [plotter.create_stack(*fit_histos.values()), samples_sum],
+   [plotter.create_stack(*samples_histos, sort=False), samples_sum],
    data,
    writeTo='%s_postfit_compare' % args.varname,
    legend_def = LegendDefinition(position='NE'),
@@ -203,7 +217,7 @@ plotter.overlay_and_compare(
    method='ratio'
    )
 plotter.overlay(
-   [plotter.create_stack(*fit_histos.values()), samples_sum, data],
+   [plotter.create_stack(*samples_histos, sort=False), samples_sum, data],
    writeTo='%s_postfit' % args.varname,
    legend_def = LegendDefinition(position='NE'),
    xtitle=xlabel,

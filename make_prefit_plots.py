@@ -50,6 +50,16 @@ sig_yields = prettyjson.loads(
 categories = datacard.bins
 signals = set(datacard.signals)
 regex = re.compile('^(?P<base_category>[A-Za-z0-9]+)_(?P<njets>\d+)Jets$')
+
+#this ordering is done by hand, therefore it should not break anything if it fails
+def ordering(histo):
+   multiplier = 1.
+   if histo.title == 'tt_wrong':
+      multiplier = 20.
+   elif histo.title == 'tt_right':
+      multiplier = 100000.
+   return multiplier*histo.Integral()
+
 plotter = BasePlotter(
    '%s/prefit' % input_dir,
    defaults = {'save' : {'png' : True, 'pdf' : False}},
@@ -123,7 +133,9 @@ for base, categories in groups.items():
             sample_sums[sample] += histo
          samples.append(histo)
 
-      stack = plotter.create_stack(*samples)
+      samples.sort(key=ordering)      
+
+      stack = plotter.create_stack(*samples, sort=False)
       legend = LegendDefinition(position='NE')
       plotter.overlay_and_compare( 
       	[stack], data,
@@ -136,9 +148,10 @@ for base, categories in groups.items():
    samples = [j for i, j in sample_sums.iteritems() if i <> 'data_obs' 
               if i <> 'postfit S+B']
    data = sample_sums['data_obs']
+   samples.sort(key=ordering)
 
    plotter.overlay_and_compare(
-   	[plotter.create_stack(*samples)], data,
+   	[plotter.create_stack(*samples, sort=False)], data,
    	writeTo=base,
    	legend_def = LegendDefinition(position='NE'),
     xtitle='discriminant',
