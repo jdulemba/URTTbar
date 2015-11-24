@@ -18,6 +18,7 @@
 #include "systematics.h"
 #include "MCWeightProducer.h"
 #include "BTagSFProducer.h"
+#include "LeptonSF.h"
 //#include <map>
 
 using namespace std;
@@ -60,7 +61,7 @@ private:
 	vector<systematics::SysShifts> systematics_;
 
 	//Scale factors
-	TH1D *electron_sf_, *muon_sf_;
+	LeptonSF electron_sf_, muon_sf_;
   
 public:
   ttxs(const std::string output_filename):
@@ -72,7 +73,9 @@ public:
     solvers_(),
     mc_weights_(),
     btag_sf_(permutator_),
-    evt_weight_(1.) {
+    evt_weight_(1.),
+    electron_sf_("electron_sf", false),
+    muon_sf_("muon_sf") {
     Logger::log().debug() << "ttxs::ttxs" << endl;
 
     //set tracker
@@ -109,14 +112,6 @@ public:
     if(values["general.pseudotop"].as<int>() == 0) genp_selector_ = TTGenParticleSelector(); //FIXME allow for herwig setting
     else genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::PSEUDOTOP);
 
-    DataFile sf_filename(values["general.lepton_sf"].as<std::string>());
-    Logger::log().debug() << "lepton sf file: " << sf_filename.path() << endl;
-    TFile* sf_file = TFile::Open(sf_filename.path().c_str());
-    TH1::AddDirectory(false);
-    electron_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_ElTOT_Pt"))->Clone("electron_sf");
-    muon_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_MuTOT_Pt"))->Clone("muon_sf");
-    TH1::AddDirectory(true);
-
     if(!isData_) mc_weights_.init(sample);
     
     //Set binning
@@ -132,8 +127,6 @@ public:
   };
   
   ~ttxs() {
-    delete electron_sf_;
-    delete muon_sf_;
   }
 
   //This method is called once per job at the beginning of the analysis
@@ -248,9 +241,9 @@ public:
     //find mc weight
     if(!isData_) { 
       if(object_selector_.tight_muons().size() == 1)
-        evt_weight_ *= muon_sf_->GetBinContent(muon_sf_->FindFixBin(Min(best_perm.L()->Pt(), 95.)));
+        evt_weight_ *= muon_sf_.get_sf(best_perm.L()->Pt(), best_perm.L()->Eta());
       if(object_selector_.medium_electrons().size() == 1)
-        evt_weight_ *= electron_sf_->GetBinContent(electron_sf_->FindFixBin(Min(best_perm.L()->Pt(), 95.)));
+        evt_weight_ *= electron_sf_.get_sf(best_perm.L()->Pt(), best_perm.L()->Eta());
 		}
 
     //Fill appropriate plots
@@ -355,7 +348,6 @@ public:
     URParser &parser = URParser::instance();
     parser.addCfgParameter<int>("general", "skew_ttpt_distribution", "Should I skew the pt distribution? (0/1)");
     parser.addCfgParameter<string>("general", "ttsolver_input", "ttsolver input file");
-    parser.addCfgParameter<string>("general", "lepton_sf", "lepton SF input file");
     parser.addCfgParameter<int>("general", "pseudotop", "should I use pseudo-top? (0/1)");
 
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");

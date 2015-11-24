@@ -18,6 +18,7 @@
 #include "RObject.h"
 #include "systematics.h"
 #include "MCWeightProducer.h"
+#include "LeptonSF.h"
 //#include <map>
 
 using namespace std;
@@ -50,7 +51,7 @@ private:
 	vector<systematics::SysShifts> systematics_;
 
 	//Scale factors
-	TH1D *electron_sf_, *muon_sf_;
+  LeptonSF electron_sf_, muon_sf_;
   
 public:
   permProbComputer(const std::string output_filename):
@@ -61,8 +62,11 @@ public:
     matcher_(),
     solver_(),
     evt_weight_(1.),
-    mc_weights_() {
+    mc_weights_(),
+    electron_sf_("electron_sf", false),
+    muon_sf_("muon_sf"){
     
+    //tracker_.verbose(true);    
     //set tracker
     tracker_.use_weight(&evt_weight_);
     object_selector_.set_tracker(&tracker_);
@@ -92,20 +96,10 @@ public:
 
     solver_.Init("", false, false, false);
 
-    DataFile sf_filename(values["general.lepton_sf"].as<std::string>());
-    Logger::log().debug() << "lepton sf file: " << sf_filename.path() << endl;
-    TFile* sf_file = TFile::Open(sf_filename.path().c_str());
-    TH1::AddDirectory(false);
-    electron_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_ElTOT_Pt"))->Clone("electron_sf");
-    muon_sf_ = (TH1D*) ((TH1D*)sf_file->Get("Scale_MuTOT_Pt"))->Clone("muon_sf");
-    TH1::AddDirectory(true);
-
     mc_weights_.init(sample);
   };
   
   ~permProbComputer() {
-    delete electron_sf_;
-    delete muon_sf_;
   }
 
   //This method is called once per job at the beginning of the analysis
@@ -160,15 +154,18 @@ public:
  
     //select reco objects
     if( !object_selector_.select(event, shift) ) return;
+    tracker_.track("obj selection");
     bool preselection_pass = permutator_.preselection(
       object_selector_.clean_jets(), object_selector_.lepton(), object_selector_.met()
       );
+    tracker_.track("permutation pre-selection done (not applied)");
 
     //find mc weight
     if(object_selector_.tight_muons().size() == 1)
-      evt_weight_ *= muon_sf_->GetBinContent(muon_sf_->FindFixBin(Min(object_selector_.lepton()->Pt(), 95.)));
+      evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
     if(object_selector_.medium_electrons().size() == 1)
-      evt_weight_ *= electron_sf_->GetBinContent(electron_sf_->FindFixBin(Min(object_selector_.lepton()->Pt(), 95.)));
+      evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+    tracker_.track("MC weights");
 
     //get needed histo map
     auto plots = histos_.find(shift)->second;
@@ -202,7 +199,9 @@ public:
         plots[TTNaming::RIGHT]["btag_tight_ljet_all" ].fill(jet->Pt(), jet->Eta(), evt_weight_);
       }
     }
+    tracker_.track("BTag plots");
     if( !preselection_pass ) return;
+    tracker_.track("perm preselection");
 
     //Gen matching
     Permutation matched_perm;
@@ -215,6 +214,7 @@ public:
         );
     }
     matched_perm.SetMET(object_selector_.met());
+    tracker_.track("gen matching");
 
     //get selected jets
     auto jets = object_selector_.clean_jets();
@@ -273,6 +273,7 @@ public:
     }
     plots[TTNaming::WRONG]["btag_last_idx"].fill(wrong_last, evt_weight_);
     plots[TTNaming::RIGHT]["btag_last_idx"].fill(right_last, evt_weight_);
+    tracker_.track("btag and pt idx plots");
     
     //Find best permutation
     bool go_on = true;
@@ -291,6 +292,7 @@ public:
         plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
       }
     }
+    tracker_.track("end");
   }
 
   //This method is called once every file, contains the event loop
@@ -306,7 +308,6 @@ public:
 		int skip  = values["skip"].as<int>();
     Logger::log().debug() << "--DONE--" << endl;
 
-		tracker_.deactivate();
     while(event.next()) {
 			if(limit > 0 && evt_idx > limit) {
 				return;
@@ -315,13 +316,22 @@ public:
 			if(skip > 0 && evt_idx < skip) {
 				continue;
 			}
-			//if(evt_idx % 100 == 0 || (evt_idx > 6900 && evt_idx < 7000)) Logger::log().debug() << "Beginning event " << evt_idx << endl;
+			if(evt_idx % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx << endl;
+      tracker_.track("start");
 
 			//long and time consuming
+      
 			if(isTTbar_){
-				genp_selector_.select(event);			
+        bool selection = 	genp_selector_.select(event);			
+        tracker_.track("gen selection");        
+        if(!selection) {
+          Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<
+            "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+          continue;
+        }
 			}
 
+      tracker_.deactivate();    
 			for(auto shift : systematics_){
         evt_weight_ = mc_weights_.evt_weight(event, shift);
 				if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
@@ -348,7 +358,6 @@ public:
   static void setOptions() {
     URParser &parser = URParser::instance();
     parser.addCfgParameter<int>("general", "skew_ttpt_distribution", "Should I skew the pt distribution? (0/1)");
-    parser.addCfgParameter<string>("general", "lepton_sf", "lepton SF input file");
     parser.addCfgParameter<int>("general", "pseudotop", "should I use pseudo-top? (0/1)");
 
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
