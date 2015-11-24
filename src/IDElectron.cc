@@ -2,14 +2,11 @@
 #include <TMath.h>
 #include <iostream>
 #include "Logger.h"
-
+#include <cmath>
 using namespace TMath;
 
 const std::map<std::string, IDElectron::IDS> IDElectron::id_names = {
-	{"MEDIUM_12"  , IDElectron::IDS::MEDIUM_12  },
-  {"LOOSE_12"   , IDElectron::IDS::LOOSE_12   },
-  {"MEDIUM_12Db", IDElectron::IDS::MEDIUM_12Db},
-  {"LOOSE_12Db" , IDElectron::IDS::LOOSE_12Db },
+  {"TIGHT_15"   , IDElectron::IDS::TIGHT_15   },
   {"MEDIUM_15"  , IDElectron::IDS::MEDIUM_15  },
   {"LOOSE_15"   , IDElectron::IDS::LOOSE_15   }
 };
@@ -24,32 +21,19 @@ IDElectron::IDS IDElectron::id(const std::string label) {
   }
 }
 
-double IDElectron::CorPFIsolation2012(double eta) const
-{
-	double effarea = 0.;
-	effarea = 0.14;
-	if(eta < 1.){ effarea = 0.13;}
-	else if(eta < 1.479){ effarea = 0.14;}
-	else if(eta < 2.){ effarea = 0.07;}
-	else if(eta < 2.2){ effarea = 0.09;}
-	else if(eta < 2.3){ effarea = 0.11;}
-	else if(eta < 2.4){ effarea = 0.11;}
-
-	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation" << endl;}
-	effarea *= Max(rho_, 0.);
-	//return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
-	return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
-}
-
-double IDElectron::CorPFIsolation2015() const
+double IDElectron::PFIsolationRho2015() const
 {
 	double eta = Abs(TVector3(x(), y(), z()).Eta());
 	double effarea = 0.;
-	if(eta < 0.8){ effarea = 0.1013;}
-	else if(eta < 1.3){ effarea = 0.0988;}
-	else if(eta < 2.0){ effarea = 0.0572;}
-	else if(eta < 2.2){ effarea = 0.0842;}
-	else if(eta < 2.5){ effarea = 0.1530;}
+  // The following values refer to EA for cone 0.3 and fixedGridRhoFastjetAll. 
+  // They are valid for electrons only, different EA are available for muons.
+  if(abs(eta)>0.0 && abs(eta)<=1.0) effarea = 0.1752;
+  if(abs(eta)>1.0 && abs(eta)<=1.479) effarea = 0.1862;
+  if(abs(eta)>1.479 && abs(eta)<=2.0) effarea = 0.1411;
+  if(abs(eta)>2.0 && abs(eta)<=2.2) effarea = 0.1534;
+  if(abs(eta)>2.2 && abs(eta)<=2.3) effarea = 0.1903;
+  if(abs(eta)>2.3 && abs(eta)<=2.4) effarea = 0.2243;
+  if(abs(eta)>2.4 && abs(eta)<=2.5) effarea = 0.2687;
 
 	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation" << endl;}
 	effarea *= Max(rho_, 0.);
@@ -57,145 +41,68 @@ double IDElectron::CorPFIsolation2015() const
 	return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
 }
 
-double IDElectron::PFIsoDb() const {
-	return (chargedIso() + Max(neutralIso() + photonIso() - 0.5*puIso(), 0.));
+//to be updated by pre-computed values
+bool IDElectron::LooseID25ns() const {
+  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0103: 0.0301)) return false; //to be updated to full5x5SigmaIEtaIEta
+  if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0105: 0.00814)) return false;
+  if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.115:  0.182)) return false;
+  if(hadronicOverEM() >= ((isEB()) ? 0.104:  0.0897)) return false;
+  if(PFIsolationRho2015() >= ((isEB()) ? 0.0893: 0.121)) return false; //to be updated
+  //relIsoWithEA
+  float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
+  if(ooEmooP    >= ((isEB()) ? 0.102 : 0.126)) return false;
+  if(Abs(dz())  >= ((isEB()) ? 0.0261: 0.118)) return false; //to be checked, needs vtx?
+  if(Abs(dB()) >= ((isEB()) ? 0.41  : 0.822)) return false; //to be checked, needs vtx?
+  if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
+  if(!passConversionVeto()) return false;
+  return true;
+}
+
+bool IDElectron::MediumID25ns() const {
+  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101: 0.0283 )) return false; //to be updated to full5x5SigmaIEtaIEta
+  if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0103: 0.00733)) return false;
+  if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336: 0.114  )) return false;
+  if(hadronicOverEM() >= ((isEB()) ? 0.0876: 0.0678 )) return false;
+  if(PFIsolationRho2015() >= ((isEB()) ? 0.0766: 0.0678 )) return false; //to be updated
+  //relIsoWithEA
+  float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
+  if(ooEmooP    >= ((isEB()) ? 0.0174: 0.0898)) return false;
+  if(Abs(dz())  >= ((isEB()) ? 0.0118: 0.0739)) return false; //to be checked, needs vtx?
+  if(Abs(dB()) >= ((isEB()) ? 0.373 : 0.602 )) return false; //to be checked, needs vtx?
+  if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
+  if(!passConversionVeto()) return false;
+  return true;
+}
+
+bool IDElectron::TightID25ns() const {
+  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101 : 0.0279 )) return false; //to be updated to full5x5SigmaIEtaIEta
+  if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.00926: 0.00724)) return false;
+  if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336 : 0.0918 )) return false;
+  if(hadronicOverEM() >= ((isEB()) ? 0.0597 : 0.0615 )) return false;
+  if(PFIsolationRho2015() >= ((isEB()) ? 0.0354 : 0.0646 )) return false; //to be updated
+  //relIsoWithEA
+  float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
+  if(ooEmooP    >= ((isEB()) ? 0.012 : 0.00999)) return false;
+  if(Abs(dz())  >= ((isEB()) ? 0.0111: 0.0351 )) return false; //to be checked, needs vtx?
+  if(Abs(dB()) >= ((isEB()) ? 0.0466: 0.417  )) return false; //to be checked, needs vtx?
+  if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
+  if(!passConversionVeto()) return false;
+  return true;
 }
 
 bool IDElectron::ID(IDS idtyp)
 {
-	double sceta = Abs(TVector3(x(), y(), z()).Eta());
+  double sceta = Abs(TVector3(x(), y(), z()).Eta());
 	if(sceta > 2.5) return(false);
-	if(sceta < 1.566 && sceta > 1.4442) return(false);
-
-	if(idtyp == MEDIUM_12 || idtyp == MEDIUM_12Db)
-	{
-		if(isEB())
-		{
-			if(Abs(DEtaSCTrk()) > 0.004){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.06){return(false);}
-			if(sigmaIEtaIEta() > 0.01){return(false);}
-			if(hadronicOverEM() > 0.12){return(false);}
-			if(Abs(dB()) > 0.02){return(false);}
-			if(Abs(dz()) > 0.1){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.05){return(false);}
-			if(idtyp == MEDIUM_12Db && PFIsoDb()/Pt() > 0.15){return(false);}
-			if(idtyp == MEDIUM_12 && CorPFIsolation2012(sceta) > 0.15){return(false);}
-			if(!passConversionVeto()){return(false);}
-			return(true);
-		}
-		if(isEE())
-		{
-			if(Abs(DEtaSCTrk()) > 0.007){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.03){return(false);}
-			if(sigmaIEtaIEta() > 0.03){return(false);}
-			if(hadronicOverEM() > 0.10){return(false);}
-			if(Abs(dB()) > 0.02){return(false);}
-			if(Abs(dz()) > 0.1){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.05){return(false);}
-			if(idtyp == MEDIUM_12Db && PFIsoDb()/Pt()> 0.15){return(false);}
-			if(idtyp == MEDIUM_12 && CorPFIsolation2012(sceta) > 0.15){return(false);}
-			if(!passConversionVeto()){return(false);}
-			return(true);
-		}
-	}
-	else if(idtyp == LOOSE_12 || idtyp == LOOSE_12Db)
-	{
-		if(isEB())
-		{
-			if(Abs(DEtaSCTrk()) > 0.007){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.15){return(false);}
-			if(sigmaIEtaIEta() > 0.01){return(false);}
-			if(hadronicOverEM() > 0.12){return(false);}
-			if(Abs(dB()) > 0.02){return(false);}
-			if(Abs(dz()) > 0.2){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.05){return(false);}
-			if(idtyp == LOOSE_12Db && PFIsoDb()/Pt()> 0.15){return(false);}
-			if(idtyp == LOOSE_12 && CorPFIsolation2012(sceta) > 0.15){return(false);}
-			if(!passConversionVeto()){return(false);}
-			return(true);
-		}
-		if(isEE())
-		{
-			if(Abs(DEtaSCTrk()) > 0.009){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.1){return(false);}
-			if(sigmaIEtaIEta() > 0.03){return(false);}
-			if(hadronicOverEM() > 0.10){return(false);}
-			if(Abs(dB()) > 0.02){return(false);}
-			if(Abs(dz()) > 0.2){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.05){return(false);}
-			if(idtyp == LOOSE_12Db && PFIsoDb()/Pt()> 0.15){return(false);}
-			if(idtyp == LOOSE_12 && CorPFIsolation2012(sceta) > 0.15){return(false);}
-			if(!passConversionVeto()){return(false);}
-			return(true);
-		}
-	}
-	else if(idtyp == MEDIUM_15)
-	{
-		if(isEB())
-		{
-			if(Abs(DEtaSCTrk()) > 0.008925){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.035973){return(false);}
-			if(sigmaIEtaIEta() > 0.009996){return(false);}
-			if(hadronicOverEM() > 0.050537){return(false);}
-			if(Abs(dB()) > 0.012235){return(false);}
-			if(Abs(dz()) > 0.042020){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.091942){return(false);}
-			if(USEISO && CorPFIsolation2015() > 0.107587){return(false);}
-			//if(chargedIso()/Pt() > 0.05){return(false);}
-			if(!passConversionVeto()){return(false);}
-			if(nMissingInnerHits() > 1){return(false);}
-			return(true);
-		}
-		if(isEE())
-		{
-			if(Abs(DEtaSCTrk()) > 0.007429){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.067879){return(false);}
-			if(sigmaIEtaIEta() > 0.030135){return(false);}
-			if(hadronicOverEM() > 0.086782){return(false);}
-			if(Abs(dB()) > 0.036719){return(false);}
-			if(Abs(dz()) > 0.138142){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.100683){return(false);}
-			if(USEISO && CorPFIsolation2015() > 0.113254){return(false);}
-			//if(chargedIso()/Pt() > 0.05){return(false);}
-			if(!passConversionVeto()){return(false);}
-			if(nMissingInnerHits() > 1){return(false);}
-			return(true);
-		}
-	}
-	else if(idtyp == LOOSE_15)
-	{
-		if(isEB())
-		{
-			if(Abs(DEtaSCTrk()) > 0.009277){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.094739){return(false);}
-			if(sigmaIEtaIEta() > 0.010331){return(false);}
-			if(hadronicOverEM() > 0.093068){return(false);}
-			if(Abs(dB()) > 0.035904){return(false);}
-			if(Abs(dz()) > 0.075496){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.189968){return(false);}
-			if(USEISO && CorPFIsolation2015() > 0.130136){return(false);}
-			//if(chargedIso()/Pt() > 0.1){return(false);}
-			if(!passConversionVeto()){return(false);}
-			if(nMissingInnerHits() > 1){return(false);}
-			return(true);
-		}
-		if(isEE())
-		{
-			if(Abs(DEtaSCTrk()) > 0.009833){return(false);}
-			if(Abs(DPhiSCTrk()) > 0.149934){return(false);}
-			if(sigmaIEtaIEta() > 0.031838){return(false);}
-			if(hadronicOverEM() > 0.115754){return(false);}
-			if(Abs(dB()) > 0.099266){return(false);}
-			if(Abs(dz()) > 0.197897){return(false);}
-			if(Abs((1. - ESCOverETrack())/energy()) > 0.140662){return(false);}
-			if(USEISO && CorPFIsolation2015() > 0.163368){return(false);}
-			//if(chargedIso()/Pt() > 0.1){return(false);}
-			if(!passConversionVeto()){return(false);}
-			if(nMissingInnerHits() > 1){return(false);}
-			return(true);
-		}
-	}
-	return(false);
+  switch(idtyp) {
+  case TIGHT_15: return TightID25ns();
+  case MEDIUM_15: return MediumID25ns();
+  case LOOSE_15: return LooseID25ns();
+  }
+  return false;
 }
 
 bool IDElectron::USEISO = true;

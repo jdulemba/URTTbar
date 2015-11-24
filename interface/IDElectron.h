@@ -22,14 +22,17 @@ public:
 	//why this here? it is likely to break 
   //if we ever move to threaded running!
 	static bool USEISO;
-	enum IDS {MEDIUM_12, LOOSE_12, MEDIUM_12Db, LOOSE_12Db, MEDIUM_15, LOOSE_15};
+	enum IDS {TIGHT_15, MEDIUM_15, LOOSE_15};
   static const std::map<std::string, IDElectron::IDS> id_names;
 
   static IDS id(std::string label);
   double rho() {return rho_;}
-	double CorPFIsolation2012(double eta) const;
-	double CorPFIsolation2015() const;
-	double PFIsoDb() const;
+	double PFIsolationRho2015() const;
+
+  bool LooseID25ns() const;
+  bool MediumID25ns() const;
+  bool TightID25ns() const;
+
 	bool ID(IDS idtyp);
 };
 
