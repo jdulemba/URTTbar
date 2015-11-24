@@ -23,20 +23,20 @@ class TTBarSolver
 {
 	private:
 		TMinuit minuit;
-		TFile* probfile;
-		TH2D* WTmass_right;
-		TH1D* BTag_right; 
-		TH1D* N_right; 
-		TH2D* WTmass_wrong;
-		TH1D* BTag_wrong; 
-		TH1D* N_wrong; 
+		TFile* probfile=0;
+		TH2D* WTmass_right=0;
+		TH1D* BTag_right=0; 
+		TH1D* N_right=0; 
+		TH2D* WTmass_wrong=0;
+		TH1D* BTag_wrong=0; 
+		TH1D* N_wrong=0; 
 
-		TLorentzVector* bhad_;
-		TLorentzVector* j1had_;
-		TLorentzVector* j2had_;
-		TLorentzVector* blep_;
-		TLorentzVector* llep_;
-		TLorentzVector* met_;
+		TLorentzVector* bhad_=0;
+		TLorentzVector* j1had_=0;
+		TLorentzVector* j2had_=0;
+		TLorentzVector* blep_=0;
+		TLorentzVector* llep_=0;
+		TLorentzVector* met_=0;
 
 		TLorentzVector bhadT_;
 		TLorentzVector j1hadT_;
