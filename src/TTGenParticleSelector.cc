@@ -208,7 +208,7 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
   }
 }
 
-void TTGenParticleSelector::select(URStreamer& event)
+bool  TTGenParticleSelector::select(URStreamer& event)
 {
   //RESETS NEEDED VECTORS
   selected_.clear();
@@ -252,6 +252,8 @@ void TTGenParticleSelector::select(URStreamer& event)
 
   //Makes collection of gen jets not in the partons
 	if(ttbar_.type == GenTTBar::DecayType::SEMILEP) {
+    if(!charged_leps_[0] || !wpartons_[0] || !wpartons_[1] || !bbar_ || !b_) return false;
+
 		const vector<Genjet>& genjets = event.genjets();
 		for(vector<Genjet>::const_iterator gj = genjets.begin(); gj != genjets.end(); ++gj)
 		{
@@ -266,7 +268,7 @@ void TTGenParticleSelector::select(URStreamer& event)
 			added_jets_.push_back(&(jets_.back()));
 		}
 	}
-
+  return true;
 }
 
 bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {

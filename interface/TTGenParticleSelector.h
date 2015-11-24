@@ -11,7 +11,7 @@ class TTGenParticleSelector {
 public:
   enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP};
   TTGenParticleSelector(SelMode mode=NORMAL);
-  void select(URStreamer& event);
+  bool select(URStreamer& event);
 
   bool is_in_acceptance(GenTTBar::DecayType decay_mode = GenTTBar::DecayType::SEMILEP);
   GenTTBar & ttbar_system() {return ttbar_;}
