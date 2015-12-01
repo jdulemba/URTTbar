@@ -35,6 +35,7 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 	double tbmax = 80.;
 	
 	plot1d.AddHist("MET", 500, 0, 2000, "MET", "Events");
+	plot1d.AddHist("METPhi", 110, -4, 7, "#varphi(MET)", "Events");
 	plot1d.AddHist("weight", 200, -5, 5, "weight", "Events");
 	plot1d.AddHist("njets", 15, 0, 15, "n-jets", "Events");
 	plot1d.AddHist("nvtx", 50, 0, 50, "n-vertices", "Events");
@@ -52,6 +53,8 @@ void TTBarPlots::Init(const vector<double>& topptbins, const vector<double>& top
 	plot1d.AddHist("DRminWjets", 200, 0, 10, "#DeltaR_{min W-jet}", "Events");
 	plot1d.AddHist("DRminbjets", 200, 0, 10, "#DeltaR_{min b-jet}", "Events");
 	plot1d.AddHist("DPhiMET_Nu", 100, 0, 3, "#Delta#Phi(#nu, MET)", "Events");
+	plot1d.AddHist("NuPt" , 500, 0, 200, "p_{T}(#nu)", "Events");
+	plot1d.AddHist("NuPhi", 110, -4, 7, "#varphi(#nu)", "Events");
 	plot2d.AddHist("METvsDPhiMET_Nu", 120, 0, 1200, 100, 0, 3, "MET [GeV]", "#Delta#Phi(#nu, MET)");
 	plot2d.AddHist("METvsChi", 120, 0, 1200, 25, 0., 100., "MET [GeV]", "#chi");
 	plot1d.AddHist("Mt_W", 500, 0, 500, "M_{t}(W) [GeV]", "Events");
@@ -125,6 +128,7 @@ void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, URStreamer &e
 	
 	if(massDiscr == numeric_limits<double>::max()) {massDiscr = 0; nsDiscr = 0;}
 	plot1d["MET"]->Fill(objects.met()->Pt(), weight);
+	plot1d["METPhi"]->Fill(objects.met()->Phi(), weight);
 	plot1d["njets"]->Fill(objects.clean_jets().size()-4, weight);
 	plot1d["weight"]->Fill(weight);
 	double drminw = 100.;
@@ -153,6 +157,8 @@ void TTBarPlots::Fill(Permutation& per, TTObjectSelector& objects, URStreamer &e
 	plot1d["DRminbjets"]->Fill(drminb, weight);
 	plot2d["METvsChi"]->Fill(objects.met()->Pt(), nsDiscr, weight);
 	plot1d["DPhiMET_Nu"]->Fill(Abs(nu.DeltaPhi(*objects.met())), weight);
+	plot1d["NuPt" ]->Fill(nu.Pt());
+	plot1d["NuPhi"]->Fill(nu.Phi());
 	plot2d["METvsDPhiMET_Nu"]->Fill(objects.met()->Pt(), Abs(nu.DeltaPhi(*objects.met())), weight);
 	double Mt_W = Sqrt(2.*objects.met()->Pt()*per.L()->Pt()-2.*(objects.met()->Px()*per.L()->Px() + objects.met()->Py()*per.L()->Py()));
 	plot1d["Mt_W"]->Fill(Mt_W, weight);
