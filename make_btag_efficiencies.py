@@ -6,6 +6,7 @@ import URAnalysis.PlotTools.views as urviews
 from pdb import set_trace
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 log = rootpy.log["/make_permutation_distros.py"]
+log.setLevel(rootpy.log.ERROR)
 
 jet_types = [('bjet', 'bottom'), ('cjet', 'charm'), ('ljet', 'light')]
 cut_types = ['loose', 'tight']
@@ -14,8 +15,8 @@ jobid = os.environ['jobid']
 input_file = 'results/%s/permProbComputer/ttJets.root' % jobid
 tfile = io.root_open(input_file)
 
-pt_bins  = [0.]+[10.*i+50 for i in range(25)]+[20.*i+300. for i in range(5)]+[30.*i+400. for i in range(10)]+[700, 750, 800, 900, 1000]
-eta_bins = [-2.4]+[0.2*i-2. for i in range(20)]+[2., 2.4]
+pt_bins  = [0.]+[10.*i+50 for i in range(25)]+[20.*i+300. for i in range(5)]+[30.*i+400. for i in range(5)]+[600, 1000]
+eta_bins = [-2.4, -1.6, -1.4, -1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2.4]
 hview = urviews.RebinView(tfile, [pt_bins, eta_bins])
 
 def make_efficiency(hpass, hall):

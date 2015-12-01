@@ -99,21 +99,28 @@ double BTagSFProducer::scale_factor(TTPermutator &permutator, systematics::SysSh
     double jeta = jet->Eta();
     double eff_loose=0;
     double eff_tight=0;
+
+    //ASSUME ALL EFF HISTOS HAVE SAME BINNING!
+    int binx = eff_bottom_loose->GetXaxis()->FindFixBin(jpt);
+    binx = TMath::Min(binx, eff_bottom_loose->GetNbinsX());
+    int biny = eff_bottom_loose->GetYaxis()->FindFixBin(jeta);
+    biny = TMath::Min(biny, eff_bottom_loose->GetNbinsY());
+
     switch(TMath::Abs(jet->hadronFlavour())) {
     case ura::PDGID::b: 
       jet_flav=BTagEntry::JetFlavor::FLAV_B;
-      eff_loose = eff_bottom_loose->GetBinContent(eff_bottom_loose->FindFixBin(jpt, jeta));
-      eff_tight = eff_bottom_tight->GetBinContent(eff_bottom_tight->FindFixBin(jpt, jeta));
+      eff_loose = eff_bottom_loose->GetBinContent(binx, biny);
+      eff_tight = eff_bottom_tight->GetBinContent(binx, biny);
       break;
     case ura::PDGID::c: 
       jet_flav=BTagEntry::JetFlavor::FLAV_C; 
-      eff_loose = eff_charm_loose->GetBinContent(eff_charm_loose->FindFixBin(jpt, jeta));
-      eff_tight = eff_charm_tight->GetBinContent(eff_charm_tight->FindFixBin(jpt, jeta));
+      eff_loose = eff_charm_loose->GetBinContent(binx, biny);
+      eff_tight = eff_charm_tight->GetBinContent(binx, biny);
       break;
     default: 
       jet_flav=BTagEntry::JetFlavor::FLAV_UDSG; 
-      eff_loose = eff_light_loose->GetBinContent(eff_light_loose->FindFixBin(jpt, jeta));
-      eff_tight = eff_light_tight->GetBinContent(eff_light_tight->FindFixBin(jpt, jeta));
+      eff_loose = eff_light_loose->GetBinContent(binx, biny);
+      eff_tight = eff_light_tight->GetBinContent(binx, biny);
       break;
     } //switch(Abs(jet->hadronFlavour()))  
 
