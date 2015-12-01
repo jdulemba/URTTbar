@@ -120,19 +120,19 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 	{
 		IDJet jet(*jetit);
 		//double sf = gRandom->Gaus(1., 0.05);
-		double sf = 1; //csigmajet; ??
-		if(shift == systematics::SysShifts::JES_DW){sf *= -1*Abs(jet_scaler_.GetUncM(jet));}
-		if(shift == systematics::SysShifts::JES_UP){sf *= Abs(jet_scaler_.GetUncP(jet));}
-		if(shift == systematics::SysShifts::JER_UP){sf *= gRandom->Gaus(sf, 0.1);} //FIXME, update as soon as available
-		//if(shift == systematics::SysShifts::JER_DW){sf *= gRandom->Gaus(sf, cjetres);}
-		sf += 1;
+		// double sf = 1; //csigmajet; ??
+		// if(shift == systematics::SysShifts::JES_DW){sf *= -1*Abs(jet_scaler_.GetUncM(jet));}
+		// if(shift == systematics::SysShifts::JES_UP){sf *= Abs(jet_scaler_.GetUncP(jet));}
+		// if(shift == systematics::SysShifts::JER_UP){sf *= gRandom->Gaus(sf, 0.1);} //FIXME, update as soon as available
+		// //if(shift == systematics::SysShifts::JER_DW){sf *= gRandom->Gaus(sf, cjetres);}
+		// sf += 1;
 
-    //set corrections for MET
-		metcorrx -= (sf-1)*jet.Px(); 
-		metcorry -= (sf-1)*jet.Py(); 
+    // //set corrections for MET
+		// metcorrx -= (sf-1)*jet.Px(); 
+		// metcorry -= (sf-1)*jet.Py(); 
 
-    //Set shifted P
-		jet.SetPxPyPzE(jet.Px()*sf, jet.Py()*sf, jet.Pz()*sf, jet.E()*sf);
+    // //Set shifted P
+		// jet.SetPxPyPzE(jet.Px()*sf, jet.Py()*sf, jet.Pz()*sf, jet.E()*sf);
 		if(jet.Pt() < cut_jet_ptmin_ || Abs(jet.Eta()) > cut_jet_etamax_) {continue;}
 		if(!jet.ID() || !jet.Clean(loose_muons_, loose_electrons_)) {continue;}
 
