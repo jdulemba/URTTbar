@@ -418,9 +418,9 @@ task :new_ctag_plots, [:info] do |t, args|
 end
 
 task :publish_ctag do |t|
-  link = `ls -ld plots/#{$jobid}/btageff`.scan(/-> (.+)/).flatten.last
+  link = `ls -ld plots/#{$jobid}/ctageff`.scan(/-> (.+)/).flatten.last
   if not link
-    link = 'btageff'
+    link = 'ctageff'
   end
   publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{$jobid}/#{link}")
 end

@@ -1,5 +1,4 @@
-from pdb import set_trace
-from URAnalysis.PlotTools.Plotter import Plotter
+from URAnalysis.PlotTools.Plotter import Plotter, BasePlotter
 import os
 import glob
 from styles import styles
@@ -47,19 +46,20 @@ def syscheck(cmd):
    else:
       raise RuntimeError("command %s failed executing" % cmd)
 
-class BTagPlotter(Plotter):
+class CTagPlotter(Plotter):
    def __init__(self, lumi=None):
       lumi = lumi if lumi > 0 else None
-      self.tt_to_use = 'ttJets_madgraph'
+      self.tt_to_use = 'ttJets'
       jobid = os.environ['jobid']
-      files = glob.glob('results/%s/btag_efficiency/*.root' % jobid)
+      files = glob.glob('results/%s/ctag_eff/*.root' % jobid)
       logging.debug('files found %s' % files.__repr__())
       lumis = glob.glob('inputs/%s/*.lumi' % jobid)
       logging.debug('lumi files found %s' % lumis.__repr__())
       
-      outdir= 'plots/%s/btageff' % jobid
-      super(BTagPlotter, self).__init__(
-         files, lumis, outdir, styles, None, lumi
+      outdir= 'plots/%s/ctageff' % jobid
+      super(CTagPlotter, self).__init__(
+         files, lumis, outdir, styles, None, lumi,
+         lumi_scaling=0.5
          )
       self.jobid = jobid
 
@@ -176,6 +176,60 @@ class BTagPlotter(Plotter):
       if not nobbb:
          plotter.card.add_bbb_systematics('.*', '.*')
 
+   def cut_flow(self):
+      BasePlotter.set_canvas_style(self.canvas)
+      BasePlotter.set_canvas_style(self.pad)
+      lab_f1, _ = self.dual_pad_format()
+      self.label_factor = lab_f1
+      views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, self.mc_samples)
+      views_to_flow.append(self.tt_to_use)
+      qcd_samples = [i for i in self.views if 'QCD' in i]
+      samples = []
+
+      for vtf in views_to_flow:
+         histo = self.get_view(vtf).Get('cut_flow')
+         print vtf, len(histo)
+         self.keep.append(histo)
+         samples.append(histo)
+
+      #QCD may not have all the bins filled, needs special care
+      qcd_histo = histo.Clone()
+      qcd_histo.Reset()
+      for sample in qcd_samples:
+         qcd_flow = self.get_view(sample).Get('cut_flow')
+         qcd_histo = qcd_histo.decorate(
+            **qcd_flow.decorators
+            )
+         qcd_histo.title = qcd_flow.title
+         for sbin, qbin in zip(qcd_histo, qcd_flow):
+            sbin.value += qbin.value
+            sbin.error = quad.quad(sbin.error, qbin.error)
+      samples.append(qcd_histo)
+      self.keep.append(qcd_histo)
+      samples.sort(key=lambda x: x[-2].value)
+      stack = plotting.HistStack()
+      self.keep.append(stack)
+      for i in samples:         
+         stack.Add(i)
+
+      self.style_histo(stack)
+      self.style_histo(histo, **histo.decorators)
+
+      histo.Draw() #set the proper axis labels
+      histo.yaxis.title = 'Events'
+      data = self.get_view('data').Get('cut_flow')
+      smin = min(stack.min(), data.min(), 1.2)
+      smax = max(stack.max(), data.max())
+      histo.yaxis.range_user = smin*0.8, smax*1.2
+      stack.Draw('same')
+      data.Draw('same')
+      self.keep.append(data)
+      self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
+      self.pad.SetLogy()
+      self.add_ratio_plot(data, stack, ratio_range=0.4)
+      self.lower_pad.SetLogy(False)
+      #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
+
    def save_card(self, name):
       if not self.card:
          raise RuntimeError('There is no card to save!')
@@ -273,7 +327,6 @@ class BTagPlotter(Plotter):
             )
 
          ##compute total number of events
-         #set_trace()
          err  = array('d',[-1])
          nevt = all_lead_pflav.IntegralAndError(1, all_lead_pflav.GetNbinsX(), err)
          assert(abs(all_lead_pflav.Integral() - all_sub_pflav.Integral()) < 0.01)
@@ -336,10 +389,10 @@ class BTagPlotter(Plotter):
                      )
                   mc_effs[wp]['%s_err' %jtag] = err[0]
             
-            lead_ceff, lead_ceff_err = BTagPlotter.compute_eff(info, 'leading', 'charm')
-            sub_ceff , sub_ceff_err = BTagPlotter.compute_eff(info, 'subleading', 'charm')
-            lead_leff, lead_leff_err = BTagPlotter.compute_eff(info, 'leading', 'light')
-            sub_leff , sub_leff_err = BTagPlotter.compute_eff(info, 'subleading', 'light')
+            lead_ceff, lead_ceff_err = CTagPlotter.compute_eff(info, 'leading', 'charm')
+            sub_ceff , sub_ceff_err = CTagPlotter.compute_eff(info, 'subleading', 'charm')
+            lead_leff, lead_leff_err = CTagPlotter.compute_eff(info, 'leading', 'light')
+            sub_leff , sub_leff_err = CTagPlotter.compute_eff(info, 'subleading', 'light')
             
             mc_effs[wp].update({
                'lead_charmEff' : lead_ceff,
@@ -386,7 +439,6 @@ class BTagPlotter(Plotter):
       histos = [i.Get(variable) for i in mc_views]
 
       if normalize:
-         #set_trace()
          for i in histos:
             if i.Integral():
                i.Scale(1./i.Integral())
@@ -498,7 +550,6 @@ class BTagPlotter(Plotter):
       ratios = [i/total for i in integrals]
       names = [i.GetTitle() for i in mc_histos]
       colors = [i.GetFillColor('root') for i in mc_histos]
-      #set_trace()
       format = '%20s %10s %10s\n'
       with open(os.path.join(self.outputdir, 'yields.raw_txt'), 'w') as f:
          f.write('Total events: %.0f\n' % total)
@@ -520,7 +571,7 @@ class BTagPlotter(Plotter):
       wright = wright_view.Get(var) + right_cmb
       self.make_flavor_table(wright, 'flavors_rightw.raw_txt', to_json=True)
    
-plotter = BTagPlotter(args.lumi)
+plotter = CTagPlotter(args.lumi)
 
 jet_variables = [
    ('pt' ,  10, '%s jet p_{T} (GeV)', None),
@@ -534,10 +585,10 @@ jet_variables = [
 
 variables = [
   ("njets"    , "# of selected jets", 1, [0, 12]),
-  ("nbjets"   , "# of bjets", 1, [0, 12]),
+  #("nbjets"   , "# of bjets", 1, [0, 12]),
   ("lep_b_pt" , "p_{T}(b) (GeV)", 10, None),
   ("had_b_pt" , "p_{T}(b) (GeV)", 10, None),
-  ("lep_pt"   , "p_{T}(l) (GeV)", 10, None),
+  ("lep_pt"   , "p_{T}(l) (GeV)", 20, None),
   #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None),
   ("Whad_mass", "m_{W}(had) (GeV)", 10, None),
   ("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
@@ -611,45 +662,9 @@ additional_opts = {
 }
 
 if not args.noplots:
-   views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, plotter.mc_samples)
-   views_to_flow.append(plotter.tt_to_use)
-   stack = plotting.HistStack()
-   qcd_samples = [i for i in plotter.views if 'QCD' in i]
-
-   for vtf in views_to_flow:
-      histo = plotter.get_view(vtf).Get('cut_flow')
-      plotter.keep.append(histo)
-      stack.Add(
-         histo
-         )
-
-   #QCD may not have all the bins filled, needs special care
-   qcd_histo = histo.Clone()
-   qcd_histo.Reset()
-   for sample in qcd_samples:
-      qcd_flow = plotter.get_view(sample).Get('cut_flow')
-      qcd_histo = qcd_histo.decorate(
-         **qcd_flow.decorators
-         )
-      qcd_histo.title = qcd_flow.title
-      for sbin, qbin in zip(qcd_histo, qcd_flow):
-         sbin.value += qbin.value
-         sbin.error = quad.quad(sbin.error, qbin.error)
-   stack.Add(qcd_histo)
-
-   histo.Draw() #set the proper axis labels
-   data = plotter.get_view('data').Get('cut_flow')
-   smin = min(stack.min(), data.min(), 1.2)
-   smax = max(stack.max(), data.max())
-   histo.yaxis.range_user = smin*0.8, smax*1.2
-   stack.Draw('same')
-   data.Draw('same')
-   plotter.add_legend([stack, data], False, entries=len(views_to_flow)+1)
-   plotter.pad.SetLogy()
-   plotter.add_ratio_plot(data, stack, ratio_range=0.4)
-   plotter.lower_pad.SetLogy(False)
-   #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
-   plotter.save('cut_flow', pdf=False)
+   #cut flow
+   plotter.cut_flow()
+   plotter.save('cut_flow')
 
    for order in orders:
       plotter.plot_mc_vs_data(
