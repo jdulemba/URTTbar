@@ -103,9 +103,8 @@ rule /(:?\.toy)?\.mlfit\.root$/ => psub(/(:?\.toy)?\.mlfit\.root$/, '.model.root
 
   chdir(dir) do
     combine_cmd = "combine #{File.basename(t.source)} -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveNLL --skipBOnlyFit --minos=all"
-    if $batch == "1"
+    if $batch == "1" and t.name.include? '.toy.'
       sh "rm -f mlfit[0-9]*.root higgsCombine[0-9]*.MaxLikelihoodFit.mH120.[0-9]*.root"
-      toy_cmd = '--saveToys --expectSignal 1 -t 10'
       sh "cp #{ENV['URA']}/AnalysisTools/scripts/batch_job.sh ."
       File.open('condor.mltoys.jdl', 'w') do |file|
         file << "universe = vanilla\n"
@@ -410,11 +409,11 @@ end
 ###########################
 
 task :new_ctag_trial, [:info] do |t, args|
-  new_trial('btag_efficiency', 'btageff', args.info)
+  new_trial('ctag_eff', 'ctageff', args.info)
 end
 
 task :new_ctag_plots, [:info] do |t, args|
-  new_trial('', 'btageff', args.info)
+  new_trial('', 'ctageff', args.info)
 end
 
 task :publish_ctag do |t|
@@ -428,11 +427,18 @@ end
 rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
   dir = File.dirname(t.name)
   chdir(dir) do
-    #sh "sed -i 's|$MASS||g' datacard.txt"
-    #sh "sed -i 's|\x1b\[?1034h||g' datacard.txt"
     puts 'creating workspace'
-    sh "text2workspace.py datacard.txt -P URAnalysis.AnalysisTools.statistics.CTagEfficiencies:ctagEfficiency -o #{File.basename(t.name)}"
+    if File.readlines("datacard.txt").grep(/lightSF/).size > 0
+      opts = '--PO fitLightEff=False'
+    else
+      opts = ''
+    end
+    sh "text2workspace.py datacard.txt -P URAnalysis.AnalysisTools.statistics.CTagEfficiencies:ctagEfficiency #{opts} -o #{File.basename(t.name)}"
   end
+end
+
+task :ctag_model, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/fitModel.root"].invoke()
 end
 
 rule /MultiDimFit(:?Toy|Asimov)?.root$/ => psub(/MultiDimFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
@@ -502,9 +508,9 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
         sh "mv mlfit.root #{File.basename(t.name)}"      
       end
     else
-      toy_cmd = ''
+      toy_cmd = '--saveShapes '
       if t.name.include? 'Asimov'
-        toy_cmd = '--saveToys --expectSignal 1 -t -1'
+        toy_cmd += '--saveToys --expectSignal 1 -t -1'
       end
       puts 'running MaxLikelihood fit with Profile-Likelyhood errors'
       sh "#{combine_cmd} #{toy_cmd}"
@@ -514,8 +520,21 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
   end
 end
 
+#tasks
+task :ctag_fit, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+end
+
+task :ctag_scan, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
+end
+
+task :ctag_toys, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFitToy.root"].invoke()
+end
+
 task :ctag_toy_diagnostics, [:wp ] do |t, args|
-  toy_dir = "plots/#{$jobid}/btageff/mass_discriminant/#{args.wp}"
+  toy_dir = "plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}"
   sh "mkdir -p #{toy_dir}/toys"
   sh "python toy_diagnostics.py '' '' #{toy_dir}/MaxLikeFitToy.root -o #{toy_dir}/toys/ --use-prefit --noshapes --filter-out-pars='.*_bin_\d+$'"
 end
