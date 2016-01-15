@@ -224,3 +224,13 @@ plotter.overlay(
    ytitle='Events',
    method='ratio'
    )
+
+for name, histo in fit_histos.iteritems():   
+   ROOT.gStyle.SetOptTitle(1)
+   histo.drawstyle = 'e'   
+   histo.markercolor = histo.fillcolor
+   histo.legendstyle = 'p'
+   plotter.plot(
+      histo, xtitle=xlabel,
+      ytitle='Events', 
+      writeTo='%s_postfit' % name)
