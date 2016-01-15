@@ -12,6 +12,7 @@ import URAnalysis.Utilities.prettyjson as prettyjson
 from argparse import ArgumentParser
 import uuid
 from URAnalysis.Utilities.struct import Struct
+from URAnalysis.Utilities.tables import Table
 import re
 import copy
 
@@ -82,6 +83,17 @@ def run_module(**kwargs):
       dirs = ['']
       if args.toys:
          dirs = [i.GetName() for i in results.GetListOfKeys() if i.GetName().startswith('toy_')]
+
+      postfit_table = Table('Bin:%7s', 'Category:%10s', 'Sample:%20s', 'Yield:%5.1f', 'Error:%5.1f')
+      postfit_norms = [(i.name, i.value, i.error) for i in results.norm_fit_s]
+      postfit_norms.sort(key=lambda x: x[0])
+      for name, val, err in postfit_norms:
+         bincat, sample = tuple(name.split('/'))
+         bin, category = tuple(bincat.split('_'))
+         postfit_table.add_line(bin, category, sample, val, err)
+      postfit_table.add_separator()
+      with open(args.out.replace('.root','.raw_txt'), 'w') as out:
+         out.write(postfit_table.__repr__())
       
       with io.root_open(args.out, 'recreate') as output:
          is_prefit_done = False
@@ -119,7 +131,6 @@ def run_module(**kwargs):
                            info['edges'],
                            name = sample
                            )
-    
                   idx = info[category]['idx']+1
                   hists[sample][idx].value = pars[rvar_name].value
                   error = pars[rvar_name].error
