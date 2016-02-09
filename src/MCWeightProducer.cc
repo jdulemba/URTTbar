@@ -20,8 +20,8 @@ float MCWeightProducer::evt_weight(URStreamer &evt, systematics::SysShifts shift
   default: break;
   }
 
-  double npu = evt.vertexs().size(); //FIXME, use real PU!
-  if(npu > 0)	ret *= pu_sf_.weight(evt.PUInfos()[0].nInteractions());
+  //FIXME: add shifts up/down
+  ret *= pu_sf_.weight(evt.PUInfos()[0].nInteractions());
   
   return ret;
 }

@@ -2,6 +2,7 @@
 #include "TMath.h"
 #include "URParser.h"
 #include "Logger.h"
+#include "PDGID.h"
 
 using namespace TMath;
 
@@ -241,6 +242,10 @@ bool  TTGenParticleSelector::select(URStreamer& event)
   // Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
   //                       << ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
   //                       << bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
+  // if(wpartons_.size()+charged_leps_.size() == 0 || !b_ || !bbar_) {
+  //   Logger::log().error() << "Wrong matching, returning" << std::endl;
+  //   return false;
+  // }
   ttbar_ = GenTTBar::from_collections( 
     wpartons_, charged_leps_, neutral_leps_, 
     b_, bbar_, top_, tbar_);
@@ -328,7 +333,7 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
 // OLD CODE, might come useful as matching is different
 //
 
-int Collapse(int root, std::vector<const Genparticle*> &particles)
+/*int TTGenParticleSelector::Collapse(int root, std::vector<const Genparticle*> &particles)
 {
 	bool found = true;
 	while(found){
@@ -346,7 +351,7 @@ int Collapse(int root, std::vector<const Genparticle*> &particles)
 }
 
 
-/*TTbarHypothesis SelectGenParticles(URStreamer& event)
+void TTGenParticleSelector::select_with_deps(URStreamer& event)
 {
 	const std::vector<Genparticle>& gps = event.genParticles();
 	TTbarHypothesis ret;
