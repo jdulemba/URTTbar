@@ -39,9 +39,9 @@ public:
 	{
 		double threshold = -1.;
 		if(wp == BTag::NONE) return true;
-		else if(wp == BTag::CSVLOOSE) threshold = 0.605;
-		else if(wp == BTag::CSVMEDIUM) threshold = 0.890;
-		else if(wp == BTag::CSVTIGHT) threshold = 0.970;
+		else if(wp == BTag::CSVLOOSE)  threshold = 0.460;
+		else if(wp == BTag::CSVMEDIUM) threshold = 0.800;
+		else if(wp == BTag::CSVTIGHT)  threshold = 0.935;
 		
 		return csvIncl() > threshold;
 	}
