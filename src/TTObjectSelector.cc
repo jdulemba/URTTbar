@@ -119,20 +119,23 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 	for(vector<Jet>::const_iterator jetit = jets.begin(); jetit != jets.end(); ++jetit)
 	{
 		IDJet jet(*jetit);
-		//double sf = gRandom->Gaus(1., 0.05);
-		// double sf = 1; //csigmajet; ??
-		// if(shift == systematics::SysShifts::JES_DW){sf *= -1*Abs(jet_scaler_.GetUncM(jet));}
-		// if(shift == systematics::SysShifts::JES_UP){sf *= Abs(jet_scaler_.GetUncP(jet));}
-		// if(shift == systematics::SysShifts::JER_UP){sf *= gRandom->Gaus(sf, 0.1);} //FIXME, update as soon as available
-		// //if(shift == systematics::SysShifts::JER_DW){sf *= gRandom->Gaus(sf, cjetres);}
-		// sf += 1;
+    double scale_factor = 0;
+		if(shift == systematics::SysShifts::JES_DW)      scale_factor = jet_scaler_.GetUncP(jet);
+		else if(shift == systematics::SysShifts::JES_UP) scale_factor = -1*jet_scaler_.GetUncM(jet);
+		else if(shift == systematics::SysShifts::JER_UP) scale_factor = gRandom->Gaus(0., 0.1); //FIXME, update as soon as available
 
-    // //set corrections for MET
-		// metcorrx -= (sf-1)*jet.Px(); 
-		// metcorry -= (sf-1)*jet.Py(); 
+    //set corrections for MET
+		metcorrx -= scale_factor*jet.Px(); 
+		metcorry -= scale_factor*jet.Py(); 
 
-    // //Set shifted P
-		// jet.SetPxPyPzE(jet.Px()*sf, jet.Py()*sf, jet.Pz()*sf, jet.E()*sf);
+    //Set shifted P
+    scale_factor += 1;
+		jet.SetPxPyPzE(
+      jet.Px() * scale_factor, 
+      jet.Py() * scale_factor, 
+      jet.Pz() * scale_factor, 
+      jet.E()  * scale_factor
+      );
 		if(jet.Pt() < cut_jet_ptmin_ || Abs(jet.Eta()) > cut_jet_etamax_) {continue;}
 		if(!jet.ID() || !jet.Clean(loose_muons_, loose_electrons_)) {continue;}
 
@@ -145,7 +148,7 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 	const vector<Met>& mets = event.METs();
 	if(mets.size() == 1) {
     float shift = 0;
-    if(shift == systematics::SysShifts::MET_DW) shift = 11.0;
+    if(shift == systematics::SysShifts::MET_DW) shift = -1.0;
     if(shift == systematics::SysShifts::MET_UP) shift = 1.0;
 		met_ = mets[0];
 		met_.SetPx(met_.Px() + metcorrx + shift*met_.pxunc());
@@ -164,7 +167,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
 
   //Trigger!
   bool isMC = (event.run == 1);
-  bool electron_trig = (isMC) ? (event.trigger().HLT_Ele27_WP85_Gsf() == 1) : (event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1);
+  bool electron_trig = (isMC) ? (event.trigger().HLT_Ele27_WPLoose_Gsf() == 1) : (event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1);
   bool muon_trig = (isMC) ? (event.trigger().HLT_IsoMu27() == 1) : (event.trigger().HLT_IsoMu20() == 1 || event.trigger().HLT_IsoTkMu20());
   if(!(electron_trig || muon_trig)) return false;
   if(tracker_) tracker_->track("trigger");
