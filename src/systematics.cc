@@ -26,6 +26,8 @@ namespace systematics {
       else return {SysShifts::NOSYS, SysShifts::JES_UP, SysShifts::JES_DW,
           SysShifts::JER_UP, SysShifts::MET_UP, SysShifts::MET_DW};
     }
+    else if(!boost::starts_with(sample, "data")) return {SysShifts::NOSYS, SysShifts::JES_UP, SysShifts::JES_DW,
+                                                     SysShifts::JER_UP, SysShifts::MET_UP, SysShifts::MET_DW};
     else return {SysShifts::NOSYS};
   }
 }
