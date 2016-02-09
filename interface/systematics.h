@@ -6,7 +6,11 @@
 #include <vector>
 
 namespace systematics {
-  enum SysShifts {NOSYS, JES_UP, JES_DW, JER_UP, JER_DW, MET_UP, MET_DW, RENORM_UP, RENORM_DW, FACTOR_UP, FACTOR_DW};
+  enum SysShifts {
+    NOSYS, JES_UP, JES_DW, JER_UP, JER_DW, MET_UP, MET_DW, 
+    RENORM_UP, RENORM_DW, FACTOR_UP, FACTOR_DW,
+    BTAG_UP, BTAG_DW, BTAG_B_UP, BTAG_B_DW, BTAG_C_UP, BTAG_C_DW, BTAG_L_UP, BTAG_L_DW
+  };
   const std::map<std::string, SysShifts> name_to_shift = {
     {"nosys", SysShifts::NOSYS}, 
     {"jes_up", SysShifts::JES_UP}, 
@@ -18,7 +22,15 @@ namespace systematics {
     {"renorm_up", SysShifts::RENORM_UP}, 
     {"renorm_down", SysShifts::RENORM_DW}, 
     {"factor_up", SysShifts::FACTOR_UP}, 
-    {"factor_down", SysShifts::FACTOR_DW}
+    {"factor_down", SysShifts::FACTOR_DW},
+    {"btag_up", SysShifts::BTAG_UP}, 
+    {"btag_down", SysShifts::BTAG_DW}, 
+    {"btagb_up", SysShifts::BTAG_B_UP}, 
+    {"btagb_down", SysShifts::BTAG_B_DW}, 
+    {"btagc_up", SysShifts::BTAG_C_UP}, 
+    {"btagc_down", SysShifts::BTAG_C_DW}, 
+    {"btagl_up", SysShifts::BTAG_L_UP}, 
+    {"btagl_down", SysShifts::BTAG_L_DW}
   };
   const std::map<SysShifts, std::string> shift_to_name = {
     {SysShifts::NOSYS , "nosys"   }, 
@@ -31,7 +43,15 @@ namespace systematics {
     {SysShifts::RENORM_UP, "renorm_up"  }, 
     {SysShifts::RENORM_DW, "renorm_down"}, 
     {SysShifts::FACTOR_UP, "factor_up"  }, 
-    {SysShifts::FACTOR_DW, "factor_down"}
+    {SysShifts::FACTOR_DW, "factor_down"},
+    {SysShifts::BTAG_UP  , "btag_up"   }, 
+    {SysShifts::BTAG_DW  , "btag_down" }, 
+    {SysShifts::BTAG_B_UP, "btagb_up"  }, 
+    {SysShifts::BTAG_B_DW, "btagb_down"}, 
+    {SysShifts::BTAG_C_UP, "btagc_up"  }, 
+    {SysShifts::BTAG_C_DW, "btagc_down"}, 
+    {SysShifts::BTAG_L_UP, "btagl_up"  }, 
+    {SysShifts::BTAG_L_DW, "btagl_down"}
   };
 
   std::vector<SysShifts> get_systematics(std::string outname);
