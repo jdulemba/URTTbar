@@ -80,14 +80,30 @@
          }
  },
  {
+   "name" : "ttJets_herwig",
+   "DBSName" : "TO BE SET",
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
+ },
+ {
+   "name" : "ttJets_amcatnlo",
+   "DBSName" : "TO BE SET",
+   "xsection" : 832,
+   "options" : {
+         "noSkim" : true
+         }
+ },
+ {
    "name" : "singlet_tW",
-   "DBSName" : "/ST_tW_top_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 38.1
+   "DBSName" : "/ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
+   "xsection" : 19.3
  },
  {
    "name" : "singletbar_tW",
-   "DBSName" : "/ST_tW_antitop_5f_DS_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
-   "xsection" : 38.1
+   "DBSName" : "/ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM",
+   "xsection" : 19.3
  },
  {
    "name" : "singlet_tchannel",
