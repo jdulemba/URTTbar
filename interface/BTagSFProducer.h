@@ -12,7 +12,7 @@ class TTPermutator;
 
 class BTagSFProducer {
 public:
-  BTagSFProducer(TTPermutator &permutator);
+  BTagSFProducer(TTPermutator &permutator, float float_c=-1, float float_l=-1, float float_b=-1);
   ~BTagSFProducer();    
   double scale_factor(TTPermutator &permutator, systematics::SysShifts shift);
 
@@ -28,7 +28,13 @@ private:
   }
 
   bool no_loose_cut_=false;
-  
+  //Systematics use
+  //How much to float the single SF components
+  //-1: how much the SF tell you to do. 0: Do not float at all (disable systematic). 0< <1 always return such value (Up > 1/Down < 1). >1 Invalid!
+  float float_b_=-1;
+  float float_c_=-1;
+  float float_l_=-1;
+
   BTagCalibration calibration_;
   BTagCalibrationReader readers_tight_[3]; //[down, central, up]
   BTagCalibrationReader readers_loose_[3]; //[down, central, up]
