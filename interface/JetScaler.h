@@ -51,36 +51,45 @@ class JetScaler
     HptsM() {}
 
   void Init(const string filename) {//like the constructior, but outside it
-			TDirectory* olddir = gDirectory;
-			TFile* f = new TFile(filename.c_str());
-			Heta = dynamic_cast<TH1D*>(f->Get("eta"));
-			for(int i = 0 ; i < Heta->GetNbinsX() ; ++i)
-			{
-				stringstream hn;
-				hn << "down_" << i;
-				HptsP.push_back(dynamic_cast<TH1D*>(f->Get(hn.str().c_str())));
-			}	
-			for(int i = 0 ; i < Heta->GetNbinsX() ; ++i)
-			{
-				stringstream hn;
-				hn << "up_" << i;
-				HptsM.push_back(dynamic_cast<TH1D*>(f->Get(hn.str().c_str())));
-			}	
+    TDirectory* olddir = gDirectory;
+    TFile* f = new TFile(filename.c_str());
+    Heta = dynamic_cast<TH1D*>(f->Get("eta"));
+    for(int i = 0 ; i < Heta->GetNbinsX() ; ++i)
+    {
+      stringstream hn;
+      hn << "down_" << i;
+      HptsP.push_back(dynamic_cast<TH1D*>(f->Get(hn.str().c_str())));
+    }	
+    for(int i = 0 ; i < Heta->GetNbinsX() ; ++i)
+    {
+      stringstream hn;
+      hn << "up_" << i;
+      HptsM.push_back(dynamic_cast<TH1D*>(f->Get(hn.str().c_str())));
+    }	
 
-			olddir->cd();    
+    olddir->cd();    
   }
-		double GetUncP(const IDJet& jet)
-		{
-			int etabin = Heta->FindFixBin(jet.Eta()) -1;
-			int ptbin = HptsP[etabin]->FindFixBin(jet.Pt());
-			return(HptsP[etabin]->GetBinContent(ptbin));
-		}
-		double GetUncM(const IDJet& jet)
-		{
-			int etabin = Heta->FindFixBin(jet.Eta()) -1;
-			int ptbin = HptsM[etabin]->FindFixBin(jet.Pt());
-			return(HptsM[etabin]->GetBinContent(ptbin));
-		}
+  double GetUncP(const IDJet& jet)
+  {
+    int etabin = Heta->FindFixBin(jet.Eta()) -1;
+    int ptbin = HptsP[etabin]->FindFixBin(jet.Pt());
+    return(HptsP[etabin]->GetBinContent(ptbin));
+  }
+  double GetUncM(const IDJet& jet)
+  {
+    int etabin = Heta->FindFixBin(jet.Eta()) -1;
+    int ptbin = HptsM[etabin]->FindFixBin(jet.Pt());
+    return(HptsM[etabin]->GetBinContent(ptbin));
+  }
+
+  // void scale_up(IDJet& jet) {
+  //   double sf = 1+GetUncP(jet);
+  //   jet.SetPxPyPzE(jet.Px()*sf, jet.Py()*sf, jet.Pz()*sf, jet.E()*sf);
+  // }
+  // void scale_down(IDJet& jet) {
+  //   double sf = 1-GetUncM(jet);
+  //   jet.SetPxPyPzE(jet.Px()*sf, jet.Py()*sf, jet.Pz()*sf, jet.E()*sf);
+  // }
 };
 
 #endif
