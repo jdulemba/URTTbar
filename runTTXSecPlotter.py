@@ -311,7 +311,7 @@ def run_module(**kwargs):
       ref_function.Draw('same')      
       plotter.save('run_evolution_muons', pdf=False)
 
-      plotter.merge_leptons()
+      plotter.merge_leptons(['muons'])
       to_plot = [
          ('weight' , 5, 'event weight', {'postprocess' : lambda x: urviews.OverflowView(x)}),
          ('nvtx' , 2, '# vertices', {}),
@@ -325,6 +325,7 @@ def run_module(**kwargs):
          ('wjet_eta' , 4, '#eta(wj)', {}),
          ('thadmass' ,10, 'M(t_{had})', {'leftside' : True}),
          ('whadmass' ,10, 'M(W_{had})', {}),
+         ('Mt_W', 10, 'M_{T}(#ell, MET)', {}),
          ## ("ttM"    ,20, 'm(t#bar{t})', {}),
          ## ("tty"    , 4, 'y(t#bar{t})', {}),
          ## ("ttpt"   , 5, 'p_{T}(t#bar{t})', {}),

@@ -65,13 +65,12 @@ class TTXSecPlotter(Plotter):
             self.views[sample]['view'] = views.SubdirectoryView(self.views[sample]['view'], 'RECO')
       self.initialized = True
 
-   def merge_leptons(self):
+   def merge_leptons(self, leptons=['muons', 'electrons']):
       if self.merged_leptons: return
       self.initviews()
       for sample in self.views:
          self.views[sample]['view'] = views.SumView(
-            views.SubdirectoryView(self.views[sample]['view'], 'muons'),
-            views.SubdirectoryView(self.views[sample]['view'], 'electrons'),
+            *[views.SubdirectoryView(self.views[sample]['view'], i) for i in leptons]
             )
       self.merged_leptons = True
 
@@ -177,9 +176,9 @@ class TTXSecPlotter(Plotter):
                   sample, 
                   info['value']
                   )
-      ## self.card.add_bbb_systematics('.*', 'vjets')
-      ## self.card.add_bbb_systematics('.*', 'single_top')
-      ## self.card.add_bbb_systematics('.*', 'qcd')
+      self.card.add_bbb_systematics('.*', 'vjets'     , relative=False)
+      self.card.add_bbb_systematics('.*', 'single_top', relative=False)
+      self.card.add_bbb_systematics('.*', 'qcd'       , relative=False)
 
    def make_single_shape(self, card_name, path, h2d, slice_along='X'):
       '''makes a single template as the sum of all possible categories and uses it

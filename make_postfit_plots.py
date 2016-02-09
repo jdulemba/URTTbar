@@ -207,6 +207,7 @@ samples_histos = fit_histos.values()
 samples_histos.sort(key=ordering)
 
 plotter.set_subdir('')
+print 'PIPPO'
 plotter.overlay_and_compare(
    [plotter.create_stack(*samples_histos, sort=False), samples_sum],
    data,

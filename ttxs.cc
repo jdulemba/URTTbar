@@ -330,6 +330,7 @@ public:
 			}
 
     }  //while(event.next())
+    cout << "Processed " << evt_idx << " events" << endl;
   }
 
   //this method is called at the end of the job, by default saves

@@ -53,6 +53,14 @@ def make_hist(key, rfit_vals, out, prefix=''):
    canvas.SaveAs('%s/%s%s.png' % (out, prefix, key.replace('/','_')))
    #canvas.SaveAs('%s/%s.pdf' % (out, key.replace('/','_')))
 
+def get_key(value):
+   name=value.replace("YieldSF","")
+   name=name.replace("Bin","")
+   name=name.replace("MCStat","")
+   name=name.replace("Jets","")
+   return name.strip("_1234567890")
+
+
 def make_post_distributions(key, vals, out, mean_summary, sigma_summary, 
                             dist='pull', fitfunc='gaus', prefix='', prefit=None, 
                             tdir=None, skipFit=False):
@@ -91,10 +99,7 @@ def make_post_distributions(key, vals, out, mean_summary, sigma_summary,
       index = 1
    #print index
    
-   singlekey=key.replace("YieldSF","")
-   singlekey=singlekey.replace("Bin","")
-   singlekey=singlekey.replace("MCStat","")
-   singlekey=singlekey.strip("_1234567890")
+   singlekey=get_key(key)
    hist = fill_hist(values)
    function = None
    if skipFit:
@@ -248,11 +253,7 @@ def run_module(**kwargs):
          for name,value in pars.iteritems():
             if pars_regex and not pars_regex.match(name): continue
             if pars_out_regex and pars_out_regex.match(i): continue
-            name=name.replace("YieldSF","")
-            name=name.replace("Bin","")
-            name=name.replace("MCStat","")
-            name=name.strip("_1234567890")
-            singlenames.add(name)
+            singlenames.add(get_key(name))
          
          pulls_mean_summary={}
          pulls_sigma_summary={}
@@ -264,14 +265,17 @@ def run_module(**kwargs):
                if name in fullname:
                   nbins = nbins + 1
             #print name, nbins
-            hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_pull_mean_summary" %name)
-            pulls_mean_summary[name] = hist
-            hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_pull_sigma_summary" %name)
-            pulls_sigma_summary[name] = hist
-            hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_delta_mean_summary" %name)
-            deltas_mean_summary[name] = hist
-            hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_delta_sigma_summary" %name)
-            deltas_sigma_summary[name] = hist
+            try:
+               hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_pull_mean_summary" %name)
+               pulls_mean_summary[name] = hist
+               hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_pull_sigma_summary" %name)
+               pulls_sigma_summary[name] = hist
+               hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_delta_mean_summary" %name)
+               deltas_mean_summary[name] = hist
+               hist = plotting.Hist(nbins, 0.5,nbins+0.5, name = "%s_delta_sigma_summary" %name)
+               deltas_sigma_summary[name] = hist
+            except:
+               set_trace()
 
          pulls_mean_summary[  'all'] = plotting.Hist(len(pars), 0.5, len(pars)+0.5, name = "all_pull_mean_summary"  )
          pulls_sigma_summary[ 'all'] = plotting.Hist(len(pars), 0.5, len(pars)+0.5, name = "all_pull_sigma_summary" )
