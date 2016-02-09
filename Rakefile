@@ -428,8 +428,8 @@ rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
   dir = File.dirname(t.name)
   chdir(dir) do
     puts 'creating workspace'
-    if File.readlines("datacard.txt").grep(/lightSF/).size > 0
-      opts = '--PO fitLightEff=False'
+    if File.readlines("datacard.txt").grep(/NOLIGHTSFFIT/).size > 0
+      opts = '--PO fitLightEff=False --PO lightConstantsJson=datacard.json'
     else
       opts = ''
     end
