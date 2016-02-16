@@ -28,6 +28,8 @@ public:
   IDJet::BTag tight_bID_cut() {return cut_tight_b_;}
   IDJet::BTag loose_bID_cut() {return cut_loose_b_;}
 
+  size_t njets_max() {return cut_max_jets_;}
+
 private:
   std::vector<IDJet*> jets_;
   std::vector<IDJet*> capped_jets_;
