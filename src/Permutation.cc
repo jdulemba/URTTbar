@@ -1,6 +1,7 @@
 #include "Permutation.h"
 #include "TTBarSolver.h"
 #include "IDMet.h"
+#include "Logger.h"
 
 using namespace std;
 
@@ -33,6 +34,10 @@ void Permutation::Reset()
 
 double Permutation::Solve(TTBarSolver& ttsolver, bool kinfit)
 {
+  if(!IsComplete()) {                          
+    Logger::log().fatal() << "The permutation you are trying to solve is not complete!" << std::endl;
+    throw 42;
+  }
 	kinfit_ = kinfit;
 	ttsolver.Solve(bjh_, wjb_, wja_, bjl_, lep_, met_);
 	nu_ = ttsolver.Nu();
