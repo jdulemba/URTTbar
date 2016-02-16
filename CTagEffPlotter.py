@@ -771,12 +771,20 @@ systematics_to_check = [
    'HScale'
 ]
 
+vars2D = [
+   ('Whad_jet_pts', 'p_{T}(lead W jet) (GeV)', 'p_{T}(sub W jet) (GeV)', (1,1)),
+]
+
 variables = [
-  ("njets"    , "# of selected jets", 1, [0, 12]),
+  ("njets"    , "# of selected jets", range(13), None),
   ("lep_pt"   , "p_{T}(l) (GeV)", 20, None),
   ("Whad_mass", "m_{W}(had) (GeV)", 10, None),
   ("thad_mass", "m_{t}(had) (GeV)", 10, None),
 	("mass_discriminant", "mass_discriminant", 20, None), #[5, 20]),
+  ("Wjets_CvsL", "CvsL (W Jet)", 2, None),
+  ("Wjets_CvsB", "CvsB (W Jet)", 2, None),
+  ("Bjets_CvsB", "CvsB (B Jet)", 2, None),
+  ("Bjets_CvsL", "CvsL (B Jet)", 2, None),
   #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None),
   #("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
   #("Whad_pt"  , "p_{T}(W_{had}) (GeV)", 10, None),
@@ -894,6 +902,11 @@ if not args.noplots:
              plotter.bake_pie(folder)
 
           plotter.set_subdir(os.path.join(order, wpoint, cat_name))
+          for var, xaxis, yaxis, rebin in vars2D:
+             path = os.path.join('nosys', base, var)
+             plotter.plot('data', path, drawopt='colz', xaxis=xaxis, yaxis=yaxis)
+             plotter.save(var, pdf=False)
+
           for var, axis, rebin, x_range in variables:
              if var == 'mass_discriminant': rebin = plotter.binning[wpoint][cat_name]
              folder = os.path.join('nosys', base)
@@ -1000,8 +1013,8 @@ if not args.noshapes:
 
    #
    # Common shapes, not enough stats to have one each category
-   #
-   all_tag = [os.path.join('nosys', orders[0], working_points[0], i) for i in ['both_untagged', 'lead_tagged', 'sublead_tagged', 'both_tagged']]
+   #   
+   all_tag = [os.path.join('nosys', 'mass_discriminant', 'notag', 'both_untagged')]
    common_shapes = { #pointless to check effect of JES on samples with such low statitics
       'qcd$' : plotter.get_shape(all_tag, 'qcd', rebin=1),
       ## 'qcd.+JESUp$' : plotter.get_shape(all_tag, 'qcd', rebin=mass_discriminant_binning, systematic='JES+'),
