@@ -41,56 +41,59 @@ double IDElectron::PFIsolationRho2015() const
 	return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
 }
 
-//to be updated by pre-computed values
+//https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
 bool IDElectron::LooseID25ns() const {
-  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
-  if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0103: 0.0301)) return false; //to be updated to full5x5SigmaIEtaIEta
-  if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0105: 0.00814)) return false;
-  if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.115:  0.182)) return false;
-  if(hadronicOverEM() >= ((isEB()) ? 0.104:  0.0897)) return false;
-  if(PFIsolationRho2015() >= ((isEB()) ? 0.0893: 0.121)) return false; //to be updated
-  //relIsoWithEA
-  float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
-  if(ooEmooP    >= ((isEB()) ? 0.102 : 0.126)) return false;
-  if(Abs(dz())  >= ((isEB()) ? 0.0261: 0.118)) return false; //to be checked, needs vtx?
-  if(Abs(dB()) >= ((isEB()) ? 0.41  : 0.822)) return false; //to be checked, needs vtx?
-  if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
-  if(!passConversionVeto()) return false;
-  return true;
+  return (eidCutLoose() > 0.5);
+  // //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  // if(full5x5_sigmaIEtaIEta()  >= ((isEB()) ? 0.0103: 0.0301)) return false; //to be updated to full5x5SigmaIEtaIEta
+  // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0105: 0.00814)) return false;
+  // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.115:  0.182)) return false;
+  // if(hadronicOverEM() >= ((isEB()) ? 0.104:  0.0897)) return false;
+  // if(PFIsolationRho2015() >= ((isEB()) ? 0.0893: 0.121)) return false; //to be updated
+  // //relIsoWithEA
+  // float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
+  // if(ooEmooP    >= ((isEB()) ? 0.102 : 0.126)) return false;
+  // if(Abs(dz())  >= ((isEB()) ? 0.0261: 0.118)) return false; //to be checked, needs vtx?
+  // if(Abs(dB()) >= ((isEB()) ? 0.41  : 0.822)) return false; //to be checked, needs vtx?
+  // if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
+  // if(!passConversionVeto()) return false;
+  // return true;
 }
 
 bool IDElectron::MediumID25ns() const {
-  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
-  if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101: 0.0283 )) return false; //to be updated to full5x5SigmaIEtaIEta
-  if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0103: 0.00733)) return false;
-  if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336: 0.114  )) return false;
-  if(hadronicOverEM() >= ((isEB()) ? 0.0876: 0.0678 )) return false;
-  if(PFIsolationRho2015() >= ((isEB()) ? 0.0766: 0.0678 )) return false; //to be updated
-  //relIsoWithEA
-  float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
-  if(ooEmooP    >= ((isEB()) ? 0.0174: 0.0898)) return false;
-  if(Abs(dz())  >= ((isEB()) ? 0.0118: 0.0739)) return false; //to be checked, needs vtx?
-  if(Abs(dB()) >= ((isEB()) ? 0.373 : 0.602 )) return false; //to be checked, needs vtx?
-  if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
-  if(!passConversionVeto()) return false;
-  return true;
+  return (eidCutMedium() > 0.5);
+  // //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  // if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101: 0.0283 )) return false; //to be updated to full5x5SigmaIEtaIEta
+  // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0103: 0.00733)) return false;
+  // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336: 0.114  )) return false;
+  // if(hadronicOverEM() >= ((isEB()) ? 0.0876: 0.0678 )) return false;
+  // if(PFIsolationRho2015() >= ((isEB()) ? 0.0766: 0.0678 )) return false; //to be updated
+  // //relIsoWithEA
+  // float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
+  // if(ooEmooP    >= ((isEB()) ? 0.0174: 0.0898)) return false;
+  // if(Abs(dz())  >= ((isEB()) ? 0.0118: 0.0739)) return false; //to be checked, needs vtx?
+  // if(Abs(dB()) >= ((isEB()) ? 0.373 : 0.602 )) return false; //to be checked, needs vtx?
+  // if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
+  // if(!passConversionVeto()) return false;
+  // return true;
 }
 
 bool IDElectron::TightID25ns() const {
-  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
-  if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101 : 0.0279 )) return false; //to be updated to full5x5SigmaIEtaIEta
-  if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.00926: 0.00724)) return false;
-  if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336 : 0.0918 )) return false;
-  if(hadronicOverEM() >= ((isEB()) ? 0.0597 : 0.0615 )) return false;
-  if(PFIsolationRho2015() >= ((isEB()) ? 0.0354 : 0.0646 )) return false; //to be updated
-  //relIsoWithEA
-  float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
-  if(ooEmooP    >= ((isEB()) ? 0.012 : 0.00999)) return false;
-  if(Abs(dz())  >= ((isEB()) ? 0.0111: 0.0351 )) return false; //to be checked, needs vtx?
-  if(Abs(dB()) >= ((isEB()) ? 0.0466: 0.417  )) return false; //to be checked, needs vtx?
-  if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
-  if(!passConversionVeto()) return false;
-  return true;
+  return (eidCutTight() > 0.5);
+  // //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  // if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101 : 0.0279 )) return false; //to be updated to full5x5SigmaIEtaIEta
+  // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.00926: 0.00724)) return false;
+  // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336 : 0.0918 )) return false;
+  // if(hadronicOverEM() >= ((isEB()) ? 0.0597 : 0.0615 )) return false;
+  // if(PFIsolationRho2015() >= ((isEB()) ? 0.0354 : 0.0646 )) return false; //to be updated
+  // //relIsoWithEA
+  // float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
+  // if(ooEmooP    >= ((isEB()) ? 0.012 : 0.00999)) return false;
+  // if(Abs(dz())  >= ((isEB()) ? 0.0111: 0.0351 )) return false; //to be checked, needs vtx?
+  // if(Abs(dB()) >= ((isEB()) ? 0.0466: 0.417  )) return false; //to be checked, needs vtx?
+  // if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
+  // if(!passConversionVeto()) return false;
+  // return true;
 }
 
 bool IDElectron::ID(IDS idtyp)
