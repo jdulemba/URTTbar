@@ -61,6 +61,7 @@ class Permutation
   friend std::ostream & operator<<(std::ostream &os, const Permutation& p);
 
 		TLorentzVector Nu() const {return(nu_);}
+		const TLorentzVector* NuPtr() const {return(&nu_);}
 		TLorentzVector WHad() const {return((*WJa() + *WJb()));}
 		TLorentzVector WLep() const {return((*L() + Nu()));}
 		TLorentzVector THad() const {return((WHad() + *BHad()));}
