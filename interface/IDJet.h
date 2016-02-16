@@ -7,13 +7,17 @@
 #include <TMath.h>
 #include <unordered_map>
 #include <string>
+#include "Logger.h"
+#include "BTagCalibrationStandalone.h"
 
 class IDJet : public Jet, public MCMatchable
 {
 private:
 	double rndm_;
 public:
-	enum BTag {NONE, CSVLOOSE, CSVMEDIUM, CSVTIGHT};
+	enum BTag {NONE, CSVLOOSE, CSVMEDIUM, CSVTIGHT, CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT};
+	enum IDType {NOTSET, CSV, CTAG};
+  
   static const std::unordered_map<std::string, IDJet::BTag> tag_names;
   static IDJet::BTag tag(std::string label);
 
@@ -35,16 +39,14 @@ public:
 
 	double rndm() const {return rndm_;}
 
-	bool BTagId(BTag wp) const
-	{
-		double threshold = -1.;
-		if(wp == BTag::NONE) return true;
-		else if(wp == BTag::CSVLOOSE)  threshold = 0.460;
-		else if(wp == BTag::CSVMEDIUM) threshold = 0.800;
-		else if(wp == BTag::CSVTIGHT)  threshold = 0.935;
-		
-		return csvIncl() > threshold;
-	}
+  static std::string tag2string(BTag id);
+  static IDType id_type(BTag id);
+  static std::string id_string(BTag id);
+  static BTagEntry::OperatingPoint tag_tightness(BTag id);
+
+	bool BTagId(BTag wp) const;
+	bool CTagId(BTag wp) const;
+  bool TagId(BTag wp) const;
 
 	bool ID()
 	{
