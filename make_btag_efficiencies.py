@@ -9,15 +9,18 @@ log = rootpy.log["/make_permutation_distros.py"]
 log.setLevel(rootpy.log.ERROR)
 
 jet_types = [('bjet', 'bottom'), ('cjet', 'charm'), ('ljet', 'light')]
-cut_types = ['loose', 'tight']
 
 jobid = os.environ['jobid']
-input_file = 'results/%s/permProbComputer/ttJets.root' % jobid
+input_file = 'results/%s/btag_topology_effs/ttJets.root' % jobid
 tfile = io.root_open(input_file)
 
-pt_bins  = [0.]+[10.*i+50 for i in range(25)]+[20.*i+300. for i in range(5)]+[30.*i+400. for i in range(5)]+[600, 1000]
-eta_bins = [-2.4, -1.6, -1.4, -1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2.4]
+pt_bins  = [0., 30, 60, 100, 150, 200, 1000]
+eta_bins = [-2.4, -1.4, -0.8, 0.0, 0.8, 1.4, 2.4]
 hview = urviews.RebinView(tfile, [pt_bins, eta_bins])
+
+alljet_cut_types = set([i.name.split('_')[1] for i in tfile.nosys.alljets.keys()])
+wjet_cut_types   = set([i.name.split('_')[1] for i in tfile.nosys.Wjets.keys()])
+wjet_cut_types.discard('NONE')
 
 def make_efficiency(hpass, hall):
    eff = hpass.Clone()
@@ -30,14 +33,28 @@ def make_efficiency(hpass, hall):
          log.error('bin (%.0f, %.2f) has 0 efficiency' % (bin_eff.x.center, bin_eff.y.center))
    return eff
 
-with io.root_open('inputs/%s/INPUT/btag_efficiencies.root' % jobid, 'recreate') as outfile:   
+with io.root_open('inputs/%s/INPUT/btag_general_efficiencies.root' % jobid, 'recreate') as outfile:   
    for jtype, dname in jet_types:
       jdir = outfile.mkdir(dname)
       jdir.cd()
-      for cut_type in cut_types:
+      for cut_type in alljet_cut_types:
          log.info("computing efficiency for %s, %s jets" % (cut_type, jtype))
-         h_all  = hview.Get('semilep_visible_right/nosys/btag_%s_%s_all'  % (cut_type, jtype))
-         h_pass = hview.Get('semilep_visible_right/nosys/btag_%s_%s_pass' % (cut_type, jtype))
+         h_all  = hview.Get('nosys/alljets/btag_%s_%s_all'  % (cut_type, jtype))
+         h_pass = hview.Get('nosys/alljets/btag_%s_%s_pass' % (cut_type, jtype))
+         ## h_all.Rebin2D()
+         ## h_pass.Rebin2D()
+         eff = make_efficiency(h_pass, h_all)
+         jdir.WriteTObject(eff, '%s_eff' % cut_type)
+
+
+with io.root_open('inputs/%s/INPUT/btag_wjets_efficiencies.root' % jobid, 'recreate') as outfile:   
+   for jtype, dname in jet_types:
+      jdir = outfile.mkdir(dname)
+      jdir.cd()
+      for cut_type in wjet_cut_types:
+         log.info("computing efficiency for %s, %s jets" % (cut_type, jtype))
+         h_all  = hview.Get('nosys/Wjets/WjetTag_%s_%s_all'  % (cut_type, jtype))
+         h_pass = hview.Get('nosys/Wjets/WjetTag_%s_%s_pass' % (cut_type, jtype))
          ## h_all.Rebin2D()
          ## h_pass.Rebin2D()
          eff = make_efficiency(h_pass, h_all)
