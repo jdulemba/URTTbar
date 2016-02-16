@@ -3,49 +3,87 @@
 #include "PDGID.h"
 #include "URParser.h"
 #include <string>
-#include "DataFile.h"
 #include "Logger.h"
 #include "TFile.h"
 #include <cmath>
 
-BTagSFProducer::BTagSFProducer(TTPermutator &permutator, float float_c, float float_l, float float_b):
-  float_c_(float_c),
-  float_l_(float_l),
-  float_b_(float_b) {
+BTagSFProducer::BTagSFProducer(TTPermutator &permutator, float float_c, float float_l, float float_b) {
+  URParser &parser = URParser::instance();
+  parser.addCfgParameter<std::string>("general", "btag_sf", "source file for btag scale factors");
+  parser.addCfgParameter<std::string>("general", "btag_eff", "source file for btag efficiencies");
+  parser.parseArguments();
+
+  DataFile sf_file( parser.getCfgPar<std::string>("general", "btag_sf"));
+  DataFile eff_file(parser.getCfgPar<std::string>("general", "btag_eff"));
+  configure(sf_file, eff_file, permutator.tight_bID_cut(), permutator.loose_bID_cut(), float_c, float_l, float_b);
+}
+
+BTagSFProducer::BTagSFProducer(std::string tight, std::string loose, float float_c, float float_l, float float_b) {
+  URParser &parser = URParser::instance();
+  parser.addCfgParameter<std::string>("general", "btag_sf", "source file for btag scale factors");
+  parser.addCfgParameter<std::string>("general", "btag_eff", "source file for btag efficiencies");
+
+  size_t dot = tight.find(".");
+  std::string group(tight, 0, dot);
+  std::string par(tight, dot+1, tight.size()-dot);
+  parser.addCfgParameter<std::string>(group, par, "");
+  dot = loose.find(".");
+  std::string group2(loose, 0, dot);
+  std::string par2(loose, dot+1, loose.size()-dot);
+  parser.addCfgParameter<std::string>(group2, par2, "");
+
+  parser.parseArguments();
+
+  string a = parser.getCfgPar<string>(tight);
+  string b = parser.getCfgPar<string>(loose);
+  
+  IDJet::BTag tighttag = IDJet::tag(a);
+  IDJet::BTag loosetag = IDJet::tag(b);
+
+  DataFile sf_file( parser.getCfgPar<std::string>("general", "btag_sf"));
+  DataFile eff_file(parser.getCfgPar<std::string>("general", "btag_eff"));
+  configure(sf_file, eff_file, tighttag, loosetag, float_c, float_l, float_b);
+}
+
+BTagSFProducer::BTagSFProducer(const DataFile &sf_file, const DataFile &eff_file,
+                               IDJet::BTag tighttag, IDJet::BTag loosetag, 
+                               float float_c, float float_l, float float_b) {
+  configure(sf_file, eff_file, tighttag, loosetag, float_c, float_l, float_b);
+}
+
+void BTagSFProducer::configure(const DataFile &sf_file, const DataFile &eff_file,
+                               IDJet::BTag tighttag, IDJet::BTag loosetag, 
+                               float float_c, float float_l, float float_b) {
+  float_c_ = float_c;
+  float_l_ = float_l;
+  float_b_ = float_b;
+  tight_ = tighttag;
+  loose_ = loosetag;
 
   if(float_c_ > 1. || float_l_ > 1. || float_b_ > 1.) {
     Logger::log().fatal() << "You cannot float a SF for a value > 1!" << std::endl;
     throw 42;
   }
 
-  URParser &parser = URParser::instance();
-  parser.addCfgParameter<std::string>("general", "btag_sf", "source file for btag scale factors");
-  parser.addCfgParameter<std::string>("general", "btag_eff", "source file for btag efficiencies");
-  parser.parseArguments();
-
-  DataFile sf_file(parser.getCfgPar<std::string>("general", "btag_sf"));
-  DataFile eff_file(parser.getCfgPar<std::string>("general", "btag_eff"));
 
   //defined by the permutator they MUST be the same, therefore, not double definition
-  BTagEntry::OperatingPoint wp_tight;  
-  switch(permutator.tight_bID_cut()){
-  case IDJet::BTag::CSVLOOSE: wp_tight = BTagEntry::OperatingPoint::OP_LOOSE; break;
-  case IDJet::BTag::CSVMEDIUM: wp_tight = BTagEntry::OperatingPoint::OP_MEDIUM; break;
-  case IDJet::BTag::CSVTIGHT: wp_tight = BTagEntry::OperatingPoint::OP_TIGHT; break;
-  case IDJet::BTag::NONE: break;
-  }
+  BTagEntry::OperatingPoint wp_tight = IDJet::tag_tightness(tighttag);  
+  BTagEntry::OperatingPoint wp_loose = IDJet::tag_tightness(loosetag);
+  no_loose_cut_ = (wp_loose == BTagEntry::OperatingPoint::OP_NOTSET);
+  if(no_loose_cut_) wp_loose = wp_tight;
 
-  BTagEntry::OperatingPoint wp_loose;
-  switch(permutator.loose_bID_cut()){
-  case IDJet::BTag::CSVLOOSE: wp_loose = BTagEntry::OperatingPoint::OP_LOOSE; break;
-  case IDJet::BTag::CSVMEDIUM: wp_loose = BTagEntry::OperatingPoint::OP_MEDIUM; break;
-  case IDJet::BTag::CSVTIGHT: wp_loose = BTagEntry::OperatingPoint::OP_TIGHT; break;
-  case IDJet::BTag::NONE: wp_loose = wp_tight; no_loose_cut_=true; break;
+  std::string calibration_type = IDJet::id_string(tighttag);
+  if(!no_loose_cut_) {
+    if(calibration_type != IDJet::id_string(loosetag)) {
+      Logger::log().fatal() << "BTagSFProducer: Mixing cuts on " << calibration_type << 
+        "and " << IDJet::id_string(loosetag) << " is not allowed!" << std::endl;
+      throw 42;
+    }
   }
 
   //
   try {
-    calibration_ = BTagCalibration("csvv2", sf_file.path());
+    calibration_ = BTagCalibration(calibration_type, sf_file.path());
   } catch(std::exception e) {
     Logger::log().fatal() << "BTagSFProducer::BTagSFProducer caught an exception in instantiating the BTagCalibration with input file: " <<
       sf_file.path() << std::endl;
@@ -59,49 +97,51 @@ BTagSFProducer::BTagSFProducer(TTPermutator &permutator, float float_c, float fl
   readers_loose_[1] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "central"); //[down, central, up]
   readers_loose_[2] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "up"); //[down, central, up]
 
-  TH1::AddDirectory(false);
   TFile eff_tfile(eff_file.path().c_str());
-  eff_light_tight  = get_from<TH2D>(eff_tfile, "light/tight_eff", "t_eff");
-  eff_charm_tight  = get_from<TH2D>(eff_tfile, "charm/tight_eff", "t_eff");
-  eff_bottom_tight = get_from<TH2D>(eff_tfile, "bottom/tight_eff", "t_eff");
+  TH1::AddDirectory(false);
+  eff_light_tight  = get_from<TH2D>(eff_tfile, "light/"  + IDJet::tag2string(tighttag) + "_eff", "t_l_eff");
+  eff_charm_tight  = get_from<TH2D>(eff_tfile, "charm/"  + IDJet::tag2string(tighttag) + "_eff", "t_c_eff");
+  eff_bottom_tight = get_from<TH2D>(eff_tfile, "bottom/" + IDJet::tag2string(tighttag) + "_eff", "t_b_eff");
   
   if(!no_loose_cut_){
-    eff_light_loose = get_from<TH2D>(eff_tfile, "light/loose_eff", "l_eff");
-    eff_charm_loose = get_from<TH2D>(eff_tfile, "charm/loose_eff", "l_eff");
-    eff_bottom_loose = get_from<TH2D>(eff_tfile, "bottom/loose_eff", "l_eff");
+    eff_light_loose  = get_from<TH2D>(eff_tfile, "light/"  + IDJet::tag2string(loosetag) + "_eff", "l_l_eff");
+    eff_charm_loose  = get_from<TH2D>(eff_tfile, "charm/"  + IDJet::tag2string(loosetag) + "_eff", "l_c_eff");
+    eff_bottom_loose = get_from<TH2D>(eff_tfile, "bottom/" + IDJet::tag2string(loosetag) + "_eff", "l_b_eff");
   }
   else {
     eff_light_loose  = eff_light_tight ;
     eff_charm_loose  = eff_charm_tight ;
     eff_bottom_loose = eff_bottom_tight;
   }    
+  eff_tfile.Close();
   TH1::AddDirectory(true);
 }
 
 BTagSFProducer::~BTagSFProducer() {
-  if(eff_light_tight) {
-    delete eff_light_tight ;
-    delete eff_charm_tight ;
-    delete eff_bottom_tight;
-    if(!no_loose_cut_) {
-      delete eff_light_loose ;
-      delete eff_charm_loose ;
-      delete eff_bottom_loose;  
-    }    
-  }
+  //LEADS TO A MEM LEAK, I know, would be better to smart pointers or override the copy constructor
+  // std::cout << "TO BE DELTED " << eff_light_tight << std::endl;
+  // if(eff_light_tight) {
+  //   std::cout << "Deleting tight" << std::endl;
+  //   delete eff_light_tight ;
+  //   delete eff_charm_tight ;
+  //   delete eff_bottom_tight;
+  //   if(!no_loose_cut_) {
+  //     std::cout << "Deleting loose" << std::endl;
+  //     delete eff_light_loose ;
+  //     delete eff_charm_loose ;
+  //     delete eff_bottom_loose;  
+  //   }    
+  // }
 }
 
-double BTagSFProducer::scale_factor(TTPermutator &permutator, systematics::SysShifts shift) {
+double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift) {
   double mc_prob=1;
   double data_like_prob=1; //it's called data, but is on MC!
 
   BTagCalibrationReader *reader_loose = 0; //&readers_loose_[1];
   BTagCalibrationReader *reader_tight = 0; //&readers_tight_[1];
 
-  auto loose_b = permutator.loose_bID_cut();
-  auto tight_b = permutator.tight_bID_cut();
-  
-  for(auto jet : permutator.capped_jets()) {
+  for(auto jet : jets) {
     BTagEntry::JetFlavor jet_flav;
     double jpt = jet->Pt();
     double jeta = jet->Eta();
@@ -160,8 +200,8 @@ double BTagSFProducer::scale_factor(TTPermutator &permutator, systematics::SysSh
     double loose_sf = -1.;
 
     if(float_value < 0) { //use provided SF
-      BTagCalibrationReader *reader_loose = &readers_loose_[idx];
-      BTagCalibrationReader *reader_tight = &readers_tight_[idx];
+      reader_loose = &readers_loose_[idx];
+      reader_tight = &readers_tight_[idx];
       try { 
         tight_sf = reader_tight->eval(jet_flav, jet->Eta(), jet->Pt());
         loose_sf = reader_loose->eval(jet_flav, jet->Eta(), jet->Pt());
@@ -186,11 +226,11 @@ double BTagSFProducer::scale_factor(TTPermutator &permutator, systematics::SysSh
       }
     }
 
-    if(jet->BTagId(tight_b)) {
+    if(jet->TagId(tight_)) {
       mc_prob *= eff_tight;
       data_like_prob *= eff_tight*tight_sf;
     }
-    else if(loose_b != IDJet::BTag::NONE && jet->BTagId(loose_b)) {
+    else if(loose_ != IDJet::BTag::NONE && jet->TagId(loose_)) {
       mc_prob *= (eff_loose - eff_tight);
       data_like_prob *= (
         eff_loose*loose_sf - 
@@ -207,5 +247,6 @@ double BTagSFProducer::scale_factor(TTPermutator &permutator, systematics::SysSh
     Logger::log().error() << "MC Probability is 0!" << std::endl;
     throw 49;
   }
+
   return (mc_prob != 0.) ? data_like_prob/mc_prob : 0.;
 }
