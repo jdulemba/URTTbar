@@ -36,27 +36,7 @@
 
 using namespace TMath;
 
-static map<string, IDJet::BTag> available_bjet_id = {
-	{"none"     , IDJet::BTag::NONE},
-	{"csvMedium", IDJet::BTag::CSVMEDIUM},
-	{"csvLoose" , IDJet::BTag::CSVLOOSE},
-	{"csvTight" , IDJet::BTag::CSVTIGHT},
-
-	{"ctagMedium", IDJet::BTag::CTAGMEDIUM},
-	{"ctagLoose" , IDJet::BTag::CTAGLOOSE},
-	{"ctagTight" , IDJet::BTag::CTAGTIGHT},
-};	
-
-static map<string, std::function<bool(const Permutation &, const Permutation &)> > available_ordering = {
-	{"full_discriminant", [](const Permutation &one, const Permutation &two) {return  one.Prob()  < two.Prob() ;}         },
-	{"nu_chisq"         , [](const Permutation &one, const Permutation &two) {return  one.NuChisq() 	 < two.NuChisq() ;}	},
-	{"nu_discriminant"	 , [](const Permutation &one, const Permutation &two) {return  one.NuDiscr() 	 < two.NuDiscr() ;}	},
-	{"btag_discriminant", [](const Permutation &one, const Permutation &two) {return  one.BDiscr()  	 < two.BDiscr()  ;}	},
-	{"mass_discriminant", [](const Permutation &one, const Permutation &two) {return  one.MassDiscr() < two.MassDiscr();} },
-};
-
-
-class ctag_eff : public AnalyzerBase
+class topspin_reco : public AnalyzerBase
 {
 public:
 	enum TTNaming {RIGHT, RIGHT_THAD, RIGHT_WHAD, RIGHT_TLEP, WRONG, OTHER};
@@ -67,7 +47,7 @@ private:
 	CutFlowTracker tracker_;
 
 	//switches
-	bool isData_, isTTbar_, run_jes_;
+	bool isData_, isTTbar_, run_pdfs_;
 
   //selectors and helpers
   TTGenParticleSelector genp_selector_;
@@ -122,8 +102,8 @@ public:
     else return nosys;
   }
 
-  ctag_eff(const std::string output_filename):
-    AnalyzerBase("ctag_eff", output_filename), 
+  topspin_reco(const std::string output_filename):
+    AnalyzerBase("topspin_reco", output_filename), 
 		tracker_(),
 		working_points_(),
     object_selector_(),
@@ -163,6 +143,7 @@ public:
     Logger::log().debug() << "isData_: " << isData_ << ", isTTbar_: " << isTTbar_ << endl;
     systematics_ = get_systematics(output_file);
     int nosys = values["nosys"].as<int>();
+    run_pdfs_ = values["nopdfs"].as<int>();
     if(nosys == 1) {
       systematics_ = {systematics::SysShifts::NOSYS};
       Logger::log().info() << "DISABLING SYSTEMATICS!" << endl;
@@ -178,42 +159,8 @@ public:
     string filename = "prob_ttJets.root";
     Logger::log().debug() << "solver file: " << filename << endl;
     TFile probfile(DataFile(filename).path().c_str());
-    // for(auto shift : systematics_) {
     TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-    //   if(!td) td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());      
     solver_.Init(td, false, true, true);
-    // }
-
-		//SET CUTS FROM CFG
-		cut_ordering_ = parser.getCfgPar<string>("permutations.ordering");
-		ordering_fcn_ = available_ordering[cut_ordering_];
-
-		working_points_["notag"]     = [](const IDJet* jet) {return false;};
-		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);};
-		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
-		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
-		working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
-		working_points_["ctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGTIGHT);};
-		working_points_["ctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGMEDIUM);};
-
-    //Get appropriate SFs for the probe working points
-    DataFile csv_sfs(parser.getCfgPar<string>("general.csv_sffile"));
-    DataFile wjet_efficiency(parser.getCfgPar<string>("general.wjets_efficiencies"));
-    DataFile dummy;
-    wp_SFs_["csvLoose" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["csvTight" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["csvMedium"] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["ctagLoose" ] = BTagSFProducer(dummy, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, 0.5, 0.5); 
-    wp_SFs_["ctagTight" ] = BTagSFProducer(dummy, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, 0.5, 0.5); 
-    wp_SFs_["ctagMedium"] = BTagSFProducer(dummy, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, 0.5, 0.5); 
-
-    wp_SFs_["csvLoose" ].ignore_general_shifts();
-    wp_SFs_["csvTight" ].ignore_general_shifts();
-    wp_SFs_["csvMedium"].ignore_general_shifts();
-    wp_SFs_["ctagLoose" ].ignore_general_shifts(); 
-    wp_SFs_["ctagTight" ].ignore_general_shifts(); 
-    wp_SFs_["ctagMedium"].ignore_general_shifts(); 
-    // // working_points_[] = [](const Jet* jet) {};
 
 		naming_[TTNaming::RIGHT ] = "semilep_visible_right";
 		naming_[TTNaming::RIGHT_THAD ] = "semilep_right_thad";
@@ -243,7 +190,9 @@ public:
   //book here your histograms/tree and run every initialization needed
 	void book_combo_plots(string folder){
 		book<TH1F>(folder, "mass_discriminant", "", 20,   0., 20.);
+		book<TH1F>(folder, "full_discriminant", "", 20,   0., 20.);
 
+		book<TH1F>(folder, "nuchi", "",    20, 0., 100);			
 		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
 		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
 	}
@@ -252,7 +201,6 @@ public:
 		auto dir = histos_.find(folder);
 		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
     
-
 		double whad_mass = hyp.WHad().M();
 		double thad_mass = hyp.THad().M();
 		dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
@@ -319,8 +267,8 @@ public:
 		book<TH1F>(folder, "Wjets_CvsB_C" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjets_CvsL_S" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjets_CvsB_S" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsL_L" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_L" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_CvsL_UD" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_CvsB_UD" , "", 55, -1., 1.1);
 
 		book<TH1F>(folder, "Wjets_CvsL" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjets_CvsB" , "", 55, -1., 1.1);
@@ -358,7 +306,8 @@ public:
       if(hflav == 5) flav="B";
       else if(hflav == 4) flav="C";
       else if(pflav == 3) flav="S";
-      else flav="L"; 
+      else if(pflav == 1 | pflav == 2) flav="UD"; 
+      else continue;
       dir->second["Wjets_CvsL_"+flav].fill(hyp.WJa()->CvsLtag() , evt_weight_);
       dir->second["Wjets_CvsB_"+flav].fill(hyp.WJa()->CvsBtag() , evt_weight_);    
     }
@@ -404,23 +353,20 @@ public:
 
   virtual void begin()
   {
-    Logger::log().debug() << "ctag_eff::begin" << endl;
+    Logger::log().debug() << "topspin_reco::begin" << endl;
     outFile_.cd();
 		vector<string> folders;
 
 		//FIXME use folders as root dir, makes much more sense!
 		//Would also be nice to have nothing instead of "all" for the others
 		//semilep_visible_right becomes a SubdirectoryView in the plotter
-		if(isTTbar_) folders = {"semilep_visible_right", "semilep_right_thad",
-														"semilep_right_tlep", "semilep_right_whad", "semilep_wrong", "other"};
+		if(isTTbar_) {
+      for(auto &entry : naming_) folders.push_back(entry.second);
+    }
 		else folders = {""};
-		// string folders[] = {"all", "semilep_visible_right", "semilep_right_thad", 
-		// 										"semilep_right_tlep", "semilep_right_whad", "semilep_wrong", "other"};
-		string wjet_folders[] = {"leading", "subleading"};
-		string tagging[] = {"lead_tagged", "sublead_tagged", "both_tagged", "both_untagged"};
+		string tag_folders[] = {"tagged", "untagged"};
+    string lep_charges[] = {"lplus", "lminus"};
 
-    //TH1::AddDirectory(true);
-		//if(isTTbar_) book_hyp_plots("gen");
 		for(auto& genCategory : folders){			
 			for(auto& sys : systematics_){
 				string gcategory;
@@ -430,27 +376,25 @@ public:
           book_presel_plots(gcategory+sys_name+"/preselection");
           book_combo_plots(gcategory+sys_name+"/permutations");
         }
-				string criterion = cut_ordering_;
-				for(auto& wp_item : working_points_) {
-					string working_point = wp_item.first;
-					string base;
-					if(!genCategory.empty()) base  = genCategory +"/";
-					base += sys_name + "/" + criterion + "/" + working_point;
-					book<TH1F>(base, "dummy"  , "", 1, 0., 500.);
-					for(auto& tag : tagging){
-						if(working_point == "notag" && tag != "both_untagged") continue;
-						string folder = base + "/" + tag;
+				for(auto& tag : tag_folders) {
+          for(auto& lc : lep_charges) {
+            string base;
+            if(!genCategory.empty()) base  = genCategory +"/";
+            base += sys_name + "/" + tag;
+            book<TH1F>(base, "dummy"  , "", 1, 0., 500.);
+            if(working_point == "notag" && tag != "both_untagged") continue;
+            string folder = base + "/" + tag;
 						
-						book_combo_plots(folder);
-            if(isTTbar_ && sys == systematics::SysShifts::NOSYS) book_pdf_plots(folder);
-						if(working_point == "notag") book_notag_plots(folder);
+            book_combo_plots(folder);
+            if(sys == systematics::SysShifts::NOSYS) book_pdf_plots(folder);
+            if(working_point == "notag") book_notag_plots(folder);
 
-						for(auto& w_folder : wjet_folders){
-							string current = folder + "/" + w_folder;
+            for(auto& w_folder : wjet_folders){
+              string current = folder + "/" + w_folder;
               book_jet_plots(current);
-						}
-					}//for(auto& tag : tagging)
-				}//for(auto& wp_item : working_points_)
+            }
+          } //for(auto& lc : lep_charges) {
+				}//for(auto& tag : tag_folders)
 			}//for(auto& sys : systematics){
 		}//for(auto& genCategory : folders)
   }
@@ -606,7 +550,7 @@ public:
       //Logger::log().debug() << "filling: " << folder << endl;
       if(wpoint.first == "notag") fill_notag_plots(folder, best_permutation);
       fill(folder, best_permutation);
-      if(isTTbar_ && shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
+      if(shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
     }
 	}
 
@@ -619,7 +563,7 @@ public:
 		int skip  = values["skip"].as<int>();
 
     if(evt_idx_ >= limit) return;
-    Logger::log().debug() << "ctag_eff::analyze" << endl;
+    Logger::log().debug() << "topspin_reco::analyze" << endl;
     URStreamer event(tree_);
 
 		tracker_.deactivate();
@@ -669,14 +613,13 @@ public:
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
 		opts.add_options()
       ("nosys", opts::value<int>()->default_value(0), "do not run systematics")
+      ("nopdfs", opts::value<int>()->default_value(0), "do not run pdf uncertainties")
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file");
 
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");
 
-    parser.addCfgParameter<std::string>("permutations", "ordering", "ID to be applied");
-    //("permutations.ordering", opts::value<string>()->default_value("mass_discriminant"));
 	}
 };
 
@@ -684,6 +627,6 @@ public:
 int main(int argc, char *argv[])
 {
   URParser &parser = URParser::instance(argc, argv);
-  URDriver<ctag_eff> test;
+  URDriver<topspin_reco> test;
   return test.run();
 }

@@ -33,9 +33,13 @@ Permutation TTGenMatcher::match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets,
 	ret.WJb( gen_match(gen_hyp.had_W()->second, jets) );
 
 	if(fabs(lepton->pdgId()) == ura::PDGID::e){
-		ret.L( gen_match(lepton, electrons) );
+    IDElectron* matched = gen_match(lepton, electrons);
+		ret.L(matched);
+    if(matched) ret.LepCharge(matched->charge());
 	}else{
-		ret.L( gen_match(lepton, muons) );
+    IDMuon* matched = gen_match(lepton, muons);
+		ret.L(matched);
+    if(matched) ret.LepCharge(matched->charge());
 	}
 	//neutrino is not set
 	return ret;

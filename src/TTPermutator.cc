@@ -40,11 +40,12 @@ void TTPermutator::configure() {
   }
 }
 
-bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met) {
+bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc) {
   reset(); //clear everything
   jets_ = jets;
   lepton_ = lepton;
   met_ = met;
+  lcharge_ = lc;
 
   //keeping only the n leading jets. 
 	sort(jets_.begin(), jets_.end(), [](IDJet* A, IDJet* B){return(A->Pt() > B->Pt());});

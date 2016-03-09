@@ -67,6 +67,9 @@ public:
     }
   }
 
+  GenObject *up()   {return (first->pdgId() % 2 == 0) ? first : second;}
+  GenObject *down() {return (first->pdgId() % 2 == 0) ? second : first;}
+
   friend std::ostream & operator<<(std::ostream &os, const GenW& w);
 };
 

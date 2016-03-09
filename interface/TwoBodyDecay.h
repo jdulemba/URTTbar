@@ -41,20 +41,18 @@ public:
     fst_(one),
     snd_(two) {}
 
+  TwoBodyDecay(const TLorentzVector *val, std::shared_ptr<TwoBodyDecay> one, std::shared_ptr<TwoBodyDecay> two): //decay products and total
+    TLorentzVector(*val),
+    fst_(one),
+    snd_(two) {}
+
   std::shared_ptr<TwoBodyDecay> fst() {return fst_;}
   std::shared_ptr<TwoBodyDecay> snd() {return snd_;}
 
-  void boost(const TVector3 &v) {
-    this->Boost(v);
-    if(fst_.get()) fst_->Boost(v);
-    if(snd_.get()) snd_->Boost(v);
-  }
+  std::shared_ptr<TwoBodyDecay> clone();
 
-  TwoBodyDecay to_CM() {
-    TwoBodyDecay ret = *this;
-    ret.boost(this->BoostVector()*-1);
-    return ret;
-  }
+  void boost(const TVector3 &v);
+  std::shared_ptr<TwoBodyDecay> to_CM();
 
   TVector3 unit3D() { return this->Vect().Unit(); }
   double cosThetaStar_decay();

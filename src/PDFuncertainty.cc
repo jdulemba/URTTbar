@@ -1,132 +1,73 @@
 #include "PDFuncertainty.h"
 #include "TDirectory.h"
 #include "URStreamer.h"
+#include "Logger.h"
 
-#include <sstream>
-
-PDFuncertainty::PDFuncertainty(const string setorigname, int memorig, const vector<string>& setnames) : oldx1(0.)
-{
-	setorig = new PDFSet(setorigname);
-	pdforig = setorig->mkPDF(memorig);
+using namespace std;
+using namespace LHAPDF;        
+PDFuncertainty::PDFuncertainty(const string setorigname, int memorig, const vector<string>& setnames) : 
+  oldx1_(0.),
+  use_evt_weights_(false),
+  nweights_(-1) {
+	setorig_ = new PDFSet(setorigname);
+	pdforig_ = setorig_->mkPDF(memorig);
 	for(const string& setname : setnames)
 	{
-		sets.push_back(new PDFSet(setname));
-		pdfs.push_back(sets.back()->mkPDFs());
-		weights.push_back(vector<double>(pdfs.back().size()));
+		sets_.push_back(new PDFSet(setname));
+		pdfs_.push_back(sets_.back()->mkPDFs());
+		weights_.push_back(vector<double>(pdfs_.back().size()));
 	}
 }
+
+PDFuncertainty::PDFuncertainty(int nweights):
+  oldx1_(0.),
+  use_evt_weights_(true),
+  nweights_(nweights),
+  setorig_(),
+  pdforig_(),
+  sets_(),
+  pdfs_(),
+  weights_() {}
 
 PDFuncertainty::~PDFuncertainty() 
 {
 
 }
 
-void PDFuncertainty::Add1dHist(string name, Int_t bins, Double_t min, Double_t max, string xlabel, string ylabel)
-{
-	hist1d[name].resize(sets.size()); 		
-	TDirectory* olddir = gDirectory;
-	TDirectory* newdir = olddir->mkdir(name.c_str());
-	for(size_t s = 0 ; s < sets.size() ; ++s)
-	{
-		newdir->cd();
-		TDirectory* setdir = newdir->mkdir((sets[s]->name()).c_str());
-		setdir->cd();
-		for(size_t p = 0 ; p < pdfs[s].size() ; ++p)
-		{
-			stringstream hname;
-			hname  <<  "pdf_" << p;
-			hist1d[name][s].push_back(new TH1D(hname.str().c_str(), hname.str().c_str(), bins, min, max));
-			hist1d[name][s][p]->Sumw2();
-			hist1d[name][s][p]->GetXaxis()->SetTitle(xlabel.c_str());
-			hist1d[name][s][p]->GetYaxis()->SetTitle(ylabel.c_str());
-		}
-	}
-	newdir->cd();
-	histdir[name] = newdir->mkdir("Iweights");
-	histdir[name]->cd();
-	Whist1d[name].push_back(new TH1D("weight_1", "weight_1", bins, min, max));	
-	olddir->cd();
-}
-
-void PDFuncertainty::Add1dHist(string name, const vector<double>& bins, string xlabel, string ylabel)
-{
-	hist1d[name].resize(sets.size()); 		
-	TDirectory* olddir = gDirectory;
-	TDirectory* newdir = olddir->mkdir(name.c_str());
-	for(size_t s = 0 ; s < sets.size() ; ++s)
-	{
-		newdir->cd();
-		TDirectory* setdir = newdir->mkdir((sets[s]->name()).c_str());
-		setdir->cd();
-		for(size_t p = 0 ; p < pdfs[s].size() ; ++p)
-		{
-			stringstream hname;
-			hname << "pdf_" << p;
-			hist1d[name][s].push_back(new TH1D(hname.str().c_str(), hname.str().c_str(), bins.size()-1, bins.data()));
-			hist1d[name][s][p]->Sumw2();
-			hist1d[name][s][p]->GetXaxis()->SetTitle(xlabel.c_str());
-			hist1d[name][s][p]->GetYaxis()->SetTitle(ylabel.c_str());
-		}
-	}
-	newdir->cd();
-	histdir[name] = newdir->mkdir("Iweights");
-	histdir[name]->cd();
-	Whist1d[name].push_back(new TH1D("weight_1", "weight_1", bins.size()-1, bins.data()));	
-	olddir->cd();
-}
-
-void PDFuncertainty::SetupWeights()
-{
-	const Geninfo& info = streamer->genInfo();
+void PDFuncertainty::SetupWeights(URStreamer& streamer) {
+	const Geninfo& info = streamer.genInfo();
 	double x1 = info.x1();	
-	if(oldx1 == x1) return;
-	oldx1 = x1;
+	if(oldx1_ == x1) return;
+	oldx1_ = x1;
 	double x2 = info.x2();
 	double Q = info.renScale();
 	int id1 = info.pdfid1();	
 	int id2 = info.pdfid2();	
-	for(size_t s = 0 ; s < sets.size() ; ++s)
-	{
-		for(size_t p = 0 ; p < pdfs[s].size() ; ++p)
-		{
-			weights[s][p] = pdfs[s][p]->xfxQ(id1,x1,Q)/pdforig->xfxQ(id1,x1,Q) * pdfs[s][p]->xfxQ(id2,x2,Q)/pdforig->xfxQ(id2,x2,Q);
+	for(size_t s = 0 ; s < sets_.size() ; ++s) {
+		for(size_t p = 0 ; p < pdfs_[s].size() ; ++p) {
+			weights_[s][p] = pdfs_[s][p]->xfxQ(id1,x1,Q)/pdforig_->xfxQ(id1,x1,Q) * pdfs_[s][p]->xfxQ(id2,x2,Q)/pdforig_->xfxQ(id2,x2,Q);
 		}
 	}
 }
 
-void PDFuncertainty::Fill1d(string name, double val, double weight)
-{
-	SetupWeights();
-	for(size_t s = 0 ; s < sets.size() ; ++s)
-	{
-		for(size_t p = 0 ; p < pdfs[s].size() ; ++p)
-		{
-			hist1d[name][s][p]->Fill(val, weight*weights[s][p]);
-		}
+void PDFuncertainty::fill_replicas(string dirname, string name, double val, double weight, URStreamer& streamer) {
+  if(!use_evt_weights_) {
+    SetupWeights(streamer);
+    for(size_t s = 0 ; s < sets_.size() ; ++s) {
+      for(size_t p = 0 ; p < pdfs_[s].size() ; ++p) {
+        hist1d_[dirname][name][s][p]->Fill(val, weight*weights_[s][p]);
+      }
+    }
+    return;
+  }
+
+	const vector<Mcweight>& ws =  streamer.MCWeights();
+	if(hist1d_[dirname][name].size() > ws.size()) {
+    Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is more than what I expected!" << endl; 
+    throw 42;
 	}
 
-	const vector<Mcweight>& ws =  streamer->MCWeights();
-	if(Whist1d[name].size() != ws.size())
-	{
-		TDirectory* olddir = gDirectory;
-		histdir[name]->cd();
-		Whist1d[name].reserve(ws.size());
-		for(size_t h = 2 ; h <= ws.size() ; ++h)
-		{
-			stringstream hname;
-			hname  << "weight_" << h;
-			Whist1d[name].push_back(new TH1D(*Whist1d[name][0]));
-			Whist1d[name].back()->SetName(hname.str().c_str());
-			Whist1d[name].back()->SetTitle(hname.str().c_str());
-		}
-		olddir->cd();
+	for(size_t h = 0 ; h < ws.size() ; ++h) {
+		hist1d_[dirname][name][0][h]->Fill(val, weight*ws[h].weights()/ws[0].weights());
 	}
-
-	for(size_t h = 0 ; h < ws.size() ; ++h)
-	{
-		Whist1d[name][h]->Fill(val, weight*ws[h].weights()/ws[0].weights());
-	}
-
 }
-
-URStreamer* PDFuncertainty::streamer = 0;

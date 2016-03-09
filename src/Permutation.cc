@@ -5,13 +5,14 @@
 
 using namespace std;
 
-Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met) :
+Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge) :
 	wja_(wja),
 	wjb_(wjb),
 	bjh_(bjh),
 	bjl_(bjl),
 	lep_(lep),
-	met_(met)
+	met_(met),
+  lepcharge_(lcharge)
 {
 }
 

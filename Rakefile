@@ -431,7 +431,7 @@ rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
     if File.readlines("datacard.txt").grep(/NOLIGHTSFFIT/).size > 0
       opts = '--PO fitLightEff=False --PO lightConstantsJson=datacard.json'
     else
-      opts = ''
+      opts = '--PO lightConstantsJson=datacard.json'
     end
     sh "text2workspace.py datacard.txt -P URAnalysis.AnalysisTools.statistics.CTagEfficiencies:ctagEfficiency #{opts} -o #{File.basename(t.name)}"
   end
@@ -513,7 +513,8 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
         toy_cmd += '--saveToys --expectSignal 1 -t -1'
       end
       puts 'running MaxLikelihood fit with Profile-Likelyhood errors'
-      sh "#{combine_cmd} #{toy_cmd}"
+      sh "#{combine_cmd} #{toy_cmd} &> fit.log"
+      sh "cat fit.log"
       sh "mv mlfit.root #{File.basename(t.name)}"      
     end
     #sh "mv higgsCombineTest.MultiDimFit.mH120.root MultiDimFit.root"
@@ -525,8 +526,29 @@ task :ctag_fit, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
 end
 
+task :ctag_postfit, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+  sh "python make_ctag_postfit.py #{args.wp}"
+end
+
 task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
+end
+
+task :ctag_fitall do |t|
+  Rake::Task["ctag_postfit"].invoke('csvLoose')
+  Rake::Task["ctag_postfit"].reenable
+  Rake::Task["ctag_postfit"].invoke('csvMedium')
+  Rake::Task["ctag_postfit"].reenable
+  Rake::Task["ctag_postfit"].invoke('csvTight')
+  Rake::Task["ctag_postfit"].reenable
+
+  Rake::Task["ctag_postfit"].invoke('ctagLoose')
+  Rake::Task["ctag_postfit"].reenable
+  Rake::Task["ctag_postfit"].invoke('ctagMedium')
+  Rake::Task["ctag_postfit"].reenable
+  Rake::Task["ctag_postfit"].invoke('ctagTight')
+  Rake::Task["ctag_postfit"].reenable
 end
 
 task :ctag_toys, [:wp] do |t, args|

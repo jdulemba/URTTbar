@@ -13,7 +13,7 @@ private:
 
 public:
 	static bool USEISO;
-	enum IDS {TIGHT_12, LOOSE_12, TIGHT_12Db, LOOSE_12Db};
+	enum IDS {TIGHT_12, LOOSE_12, TIGHT_12Db, LOOSE_12Db, TIGHT_15, LOOSE_15};
   static const std::map<std::string, IDS> id_names;
 
 	IDMuon(const Muon mu, double rho=-1);
@@ -22,6 +22,8 @@ public:
 	double PFIsoDb();
 	double CorPFIsolation2015();
 	bool ID(IDS idtyp);
+  bool isTight();
+  bool isLoose();
 };
 
 #endif

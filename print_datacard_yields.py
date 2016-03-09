@@ -7,7 +7,7 @@ parser = ArgumentParser()
 parser.add_argument('varname')
 
 args = parser.parse_args()
-input_file = 'plots/{0}/ttxsec/{1}/{1}.txt'.format(os.environ['jobid'], args.varname)
+input_file = 'plots/{0}/ctageff/mass_discriminant/{1}/datacard.txt'.format(os.environ['jobid'], args.varname)
 card = load(input_file)
 
 cols = ['category']+card.processes

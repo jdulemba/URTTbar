@@ -236,16 +236,20 @@ bool  TTGenParticleSelector::select(URStreamer& event)
   case NORMAL: select_normal(event); break;
   case PSEUDOTOP: select_pstop(event); break;
   case HERWIGPP: select_herwig(event); break;
+    //case FULLDEP: select_with_deps(event); break;
   }
 
   //Build GenTTBar
-  // Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
-  //                       << ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
-  //                       << bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
-  // if(wpartons_.size()+charged_leps_.size() == 0 || !b_ || !bbar_) {
-  //   Logger::log().error() << "Wrong matching, returning" << std::endl;
-  //   return false;
-  // }
+  if(mode_ == PSEUDOTOP) {
+    Logger::log().debug() << "pstops: " << event.PSTs().size() << " pst leps: " << event.PSTleptons().size() << " pst jets: " << event.PSTjets().size() << " pst nus: " << event.PSTneutrinos().size() << std::endl;
+    Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
+                          << ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
+                          << bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
+    if(wpartons_.size()+charged_leps_.size() == 0 || !b_ || !bbar_) {
+      Logger::log().error() << "Wrong matching, returning" << std::endl;
+      return false;
+    }
+  }
   ttbar_ = GenTTBar::from_collections( 
     wpartons_, charged_leps_, neutral_leps_, 
     b_, bbar_, top_, tbar_);
@@ -333,7 +337,8 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
 // OLD CODE, might come useful as matching is different
 //
 
-/*int TTGenParticleSelector::Collapse(int root, std::vector<const Genparticle*> &particles)
+/*
+int TTGenParticleSelector::Collapse(int root, std::vector<const Genparticle*> &particles)
 {
 	bool found = true;
 	while(found){
@@ -504,5 +509,5 @@ void TTGenParticleSelector::select_with_deps(URStreamer& event)
 	}
 	return ret;
 
-}*/
+}//*/
 

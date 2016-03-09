@@ -9,7 +9,9 @@ const std::map<std::string, IDMuon::IDS> IDMuon::id_names = {
   {"TIGHT_12"  , IDMuon::IDS::TIGHT_12},
   {"LOOSE_12"  , IDMuon::IDS::LOOSE_12},
   {"TIGHT_12Db", IDMuon::IDS::TIGHT_12Db},
-  {"LOOSE_12Db", IDMuon::IDS::LOOSE_12Db}
+  {"LOOSE_12Db", IDMuon::IDS::LOOSE_12Db},
+  {"TIGHT_15", IDMuon::IDS::TIGHT_15},
+  {"LOOSE_15", IDMuon::IDS::LOOSE_15}
 };
 
 IDMuon::IDS IDMuon::id(const std::string label) {
@@ -31,7 +33,26 @@ IDMuon::IDMuon(const Muon mu, double rho):
 
 double IDMuon::PFIsoDb()
 {
-	return (chargedIso() + TMath::Max(neutralIso() + photonIso() - 0.5*puIso(), 0.));
+	return (pfChargedIso04() + TMath::Max(pfNeutralIso04() + pfPhotonIso04() - 0.5*pfPUIso04(), 0.));
+}
+
+bool IDMuon::isTight() {
+  if(!isGlobal()) return(false);
+  if(!isPF()) return(false);
+  if(chi2()/ndof() > 10.) return(false);  
+  if(validHits() <= 0) return(false);
+  if(numMatchedStations() <= 1) return(false);
+  if(TMath::Abs(dB()) >= 0.2) return(false);
+  if(TMath::Abs(dz()) >= 0.5) return(false);
+  if(pixelHits() <= 0) return(false);
+  if(trackerLayers() <= 5) return(false);
+  return true;
+}
+
+bool IDMuon::isLoose() {
+  if(!isPF()) return(false);
+  if(!isGlobal() && !isTracker()) return(false);
+  return true;
 }
 	
 double IDMuon::CorPFIsolation2015()
@@ -78,6 +99,12 @@ bool IDMuon::ID(IDS idtyp)
 		//if(idtyp == LOOSE_12 && CorPFIsolation2015()/Pt() > 0.1) return(false);
 		return(true);
 	}
+  else if(idtyp == TIGHT_15) {
+    return isTight() && ((trackiso())/Pt() < 0.1); //(PFIsoDb() < 0.15);
+  }
+  else if(idtyp == LOOSE_15) {
+    return isLoose() && (trackiso())/Pt() < 0.1; //(PFIsoDb() < 0.25);
+  }
 	return(false);
 }
 

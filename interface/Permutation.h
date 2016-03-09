@@ -26,6 +26,7 @@ class Permutation
 		IDJet* bjl_ = 0;
 
 		TLorentzVector* lep_ = 0;
+    int lepcharge_=0;
 		IDMet* met_ = 0;
 		TLorentzVector nu_;
 		bool kinfit_ = false;
@@ -33,7 +34,9 @@ class Permutation
     size_t perm_jets_ = 0; //number of jets used for permutations
 	public:
 		Permutation() {}
-		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met);
+		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge=0);
+    int LepCharge() {return lepcharge_;}
+    void LepCharge(int c) {lepcharge_ = c;}
 		void Reset();
 		bool IsComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0 && bjl_ != 0 && lep_ != 0 && met_ != 0 && wja_ != wjb_ && wja_ != bjh_ && wja_ != bjl_ && wjb_ != bjl_ && wjb_ != bjh_ && bjl_ != bjh_);}
 		bool IsTHadComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0);}

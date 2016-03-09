@@ -8,6 +8,12 @@ rootpy.log["/"].setLevel(rootpy.log.INFO)
 log = rootpy.log["/make_permutation_distros.py"]
 log.setLevel(rootpy.log.ERROR)
 
+cut_scores = ['TIGHT', 'MEDIUM', 'LOOSE', 'NONE']
+def scoring(name):
+   for i, n in enumerate(cut_scores):
+      if n in name: return i
+   return len(cut_scores)
+
 jet_types = [('bjet', 'bottom'), ('cjet', 'charm'), ('ljet', 'light')]
 
 jobid = os.environ['jobid']
@@ -18,7 +24,8 @@ pt_bins  = [0., 30, 60, 100, 150, 200, 1000]
 eta_bins = [-2.4, -1.4, -0.8, 0.0, 0.8, 1.4, 2.4]
 hview = urviews.RebinView(tfile, [pt_bins, eta_bins])
 
-alljet_cut_types = set([i.name.split('_')[1] for i in tfile.nosys.alljets.keys()])
+alljet_cut_types = list(set([i.name.split('_')[1] for i in tfile.nosys.alljets.keys()]))
+alljet_cut_types.sort(key=scoring)
 wjet_cut_types   = set([i.name.split('_')[1] for i in tfile.nosys.Wjets.keys()])
 wjet_cut_types.discard('NONE')
 
@@ -33,7 +40,7 @@ def make_efficiency(hpass, hall):
          log.error('bin (%.0f, %.2f) has 0 efficiency' % (bin_eff.x.center, bin_eff.y.center))
    return eff
 
-with io.root_open('inputs/%s/INPUT/btag_general_efficiencies.root' % jobid, 'recreate') as outfile:   
+with io.root_open('inputs/%s/INPUT/ttselection_%s_%s_efficiencies.root' % (jobid, alljet_cut_types[0], alljet_cut_types[1]), 'recreate') as outfile:   
    for jtype, dname in jet_types:
       jdir = outfile.mkdir(dname)
       jdir.cd()

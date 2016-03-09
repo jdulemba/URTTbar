@@ -3,11 +3,18 @@
 #include "PDGID.h"
 #include "URParser.h"
 #include <string>
-#include "Logger.h"
 #include "TFile.h"
 #include <cmath>
+using namespace systematics;
 
-BTagSFProducer::BTagSFProducer(TTPermutator &permutator, float float_c, float float_l, float float_b) {
+BTagSFProducer::BTagSFProducer(TTPermutator &permutator, float float_c, float float_l, float float_b):
+  eff_light_loose(), 
+  eff_light_tight(),
+  eff_charm_loose(), 
+  eff_charm_tight(),
+  eff_bottom_loose(), 
+  eff_bottom_tight()
+{
   URParser &parser = URParser::instance();
   parser.addCfgParameter<std::string>("general", "btag_sf", "source file for btag scale factors");
   parser.addCfgParameter<std::string>("general", "btag_eff", "source file for btag efficiencies");
@@ -18,7 +25,14 @@ BTagSFProducer::BTagSFProducer(TTPermutator &permutator, float float_c, float fl
   configure(sf_file, eff_file, permutator.tight_bID_cut(), permutator.loose_bID_cut(), float_c, float_l, float_b);
 }
 
-BTagSFProducer::BTagSFProducer(std::string tight, std::string loose, float float_c, float float_l, float float_b) {
+BTagSFProducer::BTagSFProducer(std::string tight, std::string loose, float float_c, float float_l, float float_b): 
+  eff_light_loose(), 
+  eff_light_tight(),
+  eff_charm_loose(), 
+  eff_charm_tight(),
+  eff_bottom_loose(), 
+  eff_bottom_tight()
+{
   URParser &parser = URParser::instance();
   parser.addCfgParameter<std::string>("general", "btag_sf", "source file for btag scale factors");
   parser.addCfgParameter<std::string>("general", "btag_eff", "source file for btag efficiencies");
@@ -47,7 +61,14 @@ BTagSFProducer::BTagSFProducer(std::string tight, std::string loose, float float
 
 BTagSFProducer::BTagSFProducer(const DataFile &sf_file, const DataFile &eff_file,
                                IDJet::BTag tighttag, IDJet::BTag loosetag, 
-                               float float_c, float float_l, float float_b) {
+                               float float_c, float float_l, float float_b): 
+  eff_light_loose(), 
+  eff_light_tight(),
+  eff_charm_loose(), 
+  eff_charm_tight(),
+  eff_bottom_loose(), 
+  eff_bottom_tight()
+{
   configure(sf_file, eff_file, tighttag, loosetag, float_c, float_l, float_b);
 }
 
@@ -65,13 +86,36 @@ void BTagSFProducer::configure(const DataFile &sf_file, const DataFile &eff_file
     throw 42;
   }
 
-
+  //Get WP used
   //defined by the permutator they MUST be the same, therefore, not double definition
   BTagEntry::OperatingPoint wp_tight = IDJet::tag_tightness(tighttag);  
   BTagEntry::OperatingPoint wp_loose = IDJet::tag_tightness(loosetag);
   no_loose_cut_ = (wp_loose == BTagEntry::OperatingPoint::OP_NOTSET);
   if(no_loose_cut_) wp_loose = wp_tight;
 
+  //Get efficiencies
+  TFile eff_tfile(eff_file.path().c_str());
+  TH1::AddDirectory(false);
+  eff_light_tight  = get_from<TH2D>(eff_tfile, "light/"  + IDJet::tag2string(tighttag) + "_eff", "t_l_eff");
+  eff_charm_tight  = get_from<TH2D>(eff_tfile, "charm/"  + IDJet::tag2string(tighttag) + "_eff", "t_c_eff");
+  eff_bottom_tight = get_from<TH2D>(eff_tfile, "bottom/" + IDJet::tag2string(tighttag) + "_eff", "t_b_eff");
+  
+  if(!no_loose_cut_){
+    eff_light_loose  = get_from<TH2D>(eff_tfile, "light/"  + IDJet::tag2string(loosetag) + "_eff", "l_l_eff");
+    eff_charm_loose  = get_from<TH2D>(eff_tfile, "charm/"  + IDJet::tag2string(loosetag) + "_eff", "l_c_eff");
+    eff_bottom_loose = get_from<TH2D>(eff_tfile, "bottom/" + IDJet::tag2string(loosetag) + "_eff", "l_b_eff");
+  }
+  else {
+    eff_light_loose  = eff_light_tight ;
+    eff_charm_loose  = eff_charm_tight ;
+    eff_bottom_loose = eff_bottom_tight;
+  }    
+  eff_tfile.Close();
+  TH1::AddDirectory(true);
+
+  if(float_c_ >= 0 && float_l_ >= 0 && float_b_ >= 0) return; //No SF to be used, so just skip, they might not even be present!
+
+  //Get SFs
   std::string calibration_type = IDJet::id_string(tighttag);
   if(!no_loose_cut_) {
     if(calibration_type != IDJet::id_string(loosetag)) {
@@ -96,45 +140,21 @@ void BTagSFProducer::configure(const DataFile &sf_file, const DataFile &eff_file
   readers_loose_[0] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "down"); //[down, central, up]
   readers_loose_[1] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "central"); //[down, central, up]
   readers_loose_[2] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "up"); //[down, central, up]
-
-  TFile eff_tfile(eff_file.path().c_str());
-  TH1::AddDirectory(false);
-  eff_light_tight  = get_from<TH2D>(eff_tfile, "light/"  + IDJet::tag2string(tighttag) + "_eff", "t_l_eff");
-  eff_charm_tight  = get_from<TH2D>(eff_tfile, "charm/"  + IDJet::tag2string(tighttag) + "_eff", "t_c_eff");
-  eff_bottom_tight = get_from<TH2D>(eff_tfile, "bottom/" + IDJet::tag2string(tighttag) + "_eff", "t_b_eff");
-  
-  if(!no_loose_cut_){
-    eff_light_loose  = get_from<TH2D>(eff_tfile, "light/"  + IDJet::tag2string(loosetag) + "_eff", "l_l_eff");
-    eff_charm_loose  = get_from<TH2D>(eff_tfile, "charm/"  + IDJet::tag2string(loosetag) + "_eff", "l_c_eff");
-    eff_bottom_loose = get_from<TH2D>(eff_tfile, "bottom/" + IDJet::tag2string(loosetag) + "_eff", "l_b_eff");
-  }
-  else {
-    eff_light_loose  = eff_light_tight ;
-    eff_charm_loose  = eff_charm_tight ;
-    eff_bottom_loose = eff_bottom_tight;
-  }    
-  eff_tfile.Close();
-  TH1::AddDirectory(true);
 }
 
 BTagSFProducer::~BTagSFProducer() {
-  //LEADS TO A MEM LEAK, I know, would be better to smart pointers or override the copy constructor
-  // std::cout << "TO BE DELTED " << eff_light_tight << std::endl;
-  // if(eff_light_tight) {
-  //   std::cout << "Deleting tight" << std::endl;
-  //   delete eff_light_tight ;
-  //   delete eff_charm_tight ;
-  //   delete eff_bottom_tight;
-  //   if(!no_loose_cut_) {
-  //     std::cout << "Deleting loose" << std::endl;
-  //     delete eff_light_loose ;
-  //     delete eff_charm_loose ;
-  //     delete eff_bottom_loose;  
-  //   }    
-  // }
 }
 
 double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift) {
+  if(ignore_partial_shifts_ && 
+     (shift == SysShifts::BTAG_B_UP || shift == SysShifts::BTAG_B_DW || shift == SysShifts::BTAG_C_UP || 
+      shift == SysShifts::BTAG_C_DW || shift == SysShifts::BTAG_L_UP || shift == SysShifts::BTAG_L_DW)) {
+    shift = SysShifts::NOSYS; //reset value
+  }
+  if(ignore_general_shifts_ && (shift == SysShifts::BTAG_UP || shift == SysShifts::BTAG_DW))  {
+    shift = SysShifts::NOSYS;
+  }
+
   double mc_prob=1;
   double data_like_prob=1; //it's called data, but is on MC!
 

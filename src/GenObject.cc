@@ -55,11 +55,13 @@ GenTTBar GenTTBar::from_collections( vector<GenObject*>& wpartons, vector<GenObj
       //check for u-dbar or dbar-u
       if(p1_id*p2_id > 0) continue;
       //find up one
-      int up_id = (TMath::Abs(p1_id) % 2 == 0)? p1_id : p2_id;
+      int up_id  = (TMath::Abs(p1_id) % 2 == 0) ? p1_id  : p2_id ;
+      int up_idx = (TMath::Abs(p1_id) % 2 == 0) ? p1_idx : p2_idx;
+      int dw_idx = (TMath::Abs(p1_id) % 2 == 1) ? p1_idx : p2_idx;
       if(up_id > 0) {
-        wplus = GenW(wpartons[p1_idx], wpartons[p2_idx]);
+        wplus = GenW(wpartons[up_idx], wpartons[dw_idx]);
       } else {
-        wminus = GenW(wpartons[p1_idx], wpartons[p2_idx]);
+        wminus = GenW(wpartons[up_idx], wpartons[dw_idx]);
       }
     }      
   } //for(size_t p1_idx = 0; p1_idx < wpartons_.size(); ++p1_idx)

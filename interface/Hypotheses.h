@@ -2,142 +2,140 @@
 #define Hypotheses_h
 
 #include "TLorentzVector.h"
-#include "TTBarSolver.h"
-#include "URStreamer.h"
 
-struct WHypothesis {
-	WHypothesis():
-		first(0), 
-		second(0),
-		isLeptonic(false)
-	{}
-	const TLorentzVector *first, *second;
-	bool isLeptonic;
-	bool hasMissingProng() const { return (!first || !second);	}
+class Permutation;
+class GenTTBar;
 
-	bool matches(const WHypothesis &other, float threshold=0.3) const {
-		bool have_first = first && other.first;
-		bool have_second = second && other.second;
-		if(isLeptonic){
-			if(!have_first || first->DeltaR(*other.first) > threshold) return false;
-			return true;
-		} else {
-			if(!have_first || !have_second) return false;
-			bool f_matches_f = first->DeltaR(*other.first) < threshold;
-			bool s_matches_s = second->DeltaR(*other.second) < threshold;
-			bool f_matches_s = first->DeltaR(*other.second) < threshold;
-			bool s_matches_f = second->DeltaR(*other.first) < threshold;
-			if(f_matches_f && s_matches_s) return true;
-			if(f_matches_s && s_matches_f) return true;
-			return false;
-		}
-	}
+namespace hyp {
+  class Decay: public TLorentzVector {
+  public:
+    Decay():
+      TLorentzVector() {}
+    Decay(double x, double y, double z, double t):
+      TLorentzVector(x, y, z, t) {}
+    Decay(const TLorentzVector &lv):
+      TLorentzVector(lv) {}
+  
+    void boost(const TVector3 &v);
+    TVector3 unit3D() { return this->Vect().Unit();}
+    void setv(TLorentzVector v) {this->SetPxPyPzE(v.Px(), v.Py(), v.Pz(), v.E());}
+    double decay_opening_cm();
+    TVector3 decay_plane();
+    friend std::ostream & operator<<(std::ostream &os, const Decay &obj);
+  private:
+    virtual Decay* fst() = 0;
+    virtual Decay* snd() = 0;
+  };
 
-	TLorentzVector p4() const {
-		if(hasMissingProng()) return TLorentzVector();
-		return (*first + *second);
-	}
+  class NoDecay: public Decay {
+  public:
+    NoDecay():
+      Decay() {}
+    NoDecay(double x, double y, double z, double t):
+      Decay(x, y, z, t) {}
+    NoDecay(const TLorentzVector &lv):
+      Decay(lv) {}
+  private:
+    virtual Decay* fst() {return NULL;}
+    virtual Decay* snd() {return NULL;}
+  };
 
-	double mass() const {
-		if(hasMissingProng()) return -1;
-		return p4().M();
-	}
-};
+  class WHyp: public Decay {
+  private:
+    NoDecay up_, dw_;
+    int charge_=0;
 
-enum DecayType {NOTSET, INVALID, FULLHAD, SEMILEP, FULLLEP};
-struct TTbarHypothesis {
-	const TLorentzVector *b, *bbar;
-	TLorentzVector nu_;
-	WHypothesis wplus, wminus;
-	DecayType decay;
-	double nu_chisq;
-	double full_discriminant;
-	double nu_discriminant;
-	double btag_discriminant;
-	double mass_discriminant;
+    virtual Decay* fst() {return &up_;}
+    virtual Decay* snd() {return &dw_;}
 
-	TTbarHypothesis():
-		b(0), 
-		bbar(0),
-		nu_(),
-		wplus(), 
-		wminus(),
-		decay(NOTSET),
-		nu_chisq(-1),
-		full_discriminant(-1),
-		nu_discriminant(-1),
-		btag_discriminant(-1),
-		mass_discriminant(-1)
-	{}
+  public:
+    WHyp():
+      Decay(),
+      up_(),
+      dw_() {}
 
-	void solve(TTBarSolver &solver, IDMet &met) {
-		Jet *bhad = const_cast<Jet*>((const Jet*) (wplus.isLeptonic ? bbar : b));
-		Jet *blep = const_cast<Jet*>((const Jet*) (wplus.isLeptonic ? b : bbar));
-		Jet *wh1  = const_cast<Jet*>((const Jet*) whad()->first );
-		Jet *wh2  = const_cast<Jet*>((const Jet*) whad()->second);
-		TLorentzVector *l = const_cast<TLorentzVector*>(wlep()->first);
-		solver.Solve(bhad, wh1, wh2, blep, l, &met);
+    //void boost(const TVector3 &v);
+    WHyp to_CM();
+    // TVector3 unit3D() { return this->Vect().Unit();}
+    // void setv(TLorentzVector v) {this->SetPxPyPzE(v.Px(), v.Py(), v.Pz(), v.E());}
+    // double decay_opening_cm();
+    // TVector3 decay_plane();
 
-		nu_chisq           = solver.NSChi2() ;
-		full_discriminant  = solver.Res()		 ;
-		nu_discriminant    = solver.NSRes()	 ;
-		btag_discriminant  = solver.BTagRes();
-		mass_discriminant  = solver.MassRes();
-		nu_ = solver.Nu();
-		wlep()->second = &nu_;
-	}
+    NoDecay& up() {return up_;}
+    NoDecay& down() {return dw_;}
+    NoDecay& l() {return dw_;}
+    NoDecay& nu() {return up_;}
+    void up(TLorentzVector up) {up_ = up;}
+    void down(TLorentzVector dw) {dw_ = dw;}
+    void l(TLorentzVector v) {dw_ = v;}
+    void nu(TLorentzVector v) {up_ = v;}
+  };
 
-	WHypothesis * whad() {
-		if(!wplus.isLeptonic) return &wplus;
-		else if(!wminus.isLeptonic) return &wminus;
-		return NULL;
-	}
+  class Top: public Decay {
+  private:
+    NoDecay b_;
+    WHyp w_;
 
-	WHypothesis * wlep() {
-		if(wplus.isLeptonic) return &wplus;
-		else if(wminus.isLeptonic) return &wminus;
-		return NULL;
-	}
+    virtual Decay* fst() {return &b_;}
+    virtual Decay* snd() {return &w_;}
 
-	const TLorentzVector *blep() {
-		if(wplus.isLeptonic) return b;
-		else if(wminus.isLeptonic) return bbar;
-		return NULL;
-	}
+  public:
+    Top to_CM();
+    // void boost(const TVector3 &v);
+    // TVector3 unit3D() { return this->Vect().Unit();}
+    // void setv(TLorentzVector v) {this->SetPxPyPzE(v.Px(), v.Py(), v.Pz(), v.E());}
+    // double decay_opening_cm();
+    // TVector3 decay_plane();
 
-	const TLorentzVector *bhad() {
-		if(!wplus.isLeptonic) return b;
-		else if(!wminus.isLeptonic) return bbar;
-		return NULL;
-	}
+    //constructors
+    Top():
+      Decay(),
+      b_(),
+      w_() {}
 
-	bool hasMissingProng() const {
-		return (!b || !bbar || wplus.hasMissingProng() || wminus.hasMissingProng());
-	}
+    //element access
+    NoDecay& b() {return b_;}
+    WHyp& W() {return w_;}
+    void b(TLorentzVector b) {b_ = b;}
+    void W(WHyp w) {w_ = w;}
+  };
 
-	bool matches(const TTbarHypothesis& other, float threshold=0.3){
-		if(!b || !other.b || b->DeltaR(*other.b) > threshold) return false;
-		if(!bbar || !other.bbar || bbar->DeltaR(*other.bbar) > threshold) return false;
-		if(!wplus.matches( other.wplus , threshold)) return false;
-		if(!wminus.matches(other.wminus, threshold)) return false;
-		return true;
-	}
+  class TTbar: public Decay {
+  private:
+    Top t_, tbar_;
+    bool t_leptonic_=false;
 
-	double top_mass() const {
-		if(wplus.hasMissingProng()) return -1;
-		return (wplus.p4() + *b).M();
-	}
+    virtual Decay* fst() {return &t_;}
+    virtual Decay* snd() {return &tbar_;}
 
-	double tbar_mass() const {
-		if(wminus.hasMissingProng()) return -1;
-		return (wminus.p4() + *bbar).M();
-	}
+  public:
+    TTbar to_CM();
+    // void boost(const TVector3 &v);
+    // TVector3 unit3D() { return this->Vect().Unit(); }
+    // void setv(TLorentzVector v) {this->SetPxPyPzE(v.Px(), v.Py(), v.Pz(), v.E());}
+    // double decay_opening_cm();
+    // TVector3 decay_plane();
+  
+    //constructors
+    TTbar(Permutation &p);
+    TTbar(GenTTBar &g);
+    TTbar():
+      Decay(),
+      t_leptonic_(false),
+      t_(),
+      tbar_() {}
 
-	double thad_mass() const {
-		if(!wplus.isLeptonic) return top_mass();
-		else if(!wminus.isLeptonic) return tbar_mass();
-		else return -1;
-	}
-};
+    //element access
+    Top& top()  {return t_;}
+    Top& tbar() {return tbar_;}
+    Top& tlep() {return (t_leptonic_) ? t_    : tbar_;}
+    Top& thad() {return (t_leptonic_) ? tbar_ : t_   ;}
+    int lep_charge() {return (t_leptonic_) ? 1 : -1;}
+
+    void top( Top t) {t_ = t;}
+    void tbar(Top t) {tbar_ = t;}
+  };
+}//namespace
+
 
 #endif

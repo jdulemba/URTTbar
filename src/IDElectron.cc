@@ -44,7 +44,7 @@ double IDElectron::PFIsolationRho2015() const
 //https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
 bool IDElectron::LooseID25ns() const {
   return (eidCutLoose() > 0.5);
-  // //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
   // if(full5x5_sigmaIEtaIEta()  >= ((isEB()) ? 0.0103: 0.0301)) return false; //to be updated to full5x5SigmaIEtaIEta
   // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0105: 0.00814)) return false;
   // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.115:  0.182)) return false;
@@ -62,7 +62,7 @@ bool IDElectron::LooseID25ns() const {
 
 bool IDElectron::MediumID25ns() const {
   return (eidCutMedium() > 0.5);
-  // //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
   // if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101: 0.0283 )) return false; //to be updated to full5x5SigmaIEtaIEta
   // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0103: 0.00733)) return false;
   // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336: 0.114  )) return false;
@@ -80,7 +80,7 @@ bool IDElectron::MediumID25ns() const {
 
 bool IDElectron::TightID25ns() const {
   return (eidCutTight() > 0.5);
-  // //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
+  //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
   // if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101 : 0.0279 )) return false; //to be updated to full5x5SigmaIEtaIEta
   // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.00926: 0.00724)) return false;
   // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336 : 0.0918 )) return false;

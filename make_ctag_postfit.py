@@ -15,6 +15,7 @@ from URAnalysis.Utilities.quad import quad
 from styles import styles
 from pdb import set_trace
 from labels import set_pretty_label
+from URAnalysis.Utilities.tables import Table
 
 def fix_binning(postfit, correct_bin):
    ret = correct_bin.Clone()
@@ -25,6 +26,7 @@ def fix_binning(postfit, correct_bin):
    for rbin, pbin in zip(ret, postfit):
       rbin.value = pbin.value
       rbin.error = pbin.error
+   ret.xaxis.title = '#lambda_{M}'
    return ret
 
 parser = ArgumentParser()
@@ -50,7 +52,7 @@ def ordering(histo):
 
 plotter = BasePlotter(
    '%s/postfit' % input_dir,
-   defaults = {'save' : {'png' : True, 'pdf' : False}},
+   defaults = {'save' : {'png' : True, 'pdf' : True}},
    styles = {
       'right_whad *' : {
          'legendstyle' : 'f',
@@ -84,7 +86,7 @@ plotter = BasePlotter(
          'legendstyle' : 'f',
          'drawstyle' : 'PE2',
          'linewidth' : 0,
-         'title' : "postfit unc.",
+         'title' : "uncertainty",
          'markersize' : 0,
          'fillcolor' : 1,
          'fillstyle' : 3013
@@ -92,21 +94,40 @@ plotter = BasePlotter(
       }
 )
 
+def print_var_line(varname, result):
+   var  = result[varname]
+   merr = min(var.error) if hasattr(var.error, '__len__') else var.error
+   Merr = max(var.error) if hasattr(var.error, '__len__') else var.error
+   return 'best fit value %s: %.3f %.3f/%.3f\n' % (varname, var.value, merr, Merr)
+
 for pfit, tdir in [('postfit', 'shapes_fit_s'), ('prefit', 'shapes_prefit')]:
    shapes = mlfit_file.Get(tdir)
-   plotter.set_outdir('%s/%s' % (input_dir,pfit))
+   out_dir = '%s/%s' % (input_dir,pfit)
+   plotter.set_outdir(out_dir)
    categories = [i.name for i in shapes.keys()]
+   sample_names = set()
+   for c in categories:
+      for i in shapes.Get(c).keys():
+         if i.name.startswith('total'): continue
+         sample_names.add(i.name)
+   sample_names = list(sample_names)
+   cols = ['category', 'observed']+sample_names
+   cols = [i+':%'+str(len(i)+3)+'s' for i in cols]
+   table = Table(*cols, title='%s %s yields' % (args.working_point, pfit))
 
    for cat_name in categories:
       log.info("making plots for %s" % cat_name)
       data_dir = datacard_file.Get(cat_name)
       cat_dir = shapes.Get(cat_name)
       data = data_dir.data_obs
-      data.title = 'data_obs'
+      data.title = 'data_obs' 
       hsum = fix_binning(cat_dir.total, data)
+      available_samples = [i.name for i in cat_dir.keys() if not i.name.startswith('total')]
 
-      sample_names = [i.name for i in cat_dir.keys() if not i.name.startswith('total')]
-      samples = [fix_binning(cat_dir.Get(i), data) for i in sample_names]
+      line = [cat_name, '%.1f' % data.Integral()]+['%.1f' % (cat_dir.Get(i).Integral() if i in available_samples else 0.0) for i in sample_names]
+      table.add_line(*line)
+
+      samples = [fix_binning(cat_dir.Get(i), data) for i in available_samples]
       samples.sort(key=ordering)
 
       stack = plotter.create_stack(*samples, sort=False)
@@ -119,3 +140,12 @@ for pfit, tdir in [('postfit', 'shapes_fit_s'), ('prefit', 'shapes_prefit')]:
         ytitle='Events'
         #,method='ratio'
       	)
+   table.add_separator()
+   with open('%s/yields.raw_txt' % out_dir,'w') as tab:
+      tab.write('%s\n' % table)
+      if pfit == 'postfit':
+         pars = rootpy.asrootpy(mlfit_file.fit_s.floatParsFinal())
+         tab.write(print_var_line('charmSF', pars))
+         if 'lightSF' in pars:
+            tab.write(print_var_line('lightSF', pars))
+

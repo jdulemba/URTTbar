@@ -10,13 +10,13 @@ json_ufloat = lambda d, n : ufloat(d[n], d['%s_err' % n])
 
 jobid = os.environ['jobid']
 summary = prettyjson.loads(
-   open('plots/%s/btageff/summary.json' % jobid).read()
+   open('plots/%s/ctageff/summary.json' % jobid).read()
 )
 summary = summary["mass_discriminant"]
 wpoints = summary['working_points']
 
 mc_effs = prettyjson.loads(
-   open('plots/%s/btageff/mc_effs.json' % jobid).read()
+   open('plots/%s/ctageff/mc_effs.json' % jobid).read()
 )
 
 #set_trace()

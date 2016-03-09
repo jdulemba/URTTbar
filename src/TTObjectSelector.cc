@@ -7,7 +7,8 @@
 
 using namespace TMath;
 
-TTObjectSelector::TTObjectSelector():
+TTObjectSelector::TTObjectSelector(int objsel):
+  objsel_(objsel),
   sel_jets_(),
   clean_jets_(),
   sel_muons_(),
@@ -19,6 +20,7 @@ TTObjectSelector::TTObjectSelector():
   jet_scaler_() {
     URParser &parser = URParser::instance();
     parser.addCfgParameter<std::string>("general", "jet_uncertainties", "source file for jet uncertainties");
+    parser.addCfgParameter<std::string>("general", "JER", "source file for jet uncertainties");
 
     //parser.addCfgParameter(const std::string group, const std::string parameterName, const std::string description, T def_value);
     parser.addCfgParameter<std::string>("loose_muons", "id", "ID to be applied");
@@ -42,9 +44,12 @@ TTObjectSelector::TTObjectSelector():
     parser.addCfgParameter<float>("jets", "etamax", "maximum eta");
     
     parser.parseArguments();
-    parser.parseArguments();
 
-    jet_scaler_.Init(DataFile(parser.getCfgPar<std::string>("general", "jet_uncertainties")).path());
+    DataFile jes(parser.getCfgPar<std::string>("general", "jet_uncertainties"));
+    DataFile jer(parser.getCfgPar<std::string>("general", "JER"));    
+    jet_scaler_.Init(
+      jes.path(), jer.path()
+      );
 
     cut_loosemu_id_ = IDMuon::id(
       parser.getCfgPar<std::string>("loose_muons", "id"    ));
@@ -122,7 +127,15 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
     double scale_factor = 0;
 		if(shift == systematics::SysShifts::JES_DW)      scale_factor = jet_scaler_.GetUncP(jet);
 		else if(shift == systematics::SysShifts::JES_UP) scale_factor = -1*jet_scaler_.GetUncM(jet);
-		else if(shift == systematics::SysShifts::JER_UP) scale_factor = gRandom->Gaus(0., 0.1); //FIXME, update as soon as available
+
+    if(event.run == 1) { //is MC: apply JER
+      double jer_sigma = 0;
+      if(shift == systematics::SysShifts::JER_UP) jer_sigma = jet_scaler_.JERSigmaUp(jet); 
+      else if(shift == systematics::SysShifts::JER_DW) jer_sigma = jet_scaler_.JERSigmaDw(jet); 
+      else jer_sigma = jet_scaler_.JERSigma(jet);
+      double jer_sf = gRandom->Gaus(0., jer_sigma);
+      scale_factor += jer_sf;
+    }
 
     //set corrections for MET
 		metcorrx -= scale_factor*jet.Px(); 
@@ -174,10 +187,13 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
 
   bool has_muons = select_muons(event, shift);
   bool has_electrons = select_electrons(event, shift);
+  
   if(!(has_muons || has_electrons)) return false;
   if(tracker_) tracker_->track("has leptons");
 
-  if(tight_muons_.size()+medium_electrons_.size() != 1) return false;
+  if(objsel_ == 0  && (tight_muons_.size()+medium_electrons_.size() != 1)) return false;
+  if(objsel_ == -1 && (medium_electrons_.size() != 1)) return false;
+  if(objsel_ == 1  && (tight_muons_.size() != 1)) return false;
   //1 tight lepton and no loose ones
   if(loose_electrons_.size() + loose_muons_.size() != 1) return false;
   if(tracker_) tracker_->track("lepton veto");

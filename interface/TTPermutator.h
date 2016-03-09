@@ -10,7 +10,7 @@
 class TTPermutator: public URSelector {
 public:
   TTPermutator();
-  bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met);
+  bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0);
   Permutation next(bool &keep_going);
   void reset() {
     jets_.clear();
@@ -36,6 +36,7 @@ private:
   TLorentzVector* lepton_ = 0;
   IDMet* met_ = 0;
   bool is_configured_ = false;
+  int lcharge_=0;
 
   //tracker
   CutFlowTracker *tracker_=0;

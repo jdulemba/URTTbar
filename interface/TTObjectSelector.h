@@ -20,8 +20,9 @@ class CutFlowTracker;
 
 class TTObjectSelector {
 public:
-  TTObjectSelector();
+  TTObjectSelector(int objsel=0); //-1 e only, 1 mu only, 0 any
   
+  void lepton_type(int ltype) {objsel_=ltype;} //-1 e only, 1 mu only, 0 any
   void reset();
   bool select(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
 
@@ -62,6 +63,7 @@ private:
 
   //cuts
   bool is_configured_ = false;
+  int objsel_=0;
   IDMuon::IDS cut_loosemu_id_, cut_tightmu_id_;
   float cut_loosemu_ptmin_, cut_loosemu_etamax_, cut_tightmu_ptmin_, cut_tightmu_etamax_;
   

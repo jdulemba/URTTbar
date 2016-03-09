@@ -10,36 +10,52 @@
 #include <TH2D.h>
 
 #include <LHAPDF/LHAPDF.h>
-
-using namespace std;
-using namespace LHAPDF;
+#include <sstream>
 
 class URStreamer;
 class TDirectory;
 
 class PDFuncertainty
 {
-	private:
-		PDFSet* setorig;
-		PDF* pdforig;
-		vector<PDFSet*> sets;
-		vector< vector<PDF*> > pdfs;
-		map< string, vector< vector<TH1D*> > > hist1d;
-		vector< vector<double> > weights;
-		double oldx1;
-		void SetupWeights();
+private:
+  LHAPDF::PDFSet* setorig_;
+  LHAPDF::PDF* pdforig_;
+  std::vector<LHAPDF::PDFSet*> sets_;
+  std::vector< std::vector<LHAPDF::PDF*> > pdfs_;
+  std::map<std::string, std::map<std::string,std::vector< std::vector<TH1F*> > > > hist1d_;
+  std::vector< std::vector<double> > weights_;
+  double oldx1_;
+  bool use_evt_weights_;
+  int nweights_;
+  void SetupWeights(URStreamer& streamer);
 
-		map<string, TDirectory*> histdir;
-		map< string, vector<TH1D*> > Whist1d;
+  std::map<std::string, TDirectory*> histdir_;
+  std::map<std::string, std::vector<TH1D*> > Whist1d_;
 
 
-	public:
-		static URStreamer* streamer;
-		PDFuncertainty(const string setorigname, int memorig, const vector<string>& setnames);
-		~PDFuncertainty();
-		void Add1dHist(string name, Int_t bins, Double_t min, Double_t max, string xlabel, string ylabel);
-		void Add1dHist(string name, const vector<double>& bins, string xlabel, string ylabel);
-		void Fill1d(string name, double val, double weight = 1.);
+public:
+  PDFuncertainty(const std::string setorigname, int memorig, const std::vector<std::string>& setnames); //custom PDF settings
+  PDFuncertainty(int nweights); //uses weights stored in MC
+  ~PDFuncertainty();
+
+  template <typename ... Args>
+	void book_replicas(std::string dirname, std::string name, Args ... args) {
+    size_t nsets = (use_evt_weights_) ? 1 : sets_.size();
+    hist1d_[dirname][name].resize(nsets);
+    for(size_t s = 0 ; s < nsets ; ++s) {
+      std::string setname = (use_evt_weights_) ? "mcws" : sets_[s]->name();
+      size_t npdfs = (use_evt_weights_) ? nweights_ : pdfs_[s].size();
+      for(size_t p = 0 ; p < npdfs ; ++p) {
+        std::stringstream hname;
+        hname  <<  name << "_" << setname << "_pdf_" << p;
+        hist1d_[dirname][name][s].push_back(
+          new TH1F(hname.str().c_str(), hname.str().c_str(), args ...)
+          );
+      }
+    }
+  }
+
+  void fill_replicas(std::string dirname, std::string name, double val, double weight, URStreamer& streamer);
 };
 
 #endif

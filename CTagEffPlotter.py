@@ -23,15 +23,19 @@ from argparse import ArgumentParser
 import math
 from uncertainties import ufloat
 from URAnalysis.Utilities.datacard import DataCard
+from URAnalysis.Utilities.tables import latex_table
+from URAnalysis.Utilities.latex import t2latex
 import re
 
 parser = ArgumentParser()
 parser.add_argument('--wps', default='*',
                     help='choose the working points to use')
-parser.add_argument('--noplots', dest='noplots', action='store_true',
-                    help='skip plot making')
-parser.add_argument('--noshapes', dest='noshapes', action='store_true',
-                    help='skip shape making')
+parser.add_argument('--plots', dest='plots', action='store_true',
+                    help='make control plots')
+parser.add_argument('--systematics', dest='systematics', action='store_true',
+                    help='make systematic plots')
+parser.add_argument('--shapes', dest='shapes', action='store_true',
+                    help='make shapes root files')
 parser.add_argument('--noLightFit', dest='noLightFit', action='store_true',
                     help='set up fitting without light fitting')
 parser.add_argument('--noBBB', action='store_true',
@@ -40,6 +44,7 @@ parser.add_argument('--inclusive', action='store_true',
                     help='use inclusive categories')
 parser.add_argument('--lumi', type=float, default=-1.,
                     help='use inclusive categories')
+parser.add_argument('--pdfs', action='store_true')
 args = parser.parse_args()
 
 def syscheck(cmd):
@@ -66,45 +71,35 @@ class CTagPlotter(Plotter):
       logging.debug('lumi files found %s' % lumis.__repr__())
       
       outdir= 'plots/%s/ctageff' % jobid
+      lscaling = 0.5
       super(CTagPlotter, self).__init__(
          files, lumis, outdir, styles, None, lumi,
-         lumi_scaling=0.5
+         lumi_scaling=lscaling
          )
+      self.defaults = {
+         'blurb' : [13, self.views['data']['intlumi']]
+         }
       self.jobid = jobid
 
-      self.views['ttJets_allRight'] = {
+      self.views['ttJets_preselection'] = {
          'view' : self.create_tt_subsample(
-            ['semilep_visible_right'], 
-            'tt, right cmb',
+            ['semilep_visible_right'],
+            't#bar{t}',
             '#6666b3'
             )
          }
-      self.views['ttJets_rightHad'] = {
+      self.views['ttJets_sig'] = {
          'view' : self.create_tt_subsample(
-            ['semilep_right_thad'], 
-            'tt, right t_{h}',
-            '#aaaad5'
-            ),
-         }
-      self.views['ttJets_rightWHad'] = {
-         'view' : self.create_tt_subsample(
-            ['semilep_right_whad'], 
-            'tt, right W_{h}',
-            '#cccce6'
+            ['semilep_visible_right', 'semilep_right_thad', 'semilep_right_whad'], 
+            't#bar{t}, right W_{h}',
+            '#6666b3'
             )
          }
-      self.views['ttJets_rightWLep'] = {
+      self.views['ttJets_bkg'] = {
          'view' : self.create_tt_subsample(
-            ['semilep_right_tlep'], 
-            'tt, right t_{l}',
+            ['semilep_right_tlep', 'semilep_wrong'], 
+            't#bar{t}, wrong W_{h}',
             '#ab5555'
-            )
-         }
-      self.views['ttJets_semiWrong'] = {
-         'view' : self.create_tt_subsample(
-            ['semilep_wrong'], 
-            'tt, wrong cmb',
-            '#d5aaaa'
             )
          }
       self.views['ttJets_other'] = {
@@ -119,24 +114,22 @@ class CTagPlotter(Plotter):
          'QCD*',
          '[WZ]Jets',
          'single*',
-         'ttJets_allRight',
-         'ttJets_rightHad',
-         'ttJets_rightWHad',
-         'ttJets_rightWLep',
-         'ttJets_semiWrong',
-         'ttJets_other'
+         'ttJets_other',
+         'ttJets_bkg',
+         'ttJets_sig',
          ]
 
       self.card_names = {
          'qcd' : ['QCD*'],
          'vjets'      : ['[WZ]Jets'],
-         'right_whad' : ['ttJets_allRight', 'ttJets_rightHad', 'ttJets_rightWHad'],
-         'wrong_whad' : ['ttJets_rightWLep', 'ttJets_semiWrong'],
+         'right_whad' : ['ttJets_sig'],
+         'wrong_whad' : ['ttJets_bkg'],
          'nonsemi_tt' : ['ttJets_other'],
          'single_top' : ['single*'],
          'data_obs'   : ['data']
          }
       self.signal = 'right_whad'
+      self.signal_yields = {}
 
       self.systematics = {
          'lumi' : {
@@ -169,6 +162,21 @@ class CTagPlotter(Plotter):
             'categories' : ['.*'],
             'value' : 1.10,
             },         
+         'pu' : {
+            'samples' : ['.*'],
+            'categories' : ['.*'],
+            'type' : 'lnN',
+            '+' : lambda x: x.replace('nosys', 'pu_up'),
+            '-' : lambda x: x.replace('nosys', 'pu_down'),
+            },
+         'JER' : {
+            'samples' : ['.*'],
+            'categories' : ['.*'],
+            'type' : 'shape',
+            '+' : lambda x: x.replace('nosys', 'jer_up'),
+            '-' : lambda x: x.replace('nosys', 'jer_down'),
+            'value' : 1.00,            
+            },
          'MTOP' : {
             'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
             'categories' : ['.*'],
@@ -220,6 +228,11 @@ class CTagPlotter(Plotter):
             'type' : 'lnN',
             '+' : lambda x: x.replace('nosys', 'btagc_up'),
             '-' : lambda x: x.replace('nosys', 'btagc_down'),
+            },
+         'PDF' : {
+            'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+            'categories' : ['.*'],
+            'type' : 'pdf',
             },
          }
       self.card = None
@@ -303,15 +316,16 @@ class CTagPlotter(Plotter):
       if not nobbb:
          print 'adding bbb'
          #plotter.card.add_bbb_systematics('.*', '^(?!right)')
-         #bbbs.extend(plotter.card.add_bbb_systematics('.*', 'wrong_whad'))
-         #bbbs.extend(plotter.card.add_bbb_systematics('.*', 'nonsemi_tt'))
-         #bbbs.extend(plotter.card.add_bbb_systematics('.*', 'single_top')) 
-         #bbbs.extend(plotter.card.add_bbb_systematics('.*', 'vjets')) 
-         #bbbs.extend(plotter.card.add_bbb_systematics('.*', 'right_whad', 0.1, relative=False))
+         bbbs.extend(plotter.card.add_bbb_systematics('.*', 'wrong_whad'))
+         bbbs.extend(plotter.card.add_bbb_systematics('.*', 'nonsemi_tt'))
+         bbbs.extend(plotter.card.add_bbb_systematics('.*', 'single_top')) 
+         bbbs.extend(plotter.card.add_bbb_systematics('.*', 'vjets')) 
+         for cname, integral in self.signal_yields.iteritems():
+            bbbs.extend(plotter.card.add_bbb_systematics(cname, 'right_whad', multiplier=integral))
          #plotter.card.add_bbb_systematics('.*', 'qcd') 
 
          #plotter.card.add_bbb_systematics('.*', 'right_whad', 0.05, relative=False)
-         plotter.card.add_bbb_systematics('.*', '.*')  
+         #plotter.card.add_bbb_systematics('.*', '.*')  
       return bbbs
 
    def cut_flow(self):
@@ -430,6 +444,7 @@ class CTagPlotter(Plotter):
          integral = histo.Integral()
          if name == self.signal:
             histo.Scale(1./integral)
+            self.signal_yields[category_name] = integral
          elif name == 'data_obs' and data_is_fake:
             int_int = float(int(integral))
             histo.Scale(int_int/integral)
@@ -444,7 +459,20 @@ class CTagPlotter(Plotter):
             if not any(re.match(i, category_name) for i in info['categories']): continue
             if not any(re.match(i, name) for i in info['samples']): continue
             shift = 1.0
-            if info['type'] == 'shape' or 'value' not in info:
+            if info['type'] == 'pdf': #pdf special case
+               samples = self.card_names[name]
+               histos = [self.pdf_unc_histo(i, j, 'mass_discriminant', rebin, 'nnpdf') for i in samples for j in folders]
+               hpdf = sum(histos) if len(histos) > 1 else histos[0]
+               hu = category[name].Clone()
+               hd = category[name].Clone()
+               for i,j,k in zip(hpdf, hu, hd):
+                  err = (i.error/i.value)*j.value if i.value else 0.
+                  j.value += err
+                  k.value -= err
+               category['%s_%sUp'   % (name, sys_name)] = hu
+               category['%s_%sDown' % (name, sys_name)] = hd               
+               plotter.card.add_systematic(sys_name, 'shape', category_name, name, 1.00)
+            elif info['type'] == 'shape' or 'value' not in info:
                paths_up = [info['+'](path) for path in paths] if '+' in info else None
                paths_dw = [info['-'](path) for path in paths] if '-' in info else None
                hup = sum(view.Get(i) for i in paths_up) if paths_up else None
@@ -495,8 +523,8 @@ class CTagPlotter(Plotter):
                      mbin = category[name].GetMaximumBin()
                      hdw[mbin].value = 10**-6
                   category['%s_%sUp'   % (name, sys_name)] = hup
-                  category['%s_%sDown' % (name, sys_name)] = hdw
-
+                  category['%s_%sDown' % (name, sys_name)] = hdw               
+               
 
    @staticmethod
    def compute_eff(jmap, jrank, qtype):
@@ -511,11 +539,7 @@ class CTagPlotter(Plotter):
 
    def write_summary_table(self, orders, wpoints):
       right_wpoints = [i for i in wpoints if i <> 'notag']
-      ritghtW_view = views.SumView(
-         self.get_view('ttJets_allRight'),
-         self.get_view('ttJets_rightHad'),
-         self.get_view('ttJets_rightWHad')
-         )
+      ritghtW_view = self.get_view('ttJets_sig') 
       mc_weight = self.views[self.tt_to_use]['weight']
 
       info = {}
@@ -770,11 +794,15 @@ class CTagPlotter(Plotter):
       mc_views = self.mc_views()
       mc_histos = [i.Get(var) for i in mc_views]
       integrals = [i.Integral() for i in mc_histos]
+      data = self.get_view('data').Get(var).Integral()      
       total = sum(integrals)
       ratios = [i/total for i in integrals]
       names = [i.GetTitle() for i in mc_histos]
-      colors = [i.GetFillColor('root') for i in mc_histos]
+      colors = [i.GetFillColor('root') for i in mc_histos]      
       format = '%20s %10s %10s\n'
+      entries = [('observed', '%d' % data)] + [(i, '%d' % j) for i, j in zip(names, integrals)]
+      with open(os.path.join(self.outputdir, 'yields.tex'), 'w') as f:
+         f.write(latex_table(['process', 'yield'], entries))
       with open(os.path.join(self.outputdir, 'yields.raw_txt'), 'w') as f:
          f.write('Total events: %.0f\n' % total)
          header = format % ('process', 'yield', 'relative')
@@ -786,25 +814,111 @@ class CTagPlotter(Plotter):
       hsum = sum(mc_histos)
       self.make_flavor_table(hsum, 'flavors.raw_txt', to_json=True)
 
-      right_cmb = self.get_view('ttJets_allRight').Get(var)
-      self.make_flavor_table(right_cmb, 'flavors_rightcmb.raw_txt')
-
-      wright_view = views.SumView(
-         *[self.get_view(i) for i in ['ttJets_rightHad', 'ttJets_rightWHad']]
-          )
-      wright = wright_view.Get(var) + right_cmb
-      self.make_flavor_table(wright, 'flavors_rightw.raw_txt', to_json=True)
+      ## right_cmb = self.get_view('ttJets_allRight').Get(var)
+      ## self.make_flavor_table(right_cmb, 'flavors_rightcmb.raw_txt')
+      ## 
+      ## wright_view = views.SumView(
+      ##    *[self.get_view(i) for i in ['ttJets_rightHad', 'ttJets_rightWHad']]
+      ##     )
+      ## wright = wright_view.Get(var) + right_cmb
+      ## self.make_flavor_table(wright, 'flavors_rightw.raw_txt', to_json=True)
 
    def make_preselection_plot(self, *args, **kwargs):
       mc_default = self.mc_samples
-      self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets']
+      self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
       self.plot_mc_vs_data(*args, **kwargs)
       self.mc_samples = mc_default
 
-   
+   def pdf_unc_histo(self, sample, folder, var, rebin, pdf):
+      view = self.rebin_view(
+         views.SubdirectoryView(
+            views.StyleView(
+               self.get_view(sample), 
+               drawstyle='E2',
+               legendstyle='f'
+               ),
+            folder
+            ),
+         rebin
+         )
+      nnpdf = [1] + range(10, 110)
+      ct10 = range(112, 165)
+      mmht = range(167, 218)
+      vartemplate = '%s_mcws_pdf_%d'
+
+      def rms_envelope(view, var, idrange):
+         central = view.Get(vartemplate % (var, idrange[0]))
+         sqsum = central.Clone()
+         sqsum.Reset()
+         for idx in idrange[1:]:
+            histo = view.Get(vartemplate % (var, idx))
+            for sbin, cbin, hbin in zip(sqsum, central, histo):
+               sbin.value += (cbin.value-hbin.value)**2
+
+         nreplicas = len(idrange)-1
+         for sbin, cbin in zip(sqsum, central):
+            err = math.sqrt(sbin.value/nreplicas)
+            cbin.error = err
+         return central
+               
+      def quad_envelope(view, var, idrange):
+         central = view.Get(vartemplate % (var, idrange[0]))
+         sqsum = central.Clone()
+         sqsum.Reset()
+         for pos, idx in enumerate(idrange[1:]):
+            if pos % 2: continue
+            h1 = view.Get(vartemplate % (var, idx))
+            h2 = view.Get(vartemplate % (var, idrange[pos+1]))
+            for sbin, cbin, h1bin, h2bin in zip(sqsum, central, h1, h2):
+               d1 = abs(cbin.value-h1bin.value)
+               d2 = abs(cbin.value-h2bin.value)               
+               sbin.value = quad.quad(sbin.value, max(d1,d2))
+
+         for sbin, cbin in zip(sqsum, central):            
+            cbin.error = sbin.value
+         return central
+
+      if pdf == 'nnpdf':
+         return rms_envelope( view, var, nnpdf)
+      elif pdf == 'ct10':
+         return quad_envelope(view, var, ct10)
+      elif pdf == 'mmht':
+         return quad_envelope(view, var, mmht)
+      else:
+         raise RuntimeError('invalid pdf type')
+
+   def pdf_unc_plots(self, sample, folder, var, rebin):
+      h_nnpdf = self.pdf_unc_histo(sample, folder, var, rebin, 'nnpdf')
+      h_nnpdf.xaxis.title = '#lambda_{M}'
+      h_nnpdf.yaxis.title = 'events'
+      h_nnpdf.title = 'nnpdf'
+      h_nnpdf.markercolor = '#22528b'
+      h_nnpdf.linecolor = '#22528b'
+      h_nnpdf.fillcolor = '#22528b'
+      h_nnpdf.fillstyle = '//'
+      h_ct10  = self.pdf_unc_histo(sample, folder, var, rebin, 'ct10')
+      h_ct10.xaxis.title = '#lambda_{M}'
+      h_ct10.yaxis.title = 'events'
+      h_ct10.title = 'ct10'
+      h_ct10.markercolor = '#a32020'
+      h_ct10.linecolor = '#a32020'
+      h_ct10.fillcolor = '#a32020'
+      h_ct10.fillstyle = '\\\\'
+      h_mmht  = self.pdf_unc_histo(sample, folder, var, rebin, 'mmht')
+      h_mmht.xaxis.title = '#lambda_{M}'
+      h_mmht.yaxis.title = 'events'
+      h_mmht.title = 'mmht'
+      h_mmht.markercolor = '#006d67'
+      h_mmht.linecolor = '#006d67'
+      h_mmht.fillcolor = '#006d67'
+      h_mmht.fillstyle = '|'
+      self.overlay([h_nnpdf, h_ct10, h_mmht])
+      self.add_legend([h_nnpdf, h_ct10, h_mmht], False)
+
 plotter = CTagPlotter(args.lumi)
 
 jet_variables = [
+   ('energy', 5, '%s jet energy (GeV)', None),
    ('pt' ,  10, '%s jet p_{T} (GeV)', None),
    ('eta',   1, '%s jet #eta', None),
    ('phi',  10, '%s jet #varphi', None),
@@ -817,12 +931,14 @@ jet_variables = [
 
 systematics_to_check = [
    'JES',
+   'JER',
    'BTAG',
    'CTAGL', 
    'CTAGB', 
    'CTAGC', 
    'MTOP', 
-   'HScale'
+   'HScale',
+   'pu'
 ]
 
 vars2D = [
@@ -834,7 +950,7 @@ variables = [
   ("lep_pt"   , "p_{T}(l) (GeV)", 20, None, False),
   ("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
   ("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
-	("mass_discriminant", "#lambda", 20, None, False), #[5, 20]),
+	("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
   ("Wjets_CvsL", "CvsL (W Jet)", 1, None, False),
   ("Wjets_CvsB", "CvsB (W Jet)", 1, None, True),
   ("Bjets_CvsB", "CvsB (B Jet)", 1, None, False),
@@ -852,19 +968,27 @@ variables = [
   #("had_b_pt" , "p_{T}(b) (GeV)", 10, None, False),
 ]
 
-shapes = set() #set([
-##       'ncharged', 'nneutral', 'ntotal', 'mass_discriminant', 
-##       'full_discriminant', 'Whad_sublead_DR', 'Whad_pt', 
-##       'Whad_leading_DR', 'Whad_DR'
-## ])
-
-orders = [
-   ## "nu_chisq"         , 
-   ## "nu_discriminant"  , 
-   ## "btag_discriminant", 
-   "mass_discriminant", 
-   ## "full_discriminant",
+preselection = [
+  ("njets"    , "# of selected jets", range(13), None, False),
+  ("jets_CSV", "jet CSV",   2, None, False),
+  ("jets_CvsB", "jet CvsB", 1, None, True),
+  ("jets_CvsL", "jet CvsL", 1, None, False),
+  ("jets_eta", "#eta(jet)", 10, None, False),
+  ("jets_pt", "p_{T}(jet)", 10, None, False),
+  ("lep_eta", "#eta(l)", 10, None, False),
+  ("lep_pt", "p_{T}(l)", 10, None, False),
+  ("nvtx", "# of reconstructed vertices", range(41), None, False),
+  ("rho", "#rho", range(40), None, False),
 ]
+
+permutation_presel = [
+   ("mass_discriminant", "#lambda_{M}", 5, None, True),
+   ("Wmasshad", "M(W_{h})", 2, None, False),
+   ("tmasshad", "M(t_{h})", 2, None, False),
+]
+
+
+order = "mass_discriminant"
 
 available_wps = [
    "notag",
@@ -874,7 +998,6 @@ available_wps = [
    "ctagLoose",
    "ctagMedium",
    "ctagTight",
-   ## "rndm10",
 ]
 working_points = [i for i in available_wps if fnmatch(i, args.wps)]
 
@@ -909,170 +1032,186 @@ additional_opts = {
    'nu_chisq' : {'xrange' : [0, 20]},
 }
 
-if not args.noplots:
+if args.plots:
    #cut flow
    plotter.cut_flow()
    plotter.save('cut_flow')
 
-   for order in orders:
-      plotter.make_preselection_plot(
-         'nosys', 'nvtx', sort=True,
-         xaxis="# vtx", leftside=False, 
-         show_ratio=True, ratio_range=0.5)
-      plotter.save('nvtx', pdf=False)
+   plotter.set_subdir('preselection')
+   ##for var, axis, rebin, x_range, leftside in preselection:
+   ##   plotter.make_preselection_plot(
+   ##      'nosys/preselection', var, sort=True,
+   ##      xaxis=axis, leftside=leftside, rebin=rebin, 
+   ##      show_ratio=True, ratio_range=0.5)
+   ##   plotter.save(var)
+   ##   
+   ##for var, axis, rebin, x_range, leftside in permutation_presel:
+   ##   plotter.make_preselection_plot(
+   ##      'nosys/permutations', var, sort=True,
+   ##      xaxis=axis, leftside=leftside, rebin=rebin, 
+   ##      show_ratio=True, ratio_range=0.5)
+   ##   plotter.save(var)
 
-      with io.root_open(os.path.join(plotter.outputdir, 'vtxs.root'), 'recreate') as out:
-         vtx_stack = plotter.make_stack(folder='nosys').Get('nvtx')
-         vtx_data = plotter.get_view('data').Get('nosys/nvtx')
-         vtx_data.Scale(1./vtx_data.Integral())
-         ratio = sum(vtx_stack.hists)
-         ratio.Scale(1./ratio.Integral())
-         for rbin, dbin in zip(ratio, vtx_data):
-            rbin.value = dbin.value/rbin.value if rbin.value else 0.
-            rbin.error = 0.
-         out.WriteTObject(ratio, 'vtx_reweigt')
+   #
+   # Special plot
+   #
+   for disc, leftleg in [('CvsL', False), ('CvsB', True)]:
+      dirname = 'nosys/mass_discriminant/notag/both_untagged/'
+      mc_views = plotter.mc_views(folder=dirname)   
+      b_hists = [i.Get('Wjets_%s_B'  % disc) for i in mc_views]
+      c_hists = [i.Get('Wjets_%s_C'  % disc) for i in mc_views]
+      s_hists = [i.Get('Wjets_%s_S'  % disc) for i in mc_views]
+      l_hists = [i.Get('Wjets_%s_UD' % disc) for i in mc_views]
+      
+      hb = sum(b_hists)
+      hl = sum(l_hists)
+      hc = sum(c_hists)
+      hs = sum(s_hists)
+      
+      hb.decorate(**b_hists[0].decorators) 
+      hb.title = 'b-jets'
+      hl.decorate(**b_hists[1].decorators)
+      hl.title = 'l-jets'
+      hc.decorate(**b_hists[2].decorators)
+      hc.title = 'c-jets'
+      hs.decorate(**b_hists[-2].decorators)
+      hs.title = 's-jets'
+      stack = plotter.create_stack(hb, hl, hs, hc, sort=False)
+      data = plotter.get_view('data').Get(dirname+'Wjets_%s' % disc)
+      plotter.overlay([stack, data])
+      plotter.add_legend([stack, data], leftleg, 5)
+      plotter.save('Wjets_%s_flavour' % disc)   
+      
+      hb.Scale(1/hb.Integral())
+      hl.Scale(1/hl.Integral())
+      hc.Scale(1/hc.Integral())
+      hs.Scale(1/hs.Integral())
+      plotter.overlay([hb,hl,hc,hs], fillstyle='hollow', linewidth=3)
+      plotter.add_legend([hb,hl,hc,hs], leftleg, 4)
+      plotter.save('Wjets_%s_norm' % disc)   
 
-      for wpoint in working_points:
-        for cat_dir, cat_name in jet_categories:
-          if wpoint == 'notag' and cat_dir <> "both_untagged": continue
-          base = os.path.join(order, wpoint, cat_dir)
-          for jtype in jet_types:
-             folder = os.path.join(base, jtype)
-             plotter.set_subdir(os.path.join(order, wpoint, cat_name, jtype))
-             folder = os.path.join('nosys', folder)
-             logging.info(folder)
-             for var, rebin, axis, x_range in jet_variables:
-                plotter.plot_mc_vs_data(
-                   folder, var, rebin, sort=True,
-                   xaxis=axis % jtype, leftside=False, 
-                   xrange=x_range, show_ratio=True, ratio_range=0.5)
-                if 'pflav' in var:
-                   for h in plotter.keep:
-                      if isinstance(h, plotting.HistStack):
-                         set_pdg_bins(h)
-                plotter.save('_'.join((jtype,var)), pdf=False)
-                if var in shapes:
-                   plotter.plot_mc_shapes(
-                      folder, var, rebin,
-                      xaxis=axis % jtype, leftside=False,
-                      xrange=x_range)
-                   plotter.save('shape_'+'_'.join((jtype,var)), pdf=False)
-             plotter.bake_pie(folder)
-
-          plotter.set_subdir(os.path.join(order, wpoint, cat_name))
-          for var, xaxis, yaxis, rebin in vars2D:
-             ROOT.gStyle.SetPalette(56)
-             path = os.path.join('nosys', base, var)
-             plotter.plot('data', path, drawopt='colz', xaxis=xaxis, yaxis=yaxis)
-             plotter.keep[0].xaxis.SetTitleOffset(1.2)
-             plotter.keep[0].yaxis.SetTitleOffset(1.5)
-             plotter.save(var, pdf=False)
-
-          for var, axis, rebin, x_range, leftside in variables:
-             if var == 'mass_discriminant': rebin = plotter.binning[wpoint][cat_name]
-             folder = os.path.join('nosys', base)
+   for wpoint in working_points:
+     for cat_dir, cat_name in jet_categories:
+       if wpoint == 'notag' and cat_dir <> "both_untagged": continue
+       base = os.path.join(order, wpoint, cat_dir)
+       for jtype in jet_types:
+          folder = os.path.join(base, jtype)
+          plotter.set_subdir(os.path.join(order, wpoint, cat_name, jtype))
+          folder = os.path.join('nosys', folder)
+          logging.info(folder)
+          for var, rebin, axis, x_range in jet_variables:
              plotter.plot_mc_vs_data(
                 folder, var, rebin, sort=True,
-                xaxis=axis, leftside=leftside,
-                xrange=x_range, show_ratio=True, 
-                ratio_range=0.5)
-             plotter.save(var, pdf=False)
-             if var in shapes:
-                if var == "mass_discriminant" and "_tagged" in cat_dir: rebin = 4
-                plotter.plot_mc_shapes(
-                   folder, var, rebin,
-                   xaxis=axis, leftside=False,
-                   xrange=x_range)
-                plotter.save('shape_%s' % var, pdf=False)
-                if var <> "mass_discriminant": continue
-                plotter.plot_mc_shapes(
-                   folder, var, rebin, normalize=True,
-                   xaxis=order.replace('_', ' '), leftside=False,
-                   xrange=x_range)
-                plotter.save('normshape_%s' % order, pdf=False)
+                xaxis=axis % jtype, leftside=False, 
+                xrange=x_range, show_ratio=True, ratio_range=0.5)
+             if 'pflav' in var:
+                for h in plotter.keep:
+                   if isinstance(h, plotting.HistStack):
+                      set_pdg_bins(h)
+             plotter.save('_'.join((jtype,var)))
+          plotter.bake_pie(folder)
 
-                plotter.plot_mc_shapes(
-                   folder, var, rebin, normalize=True, show_err=True,
-                   xaxis=order.replace('_', ' '), leftside=False,
-                   xrange=x_range, filt=['ttJets_allRight', 'ttJets_rightHad', 'ttJets_rightWHad'])
-                plotter.save('normshape_rightwhad_%s' % order, pdf=False)
+       plotter.set_subdir(os.path.join(order, wpoint, cat_name))
+       for var, xaxis, yaxis, rebin in vars2D:
+          ROOT.gStyle.SetPalette(56)
+          path = os.path.join('nosys', base, var)
+          plotter.plot('data', path, drawopt='colz', xaxis=xaxis, yaxis=yaxis)
+          plotter.keep[0].xaxis.SetTitleOffset(1.2)
+          plotter.keep[0].yaxis.SetTitleOffset(1.5)
+          plotter.save(var)
 
-                plotter.plot_mc_shapes(
-                   folder, var, rebin, normalize=True, show_err=True,
-                   xaxis=order.replace('_', ' '), leftside=False,
-                   xrange=x_range, filt=['ttJets_rightWLep', 'ttJets_semiWrong'])
-                plotter.save('normshape_wrongwhad_%s' % order, pdf=False)
+       for var, axis, rebin, x_range, leftside in variables:
+          if var == 'mass_discriminant': rebin = plotter.binning[wpoint][cat_name]
+          folder = os.path.join('nosys', base)
+          plotter.plot_mc_vs_data(
+             folder, var, rebin,
+             xaxis=axis, leftside=leftside,
+             xrange=x_range, show_ratio=True, 
+             ratio_range=0.5)
+          plotter.save(var)
 
-          if wpoint == 'notag': continue
-          #
-          # separated plots of systematics uncertainties 
-          #
-          for systematic in systematics_to_check:
-             plotter.set_subdir(os.path.join(order, wpoint, cat_name, 'systematics', systematic))
-             samples = [re.compile(i) for i in plotter.systematics[systematic]['samples']]
-             for cardname, grouping in plotter.card_names.iteritems():
-                if cardname == 'data_obs': continue
-                if not any(i.match(cardname) for i in samples): continue
+#
+# separated plots of systematics uncertainties 
+#
+if args.systematics:
+   for wpoint in working_points:
+      for cat_dir, cat_name in jet_categories:         
+         if wpoint == 'notag' and cat_dir <> "both_untagged": continue
+         base = os.path.join(order, wpoint, cat_dir)
 
-                path   = 'nosys/%s/mass_discriminant' % base
-                path_p = plotter.systematics[systematic]['+'](path)
-                path_m = plotter.systematics[systematic]['-'](path) if '-' in plotter.systematics[systematic] else None
-                #merge groups
-                groupview = Plotter.rebin_view(
-                   views.StyleView(
-                      views.SumView(
-                         *[plotter.get_view(i) for i in grouping]
-                          ),
-                      fillstyle = 'hollow',
-                      linestyle = 1,
-                      linewidth = 2
-                      ),
-                   plotter.binning[wpoint][cat_name],
-                   )
+         if args.pdfs:
+            plotter.set_subdir(os.path.join(order, wpoint, cat_name, 'systematics', 'PDFs'))
+            samples = [i for i in plotter.mc_samples if i.startswith('ttJets')]
+            for sample in samples:
+               plotter.pdf_unc_plots(sample, 'nosys/%s' % base, 'mass_discriminant', plotter.binning[wpoint][cat_name])
+               plotter.save(sample)
 
-                histo   = groupview.Get(path)
-                histo_p = groupview.Get(path_p)
-                histo_m = groupview.Get(path_m) if path_m else None
+##         for systematic in systematics_to_check:
+##            plotter.set_subdir(os.path.join(order, wpoint, cat_name, 'systematics', systematic))
+##            samples = [re.compile(i) for i in plotter.systematics[systematic]['samples']]
+##            for cardname, grouping in plotter.card_names.iteritems():
+##               if cardname == 'data_obs': continue
+##               if not any(i.match(cardname) for i in samples): continue
+##
+##               path   = 'nosys/%s/mass_discriminant' % base
+##               path_p = plotter.systematics[systematic]['+'](path)
+##               path_m = plotter.systematics[systematic]['-'](path) if '-' in plotter.systematics[systematic] else None
+##               #merge groups
+##               groupview = Plotter.rebin_view(
+##                  views.StyleView(
+##                     views.SumView(
+##                        *[plotter.get_view(i) for i in grouping]
+##                         ),
+##                     fillstyle = 'hollow',
+##                     linestyle = 1,
+##                     linewidth = 2
+##                     ),
+##                  plotter.binning[wpoint][cat_name],
+##                  )
+##
+##               histo   = groupview.Get(path)
+##               histo_p = groupview.Get(path_p)
+##               histo_m = groupview.Get(path_m) if path_m else None
+##
+##               to_overlay = [histo_p]
+##               histo.title = '%s central' % cardname
+##               histo.linecolor = 'black'
+##               histo_p.title = '%s+' % systematic
+##               histo_p.linecolor = 'red'
+##               histo_p.markercolor = 'red'
+##               if histo_m:
+##                  histo_m.title = '%s-' %systematic
+##                  histo_m.linecolor = 'blue'
+##                  histo_m.markercolor = 'blue'
+##                  to_overlay.append(histo_m)
+##               plotter.overlay_and_compare(
+##                  to_overlay, histo, method='ratio', lower_y_range=0.55,
+##                  legend_def=None, xtitle='mass discriminant', ytitle='events'
+##                  )
+##               plotter.save('%s_%s' % (cardname, systematic))
 
-                to_overlay = [histo_p]
-                histo.title = '%s central' % cardname
-                histo.linecolor = 'black'
-                histo_p.title = '%s+' % systematic
-                histo_p.linecolor = 'red'
-                histo_p.markercolor = 'red'
-                if histo_m:
-                   histo_m.title = '%s-' %systematic
-                   histo_m.linecolor = 'blue'
-                   histo_m.markercolor = 'blue'
-                   to_overlay.append(histo_m)
-                plotter.overlay_and_compare(
-                   to_overlay, histo, method='ratio', lower_y_range=0.55,
-                   legend_def=None, xtitle='mass discriminant', ytitle='events'
-                   )
-                plotter.save('%s_%s' % (cardname, systematic))
 
+## plotter.set_subdir("discriminants")
+## ## plotter.plot_mc_vs_data(
+## ##    'all/discriminators', order, 1, sort=True,
+## ##    xaxis=order.replace('_', ' '), leftside=False,
+## ##    **additional_opts.get(order,{}))
+## ## plotter.save(order, pdf=False)
+## plotter.plot_mc_shapes(
+##    'nosys/all/discriminators', order, 1,
+##    xaxis=order.replace('_', ' '), leftside=False,
+##    **additional_opts.get(order,{}))
+## plotter.save('shape_%s' % order, pdf=False)
+## 
+## plotter.plot_mc_shapes(
+##    'nosys/all/discriminators', order, 1, normalize=True,
+##    xaxis=order.replace('_', ' '), leftside=False,
+##    **additional_opts.get(order,{}))
+## plotter.save('normshape_%s' % order, pdf=False)
 
-        ## plotter.set_subdir("discriminants")
-        ## ## plotter.plot_mc_vs_data(
-        ## ##    'all/discriminators', order, 1, sort=True,
-        ## ##    xaxis=order.replace('_', ' '), leftside=False,
-        ## ##    **additional_opts.get(order,{}))
-        ## ## plotter.save(order, pdf=False)
-        ## plotter.plot_mc_shapes(
-        ##    'nosys/all/discriminators', order, 1,
-        ##    xaxis=order.replace('_', ' '), leftside=False,
-        ##    **additional_opts.get(order,{}))
-        ## plotter.save('shape_%s' % order, pdf=False)
-        ## 
-        ## plotter.plot_mc_shapes(
-        ##    'nosys/all/discriminators', order, 1, normalize=True,
-        ##    xaxis=order.replace('_', ' '), leftside=False,
-        ##    **additional_opts.get(order,{}))
-        ## plotter.save('normshape_%s' % order, pdf=False)
-
-if not args.noshapes:
+if args.shapes:
    plotter.set_subdir("")
-   info = plotter.write_summary_table(orders, working_points)
+   info = plotter.write_summary_table([order], working_points)
    cwd = os.getcwd()
 
    #
@@ -1088,156 +1227,155 @@ if not args.noshapes:
       ## 'vjets.+JESDown$' : plotter.get_shape(all_tag, 'vjets', rebin=mass_discriminant_binning, systematic='JES-'),
       }
 
-   for order in orders:
-      for wpoint in working_points:
-         if wpoint == "notag": continue
-         wpoint_dir = os.path.join(order, wpoint)
-         plotter.set_subdir(wpoint_dir)
-         ## fname = os.path.join(shapedir, 'shapes.root')
-         ## shape_file = ROOT.TFile(fname, 'RECREATE')
-         
-         #plotter.write_mass_discriminant_shapes(
-         #   shape_file.mkdir('notused'),
-         #   os.path.join('all', order, 'notag', 'both_untagged'), 
-         #   rebin=2
-         #   )
-         categories= ['Inc_nolead', 'Inc_nosub', 'Inc_leadtag', 'Inc_subtag'] \
-            if args.inclusive else ['notag', 'leadtag', 'subtag', 'ditag']
-         folders = [['both_untagged', 'sublead_tagged'], ['both_untagged', 'lead_tagged'], ['lead_tagged', 'both_tagged'], ['sublead_tagged', 'both_tagged']]\
-            if args.inclusive else [['both_untagged'], ['lead_tagged'], ['sublead_tagged'], ['both_tagged']]
-         base = os.path.join('nosys', order, wpoint)
-         for folders, category in zip(folders, categories):
-            plotter.write_mass_discriminant_shapes(
-               category,
-               [os.path.join(base, i) for i in folders], 
-               rebin=plotter.binning[wpoint][category]
+   for wpoint in working_points:
+      if wpoint == "notag": continue
+      wpoint_dir = os.path.join(order, wpoint)
+      plotter.set_subdir(wpoint_dir)
+      ## fname = os.path.join(shapedir, 'shapes.root')
+      ## shape_file = ROOT.TFile(fname, 'RECREATE')
+      
+      #plotter.write_mass_discriminant_shapes(
+      #   shape_file.mkdir('notused'),
+      #   os.path.join('all', order, 'notag', 'both_untagged'), 
+      #   rebin=2
+      #   )
+      categories= ['Inc_nolead', 'Inc_nosub', 'Inc_leadtag', 'Inc_subtag'] \
+         if args.inclusive else ['notag', 'leadtag', 'subtag', 'ditag']
+      folders = [['both_untagged', 'sublead_tagged'], ['both_untagged', 'lead_tagged'], ['lead_tagged', 'both_tagged'], ['sublead_tagged', 'both_tagged']]\
+         if args.inclusive else [['both_untagged'], ['lead_tagged'], ['sublead_tagged'], ['both_tagged']]
+      base = os.path.join('nosys', order, wpoint)
+      for folders, category in zip(folders, categories):
+         plotter.write_mass_discriminant_shapes(
+            category,
+            [os.path.join(base, i) for i in folders], 
+            rebin=plotter.binning[wpoint][category]
+            )
+
+      #
+      # yield formulas
+      #
+      yield_formulas = {
+         'notag'   : '((1-{LCharmE})*(1-{sub_lightEff}*(1+x))*{lead_cfrac}+(1-{lead_lightEff}*(1+x))*(1-{SCharmE})*{sub_cfrac}+(1-{lead_lightEff}*(1+x))*(1-{sub_lightEff}*(1+x))*(1-{lead_cfrac}-{sub_cfrac}))',
+         'leadtag' : '({LCharmE}*(1-{sub_lightEff}*(1+x))*{lead_cfrac}+{lead_lightEff}*(1+x)*(1-{SCharmE})*{sub_cfrac}+{lead_lightEff}*(1+x)*(1-{sub_lightEff}*(1+x))*(1-{lead_cfrac}-{sub_cfrac}))',
+         'subtag'  : '((1-{LCharmE})*{sub_lightEff}*(1+x)*{lead_cfrac}+(1-{lead_lightEff}*(1+x))*{SCharmE}*{sub_cfrac}+(1-{lead_lightEff}*(1+x))*{sub_lightEff}*(1+x)*(1-{lead_cfrac}-{sub_cfrac}))',
+         'ditag'   : '({LCharmE}*{sub_lightEff}*(1+x)*{lead_cfrac}+{lead_lightEff}*(1+x)*{SCharmE}*{sub_cfrac}+{lead_lightEff}*(1+x)*{sub_lightEff}*(1+x)*(1-{lead_cfrac}-{sub_cfrac}))',
+         } #TODO add formulas for inclusive categories
+      lightctag_nuisance_name = 'CTAGL'
+      ctag_nuisance_name = 'CTAGC'
+      category_constants = {'light_SF' : {'nuisance_name' : lightctag_nuisance_name, 'floating' : 0.5}, 'charm_SF' : {'floating' : 0.5}} #float between 0.5/1.5
+      for category in categories:
+         #
+         # Remove CTAGL systematic from right_whad sample, get the value 
+         #
+         if args.noLightFit:
+            value = None
+            for idx in range(len(plotter.card.systematics[lightctag_nuisance_name].applies_)):
+               cat_pat, sample_pat, value = plotter.card.systematics[lightctag_nuisance_name].applies_[idx]
+               if cat_pat.match(category) and sample_pat.match('right_whad'):
+                  del plotter.card.systematics[lightctag_nuisance_name].applies_[idx]
+                  break
+            yield_str = yield_formulas[category].format(
+               LCharmE = info[order]['working_points'][wpoint]['lead_charmEff'],
+               SCharmE = info[order]['working_points'][wpoint]['sub_charmEff'],
+               lead_lightEff = info[order]['working_points'][wpoint]['lead_lightEff'],
+               sub_lightEff = info[order]['working_points'][wpoint]['sub_lightEff'],
+               lead_cfrac = info[order]['leadCFrac'],
+               sub_cfrac = info[order]['subCFrac'],
                )
-
-         #
-         # yield formulas
-         #
-         yield_formulas = {
-            'notag'   : '((1-{LCharmE})*(1-{sub_lightEff}*(1+x))*{lead_cfrac}+(1-{lead_lightEff}*(1+x))*(1-{SCharmE})*{sub_cfrac}+(1-{lead_lightEff}*(1+x))*(1-{sub_lightEff}*(1+x))*(1-{lead_cfrac}-{sub_cfrac}))',
-            'leadtag' : '({LCharmE}*(1-{sub_lightEff}*(1+x))*{lead_cfrac}+{lead_lightEff}*(1+x)*(1-{SCharmE})*{sub_cfrac}+{lead_lightEff}*(1+x)*(1-{sub_lightEff}*(1+x))*(1-{lead_cfrac}-{sub_cfrac}))',
-            'subtag'  : '((1-{LCharmE})*{sub_lightEff}*(1+x)*{lead_cfrac}+(1-{lead_lightEff}*(1+x))*{SCharmE}*{sub_cfrac}+(1-{lead_lightEff}*(1+x))*{sub_lightEff}*(1+x)*(1-{lead_cfrac}-{sub_cfrac}))',
-            'ditag'   : '({LCharmE}*{sub_lightEff}*(1+x)*{lead_cfrac}+{lead_lightEff}*(1+x)*{SCharmE}*{sub_cfrac}+{lead_lightEff}*(1+x)*{sub_lightEff}*(1+x)*(1-{lead_cfrac}-{sub_cfrac}))',
-            } #TODO add formulas for inclusive categories
-         lightctag_nuisance_name = 'CTAGL'
-         ctag_nuisance_name = 'CTAGC'
-         category_constants = {'light_SF' : {'nuisance_name' : lightctag_nuisance_name, 'floating' : 0.5}, 'charm_SF' : {'floating' : 0.5}} #float between 0.5/1.5
-         for category in categories:
-            #
-            # Remove CTAGL systematic from right_whad sample, get the value 
-            #
-            if args.noLightFit:
-               value = None
-               for idx in range(len(plotter.card.systematics[lightctag_nuisance_name].applies_)):
-                  cat_pat, sample_pat, value = plotter.card.systematics[lightctag_nuisance_name].applies_[idx]
-                  if cat_pat.match(category) and sample_pat.match('right_whad'):
-                     del plotter.card.systematics[lightctag_nuisance_name].applies_[idx]
-                     break
-               yield_str = yield_formulas[category].format(
-                  LCharmE = info[order]['working_points'][wpoint]['lead_charmEff'],
-                  SCharmE = info[order]['working_points'][wpoint]['sub_charmEff'],
-                  lead_lightEff = info[order]['working_points'][wpoint]['lead_lightEff'],
-                  sub_lightEff = info[order]['working_points'][wpoint]['sub_lightEff'],
-                  lead_cfrac = info[order]['leadCFrac'],
-                  sub_cfrac = info[order]['subCFrac'],
-                  )
-               default = eval(yield_str.replace('x', '0.'))
-               formula_str = '{0} - {1}/{2}'.format(value, yield_str, default)
-               formula = ROOT.TF1('blah', formula_str, -2, 2)
-               constant = formula.GetX(0, -2, 2)            
-               category_constants['light_SF'][category] = constant
-            else:
-               category_constants['light_SF'][category] = {}
-               for cat_pat, sample_pat, value in plotter.card.systematics[lightctag_nuisance_name].applies_:
-                  if not cat_pat.match(category): continue
-                  sample = [i for i in plotter.card_names if sample_pat.match(i)][0]
-                  ang_par = (value-1)/category_constants['light_SF']['floating']
-                  category_constants['light_SF'][category][sample] = '{ang}*(@0-1)+1'.format(ang=ang_par)
-               
-
-            #
-            # Remove all CTAGC systematics and store the effect on the constants json,
-            # it will be fed to the model that will take care to propagate it proportional
-            # to the POI (flat prior)
-            #
-            category_constants['charm_SF'][category] = {}
-            for cat_pat, sample_pat, value in plotter.card.systematics[ctag_nuisance_name].applies_:
+            default = eval(yield_str.replace('x', '0.'))
+            formula_str = '{0} - {1}/{2}'.format(value, yield_str, default)
+            formula = ROOT.TF1('blah', formula_str, -2, 2)
+            constant = formula.GetX(0, -2, 2)            
+            category_constants['light_SF'][category] = constant
+         else:
+            category_constants['light_SF'][category] = {}
+            for cat_pat, sample_pat, value in plotter.card.systematics[lightctag_nuisance_name].applies_:
                if not cat_pat.match(category): continue
                sample = [i for i in plotter.card_names if sample_pat.match(i)][0]
-               ang_par = (value-1)/category_constants['charm_SF']['floating']
-               category_constants['charm_SF'][category][sample] = '{ang}*(@0-1)+1'.format(ang=ang_par)
-               
-         del plotter.card.systematics[ctag_nuisance_name]
-         if not args.noLightFit: del plotter.card.systematics[lightctag_nuisance_name]
-
-         #
-         # Replace V+Jets and QCD shapes with cumulative ones
-         #
-         for pattern, shape in common_shapes.iteritems():
-            for category in categories:
-               binned_shape = shape.Clone()
-               binned_shape = urviews.RebinView.rebin(binned_shape, plotter.binning[wpoint][category])
-               sys = ('Up' not in pattern and 'Down' not in pattern)
-               plotter.card.replace_shape(category, pattern, binned_shape, sys)
-
-
-         plotter.card.clamp_negative_bins('.*', '.*')
-         #
-         # Add Bin-by-bin uncertainties and plot their effect 
-         #
-         bbbs = plotter.add_systematics(args.noBBB)
-         for category in categories:
-            plotter.set_subdir('%s/%s/systematics/BBB' % (wpoint_dir, category))
-            systematics = [i for i in bbbs if category in i]
-            groups = {}
-            for name in systematics:
-               sample, bin = tuple(name.replace('%s_' % category, '').split('_bin_'))
-               bin  = int(bin)
-               if sample not in groups:
-                  groups[sample] = []
-               groups[sample].append((name, bin))
+               ang_par = (value-1)/category_constants['light_SF']['floating']
+               category_constants['light_SF'][category][sample] = '{ang}*(@0-1)+1'.format(ang=ang_par)
             
-            for sample, syss in groups.iteritems():
-               central = plotter.card[category][sample].Clone()
-               central.title = '%s central' % sample
-               central.linecolor = 'black'
-               central.fillstyle = 'hollow'
-               central.drawstyle = 'hist'
 
-               up = central.Clone()
-               down = central.Clone()
-               up.linecolor = 'red'
-               down.linecolor = 'blue'
-               for name, ibin in syss:
-                  up[ibin].value = plotter.card[category]['%s_%sUp' % (sample, name)][ibin].value
-                  down[ibin].value = plotter.card[category]['%s_%sDown' % (sample, name)][ibin].value
+         #
+         # Remove all CTAGC systematics and store the effect on the constants json,
+         # it will be fed to the model that will take care to propagate it proportional
+         # to the POI (flat prior)
+         #
+         category_constants['charm_SF'][category] = {}
+         for cat_pat, sample_pat, value in plotter.card.systematics[ctag_nuisance_name].applies_:
+            if not cat_pat.match(category): continue
+            sample = [i for i in plotter.card_names if sample_pat.match(i)][0]
+            ang_par = (value-1)/category_constants['charm_SF']['floating']
+            category_constants['charm_SF'][category][sample] = '{ang}*(@0-1)+1'.format(ang=ang_par)
+            
+      del plotter.card.systematics[ctag_nuisance_name]
+      if not args.noLightFit: del plotter.card.systematics[lightctag_nuisance_name]
 
-               plotter.overlay(
-                  [up, down, central], ytitle='events',
-                  legend_def=None, xtitle='mass discriminant', 
-                  )
-               plotter.save('%s_BBB' % (sample))
+      #
+      # Replace V+Jets and QCD shapes with cumulative ones
+      #
+      for pattern, shape in common_shapes.iteritems():
+         for category in categories:
+            binned_shape = shape.Clone()
+            binned_shape = urviews.RebinView.rebin(binned_shape, plotter.binning[wpoint][category])
+            sys = ('Up' not in pattern and 'Down' not in pattern)
+            plotter.card.replace_shape(category, pattern, binned_shape, sys)
 
-         plotter.set_subdir(wpoint_dir)
 
-         plotter.card.add_systematic('lead_cfrac', 'param', '', '', info[order]['leadCFrac'], info[order]['leadCFrac_err'])
-         plotter.card.add_systematic('sub_cfrac' , 'param', '', '', info[order]['subCFrac'] , info[order]['subCFrac_err'] )
-         plotter.card.add_systematic('mc_lead_charm_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_charmEff'], info[order]['working_points'][wpoint]['lead_charmEff_err'])
-         plotter.card.add_systematic('mc_lead_light_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_lightEff'], info[order]['working_points'][wpoint]['lead_lightEff_err'])
-         plotter.card.add_systematic('mc_sub_charm_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_charmEff'] , info[order]['working_points'][wpoint]['sub_charmEff_err'] )
-         plotter.card.add_systematic('mc_sub_light_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_lightEff'] , info[order]['working_points'][wpoint]['sub_lightEff_err'] )
-         plotter.card.add_systematic(
-            'signal_norm', 'param', '', '', 
-            info[order]['nevts'], 
-            info[order]['nevts_err']
-            )
-         if args.noLightFit:
-            plotter.card.add_comment("to be used without fitting the light SF -- NOLIGHTSFFIT")
-         with open(os.path.join(plotter.outputdir, 'datacard.json'), 'w') as f:
-            f.write(prettyjson.dumps(category_constants))
+      plotter.card.clamp_negative_bins('.*', '.*')
+      #
+      # Add Bin-by-bin uncertainties and plot their effect 
+      #
+      bbbs = plotter.add_systematics(args.noBBB)
+      for category in categories:
+         plotter.set_subdir('%s/%s/systematics/BBB' % (wpoint_dir, category))
+         systematics = [i for i in bbbs if category in i]
+         groups = {}
+         for name in systematics:
+            sample, bin = tuple(name.replace('%s_' % category, '').split('_bin_'))
+            bin  = int(bin)
+            if sample not in groups:
+               groups[sample] = []
+            groups[sample].append((name, bin))
+         
+         for sample, syss in groups.iteritems():
+            central = plotter.card[category][sample].Clone()
+            central.title = '%s central' % sample
+            central.linecolor = 'black'
+            central.fillstyle = 'hollow'
+            central.drawstyle = 'hist'
 
-         plotter.save_card('datacard')
+            up = central.Clone()
+            down = central.Clone()
+            up.linecolor = 'red'
+            down.linecolor = 'blue'
+            for name, ibin in syss:
+               up[ibin].value = plotter.card[category]['%s_%sUp' % (sample, name)][ibin].value
+               down[ibin].value = plotter.card[category]['%s_%sDown' % (sample, name)][ibin].value
+
+            plotter.overlay(
+               [up, down, central], ytitle='events',
+               legend_def=None, xtitle='mass discriminant', 
+               )
+            plotter.save('%s_BBB' % (sample))
+
+      plotter.set_subdir(wpoint_dir)
+
+      plotter.card.add_systematic('lead_cfrac', 'param', '', '', info[order]['leadCFrac'], info[order]['leadCFrac_err'])
+      plotter.card.add_systematic('sub_cfrac' , 'param', '', '', info[order]['subCFrac'] , info[order]['subCFrac_err'] )
+      plotter.card.add_systematic('mc_lead_charm_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_charmEff'], info[order]['working_points'][wpoint]['lead_charmEff_err'])
+      plotter.card.add_systematic('mc_lead_light_eff', 'param', '', '', info[order]['working_points'][wpoint]['lead_lightEff'], info[order]['working_points'][wpoint]['lead_lightEff_err'])
+      plotter.card.add_systematic('mc_sub_charm_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_charmEff'] , info[order]['working_points'][wpoint]['sub_charmEff_err'] )
+      plotter.card.add_systematic('mc_sub_light_eff' , 'param', '', '', info[order]['working_points'][wpoint]['sub_lightEff'] , info[order]['working_points'][wpoint]['sub_lightEff_err'] )
+      plotter.card.add_systematic(
+         'signal_norm', 'param', '', '', 
+         info[order]['nevts'], 
+         info[order]['nevts_err']
+         )
+      if args.noLightFit:
+         plotter.card.add_comment("to be used without fitting the light SF -- NOLIGHTSFFIT")
+      with open(os.path.join(plotter.outputdir, 'datacard.json'), 'w') as f:
+         f.write(prettyjson.dumps(category_constants))
+
+      plotter.save_card('datacard')
 

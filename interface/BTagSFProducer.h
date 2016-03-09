@@ -10,6 +10,7 @@
 #include "IDJet.h"
 #include "DataFile.h"
 #include "TFile.h"
+#include <memory>
 
 class TTPermutator;
 
@@ -26,20 +27,25 @@ public:
   double scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift);
   IDJet::BTag tight_cut() {return tight_;}
   IDJet::BTag loose_cut() {return loose_;}
+  void ignore_partial_shifts() {ignore_partial_shifts_=true;}
+  void ignore_general_shifts() {ignore_general_shifts_=true;}
 
 private:
   void configure(const DataFile &sf_file, const DataFile &eff_file, IDJet::BTag tighttag, IDJet::BTag loosetag=IDJet::BTag::NONE, float float_c=-1, float float_l=-1, float float_b=-1);
 
   template <class T>
-  T* get_from(TFile &file, std::string path, std::string newname) {
-    T* ptr = (T*) ((T*) ( file.Get( path.c_str() ) ) )->Clone(newname.c_str());
-    if(!ptr) {
-      Logger::log().fatal() << "Could not get " << path << " from the file!" << std::endl;
+  std::shared_ptr<T> get_from(TFile &file, std::string path, std::string newname) {
+    T* original = (T*) file.Get( path.c_str() );
+    if(!original) {
+      Logger::log().fatal() << "Could not get " << path << " from the file " << file.GetName() << "!" << std::endl;
       throw 42;
     }
+    std::shared_ptr<T> ptr((T*) original->Clone(newname.c_str()));
     return ptr;
   }
 
+  bool ignore_partial_shifts_=false;
+  bool ignore_general_shifts_=false;
   bool no_loose_cut_=false;
   //Systematics use
   //How much to float the single SF components
@@ -55,12 +61,12 @@ private:
   BTagCalibrationReader readers_tight_[3]; //[down, central, up]
   BTagCalibrationReader readers_loose_[3]; //[down, central, up]
 
-  TH2D *eff_light_loose=0; 
-  TH2D *eff_light_tight=0;
-  TH2D *eff_charm_loose=0; 
-  TH2D *eff_charm_tight=0;
-  TH2D *eff_bottom_loose=0; 
-  TH2D *eff_bottom_tight=0;
+  std::shared_ptr<TH2D> eff_light_loose; 
+  std::shared_ptr<TH2D> eff_light_tight;
+  std::shared_ptr<TH2D> eff_charm_loose; 
+  std::shared_ptr<TH2D> eff_charm_tight;
+  std::shared_ptr<TH2D> eff_bottom_loose; 
+  std::shared_ptr<TH2D> eff_bottom_tight;
 };
 
 #endif

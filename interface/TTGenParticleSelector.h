@@ -9,7 +9,7 @@ using namespace std;
 
 class TTGenParticleSelector { 
 public:
-  enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP};
+  enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP, FULLDEP};
   TTGenParticleSelector(SelMode mode=NORMAL);
   bool select(URStreamer& event);
 
