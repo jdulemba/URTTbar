@@ -4,12 +4,13 @@
 #include "GenObject.h"
 #include <vector>
 #include <list>
+#include "LHEParticle.h"
 
 using namespace std;
 
 class TTGenParticleSelector { 
 public:
-  enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP, FULLDEP};
+  enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP, FULLDEP, MADGRAPH, LHE};
   TTGenParticleSelector(SelMode mode=NORMAL);
   bool select(URStreamer& event);
 
@@ -17,6 +18,10 @@ public:
   GenTTBar & ttbar_system() {return ttbar_;}
   GenTTBar & ttbar_final_system() {return ttbar_;}
   vector<Genjet*>& additional_jets() {return added_jets_;}
+  void setmode(SelMode mode) {
+    mode_ = mode;
+    if(mode_ == MADGRAPH) w_decay_momid_=6;
+  }
 
 private:
   //GEN PARTICLE SELECTION
@@ -24,9 +29,11 @@ private:
   void select_pstop(URStreamer& event);
   void select_herwig(URStreamer& event);
 
+  int w_decay_momid_=24;
   SelMode mode_;
 
   //counters storage and stuff
+  
   list<GenObject> selected_;
   vector<GenObject*> wpartons_;
   vector<GenObject*> charged_leps_;

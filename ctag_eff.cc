@@ -67,7 +67,7 @@ private:
 	CutFlowTracker tracker_;
 
 	//switches
-	bool isData_, isTTbar_, run_jes_;
+	bool isData_, isTTbar_, pdfs_;
 
   //selectors and helpers
   TTGenParticleSelector genp_selector_;
@@ -141,8 +141,8 @@ public:
     btag_sf_.ignore_partial_shifts();
     cut_tight_b_ = btag_sf_.tight_cut();
     cut_loose_b_ = btag_sf_.loose_cut();
-    //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
-    //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
+    // cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
+    //   " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
     
     URParser &parser = URParser::instance();
 
@@ -161,8 +161,9 @@ public:
 		isData_  = boost::starts_with(sample, "data");
 		isTTbar_ = boost::starts_with(sample, "ttJets");
     Logger::log().debug() << "isData_: " << isData_ << ", isTTbar_: " << isTTbar_ << endl;
-    systematics_ = get_systematics(output_file);
+    systematics_ = get_systematics(output_file);    
     int nosys = values["nosys"].as<int>();
+    int nopdf = values["nopdf"].as<int>();
     if(nosys == 1) {
       systematics_ = {systematics::SysShifts::NOSYS};
       Logger::log().info() << "DISABLING SYSTEMATICS!" << endl;
@@ -171,6 +172,7 @@ public:
       if(sample.find("SingleElectron") != std::string::npos) object_selector_.lepton_type(-1);
       else object_selector_.lepton_type(1);
     }
+    pdfs_ = isTTbar_ && (systematics_.size() > 1) && (nopdf == 0);
 
     if(!isData_) mc_weights_.init(sample);
 
@@ -243,6 +245,8 @@ public:
   //book here your histograms/tree and run every initialization needed
 	void book_combo_plots(string folder){
 		book<TH1F>(folder, "mass_discriminant", "", 20,   0., 20.);
+    
+		book<TH2F>(folder, "flav_map", ";leading;subleading", 3, 0., 3., 3, 0., 3.);
 
 		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
 		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
@@ -251,7 +255,19 @@ public:
 	void fill_combo_plots(string folder, const Permutation &hyp){
 		auto dir = histos_.find(folder);
 		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
-    
+    float lflav = -1;
+    switch(hyp.WJa()->hadronFlavour()) {
+    case 5: lflav = 2.5; break;
+    case 4: lflav = 1.5; break;
+    default: lflav = 0.5; break;      
+    }
+    float sflav = -1;
+    switch(hyp.WJb()->hadronFlavour()) {
+    case 5:  sflav = 2.5; break;
+    case 4:  sflav = 1.5; break;
+    default: sflav = 0.5; break;      
+    }
+		dir->second["flav_map"].fill(lflav, sflav, evt_weight_);
 
 		double whad_mass = hyp.WHad().M();
 		double thad_mass = hyp.THad().M();
@@ -279,6 +295,11 @@ public:
 		book<TH1F>(folder, "jets_CvsL" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "jets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
+
+		book<TH1F>(folder, "jets_hflav_CvsL_B" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "jets_hflav_CvsL_C" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "jets_hflav_CvsL_S" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "jets_hflav_CvsL_L" , "", 55, -1., 1.1);
   }
 
   void fill_presel_plots(string folder, URStreamer &event) {
@@ -295,6 +316,15 @@ public:
       dir->second["jets_CvsL"].fill(jet->CvsLtag(), evt_weight_);
       dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
       dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
+
+      int hflav = fabs(jet->hadronFlavour());
+      int pflav = fabs(jet->partonFlavour());
+      string hstr;
+      if(hflav == 5) hstr="B";
+      else if(hflav == 4) hstr="C";
+      else if(pflav == 3) hstr="S";
+      else hstr="L"; 
+      dir->second["jets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
     }
 		dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
   }
@@ -313,14 +343,24 @@ public:
 		book<TH2F>(folder, "leadB_leadW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
 		book<TH2F>(folder, "subB_subW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
 
-		book<TH1F>(folder, "Wjets_CvsL_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsL_S" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_S" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsL_L" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_L" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsL_S" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_jpt_C" , "", 100, 0., 500.);    
+		book<TH1F>(folder, "Wjets_hflav_jpt_LS" , "", 100, 0., 500.);    
+
+		book<TH1F>(folder, "Wja_hflav_CvsL_B" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wja_hflav_CvsL_C" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wja_hflav_CvsL_S" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wja_hflav_CvsL_L" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjb_hflav_CvsL_B" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjb_hflav_CvsL_C" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjb_hflav_CvsL_S" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjb_hflav_CvsL_L" , "", 55, -1., 1.1);
+
+		book<TH1F>(folder, "Wja_CvsL" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjb_CvsL" , "", 55, -1., 1.1);
 
 		book<TH1F>(folder, "Wjets_CvsL" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjets_CvsB" , "", 55, -1., 1.1);
@@ -351,17 +391,31 @@ public:
 		dir->second["leadB_leadW_pts"].fill(lb->Pt(), lj->Pt(), evt_weight_);
 		dir->second["subB_subW_pts"  ].fill(sb->Pt(), sj->Pt(), evt_weight_);
 
+    string wj="Wja";
     for(IDJet* jet : {hyp.WJa(), hyp.WJb()}){
       int hflav = fabs(jet->hadronFlavour());
       int pflav = fabs(jet->partonFlavour());
-      string flav;
-      if(hflav == 5) flav="B";
-      else if(hflav == 4) flav="C";
-      else if(pflav == 3) flav="S";
-      else flav="L"; 
-      dir->second["Wjets_CvsL_"+flav].fill(hyp.WJa()->CvsLtag() , evt_weight_);
-      dir->second["Wjets_CvsB_"+flav].fill(hyp.WJa()->CvsBtag() , evt_weight_);    
+      string hstr;
+      if(hflav == 5) hstr="B";
+      else if(hflav == 4) {
+        hstr="C";
+        dir->second["Wjets_hflav_jpt_C"].fill(jet->Pt(), evt_weight_);
+      }
+      else if(pflav == 3) {
+        hstr="S";
+        dir->second["Wjets_hflav_jpt_LS"].fill(jet->Pt(), evt_weight_);
+      }
+      else {
+        hstr="L"; 
+        dir->second["Wjets_hflav_jpt_LS"].fill(jet->Pt(), evt_weight_);
+      }
+
+      dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+      dir->second[wj+"_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
     }
+
+		dir->second["Wja_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
+		dir->second["Wjb_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
 
 		dir->second["Wjets_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
 		dir->second["Wjets_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
@@ -442,7 +496,7 @@ public:
 						string folder = base + "/" + tag;
 						
 						book_combo_plots(folder);
-            if(isTTbar_ && sys == systematics::SysShifts::NOSYS) book_pdf_plots(folder);
+            if(pdfs_ && sys == systematics::SysShifts::NOSYS) book_pdf_plots(folder);
 						if(working_point == "notag") book_notag_plots(folder);
 
 						for(auto& w_folder : wjet_folders){
@@ -522,6 +576,14 @@ public:
     if( !object_selector_.select(event, shift) ) return;
     tracker_.track("object selection");
 
+    //MC Weight for lepton selection
+    if(!isData_) { 
+      if(object_selector_.tight_muons().size() == 1)
+        evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+      if(object_selector_.medium_electrons().size() == 1)
+        evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+		}
+
     string sys_name = systematics::shift_to_name.at(shift);
     string presel_dir = sys_name;
     if(isTTbar_){
@@ -563,14 +625,8 @@ public:
     size_t capped_jets_size = permutator_.capped_jets().size();
     best_permutation.permutating_jets(capped_jets_size);
 
-    //find mc weight
+    //find mc weight for btag
     if(!isData_) evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift);
-    if(!isData_) { 
-      if(object_selector_.tight_muons().size() == 1)
-        evt_weight_ *= muon_sf_.get_sf(best_permutation.L()->Pt(), best_permutation.L()->Eta());
-      if(object_selector_.medium_electrons().size() == 1)
-        evt_weight_ *= electron_sf_.get_sf(best_permutation.L()->Pt(), best_permutation.L()->Eta());
-		}
 
     //Gen matching
     Permutation matched_perm;
@@ -606,7 +662,7 @@ public:
       //Logger::log().debug() << "filling: " << folder << endl;
       if(wpoint.first == "notag") fill_notag_plots(folder, best_permutation);
       fill(folder, best_permutation);
-      if(isTTbar_ && shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
+      if(pdfs_ && shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
     }
 	}
 
@@ -669,6 +725,7 @@ public:
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
 		opts.add_options()
       ("nosys", opts::value<int>()->default_value(0), "do not run systematics")
+      ("nopdf", opts::value<int>()->default_value(0), "do not run pdf uncertainties")
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file");
 

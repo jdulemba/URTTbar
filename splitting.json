@@ -3,5 +3,6 @@
    "ttJets*" : 1,
    "QCD*" : 100,
    "data*" : 20,
-   "single*" : 2
+   "single*" : 2,
+   "[AH]toTTM*" : 10
 }

@@ -54,7 +54,7 @@ with io.root_open('inputs/%s/INPUT/ttselection_%s_%s_efficiencies.root' % (jobid
          jdir.WriteTObject(eff, '%s_eff' % cut_type)
 
 
-with io.root_open('inputs/%s/INPUT/btag_wjets_efficiencies.root' % jobid, 'recreate') as outfile:   
+with io.root_open('inputs/%s/INPUT/btag_wjets_efficiencies_%s_%s.root' % (jobid, alljet_cut_types[0], alljet_cut_types[1]), 'recreate') as outfile:   
    for jtype, dname in jet_types:
       jdir = outfile.mkdir(dname)
       jdir.cd()

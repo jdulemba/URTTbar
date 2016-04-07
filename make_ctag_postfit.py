@@ -132,13 +132,13 @@ for pfit, tdir in [('postfit', 'shapes_fit_s'), ('prefit', 'shapes_prefit')]:
 
       stack = plotter.create_stack(*samples, sort=False)
       legend = LegendDefinition(position='NE')
-      plotter.overlay( 
-      	[stack, hsum, data],
+      plotter.overlay_and_compare( 
+      	[stack, hsum], data,
       	writeTo=cat_name,
       	legend_def = legend,
-        xtitle='discriminant',
+        xtitle='#lambda_{M}',
         ytitle='Events'
-        #,method='ratio'
+        ,method='datamc'
       	)
    table.add_separator()
    with open('%s/yields.raw_txt' % out_dir,'w') as tab:

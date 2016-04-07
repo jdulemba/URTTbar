@@ -17,6 +17,7 @@ private:
   double get_weight(TH2 *h, double pt, double eta) const;
   TH2 *id_=0, *iso_=0, *trig_=0;
   bool pt_as_x_=true;
+  bool abs_etas_[3] = {true, true, true};
 };
 
 #endif

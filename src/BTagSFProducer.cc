@@ -41,18 +41,24 @@ BTagSFProducer::BTagSFProducer(std::string tight, std::string loose, float float
   std::string group(tight, 0, dot);
   std::string par(tight, dot+1, tight.size()-dot);
   parser.addCfgParameter<std::string>(group, par, "");
-  dot = loose.find(".");
-  std::string group2(loose, 0, dot);
-  std::string par2(loose, dot+1, loose.size()-dot);
-  parser.addCfgParameter<std::string>(group2, par2, "");
+  if(loose.size() > 0) {
+    dot = loose.find(".");
+    std::string group2(loose, 0, dot);
+    std::string par2(loose, dot+1, loose.size()-dot);
+    parser.addCfgParameter<std::string>(group2, par2, "");
+  }
 
   parser.parseArguments();
 
   string a = parser.getCfgPar<string>(tight);
-  string b = parser.getCfgPar<string>(loose);
-  
   IDJet::BTag tighttag = IDJet::tag(a);
-  IDJet::BTag loosetag = IDJet::tag(b);
+
+  IDJet::BTag loosetag = IDJet::BTag::NONE;
+  if(loose.size() > 0) {
+    string b = parser.getCfgPar<string>(loose);
+    cout << loose << " --> " << b << endl;
+    loosetag = IDJet::tag(b);
+  }
 
   DataFile sf_file( parser.getCfgPar<std::string>("general", "btag_sf"));
   DataFile eff_file(parser.getCfgPar<std::string>("general", "btag_eff"));

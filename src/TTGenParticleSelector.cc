@@ -7,7 +7,6 @@
 using namespace TMath;
 
 TTGenParticleSelector::TTGenParticleSelector(SelMode mode):
-  mode_(mode),
   selected_(),
   wpartons_(),
   charged_leps_(),
@@ -23,6 +22,8 @@ TTGenParticleSelector::TTGenParticleSelector(SelMode mode):
   lepdecays_(0),
   ttbar_(),
   ttbar_final_() {
+  setmode(mode);
+
   URParser &parser = URParser::instance();
   parser.addCfgParameter<float>("gen_jets", "ptmin", "minimum pt");
   parser.addCfgParameter<float>("gen_jets", "etamax", "maximum eta");
@@ -162,11 +163,13 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
   for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp) {
     if(gp->status() > 21 && gp->status() < 30 && gp->momIdx().size() != 0) {
       if(gp->pdgId() == 6) {
+        //if(gps[gp->momIdx()[0]].pdgId() != 21) Logger::log().info() << gp->pdgId() << " <-- " << gps[gp->momIdx()[0]].pdgId() << std::endl;
         topcounter_++;
         selected_.push_back(*gp);
         top_ = &(selected_.back());
       }
       else if(gp->pdgId() == -6) {
+        //if(gps[gp->momIdx()[0]].pdgId() != 21) Logger::log().info() << gp->pdgId() << " <-- " << gps[gp->momIdx()[0]].pdgId() << std::endl;
         topcounter_++;
         selected_.push_back(*gp);
         tbar_ = &(selected_.back());
@@ -179,13 +182,13 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
         selected_.push_back(*gp);
         bbar_ = &(selected_.back());
       }
-      else if(Abs(gp->pdgId()) < 6 && Abs(gps[gp->momIdx()[0]].pdgId()) == 24) {
+      else if(Abs(gp->pdgId()) < 6 && Abs(gps[gp->momIdx()[0]].pdgId()) == w_decay_momid_) {
         selected_.push_back(*gp);
         wpartons_.push_back(&(selected_.back()));
       }
     }
 
-    if(gp->momIdx().size() != 0 && Abs(gps[gp->momIdx()[0]].pdgId()) == 24) {	
+    if(gp->momIdx().size() != 0 && Abs(gps[gp->momIdx()[0]].pdgId()) == w_decay_momid_) {	
       if(Abs(gp->pdgId()) == 11 || Abs(gp->pdgId()) == 13) {
         selected_.push_back(*gp);
         charged_leps_.push_back(&(selected_.back()));
@@ -233,7 +236,8 @@ bool  TTGenParticleSelector::select(URStreamer& event)
   //SELECT BASED ON SELECTION MODE
   //TODO
   switch(mode_) {
-  case NORMAL: select_normal(event); break;
+  case NORMAL: 
+  case MADGRAPH:  select_normal(event); break;
   case PSEUDOTOP: select_pstop(event); break;
   case HERWIGPP: select_herwig(event); break;
     //case FULLDEP: select_with_deps(event); break;

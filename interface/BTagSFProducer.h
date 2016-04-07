@@ -21,7 +21,7 @@ public:
     readers_tight_(),
     readers_loose_() {}
   BTagSFProducer(TTPermutator &permutator, float float_c=-1, float float_l=-1, float float_b=-1);
-  BTagSFProducer(std::string tight, std::string loose, float float_c=-1, float float_l=-1, float float_b=-1);
+  BTagSFProducer(std::string tight, std::string loose="", float float_c=-1, float float_l=-1, float float_b=-1);
   BTagSFProducer(const DataFile &sf_file, const DataFile &eff_file, IDJet::BTag tighttag, IDJet::BTag loosetag=IDJet::BTag::NONE, float float_c=-1, float float_l=-1, float float_b=-1);
   ~BTagSFProducer();    
   double scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift);

@@ -47,12 +47,8 @@ table.write(
 ''' % ('c'*ncols)
 )
 table.write(tex.tabline(['category', 'observed', 'total expected']+[i for _, i in samples], convert=False))
-results.write(
-   '''
-\\begin{tabular}{cc}
-'''
-)
-
+header = '\n \\begin{tabular}{cc} \n \n'
+results.write(header)
 
 for wp in wps:
    table.write('\hline \n')
@@ -74,6 +70,7 @@ for wp in wps:
          ['c--jet scale factor', tex.format_roovar(pars['charmSF'], True)], convert=False
          )
       )
+   
    if 'lightSF' in pars:
       results.write(
          tex.tabline(
@@ -89,6 +86,8 @@ for wp in wps:
       line.append(tex.format_with_error(t_val, t_err))
       for sam, _ in samples:
          path = '%s/%s' % (cat, sam)
+         #if wp == 'ctagMedium' and cat == 'notag' and sam == 'qcd':
+         #   set_trace()
          if path not in prefit:
             print path, "in", wp, "does not exist!"
             line.append('$0 \pm 0$')

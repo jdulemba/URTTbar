@@ -4,7 +4,9 @@
 #include "TFile.h"
 #include "TMath.h"
 #include <iostream>
+#include "TH1I.h"
 
+using namespace TMath;
 LeptonSF::LeptonSF(std::string parname, bool ptx):
   pt_as_x_(ptx)
 {
@@ -22,6 +24,13 @@ LeptonSF::LeptonSF(std::string parname, bool ptx):
   iso_  = (ptr) ? (TH2F*) ptr->Clone("iso_clone") : NULL;
   ptr = (TH2F*) file.Get("trg");
   trig_ = (ptr) ? (TH2F*) ptr->Clone("trg_clone") : NULL;
+  
+  TH1I *h = (TH1I*) file.Get("info");
+  if(h) {
+    pt_as_x_ = (h->GetBinContent(0) > 0.5);
+    for(int i=0; i<2; i++)
+      abs_etas_[i] = (h->GetBinContent(i+1) > 0.5);
+  }
   TH1::AddDirectory(true);
 }
 
@@ -39,7 +48,7 @@ double LeptonSF::get_weight(TH2 *h, double pt, double eta) const {
 }
 
 double LeptonSF::get_sf(double pt, double eta) const {
-  return get_weight(id_, pt, eta) *
-    get_weight(iso_, pt, eta) *
-    get_weight(trig_, pt, eta);
+  return  get_weight(trig_, pt, abs_etas_[0] ? Abs(eta) : eta) *
+    get_weight(id_ , pt, abs_etas_[1] ? Abs(eta) : eta) *
+    get_weight(iso_, pt, abs_etas_[2] ? Abs(eta) : eta);
 }

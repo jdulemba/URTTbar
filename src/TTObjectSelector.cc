@@ -174,6 +174,13 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
   return true;
 }
 
+bool TTObjectSelector::pass_through(URStreamer &event, systematics::SysShifts shift) {
+  reset();
+  select_muons(event, shift);
+  select_electrons(event, shift);
+  select_jetmet(event, shift);
+  return true;
+}
 
 bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   reset();

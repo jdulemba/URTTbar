@@ -16,6 +16,22 @@ styles = {
       'name' : "V + jets",
       'fillstyle': 'solid',
       },
+   ##'WJets*' : {
+   ##   'legendstyle' : 'f',
+   ##   'drawstyle' : 'hist',
+   ##   'fillcolor' : '#FFCC66',
+   ##   'linecolor' : '#FFCC66',
+   ##   'name' : "W + jets",
+   ##   'fillstyle': 'solid',
+   ##   },
+   ##'ZJets*' : {
+   ##   'legendstyle' : 'f',
+   ##   'drawstyle' : 'hist',
+   ##   'fillcolor' : '#FFCC66',
+   ##   'linecolor' : '#FFCC66',
+   ##   'name' : "Z + jets",
+   ##   'fillstyle': 'solid',
+   ##   },
    'single*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',

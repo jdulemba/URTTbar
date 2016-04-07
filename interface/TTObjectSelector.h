@@ -25,6 +25,7 @@ public:
   void lepton_type(int ltype) {objsel_=ltype;} //-1 e only, 1 mu only, 0 any
   void reset();
   bool select(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
+  bool pass_through(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
 
   //getters for selected objects
   vector<IDMuon*>& loose_muons() {return loose_muons_;}

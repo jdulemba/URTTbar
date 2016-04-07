@@ -36,13 +36,13 @@ end
 
 task :set_trial,[:trialID] do |t, args|
   chdir("results/#{$jobid}") do
-    link  = "ttbarxsec"
+    link  = "ctag_eff"
     results = "#{link}_#{args.trialID}"
     if File.exist? link
       if not File.symlink? link
         throw "#{link} MUST be a symlink in the first place to work!"
       end
-      sh "rm -f #{link}"
+      sh "unlink #{link}"
     end
   
     if not File.exist? results
@@ -53,13 +53,13 @@ task :set_trial,[:trialID] do |t, args|
   end
 
   chdir("plots/#{$jobid}") do
-    link  = "ttxsec"
+    link  = "ctageff"
     results = "#{link}_#{args.trialID}"
     if File.exist? link
       if not File.symlink? link
         throw "#{link} MUST be a symlink in the first place to work!"
       end
-      sh "rm -f #{link}"
+      sh "unlink #{link}"
     end
     
     if not File.exist? results
@@ -433,6 +433,9 @@ rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
     else
       opts = '--PO lightConstantsJson=datacard.json'
     end
+    if File.readlines("datacard.txt").grep(/NOPOIPROPAGATION/).size > 0
+      opts += ' --PO POIPropagation=False'
+    end
     sh "text2workspace.py datacard.txt -P URAnalysis.AnalysisTools.statistics.CTagEfficiencies:ctagEfficiency #{opts} -o #{File.basename(t.name)}"
   end
 end
@@ -452,8 +455,9 @@ rule /MultiDimFit(:?Toy|Asimov)?.root$/ => psub(/MultiDimFit(:?Toy|Asimov)?.root
   end
   dir = File.dirname(t.name)
   chdir(dir) do
-    puts 'running Multi-dimensional with Profile-Likelyhood errors'
-    sh "combine fitModel.root -M MultiDimFit --algo=singles --setPhysicsModelParameterRanges charmSF=0,2:lightSF=0,2 #{toy_cmd} > #{File.basename(t.name).sub(/\.root$/,'.log')}"
+    puts 'running Multi-dimensional with Profile-Likelyhood errors'#--setPhysicsModelParameterRanges charmSF=0,2:lightSF=0,2
+    sh "combine fitModel.root -M MultiDimFit --algo=singles --saveWorkspace #{toy_cmd} > #{File.basename(t.name).sub(/\.root$/,'.log')}"
+    sh "cat #{File.basename(t.name).sub(/\.root$/,'.log')}"
     sh "mv higgsCombineTest.MultiDimFit.mH120#{seed}.root #{File.basename(t.name)}"
   end
 end
@@ -478,7 +482,7 @@ end
 rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   dir = File.dirname(t.name)
   bname = File.basename(t.name)
-  combine_cmd = "combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --minos=all --saveNLL  --skipBOnlyFit"
+  combine_cmd = "combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveWorkspace --minos=all --saveNLL  --skipBOnlyFit"
   chdir(dir) do
     if t.name.include? 'Toy'
       if $batch == "1"
@@ -516,8 +520,54 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
       sh "#{combine_cmd} #{toy_cmd} &> fit.log"
       sh "cat fit.log"
       sh "mv mlfit.root #{File.basename(t.name)}"      
+      sh "mv higgsCombineTest.MaxLikelihoodFit.mH120.root MLFit_workspace.root"
     end
     #sh "mv higgsCombineTest.MultiDimFit.mH120.root MultiDimFit.root"
+  end
+end
+
+
+rule /MaxLikeFitStatOnly\.root$/ => psub(/MaxLikeFitStatOnly/, 'MultiDimFit') do |t|
+  dir = File.dirname(t.name)
+  bname = File.basename(t.name)
+  chdir(dir) do
+    sh "combine MultiDimFit.root -M MaxLikelihoodFit -S 0 --minos=all --snapshotName MultiDimFit"
+    sh "mv mlfit.root #{File.basename(t.name)}"      
+  end
+end
+
+task :sys_breakdown, [:wp] do |t, args|
+  wpdir = "plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}"
+  Rake::Task["#{wpdir}/MultiDimFit.root"].invoke()
+  sh "mkdir -p #{wpdir}/sys_breakdown/"  
+  nuisances=File.readlines("#{wpdir}/datacard.txt").grep(/( lnN )|( shape )|( param )/).map {|x| x.split()[0]}
+  #groups = [/_bin_/, /_MCStat/]
+  #group_names = ['bbb', 'MCStat']
+  singles = [/JES/,/pu/]
+  chdir(wpdir) do
+    sh "combine MultiDimFit.root -M MaxLikelihoodFit -S 0 --minos=all --snapshotName MultiDimFit &> /dev/null"
+    sh "mv mlfit.root MaxLikeFitStatistic.root"
+    nuisances.each do |nuisance|
+      if singles.map {|g| g =~ nuisance}.any?
+        puts nuisance
+        to_freeze = nuisances.select{|x| x != nuisance}.join(',')
+        sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
+        sh "mv mlfit.root sys_breakdown/#{nuisance}.root"
+      end
+    end
+    
+    puts 'running for groups'
+    ## groups.zip(group_names).each do |group, name|
+    ##   to_freeze = nuisances.select{|x| not (group =~ x)}.join(',')
+    ##   if to_freeze.length == 0
+    ##     next
+    ##   end
+    ##   sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
+    ##   sh "mv mlfit.root sys_breakdown/#{name}.root"
+    ## end
+    to_freeze = nuisances.select{|x| singles.map{|y| y =~ x}.any? }.join(',')
+    sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
+    sh "mv mlfit.root sys_breakdown/other.root"
   end
 end
 
@@ -535,20 +585,19 @@ task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
+$wroking_points = ['csvLoose', 'csvMedium', 'csvTight', 'ctagLoose', 'ctagMedium', 'ctagTight']
 task :ctag_fitall do |t|
-  Rake::Task["ctag_postfit"].invoke('csvLoose')
-  Rake::Task["ctag_postfit"].reenable
-  Rake::Task["ctag_postfit"].invoke('csvMedium')
-  Rake::Task["ctag_postfit"].reenable
-  Rake::Task["ctag_postfit"].invoke('csvTight')
-  Rake::Task["ctag_postfit"].reenable
+  $wroking_points.each do |wp|
+    Rake::Task["ctag_postfit"].invoke(wp)
+    Rake::Task["ctag_postfit"].reenable
+  end
+end
 
-  Rake::Task["ctag_postfit"].invoke('ctagLoose')
-  Rake::Task["ctag_postfit"].reenable
-  Rake::Task["ctag_postfit"].invoke('ctagMedium')
-  Rake::Task["ctag_postfit"].reenable
-  Rake::Task["ctag_postfit"].invoke('ctagTight')
-  Rake::Task["ctag_postfit"].reenable
+task :breakdown_all do |t|
+  $wroking_points.each do |wp|
+    Rake::Task['sys_breakdown'].invoke(wp)
+    Rake::Task["sys_breakdown"].reenable
+  end
 end
 
 task :ctag_toys, [:wp] do |t, args|
@@ -559,4 +608,19 @@ task :ctag_toy_diagnostics, [:wp ] do |t, args|
   toy_dir = "plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}"
   sh "mkdir -p #{toy_dir}/toys"
   sh "python toy_diagnostics.py '' '' #{toy_dir}/MaxLikeFitToy.root -o #{toy_dir}/toys/ --use-prefit --noshapes --filter-out-pars='.*_bin_\d+$'"
+end
+
+task :ctag_shapes do |t|
+  sh 'python CTagEffPlotter.py  --shapes --wps="ctag*" --noPOIpropagation'
+  sh 'python CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation'
+  sh 'python CTagEffPlotter.py  --shapes --wps="csv*"  --noLightFit --noPOIpropagation '
+end
+
+task :ctag_plotfit do |t|
+  Rake::Task['ctag_shapes'].invoke()
+  Rake::Task['ctag_fitall'].invoke()
+  #Rake::Task['breakdown_all'].invoke()
+  sh 'python make_ctag_tables.py'
+  #sh "write_csv.py ctag"
+  #sh "mv ctag.csv plots/#{jobid}/ctageff/."
 end
