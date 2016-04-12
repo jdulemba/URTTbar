@@ -4,6 +4,7 @@
 #include "TLorentzVector.h"
 #include "URStreamer.h"
 #include <vector>
+#include <iostream>
 
 class LHEParticle: public TLorentzVector {
 private:
@@ -23,5 +24,6 @@ public:
   int pdgId() const {return pdgid_;}
   std::pair<int, int> mothers_range() const {return std::make_pair(first_mom_, last_mom_);}
   static std::vector<LHEParticle> LHEParticles(URStreamer &event);
+  friend std::ostream & operator<<(std::ostream &os, const LHEParticle &obj);
 };
 #endif

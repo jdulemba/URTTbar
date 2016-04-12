@@ -12,6 +12,8 @@ using namespace std;
 class TTBarSolver;
 class IDMet;
 
+std::ostream & operator<<(std::ostream &os, const TLorentzVector& p);
+
 class Permutation
 {
 	private:

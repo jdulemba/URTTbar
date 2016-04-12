@@ -6,7 +6,19 @@
 
 using namespace TMath;
 
+std::ostream & operator<<(std::ostream &os, const Genparticle& w) {
+  os << "Genparticle(" << w.idx() << ", id:";
+  if(ura::pdg_names.find(w.pdgId()) != ura::pdg_names.end()){
+    os << ura::pdg_names.at(w.pdgId());// << ", stat:" << w.status() << ")";
+  } else {
+    os << w.pdgId();
+  }    
+  return os << ", stat:" << w.status() << ")";//, " 
+  //<< w.Px() << ", " << w.Py() << ", " << w.Pz() << ", " << w.E() << ")";
+}
+
 TTGenParticleSelector::TTGenParticleSelector(SelMode mode):
+  lhes_(),
   selected_(),
   wpartons_(),
   charged_leps_(),
@@ -212,9 +224,58 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
   }
 }
 
-bool  TTGenParticleSelector::select(URStreamer& event)
-{
+int TTGenParticleSelector::comes_from_top(LHEParticle &lhe) {
+  pair<int,int> moms = lhe.mothers_range();
+  if(moms.first != moms.second || moms.first < 0) return -1; //not coming from top
+  LHEParticle &mom = lhes_[moms.first];
+  if(Abs(mom.pdgId()) == ura::PDGID::t) return moms.first;
+  return comes_from_top(mom);
+}
+
+void TTGenParticleSelector::select_lhe(URStreamer& event) {
+  lhes_ = LHEParticle::LHEParticles(event);
+  for(auto &lhe : lhes_) {
+    if(lhe.pdgId() == ura::PDGID::t) {
+      selected_.push_back(lhe);
+      topcounter_++;
+      top_ = &(selected_.back());
+      continue;
+    }
+    else if(lhe.pdgId() == ura::PDGID::tbar) {
+      topcounter_++;
+      selected_.push_back(lhe);
+      tbar_ = &(selected_.back());
+      continue;
+    }
+    if(lhe.status() != 1) {continue;}
+    int top_id = this->comes_from_top(lhe);
+    if(top_id == 0) {continue;}//does not come from top
+    selected_.push_back(lhe);
+    int mom = lhe.mothers_range().first;
+
+    if(lhe.pdgId() == ura::PDGID::b && lhes_[mom].pdgId() != ura::PDGID::Wplus) {
+      b_ = &(selected_.back());
+    }
+    else if(lhe.pdgId() == ura::PDGID::bbar && lhes_[mom].pdgId() != ura::PDGID::Wminus) {
+      bbar_ = &(selected_.back());
+    }
+    else if(Abs(lhes_[mom].pdgId()) == w_decay_momid_) {
+      if(Abs(lhe.pdgId()) < 6) wpartons_.push_back(&(selected_.back()));
+      if(Abs(lhe.pdgId()) == ura::PDGID::e || Abs(lhe.pdgId()) == ura::PDGID::mu) charged_leps_.push_back(&(selected_.back()));
+      if(Abs(lhe.pdgId()) == ura::PDGID::nu_e || Abs(lhe.pdgId()) == ura::PDGID::nu_mu) {
+        neutral_leps_.push_back(&(selected_.back()));
+        lepdecays_++;
+      }
+      if(Abs(lhe.pdgId()) == ura::PDGID::tau || Abs(lhe.pdgId()) == ura::PDGID::nu_tau) {
+        lepdecays_++;
+      }
+    }
+  }
+}
+
+void TTGenParticleSelector::reset() {
   //RESETS NEEDED VECTORS
+  lhes_.clear();
   selected_.clear();
   wpartons_.clear();
   charged_leps_.clear();
@@ -232,7 +293,10 @@ bool  TTGenParticleSelector::select(URStreamer& event)
   jets_.clear();
   added_jets_.clear();
   is_in_acceptance_ =-1;
+}
 
+bool  TTGenParticleSelector::select(URStreamer& event) {
+  reset();
   //SELECT BASED ON SELECTION MODE
   //TODO
   switch(mode_) {
@@ -240,7 +304,9 @@ bool  TTGenParticleSelector::select(URStreamer& event)
   case MADGRAPH:  select_normal(event); break;
   case PSEUDOTOP: select_pstop(event); break;
   case HERWIGPP: select_herwig(event); break;
-    //case FULLDEP: select_with_deps(event); break;
+  case LHE: 
+  case MADGRAPHLHE: select_lhe(event); break;
+  case FULLDEP: select_with_deps(event); break;
   }
 
   //Build GenTTBar
@@ -341,177 +407,175 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
 // OLD CODE, might come useful as matching is different
 //
 
-/*
-int TTGenParticleSelector::Collapse(int root, std::vector<const Genparticle*> &particles)
-{
-	bool found = true;
-	while(found){
-		found = false;
-		for(auto particle : particles){
-			if(particle->momIdx().size() == 0) continue;
-			if(particle->momIdx()[0] == root){
-				root = particle->idx();
-				found = true;
-				break;
-			}
-		}
-	}
-	return root;
+bool TTGenParticleSelector::descends(const Genparticle* mother, const Genparticle* child) {
+  for(int mom_idx : child->momIdx()) 
+    if(mom_idx == mother->idx()) 
+      return true;
+  return false;
 }
 
+vector< pair<const Genparticle*, const Genparticle*> > TTGenParticleSelector::Collapse(
+  vector<const Genparticle*> &roots, 
+  vector<const Genparticle*> &particles) {
+  //particles MUST NOT contain roots
+  vector< pair<const Genparticle*, const Genparticle*> > retval;
+  vector<bool> used(particles.size(), false);
+  
+  for(auto& root : roots) {
+    const Genparticle* current = root;
+    bool go_on=true;
+    while(go_on){
+      go_on=false;
+      //loop over particles
+      for(size_t pos=0; pos<particles.size(); pos++){
+        //check if already used and has mothers
+        if(particles[pos]->momIdx().size() == 0 || used[pos]) continue;
+
+        //check if is a descendent
+        bool descends_from = descends(current, particles[pos]);
+        
+        //if so use it
+        if(descends_from) {
+          used[pos] = true;
+          go_on=true;
+          current = particles[pos];
+          break;
+        }
+      }
+    }
+    
+    //make pair
+    retval.push_back( make_pair(root, current) );
+  }
+
+	return retval;
+}
+
+bool TTGenParticleSelector::assign(const Genparticle& gp, const std::vector<Genparticle>& gps, 
+            vector<const Genparticle*> &collection, vector<const Genparticle*> &roots, 
+            ura::PDGID to_match) {
+  if(gp.pdgId() == to_match){
+    if(gp.momIdx().size() == 0 || gps[gp.momIdx()[0]].pdgId() != to_match) {
+      roots.push_back(&gp);
+    } else {
+      collection.push_back(&gp);
+    }
+    return true;
+  }
+  else return false;
+}
 
 void TTGenParticleSelector::select_with_deps(URStreamer& event)
 {
 	const std::vector<Genparticle>& gps = event.genParticles();
-	TTbarHypothesis ret;
 
 	//find top and tbar (multiple due to radiation
-	std::vector<const Genparticle*> top_ids;
-	std::vector<const Genparticle*> tbar_ids;
-	std::vector<int> root_t, root_tbar;
-	for(auto gp = gps.begin(); gp != gps.end(); ++gp){
-		if(gp->pdgId() == ura::PDGID::t){
-			top_ids.push_back(&(*gp));
-			if(gp->momIdx().size() == 0 || gps[gp->momIdx()[0]].pdgId() != ura::PDGID::t){
-				root_t.push_back(gp->idx());
-			}
-		} 
-		else if(gp->pdgId() == ura::PDGID::tbar) {
-			tbar_ids.push_back(&(*gp));
-			if(gp->momIdx().size() == 0 || gps[gp->momIdx()[0]].pdgId() != ura::PDGID::tbar){
-				root_tbar.push_back(gp->idx());
-			}
-		}
-	}
-	std::vector<int> collapsed_t, collapsed_tbar;
-	for(auto idx : root_t){
-		collapsed_t.push_back(
-			Collapse(idx, top_ids)
-			);
-	}
-	for(auto idx : root_tbar){
-		collapsed_tbar.push_back(
-			Collapse(idx, tbar_ids)
-			);
-	}
-	//the std::vectors should be already sorted
-	if(!is_sorted(collapsed_t.begin(), collapsed_t.end())) sort(collapsed_t.begin(), collapsed_t.end());
-	if(!is_sorted(collapsed_tbar.begin(), collapsed_tbar.end())) sort(collapsed_tbar.begin(), collapsed_tbar.end());
-		
-	//look for top decay products
-	int nbs = 0;
-	int nbbars = 0;
-	int nwp = 0, nwm = 0;
-	int wpIdx = -1, wmIdx = -1;
-	std::vector<const Genparticle*> wplus, wminus;
-	for(auto gp = gps.begin(); gp != gps.end(); ++gp){
-		if(gp->momIdx().size() == 0) continue;
-		if(gp->pdgId() == ura::PDGID::b && binary_search(collapsed_t.begin(), collapsed_t.end(), gp->momIdx()[0])) {
-			nbs++; 
-			ret.b = &(*gp);
-		}
-		else if(gp->pdgId() == ura::PDGID::bbar && binary_search(collapsed_tbar.begin(), collapsed_tbar.end(), gp->momIdx()[0])) {
-			nbbars++;
-			ret.bbar = &(*gp);
-		}
-		else if(gp->pdgId() == ura::PDGID::Wminus){
-			wminus.push_back(&(*gp));
-			if(binary_search(collapsed_tbar.begin(), collapsed_tbar.end(), gp->momIdx()[0])) {nwm++; wmIdx = gp->idx();}
-		}
-		else if(gp->pdgId() == ura::PDGID::Wplus){
-			wplus.push_back(&(*gp));
-			if(binary_search(collapsed_t.begin(), collapsed_t.end(), gp->momIdx()[0])) {nwp++; wpIdx = gp->idx();}
-		}
-	}
-	if(nbs != 1 && nbbars != 1)	Logger::log().error() << event.run<<":"<< event.lumi << ":" << event.evt << 
-																" Found " << nbs << " b's and " << nbbars << " bbar's" << endl;
-	if(nwp != 1 && nwm != 1) Logger::log().error() << event.run<<":"<< event.lumi << ":" << event.evt << 
-														 " Found " << nwp << " W+'s and " << nwm << " W-'s" << endl;
+	vector<const Genparticle*> tops;
+	vector<const Genparticle*> tbars;  
+  vector<const Genparticle*> Wpluses;
+  vector<const Genparticle*> Wminuses;
+  vector<const Genparticle*> bs;
+  vector<const Genparticle*> bbars;
 
-	//collapse W+
-	wpIdx = Collapse(wpIdx, wplus);
-	wmIdx = Collapse(wmIdx, wminus);
+	vector<const Genparticle*> root_tops;
+	vector<const Genparticle*> root_tbars;  
+  vector<const Genparticle*> root_Wpluses;
+  vector<const Genparticle*> root_Wminuses;
 
-	int wp_nprods = 0, wm_nprods = 0;
-	const Genparticle *wplus_prods[2], *wminus_prods[2];		
-	for(auto gp = gps.begin(); gp != gps.end(); ++gp){
-		if(gp->momIdx().size() == 0) continue;
-		if(gp->momIdx()[0] == wpIdx) {
-			if(wp_nprods < 2) wplus_prods[wp_nprods] = &(*gp);
-			wp_nprods++; 
-		}
-		else if(gp->momIdx()[0] == wmIdx) {
-			if(wm_nprods < 2) wminus_prods[wm_nprods] = &(*gp);
-			wm_nprods++; 
-		}
+  //find tops, bs, and Ws
+	for(auto& gp : gps) {
+    if( assign(gp, gps, tops, root_tops, ura::PDGID::t) ) continue;
+    else if(assign(gp, gps, tbars, root_tbars, ura::PDGID::tbar)) continue;
+    else if(assign(gp, gps, Wpluses, root_Wpluses, ura::PDGID::Wplus)) continue;
+    else if(assign(gp, gps, Wminuses, root_Wminuses, ura::PDGID::Wminus)) continue;
+    else if(gp.pdgId() == ura::PDGID::b) bs.push_back(&gp);
+    else if(gp.pdgId() == ura::PDGID::bbar) bbars.push_back(&gp);
 	}
-	if(wp_nprods != 2 && wm_nprods != 2){ 
-		Logger::log().error() << event.run<<":"<< event.lumi << ":" << event.evt << 
-			" Found " << wp_nprods <<
-			" W+ products and " << wm_nprods << " W- products" << endl;
-		ret.decay = INVALID;
-	} else {
-		int lep_decays = 0;
-		//w products are quarks
-		bool wp1_isquark = fabs(wplus_prods[0]->pdgId()) <= 6;
-		bool wp2_isquark = fabs(wplus_prods[1]->pdgId()) <= 6;
-		//w products are leptons or quarks
-		bool wp1_isqlep = fabs(wplus_prods[0]->pdgId()) <= 16;
-		bool wp2_isqlep = fabs(wplus_prods[1]->pdgId()) <= 16;
-		if(wp1_isquark && wp2_isquark) {
-			ret.wplus.first  = wplus_prods[0];
-			ret.wplus.second = wplus_prods[1];
-			ret.wplus.isLeptonic = false;
-		} else if((wp1_isqlep && !wp1_isquark) && (wp2_isqlep && !wp2_isquark)) {
-			//assign the charged lepton as first
-			int id0 = wplus_prods[0]->pdgId();
-			ret.wplus.first  = (id0 % 2 == 0) ? wplus_prods[1] : wplus_prods[0];
-			ret.wplus.second = (id0 % 2 == 0) ? wplus_prods[0] : wplus_prods[1];
-			lep_decays++;
-			ret.wplus.isLeptonic = true;
-		} else {
-			Logger::log().error() << event.run<<":"<< event.lumi << ":" << event.evt << 
-				" W+ decays to lepton and quark! (" <<
-				wplus_prods[0]->pdgId() << ", " << wplus_prods[1]->pdgId() << endl;
-			// ") 1:" << wp1_isquark << "," << wp1_isqlep << " 2:" <<
-			// wp1_isquark << "," << wp2_isqlep << endl;
-			ret.decay = INVALID;
-		}
 
-		//FIXME: this should go in a separate function
-		//w products are quarks
-		bool wm1_isquark = fabs(wminus_prods[0]->pdgId()) <= 6;
-		bool wm2_isquark = fabs(wminus_prods[1]->pdgId()) <= 6;
-		//w products are leptons or quarks
-		bool wm1_isqlep = fabs(wminus_prods[0]->pdgId()) <= 16;
-		bool wm2_isqlep = fabs(wminus_prods[1]->pdgId()) <= 16;
-		if(wm1_isquark && wm2_isquark) {
-			ret.wminus.first  = wminus_prods[0];
-			ret.wminus.second = wminus_prods[1];
-			ret.wminus.isLeptonic = false;
-		} else if((wm1_isqlep && !wm1_isquark) && (wm2_isqlep && !wm2_isquark)) {
-			//assign the charged lepton as first
-			int id0 = wminus_prods[0]->pdgId();
-			ret.wminus.first  = (id0 % 2 == 0) ? wminus_prods[1] : wminus_prods[0];
-			ret.wminus.second = (id0 % 2 == 0) ? wminus_prods[0] : wminus_prods[1];
-			lep_decays++;
-			ret.wminus.isLeptonic = true;
-		} else {
-			Logger::log().error() << event.run<<":"<< event.lumi << ":" << event.evt << 
-				" W- decays to lepton and quark! (" <<
-				wminus_prods[0]->pdgId() << ", " << wminus_prods[1]->pdgId() <<
-				")" << endl;
-			ret.decay = INVALID;
-		}
-		if(ret.decay != INVALID){
-			switch(lep_decays){
-			case 0: ret.decay = FULLHAD; break;
-			case 1: ret.decay = SEMILEP; break;
-			case 2: ret.decay = FULLLEP; break;
-			}
-		}
-	}
-	return ret;
+  //collapse them (compress the same paricle)
+	auto collapsed_tops = Collapse(root_tops, tops);
+	auto collapsed_tbars = Collapse(root_tbars, tbars);
+	auto collapsed_Wpluses = Collapse(root_Wpluses, Wpluses);
+	auto collapsed_Wminuses = Collapse(root_Wminuses, Wminuses);
 
-}//*/
+  if(collapsed_tops.size() != 1 || collapsed_tbars.size() != 1) {
+    Logger::log().error() << "Could not find the proper number of tops!" << endl;
+    throw 42;
+  }
+
+  //store tops
+  topcounter_ += 2;
+  selected_.push_back(*(collapsed_tops[0].second));
+  top_ = &(selected_.back());
+  selected_.push_back(*(collapsed_tbars[0].second));
+  tbar_ = &(selected_.back());
+  
+  //select and store b quarks
+  for(auto &bcan : bs) {
+    if(descends(collapsed_tops[0].second, bcan) ) {
+      selected_.push_back(*bcan);
+      b_ =  &(selected_.back());
+      break;
+    }
+  }
+  for(auto &bcan : bbars) {
+    if(descends(collapsed_tbars[0].second, bcan) ) {
+      selected_.push_back(*bcan);
+      bbar_ =  &(selected_.back());
+      break;
+    }
+  }
+  
+  //select Ws
+  const Genparticle* wplus = 0;
+  const Genparticle* wminus = 0;
+  for(auto &ws : collapsed_Wpluses) {
+    if(descends(collapsed_tops[0].second, ws.first)) {
+      wplus = ws.second;
+    }
+  }
+  for(auto &ws : collapsed_Wminuses) {
+    if(descends(collapsed_tbars[0].second, ws.first)) {
+      wminus = ws.second;
+    }
+  }
+
+  if(!wplus || !wminus) {
+    Logger::log().error() << "Could not find the Ws from top decay!" << endl;
+    throw 42;
+  }
+  
+	//look for W decay products
+  vector<const Genparticle*> root_leps;
+  for(auto& gp : gps) {
+    if(descends(wplus, &gp) || descends(wminus, &gp)) {
+      selected_.push_back(gp);
+      int abs_pdgid = fabs(gp.pdgId());
+      if(abs_pdgid < 5) wpartons_.push_back(&(selected_.back()));//quark      
+      else if(abs_pdgid % 2 == 0) neutral_leps_.push_back(&(selected_.back())); //neutrino
+      else {//charged lepton
+        root_leps.push_back(&gp);
+        charged_leps_.push_back(&(selected_.back()));
+      }
+    } 
+  }
+
+  //look for lepton radiation
+  if(root_leps.size() > 0) {
+    vector<const Genparticle*> leps;
+    for(auto& gp : gps) {
+      for(auto& root : root_leps) {
+        if(root->pdgId() == gp.pdgId() && root->idx() != gp.idx()) leps.push_back(&gp);
+      }
+    }//for(auto& gp : gps)
+    
+    auto collapsed_leps = Collapse(root_leps, leps);
+    for(auto& lep : collapsed_leps) {
+      selected_.push_back(*(lep.second));
+      final_charged_leps_.push_back(&(selected_.back()));
+    }
+  } //if(root_leps.size() > 0)
+
+}
+
 

@@ -54,12 +54,7 @@ namespace hyp {
       up_(),
       dw_() {}
 
-    //void boost(const TVector3 &v);
     WHyp to_CM();
-    // TVector3 unit3D() { return this->Vect().Unit();}
-    // void setv(TLorentzVector v) {this->SetPxPyPzE(v.Px(), v.Py(), v.Pz(), v.E());}
-    // double decay_opening_cm();
-    // TVector3 decay_plane();
 
     NoDecay& up() {return up_;}
     NoDecay& down() {return dw_;}
@@ -81,11 +76,6 @@ namespace hyp {
 
   public:
     Top to_CM();
-    // void boost(const TVector3 &v);
-    // TVector3 unit3D() { return this->Vect().Unit();}
-    // void setv(TLorentzVector v) {this->SetPxPyPzE(v.Px(), v.Py(), v.Pz(), v.E());}
-    // double decay_opening_cm();
-    // TVector3 decay_plane();
 
     //constructors
     Top():
@@ -110,11 +100,6 @@ namespace hyp {
 
   public:
     TTbar to_CM();
-    // void boost(const TVector3 &v);
-    // TVector3 unit3D() { return this->Vect().Unit(); }
-    // void setv(TLorentzVector v) {this->SetPxPyPzE(v.Px(), v.Py(), v.Pz(), v.E());}
-    // double decay_opening_cm();
-    // TVector3 decay_plane();
   
     //constructors
     TTbar(Permutation &p);

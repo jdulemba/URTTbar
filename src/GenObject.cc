@@ -1,8 +1,10 @@
 #include "GenObject.h"
 #include "Logger.h"
+#include "PDGID.h"
 
 std::ostream & operator<<(std::ostream &os, const GenObject &obj) {
-  return os << "id: " << obj.pdgId_ << ", (pt, eta): (" << obj.Pt() << ", " << obj.Eta() << ")";
+  return os << "id: " << ura::pdg_names.at(obj.pdgId_) << ", (px, py, pz, E): (" << 
+    obj.Px() << ", " << obj.Py() << ", " << obj.Pz() << ", " << obj.E() << ")";
 }
 
 std::ostream & operator<<(std::ostream &os, const GenW& w) {
@@ -20,7 +22,9 @@ std::ostream & operator<<(std::ostream &os, const GenTop& t) {
   return os << "--> W: " << t.W;
 }
 std::ostream & operator<<(std::ostream &os, const GenTTBar& tt) {
-  return os << "tt type: " << tt.type << std::endl
+  return os << "tt type: " << tt.type << ", (px, py, pz, E): ("
+            << tt.Px() << ", " << tt.Py() << ", " << tt.Pz() << ", " 
+            << tt.E() << ")" << std::endl
             << "top  " << tt.top << std::endl 
             << "tbar " << tt.tbar;
 }

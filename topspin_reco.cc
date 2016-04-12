@@ -47,7 +47,7 @@ private:
 	CutFlowTracker tracker_;
 
 	//switches
-	bool isData_, isTTbar_, run_pdfs_;
+	bool isTTbar_, isSignal_;
 
   //selectors and helpers
   TTGenParticleSelector genp_selector_;
@@ -58,50 +58,14 @@ private:
   float evt_weight_;
 	TRandom3 randomizer_;// = TRandom3(98765);
   MCWeightProducer mc_weights_;
-  BTagSFProducer btag_sf_;
-  PDFuncertainty pdf_uncs_;
-
-	vector<systematics::SysShifts> systematics_;
-	string cut_ordering_;
-	std::function<bool(const Permutation &, const Permutation &)> ordering_fcn_;
-	map<string, std::function<bool(const IDJet*)> > working_points_;
-	map<string, BTagSFProducer> wp_SFs_;  
+  //BTagSFProducer btag_sf_;
 
 	//Scale factors
 	LeptonSF electron_sf_, muon_sf_;
 
-  IDJet::BTag cut_tight_b_=IDJet::BTag::NONE;
-  IDJet::BTag cut_loose_b_=IDJet::BTag::NONE;
-
   unsigned long evt_idx_ = 0;
 
 public:
-  std::vector<systematics::SysShifts> get_systematics(std::string outname) {
-    std::string sample = systematics::get_sample(outname);
-    std::vector<systematics::SysShifts> full_sys = {
-      systematics::SysShifts::NOSYS, systematics::SysShifts::JES_UP, systematics::SysShifts::JES_DW,
-      systematics::SysShifts::JER_UP, systematics::SysShifts::JER_DW,
-      systematics::SysShifts::PU_UP, systematics::SysShifts::PU_DW,
-      systematics::SysShifts::BTAG_UP, systematics::SysShifts::BTAG_DW, //Systematic on B-Jet selection
-      systematics::SysShifts::BTAG_B_UP, systematics::SysShifts::BTAG_B_DW, //systematics on B/C-Tagging
-      systematics::SysShifts::BTAG_L_UP, systematics::SysShifts::BTAG_L_DW, //systematics on B/C-Tagging
-      systematics::SysShifts::BTAG_C_UP, systematics::SysShifts::BTAG_C_DW, //systematics on B/C-Tagging
-    };
-    std::vector<systematics::SysShifts> nosys = {systematics::SysShifts::NOSYS};
-
-		if(boost::starts_with(sample, "ttJets")) {
-      if(sample.find("_") != std::string::npos) {
-        //sys shifted sample!
-        return nosys;
-      }
-      else return full_sys;
-    }
-    else if(!boost::starts_with(sample, "data")) {
-      return full_sys;
-    }
-    else return nosys;
-  }
-
   topspin_reco(const std::string output_filename):
     AnalyzerBase("topspin_reco", output_filename), 
 		tracker_(),
@@ -114,13 +78,8 @@ public:
     evt_weight_(1.),
     electron_sf_("electron_sf", false),
     muon_sf_("muon_sf"),
-		randomizer_(),
-    btag_sf_("best_permutation.tightb", "best_permutation.looseb", 0.5, -1, -1),
-    pdf_uncs_(249)
+		randomizer_()    //btag_sf_("permutations.tightb", "permutations.looseb")
 	{
-    btag_sf_.ignore_partial_shifts();
-    cut_tight_b_ = btag_sf_.tight_cut();
-    cut_loose_b_ = btag_sf_.loose_cut();
     //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
     //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
     
@@ -138,22 +97,17 @@ public:
     opts::variables_map &values = parser.values();
 		string output_file = values["output"].as<std::string>();
 		string sample = systematics::get_sample(output_file);
-		isData_  = boost::starts_with(sample, "data");
-		isTTbar_ = boost::starts_with(sample, "ttJets");
-    Logger::log().debug() << "isData_: " << isData_ << ", isTTbar_: " << isTTbar_ << endl;
-    systematics_ = get_systematics(output_file);
-    int nosys = values["nosys"].as<int>();
-    run_pdfs_ = values["nopdfs"].as<int>();
-    if(nosys == 1) {
-      systematics_ = {systematics::SysShifts::NOSYS};
-      Logger::log().info() << "DISABLING SYSTEMATICS!" << endl;
-    }
-    if(isData_) {
-      if(sample.find("SingleElectron") != std::string::npos) object_selector_.lepton_type(-1);
-      else object_selector_.lepton_type(1);
+    isSignal_ = boost::starts_with(sample, "AtoTT") || boost::starts_with(sample, "HtoTT");
+		isTTbar_ = boost::starts_with(sample, "ttJets") || isSignal_;
+    if(!isTTbar_) {
+      Logger::log().error() << "This analyzer is only supposed to run on ttbar samples!" << endl;
+      throw 49;
     }
 
-    if(!isData_) mc_weights_.init(sample);
+    if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::MADGRAPHLHE);
+    else genp_selector_.setmode(TTGenParticleSelector::SelMode::LHE);
+
+    mc_weights_.init(sample);
 
     //Init solver
     string filename = "prob_ttJets.root";
@@ -186,266 +140,18 @@ public:
 		histos_[folder][name] = RObject::book<H>(name.c_str(), args ...);
 	}
 
-  //This method is called once per job at the beginning of the analysis
-  //book here your histograms/tree and run every initialization needed
-	void book_combo_plots(string folder){
-		book<TH1F>(folder, "mass_discriminant", "", 20,   0., 20.);
-		book<TH1F>(folder, "full_discriminant", "", 20,   0., 20.);
-
-		book<TH1F>(folder, "nuchi", "",    20, 0., 100);			
-		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
-		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
-	}
-
-	void fill_combo_plots(string folder, const Permutation &hyp){
-		auto dir = histos_.find(folder);
-		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
-    
-		double whad_mass = hyp.WHad().M();
-		double thad_mass = hyp.THad().M();
-		dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
-		dir->second["tmasshad"].fill(thad_mass, evt_weight_);
-	}
-
-  void book_pdf_plots(string folder) {
-    pdf_uncs_.book_replicas(folder, "mass_discriminant", 20,   0., 20.);
-  }
-  void fill_pdf_plots(string folder, const Permutation &hyp, URStreamer& streamer) {
-    pdf_uncs_.fill_replicas(folder, "mass_discriminant", hyp.MassDiscr(), evt_weight_, streamer);
-  }
-
-  void book_presel_plots(string folder) {
-    book<TH1F>(folder, "nvtx_noweight", "", 100, 0., 100.);
-    book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
-    book<TH1F>(folder, "rho", "", 100, 0., 100.);
-    book<TH1F>(folder, "weight", "", 100, 0., 20.);
-		book<TH1F>(folder, "lep_pt"   , ";p_{T}(l) (GeV)", 500, 0., 500.);
-		book<TH1F>(folder, "lep_eta"  , ";#eta(l) (GeV)", 300, -3, 3);
-		book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
-		book<TH1F>(folder, "jets_eta" , ";#eta(j) (GeV)",  300, -3, 3);
-		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
-		book<TH1F>(folder, "jets_CvsL" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "jets_CvsB" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
-  }
-
-  void fill_presel_plots(string folder, URStreamer &event) {
-    auto dir = histos_.find(folder);
-		dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
-		dir->second["nvtx_noweight"].fill(event.vertexs().size());
-		dir->second["rho"].fill(event.rho().value(), evt_weight_);
-    dir->second["weight"].fill(evt_weight_);
-		dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
-		dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
-    for(IDJet* jet : object_selector_.clean_jets()) {
-      dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
-      dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
-      dir->second["jets_CvsL"].fill(jet->CvsLtag(), evt_weight_);
-      dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
-      dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
-    }
-		dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
-  }
-
-	void book_notag_plots(string folder){
-		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
-		book<TH1F>(folder, "lep_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
-		book<TH1F>(folder, "had_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
-		book<TH1F>(folder, "lep_pt"   , ";p_{T}(#ell) (GeV)", 500, 0., 500.);
-		book<TH1F>(folder, "Whad_mass", ";m_{W}(had) (GeV)", 28, 0., 140.);
-		book<TH1F>(folder, "Whad_DR"  , ";m_{W}(had) (GeV)", 100, 0., 10.);
-		book<TH1F>(folder, "Whad_pt"  , ";m_{W}(had) (GeV)", 100, 0., 500.);
-		book<TH1F>(folder, "thad_mass", ";m_{t}(had) (GeV)", 60, 100., 400.);
-		book<TH2F>(folder, "Whad_jet_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
-		book<TH2F>(folder, "BJet_jet_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
-		book<TH2F>(folder, "leadB_leadW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
-		book<TH2F>(folder, "subB_subW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
-
-		book<TH1F>(folder, "Wjets_CvsL_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsL_S" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_S" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsL_UD" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB_UD" , "", 55, -1., 1.1);
-
-		book<TH1F>(folder, "Wjets_CvsL" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_CvsB" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Bjets_CvsL" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Bjets_CvsB" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "WjetCSV"   , "", 40, -20., 20.);
-	}
-
-  void fill_notag_plots(string folder, Permutation &hyp){
-    auto dir = histos_.find(folder);
-		dir->second["njets"    ].fill(object_selector_.clean_jets().size(), evt_weight_);
-		dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt(), evt_weight_);
-		dir->second["had_b_pt" ].fill(hyp.BHad()->Pt(), evt_weight_);
-		dir->second["lep_pt"   ].fill(hyp.L()->Pt(), evt_weight_);
-		dir->second["Whad_mass"].fill(hyp.WHad().M(), evt_weight_);
-		dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()), evt_weight_);
-		dir->second["thad_mass"].fill(hyp.THad().M() , evt_weight_);
-		dir->second["WjetCSV"  ].fill(hyp.WJa()->csvIncl(), evt_weight_);
-		dir->second["WjetCSV"  ].fill(hyp.WJb()->csvIncl(), evt_weight_);
-
-		const IDJet *lb = (hyp.BHad()->Pt() > hyp.BLep()->Pt()) ? hyp.BHad() : hyp.BLep();
-		const IDJet *sb = (hyp.BHad()->Pt() > hyp.BLep()->Pt()) ? hyp.BLep() : hyp.BHad();
-		const IDJet *lj = (hyp.WJa()->Pt()  > hyp.WJb()->Pt()) ? hyp.WJa() : hyp.WJb();
-		const IDJet *sj = (hyp.WJa()->Pt()  > hyp.WJb()->Pt()) ? hyp.WJb() : hyp.WJa();
-
-		dir->second["Whad_jet_pts" ].fill(lj->Pt(), sj->Pt()  , evt_weight_);		
-		dir->second["BJet_jet_pts" ].fill(lb->Pt(), sb->Pt()  , evt_weight_);		
-		dir->second["leadB_leadW_pts"].fill(lb->Pt(), lj->Pt(), evt_weight_);
-		dir->second["subB_subW_pts"  ].fill(sb->Pt(), sj->Pt(), evt_weight_);
-
-    for(IDJet* jet : {hyp.WJa(), hyp.WJb()}){
-      int hflav = fabs(jet->hadronFlavour());
-      int pflav = fabs(jet->partonFlavour());
-      string flav;
-      if(hflav == 5) flav="B";
-      else if(hflav == 4) flav="C";
-      else if(pflav == 3) flav="S";
-      else if(pflav == 1 | pflav == 2) flav="UD"; 
-      else continue;
-      dir->second["Wjets_CvsL_"+flav].fill(hyp.WJa()->CvsLtag() , evt_weight_);
-      dir->second["Wjets_CvsB_"+flav].fill(hyp.WJa()->CvsBtag() , evt_weight_);    
-    }
-
-		dir->second["Wjets_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
-		dir->second["Wjets_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
-		dir->second["Wjets_CvsB"].fill(hyp.WJa()->CvsBtag() , evt_weight_);
-		dir->second["Wjets_CvsB"].fill(hyp.WJb()->CvsBtag() , evt_weight_);
-		dir->second["Bjets_CvsL"].fill(hyp.BHad()->CvsLtag(), evt_weight_);
-		dir->second["Bjets_CvsL"].fill(hyp.BLep()->CvsLtag(), evt_weight_);
-		dir->second["Bjets_CvsB"].fill(hyp.BHad()->CvsBtag(), evt_weight_);
-		dir->second["Bjets_CvsB"].fill(hyp.BLep()->CvsBtag(), evt_weight_);
-  }
-
-	void book_jet_plots(string folder){
-    book<TH1F>(folder, "eta"	,"eta"	, 100, -5, 5);
-    book<TH1F>(folder, "pt" 	,"pt" 	, 100, 0 , 500);
-    book<TH1F>(folder, "phi"	,"phi"	, 100, -4, 4);
-    book<TH1F>(folder, "pflav_smart","pflav", 55, -27.5, 27.5);
-    book<TH1F>(folder, "abs_pflav_smart","pflav", 28, -0.5, 27.5);
-    book<TH1F>(folder, "hadronflav","hflav", 28, -0.5, 27.5);
-    book<TH1F>(folder, "energy", ";E_{jet} (GeV)", 100, 0., 500.);
-    book<TH1F>(folder, "ncharged", "", 50, 0., 50.);						
-    book<TH1F>(folder, "nneutral", "", 50, 0., 50.);						
-    book<TH1F>(folder, "ntotal"  , "", 50, 0., 50.);						
-	}
-
-	void fill_jet_plots(string folder, const IDJet* jet){//, const Genparticle* genp=0){
-		auto dir = histos_.find(folder);
-		dir->second["eta"	 ].fill(jet->Eta(), evt_weight_);
-		dir->second["pt" 	 ].fill(jet->Pt() , evt_weight_);
-		dir->second["phi"	 ].fill(jet->Phi(), evt_weight_);
-		dir->second["energy"].fill(jet->E(), evt_weight_);
-
-		dir->second["ncharged"].fill(jet->numChargedHadrons(), evt_weight_);
-		dir->second["nneutral"].fill(jet->numNeutralHadrons(), evt_weight_);
-		dir->second["ntotal"  ].fill(jet->numChargedHadrons()+jet->numNeutralHadrons(), evt_weight_);
-
-		dir->second["pflav_smart"].fill(jet->flavor(), evt_weight_);
-		dir->second["abs_pflav_smart"].fill(fabs(jet->flavor()), evt_weight_);
-    dir->second["hadronflav"].fill(fabs(jet->hadronFlavour()), evt_weight_);
-	}
-
   virtual void begin()
   {
     Logger::log().debug() << "topspin_reco::begin" << endl;
     outFile_.cd();
 		vector<string> folders;
-
-		//FIXME use folders as root dir, makes much more sense!
-		//Would also be nice to have nothing instead of "all" for the others
-		//semilep_visible_right becomes a SubdirectoryView in the plotter
 		if(isTTbar_) {
       for(auto &entry : naming_) folders.push_back(entry.second);
     }
 		else folders = {""};
-		string tag_folders[] = {"tagged", "untagged"};
-    string lep_charges[] = {"lplus", "lminus"};
-
-		for(auto& genCategory : folders){			
-			for(auto& sys : systematics_){
-				string gcategory;
-				if(!genCategory.empty()) gcategory  = genCategory +"/";
-				string sys_name = systematics::shift_to_name.at(sys);
-        if(genCategory.empty() || genCategory == "semilep_visible_right") {
-          book_presel_plots(gcategory+sys_name+"/preselection");
-          book_combo_plots(gcategory+sys_name+"/permutations");
-        }
-				for(auto& tag : tag_folders) {
-          for(auto& lc : lep_charges) {
-            string base;
-            if(!genCategory.empty()) base  = genCategory +"/";
-            base += sys_name + "/" + tag;
-            book<TH1F>(base, "dummy"  , "", 1, 0., 500.);
-            if(working_point == "notag" && tag != "both_untagged") continue;
-            string folder = base + "/" + tag;
-						
-            book_combo_plots(folder);
-            if(sys == systematics::SysShifts::NOSYS) book_pdf_plots(folder);
-            if(working_point == "notag") book_notag_plots(folder);
-
-            for(auto& w_folder : wjet_folders){
-              string current = folder + "/" + w_folder;
-              book_jet_plots(current);
-            }
-          } //for(auto& lc : lep_charges) {
-				}//for(auto& tag : tag_folders)
-			}//for(auto& sys : systematics){
-		}//for(auto& genCategory : folders)
   }
 
 	void fill(string folder, Permutation &hyp){//, TTbarHypothesis *genHyp=0) {
-		auto dir = histos_.find(folder);
-		if(dir == histos_.end()) {
-			Logger::log().error() << "fill: histogram folder: " << folder <<
-				" does not exists!" << endl;
-			throw 40;
-		}
-
-		fill_combo_plots(folder, hyp);
-		
-		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
-		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
-
-		//FILL JET INFORMATION
-		fill_jet_plots(folder + "/leading",       leading);
-		fill_jet_plots(folder + "/subleading", subleading);
-	}
-
-	/*void fill_other_jet_plots(string folder, Permutation &hyp, std::function<bool(const IDJet*)>& fcn, float weight) {
-    vector<IDJet*>& jets = object_selector_.clean_jets();
-		//folder += sys_name + "/" + criterion + "/" + working_point;
-		auto dir = histos_.find(folder);
-		if(dir == histos_.end()) {
-			Logger::log().error() << "fill_other_jet_plots: histogram folder: " << folder <<
-				" does not exists!" << endl;
-			throw 40;
-		}
-		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
-		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
-		// dir->second["csvL_csvS" ].fill(leading->csvIncl(), subleading->csvIncl(), weight);
-
-		set<IDJet*> hypjets;
-		hypjets.insert(hyp.WJa());
-		hypjets.insert(hyp.WJb());
-		hypjets.insert(hyp.BLep());
-		hypjets.insert(hyp.BHad());
-    }*/
-
-	string get_wjet_category(Permutation &hyp, std::function<bool(const IDJet*)>& fcn) {
-		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
-		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
-		bool lead_tag = fcn(leading   );
-		bool sub_tag  = fcn(subleading);
-		if(lead_tag && sub_tag) return "/both_tagged";
-		else if(lead_tag) return "/lead_tagged";
-		else if(sub_tag)  return "/sublead_tagged";
-		return "/both_untagged";
 	}
 
 	TTNaming get_ttdir_name(Permutation &gen, Permutation &reco) {
@@ -471,7 +177,6 @@ public:
     if(isTTbar_){
       presel_dir = naming_.at(TTNaming::RIGHT) + "/" + sys_name;
     }
-    fill_presel_plots(presel_dir+"/preselection", event);
 
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
@@ -499,22 +204,8 @@ public:
     if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9
     tracker_.track("best perm");
     
-    //NOW, cut on btagging
-    if(!(best_permutation.BHad()->BTagId(cut_tight_b_) || best_permutation.BLep()->BTagId(cut_tight_b_))) {return;}
-    if(!(best_permutation.BHad()->BTagId(cut_loose_b_) && best_permutation.BLep()->BTagId(cut_loose_b_))) {return;}
-    tracker_.track("perm btag");
-
     size_t capped_jets_size = permutator_.capped_jets().size();
     best_permutation.permutating_jets(capped_jets_size);
-
-    //find mc weight
-    if(!isData_) evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift);
-    if(!isData_) { 
-      if(object_selector_.tight_muons().size() == 1)
-        evt_weight_ *= muon_sf_.get_sf(best_permutation.L()->Pt(), best_permutation.L()->Eta());
-      if(object_selector_.medium_electrons().size() == 1)
-        evt_weight_ *= electron_sf_.get_sf(best_permutation.L()->Pt(), best_permutation.L()->Eta());
-		}
 
     //Gen matching
     Permutation matched_perm;
@@ -534,24 +225,10 @@ public:
 		//Logger::log().debug() << "\n\nShift: " << shift << " name: " << root_dir << endl;
     double weight = evt_weight_;
     string ttsubdir = "";
-    if(isTTbar_) { 			
-      TTNaming dir_id = get_ttdir_name(matched_perm, best_permutation);
-      ttsubdir = naming_.at(dir_id) + "/";
-    }
 
-    for(auto& wpoint : working_points_){        
-      auto wp_sf = wp_SFs_.find(wpoint.first);
-      if(!isData_ && wp_sf != wp_SFs_.end()) evt_weight_ = weight*wp_sf->second.scale_factor({best_permutation.WJa(), best_permutation.WJb()}, shift);
-      else evt_weight_ = weight;
-      string jet_category = get_wjet_category(best_permutation, wpoint.second);
-      string folder = ttsubdir+sys_dir+"/"+cut_ordering_+"/"+wpoint.first;
-      //fill_other_jet_plots(folder, best_permutation, wpoint.second, evt_weight_);
-      folder += jet_category;
-      //Logger::log().debug() << "filling: " << folder << endl;
-      if(wpoint.first == "notag") fill_notag_plots(folder, best_permutation);
-      fill(folder, best_permutation);
-      if(shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
-    }
+    TTNaming dir_id = get_ttdir_name(matched_perm, best_permutation);
+    ttsubdir = naming_.at(dir_id) + "/";
+
 	}
 
   //This method is called once every file, contains the event loop
@@ -566,9 +243,7 @@ public:
     Logger::log().debug() << "topspin_reco::analyze" << endl;
     URStreamer event(tree_);
 
-		tracker_.deactivate();
-    while(event.next())
-    {
+    while(event.next()) {
 			// if(evt_idx_ % 1000 == 0) Logger::log().warning() << "Beginning event: " <<
       //                           evt_idx_ << endl;
 			if(limit > 0 && evt_idx_ > limit) {
@@ -581,18 +256,10 @@ public:
 			if(evt_idx_ % 10000 == 1) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
 
 			//long and time consuming
-			if(isTTbar_){
-				genp_selector_.select(event);			
-			}
+      genp_selector_.select(event);			
 
-			for(auto shift : systematics_){
-        evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
-				if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
-				//Logger::log().debug() << "processing: " << shift << endl;
-				process_evt(shift, event);
-				if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
-			}
-
+      evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
+      process_evt(shift, event);
 		} //while(event.next())
    }
 

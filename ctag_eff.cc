@@ -343,20 +343,28 @@ public:
 		book<TH2F>(folder, "leadB_leadW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
 		book<TH2F>(folder, "subB_subW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
 
-		book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_hflav_CvsL_S" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 55, -1., 1.1);
+    //info by flavor    
+		book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 42, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 42, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 42, -1., 1.1);
+
+		book<TH1F>(folder, "Wjets_hflav_CvsB_B" , "", 42, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsB_C" , "", 42, -1., 1.1);
+		book<TH1F>(folder, "Wjets_hflav_CvsB_L" , "", 42, -1., 1.1);
+
 		book<TH1F>(folder, "Wjets_hflav_jpt_C" , "", 100, 0., 500.);    
-		book<TH1F>(folder, "Wjets_hflav_jpt_LS" , "", 100, 0., 500.);    
+		book<TH1F>(folder, "Wjets_hflav_jpt_L" , "", 100, 0., 500.);    
+		book<TH1F>(folder, "Wjets_hflavJP_jpt_C" , "", 20, 25., 100.);    
+		book<TH1F>(folder, "Wjets_hflavJP_jpt_L" , "", 20, 25., 100.);    
+		book<TH2F>(folder, "Wjets_hflav_jpt_jeta_C" , "", 20, 25., 100., 16, -2.5, 2.5);    
+		book<TH2F>(folder, "Wjets_hflav_jpt_jeta_L" , "", 20, 25., 100., 16, -2.5, 2.5);    
+    
 
 		book<TH1F>(folder, "Wja_hflav_CvsL_B" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wja_hflav_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wja_hflav_CvsL_S" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wja_hflav_CvsL_L" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjb_hflav_CvsL_B" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjb_hflav_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjb_hflav_CvsL_S" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjb_hflav_CvsL_L" , "", 55, -1., 1.1);
 
 		book<TH1F>(folder, "Wja_CvsL" , "", 55, -1., 1.1);
@@ -400,17 +408,22 @@ public:
       else if(hflav == 4) {
         hstr="C";
         dir->second["Wjets_hflav_jpt_C"].fill(jet->Pt(), evt_weight_);
+        dir->second["Wjets_hflavJP_jpt_C"].fill(jet->Pt(), evt_weight_);
+        dir->second["Wjets_hflav_jpt_jeta_C"].fill(jet->Pt(), jet->Eta(), evt_weight_);
       }
-      else if(pflav == 3) {
-        hstr="S";
-        dir->second["Wjets_hflav_jpt_LS"].fill(jet->Pt(), evt_weight_);
-      }
+      // else if(pflav == 3) {
+      //   hstr="S";
+      //   dir->second["Wjets_hflav_jpt_LS"].fill(jet->Pt(), evt_weight_);
+      // }
       else {
         hstr="L"; 
-        dir->second["Wjets_hflav_jpt_LS"].fill(jet->Pt(), evt_weight_);
+        dir->second["Wjets_hflav_jpt_L"].fill(jet->Pt(), evt_weight_);
+        dir->second["Wjets_hflavJP_jpt_L"].fill(jet->Pt(), evt_weight_);
+        dir->second["Wjets_hflav_jpt_jeta_L"].fill(jet->Pt(), jet->Eta(), evt_weight_);
       }
 
       dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+      dir->second["Wjets_hflav_CvsB_"+hstr].fill(jet->CvsBtag(), evt_weight_);
       dir->second[wj+"_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
     }
 

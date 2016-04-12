@@ -1,4 +1,5 @@
 #include "LHEParticle.h"
+#include "PDGID.h"
 
 std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
   auto &xs  = event.PXLHEs();
@@ -15,8 +16,15 @@ std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
   for(size_t idx=0; idx<nparticles; ++idx) {
     ret.emplace_back(
       xs[idx].px(), ys[idx].py(), zs[idx].pz(), es[idx].e(), 
-      ids[idx].pdgid(), sts[idx].status(), fms[idx].fmother(), lms[idx].lmother()
+      ids[idx].pdgid(), sts[idx].status(), fms[idx].fmother()-1, lms[idx].lmother()-1
       );
   }
   return ret;
+}
+
+std::ostream & operator<<(std::ostream &os, const LHEParticle &obj) {
+  os << "LHEParticle(" << ura::pdg_names.at(obj.pdgId()) << ", " 
+     << obj.status() << ", " << obj.mothers_range().first 
+     << " --> " << obj.mothers_range().second << ") ";
+  return os;
 }

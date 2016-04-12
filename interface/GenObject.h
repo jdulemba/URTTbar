@@ -3,6 +3,7 @@
 
 #include "URStreamer.h"
 #include "PDGID.h"
+#include "LHEParticle.h"
 #include <iostream>
 
 class GenObject : public TLorentzVector
@@ -21,6 +22,11 @@ public:
 	GenObject(const Genjet& jet) : TLorentzVector(jet), pdgId_(0), status_(0)
 	{
 	}
+  template<class T>
+  GenObject(const T& t): 
+    TLorentzVector(t),
+    pdgId_(t.pdgId()),
+    status_(t.status()) {}
 	GenObject() : TLorentzVector(), pdgId_(0), status_(0)
 	{
 	}
