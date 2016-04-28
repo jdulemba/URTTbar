@@ -32,6 +32,8 @@ parser.add_argument('--wps', default='*',
                     help='choose the working points to use')
 parser.add_argument('--plots', dest='plots', action='store_true',
                     help='make control plots')
+parser.add_argument('--mceffs', dest='mceffs', action='store_true',
+                    help='make control plots')
 parser.add_argument('--systematics', dest='systematics', action='store_true',
                     help='make systematic plots')
 parser.add_argument('--shapes', dest='shapes', action='store_true',
@@ -131,6 +133,15 @@ class CTagPlotter(Plotter):
          'nonsemi_tt' : ['ttJets_other'],
          'single_top' : ['single*'],
          'data_obs'   : ['data']
+         }
+      self.card_by_title = {
+         'QCD' : 'qcd' ,
+         'V + jets' : 'vjets' ,
+         'single top' : 'single_top' ,
+         'Other tt decay' : 'nonsemi_tt' ,
+         't#bar{t}, wrong W_{h}' : 'wrong_whad', 
+         't#bar{t}, right W_{h}' : 'right_whad', 
+         'Observed' : 'data_obs'
          }
       self.signal = 'right_whad'
       self.signal_yields = {}
@@ -933,13 +944,11 @@ class CTagPlotter(Plotter):
 
       b_hists = [i.Get('%s_%s_B' % (basename, disc)) for i in mc_views]
       c_hists = [i.Get('%s_%s_C' % (basename, disc)) for i in mc_views]
-      s_hists = [i.Get('%s_%s_S' % (basename, disc)) for i in mc_views]
       l_hists = [i.Get('%s_%s_L' % (basename, disc)) for i in mc_views]
       
       hb = sum(b_hists)
       hl = sum(l_hists)
       hc = sum(c_hists)
-      hs = sum(s_hists)
       
       if not hasattr(self, 'flav_styles'):
          self.flav_styles = {
@@ -954,9 +963,7 @@ class CTagPlotter(Plotter):
       hl.title = 'l-jets'
       hc.decorate(**self.flav_styles['c'])
       hc.title = 'c-jets'
-      hs.decorate(**self.flav_styles['s'])
-      hs.title = 's-jets'
-      stack = plotter.create_stack(hb, hl, hs, hc, sort=False)
+      stack = plotter.create_stack(hb, hl, hc, sort=False)
       data = plotter.get_view('data').Get(dirname+'%s_%s' % (basename, disc.replace('hflav_','').replace('pflav_','')))
       plotter.overlay([stack, data])
       plotter.add_legend([stack, data], leftleg, 5)
@@ -965,13 +972,31 @@ class CTagPlotter(Plotter):
       hb.Scale(1/hb.Integral() if hb.Integral() else 0.)
       hl.Scale(1/hl.Integral() if hl.Integral() else 0.)
       hc.Scale(1/hc.Integral() if hc.Integral() else 0.)
-      hs.Scale(1/hs.Integral() if hs.Integral() else 0.)
-      plotter.overlay([hb,hl,hc,hs], fillstyle='hollow', linewidth=3)
-      plotter.add_legend([hb,hl,hc,hs], leftleg, 4)
+      plotter.overlay([hb,hl,hc], fillstyle='hollow', linewidth=3)
+      plotter.add_legend([hb,hl,hc], leftleg, 4)
       plotter.save('%s_%s_norm' % (basename, disc))
 
-
-
+   def get_efficiency(self, sample, wp, ptcat, flav):
+      sample_view = views.SubdirectoryView(
+         self.get_view(sample),
+         'nosys/mass_discriminant/%s' % wp
+         )
+      project = 'ProjectionX' if ptcat == 'leading' else 'ProjectionY'
+      ntag = rootpy.asrootpy( getattr(sample_view.Get('both_untagged/flav_map') , project)() )
+      ltag = rootpy.asrootpy( getattr(sample_view.Get('lead_tagged/flav_map')   , project)() )
+      stag = rootpy.asrootpy( getattr(sample_view.Get('sublead_tagged/flav_map'), project)() )
+      dtag = rootpy.asrootpy( getattr(sample_view.Get('both_tagged/flav_map')   , project)() )
+      all_jets = sum([ntag, ltag, stag, dtag])
+      if ptcat == 'leading':
+         pass_jets = ltag+dtag
+      elif ptcat == 'subleading':
+         pass_jets = stag+dtag
+      else:
+         raise ValueError('ptcat can only be (sub)leading')
+      
+      cname = self.card_by_title[pass_jets.title]
+      eff = pass_jets[flav].value / all_jets[flav].value
+      return cname, eff
 
 
 plotter = CTagPlotter(args.lumi)
@@ -1091,6 +1116,31 @@ additional_opts = {
    'nu_chisq' : {'xrange' : [0, 20]},
 }
 
+if args.mceffs:
+   json = {}
+   for wp in working_points:
+      json[wp] = {}
+      for flav, idx in [('light', 1), ('charm', 2), ('beauty', 3)]: 
+         json[wp][flav] = {}
+         for ptc in ['leading', 'subleading']:
+            json[wp][flav][ptc] = {}
+            for sample in plotter.mc_samples:
+               name, eff = plotter.get_efficiency(sample, wp, ptc, idx)
+               json[wp][flav][ptc][name] = eff
+
+   sample_view = views.SubdirectoryView(
+      plotter.get_view('QCD*'),
+      'nosys/mass_discriminant/ctagLoose'
+      )
+   ## ntag = sample_view.Get('both_untagged/flav_map') 
+   ## ltag = sample_view.Get('lead_tagged/flav_map')   
+   ## stag = sample_view.Get('sublead_tagged/flav_map')
+   ## dtag = sample_view.Get('both_tagged/flav_map')   
+   ## total = ntag+ltag+stag+dtag
+   ## set_trace()
+   with open('%s/info.json' % plotter.outputdir, 'w') as out:
+      out.write(prettyjson.dumps(json))
+
 if args.plots:
    #cut flow
    flow = plotter.cut_flow()
@@ -1114,10 +1164,10 @@ if args.plots:
    #
    # Special plot
    #
-   plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsL', False, False) 
-   plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wja', 'hflav_CvsL', False, False) 
-   plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjb', 'hflav_CvsL', False, False) 
-   plotter.draw_cvsl_shapes('nosys/preselection/', 'jets', 'hflav_CvsL', False, True) 
+   ##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsL', False, False) 
+   ##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wja', 'hflav_CvsL', False, False) 
+   ##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjb', 'hflav_CvsL', False, False) 
+   ##plotter.draw_cvsl_shapes('nosys/preselection/', 'jets', 'hflav_CvsL', False, True) 
 
    #
    #Flavour maps
@@ -1129,6 +1179,10 @@ if args.plots:
       j.Draw()
       plotter.save('flavour_map_%d' % i)
       ROOT.gStyle.SetOptTitle(0)
+   with io.root_open('%s/falvour_maps.root' % plotter.outputdir, 'w') as out:
+      for i in histograms:
+         i.name = plotter.card_by_title[i.title]
+         i.Write()
 
    #
    #C-Tag light/charm avg PTs

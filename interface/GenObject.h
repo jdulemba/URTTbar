@@ -73,6 +73,10 @@ public:
     }
   }
 
+  bool is_complete() {
+    return first && second;
+  }
+
   GenObject *up()   {return (first->pdgId() % 2 == 0) ? first : second;}
   GenObject *down() {return (first->pdgId() % 2 == 0) ? second : first;}
 
@@ -93,6 +97,10 @@ public:
     GenObject(t),
     b(b_),
     W(W_) {}
+
+  bool is_complete() {
+    return b && W.is_complete();
+  }
 
   friend std::ostream & operator<<(std::ostream &os, const GenTop& t);
 };
@@ -126,6 +134,10 @@ public:
   static GenTTBar from_collections( vector<GenObject*>& wpartons, vector<GenObject*>& charged_leps,
             vector<GenObject*>& neutral_leps, GenObject* b, GenObject* bbar,
             GenObject* top, GenObject* tbar);
+
+  bool is_complete() {
+    return top.is_complete() && tbar.is_complete();
+  }
 
   GenTop* lep_top() {
     if(type == GenTTBar::DecayType::INVALID || type == GenTTBar::DecayType::FULLHAD) return 0;

@@ -8,7 +8,7 @@ import os
 from rootpy.io import root_open
 from rootpy import asrootpy
 from pdb import set_trace
-from rootpy.plotting import views
+from rootpy.plotting import views, Graph, Hist
 from argparse import ArgumentParser
 from URAnalysis.Utilities.roottools import slice_hist
 import ROOT
@@ -238,29 +238,126 @@ def plot_res(plotter, hist, nslices, nicevar, linestyle='solid', legend=True):
       markerstyle=0
       )
 
-if 'effs' in args.todo:
-   plotter.set_subdir('efficiencies')
-   denominator = tfile.semilep.parton.eff_mtt.Clone()
-   for pic, name, dirname in [
-      ('obj_eff', 'Obj. selection | tt semi-lep', 'obj_selection'),
-      ('match_eff', 'MC matching | obj. selection', 'matched'),
-      ('perm_eff', 'Perm. selection | MC matching', 'perm_selection'),
-      ('sel_eff', 'Correct perm. | Perm. selection', 'selected')
-      ]:
-      numerator = tfile.semilep.Get('%s/eff_mtt' % dirname)
-      obj_sel_eff = make_eff(numerator, denominator, xtitle='gen m(tt) [GeV]', ytitle='#varepsilon(%s)' % name)
-      obj_sel_eff.drawstyle = 'AP'
-      plotter.plot(obj_sel_eff)
-      plotter.save(pic)
-      denominator = numerator
+def single_bins(plotter, right, wrong, nicevar, nslices, fitpars, relative=True, skip=0):
+   right_slices = make_slices(right, nslices)
+   wrong_slices = make_slices(wrong, nslices)   
+   ibin = 0
+   resolution = []
+   bias = []
+   binning = set()
+   for idx, info in enumerate(zip(right_slices, wrong_slices)):
+      right, wrong = info
+      if idx < skip: continue
+      if right.Integral():
+         right.Scale(1./right.Integral())
+      else:
+         continue
+      if wrong.Integral():
+         wrong.Scale(1./wrong.Integral())
+      
+      gen = nicevar % 'gen'
+      reco = nicevar % 'reco'
+      xtitle = '(%s - %s)/%s' % (reco, gen, gen)
+      print '###############  Bin%d  #####################' % ibin
+      x_range = [-2, 2] if relative else [-1000, 1000]
+      tf1 = plotter.parse_formula(
+         fitpars[0], fitpars[1],
+         x_range
+         )
+      right.Fit(tf1, 'WL')      
+      tf1.linewidth = 2
+      tf1.linecolor = 'blue'
+
+      rr = right.title.split('<')
+      binning.add(float(rr[-1]))
+      binning.add(float(rr[0]))
+      resolution.append((
+            tf1.GetParameter('width'), tf1.GetParError(tf1.GetParNumber('width'))
+            ))
+      bias.append((
+            tf1.GetParameter('mean'), tf1.GetParError(tf1.GetParNumber('mean'))
+            ))
+
+      plotter.overlay(
+         [right, wrong, tf1],
+         None,
+         xtitle=xtitle,
+         ytitle='A.U.',
+         linestyle=['solid', 'dashed'],
+         fillstyle='hollow',
+         drawstyle='hist',
+         legendstyle='l',
+         linewidth=2,
+         markerstyle=0
+         )
+      plotter.save('Bin%d' % ibin)
+      ibin += 1
+   res = Hist(sorted(list(binning)))
+   for idx, info in enumerate(resolution):
+      res[idx+1].value, res[idx+1].error = info
+      if not relative:
+         res[idx+1].value /= res[idx+1].x.center
+         res[idx+1].error /= res[idx+1].x.center
    
-   for resname, xtit in [
-      ("res_mtt", "m^{tt}(%s)"), 
-      ("res_pttt", "p_{T}^{tt}(%s)"), 
-      ("res_ptl", 'p^{tlep}(%s)'), 
-      ("res_pth", 'p^{thad}(%s)')]:
-      right = tfile.Get('semilep/selected/%s' % resname)
-      wrong = tfile.Get('semilep/wrong/%s' % resname)
-      plot_res(plotter, right, 2, xtit, 'solid', True)
-      plot_res(plotter, wrong, 2, xtit, 'dashed', False)
-      plotter.save(resname)
+   plotter.plot(res, xtitle='m_{gen}(tt)', ytitle='resolution')
+   plotter.save('resolution')
+
+   res = Hist(sorted(list(binning)))
+   for idx, info in enumerate(bias):
+      res[idx+1].value, res[idx+1].error = info
+      if not relative:
+         res[idx+1].value /= res[idx+1].x.center
+         res[idx+1].error /= res[idx+1].x.center
+   
+   plotter.plot(res, xtitle='m_{gen}(tt)', ytitle='bias')
+   plotter.save('bias')
+
+
+dgauss = 'amplitude*TMath::Gaus(x, mean, width)+a2*TMath::Gaus(x, mean, scale*width)', 'amplitude[0.1, 0, 1], mean[0, -1, 1], width[0.5, 0, 1], a2[0.1, 0, 1], scale[3, 1, 1000]'
+gauss = 'amplitude*TMath::Gaus(x, mean, width)', 'amplitude[0.1, 0, 1], mean[0, -1, 1], width[0.5, 0, 1]'
+bwinger = 'amplitude*TMath::BreitWigner(x, mean, width)', 'amplitude[0.1, 0, 1], mean[0, -1, 1], width[0.5, 0, 1]'
+dgauss_abs = 'amplitude*TMath::Gaus(x, mean, width)+a2*TMath::Gaus(x, mean, scale*width)', 'amplitude[0.1, 0, 1], mean[0, -1000, 1000], width[50, 0, 800], a2[0.1, 0, 1], scale[3, 1, 1000]'
+bwgauss = 'amplitude*TMath::BreitWigner(x, mean, width)+a2*TMath::Gaus(x, mean, scale*width)', 'amplitude[0.1, 0, 1], mean[0, -1, 1], width[0.5, 0, 1], a2[0.1, 0, 1], scale[3, 1, 1000]'
+if 'effs' in args.todo:
+   ## plotter.set_subdir('efficiencies')
+   ## denominator = tfile.semilep.parton.eff_mtt.Clone()
+   ## for pic, name, dirname in [
+   ##    ('obj_eff', 'Obj. selection | tt semi-lep', 'obj_selection'),
+   ##    ('match_eff', 'MC matching | obj. selection', 'matched'),
+   ##    ('mass_eff', 't_{had} mass | MC matching', 'mass_selection'),
+   ##    ('perm_eff', 'Perm. selection | t_{had} mass', 'perm_selection'),
+   ##    ('sel_eff', 'Correct perm. | Perm. selection', 'selected')
+   ##    ]:
+   ##    numerator = tfile.semilep.Get('%s/eff_mtt' % dirname)
+   ##    obj_sel_eff = make_eff(numerator, denominator, xtitle='gen m(tt) [GeV]', ytitle='#varepsilon(%s)' % name)
+   ##    obj_sel_eff.drawstyle = 'AP'
+   ##    plotter.plot(obj_sel_eff)
+   ##    plotter.save(pic)
+   ##    denominator = numerator
+   
+   for method, rname, wname in [('norm', 'matched', 'wrong'), ('kinfit', 'matchfit', 'wrongfit')]:
+      for nslices, fitpars, resname, xtit in [
+         (16, dgauss, "res_mtt", "m^{tt}(%s)"), 
+         #(16, dgauss, "res_mth", "m^{th}(%s)"),
+         #(16, bwinger, 'res_deltatt', 'cos(#delta_{tt})(%s)'),
+         #(16, dgauss, "res_ptl", 'p^{tlep}(%s)'), 
+         #(16, dgauss, "res_pth", 'p^{thad}(%s)')
+         #(10, dgauss, "res_jete", "E^{jet}(%s)"),
+         #(10, gauss, 'res_deltaw_ptw', '%s'),
+         #(10, gauss, 'res_mw_ptw', '%s'),
+         #(8, gauss, "res_mwh", "m^{Wh}(%s)"),
+         #(8, gauss, "res_pttt", "p_{T}^{tt}(%s)"), 
+         ]:
+         plotter.set_subdir('efficiencies/%s' % method)
+         right = tfile.Get('semilep/%s/%s' % (rname, resname))
+         wrong = tfile.Get('semilep/%s/%s' % (wname, resname))
+         plot_res(plotter, right, 2, xtit, 'solid', True)
+         plot_res(plotter, wrong, 2, xtit, 'dashed', False)
+         plotter.save(resname)
+         plotter.set_subdir('efficiencies/%s/%s' % (method, resname))
+         single_bins(
+            plotter, right, wrong, xtit, 
+            nslices, fitpars, not resname.endswith('_abs'),
+            2
+            )
+      

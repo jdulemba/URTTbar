@@ -71,6 +71,7 @@ class Permutation
 		TLorentzVector WLep() const {return((*L() + Nu()));}
 		TLorentzVector THad() const {return((WHad() + *BHad()));}
 		TLorentzVector TLep() const {return((WLep() + *BLep()));}
+    TLorentzVector LVect() const {return THad()+TLep();}
 
 		double Prob() const {return(prob_);}
 		double NuChisq() 	 const {return nu_chisq_         ;}

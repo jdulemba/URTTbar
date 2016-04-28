@@ -57,13 +57,14 @@ private:
   vector<IDElectron*> loose_electrons_;
   vector<IDElectron*> medium_electrons_;
   IDMet met_;
-  JetScaler jet_scaler_;  
+  JetScaler &jet_scaler_;  
 
   //tracker
   CutFlowTracker *tracker_=0;
 
   //cuts
   bool is_configured_ = false;
+  bool apply_jer_ = true;
   int objsel_=0;
   IDMuon::IDS cut_loosemu_id_, cut_tightmu_id_;
   float cut_loosemu_ptmin_, cut_loosemu_etamax_, cut_tightmu_ptmin_, cut_tightmu_etamax_;

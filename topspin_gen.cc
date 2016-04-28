@@ -24,6 +24,8 @@
 #include "Hypotheses.h"
 #include "LHEParticle.h"
 #include "PDGID.h"
+#include "TTKinFitter.h"
+
 using namespace std;
 typedef TLorentzVector tlv;
 typedef TVector3 tv3;
@@ -51,7 +53,8 @@ private:
 	//Scale factors
   LeptonSF electron_sf_, muon_sf_;
   TTPermutator permutator_;
-  
+  TTKinFitter kinfitter_;
+
 public:
   topspin_gen(const std::string output_filename):
     AnalyzerBase("topspin_gen", output_filename),
@@ -65,7 +68,8 @@ public:
     electron_sf_("electron_sf", false),
     muon_sf_("muon_sf"),
     genp_selector_(),
-    permutator_()
+    permutator_(),
+    kinfitter_()
   {
     
     //tracker_.verbose(true);    
@@ -96,8 +100,8 @@ public:
       else genp_selector_.setmode(TTGenParticleSelector::SelMode::LHE);
     } else {
       Logger::log().info() << "Using normal matching" << endl;
-      if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::LHE);
-      else genp_selector_.setmode(TTGenParticleSelector::SelMode::FULLDEP);
+      if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::FULLDEP);
+      else genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
     }
     mc_weights_.init(sample);
 
@@ -171,8 +175,11 @@ public:
   }
 
   void book_angular_plots(string dir) {
-    book<TH1F>(dir, "costheta_wl", "", 200, -1, 1);
-    book<TH1F>(dir, "costheta_wh", "", 200, -1, 1);
+    // book<TH1F>(dir, "costheta_wl", "", 200, -1, 1);
+    // book<TH1F>(dir, "costheta_wh", "", 200, -1, 1);
+
+    book<TH1F>(dir, "costheta_top_BA", "", 200, -1, 1);
+    book<TH1F>(dir, "costheta_top_CM", "", 200, -1, 1);
 
     book<TH1F>(dir, "cosgamma_bWtlep", "", 200, -1, 1);
     book<TH1F>(dir, "cosgamma_bWthad", "", 200, -1, 1);
@@ -215,14 +222,18 @@ public:
     auto hadtopcm = ttbar.thad().to_CM();
     auto ttcm = ttbar.to_CM();
     double mass = ttbar.M();
+    TVector3 beam(0,0,1);
+    
+    hdir->second["costheta_top_BA"].fill(beam.Dot(ttcm.top().unit3D()), evt_weight_);
+    hdir->second["costheta_top_CM"].fill(ttbar.unit3D().Dot(ttcm.top().unit3D()), evt_weight_);
 
     hdir->second["cosalpha_tbW_tbarbW"].fill(ttcm.top().decay_plane().Dot(ttcm.tbar().decay_plane()), evt_weight_);
     hdir->second["cosgamma_bWtlep"].fill(leptopcm.W().decay_plane().Dot(leptopcm.b().unit3D()), evt_weight_);
     hdir->second["cosgamma_bWthad"].fill(hadtopcm.W().decay_plane().Dot(hadtopcm.b().unit3D()), evt_weight_);
     double ctheta_l = ttbar.tlep().W().decay_opening_cm();
     double ctheta_h = ttbar.thad().W().decay_opening_cm();
-    hdir->second["costheta_wl"].fill(ctheta_l);
-    hdir->second["costheta_wh"].fill(ctheta_h);
+    //hdir->second["costheta_wl"].fill(ctheta_l);
+    //hdir->second["costheta_wh"].fill(ctheta_h);
         
     //helicity and lab frames from TOP 14 023
     double cth_l = leptopcm.W().l().unit3D().Dot(ttcm.tlep().unit3D());
@@ -231,7 +242,7 @@ public:
     double cth_u = hadtopcm.W().up().unit3D().Dot(ttcm.thad().unit3D());
 
     if(cth_l != cth_l || cth_n != cth_n || cth_d != cth_d || cth_u != cth_u) {
-      cout <<dir << " NANERROR! "<< cth_l << " " << cth_n << " " << cth_d << " " << cth_u << endl;
+      Logger::log().error() <<dir << " NANERROR! "<< cth_l << " " << cth_n << " " << cth_d << " " << cth_u << endl;
     //   cout << "input top:" << endl <<
     //     "TTbar: " << ttbar << endl <<
     //     "  TLep: " << ttbar.tlep() << endl <<
@@ -302,9 +313,15 @@ public:
     book<TH2F>(dir, "mat_pttt", ";gen;reco", 10, 0, 500, 10, 0, 500);
 
     //resolution (wrt mass) 
-    for(string name : {"res_mtt", "res_pttt", "res_ptl", "res_pth", }) {
-      book<TH2F>(dir, name, ";rel_delta;mass", 40, -2, 2, 16, 200, 1000);
+    for(string name : {
+        "res_mtt", "res_pttt", "res_ptl", "res_pth", "res_mth", 
+          "res_mt", "res_mtl", "res_deltatt", "res_mwh"}) {
+      book<TH2F>(dir, name, ";rel_delta;mass", 120, -2, 2, 16, 200, 1000);
     }
+    book<TH2F>(dir, "res_jete", ";rel_delta;mass", 120, -2, 2, 100, 0, 1000);
+    book<TH2F>(dir, "res_deltaw_ptw", ";rel_delta;mass", 120, -2, 2, 100, 0, 1000);
+    book<TH2F>(dir, "res_mw_ptw", ";rel_delta;mass", 120, -2, 2, 100, 0, 1000);
+    book<TH2F>(dir, "res_mth_ptth", ";rel_delta;mass", 120, -2, 2, 100, 0, 1000);
   }
 
   inline double res(double reco, double gen) {return (reco-gen)/gen;}
@@ -325,8 +342,64 @@ public:
     hdir->second["res_pttt"].fill(res(ttbar.Pt(), gen->Pt()), gen->M(), evt_weight_);
     hdir->second["res_ptl" ].fill(res(ttbar.tlep().Vect().Mag(), gen->tlep().Vect().Mag()), gen->M(), evt_weight_);
     hdir->second["res_pth" ].fill(res(ttbar.thad().Vect().Mag(), gen->thad().Vect().Mag()), gen->M(), evt_weight_);
+    hdir->second["res_mth" ].fill(res(ttbar.thad().M(), gen->thad().M()), gen->M(), evt_weight_);
+    hdir->second["res_mt"  ].fill(res(ttbar.thad().M(), 173.21), gen->M(), evt_weight_);
+    hdir->second["res_mwh" ].fill(res(ttbar.thad().W().M(), gen->thad().W().M()), gen->M(), evt_weight_);
+    hdir->second["res_mtl" ].fill(res(ttbar.tlep().M(), gen->tlep().M()), gen->M(), evt_weight_);
+    hdir->second["res_mth_ptth"].fill(res(ttbar.thad().M(), gen->thad().M()), gen->thad().M(), evt_weight_);
+    hdir->second["res_deltatt"].fill( 
+      res(
+        ttbar.top().unit3D().Dot(ttbar.tbar().unit3D()), 
+        gen->top().unit3D().Dot(gen->tbar().unit3D())
+        ), 
+      gen->M(), evt_weight_
+      );
+
+    // if(res(ttbar.thad().W().up().E(), gen->thad().W().up().E()) < -0.8) {
+    //   cout << dir << endl
+    //        << "reco up: " << ttbar.thad().W().up() << endl
+    //        << "reco up: " << ttbar.thad().W().down() << endl
+    //        << "gen : " << gen->thad().W().up() << endl
+    //        << "gen : " << gen->thad().W().down() << endl;
+    //   throw 40;
+    // }
+
+    hdir->second["res_mw_ptw"].fill(res(ttbar.thad().W().M(), gen->thad().W().M()), gen->thad().W().Pt(), evt_weight_);
+    auto gup = gen->thad().W().up();
+    auto gdown = gen->thad().W().down();
+    auto rup = ttbar.thad().W().up();
+    auto rdown = ttbar.thad().W().down();
+    hdir->second["res_deltaw_ptw"].fill(
+      res(
+        rup.unit3D().Dot(rdown.unit3D()),
+        gup.unit3D().Dot(gdown.unit3D())
+        ),
+      gen->thad().W().Pt(), evt_weight_
+      );
+    if(gup.DeltaR(rup) < gup.DeltaR(rdown)) {
+      hdir->second["res_jete"].fill( res(rup.E(), gup.E()), gup.E(), evt_weight_);
+      hdir->second["res_jete"].fill( res(rdown.E(), gdown.E()), gdown.E(), evt_weight_);
+    } else {
+      hdir->second["res_jete"].fill( res(rup.E(), gdown.E()), gdown.E(), evt_weight_);
+      hdir->second["res_jete"].fill( res(rdown.E(), gup.E()), gup.E(), evt_weight_);
+    }
   }
 
+  void book_fit_plots(string dir) {
+    book<TH1F>(dir, "niter" , "", 100, 0, 100);    
+    book<TH1F>(dir, "chi2" , "", 100, 0, 50);    
+  }
+
+  void fill_fit_plots(string dir, TTKinFitter::KFResult& result) {
+    if(result.status == TTKinFitter::FAILED) return;
+    auto hdir = histos_.find(dir);
+    if(hdir == histos_.end()) {
+      Logger::log().fatal() << dir << "does not exists!" << endl;
+      throw 42;
+    }
+    hdir->second["niter"].fill(result.niter);
+    hdir->second["chi2"].fill(result.chi2);
+  }
 
   //This method is called once per job at the beginning of the analysis
   //book here your histograms/tree and run every initialization needed
@@ -344,7 +417,7 @@ public:
     }
     
     string lepdir = "semilep";
-    for(string pdir : {"parton", "matched", "selected", "wrong", "obj_selection", "perm_selection"}) {
+    for(string pdir : {"parton", "matched", "selected", "wrong", "obj_selection", "mass_selection", "perm_selection"}) {
       string dir = lepdir+"/"+pdir;//+"/"+charge;
       book_eff_plots(dir);
     }
@@ -352,6 +425,12 @@ public:
     for(string pdir : {"matched", "selected", "wrong"}) {
       string dir = lepdir+"/"+pdir;
       book_res_plots(dir);
+    }
+
+    for(string pdir : {"matchfit", "selfit", "wrongfit"}) {
+      string dir = lepdir+"/"+pdir;
+      book_res_plots(dir);
+      book_fit_plots(dir);
     }
   }
 
@@ -431,22 +510,31 @@ public:
     //Gen matching
     Permutation matched;
     matched = matcher_.match(
-      genp_selector_.ttbar_final_system(),
+      genp_selector_.ttbar_system(),
       permutator_.capped_jets(), 
       object_selector_.loose_electrons(),
       object_selector_.loose_muons()
       );
     matched.SetMET(object_selector_.met());
 
-    if(!matched.IsComplete()) return;
-    matched.Solve(solver_);
     tracker_.track("gen matching");
+    if(matched.IsComplete()) {
+      matched.Solve(solver_);
+      
+      //fil reco
+      hyp::TTbar ttreco(matched);
+      fill(ttreco, decay+"matched", gen_ptr);
+      fill_eff_plots(ttgen, decay+"matched");
 
-    //fil reco
-    hyp::TTbar ttreco(matched);
-    fill(ttreco, decay+"matched", gen_ptr);
-    fill_eff_plots(ttgen, decay+"matched");
-
+      auto result = kinfitter_.fit(matched);
+      hyp::TTbar ttfit(matched);
+      fill_res_plots(decay+"matchfit", ttfit , gen_ptr);
+      fill_fit_plots(decay+"matchfit", result);
+      matched.WJa()->resetp4();
+      matched.WJb()->resetp4();
+      matched.BHad()->resetp4();
+    }    
+  
     //Find best permutation
     bool go_on = true;
     Permutation best_permutation;
@@ -462,24 +550,38 @@ public:
         }
       }
     }
-    if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9 || event.evt == 94225551) {
-      cout << "Event " << event.run << ":" << event.lumi << ":" << event.evt << endl
-           << best_permutation << endl
-           << "capped jets: " << permutator_.capped_jets().size() << ", allowed permutations: " << nperms << endl
-           << "m(th)" << best_permutation.THad().M() << ", m(Wh) " << best_permutation.WHad().M() << endl
-           << "m(tl)" << best_permutation.TLep().M() << endl;
-      throw 23;
+
+    if(!best_permutation.IsComplete() || fabs(best_permutation.THad().M() - 173) > 50 || fabs(best_permutation.WHad().M() - 80) > 20) return;
+    fill_eff_plots(ttgen, decay+"mass_selection");
+    if(best_permutation.Prob() > 1E9) {
+      // cout << best_permutation << endl
+      //      << *best_permutation.L() << " " << *best_permutation.BLep() << endl;
+      // throw 30;
       return;
     }
-    
     fill_eff_plots(ttgen, decay+"perm_selection");
 
     hyp::TTbar best(best_permutation);
+    auto result = kinfitter_.fit(best_permutation);
+    hyp::TTbar ttfit(best_permutation);
     if(best_permutation.IsCorrect(matched)) {
+      // if(res(ttreco.thad().W().up().E(), gen_ptr->thad().W().up().E()) < -0.6) {
+      //   cout << "reco up: " << ttreco.thad().W().up() << endl
+      //        << "reco up: " << ttreco.thad().W().down() << endl
+      //        << "gen : " << gen_ptr->thad().W().up() << endl
+      //        << "gen : " << gen_ptr->thad().W().down() << endl;
+      //   throw 40;
+      // }
       fill(best, decay+"selected", gen_ptr);
       fill_eff_plots(ttgen, decay+"selected");
+      fill_res_plots( decay+"selfit", ttfit ,gen_ptr);
+      fill_fit_plots( decay+"selfit", result);
     }
-    else fill(best, decay+"wrong", gen_ptr);
+    else {
+      fill(best, decay+"wrong", gen_ptr);
+      fill_res_plots(decay+"wrongfit", ttfit , gen_ptr);
+      fill_fit_plots(decay+"wrongfit", result);
+    }
     tracker_.track("end");
   }
 
@@ -508,17 +610,14 @@ public:
 			if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
       tracker_.track("start");
 
-			//long and time consuming
-      
-			if(isTTbar_){
-        bool selection = 	genp_selector_.select(event);			
-        tracker_.track("gen selection");        
-        if(!selection) {
-          Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<
-            "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
-          continue;
-        }
+			//Long and time consuming
+      bool selection = 	genp_selector_.select(event);			
+      if(!selection) {
+        //Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<
+        //  "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+        continue;
 			}
+      tracker_.track("gen selection");        
 
       evt_weight_ = mc_weights_.evt_weight(event, systematics::SysShifts::NOSYS);
       process_evt(event);

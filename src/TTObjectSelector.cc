@@ -17,10 +17,8 @@ TTObjectSelector::TTObjectSelector(int objsel):
   sel_electrons_(),
   loose_electrons_(),
   medium_electrons_(),
-  jet_scaler_() {
+  jet_scaler_(JetScaler::instance()) {
     URParser &parser = URParser::instance();
-    parser.addCfgParameter<std::string>("general", "jet_uncertainties", "source file for jet uncertainties");
-    parser.addCfgParameter<std::string>("general", "JER", "source file for jet uncertainties");
 
     //parser.addCfgParameter(const std::string group, const std::string parameterName, const std::string description, T def_value);
     parser.addCfgParameter<std::string>("loose_muons", "id", "ID to be applied");
@@ -40,16 +38,11 @@ TTObjectSelector::TTObjectSelector(int objsel):
     parser.addCfgParameter<float>      ("tight_electrons", "etamax", "maximum eta");
       
     parser.addCfgParameter<int>  ("jets", "n_min", "minimum number of jets");
+    parser.addCfgParameter<int>  ("jets", "applyJER", "");
     parser.addCfgParameter<float>("jets", "ptmin", "minimum pt");
     parser.addCfgParameter<float>("jets", "etamax", "maximum eta");
     
     parser.parseArguments();
-
-    DataFile jes(parser.getCfgPar<std::string>("general", "jet_uncertainties"));
-    DataFile jer(parser.getCfgPar<std::string>("general", "JER"));    
-    jet_scaler_.Init(
-      jes.path(), jer.path()
-      );
 
     cut_loosemu_id_ = IDMuon::id(
       parser.getCfgPar<std::string>("loose_muons", "id"    ));
@@ -72,6 +65,8 @@ TTObjectSelector::TTObjectSelector(int objsel):
     cut_tightel_etamax_ = parser.getCfgPar<float>("tight_electrons", "etamax");
     
     cut_nminjets_ = parser.getCfgPar<int>  ("jets", "n_min" );
+    apply_jer_ = (parser.getCfgPar<int>("jets", "applyJER" ) > 0.5);
+    Logger::log().debug() << "Running JER: " << apply_jer_ << std::endl;
     cut_jet_ptmin_ = parser.getCfgPar<float>("jets", "ptmin" );
     cut_jet_etamax_ = parser.getCfgPar<float>("jets", "etamax");  
 }
@@ -128,7 +123,7 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 		if(shift == systematics::SysShifts::JES_DW)      scale_factor = jet_scaler_.GetUncP(jet);
 		else if(shift == systematics::SysShifts::JES_UP) scale_factor = -1*jet_scaler_.GetUncM(jet);
 
-    if(event.run == 1) { //is MC: apply JER
+    if(event.run == 1 && apply_jer_) { //is MC: apply JER
       double jer_sigma = 0;
       if(shift == systematics::SysShifts::JER_UP) jer_sigma = jet_scaler_.JERSigmaUp(jet); 
       else if(shift == systematics::SysShifts::JER_DW) jer_sigma = jet_scaler_.JERSigmaDw(jet); 

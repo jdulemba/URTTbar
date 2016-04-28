@@ -303,10 +303,10 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
   case NORMAL: 
   case MADGRAPH:  select_normal(event); break;
   case PSEUDOTOP: select_pstop(event); break;
-  case HERWIGPP: select_herwig(event); break;
+  case HERWIGPP:  select_herwig(event); break;
   case LHE: 
   case MADGRAPHLHE: select_lhe(event); break;
-  case FULLDEP: select_with_deps(event); break;
+  case FULLDEP:     select_with_deps(event); break;
   }
 
   //Build GenTTBar
@@ -328,6 +328,8 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
     b_, bbar_, top_, tbar_);
   // Logger::log().debug() << "ttbar_: " << ttbar_ <<std::endl;
   // Logger::log().debug() << "ttbar_final_: " << ttbar_final_ <<std::endl;
+
+  if(!ttbar_.is_complete()) return false;
 
   //Makes collection of gen jets not in the partons
 	if(ttbar_.type == GenTTBar::DecayType::SEMILEP) {
@@ -545,12 +547,18 @@ void TTGenParticleSelector::select_with_deps(URStreamer& event)
     throw 42;
   }
   
+  //cout << wplus << " " << wminus << endl;
+
 	//look for W decay products
   vector<const Genparticle*> root_leps;
   for(auto& gp : gps) {
+    int abs_pdgid = fabs(gp.pdgId());
+    // if(abs_pdgid > 5 && abs_pdgid % 2 == 0) {
+    //   cout << "neutrino found: mother " << gps[gp.momIdx()[0]].pdgId() << endl;
+    // }
+
     if(descends(wplus, &gp) || descends(wminus, &gp)) {
       selected_.push_back(gp);
-      int abs_pdgid = fabs(gp.pdgId());
       if(abs_pdgid < 5) wpartons_.push_back(&(selected_.back()));//quark      
       else if(abs_pdgid % 2 == 0) neutral_leps_.push_back(&(selected_.back())); //neutrino
       else {//charged lepton

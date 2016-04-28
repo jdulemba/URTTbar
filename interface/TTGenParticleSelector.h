@@ -20,7 +20,7 @@ public:
 
   bool is_in_acceptance(GenTTBar::DecayType decay_mode = GenTTBar::DecayType::SEMILEP);
   GenTTBar & ttbar_system() {return ttbar_;}
-  GenTTBar & ttbar_final_system() {return ttbar_;}
+  GenTTBar & ttbar_final_system() {return ttbar_final_;}
   vector<Genjet*>& additional_jets() {return added_jets_;}
   void setmode(SelMode mode) {
     mode_ = mode;
