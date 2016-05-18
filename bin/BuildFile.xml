@@ -1,0 +1,19 @@
+<use name="root"/>
+<use name="rootmath"/>
+<use name="boost_program_options"/>
+<use name="boost_filesystem"/>
+<use name="boost"/>
+<use name="lhapdf"/>
+<use name="URAnalysis/AnalysisFW"/>
+<use name="rootcore"/>
+<use   name="rootrflx"/>
+<use   name="rootminuit"/>
+<use name="Analyses/URTTbar"/>
+<flags CXXFLAGS="-Wno-error=reorder -Wno-error=sign-compare"/>  
+<bin file="btag_topology_effs.cc" name="btag_topology_effs"/>
+<bin file="ctag_eff.cc"           name="ctag_eff"/>          
+<bin file="ctag_genstudies.cc"    name="ctag_genstudies"/>   
+<bin file="permProbComputer.cc"   name="permProbComputer"/>  
+<bin file="topspin_gen.cc"        name="topspin_gen"/>       
+<!--bin file="topspin_reco.cc"       name="topspin_reco"/-->
+<!--bin file="ttxs.cc"               name="ttxs"/-->              

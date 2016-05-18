@@ -1,0 +1,14 @@
+<use name="root"/>
+<use name="rootmath"/>
+<use name="boost_program_options"/>
+<use name="boost_filesystem"/>
+<use name="boost"/>
+<use name="lhapdf"/>
+<use name="URAnalysis/AnalysisFW"/>
+<use name="rootcore"/>
+<use   name="rootrflx"/>
+<use   name="rootminuit"/>
+<flags CXXFLAGS="-Wno-error=reorder -Wno-error=sign-compare"/>
+<export>
+   <lib name="1"/>
+</export>
