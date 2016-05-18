@@ -1,5 +1,5 @@
-#include "JetScale.h"
-#include "Permutation.h"
+#include "Analyses/URTTbar/interface/JetScale.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
 
 JetScale::JetScale(){}
 

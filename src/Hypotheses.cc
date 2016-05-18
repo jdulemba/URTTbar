@@ -1,8 +1,8 @@
-#include "Hypotheses.h"
-#include "TwoBodyDecay.h"
-#include "Permutation.h"
-#include "GenObject.h"
-#include "Logger.h"
+#include "Analyses/URTTbar/interface/Hypotheses.h"
+#include "Analyses/URTTbar/interface/TwoBodyDecay.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
+#include "Analyses/URTTbar/interface/GenObject.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 #include <iostream>
 
 namespace hyp {

@@ -7,7 +7,7 @@
 #include "TH1F.h"
 #include <TDirectory.h>
 
-#include "IDJet.h"
+#include "Analyses/URTTbar/interface/IDJet.h"
 #include "TMath.h"
 
 class JetScaler {

@@ -1,12 +1,12 @@
 #ifndef TTGenParticleSelector_h
 #define TTGenParticleSelector_h
 
-#include "GenObject.h"
+#include "Analyses/URTTbar/interface/GenObject.h"
 #include <vector>
 #include <list>
-#include "LHEParticle.h"
+#include "Analyses/URTTbar/interface/LHEParticle.h"
 #include <iostream>
-#include "PDGID.h"
+#include "URAnalysis/AnalysisFW/interface/PDGID.h"
 
 using namespace std;
 

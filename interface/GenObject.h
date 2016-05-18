@@ -1,9 +1,9 @@
 #ifndef GENOBJECT_H
 #define GENOBJECT_H
 
-#include "URStreamer.h"
-#include "PDGID.h"
-#include "LHEParticle.h"
+#include "Analyses/URTTbar/interface/URStreamer.h"
+#include "URAnalysis/AnalysisFW/interface/PDGID.h"
+#include "Analyses/URTTbar/interface/LHEParticle.h"
 #include <iostream>
 
 class GenObject : public TLorentzVector

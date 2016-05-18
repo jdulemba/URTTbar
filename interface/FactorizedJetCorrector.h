@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include "TLorentzVector.h"
-#include "FactorizedJetCorrectorCalculator.h"
+#include "Analyses/URTTbar/interface/FactorizedJetCorrectorCalculator.h"
 
 class SimpleJetCorrector;
 class JetCorrectorParameters;

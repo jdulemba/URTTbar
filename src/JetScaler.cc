@@ -1,10 +1,10 @@
-#include "JetScaler.h"
+#include "Analyses/URTTbar/interface/JetScaler.h"
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "DataFile.h"
-#include "URParser.h"
-#include "Logger.h"
+#include "URAnalysis/AnalysisFW/interface/DataFile.h"
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 using namespace std;
 

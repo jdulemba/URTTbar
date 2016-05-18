@@ -1,6 +1,6 @@
-#include "TwoBodyDecay.h"
-#include "Permutation.h"
-#include "GenObject.h"
+#include "Analyses/URTTbar/interface/TwoBodyDecay.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
+#include "Analyses/URTTbar/interface/GenObject.h"
 
 using namespace std;
 

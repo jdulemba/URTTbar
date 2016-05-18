@@ -1,7 +1,7 @@
 #ifndef MCMatchable_H
 #define MCMatchable_H
 
-#include "GenObject.h"
+#include "Analyses/URTTbar/interface/GenObject.h"
 
 class MCMatchable {
 private:

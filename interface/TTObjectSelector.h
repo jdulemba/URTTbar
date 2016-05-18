@@ -1,19 +1,19 @@
 #ifndef TTObjectSelector_h
 #define TTObjectSelector_h
 
-#include "URStreamer.h"
+#include "Analyses/URTTbar/interface/URStreamer.h"
 #include <list>
 #include <vector>
-#include "IDMuon.h"
-#include "IDElectron.h"
-#include "IDJet.h"
-#include "IDMet.h"
-#include "JetScale.h"
-#include "JetScaler.h"
+#include "Analyses/URTTbar/interface/IDMuon.h"
+#include "Analyses/URTTbar/interface/IDElectron.h"
+#include "Analyses/URTTbar/interface/IDJet.h"
+#include "Analyses/URTTbar/interface/IDMet.h"
+#include "Analyses/URTTbar/interface/JetScale.h"
+#include "Analyses/URTTbar/interface/JetScaler.h"
 #include <map>
 #include <string>
-#include "CutFlowTracker.h"
-#include "systematics.h"
+#include "URAnalysis/AnalysisFW/interface/CutFlowTracker.h"
+#include "Analyses/URTTbar/interface/systematics.h"
 
 using namespace std;
 class CutFlowTracker;

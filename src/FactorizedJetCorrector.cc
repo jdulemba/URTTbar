@@ -3,10 +3,10 @@
 // Author: Konstantinos Kousouris, Philipp Schieferdecker
 // Email:  kkousour@fnal.gov, philipp.schieferdecker@cern.ch
 
-#include "FactorizedJetCorrector.h"
-#include "SimpleJetCorrector.h"
-#include "JetCorrectorParameters.h"
-#include "Utilities.h"
+#include "Analyses/URTTbar/interface/FactorizedJetCorrector.h"
+#include "Analyses/URTTbar/interface/SimpleJetCorrector.h"
+#include "Analyses/URTTbar/interface/JetCorrectorParameters.h"
+#include "Analyses/URTTbar/interface/Utilities.h"
 #include "Math/PtEtaPhiE4D.h"   //??
 #include "Math/Vector3D.h"      //??
 #include "Math/LorentzVector.h" //??

@@ -1,9 +1,9 @@
-#include "TTObjectSelector.h"
-#include "Logger.h"
-#include "URParser.h"
+#include "Analyses/URTTbar/interface/TTObjectSelector.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
 #include "TMath.h"
 #include "TRandom3.h"
-#include "DataFile.h"
+#include "URAnalysis/AnalysisFW/interface/DataFile.h"
 
 using namespace TMath;
 

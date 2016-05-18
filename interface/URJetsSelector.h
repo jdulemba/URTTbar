@@ -3,7 +3,7 @@
 
 
 
-#include "URGenericJetsSelector.h"
+#include "URAnalysis/AnalysisFW/interface/URGenericJetsSelector.h"
 // #include "URStreamer.h"
 
 

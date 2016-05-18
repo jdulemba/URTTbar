@@ -1,5 +1,5 @@
-#include "Permutation.h"
-#include "JetScaler.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
+#include "Analyses/URTTbar/interface/JetScaler.h"
 #include <cmath>
 
 class TTKinFitter {

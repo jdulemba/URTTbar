@@ -1,8 +1,8 @@
 #ifndef MCWeightProducer_h
 #define MCWeightProducer_h
 
-#include "systematics.h"
-#include "PUReweighter.h"
+#include "Analyses/URTTbar/interface/systematics.h"
+#include "URAnalysis/AnalysisFW/interface/PUReweighter.h"
 #include <string>
 
 class URStreamer;

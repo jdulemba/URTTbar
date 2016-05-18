@@ -4,8 +4,8 @@
 //
 // Generic parameters for Jet corrections
 //
-#include "JetCorrectorParameters.h"
-#include "Utilities.h"
+#include "Analyses/URTTbar/interface/JetCorrectorParameters.h"
+#include "Analyses/URTTbar/interface/Utilities.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>

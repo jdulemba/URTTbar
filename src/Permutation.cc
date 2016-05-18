@@ -1,7 +1,7 @@
-#include "Permutation.h"
-#include "TTBarSolver.h"
-#include "IDMet.h"
-#include "Logger.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
+#include "Analyses/URTTbar/interface/TTBarSolver.h"
+#include "Analyses/URTTbar/interface/IDMet.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 using namespace std;
 

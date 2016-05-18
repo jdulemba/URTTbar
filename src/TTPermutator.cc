@@ -1,7 +1,7 @@
-#include "TTPermutator.h"
+#include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "TMath.h"
 #include <algorithm>
-#include "Logger.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 using namespace TMath;
 using namespace std;
@@ -10,7 +10,7 @@ TTPermutator::TTPermutator():
   URSelector("permutations"),
   jets_(),
   capped_jets_() {
-  jet_pos_ = {0, 0, 0, 0};
+  jet_pos_ = {{0, 0, 0, 0}};
   configure();
 }
 

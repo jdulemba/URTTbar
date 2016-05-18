@@ -1,5 +1,5 @@
-#include "LHEParticle.h"
-#include "PDGID.h"
+#include "Analyses/URTTbar/interface/LHEParticle.h"
+#include "URAnalysis/AnalysisFW/interface/PDGID.h"
 
 std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
   auto &xs  = event.PXLHEs();

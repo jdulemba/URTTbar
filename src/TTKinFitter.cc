@@ -1,10 +1,10 @@
-#include "TTKinFitter.h"
+#include "Analyses/URTTbar/interface/TTKinFitter.h"
 #include "TMatrixF.h"
 #include "TLorentzVector.h"
 #include <cmath>
-#include "URParser.h"
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
 #include "TMath.h"
-#include "Logger.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 // Kinematic fit using lagrangian multipliers method
 // follows notation described in http://www.phys.ufl.edu/~avery/fitting/kinfit_talk1.pdf

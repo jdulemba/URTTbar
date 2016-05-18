@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <TFormula.h>
-#include "JetCorrectorParameters.h"
+#include "Analyses/URTTbar/interface/JetCorrectorParameters.h"
 
 class JetCorrectorParameters;
 

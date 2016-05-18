@@ -1,11 +1,11 @@
 #ifndef TTPermutator_h
 #define TTPermutator_h
 
-#include "Permutation.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
 #include <vector>
-#include "URSelector.h"
+#include "URAnalysis/AnalysisFW/interface/URSelector.h"
 #include <array>
-#include "CutFlowTracker.h"
+#include "URAnalysis/AnalysisFW/interface/CutFlowTracker.h"
 
 class TTPermutator: public URSelector {
 public:
@@ -17,7 +17,7 @@ public:
     capped_jets_.clear();
     lepton_ = 0;
     met_ = 0;
-    jet_pos_ = {0, 0, 0, 0};
+    jet_pos_ = {{0, 0, 0, 0}};
   }
 
   virtual void configure() override;

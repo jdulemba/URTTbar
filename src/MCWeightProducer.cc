@@ -1,6 +1,6 @@
-#include "MCWeightProducer.h"
-#include "DataFile.h"
-#include "URStreamer.h"
+#include "Analyses/URTTbar/interface/MCWeightProducer.h"
+#include "URAnalysis/AnalysisFW/interface/DataFile.h"
+#include "Analyses/URTTbar/interface/URStreamer.h"
 #include "TFile.h"
 #include "TMath.h"
 

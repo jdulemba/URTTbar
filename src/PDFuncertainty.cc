@@ -1,7 +1,7 @@
-#include "PDFuncertainty.h"
+#include "Analyses/URTTbar/interface/PDFuncertainty.h"
 #include "TDirectory.h"
-#include "URStreamer.h"
-#include "Logger.h"
+#include "Analyses/URTTbar/interface/URStreamer.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 using namespace std;
 using namespace LHAPDF;        

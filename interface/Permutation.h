@@ -3,8 +3,8 @@
 #include <vector>
 #include <limits>
 #include <TLorentzVector.h>
-#include <URStreamer.h>
-#include <IDJet.h>
+#include "Analyses/URTTbar/interface/URStreamer.h"
+#include "Analyses/URTTbar/interface/IDJet.h"
 #include <iostream>
 
 using namespace std;

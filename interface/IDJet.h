@@ -1,14 +1,14 @@
 #ifndef IDJET_H
 #define IDJET_H
-#include "MCMatchable.h"
-#include "URStreamer.h"
-#include "IDMuon.h"
-#include "IDElectron.h"
+#include "Analyses/URTTbar/interface/MCMatchable.h"
+#include "Analyses/URTTbar/interface/URStreamer.h"
+#include "Analyses/URTTbar/interface/IDMuon.h"
+#include "Analyses/URTTbar/interface/IDElectron.h"
 #include <TMath.h>
 #include <unordered_map>
 #include <string>
-#include "Logger.h"
-#include "BTagCalibrationStandalone.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
+#include "URAnalysis/AnalysisFW/interface/BTagCalibrationStandalone.h"
 
 class IDJet : public Jet, public MCMatchable
 {

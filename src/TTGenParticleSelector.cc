@@ -1,8 +1,8 @@
-#include "TTGenParticleSelector.h"
+#include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "TMath.h"
-#include "URParser.h"
-#include "Logger.h"
-#include "PDGID.h"
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
+#include "URAnalysis/AnalysisFW/interface/PDGID.h"
 
 using namespace TMath;
 

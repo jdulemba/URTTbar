@@ -1,7 +1,7 @@
-#include "BTagSFProducer.h"
-#include "TTPermutator.h"
-#include "PDGID.h"
-#include "URParser.h"
+#include "Analyses/URTTbar/interface/BTagSFProducer.h"
+#include "Analyses/URTTbar/interface/TTPermutator.h"
+#include "URAnalysis/AnalysisFW/interface/PDGID.h"
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
 #include <string>
 #include "TFile.h"
 #include <cmath>

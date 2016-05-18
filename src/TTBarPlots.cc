@@ -1,8 +1,8 @@
-#include <TTBarPlots.h>
-#include <URStreamer.h>
-#include <Permutation.h>
-#include "Logger.h"
-#include "TTObjectSelector.h"
+#include "Analyses/URTTbar/interface/TTBarPlots.h" 
+#include "Analyses/URTTbar/interface/URStreamer.h" 
+#include "Analyses/URTTbar/interface/Permutation.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
+#include "Analyses/URTTbar/interface/TTObjectSelector.h"
 
 #include <sstream>
 #include <iostream>

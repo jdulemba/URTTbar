@@ -1,7 +1,7 @@
-#include "BtagEff.h"
+#include "Analyses/URTTbar/interface/BtagEff.h"
 #include <TTree.h>
 #include <TRandom3.h>
-#include "Permutation.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
 
 BtagEff::BtagEff(){}
 

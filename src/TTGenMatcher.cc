@@ -1,6 +1,6 @@
-#include "TTGenMatcher.h"
-#include "GenObject.h"
-#include "URParser.h"
+#include "Analyses/URTTbar/interface/TTGenMatcher.h"
+#include "Analyses/URTTbar/interface/GenObject.h"
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
 
 const map<std::string, TTGenMatcher::MatchMode> TTGenMatcher::name_to_mode = {
   {"DR_DR", TTGenMatcher::MatchMode::DR_DR}, 

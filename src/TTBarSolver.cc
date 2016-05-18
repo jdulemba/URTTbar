@@ -1,6 +1,6 @@
-#include "TTBarSolver.h"
-#include "NeutrinoSolver.h"
-#include "IDMet.h"
+#include "Analyses/URTTbar/interface/TTBarSolver.h"
+#include "Analyses/URTTbar/interface/NeutrinoSolver.h"
+#include "Analyses/URTTbar/interface/IDMet.h"
 #include <iostream>
 
 TTBarSolver* TTBarSolver::TTBS = 0; 

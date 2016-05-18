@@ -1,7 +1,7 @@
 #ifndef TTGenMatcher_h
 #define TTGenMatcher_h
 
-#include "Permutation.h"
+#include "Analyses/URTTbar/interface/Permutation.h"
 #include <map>
 #include <string>
 
