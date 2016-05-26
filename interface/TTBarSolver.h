@@ -67,6 +67,7 @@ class TTBarSolver
 		double Test(double* par);
 		static TTBarSolver* TTBS; 
 		TTBarSolver();
+		TTBarSolver(bool dummy);
 		~TTBarSolver();
 		void Init(string filename, bool usebtag = true, bool usens = true, bool usemass = true);//provide root file with probability distribution, switches if btag and neutrino solver information should be used for final discriminant Res()
     void Init(TDirectory* dir=0, bool usebtag=false, bool usens=false, bool usemass=false, string wtname="mWhad_vs_mtophad", string bname="btag_value", string nuname="nusolver_chi2");

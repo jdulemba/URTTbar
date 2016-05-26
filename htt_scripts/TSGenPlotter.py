@@ -13,18 +13,19 @@ from argparse import ArgumentParser
 from URAnalysis.Utilities.roottools import slice_hist
 import ROOT
 
+project = os.environ['URA_PROJECT']
 parser = ArgumentParser()
 parser.add_argument('todo', nargs='+', help='things to do')
 args = parser.parse_args()
 
-allowed_to_do = set(['shapes', 'comparisons', 'effs'])
+allowed_to_do = set(['shapes', 'comparisons', 'effs', 'fit', 'resolution'])
 for i in args.todo:
    if i not in allowed_to_do:
       raise RuntimeError('%s is not an allowed command! You have: %s' % (i, ', '.join(allowed_to_do)))
 
 jobid = os.environ['jobid']
 plotter = BasePlotter(
-   'plots/%s/tsgen' % jobid,
+   '%s/plots/%s/tsgen' % (project, jobid),
    defaults = {'save' : {'png' : True, 'pdf' : False}}
 )
 
@@ -67,7 +68,7 @@ styles = {
       }
 }
 
-tfile = root_open('results/%s/topspin_gen/ttJets.root' % jobid)
+tfile = root_open('%s/results/%s/topspin_gen/ttJets.root' % (project, jobid))
 
 variables = [
    (16, 'NE', 'helframe_costheta_%s', 'cos #theta*', ['dtype', 'utype', 'lep', 'nu']),
@@ -238,7 +239,7 @@ def plot_res(plotter, hist, nslices, nicevar, linestyle='solid', legend=True):
       markerstyle=0
       )
 
-def single_bins(plotter, right, wrong, nicevar, nslices, fitpars, relative=True, skip=0):
+def single_bins(plotter, right, wrong, nicevar, nslices, fitpars, relative=True, skip=0, dofit=True, doRMS=False):
    right_slices = make_slices(right, nslices)
    wrong_slices = make_slices(wrong, nslices)   
    ibin = 0
@@ -258,28 +259,37 @@ def single_bins(plotter, right, wrong, nicevar, nslices, fitpars, relative=True,
       gen = nicevar % 'gen'
       reco = nicevar % 'reco'
       xtitle = '(%s - %s)/%s' % (reco, gen, gen)
-      print '###############  Bin%d  #####################' % ibin
-      x_range = [-2, 2] if relative else [-1000, 1000]
-      tf1 = plotter.parse_formula(
-         fitpars[0], fitpars[1],
-         x_range
-         )
-      right.Fit(tf1, 'WL')      
-      tf1.linewidth = 2
-      tf1.linecolor = 'blue'
-
-      rr = right.title.split('<')
-      binning.add(float(rr[-1]))
-      binning.add(float(rr[0]))
-      resolution.append((
-            tf1.GetParameter('width'), tf1.GetParError(tf1.GetParNumber('width'))
-            ))
-      bias.append((
-            tf1.GetParameter('mean'), tf1.GetParError(tf1.GetParNumber('mean'))
-            ))
+      if dofit:
+         print '###############  Bin%d  #####################' % ibin
+         x_range = [-2, 2] if relative else [-1000, 1000]
+         tf1 = plotter.parse_formula(
+            fitpars[0], fitpars[1],
+            x_range
+            )
+         right.Fit(tf1, 'WL')      
+         tf1.linewidth = 2
+         tf1.linecolor = 'blue'
+         
+         rr = right.title.split('<')
+         binning.add(float(rr[-1]))
+         binning.add(float(rr[0]))
+         resolution.append((
+               tf1.GetParameter('width'), tf1.GetParError(tf1.GetParNumber('width'))
+               ))
+         bias.append((
+               tf1.GetParameter('mean'), tf1.GetParError(tf1.GetParNumber('mean'))
+               ))
+      if doRMS:
+         rr = right.title.split('<')
+         binning.add(float(rr[-1]))
+         binning.add(float(rr[0]))
+         resolution.append(
+            (right.GetRMS(), right.GetRMSError(), wrong.GetRMS(), wrong.GetRMSError())
+            )         
+         bias.append((right.GetMean(), right.GetMeanError(), wrong.GetMean(), wrong.GetMeanError()))
 
       plotter.overlay(
-         [right, wrong, tf1],
+         [right, wrong, tf1] if dofit else [right, wrong],
          None,
          xtitle=xtitle,
          ytitle='A.U.',
@@ -292,25 +302,55 @@ def single_bins(plotter, right, wrong, nicevar, nslices, fitpars, relative=True,
          )
       plotter.save('Bin%d' % ibin)
       ibin += 1
-   res = Hist(sorted(list(binning)))
-   for idx, info in enumerate(resolution):
-      res[idx+1].value, res[idx+1].error = info
-      if not relative:
-         res[idx+1].value /= res[idx+1].x.center
-         res[idx+1].error /= res[idx+1].x.center
-   
-   plotter.plot(res, xtitle='m_{gen}(tt)', ytitle='resolution')
-   plotter.save('resolution')
 
-   res = Hist(sorted(list(binning)))
-   for idx, info in enumerate(bias):
-      res[idx+1].value, res[idx+1].error = info
-      if not relative:
-         res[idx+1].value /= res[idx+1].x.center
-         res[idx+1].error /= res[idx+1].x.center
+   res = None
+   if dofit:
+      res = Hist(sorted(list(binning)))
+      for idx, info in enumerate(resolution):
+         res[idx+1].value, res[idx+1].error = info
+         if not relative:
+            res[idx+1].value /= res[idx+1].x.center
+            res[idx+1].error /= res[idx+1].x.center
    
-   plotter.plot(res, xtitle='m_{gen}(tt)', ytitle='bias')
-   plotter.save('bias')
+      plotter.plot(res, xtitle='m_{gen}(tt)', ytitle='resolution')
+      plotter.save('resolution')
+
+      hbias = Hist(sorted(list(binning)))
+      for idx, info in enumerate(bias):
+         hbias[idx+1].value, hbias[idx+1].error = info
+         if not relative:
+            hbias[idx+1].value /= hbias[idx+1].x.center
+            hbias[idx+1].error /= hbias[idx+1].x.center
+   
+      plotter.plot(hbias, xtitle='m_{gen}(tt)', ytitle='bias')
+      plotter.save('bias')
+   if doRMS:
+      res = Hist(sorted(list(binning)))
+      res2= Hist(sorted(list(binning)))
+      for idx, info in enumerate(resolution):
+         res[idx+1].value, res[idx+1].error, res2[idx+1].value, res2[idx+1].error = info
+         if not relative:
+            res[idx+1].value /= res[idx+1].x.center
+            res[idx+1].error /= res[idx+1].x.center
+            res2[idx+1].value /= res[idx+1].x.center
+            res2[idx+1].error /= res[idx+1].x.center
+   
+      plotter.overlay([res, res2], markerstyle=[20, 33], xtitle='m_{gen}(tt)', ytitle='resolution')
+      plotter.save('resolution')
+
+      hbias  = Hist(sorted(list(binning)))
+      hbias2 = Hist(sorted(list(binning)))      
+      for idx, info in enumerate(bias):
+         hbias[idx+1].value, hbias[idx+1].error, hbias2[idx+1].value, hbias2[idx+1].error = info
+         if not relative:
+            hbias[idx+1].value /= hbias[idx+1].x.center
+            hbias[idx+1].error /= hbias[idx+1].x.center
+            hbias2[idx+1].value /= hbias[idx+1].x.center
+            hbias2[idx+1].error /= hbias[idx+1].x.center
+   
+      plotter.overlay([hbias, hbias2], markerstyle=[20, 33], xtitle='m_{gen}(tt)', ytitle='bias')
+      plotter.save('bias')
+   return res
 
 
 dgauss = 'amplitude*TMath::Gaus(x, mean, width)+a2*TMath::Gaus(x, mean, scale*width)', 'amplitude[0.1, 0, 1], mean[0, -1, 1], width[0.5, 0, 1], a2[0.1, 0, 1], scale[3, 1, 1000]'
@@ -319,35 +359,40 @@ bwinger = 'amplitude*TMath::BreitWigner(x, mean, width)', 'amplitude[0.1, 0, 1],
 dgauss_abs = 'amplitude*TMath::Gaus(x, mean, width)+a2*TMath::Gaus(x, mean, scale*width)', 'amplitude[0.1, 0, 1], mean[0, -1000, 1000], width[50, 0, 800], a2[0.1, 0, 1], scale[3, 1, 1000]'
 bwgauss = 'amplitude*TMath::BreitWigner(x, mean, width)+a2*TMath::Gaus(x, mean, scale*width)', 'amplitude[0.1, 0, 1], mean[0, -1, 1], width[0.5, 0, 1], a2[0.1, 0, 1], scale[3, 1, 1000]'
 if 'effs' in args.todo:
-   ## plotter.set_subdir('efficiencies')
-   ## denominator = tfile.semilep.parton.eff_mtt.Clone()
-   ## for pic, name, dirname in [
-   ##    ('obj_eff', 'Obj. selection | tt semi-lep', 'obj_selection'),
-   ##    ('match_eff', 'MC matching | obj. selection', 'matched'),
-   ##    ('mass_eff', 't_{had} mass | MC matching', 'mass_selection'),
-   ##    ('perm_eff', 'Perm. selection | t_{had} mass', 'perm_selection'),
-   ##    ('sel_eff', 'Correct perm. | Perm. selection', 'selected')
-   ##    ]:
-   ##    numerator = tfile.semilep.Get('%s/eff_mtt' % dirname)
-   ##    obj_sel_eff = make_eff(numerator, denominator, xtitle='gen m(tt) [GeV]', ytitle='#varepsilon(%s)' % name)
-   ##    obj_sel_eff.drawstyle = 'AP'
-   ##    plotter.plot(obj_sel_eff)
-   ##    plotter.save(pic)
-   ##    denominator = numerator
-   
+   plotter.set_subdir('efficiencies')
+   denominator = tfile.semilep.parton.eff_mtt.Clone()
+   for pic, name, dirname in [
+      ('obj_eff', 'Obj. selection | tt semi-lep', 'obj_selection'),
+      ('match_eff', 'MC matching | obj. selection', 'matched'),
+      ('mass_eff', 't_{had} mass | MC matching', 'mass_selection'),
+      ('perm_eff', 'Perm. selection | t_{had} mass', 'perm_selection'),
+      ('sel_eff', 'Correct perm. | Perm. selection', 'selected')
+      ]:
+      numerator = tfile.semilep.Get('%s/eff_mtt' % dirname)
+      obj_sel_eff = make_eff(numerator, denominator, xtitle='gen m(tt) [GeV]', ytitle='#varepsilon(%s)' % name)
+      obj_sel_eff.drawstyle = 'AP'
+      plotter.plot(obj_sel_eff)
+      plotter.save(pic)
+      denominator = numerator
+
+resplots = [
+   (True , 16, dgauss, "res_mtt", "m^{tt}(%s)"), 
+   (False, 16, dgauss, "res_mth", "m^{th}(%s)"),
+   #(16, bwinger, 'res_deltatt', 'cos(#delta_{tt})(%s)'),
+   (False, 16, dgauss, "res_ptl", 'p^{tlep}(%s)'), 
+   (False, 16, dgauss, "res_pth", 'p^{thad}(%s)')
+   #(10, dgauss, "res_jete", "E^{jet}(%s)"),
+   #(10, gauss, 'res_deltaw_ptw', '%s'),
+   #(10, gauss, 'res_mw_ptw', '%s'),
+   #(8, gauss, "res_mwh", "m^{Wh}(%s)"),
+   #(8, gauss, "res_pttt", "p_{T}^{tt}(%s)"), 
+   ]
+
+if 'resolution' in args.todo:
+   mapping = {}
    for method, rname, wname in [('norm', 'matched', 'wrong'), ('kinfit', 'matchfit', 'wrongfit')]:
-      for nslices, fitpars, resname, xtit in [
-         (16, dgauss, "res_mtt", "m^{tt}(%s)"), 
-         #(16, dgauss, "res_mth", "m^{th}(%s)"),
-         #(16, bwinger, 'res_deltatt', 'cos(#delta_{tt})(%s)'),
-         #(16, dgauss, "res_ptl", 'p^{tlep}(%s)'), 
-         #(16, dgauss, "res_pth", 'p^{thad}(%s)')
-         #(10, dgauss, "res_jete", "E^{jet}(%s)"),
-         #(10, gauss, 'res_deltaw_ptw', '%s'),
-         #(10, gauss, 'res_mw_ptw', '%s'),
-         #(8, gauss, "res_mwh", "m^{Wh}(%s)"),
-         #(8, gauss, "res_pttt", "p_{T}^{tt}(%s)"), 
-         ]:
+      for dofit, nslices, fitpars, resname, xtit in resplots:
+         if resname not in mapping: mapping[resname] = []         
          plotter.set_subdir('efficiencies/%s' % method)
          right = tfile.Get('semilep/%s/%s' % (rname, resname))
          wrong = tfile.Get('semilep/%s/%s' % (wname, resname))
@@ -355,9 +400,59 @@ if 'effs' in args.todo:
          plot_res(plotter, wrong, 2, xtit, 'dashed', False)
          plotter.save(resname)
          plotter.set_subdir('efficiencies/%s/%s' % (method, resname))
-         single_bins(
-            plotter, right, wrong, xtit, 
-            nslices, fitpars, not resname.endswith('_abs'),
-            2
+         mapping[resname].append( 
+            single_bins(
+               plotter, right, wrong, xtit, 
+               nslices, fitpars, not resname.endswith('_abs'),
+               2, dofit, not dofit
+               )
             )
+   plotter.set_subdir('efficiencies')
+   for var, histos in mapping.iteritems():
+      plotter.overlay(
+         histos, None,
+         drawstyle='e0',
+         markerstyle=[10, 33],
+         markersize=2
+         )
+      plotter.save(var)
+
+      for _, nslices, fitpars, resname, xtit in resplots:
+         if resname not in mapping: mapping[resname] = []         
+         plotter.set_subdir('efficiencies/%s' % method)
+         right = tfile.Get('semilep/%s/%s' % (rname, resname))
+         wrong = tfile.Get('semilep/%s/%s' % (wname, resname))
+
+   for _, nslices, fitpars, resname, xtit in resplots:
+      right = tfile.Get('semilep/selected/%s' % resname)
+      wrong = tfile.Get('semilep/wrong/%s'    % resname)
+      nofit = right+wrong
+
+      right = tfile.Get('semilep/selfit/%s' % resname)
+      wrong = tfile.Get('semilep/wrongfit/%s' % resname)
+      wfit  = right+wrong
       
+      plotter.set_subdir('efficiencies/comparison/%s' % resname)
+      single_bins(
+         plotter, wfit, nofit, xtit,
+         nslices, fitpars, not resname.endswith('_abs'),
+         2, False, True
+         )
+      
+if 'fit' in args.todo:
+   plotter.set_subdir('fit/')
+   for log, name, label in [
+      (False, 'chi2', '#chi^{2}'),
+      (True , 'niter', '# iterations'),
+      ]:
+      right = tfile.Get('semilep/selfit/%s' % name)
+      if right.Integral(): right.Scale(1/right.Integral())
+      wrong = tfile.Get('semilep/wrongfit/%s' % name)
+      if wrong.Integral(): wrong.Scale(1/wrong.Integral())
+      
+      plotter.overlay(
+         [right, wrong], drawstyle='hist', 
+         fillstyle='hollow', linewidth=2, linestyle=[1,2],
+         xtitle=label, logy=log
+         )
+      plotter.save(name)
