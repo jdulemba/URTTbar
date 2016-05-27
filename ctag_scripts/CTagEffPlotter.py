@@ -33,7 +33,7 @@ parser.add_argument('--wps', default='*',
 parser.add_argument('--plots', dest='plots', action='store_true',
                     help='make control plots')
 parser.add_argument('--mceffs', dest='mceffs', action='store_true',
-                    help='make control plots')
+                    help='Dump MC-based efficiencies')
 parser.add_argument('--systematics', dest='systematics', action='store_true',
                     help='make systematic plots')
 parser.add_argument('--shapes', dest='shapes', action='store_true',
@@ -45,8 +45,8 @@ parser.add_argument('--noBBB', action='store_true',
 parser.add_argument('--inclusive', action='store_true',
                     help='use inclusive categories')
 parser.add_argument('--lumi', type=float, default=-1.,
-                    help='use inclusive categories')
-parser.add_argument('--pdfs', action='store_true')
+                    help='force luminosity')
+parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 parser.add_argument('--noPOIpropagation', action='store_true')
 args = parser.parse_args()
 
@@ -369,17 +369,20 @@ class CTagPlotter(Plotter):
          samples.append(histo)
 
       #QCD may not have all the bins filled, needs special care
-      qcd_histo = histo.Clone()
+      qcd_histo = histo.Clone()			
       qcd_histo.Reset()
       for sample in qcd_samples:
+         print '------------------------\n', qcd_histo.nbins()
          qcd_flow = self.get_view(sample).Get('cut_flow')
          qcd_histo = qcd_histo.decorate(
             **qcd_flow.decorators
             )
          qcd_histo.title = qcd_flow.title
+         print qcd_histo.nbins(), qcd_flow.nbins()
          for sbin, qbin in zip(qcd_histo, qcd_flow):
             sbin.value += qbin.value
             sbin.error = quad.quad(sbin.error, qbin.error)
+         print qcd_histo.nbins()
       samples.append(qcd_histo)
       self.keep.append(qcd_histo)
       samples.sort(key=lambda x: x[-2].value)
