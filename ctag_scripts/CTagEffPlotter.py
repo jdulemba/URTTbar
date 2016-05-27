@@ -383,7 +383,8 @@ class CTagPlotter(Plotter):
 			qcd_histo.title = qcd_flow.title
 			print qcd_histo.nbins(), qcd_flow.nbins()
 			for sbin, qbin in zip(qcd_histo, qcd_flow):
-				sbin.value += qbin.value
+				set_trace()
+				sbin.value = qbin.value+sbin.value
 				sbin.error = quad.quad(sbin.error, qbin.error)
 			print qcd_histo.nbins()
 		samples.append(qcd_histo)
