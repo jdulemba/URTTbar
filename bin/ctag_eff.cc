@@ -686,6 +686,7 @@ public:
     opts::variables_map &values = URParser::instance().values();
 		int limit = values["limit"].as<int>();
 		int skip  = values["skip"].as<int>();
+		int report = values["report"].as<int>();
 
     if(evt_idx_ >= limit) return;
     Logger::log().debug() << "ctag_eff::analyze" << endl;
@@ -740,7 +741,8 @@ public:
       ("nosys", opts::value<int>()->default_value(0), "do not run systematics")
       ("nopdf", opts::value<int>()->default_value(0), "do not run pdf uncertainties")
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
-      ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file");
+      ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+      ("report,s", opts::value<int>()->default_value(10000), "report every");
 
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");

@@ -91,7 +91,7 @@ public:
     }
     
     //Do not init the solver, as we do not have the files! 
-    if(values["general.pseudotop"].as<int>() == 0) genp_selector_ = TTGenParticleSelector(); //FIXME allow for herwig setting
+    if(values["general.pseudotop"].as<int>() == 0) genp_selector_ = TTGenParticleSelector(); //TTGenParticleSelector::SelMode::LHE); //FIXME allow for herwig setting
     else genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::PSEUDOTOP);
 
     solver_.Init("", false, false, false);
@@ -258,8 +258,8 @@ public:
     opts::variables_map &values = URParser::instance().values();
 		int limit = values["limit"].as<int>();
 		int skip  = values["skip"].as<int>();
-    Logger::log().debug() << "--DONE--" << endl;
-
+    int report = values["report"].as<int>();
+    Logger::log().debug() << "-- DONE -- reporting every -- " << report << endl;
     while(event.next()) {
 			if(limit > 0 && evt_idx > limit) {
 				return;
@@ -268,11 +268,10 @@ public:
 			if(skip > 0 && evt_idx < skip) {
 				continue;
 			}
-			if(evt_idx % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx << endl;
-      tracker_.track("start");
+			if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+      tracker_.track("start");		 
 
 			//long and time consuming
-      
 			if(isTTbar_){
         bool selection = 	genp_selector_.select(event);			
         tracker_.track("gen selection");        
@@ -282,7 +281,7 @@ public:
           continue;
         }
 			}
-
+	
       tracker_.deactivate();    
 			for(auto shift : systematics_){
         evt_weight_ = mc_weights_.evt_weight(event, shift);
@@ -315,7 +314,8 @@ public:
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
 		opts.add_options()
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
-      ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file");
+      ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+      ("report", opts::value<int>()->default_value(10000), "report every in debug mode");
   }
 };
 
