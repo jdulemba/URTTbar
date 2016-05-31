@@ -8,7 +8,7 @@
 <use name="rootcore"/>
 <use   name="rootrflx"/>
 <use   name="rootminuit"/>
-<flags CXXFLAGS="-Wno-error=reorder -Wno-error=sign-compare"/>
+<flags CXXFLAGS="-Wno-error=reorder -Wno-error=sign-compare -g"/>
 <export>
    <lib name="1"/>
 </export>
