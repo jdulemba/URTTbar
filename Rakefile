@@ -15,9 +15,6 @@ import meta_rules
 
 require 'json'
 
-task :local_build => make_libs($project_dir, $fwk_dir)
-task :build => make_libs($fwk_dir)
-
 def psub(target, sub)
   return proc {|name| name.sub(target, sub)}
 end
