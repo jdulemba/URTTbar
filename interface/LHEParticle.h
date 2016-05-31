@@ -1,29 +1,29 @@
 #ifndef LHEParticle_h
 #define LHEParticle_h
 
+/*
+Only adds the TLorentzVector interface to the Lhepaticle class. Not provided by default by autocode as it is provided in px py py e instead of pt eta phi mass
+ */
+
 #include "TLorentzVector.h"
 #include "Analyses/URTTbar/interface/URStreamer.h"
 #include <vector>
 #include <iostream>
 
-class LHEParticle: public TLorentzVector {
+class LHEParticle: public Lhepaticle, public TLorentzVector {
 private:
   int pdgid_;
   int status_;
   int first_mom_;
   int last_mom_;
 public:
-  LHEParticle(float x, float y, float z, float e, int id, int status, int fm, int lm):
-    TLorentzVector(x,y,z,e),
-    pdgid_(id),
-    status_(status),
-    first_mom_(fm),
-    last_mom_(lm) {}
+  LHEParticle(const Lhepaticle &lhe):
+		Lhepaticle(lhe),
+    TLorentzVector(px(),py(),pz(),e()) {}
 
-  int status() const {return status_;}
-  int pdgId() const {return pdgid_;}
-  std::pair<int, int> mothers_range() const {return std::make_pair(first_mom_, last_mom_);}
-  static std::vector<LHEParticle> LHEParticles(URStreamer &event);
+  std::pair<int, int> mothers_range() const {return std::make_pair(fmother()-1, lmother()-1);}
+  //static std::vector<LHEParticle> LHEParticles(URStreamer &event);
+	int pdgId() const {return pdgid();} //stupid patch
   friend std::ostream & operator<<(std::ostream &os, const LHEParticle &obj);
 };
 #endif

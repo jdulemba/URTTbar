@@ -1,7 +1,7 @@
 #include "Analyses/URTTbar/interface/LHEParticle.h"
 #include "URAnalysis/AnalysisFW/interface/PDGID.h"
 
-std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
+/*std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
   auto &xs  = event.PXLHEs();
   auto &ys  = event.PYLHEs();
   auto &zs  = event.PZLHEs();
@@ -20,10 +20,10 @@ std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
       );
   }
   return ret;
-}
+	}*/
 
 std::ostream & operator<<(std::ostream &os, const LHEParticle &obj) {
-  os << "LHEParticle(" << ura::pdg_names.at(obj.pdgId()) << ", " 
+  os << "LHEParticle(" << ura::pdg_names.at(obj.pdgid()) << ", " 
      << obj.status() << ", " << obj.mothers_range().first 
      << " --> " << obj.mothers_range().second << ") ";
   return os;

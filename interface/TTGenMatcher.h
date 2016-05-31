@@ -17,7 +17,7 @@ public:
   Permutation match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets, std::vector<IDElectron*> &electrons, std::vector<IDMuon*> &muons);
 
   template <class T>
-  T* gen_match(const GenObject* gen, std::vector<T*> &recos){
+  T* best_match(const GenObject* gen, std::vector<T*> &recos){
     T* best = NULL;
     float dpt = 1e100;
     for(auto reco : recos){
@@ -48,9 +48,14 @@ public:
         break;
       }
     }
+		return best;
+	}	
+
+  template <class T>
+  T* gen_match(const GenObject* gen, std::vector<T*> &recos){
+		T* best = best_match(gen, recos);
     if(best) best->addMatch(gen);
     return best;
-
   }
 
 private:

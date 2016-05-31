@@ -73,7 +73,7 @@ TTGenParticleSelector::TTGenParticleSelector(SelMode mode):
 
 void TTGenParticleSelector::select_pstop(URStreamer& event) 
 {
-  const vector<Pst>& pseudotops = event.PSTs();
+  /*const vector<Pst>& pseudotops = event.PSTs();
   if(pseudotops.size() == 10) {
     topcounter_ = 2;
 
@@ -119,7 +119,7 @@ void TTGenParticleSelector::select_pstop(URStreamer& event)
       selected_.push_back(pseudotops[7]);
       b_ = &(selected_.back());
     }
-  }
+  }*/
 }
 
 void TTGenParticleSelector::select_herwig(URStreamer& event)
@@ -233,15 +233,19 @@ int TTGenParticleSelector::comes_from_top(LHEParticle &lhe) {
 }
 
 void TTGenParticleSelector::select_lhe(URStreamer& event) {
-  lhes_ = LHEParticle::LHEParticles(event);
+	auto& evt_lhes = event.LHEPaticles();
+  lhes_.reserve(evt_lhes.size());// = LHEParticle::LHEParticles(event);
+	for(auto& lhe : evt_lhes){lhes_.emplace_back(lhe);}
+	
+	if(lhes_.size() == 0) Logger::log().error() << "The LHEs have no content!" << endl;
   for(auto &lhe : lhes_) {
-    if(lhe.pdgId() == ura::PDGID::t) {
+    if(lhe.pdgid() == ura::PDGID::t) {
       selected_.push_back(lhe);
       topcounter_++;
       top_ = &(selected_.back());
       continue;
     }
-    else if(lhe.pdgId() == ura::PDGID::tbar) {
+    else if(lhe.pdgid() == ura::PDGID::tbar) {
       topcounter_++;
       selected_.push_back(lhe);
       tbar_ = &(selected_.back());
@@ -253,22 +257,21 @@ void TTGenParticleSelector::select_lhe(URStreamer& event) {
     selected_.push_back(lhe);
     int mom = lhe.mothers_range().first;
 
-    if(lhe.pdgId() == ura::PDGID::b && lhes_[mom].pdgId() != ura::PDGID::Wplus) {
+    if(lhe.pdgid() == ura::PDGID::b && lhes_[mom].pdgid() != ura::PDGID::Wplus) {
       b_ = &(selected_.back());
     }
-    else if(lhe.pdgId() == ura::PDGID::bbar && lhes_[mom].pdgId() != ura::PDGID::Wminus) {
+    else if(lhe.pdgid() == ura::PDGID::bbar && lhes_[mom].pdgid() != ura::PDGID::Wminus) {
       bbar_ = &(selected_.back());
     }
-    else if(Abs(lhes_[mom].pdgId()) == w_decay_momid_) {
-      if(Abs(lhe.pdgId()) < 6) wpartons_.push_back(&(selected_.back()));
-      if(Abs(lhe.pdgId()) == ura::PDGID::e || Abs(lhe.pdgId()) == ura::PDGID::mu) charged_leps_.push_back(&(selected_.back()));
-      if(Abs(lhe.pdgId()) == ura::PDGID::nu_e || Abs(lhe.pdgId()) == ura::PDGID::nu_mu) {
+    else if(Abs(lhes_[mom].pdgid()) == w_decay_momid_) {
+      if(Abs(lhe.pdgid()) < 6) wpartons_.push_back(&(selected_.back()));
+      if(Abs(lhe.pdgid()) == ura::PDGID::e || Abs(lhe.pdgid()) == ura::PDGID::mu || Abs(lhe.pdgid()) == ura::PDGID::tau) {
+				charged_leps_.push_back(&(selected_.back()));
+			}
+      if(Abs(lhe.pdgid()) == ura::PDGID::nu_e || Abs(lhe.pdgid()) == ura::PDGID::nu_mu || Abs(lhe.pdgid()) == ura::PDGID::nu_tau) {
         neutral_leps_.push_back(&(selected_.back()));
         lepdecays_++;
-      }
-      if(Abs(lhe.pdgId()) == ura::PDGID::tau || Abs(lhe.pdgId()) == ura::PDGID::nu_tau) {
-        lepdecays_++;
-      }
+      }      
     }
   }
 }
@@ -305,21 +308,27 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
   case PSEUDOTOP: select_pstop(event); break;
   case HERWIGPP:  select_herwig(event); break;
   case LHE: 
-  case MADGRAPHLHE: select_lhe(event); break;
+  case MADGRAPHLHE: 
+		select_lhe(event); 
+		if(lhes_.size() == 0) return false;
+		break;
   case FULLDEP:     select_with_deps(event); break;
   }
 
   //Build GenTTBar
   if(mode_ == PSEUDOTOP) {
-    Logger::log().debug() << "pstops: " << event.PSTs().size() << " pst leps: " << event.PSTleptons().size() << " pst jets: " << event.PSTjets().size() << " pst nus: " << event.PSTneutrinos().size() << std::endl;
+    /*Logger::log().debug() << "pstops: " << event.PSTs().size() << " pst leps: " << event.PSTleptons().size() << " pst jets: " << event.PSTjets().size() << " pst nus: " << event.PSTneutrinos().size() << std::endl;
     Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
                           << ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
                           << bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
     if(wpartons_.size()+charged_leps_.size() == 0 || !b_ || !bbar_) {
       Logger::log().error() << "Wrong matching, returning" << std::endl;
       return false;
-    }
+			}*/
   }
+	// Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
+	// 											<< ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
+	// 											<< bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
   ttbar_ = GenTTBar::from_collections( 
     wpartons_, charged_leps_, neutral_leps_, 
     b_, bbar_, top_, tbar_);
@@ -329,7 +338,7 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
   // Logger::log().debug() << "ttbar_: " << ttbar_ <<std::endl;
   // Logger::log().debug() << "ttbar_final_: " << ttbar_final_ <<std::endl;
 
-  if(!ttbar_.is_complete()) return false;
+  //if(!ttbar_.is_complete()) return false;
 
   //Makes collection of gen jets not in the partons
 	if(ttbar_.type == GenTTBar::DecayType::SEMILEP) {
