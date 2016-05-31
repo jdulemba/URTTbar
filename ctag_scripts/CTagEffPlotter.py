@@ -50,9 +50,6 @@ parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF 
 parser.add_argument('--noPOIpropagation', action='store_true')
 args = parser.parse_args()
 
-def ciccio():
-	aa
-
 def syscheck(cmd):
 	out = os.system(cmd)
 	if out == 0:
@@ -375,18 +372,15 @@ class CTagPlotter(Plotter):
 		qcd_histo = histo.Clone()			
 		qcd_histo.Reset()
 		for sample in qcd_samples:
-			print '------------------------\n', qcd_histo.nbins()
 			qcd_flow = self.get_view(sample).Get('cut_flow')
 			qcd_histo = qcd_histo.decorate(
 				**qcd_flow.decorators
 				)
 			qcd_histo.title = qcd_flow.title
-			print qcd_histo.nbins(), qcd_flow.nbins()
 			for sbin, qbin in zip(qcd_histo, qcd_flow):
-				set_trace()
+				if sbin.overflow: continue
 				sbin.value = qbin.value+sbin.value
 				sbin.error = quad.quad(sbin.error, qbin.error)
-			print qcd_histo.nbins()
 		samples.append(qcd_histo)
 		self.keep.append(qcd_histo)
 		samples.sort(key=lambda x: x[-2].value)
@@ -1203,7 +1197,7 @@ if args.plots:
 		print h.title, '\t\t', h.Integral(), '\t', h.GetMean(), '\t', h.GetRMS()
 	charm_signal = charm.hists[-1].Clone()
 
-	charm = stacks.Get('Wjets_hflav_jpt_LS')
+	charm = stacks.Get('Wjets_hflav_jpt_L')
 	print "\n\nLight Pts"
 	print "sample\t\t\tIntegral\t\tMean pT\t\tpT RMS"
 	for h in charm.hists:
