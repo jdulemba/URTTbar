@@ -329,7 +329,7 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
   // Logger::log().debug() << "ttbar_: " << ttbar_ <<std::endl;
   // Logger::log().debug() << "ttbar_final_: " << ttbar_final_ <<std::endl;
 
-  if(!ttbar_.is_complete()) return false;
+  //if(!ttbar_.is_complete()) return false; THIS FUCKS UP permProbComputer!
 
   //Makes collection of gen jets not in the partons
 	if(ttbar_.type == GenTTBar::DecayType::SEMILEP) {

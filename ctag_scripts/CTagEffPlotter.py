@@ -1196,7 +1196,7 @@ if args.plots:
       print h.title, '\t\t', h.Integral(), '\t', h.GetMean(), '\t', h.GetRMS()
    charm_signal = charm.hists[-1].Clone()
 
-   charm = stacks.Get('Wjets_hflav_jpt_LS')
+   charm = stacks.Get('Wjets_hflav_jpt_L')
    print "\n\nLight Pts"
    print "sample\t\t\tIntegral\t\tMean pT\t\tpT RMS"
    for h in charm.hists:

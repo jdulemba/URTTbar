@@ -578,7 +578,7 @@ end
 
 task :ctag_postfit, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
-  sh "python make_ctag_postfit.py #{args.wp}"
+  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp}"
 end
 
 task :ctag_scan, [:wp] do |t, args|
@@ -611,16 +611,16 @@ task :ctag_toy_diagnostics, [:wp ] do |t, args|
 end
 
 task :ctag_shapes do |t|
-  sh 'python CTagEffPlotter.py  --shapes --wps="ctag*" --noPOIpropagation'
-  sh 'python CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation'
-  sh 'python CTagEffPlotter.py  --shapes --wps="csv*"  --noLightFit --noPOIpropagation '
+  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="ctag*" --noPOIpropagation --noLightFit'
+  sh 'python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation'
+  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="csv*"  --noLightFit --noPOIpropagation '
 end
 
 task :ctag_plotfit do |t|
   Rake::Task['ctag_shapes'].invoke()
   Rake::Task['ctag_fitall'].invoke()
   #Rake::Task['breakdown_all'].invoke()
-  sh 'python make_ctag_tables.py'
+  sh 'python ctag_scripts/make_ctag_tables.py'
   #sh "write_csv.py ctag"
   #sh "mv ctag.csv plots/#{jobid}/ctageff/."
 end
