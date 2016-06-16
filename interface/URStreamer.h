@@ -26,12 +26,14 @@ private:
 class Met{
 friend class URStreamer;
 public:
-//  Met(const float &i_px_,const float &i_py_,const float &i_pxunc_,const float &i_pyunc_,const float &i_pxuncJES_,const float &i_pyuncJES_,const float &i_pxuncJER_,const float &i_pyuncJER_):
+//  Met(const float &i_px_,const float &i_py_,const float &i_pxsmear_,const float &i_pysmear_,const float &i_pxunc_,const float &i_pyunc_,const float &i_pxuncJES_,const float &i_pyuncJES_,const float &i_pxuncJER_,const float &i_pyuncJER_):
 //    
 //  {}
   Met():
     px_(0),
     py_(0),
+    pxsmear_(0),
+    pysmear_(0),
     pxunc_(0),
     pyunc_(0),
     pxuncJES_(0),
@@ -41,6 +43,8 @@ public:
   {}
   float px() const {return px_;}
   float py() const {return py_;}
+  float pxsmear() const {return pxsmear_;}
+  float pysmear() const {return pysmear_;}
   float pxunc() const {return pxunc_;}
   float pyunc() const {return pyunc_;}
   float pxuncJES() const {return pxuncJES_;}
@@ -50,6 +54,8 @@ public:
 private:
   float px_;
   float py_;
+  float pxsmear_;
+  float pysmear_;
   float pxunc_;
   float pyunc_;
   float pxuncJES_;
@@ -58,6 +64,8 @@ private:
   float pyuncJER_;
   void setpx(const float value) {px_ = value;}
   void setpy(const float value) {py_ = value;}
+  void setpxsmear(const float value) {pxsmear_ = value;}
+  void setpysmear(const float value) {pysmear_ = value;}
   void setpxunc(const float value) {pxunc_ = value;}
   void setpyunc(const float value) {pyunc_ = value;}
   void setpxuncJES(const float value) {pxuncJES_ = value;}
@@ -377,7 +385,7 @@ private:
 class Electron: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutVeto_,const float &i_eidMVAWP80_,const float &i_eidMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const float &i_hadronicOverEM_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
+//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutVeto_,const float &i_eidMVAWP80_,const float &i_eidMVAWP90_,const float &i_eidTrgMVAWP80_,const float &i_eidTrgMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const float &i_hadronicOverEM_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
 //    
 //  {}
   Electron():
@@ -415,6 +423,8 @@ public:
     eidCutVeto_(0),
     eidMVAWP80_(0),
     eidMVAWP90_(0),
+    eidTrgMVAWP80_(0),
+    eidTrgMVAWP90_(0),
     pfHadronIso_(0),
     pfNeutralIso_(0),
     pfPhotonIso_(0),
@@ -470,6 +480,8 @@ public:
   float eidCutVeto() const {return eidCutVeto_;}
   float eidMVAWP80() const {return eidMVAWP80_;}
   float eidMVAWP90() const {return eidMVAWP90_;}
+  float eidTrgMVAWP80() const {return eidTrgMVAWP80_;}
+  float eidTrgMVAWP90() const {return eidTrgMVAWP90_;}
   float pfHadronIso() const {return pfHadronIso_;}
   float pfNeutralIso() const {return pfNeutralIso_;}
   float pfPhotonIso() const {return pfPhotonIso_;}
@@ -525,6 +537,8 @@ private:
   float eidCutVeto_;
   float eidMVAWP80_;
   float eidMVAWP90_;
+  float eidTrgMVAWP80_;
+  float eidTrgMVAWP90_;
   float pfHadronIso_;
   float pfNeutralIso_;
   float pfPhotonIso_;
@@ -579,6 +593,8 @@ private:
   void seteidCutVeto(const float value) {eidCutVeto_ = value;}
   void seteidMVAWP80(const float value) {eidMVAWP80_ = value;}
   void seteidMVAWP90(const float value) {eidMVAWP90_ = value;}
+  void seteidTrgMVAWP80(const float value) {eidTrgMVAWP80_ = value;}
+  void seteidTrgMVAWP90(const float value) {eidTrgMVAWP90_ = value;}
   void setpfHadronIso(const float value) {pfHadronIso_ = value;}
   void setpfNeutralIso(const float value) {pfNeutralIso_ = value;}
   void setpfPhotonIso(const float value) {pfPhotonIso_ = value;}
@@ -650,7 +666,7 @@ private:
 class Jet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_JESUnc_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
+//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
 //    
 //  {}
   Jet():
@@ -659,6 +675,9 @@ public:
     e_(0),
     area_(0),
     JESUnc_(0),
+    JER_(0),
+    JERUp_(0),
+    JERDown_(0),
     uncorrPt_(0),
     uncorrEta_(0),
     uncorrPhi_(0),
@@ -672,6 +691,7 @@ public:
     HFEMEnergyFraction_(0),
     muonEnergyFraction_(0),
     chargedMultiplicity_(0),
+    neutralMultiplicity_(0),
     numChargedHadrons_(0),
     numNeutralHadrons_(0),
     numPhotons_(0),
@@ -703,6 +723,9 @@ public:
   float e() const {return e_;}
   float area() const {return area_;}
   float JESUnc() const {return JESUnc_;}
+  float JER() const {return JER_;}
+  float JERUp() const {return JERUp_;}
+  float JERDown() const {return JERDown_;}
   float uncorrPt() const {return uncorrPt_;}
   float uncorrEta() const {return uncorrEta_;}
   float uncorrPhi() const {return uncorrPhi_;}
@@ -716,6 +739,7 @@ public:
   float HFEMEnergyFraction() const {return HFEMEnergyFraction_;}
   float muonEnergyFraction() const {return muonEnergyFraction_;}
   float chargedMultiplicity() const {return chargedMultiplicity_;}
+  float neutralMultiplicity() const {return neutralMultiplicity_;}
   float numChargedHadrons() const {return numChargedHadrons_;}
   float numNeutralHadrons() const {return numNeutralHadrons_;}
   float numPhotons() const {return numPhotons_;}
@@ -747,6 +771,9 @@ private:
   float e_;
   float area_;
   float JESUnc_;
+  float JER_;
+  float JERUp_;
+  float JERDown_;
   float uncorrPt_;
   float uncorrEta_;
   float uncorrPhi_;
@@ -760,6 +787,7 @@ private:
   float HFEMEnergyFraction_;
   float muonEnergyFraction_;
   float chargedMultiplicity_;
+  float neutralMultiplicity_;
   float numChargedHadrons_;
   float numNeutralHadrons_;
   float numPhotons_;
@@ -790,6 +818,9 @@ private:
   void sete(const float value) {e_ = value;}
   void setarea(const float value) {area_ = value;}
   void setJESUnc(const float value) {JESUnc_ = value;}
+  void setJER(const float value) {JER_ = value;}
+  void setJERUp(const float value) {JERUp_ = value;}
+  void setJERDown(const float value) {JERDown_ = value;}
   void setuncorrPt(const float value) {uncorrPt_ = value;}
   void setuncorrEta(const float value) {uncorrEta_ = value;}
   void setuncorrPhi(const float value) {uncorrPhi_ = value;}
@@ -803,6 +834,7 @@ private:
   void setHFEMEnergyFraction(const float value) {HFEMEnergyFraction_ = value;}
   void setmuonEnergyFraction(const float value) {muonEnergyFraction_ = value;}
   void setchargedMultiplicity(const float value) {chargedMultiplicity_ = value;}
+  void setneutralMultiplicity(const float value) {neutralMultiplicity_ = value;}
   void setnumChargedHadrons(const float value) {numChargedHadrons_ = value;}
   void setnumNeutralHadrons(const float value) {numNeutralHadrons_ = value;}
   void setnumPhotons(const float value) {numPhotons_ = value;}
@@ -1238,6 +1270,9 @@ public:
     jets_area_(0),
     jets_mass_(0),
     jets_JESUnc_(0),
+    jets_JER_(0),
+    jets_JERUp_(0),
+    jets_JERDown_(0),
     jets_uncorrPt_(0),
     jets_uncorrEta_(0),
     jets_uncorrPhi_(0),
@@ -1251,6 +1286,7 @@ public:
     jets_HFEMEnergyFraction_(0),
     jets_muonEnergyFraction_(0),
     jets_chargedMultiplicity_(0),
+    jets_neutralMultiplicity_(0),
     jets_numChargedHadrons_(0),
     jets_numNeutralHadrons_(0),
     jets_numPhotons_(0),
@@ -1313,6 +1349,8 @@ public:
     electrons_eidCutVeto_(0),
     electrons_eidMVAWP80_(0),
     electrons_eidMVAWP90_(0),
+    electrons_eidTrgMVAWP80_(0),
+    electrons_eidTrgMVAWP90_(0),
     electrons_pfHadronIso_(0),
     electrons_pfNeutralIso_(0),
     electrons_pfPhotonIso_(0),
@@ -1360,6 +1398,8 @@ public:
     vertexs_nTracks_(0),
     METs_px_(0),
     METs_py_(0),
+    METs_pxsmear_(0),
+    METs_pysmear_(0),
     METs_pxunc_(0),
     METs_pyunc_(0),
     METs_pxuncJES_(0),
@@ -1474,6 +1514,8 @@ public:
     if(!are_METs_loaded_){
       tree_->SetBranchStatus("METs.px", 1); tree_->SetBranchAddress("METs.px", &METs_px_);
       tree_->SetBranchStatus("METs.py", 1); tree_->SetBranchAddress("METs.py", &METs_py_);
+      tree_->SetBranchStatus("METs.pxsmear", 1); tree_->SetBranchAddress("METs.pxsmear", &METs_pxsmear_);
+      tree_->SetBranchStatus("METs.pysmear", 1); tree_->SetBranchAddress("METs.pysmear", &METs_pysmear_);
       tree_->SetBranchStatus("METs.pxunc", 1); tree_->SetBranchAddress("METs.pxunc", &METs_pxunc_);
       tree_->SetBranchStatus("METs.pyunc", 1); tree_->SetBranchAddress("METs.pyunc", &METs_pyunc_);
       tree_->SetBranchStatus("METs.pxuncJES", 1); tree_->SetBranchAddress("METs.pxuncJES", &METs_pxuncJES_);
@@ -1628,6 +1670,8 @@ public:
       tree_->SetBranchStatus("electrons.eidCutVeto", 1); tree_->SetBranchAddress("electrons.eidCutVeto", &electrons_eidCutVeto_);
       tree_->SetBranchStatus("electrons.eidMVAWP80", 1); tree_->SetBranchAddress("electrons.eidMVAWP80", &electrons_eidMVAWP80_);
       tree_->SetBranchStatus("electrons.eidMVAWP90", 1); tree_->SetBranchAddress("electrons.eidMVAWP90", &electrons_eidMVAWP90_);
+      tree_->SetBranchStatus("electrons.eidTrgMVAWP80", 1); tree_->SetBranchAddress("electrons.eidTrgMVAWP80", &electrons_eidTrgMVAWP80_);
+      tree_->SetBranchStatus("electrons.eidTrgMVAWP90", 1); tree_->SetBranchAddress("electrons.eidTrgMVAWP90", &electrons_eidTrgMVAWP90_);
       tree_->SetBranchStatus("electrons.pfHadronIso", 1); tree_->SetBranchAddress("electrons.pfHadronIso", &electrons_pfHadronIso_);
       tree_->SetBranchStatus("electrons.pfNeutralIso", 1); tree_->SetBranchAddress("electrons.pfNeutralIso", &electrons_pfNeutralIso_);
       tree_->SetBranchStatus("electrons.pfPhotonIso", 1); tree_->SetBranchAddress("electrons.pfPhotonIso", &electrons_pfPhotonIso_);
@@ -1686,6 +1730,9 @@ public:
       tree_->SetBranchStatus("jets.area", 1); tree_->SetBranchAddress("jets.area", &jets_area_);
       tree_->SetBranchStatus("jets.mass", 1); tree_->SetBranchAddress("jets.mass", &jets_mass_);
       tree_->SetBranchStatus("jets.JESUnc", 1); tree_->SetBranchAddress("jets.JESUnc", &jets_JESUnc_);
+      tree_->SetBranchStatus("jets.JER", 1); tree_->SetBranchAddress("jets.JER", &jets_JER_);
+      tree_->SetBranchStatus("jets.JERUp", 1); tree_->SetBranchAddress("jets.JERUp", &jets_JERUp_);
+      tree_->SetBranchStatus("jets.JERDown", 1); tree_->SetBranchAddress("jets.JERDown", &jets_JERDown_);
       tree_->SetBranchStatus("jets.uncorrPt", 1); tree_->SetBranchAddress("jets.uncorrPt", &jets_uncorrPt_);
       tree_->SetBranchStatus("jets.uncorrEta", 1); tree_->SetBranchAddress("jets.uncorrEta", &jets_uncorrEta_);
       tree_->SetBranchStatus("jets.uncorrPhi", 1); tree_->SetBranchAddress("jets.uncorrPhi", &jets_uncorrPhi_);
@@ -1699,6 +1746,7 @@ public:
       tree_->SetBranchStatus("jets.HFEMEnergyFraction", 1); tree_->SetBranchAddress("jets.HFEMEnergyFraction", &jets_HFEMEnergyFraction_);
       tree_->SetBranchStatus("jets.muonEnergyFraction", 1); tree_->SetBranchAddress("jets.muonEnergyFraction", &jets_muonEnergyFraction_);
       tree_->SetBranchStatus("jets.chargedMultiplicity", 1); tree_->SetBranchAddress("jets.chargedMultiplicity", &jets_chargedMultiplicity_);
+      tree_->SetBranchStatus("jets.neutralMultiplicity", 1); tree_->SetBranchAddress("jets.neutralMultiplicity", &jets_neutralMultiplicity_);
       tree_->SetBranchStatus("jets.numChargedHadrons", 1); tree_->SetBranchAddress("jets.numChargedHadrons", &jets_numChargedHadrons_);
       tree_->SetBranchStatus("jets.numNeutralHadrons", 1); tree_->SetBranchAddress("jets.numNeutralHadrons", &jets_numNeutralHadrons_);
       tree_->SetBranchStatus("jets.numPhotons", 1); tree_->SetBranchAddress("jets.numPhotons", &jets_numPhotons_);
@@ -1847,6 +1895,8 @@ public:
   	METs_.reserve(METs_px_->size());
     auto it_METs_px_ = METs_px_->cbegin();
     auto it_METs_py_ = METs_py_->cbegin();
+    auto it_METs_pxsmear_ = METs_pxsmear_->cbegin();
+    auto it_METs_pysmear_ = METs_pysmear_->cbegin();
     auto it_METs_pxunc_ = METs_pxunc_->cbegin();
     auto it_METs_pyunc_ = METs_pyunc_->cbegin();
     auto it_METs_pxuncJES_ = METs_pxuncJES_->cbegin();
@@ -1857,6 +1907,8 @@ public:
       Met obj;
       obj.setpx(*it_METs_px_);
       obj.setpy(*it_METs_py_);
+      obj.setpxsmear(*it_METs_pxsmear_);
+      obj.setpysmear(*it_METs_pysmear_);
       obj.setpxunc(*it_METs_pxunc_);
       obj.setpyunc(*it_METs_pyunc_);
       obj.setpxuncJES(*it_METs_pxuncJES_);
@@ -1867,6 +1919,8 @@ public:
       METs_.push_back( obj );
       ++it_METs_px_;
       ++it_METs_py_;
+      ++it_METs_pxsmear_;
+      ++it_METs_pysmear_;
       ++it_METs_pxunc_;
       ++it_METs_pyunc_;
       ++it_METs_pxuncJES_;
@@ -2097,6 +2151,8 @@ public:
     auto it_electrons_eidCutVeto_ = electrons_eidCutVeto_->cbegin();
     auto it_electrons_eidMVAWP80_ = electrons_eidMVAWP80_->cbegin();
     auto it_electrons_eidMVAWP90_ = electrons_eidMVAWP90_->cbegin();
+    auto it_electrons_eidTrgMVAWP80_ = electrons_eidTrgMVAWP80_->cbegin();
+    auto it_electrons_eidTrgMVAWP90_ = electrons_eidTrgMVAWP90_->cbegin();
     auto it_electrons_pfHadronIso_ = electrons_pfHadronIso_->cbegin();
     auto it_electrons_pfNeutralIso_ = electrons_pfNeutralIso_->cbegin();
     auto it_electrons_pfPhotonIso_ = electrons_pfPhotonIso_->cbegin();
@@ -2153,6 +2209,8 @@ public:
       obj.seteidCutVeto(*it_electrons_eidCutVeto_);
       obj.seteidMVAWP80(*it_electrons_eidMVAWP80_);
       obj.seteidMVAWP90(*it_electrons_eidMVAWP90_);
+      obj.seteidTrgMVAWP80(*it_electrons_eidTrgMVAWP80_);
+      obj.seteidTrgMVAWP90(*it_electrons_eidTrgMVAWP90_);
       obj.setpfHadronIso(*it_electrons_pfHadronIso_);
       obj.setpfNeutralIso(*it_electrons_pfNeutralIso_);
       obj.setpfPhotonIso(*it_electrons_pfPhotonIso_);
@@ -2212,6 +2270,8 @@ public:
       ++it_electrons_eidCutVeto_;
       ++it_electrons_eidMVAWP80_;
       ++it_electrons_eidMVAWP90_;
+      ++it_electrons_eidTrgMVAWP80_;
+      ++it_electrons_eidTrgMVAWP90_;
       ++it_electrons_pfHadronIso_;
       ++it_electrons_pfNeutralIso_;
       ++it_electrons_pfPhotonIso_;
@@ -2290,6 +2350,9 @@ public:
     auto it_jets_area_ = jets_area_->cbegin();
     auto it_jets_mass_ = jets_mass_->cbegin();
     auto it_jets_JESUnc_ = jets_JESUnc_->cbegin();
+    auto it_jets_JER_ = jets_JER_->cbegin();
+    auto it_jets_JERUp_ = jets_JERUp_->cbegin();
+    auto it_jets_JERDown_ = jets_JERDown_->cbegin();
     auto it_jets_uncorrPt_ = jets_uncorrPt_->cbegin();
     auto it_jets_uncorrEta_ = jets_uncorrEta_->cbegin();
     auto it_jets_uncorrPhi_ = jets_uncorrPhi_->cbegin();
@@ -2303,6 +2366,7 @@ public:
     auto it_jets_HFEMEnergyFraction_ = jets_HFEMEnergyFraction_->cbegin();
     auto it_jets_muonEnergyFraction_ = jets_muonEnergyFraction_->cbegin();
     auto it_jets_chargedMultiplicity_ = jets_chargedMultiplicity_->cbegin();
+    auto it_jets_neutralMultiplicity_ = jets_neutralMultiplicity_->cbegin();
     auto it_jets_numChargedHadrons_ = jets_numChargedHadrons_->cbegin();
     auto it_jets_numNeutralHadrons_ = jets_numNeutralHadrons_->cbegin();
     auto it_jets_numPhotons_ = jets_numPhotons_->cbegin();
@@ -2335,6 +2399,9 @@ public:
       obj.sete(*it_jets_e_);
       obj.setarea(*it_jets_area_);
       obj.setJESUnc(*it_jets_JESUnc_);
+      obj.setJER(*it_jets_JER_);
+      obj.setJERUp(*it_jets_JERUp_);
+      obj.setJERDown(*it_jets_JERDown_);
       obj.setuncorrPt(*it_jets_uncorrPt_);
       obj.setuncorrEta(*it_jets_uncorrEta_);
       obj.setuncorrPhi(*it_jets_uncorrPhi_);
@@ -2348,6 +2415,7 @@ public:
       obj.setHFEMEnergyFraction(*it_jets_HFEMEnergyFraction_);
       obj.setmuonEnergyFraction(*it_jets_muonEnergyFraction_);
       obj.setchargedMultiplicity(*it_jets_chargedMultiplicity_);
+      obj.setneutralMultiplicity(*it_jets_neutralMultiplicity_);
       obj.setnumChargedHadrons(*it_jets_numChargedHadrons_);
       obj.setnumNeutralHadrons(*it_jets_numNeutralHadrons_);
       obj.setnumPhotons(*it_jets_numPhotons_);
@@ -2384,6 +2452,9 @@ public:
       ++it_jets_area_;
       ++it_jets_mass_;
       ++it_jets_JESUnc_;
+      ++it_jets_JER_;
+      ++it_jets_JERUp_;
+      ++it_jets_JERDown_;
       ++it_jets_uncorrPt_;
       ++it_jets_uncorrEta_;
       ++it_jets_uncorrPhi_;
@@ -2397,6 +2468,7 @@ public:
       ++it_jets_HFEMEnergyFraction_;
       ++it_jets_muonEnergyFraction_;
       ++it_jets_chargedMultiplicity_;
+      ++it_jets_neutralMultiplicity_;
       ++it_jets_numChargedHadrons_;
       ++it_jets_numNeutralHadrons_;
       ++it_jets_numPhotons_;
@@ -2774,6 +2846,9 @@ private:
   vector<float> *jets_area_;
   vector<float> *jets_mass_;
   vector<float> *jets_JESUnc_;
+  vector<float> *jets_JER_;
+  vector<float> *jets_JERUp_;
+  vector<float> *jets_JERDown_;
   vector<float> *jets_uncorrPt_;
   vector<float> *jets_uncorrEta_;
   vector<float> *jets_uncorrPhi_;
@@ -2787,6 +2862,7 @@ private:
   vector<float> *jets_HFEMEnergyFraction_;
   vector<float> *jets_muonEnergyFraction_;
   vector<float> *jets_chargedMultiplicity_;
+  vector<float> *jets_neutralMultiplicity_;
   vector<float> *jets_numChargedHadrons_;
   vector<float> *jets_numNeutralHadrons_;
   vector<float> *jets_numPhotons_;
@@ -2849,6 +2925,8 @@ private:
   vector<float> *electrons_eidCutVeto_;
   vector<float> *electrons_eidMVAWP80_;
   vector<float> *electrons_eidMVAWP90_;
+  vector<float> *electrons_eidTrgMVAWP80_;
+  vector<float> *electrons_eidTrgMVAWP90_;
   vector<float> *electrons_pfHadronIso_;
   vector<float> *electrons_pfNeutralIso_;
   vector<float> *electrons_pfPhotonIso_;
@@ -2896,6 +2974,8 @@ private:
   vector<float> *vertexs_nTracks_;
   vector<float> *METs_px_;
   vector<float> *METs_py_;
+  vector<float> *METs_pxsmear_;
+  vector<float> *METs_pysmear_;
   vector<float> *METs_pxunc_;
   vector<float> *METs_pyunc_;
   vector<float> *METs_pxuncJES_;
