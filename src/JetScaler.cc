@@ -5,6 +5,7 @@
 #include "URAnalysis/AnalysisFW/interface/DataFile.h"
 #include "URAnalysis/AnalysisFW/interface/URParser.h"
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
+#include "URAnalysis/AnalysisFW/interface/Wards.h"
 
 using namespace std;
 
@@ -25,28 +26,35 @@ JetScaler::JetScaler():
   DataFile jerf(parser.getCfgPar<string>("JERC", "JER"));
   DataFile jesf(parser.getCfgPar<string>("JERC", "JES"));
 
+	HistoOwnershipWard hward;
+	DirectoryWard dward;
   //Get JES
-  TDirectory* olddir = gDirectory;
-  fjes_ = new TFile(jesf.path().c_str());
-  Heta = dynamic_cast<TH1D*>(fjes_->Get("eta"));
+  TFile fjes(jesf.path().c_str());
+  Heta = get_from<TH1D>(fjes, "eta", "heta"); //dynamic_cast<TH1D*>(fjes_->Get("eta"));
   for(int i = 0 ; i < Heta->GetNbinsX() ; ++i) {
     stringstream hn;
     hn << "down_" << i;
-    HptsP.push_back(dynamic_cast<TH1D*>(fjes_->Get(hn.str().c_str())));
+		stringstream hnn;
+		hnn << "down_" << i << "_clone";
+    HptsP.push_back(
+			get_from<TH1D>(fjes, hn.str(), hnn.str())
+			);
   }	
 
   for(int i = 0 ; i < Heta->GetNbinsX() ; ++i) {
     stringstream hn;
     hn << "up_" << i;
-    HptsM.push_back(dynamic_cast<TH1D*>(fjes_->Get(hn.str().c_str())));
+		stringstream hnn;
+		hnn << "up_" << i << "_clone";
+    HptsM.push_back(
+			get_from<TH1D>(fjes, hn.str(), hnn.str())
+			);
   }	
 
   //Get JER
-  fjer_ = new TFile(jerf.path().c_str());
-  res_ = dynamic_cast<TF1*>  (fjer_->Get("resolution"));
-  sfc_ = dynamic_cast<TH1F*> (fjer_->Get("sf_central"));
-  sfu_ = dynamic_cast<TH1F*> (fjer_->Get("sf_up")     );
-  sfd_ = dynamic_cast<TH1F*> (fjer_->Get("sf_down")   );
-
-  olddir->cd();    
+  TFile fjer(jerf.path().c_str());
+  res_ = get_from<TF1 >(fjer, "resolution", "clone_resolution");
+  sfc_ = get_from<TH1F>(fjer, "sf_central", "clone_sf_central");
+  sfu_ = get_from<TH1F>(fjer, "sf_up"     , "clone_sf_up"     );
+  sfd_ = get_from<TH1F>(fjer, "sf_down"   , "clone_sf_down"   );
 }
