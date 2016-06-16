@@ -15,5 +15,6 @@
 <bin file="ctag_genstudies.cc"    name="ctag_genstudies"/>   
 <bin file="permProbComputer.cc"   name="permProbComputer"/>  
 <bin file="topspin_gen.cc"        name="topspin_gen"/>       
+<bin file="ntupleDumper.cc"       name="ntupleDumper"/>
 <!--bin file="topspin_reco.cc"       name="topspin_reco"/-->
 <!--bin file="ttxs.cc"               name="ttxs"/-->              
