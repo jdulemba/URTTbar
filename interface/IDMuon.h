@@ -20,6 +20,7 @@ public:
   static IDMuon::IDS id(const std::string label);
   double rho() {return rho_;}
 	double PFIsoDb();
+	double RelPFIsoDb() {return PFIsoDb()/Pt();}
 	double CorPFIsolation2015();
 	bool ID(IDS idtyp);
   bool isTight();

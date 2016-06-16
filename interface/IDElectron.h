@@ -28,6 +28,7 @@ public:
   static IDS id(std::string label);
   double rho() {return rho_;}
 	double PFIsolationRho2015() const;
+	double etaSC() const {return TVector3(x(), y(), z()).Eta();}
 
   bool LooseID25ns() const;
   bool MediumID25ns() const;

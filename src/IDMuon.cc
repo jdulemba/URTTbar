@@ -31,6 +31,7 @@ IDMuon::IDMuon(const Muon mu, double rho):
 {
 }
 
+//https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_Isolation
 double IDMuon::PFIsoDb()
 {
 	return (pfChargedIso04() + TMath::Max(pfNeutralIso04() + pfPhotonIso04() - 0.5*pfPUIso04(), 0.));

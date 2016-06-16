@@ -55,16 +55,23 @@ public:
   bool TagId(BTag wp) const;
 
 	bool ID()	{
+		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID?rev=93#Recommendations_for_13_TeV_data
 		//to be filled in new tree version
-		if(numberOfDaughters() <= 1) {return false;}
-		if(neutralHadronEnergyFraction() + HFHadronEnergyFraction() >= 0.99){return false;}
-		if(neutralEmEnergyFraction() >= 0.99){return false;}
-		if(TMath::Abs(Eta()) < 2.4)	{
-			if(chargedEmEnergyFraction() >= 0.99){return false;}
-			if(chargedHadronEnergyFraction() <= 0.){return false;}
-			if(chargedMultiplicity() <= 0.){return false;}
+		if(TMath::Abs(Eta()) <= 3.) {
+			if(numberOfDaughters() <= 1) {return false;}
+			if(neutralHadronEnergyFraction() >= 0.99){return false;}
+			if(neutralEmEnergyFraction() >= 0.99){return false;}
+			if(TMath::Abs(Eta()) < 2.4)	{
+				if(chargedHadronEnergyFraction() <= 0.){return false;}
+				if(chargedMultiplicity() <= 0.){return false;}
+				if(chargedEmEnergyFraction() >= 0.99){return false;}
+			}
+			return true;
+		} else {
+			if(neutralEmEnergyFraction() >= .9) return false;
+			if(neutralMultiplicity() <= 10) return false;
+			return true;
 		}
-		return(true);
 	}
 
 	bool Clean(const vector<IDMuon*>& muons, const vector<IDElectron*>& electrons, double distpar = 0.4) {

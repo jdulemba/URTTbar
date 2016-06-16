@@ -23,22 +23,27 @@ IDElectron::IDS IDElectron::id(const std::string label) {
 
 double IDElectron::PFIsolationRho2015() const
 {
-	double eta = Abs(TVector3(x(), y(), z()).Eta());
+  // Isolation is calculated following an example in [1], as recommended in [2]
+	//[1] https://github.com/cms-sw/cmssw/blob/CMSSW_7_6_2/RecoEgamma/ElectronIdentification/plugins/cuts/GsfEleEffAreaPFIsoCut.cc#L75-L90
+	//[2] https://hypernews.cern.ch/HyperNews/CMS/get/egamma/1664/1.html
+	double eta = etaSC(); //Abs(TVector3(x(), y(), z()).Eta());
 	double effarea = 0.;
   // The following values refer to EA for cone 0.3 and fixedGridRhoFastjetAll. 
   // They are valid for electrons only, different EA are available for muons.
-  if(abs(eta)>0.0 && abs(eta)<=1.0) effarea = 0.1752;
+	//EA Values available here: https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_X/RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt
+  if(abs(eta)>=0.0 && abs(eta)<=1.0) effarea = 0.1752;
   if(abs(eta)>1.0 && abs(eta)<=1.479) effarea = 0.1862;
   if(abs(eta)>1.479 && abs(eta)<=2.0) effarea = 0.1411;
   if(abs(eta)>2.0 && abs(eta)<=2.2) effarea = 0.1534;
   if(abs(eta)>2.2 && abs(eta)<=2.3) effarea = 0.1903;
   if(abs(eta)>2.3 && abs(eta)<=2.4) effarea = 0.2243;
-  if(abs(eta)>2.4 && abs(eta)<=2.5) effarea = 0.2687;
+  if(abs(eta)>2.4 && abs(eta)<=5 ) effarea = 0.2687;
 
 	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation" << endl;}
 	effarea *= Max(rho_, 0.);
 	//return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
-	return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
+	//return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
+	return(pfHadronIso() + Max(pfNeutralIso() + pfPhotonIso() - effarea, 0.));
 }
 
 //https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
