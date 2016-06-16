@@ -18,3 +18,4 @@
 <bin file="ntupleDumper.cc"       name="ntupleDumper"/>
 <!--bin file="topspin_reco.cc"       name="topspin_reco"/-->
 <!--bin file="ttxs.cc"               name="ttxs"/-->              
+<bin file="TESTCRASH.cc"        name="TESTCRASH"/>

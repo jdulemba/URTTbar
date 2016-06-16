@@ -1,0 +1,79 @@
+#include <iostream>
+#include "URAnalysis/AnalysisFW/interface/AnalyzerBase.h"
+#include "Analyses/URTTbar/interface/URStreamer.h"
+#include "URAnalysis/AnalysisFW/interface/URDriver.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
+#include "TROOT.h"
+
+class TESTCRASH : public AnalyzerBase
+{
+private:
+  unsigned long evt_idx_ = 0;
+  // Add your private variables/methods here
+public:
+  TESTCRASH(const std::string output_filename):
+    AnalyzerBase("TESTCRASH", output_filename) {
+	};
+  
+  //This method is called once per job at the beginning of the analysis
+  //book here your histograms/tree and run every initialization needed
+  virtual void begin()
+  {
+    //outFile_.cd();
+  }
+
+  //This method is called once every file, contains the event loop
+  //run your proper analysis here
+  virtual void analyze()
+  {
+    opts::variables_map &values = URParser::instance().values();
+		int limit = values["limit"].as<int>();
+		int skip  = values["skip"].as<int>();
+		int report = values["report"].as<int>();
+    if(evt_idx_ >= limit) return;
+
+    URStreamer event(tree_);
+    while(event.next())
+    {
+			if(limit > 0 && evt_idx_ > limit) return;
+			evt_idx_++;
+			if(skip > 0 && evt_idx_ < skip) continue;
+			if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " -- " << event.run<<":"<<event.lumi<<":"<<event.evt <<endl;
+			/*
+
+				DO YOUR ANALYSIS HERE!
+
+			 */
+    }
+  }
+
+  //this method is called at the end of the job, by default saves
+  //every histogram/tree produced, override it if you need something more
+  //virtual void end();
+
+  //do you need command-line or cfg options? If so implement this 
+  //method to book the options you need. CLI parsing is provided
+  //by AnalysisFW/interface/URParser.h and uses boost::program_options
+  //look here for a quickstart tutorial: 
+  //http://www.boost.org/doc/libs/1_51_0/doc/html/program_options/tutorial.html
+  static void setOptions() {
+		URParser &parser = URParser::instance();
+		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
+		opts.add_options()
+      ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+      ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+      ("report,s", opts::value<int>()->default_value(10000), "report every");
+	}
+};
+
+//make it executable
+int main(int argc, char *argv[])
+{
+  URParser &parser = URParser::instance(argc, argv);
+  URDriver<TESTCRASH> test;
+  int excode = test.run();
+	Logger::log().debug() << "RUNNING DONE " << std::endl;
+	auto files = gROOT->GetListOfFiles() ;
+	Logger::log().debug() << "Nfiles " << files->GetSize() << std::endl;
+	return excode;
+}
