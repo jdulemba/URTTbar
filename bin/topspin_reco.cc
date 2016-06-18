@@ -33,6 +33,8 @@
 #include "Analyses/URTTbar/interface/LeptonSF.h"
 #include "URAnalysis/AnalysisFW/interface/DataFile.h"
 #include "Analyses/URTTbar/interface/PDFuncertainty.h"
+#include <sstream>
+#include <unordered_map>
 
 using namespace TMath;
 
@@ -42,12 +44,12 @@ public:
 	enum TTNaming {RIGHT, RIGHT_THAD, RIGHT_WHAD, RIGHT_TLEP, WRONG, OTHER};
 private:
 	//histograms and helpers
-	map<string, map<string, RObject> > histos_;
+	unordered_map<string, unordered_map<string, RObject> > histos_;
 	map<TTNaming, string> naming_;
 	CutFlowTracker tracker_;
 
 	//switches
-	bool isTTbar_, isSignal_;
+	bool isTTbar_, isSignal_, isData_;
 
   //selectors and helpers
   TTGenParticleSelector genp_selector_;
@@ -58,18 +60,18 @@ private:
   float evt_weight_;
 	TRandom3 randomizer_;// = TRandom3(98765);
   MCWeightProducer mc_weights_;
-  //BTagSFProducer btag_sf_;
+  BTagSFProducer btag_sf_;
 
 	//Scale factors
 	LeptonSF electron_sf_, muon_sf_;
 
   unsigned long evt_idx_ = 0;
+	vector<systematics::SysShifts> systematics_;
 
 public:
   topspin_reco(const std::string output_filename):
     AnalyzerBase("topspin_reco", output_filename), 
 		tracker_(),
-		working_points_(),
     object_selector_(),
     permutator_(),
     matcher_(),
@@ -78,7 +80,9 @@ public:
     evt_weight_(1.),
     electron_sf_("electron_sf", false),
     muon_sf_("muon_sf"),
-		randomizer_()    //btag_sf_("permutations.tightb", "permutations.looseb")
+		randomizer_(),    
+		btag_sf_("permutations.tightb", "permutations.looseb"),
+		systematics_()
 	{
     //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
     //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
@@ -99,16 +103,14 @@ public:
 		string sample = systematics::get_sample(output_file);
     isSignal_ = boost::starts_with(sample, "AtoTT") || boost::starts_with(sample, "HtoTT");
 		isTTbar_ = boost::starts_with(sample, "ttJets") || isSignal_;
-    if(!isTTbar_) {
-      Logger::log().error() << "This analyzer is only supposed to run on ttbar samples!" << endl;
-      throw 49;
-    }
+		isData_  = boost::starts_with(sample, "data");
 
     if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::MADGRAPHLHE);
     else genp_selector_.setmode(TTGenParticleSelector::SelMode::LHE);
 
-    mc_weights_.init(sample);
+    if(!isData_) mc_weights_.init(sample);
 
+		systematics_ = {systematics::SysShifts::NOSYS};//systematics::get_systematics(output_file);
     //Init solver
     string filename = "prob_ttJets.root";
     Logger::log().debug() << "solver file: " << filename << endl;
@@ -140,19 +142,110 @@ public:
 		histos_[folder][name] = RObject::book<H>(name.c_str(), args ...);
 	}
 
+	void book_combo_plots(string folder){
+		book<TH1F>(folder, "mass_discriminant", "", 20,   0., 20.);
+		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
+		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
+	}
+
+	void fill_combo_plots(string folder, const Permutation &hyp){
+		auto dir = histos_.find(folder);
+		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
+		double whad_mass = hyp.WHad().M();
+		double thad_mass = hyp.THad().M();
+		dir->second["Wmasshad"].fill(hyp.WHad().M(), evt_weight_);
+		dir->second["tmasshad"].fill(hyp.THad().M(), evt_weight_);
+	}
+
+  void book_presel_plots(string folder) {
+    book<TH1F>(folder, "nvtx_noweight", "", 100, 0., 100.);
+    book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
+    book<TH1F>(folder, "rho", "", 100, 0., 100.);
+    book<TH1F>(folder, "weight", "", 100, 0., 20.);
+		book<TH1F>(folder, "lep_pt"   , ";p_{T}(l) (GeV)", 500, 0., 500.);
+		book<TH1F>(folder, "lep_eta"  , ";#eta(l) (GeV)", 300, -3, 3);
+		book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
+		book<TH1F>(folder, "jets_eta" , ";#eta(j) (GeV)",  300, -3, 3);
+		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
+  }
+
+  void fill_presel_plots(string folder, URStreamer &event) {
+    auto dir = histos_.find(folder);
+		dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
+		dir->second["nvtx_noweight"].fill(event.vertexs().size());
+		dir->second["rho"].fill(event.rho().value(), evt_weight_);
+    dir->second["weight"].fill(evt_weight_);
+		dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
+		dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
+		dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
+    for(IDJet* jet : object_selector_.clean_jets()) {
+      dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
+      dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
+    }
+  }
+
+	void book_selection_plots(string folder) {
+		book_combo_plots(folder);
+		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
+		book<TH1F>(folder, "lep_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
+		book<TH1F>(folder, "had_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
+		book<TH1F>(folder, "wjets_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
+		book<TH1F>(folder, "lep_pt"   , ";p_{T}(#ell) (GeV)", 500, 0., 500.);
+		book<TH1F>(folder, "Whad_DR"  , ";m_{W}(had) (GeV)", 100, 0., 10.);
+		book<TH1F>(folder, "Whad_pt"  , ";m_{W}(had) (GeV)", 100, 0., 500.);
+	}
+
+	void fill_selection_plots(string folder, Permutation &hyp) {
+		auto dir = histos_.find(folder);
+		fill_combo_plots(folder, hyp);
+		dir->second["njets"    ].fill(object_selector_.clean_jets().size(), evt_weight_);
+		dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt(), evt_weight_);
+		dir->second["had_b_pt" ].fill(hyp.BHad()->Pt(), evt_weight_);
+		dir->second["wjets_pt" ].fill(hyp.WJa()->Pt(), evt_weight_);
+		dir->second["lep_pt"   ].fill(hyp.L()->Pt(), evt_weight_);
+		if(hyp.WJb()) {
+			dir->second["wjets_pt" ].fill(hyp.WJb()->Pt(), evt_weight_);
+			dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()), evt_weight_);
+			dir->second["Whad_pt"  ].fill(hyp.WHad().Pt(), evt_weight_);
+		}
+	}
+
+	void fill(string folder, Permutation &hyp){//, TTbarHypothesis *genHyp=0) {
+	}
+
   virtual void begin()
   {
     Logger::log().debug() << "topspin_reco::begin" << endl;
     outFile_.cd();
-		vector<string> folders;
+		vector<string> types;
 		if(isTTbar_) {
-      for(auto &entry : naming_) folders.push_back(entry.second);
+      for(auto &entry : naming_) types.push_back(entry.second);
     }
-		else folders = {""};
+		else types = {""};
+		
+		vector<string> njets = {"3jets", "4jets", "5Pjets"};
+		//vector<string> tagging = {"ctagged", "notag"};
+		for(auto& type : types) {
+			for(auto& sys : systematics_) {
+				string sys_name = systematics::shift_to_name.at(sys);
+				if(type == "semilep_visible_right" || type.size() == 0) {
+					string dname = (type.size() == 0 ) ? sys_name+"/preselection" : type+"/"+sys_name+"/preselection";
+					book_presel_plots(dname);
+					book_combo_plots(dname);
+				}
+				for(auto& njet : njets) {
+					stringstream dstream;
+					if(type.size()) {
+						dstream << type << "/" <<sys_name<<"/"<<njet;
+					} else {
+						dstream << sys_name<<"/"<<njet;
+					}
+					book_selection_plots(dstream.str());
+				}
+			}
+		}
   }
 
-	void fill(string folder, Permutation &hyp){//, TTbarHypothesis *genHyp=0) {
-	}
 
 	TTNaming get_ttdir_name(Permutation &gen, Permutation &reco) {
     if(reco.IsCorrect(gen)) return TTNaming::RIGHT;
@@ -172,36 +265,52 @@ public:
     if( !object_selector_.select(event, shift) ) return;
     tracker_.track("object selection");
 
-    string sys_name = systematics::shift_to_name.at(shift);
-    string presel_dir = sys_name;
-    if(isTTbar_){
-      presel_dir = naming_.at(TTNaming::RIGHT) + "/" + sys_name;
-    }
+    //MC Weight for lepton selection
+    if(!isData_) { 
+      if(object_selector_.tight_muons().size() == 1)
+        evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+      if(object_selector_.medium_electrons().size() == 1)
+        evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+		}
 
+    string sys_name = systematics::shift_to_name.at(shift);
+    string presel_dir;
+    if(isTTbar_){
+      presel_dir = naming_.at(TTNaming::RIGHT) + "/" + sys_name + "/preselection";
+    }
+		else {
+      presel_dir = sys_name + "/preselection";
+		}
+    fill_presel_plots(presel_dir, event);
+		
+		int njets = object_selector_.clean_jets().size();		
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
           object_selector_.met() ) ) return;
     tracker_.track("perm preselection");
-
 				
+    //find mc weight for btag
+    if(!isData_) evt_weight_ *= btag_sf_.scale_factor(permutator_.capped_jets(), shift);
+
     //Find best permutation
     bool go_on = true;
     Permutation best_permutation;
     size_t ncycles_=0;
+		bool lazy_solving = (njets == 3);
+		auto ordering = (njets > 3) ? [](const Permutation &one, const Permutation &two) {return one.Prob() < two.Prob();} : \
+		    [](const Permutation &one, const Permutation &two) {return one.NuDiscr() < two.NuDiscr();};
     while(go_on) {
       ncycles_++;
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
-        test_perm.Solve(solver_);
-        double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
-        fill_combo_plots(presel_dir+"/permutations", test_perm);
-        //if(bjet_lpt < test_perm.WJa()->Pt()) continue;
-        if(ordering_fcn_(test_perm, best_permutation)){
+        test_perm.Solve(solver_, false, lazy_solving);
+        fill_combo_plots(presel_dir, test_perm);
+        if(ordering(test_perm, best_permutation)){
           best_permutation = test_perm;
         }
       }
     }
-    if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9
+    if(best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9
     tracker_.track("best perm");
     
     size_t capped_jets_size = permutator_.capped_jets().size();
@@ -221,14 +330,18 @@ public:
     }
     tracker_.track("matched perm");
 
-		string sys_dir = sys_name;
-		//Logger::log().debug() << "\n\nShift: " << shift << " name: " << root_dir << endl;
-    double weight = evt_weight_;
-    string ttsubdir = "";
-
-    TTNaming dir_id = get_ttdir_name(matched_perm, best_permutation);
-    ttsubdir = naming_.at(dir_id) + "/";
-
+		stringstream evtdir;
+		if(isTTbar_) {
+			TTNaming dir_id = get_ttdir_name(matched_perm, best_permutation);
+			evtdir << naming_.at(dir_id) << "/";			
+		}
+		evtdir << sys_name << "/";
+		switch(njets) {
+		case 3: evtdir << "3jets"; break;
+		case 4: evtdir << "4jets"; break;
+		default:evtdir << "5Pjets"; break;
+		}
+		fill_selection_plots(evtdir.str(), best_permutation);
 	}
 
   //This method is called once every file, contains the event loop
@@ -256,10 +369,17 @@ public:
 			if(evt_idx_ % 10000 == 1) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
 
 			//long and time consuming
-      genp_selector_.select(event);			
+			if(isTTbar_){
+				genp_selector_.select(event);			
+			}
 
-      evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
-      process_evt(shift, event);
+			for(auto shift : systematics_){
+        evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
+				if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
+				//Logger::log().debug() << "processing: " << shift << endl;
+				process_evt(shift, event);
+				if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
+			}
 		} //while(event.next())
    }
 
