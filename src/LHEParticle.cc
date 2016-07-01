@@ -1,7 +1,7 @@
 #include "LHEParticle.h"
 #include "PDGID.h"
 
-std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
+/*std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
   auto &xs  = event.PXLHEs();
   auto &ys  = event.PYLHEs();
   auto &zs  = event.PZLHEs();
@@ -20,7 +20,7 @@ std::vector<LHEParticle> LHEParticle::LHEParticles(URStreamer &event) {
       );
   }
   return ret;
-}
+	}*/
 
 std::ostream & operator<<(std::ostream &os, const LHEParticle &obj) {
   os << "LHEParticle(" << ura::pdg_names.at(obj.pdgId()) << ", " 

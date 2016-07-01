@@ -19,7 +19,7 @@ def make_csv_entry(value, wpoint, flav, shift='central'):
       shift,  # systematic
       flav,  # 0 means b-flavor
       -2.4, 2.4,   # eta range
-      25, 1000,   # pt range
+      25, 200,   # pt range
       0, 1  # discr. range (actually not needed for loose op)
       )
    entry = ROOT.BTagEntry('%f' % value, btagpars)

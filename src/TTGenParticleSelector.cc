@@ -73,7 +73,7 @@ TTGenParticleSelector::TTGenParticleSelector(SelMode mode):
 
 void TTGenParticleSelector::select_pstop(URStreamer& event) 
 {
-  const vector<Pst>& pseudotops = event.PSTs();
+  /*const vector<Pst>& pseudotops = event.PSTs();
   if(pseudotops.size() == 10) {
     topcounter_ = 2;
 
@@ -119,7 +119,7 @@ void TTGenParticleSelector::select_pstop(URStreamer& event)
       selected_.push_back(pseudotops[7]);
       b_ = &(selected_.back());
     }
-  }
+		}*/
 }
 
 void TTGenParticleSelector::select_herwig(URStreamer& event)
@@ -233,7 +233,10 @@ int TTGenParticleSelector::comes_from_top(LHEParticle &lhe) {
 }
 
 void TTGenParticleSelector::select_lhe(URStreamer& event) {
-  lhes_ = LHEParticle::LHEParticles(event);
+	auto& evt_lhes = event.LHEPaticles();
+  lhes_.reserve(evt_lhes.size());// = LHEParticle::LHEParticles(event);
+	for(auto& lhe : evt_lhes){lhes_.emplace_back(lhe);}
+
   for(auto &lhe : lhes_) {
     if(lhe.pdgId() == ura::PDGID::t) {
       selected_.push_back(lhe);
@@ -310,16 +313,16 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
   }
 
   //Build GenTTBar
-  if(mode_ == PSEUDOTOP) {
-    Logger::log().debug() << "pstops: " << event.PSTs().size() << " pst leps: " << event.PSTleptons().size() << " pst jets: " << event.PSTjets().size() << " pst nus: " << event.PSTneutrinos().size() << std::endl;
-    Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
-                          << ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
-                          << bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
-    if(wpartons_.size()+charged_leps_.size() == 0 || !b_ || !bbar_) {
-      Logger::log().error() << "Wrong matching, returning" << std::endl;
-      return false;
-    }
-  }
+  // if(mode_ == PSEUDOTOP) {
+  //   Logger::log().debug() << "pstops: " << event.PSTs().size() << " pst leps: " << event.PSTleptons().size() << " pst jets: " << event.PSTjets().size() << " pst nus: " << event.PSTneutrinos().size() << std::endl;
+  //   Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
+  //                         << ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
+  //                         << bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
+  //   if(wpartons_.size()+charged_leps_.size() == 0 || !b_ || !bbar_) {
+  //     Logger::log().error() << "Wrong matching, returning" << std::endl;
+  //     return false;
+  //   }
+  // }
   ttbar_ = GenTTBar::from_collections( 
     wpartons_, charged_leps_, neutral_leps_, 
     b_, bbar_, top_, tbar_);
