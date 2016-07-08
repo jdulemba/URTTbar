@@ -23,6 +23,7 @@ public:
   TTObjectSelector(int objsel=0); //-1 e only, 1 mu only, 0 any
   
   void lepton_type(int ltype) {objsel_=ltype;} //-1 e only, 1 mu only, 0 any
+	int lepton_type() {return pass_lepton_;} //-1 passing e, 1 passing mu
   void reset();
   bool select(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
   bool pass_through(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
@@ -66,6 +67,7 @@ private:
   bool is_configured_ = false;
   bool apply_jer_ = true;
   int objsel_=0;
+	int pass_lepton_ = 0;
   IDMuon::IDS cut_loosemu_id_, cut_tightmu_id_;
   float cut_loosemu_ptmin_, cut_loosemu_etamax_, cut_tightmu_ptmin_, cut_tightmu_etamax_;
   

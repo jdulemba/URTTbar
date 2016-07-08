@@ -66,14 +66,18 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
 Permutation TTPermutator::next(bool &keep_going) {
   //Logger::log().debug() << "<--" << jet_pos_[0] << " " << jet_pos_[1] << " " << jet_pos_[2] << " " << jet_pos_[3] << std::endl;
   keep_going = true;
+	if(capped_jets_.size() == 3) capped_jets_.push_back(NULL);
   size_t bjet_cap = (bjet_idx_limit_ > 0) ? bjet_idx_limit_  : capped_jets_.size();
   for( ; jet_pos_[0] < bjet_cap ; ++jet_pos_[0]) {
     IDJet* bjet1 = capped_jets_[jet_pos_[0]];
+		if(!bjet1) continue; //in 3 jet case it could be NULL, skip
 
     for( ; jet_pos_[1] < bjet_cap ; ++jet_pos_[1]) {
       if(jet_pos_[0] == jet_pos_[1]) continue; //same jet removal
 
       IDJet* bjet2 = capped_jets_[jet_pos_[1]];
+			if(!bjet2) continue; //in 3 jet case it could be NULL, skip
+			
       if(!(bjet1->BTagId(cut_loose_b_) && bjet2->BTagId(cut_loose_b_))) continue;
       if(!(bjet1->BTagId(cut_tight_b_) || bjet2->BTagId(cut_tight_b_))) continue;
       if(bjet1->Pt() < cut_bjetpt_hard_ && bjet2->Pt() < cut_bjetpt_hard_) continue;
@@ -82,19 +86,24 @@ Permutation TTPermutator::next(bool &keep_going) {
       for( ; jet_pos_[2] < capped_jets_.size() ; ++jet_pos_[2]) {
         if(jet_pos_[0] == jet_pos_[2] || jet_pos_[1] == jet_pos_[2]) continue; //same jet removal
         IDJet* wjet1 = capped_jets_[jet_pos_[2]]; 
+				if(!wjet1) continue; //in 3 jet case it could be NULL, skip
 
         for( ; jet_pos_[3] < capped_jets_.size() ; ++jet_pos_[3]) {
           if(jet_pos_[0] == jet_pos_[3] || jet_pos_[1] == jet_pos_[3] || jet_pos_[2] == jet_pos_[3]) continue;//same jet removal
           IDJet* wjet2 = capped_jets_[jet_pos_[3]]; 
           
-          //disambiguation W jets
-          if(wjet2->Pt() > wjet1->Pt()) continue;
-          if(wjet1->Pt() < cut_wjetpt_hard_ || wjet2->Pt() < cut_wjetpt_soft_) continue;
-
+					//in case of three jets it SHOULD be NULL
+					if(wjet2) {
+						//disambiguation W jets
+						if(wjet2->Pt() > wjet1->Pt()) continue;
+						if(wjet1->Pt() < cut_wjetpt_hard_ || wjet2->Pt() < cut_wjetpt_soft_) continue;
+					}
+					
           Permutation perm(
             wjet1, wjet2,
             bjet1, bjet2,
-            lepton_, met_
+            lepton_, met_,
+						lcharge_
             );                    
           //Logger::log().debug() <<"-->"<< jet_pos_[0] << " " << jet_pos_[1] << " " << jet_pos_[2] << " " << jet_pos_[3] << std::endl;
           //step forward the state before returning, otherwise gets stuck
@@ -121,5 +130,6 @@ Permutation TTPermutator::next(bool &keep_going) {
     jet_pos_[1] = 0;
   }
   keep_going = false;
+	if(!capped_jets_[3]) capped_jets_.pop_back();
   return Permutation();
 }

@@ -19,6 +19,7 @@
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
+#include "Analyses/URTTbar/interface/Hypotheses.h"
 //#include <map>
 
 using namespace std;
@@ -81,7 +82,8 @@ public:
 		string output_file = values["output"].as<std::string>();
     //DataFile solver_input(values["general.ttsolver_input"].as<std::string>());
 		string sample = systematics::get_sample(output_file);
-		isTTbar_ = boost::starts_with(sample, "ttJets");
+    bool isSignal = boost::starts_with(sample, "AtoTT") || boost::starts_with(sample, "HtoTT");
+		isTTbar_ = boost::starts_with(sample, "ttJets") || isSignal;
 
     //choose systematics to run based on sample
     systematics_ = systematics::get_systematics(output_file);
@@ -116,6 +118,10 @@ public:
         //TODO add plots
         histos_[shift][evt_type]["mWhad_vs_mtophad"] = RObject::book<TH2D>("mWhad_vs_mtophad", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
         histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", 75, 0., 150.);
+        histos_[shift][evt_type]["wfr_jcosth_delta"] = RObject::book<TH1D>("wfr_jcosth_delta", "", 100, 0., 2);
+
+        histos_[shift][evt_type]["thfr"] = RObject::book<TH1D>("thfr", "", 100, -2., 2);
+        histos_[shift][evt_type]["tlfr"] = RObject::book<TH1D>("tlfr", "", 100, -2., 2);
         if(evt_type == RIGHT || evt_type == WRONG){
           histos_[shift][evt_type]["btag_value"] = RObject::book<TH1D>("btag_value", ";CSV raw value;# Events", 100, 0., 1.);
           histos_[shift][evt_type]["btag_first_idx"] = RObject::book<TH1D>("btag_first_idx", ";idx;# Events", 41, -0.5, 40.5);
@@ -232,6 +238,7 @@ public:
     while(go_on) {
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
+				test_perm.LepCharge(object_selector_.lepton_charge());
         test_perm.Solve(solver_);
         TTNaming perm_status;
         if(test_perm.IsCorrect(matched_perm)) perm_status = TTNaming::RIGHT;
@@ -242,6 +249,27 @@ public:
         
         plots[perm_status]["mWhad_vs_mtophad"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
         plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
+				
+				hyp::TTbar ttang(test_perm);
+				auto hadwcm = ttang.thad().W().to_CM();
+				auto leptcm = ttang.tlep().to_CM();
+				auto hadtcm = ttang.thad().to_CM();				
+				auto ttcm   = ttang.to_CM();
+
+				double cj1 = hadtcm.W().unit3D().Dot(hadwcm.down().unit3D());
+				double cj2 = hadtcm.W().unit3D().Dot(hadwcm.up().unit3D());
+				double cjm = (cj1 < cj2) ? cj1 : cj2;
+				double cjM = (cj1 > cj2) ? cj1 : cj2;
+
+				double cwl = leptcm.W().unit3D().Dot(ttcm.tlep().unit3D());
+				double cwh = hadtcm.W().unit3D().Dot(ttcm.thad().unit3D());
+
+				double cbl = leptcm.b().unit3D().Dot(ttcm.tlep().unit3D());
+				double cbh = hadtcm.b().unit3D().Dot(ttcm.thad().unit3D());
+
+        plots[perm_status]["wfr_jcosth_delta"].fill(cjM-cjm, evt_weight_);
+        plots[perm_status]["thfr"].fill(cbh - cwh, evt_weight_);
+        plots[perm_status]["tlfr"].fill(cbl - cwl, evt_weight_);
       }
     }
     tracker_.track("end");

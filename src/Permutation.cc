@@ -33,14 +33,23 @@ void Permutation::Reset()
 	improvedobjects.clear();
 }
 
-double Permutation::Solve(TTBarSolver& ttsolver, bool kinfit)
+double Permutation::Solve(TTBarSolver& ttsolver, bool kinfit, bool lazy)
 {
-  if(!IsComplete()) {                          
+  if(!lazy && !IsComplete()) {                          
     Logger::log().fatal() << "The permutation you are trying to solve is not complete!" << std::endl;
     throw 42;
   }
 	kinfit_ = kinfit;
-	ttsolver.Solve(bjh_, wjb_, wja_, bjl_, lep_, met_);
+	Jet *jb = wjb_;
+	Jet dummy;
+	if(!jb) {
+		if(lazy) jb = &dummy;
+		else {
+			Logger::log().fatal() << "WJb is not set and the solution is not lazy!" << std::endl;
+			throw 42;
+		}
+	}
+	ttsolver.Solve(bjh_, jb, wja_, bjl_, lep_, met_);
 	nu_ = ttsolver.Nu();
 	prob_ = ttsolver.Res();
 	nu_chisq_          = ttsolver.NSChi2();

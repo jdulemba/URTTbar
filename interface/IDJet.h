@@ -88,6 +88,8 @@ public:
 		return true;
 	}
 
+	void scale(double f) { SetPtEtaPhiE(f*Pt(), Eta(), Phi(), f*E()); }
+
 };
 
 #endif

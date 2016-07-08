@@ -72,6 +72,7 @@ TTObjectSelector::TTObjectSelector(int objsel):
 }
 
 void TTObjectSelector::reset() {
+	pass_lepton_=0;
   sel_jets_.clear();
   clean_jets_.clear();
   sel_muons_.clear();
@@ -115,35 +116,20 @@ bool TTObjectSelector::select_electrons(URStreamer &event, systematics::SysShift
 bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts shift) {
 	double  metcorrx = 0.;
 	double  metcorry = 0.;
+
+	//SET JETS
 	const vector<Jet>& jets = event.jets();
 	for(vector<Jet>::const_iterator jetit = jets.begin(); jetit != jets.end(); ++jetit)
 	{
 		IDJet jet(*jetit);
-    double scale_factor = 0;
-		if(shift == systematics::SysShifts::JES_DW)      scale_factor = jet_scaler_.GetUncP(jet);
-		else if(shift == systematics::SysShifts::JES_UP) scale_factor = -1*jet_scaler_.GetUncM(jet);
+		//set shifts and systematics
+		if(shift == systematics::SysShifts::JER_UP) jet.scale(jet.JERUp());
+		else if(shift == systematics::SysShifts::JER_DW) jet.scale(jet.JERDown());
+		else if(event.run == 1 && apply_jer_) jet.scale(jet.JER());
 
-    if(event.run == 1 && apply_jer_) { //is MC: apply JER
-      double jer_sigma = 0;
-      if(shift == systematics::SysShifts::JER_UP) jer_sigma = jet_scaler_.JERSigmaUp(jet); 
-      else if(shift == systematics::SysShifts::JER_DW) jer_sigma = jet_scaler_.JERSigmaDw(jet); 
-      else jer_sigma = jet_scaler_.JERSigma(jet);
-      double jer_sf = gRandom->Gaus(0., jer_sigma);
-      scale_factor += jer_sf;
-    }
+		if(shift == systematics::SysShifts::JES_DW)      jet.scale(1-jet.JESUnc());
+		else if(shift == systematics::SysShifts::JES_UP) jet.scale(1+jet.JESUnc());
 
-    //set corrections for MET
-		metcorrx -= scale_factor*jet.Px(); 
-		metcorry -= scale_factor*jet.Py(); 
-
-    //Set shifted P
-    scale_factor += 1;
-		jet.SetPxPyPzE(
-      jet.Px() * scale_factor, 
-      jet.Py() * scale_factor, 
-      jet.Pz() * scale_factor, 
-      jet.E()  * scale_factor
-      );
 		if(jet.Pt() < cut_jet_ptmin_ || Abs(jet.Eta()) > cut_jet_etamax_) {continue;}
 		if(!jet.ID() || !jet.Clean(loose_muons_, loose_electrons_)) {continue;}
 
@@ -152,16 +138,16 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 	}
   if( clean_jets_.size() ==0) return false;
 
-	//const vector<Nohfmet>& mets = event.NoHFMETs();
 	const vector<Met>& mets = event.METs();
 	if(mets.size() == 1) {
-    float shift = 0;
-    if(shift == systematics::SysShifts::MET_DW) shift = -1.0;
-    if(shift == systematics::SysShifts::MET_UP) shift = 1.0;
 		met_ = mets[0];
-		met_.SetPx(met_.Px() + metcorrx + shift*met_.pxunc());
-		met_.SetPy(met_.Py() + metcorry + shift*met_.pyunc());
-		met_.SetE(Sqrt(met_.Px()*met_.Px() + met_.Py()*met_.Py()));
+		if(event.run == 1 && apply_jer_) met_.setvect(met_.pxsmear(), met_.pysmear());
+		if(shift == systematics::SysShifts::JER_UP)      met_.shiftvect(   met_.pxuncJER(),    met_.pyuncJER());
+		else if(shift == systematics::SysShifts::JER_DW) met_.shiftvect(-1*met_.pxuncJER(), -1*met_.pyuncJER());
+		else if(shift == systematics::SysShifts::JES_DW) met_.shiftvect(   met_.pxuncJES(),    met_.pyuncJES());
+		else if(shift == systematics::SysShifts::JES_UP) met_.shiftvect(-1*met_.pxuncJES(), -1*met_.pyuncJES());
+    else if(shift == systematics::SysShifts::MET_DW) met_.shiftvect(met_.pxunc(), met_.pyunc());
+    else if(shift == systematics::SysShifts::MET_UP) met_.shiftvect(-1*met_.pxunc(), -1*met_.pyunc());
 	}
   else {
     Logger::log().error() << "met collection has more than one entry! which I should pick?" << std::endl;
@@ -209,6 +195,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   if(clean_jets_.size() < cut_nminjets_) return false;
  
   if(tracker_) tracker_->track("has N jets");
+	pass_lepton_ = (tight_muons_.size() == 1) ? 1 : -1;
   return true;
 }
 

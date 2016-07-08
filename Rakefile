@@ -13,6 +13,9 @@ import analysis_rules
 meta_rules = "#{$fwk_dir}/rake/meta.rake"
 import meta_rules
 
+htt_rules = "#{$project_dir}/htt_scripts/htt.rake"
+import htt_rules
+
 require 'json'
 
 def psub(target, sub)

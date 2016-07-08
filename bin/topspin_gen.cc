@@ -209,6 +209,31 @@ public:
     book<TH1F>(dir, "labframe_cosdeltaphi_nu_utype", "", 200, -1, 1);
     book<TH1F>(dir, "helframe_cosdelta_nu_utype", "", 200, -1, 1);
     book<TH1F>(dir, "helframe_prodcosth_nu_utype", "", 200, -1, 1);      
+
+    book<TH1F>(dir, "wframe_costheta_lep", "", 200, -1, 1);
+    book<TH1F>(dir, "wframe_costheta_nu" , "", 200, -1, 1);
+    book<TH1F>(dir, "wframe_costheta_dtype", "", 200, -1, 1);
+    book<TH1F>(dir, "wframe_costheta_utype", "", 200, -1, 1);
+
+		//energies
+    book<TH1F>(dir, "wframe_energy_dtype", "", 200, 0, 100);
+    book<TH1F>(dir, "wframe_energy_utype", "", 200, 0, 100);
+    book<TH1F>(dir, "tframe_energy_dtype", "", 200, 0, 100);
+    book<TH1F>(dir, "tframe_energy_utype", "", 200, 0, 100);
+    book<TH1F>(dir, "labframe_energy_dtype", "", 200, 0, 300);
+    book<TH1F>(dir, "labframe_energy_utype", "", 200, 0, 300);
+
+		//W angle
+    book<TH1F>(dir, "tframe_wlep_costheta", "", 200, -1, 1);
+    book<TH1F>(dir, "tframe_whad_costheta", "", 200, -1, 1);
+
+		//b angles
+    book<TH1F>(dir, "tframe_blep_costheta", "", 200, -1, 1);
+    book<TH1F>(dir, "tframe_bhad_costheta", "", 200, -1, 1);
+
+		//top angles
+    book<TH1F>(dir, "ttframe_top_costheta", "", 200, -1, 1);
+    book<TH1F>(dir, "ttframe_tba_costheta", "", 200, -1, 1);
   }
 
   void fill_angular_plots(string dir, hyp::TTbar& ttbar) {
@@ -240,6 +265,13 @@ public:
     double cth_n = leptopcm.W().nu().unit3D().Dot(ttcm.tlep().unit3D());
     double cth_d = hadtopcm.W().down().unit3D().Dot(ttcm.thad().unit3D());
     double cth_u = hadtopcm.W().up().unit3D().Dot(ttcm.thad().unit3D());
+
+		auto lepwcm = ttbar.tlep().W().to_CM();
+		auto hadwcm = ttbar.thad().W().to_CM();		
+    hdir->second["wframe_costheta_lep"  ].fill(leptopcm.W().unit3D().Dot(lepwcm.l().unit3D()));
+    hdir->second["wframe_costheta_nu"   ].fill(leptopcm.W().unit3D().Dot(lepwcm.nu().unit3D()));
+    hdir->second["wframe_costheta_dtype"].fill(hadtopcm.W().unit3D().Dot(hadwcm.down().unit3D()));
+    hdir->second["wframe_costheta_utype"].fill(hadtopcm.W().unit3D().Dot(hadwcm.up().unit3D()));
 
     if(cth_l != cth_l || cth_n != cth_n || cth_d != cth_d || cth_u != cth_u) {
       Logger::log().error() <<dir << " NANERROR! "<< cth_l << " " << cth_n << " " << cth_d << " " << cth_u << endl;
@@ -292,6 +324,28 @@ public:
     hdir->second["labframe_cosdeltaphi_nu_utype"].fill(Cos(nu.DeltaPhi(dw)), evt_weight_);
     hdir->second["labframe_deltaphi_nu_dtype"].fill(nu.DeltaPhi(up), evt_weight_);
     hdir->second["labframe_deltaphi_nu_utype"].fill(nu.DeltaPhi(dw), evt_weight_);
+
+
+		//energies
+    auto hadWcm = ttbar.thad().W().to_CM();
+    hdir->second["wframe_energy_dtype"].fill(hadWcm.down().E(), evt_weight_);
+    hdir->second["wframe_energy_utype"].fill(hadWcm.up().E(), evt_weight_);
+    hdir->second["tframe_energy_dtype"].fill(hadtopcm.W().down().E(), evt_weight_);
+    hdir->second["tframe_energy_utype"].fill(hadtopcm.W().up().E(), evt_weight_);
+    hdir->second["labframe_energy_dtype"].fill(ttbar.thad().W().down().E(), evt_weight_);
+    hdir->second["labframe_energy_utype"].fill(ttbar.thad().W().up().E(), evt_weight_);
+
+		//W angle
+    hdir->second["tframe_wlep_costheta"].fill(leptopcm.W().unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
+    hdir->second["tframe_whad_costheta"].fill(hadtopcm.W().unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
+
+		//b angles
+    hdir->second["tframe_blep_costheta"].fill(leptopcm.b().unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
+    hdir->second["tframe_bhad_costheta"].fill(hadtopcm.b().unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
+
+		//top angles
+    hdir->second["ttframe_top_costheta"].fill(ttbar.unit3D().Dot(ttcm.top().unit3D()), evt_weight_);
+    hdir->second["ttframe_tba_costheta"].fill(ttbar.unit3D().Dot(ttcm.tbar().unit3D()), evt_weight_);
   }
 
   void book_eff_plots(string dir) {
@@ -494,8 +548,15 @@ public:
     tracker_.track("decay mode");
     
     hyp::TTbar ttgen(ttbar);
+		// if(ttbar.type == GenTTBar::DecayType::SEMILEP) {
+		// 	cout << "-------------------------------------------------------" << endl;
+		// 	cout << *ttbar.top.W.first << " " << *ttbar.top.W.second << " " << *ttbar.tbar.W.first << " " << *ttbar.tbar.W.second << " " << endl;
+		// 	cout << ttgen.thad().W().up() << " " << ttgen.thad().W().down() << " " << ttgen.tlep().W().l() << " " << ttgen.tlep().W().nu() << " " << endl;
+		// }
+
     fill(ttgen, decay+"parton");
     if(ttbar.type ==  GenTTBar::DecayType::FULLLEP) return;
+		//if( fabs(ttgen.M() - 400) > 50 ) return;
     fill_eff_plots(ttgen, decay+"parton");
 
     hyp::TTbar* gen_ptr = (ttbar.type == GenTTBar::DecayType::SEMILEP) ? &ttgen : 0;

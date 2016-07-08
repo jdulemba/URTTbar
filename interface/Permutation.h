@@ -6,7 +6,8 @@
 #include "Analyses/URTTbar/interface/URStreamer.h"
 #include "Analyses/URTTbar/interface/IDJet.h"
 #include <iostream>
-
+#include <stdexcept>
+#include <sstream>
 using namespace std;
 
 class TTBarSolver;
@@ -47,7 +48,7 @@ class Permutation
 		int NumBJets() const {return((bjl_ != 0 ? 1 : 0) + (bjh_ != 0 ? 1 : 0));}
 		int NumWJets() const {return((wja_ != 0 ? 1 : 0) + (wjb_ != 0 ? 1 : 0));}
 		int NumTTBarJets() const {return(NumBJets() + NumWJets());}
-		double Solve(TTBarSolver& ttsolver, bool kinfit = false);
+		double Solve(TTBarSolver& ttsolver, bool kinfit = false, bool lazy = false); //lazy allows the third jet to be NULL
 		IDJet* WJa() const {return(wja_);}
 		IDJet* WJb() const {return(wjb_);}
 		IDJet* BHad() const {return(bjh_);}
@@ -67,7 +68,14 @@ class Permutation
 
 		TLorentzVector Nu() const {return(nu_);}
 		const TLorentzVector* NuPtr() const {return(&nu_);}
-		TLorentzVector WHad() const {return((*WJa() + *WJb()));}
+		TLorentzVector WHad() const {
+			if(!WJa()) {
+				stringstream err;
+				err << "WJa is not defined in the permutation: " << *this;
+				throw std::runtime_error(err.str());
+			}
+			return (WJb()) ? (*WJa() + *WJb()) : *WJa();
+		}
 		TLorentzVector WLep() const {return((*L() + Nu()));}
 		TLorentzVector THad() const {return((WHad() + *BHad()));}
 		TLorentzVector TLep() const {return((WLep() + *BLep()));}

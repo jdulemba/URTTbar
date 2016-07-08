@@ -267,6 +267,7 @@ void TTGenParticleSelector::select_lhe(URStreamer& event) {
       if(Abs(lhe.pdgid()) < 6) wpartons_.push_back(&(selected_.back()));
       if(Abs(lhe.pdgid()) == ura::PDGID::e || Abs(lhe.pdgid()) == ura::PDGID::mu || Abs(lhe.pdgid()) == ura::PDGID::tau) {
 				charged_leps_.push_back(&(selected_.back()));
+				final_charged_leps_.push_back(&(selected_.back()));
 			}
       if(Abs(lhe.pdgid()) == ura::PDGID::nu_e || Abs(lhe.pdgid()) == ura::PDGID::nu_mu || Abs(lhe.pdgid()) == ura::PDGID::nu_tau) {
         neutral_leps_.push_back(&(selected_.back()));
@@ -326,7 +327,7 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
       return false;
 			}*/
   }
-	// Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size()
+	// Logger::log().debug() << "wpartons: " << wpartons_.size() << ", charged_leps: " << charged_leps_.size() << ", final_charged_leps_: " << final_charged_leps_.size()
 	// 											<< ", neutral_leps: " <<neutral_leps_.size() << ", b: " << b_ << ", bbar_: "
 	// 											<< bbar_ << ", top: " << top_ << ", tbar: " << tbar_ << std::endl;
   ttbar_ = GenTTBar::from_collections( 
