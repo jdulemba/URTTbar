@@ -41,26 +41,24 @@ void TTPermutator::configure() {
 }
 
 bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc) {
-  reset(); //clear everything
-  jets_ = jets;
-  lepton_ = lepton;
-  met_ = met;
-  lcharge_ = lc;
-
+	reset(); //clear everything
+	jets_ = jets;
+	lepton_ = lepton;
+	met_ = met;
+	lcharge_ = lc;
   //keeping only the n leading jets. 
 	sort(jets_.begin(), jets_.end(), [](IDJet* A, IDJet* B){return(A->Pt() > B->Pt());});
 	int reducedsize = Min(jets_.size(), cut_max_jets_);
 	capped_jets_.resize(reducedsize);
 	copy(jets_.begin(), jets_.begin()+reducedsize, capped_jets_.begin());
-  
   //check b-tagging conditions
-  sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
-  if(!capped_jets_[0]->BTagId(cut_tight_b_))  return false;
-  tracker_->track("tight b cut");
-  if(!capped_jets_[1]->BTagId(cut_loose_b_)) return false;
-  tracker_->track("loose b cut");
+	sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
+	if(!capped_jets_[0]->BTagId(cut_tight_b_)) return false;
+	if(tracker_) tracker_->track("tight b cut");
+	if(!capped_jets_[1]->BTagId(cut_loose_b_)) return false;
+	if(tracker_) tracker_->track("loose b cut");
 
-  return true;
+	return true;
 }
 
 Permutation TTPermutator::next(bool &keep_going) {
@@ -94,7 +92,8 @@ Permutation TTPermutator::next(bool &keep_going) {
           Permutation perm(
             wjet1, wjet2,
             bjet1, bjet2,
-            lepton_, met_
+            lepton_, met_,
+	    lcharge_ //added this to pass lepton charge
             );                    
           //Logger::log().debug() <<"-->"<< jet_pos_[0] << " " << jet_pos_[1] << " " << jet_pos_[2] << " " << jet_pos_[3] << std::endl;
           //step forward the state before returning, otherwise gets stuck

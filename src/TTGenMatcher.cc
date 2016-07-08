@@ -29,8 +29,16 @@ Permutation TTGenMatcher::match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets,
 	ret.BLep( gen_match(gen_hyp.lep_b(), jets) );
 	const GenObject* lepton = gen_hyp.lepton();
 
-	ret.WJa( gen_match(gen_hyp.had_W()->first , jets) );
-	ret.WJb( gen_match(gen_hyp.had_W()->second, jets) );
+	if( gen_hyp.had_W()->first->pdgId() % 2 == 0 ){
+		ret.WJa( gen_match(gen_hyp.had_W()->first , jets) );
+		ret.WJb( gen_match(gen_hyp.had_W()->second, jets) );
+	}
+	if( gen_hyp.had_W()->first->pdgId() % 2 == 1 ){
+		ret.WJa( gen_match(gen_hyp.had_W()->second, jets) );
+		ret.WJb( gen_match(gen_hyp.had_W()->first, jets) );
+	}
+//	cout << "Up-type: " << ret.WJa()->pdgId() << endl;
+//	cout << "Down-type: " <<ret. WJb()->pdgId() << endl;
 
 	if(fabs(lepton->pdgId()) == ura::PDGID::e){
     IDElectron* matched = gen_match(lepton, electrons);
