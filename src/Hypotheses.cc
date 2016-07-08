@@ -58,7 +58,7 @@ namespace hyp {
     thad().b(*p.BHad());
 		//if gen matching exists and makes sense
 		if(p.WJa()->match() && p.WJb()->match() &&
-			 p.WJa()->match()->pdgId() % 2 == 0 && p.WJb()->match()->pdgId() % 2 == 1) { //% works also with negative numbers!
+			 (p.WJa()->match()->pdgId()+p.WJb()->match()->pdgId()) % 2 == 1) { //check that one is up and one is down
 			if(p.WJa()->match()->pdgId() % 2 == 0) {
 				thad().W().up(*p.WJa());
 				thad().W().down(*p.WJb());				
