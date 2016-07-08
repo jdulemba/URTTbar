@@ -56,8 +56,22 @@ namespace hyp {
     tlep().setv(tlep().W()+*p.BLep());
 
     thad().b(*p.BHad());
-    thad().W().up(*p.WJa()); //Assumes WJa is up one!
-    thad().W().down(*p.WJb());
+		//if gen matching exists and makes sense
+		if(p.WJa()->match() && p.WJb()->match() &&
+			 p.WJa()->match()->pdgId() % 2 == 0 && p.WJb()->match()->pdgId() % 2 == 1) { //% works also with negative numbers!
+			if(p.WJa()->match()->pdgId() % 2 == 0) {
+				thad().W().up(*p.WJa());
+				thad().W().down(*p.WJb());				
+			}
+			else {
+				thad().W().up(*p.WJb());
+				thad().W().down(*p.WJa());				
+			}
+		} 
+		else {
+			thad().W().up(*p.WJa()); //Assumes WJa is up one!
+			thad().W().down(*p.WJb());
+		}
     thad().W().setv(*p.WJa()+*p.WJb());
     thad().setv(thad().W()+*p.BHad());
     setv(thad()+tlep());
