@@ -232,8 +232,8 @@ public:
     book<TH1F>(dir, "tframe_bhad_costheta", "", 200, -1, 1);
 
 		//top angles
-    book<TH1F>(dir, "ttframe_top_costheta", "", 200, -1, 1);
-    book<TH1F>(dir, "ttframe_tba_costheta", "", 200, -1, 1);
+    book<TH1F>(dir, "ttframe_top_costheta", "", 10, -1, 1);
+    book<TH1F>(dir, "ttframe_tba_costheta", "", 10, -1, 1);
   }
 
   void fill_angular_plots(string dir, hyp::TTbar& ttbar) {
