@@ -562,7 +562,7 @@ void TTGenParticleSelector::select_with_deps(URStreamer& event)
 	//look for W decay products
   vector<const Genparticle*> root_leps;
   for(auto& gp : gps) {
-    int abs_pdgid = fabs(gp.pdgId());
+    int abs_pdgid = std::abs(gp.pdgId());
     // if(abs_pdgid > 5 && abs_pdgid % 2 == 0) {
     //   cout << "neutrino found: mother " << gps[gp.momIdx()[0]].pdgId() << endl;
     // }

@@ -581,9 +581,9 @@ public:
     tracker_.track("gen matching");
     if(matched.IsComplete()) {
       matched.Solve(solver_);
-      
       //fil reco
       hyp::TTbar ttreco(matched);
+			tracker_.track("matchfill");
       fill(ttreco, decay+"matched", gen_ptr);
       fill_eff_plots(ttgen, decay+"matched");
 
@@ -595,6 +595,7 @@ public:
       matched.WJb()->resetp4();
       matched.BHad()->resetp4();
     }    
+		tracker_.track("aftermfl");
   
     //Find best permutation
     bool go_on = true;

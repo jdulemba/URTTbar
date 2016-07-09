@@ -1,6 +1,7 @@
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
 #include "Analyses/URTTbar/interface/GenObject.h"
 #include "URAnalysis/AnalysisFW/interface/URParser.h"
+#include "URAnalysis/AnalysisFW/interface/PDGID.h"
 
 const map<std::string, TTGenMatcher::MatchMode> TTGenMatcher::name_to_mode = {
   {"DR_DR", TTGenMatcher::MatchMode::DR_DR}, 
@@ -33,7 +34,7 @@ Permutation TTGenMatcher::match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets,
 		ret.WJa( gen_match(gen_hyp.had_W()->first , jets) );
 		ret.WJb( gen_match(gen_hyp.had_W()->second, jets) );
 	}
-	if( gen_hyp.had_W()->first->pdgId() % 2 == 1 ){
+	else {
 		ret.WJa( gen_match(gen_hyp.had_W()->second, jets) );
 		ret.WJb( gen_match(gen_hyp.had_W()->first, jets) );
 	}
