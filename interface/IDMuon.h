@@ -13,7 +13,7 @@ private:
 
 public:
 	static bool USEISO;
-	enum IDS {TIGHT_12, LOOSE_12, TIGHT_12Db, LOOSE_12Db, TIGHT_15, LOOSE_15};
+	enum IDS {TIGHT_12, LOOSE_12, TIGHT_12Db, LOOSE_12Db, TIGHT_15, LOOSE_15, TIGHT_15Db, LOOSE_15Db};
   static const std::map<std::string, IDS> id_names;
 
 	IDMuon(const Muon mu, double rho=-1);

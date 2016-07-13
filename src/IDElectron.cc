@@ -8,7 +8,8 @@ using namespace TMath;
 const std::map<std::string, IDElectron::IDS> IDElectron::id_names = {
   {"TIGHT_15"   , IDElectron::IDS::TIGHT_15   },
   {"MEDIUM_15"  , IDElectron::IDS::MEDIUM_15  },
-  {"LOOSE_15"   , IDElectron::IDS::LOOSE_15   }
+  {"LOOSE_15"   , IDElectron::IDS::LOOSE_15   },
+  {"VETO_15"    , IDElectron::IDS::VETO_15    }
 };
 
 IDElectron::IDS IDElectron::id(const std::string label) {
@@ -109,6 +110,7 @@ bool IDElectron::ID(IDS idtyp)
   case TIGHT_15: return TightID25ns();
   case MEDIUM_15: return MediumID25ns();
   case LOOSE_15: return LooseID25ns();
+	case VETO_15: return VetoID25ns();
   }
   return false;
 }

@@ -11,7 +11,9 @@ const std::map<std::string, IDMuon::IDS> IDMuon::id_names = {
   {"TIGHT_12Db", IDMuon::IDS::TIGHT_12Db},
   {"LOOSE_12Db", IDMuon::IDS::LOOSE_12Db},
   {"TIGHT_15", IDMuon::IDS::TIGHT_15},
-  {"LOOSE_15", IDMuon::IDS::LOOSE_15}
+  {"LOOSE_15", IDMuon::IDS::LOOSE_15},
+	{"TIGHT_15Db", IDMuon::IDS::TIGHT_15Db},
+	{"LOOSE_15Db", IDMuon::IDS::LOOSE_15Db} 
 };
 
 IDMuon::IDS IDMuon::id(const std::string label) {
@@ -106,6 +108,12 @@ bool IDMuon::ID(IDS idtyp)
   else if(idtyp == LOOSE_15) {
     return isLoose() && (trackiso())/Pt() < 0.1; //(PFIsoDb() < 0.25);
   }
+	else if(idtyp == IDMuon::IDS::TIGHT_15Db) {
+		return isTight() && (PFIsoDb()/Pt()) <  0.15;
+	}
+  else if(idtyp == IDMuon::IDS::LOOSE_15Db) {
+		return isLoose() && (PFIsoDb()/Pt()) < 0.25;
+	}
 	return(false);
 }
 
