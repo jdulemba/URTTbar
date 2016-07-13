@@ -6,7 +6,7 @@
 
 using namespace TMath;
 
-float MCWeightProducer::evt_weight(URStreamer &evt, systematics::SysShifts shift) {
+float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift) {
   const Geninfo& info = evt.genInfo();
   float ret = info.weight()/Abs(info.weight());
   
@@ -19,8 +19,11 @@ float MCWeightProducer::evt_weight(URStreamer &evt, systematics::SysShifts shift
   case systematics::SysShifts::RENORM_UP: ret *= ret*ws[3].weights()/ws[0].weights(); break;
   default: break;
   }
+	return ret;
+}
 
-  //FIXME: add shifts up/down
+float MCWeightProducer::pu_weight(URStreamer &evt, systematics::SysShifts shift) {
+	float ret=1.;
   switch(shift) {
   case systematics::SysShifts::PU_UP: ret *= pu_sf_up_.weight(evt.PUInfos()[0].nInteractions()); break;
   case systematics::SysShifts::PU_DW: ret *= pu_sf_dw_.weight(evt.PUInfos()[0].nInteractions()); break;
