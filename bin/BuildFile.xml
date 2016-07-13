@@ -21,4 +21,6 @@
 <!--bin file="ttxs.cc"               name="ttxs"/-->              
 <bin file="Test_Analyzer.cc"        name="Test_Analyzer"/>
 <bin file="TESTCRASH.cc"        name="TESTCRASH"/>
+<bin file="htt_simple.cc"        name="htt_simple"/>
+<bin file="htt_flav_effs.cc"        name="htt_flav_effs"/>
 
