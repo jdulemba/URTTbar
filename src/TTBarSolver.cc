@@ -1,6 +1,7 @@
 #include "Analyses/URTTbar/interface/TTBarSolver.h"
 #include "Analyses/URTTbar/interface/NeutrinoSolver.h"
 #include "Analyses/URTTbar/interface/IDMet.h"
+#include "URAnalysis/AnalysisFW/interface/Wards.h"
 #include <iostream>
 
 TTBarSolver* TTBarSolver::TTBS = 0; 
@@ -10,65 +11,44 @@ void myfuncln(Int_t& npar, Double_t* deriv, Double_t& val, Double_t* par, Int_t 
 	val = TTBarSolver::TTBS->Test(par);
 }
 
-TTBarSolver::TTBarSolver() : minuit(9), probfile(0)
+TTBarSolver::TTBarSolver() : 
+	minuit_(9), 
+	WTmass_right_(),
+	BTag_right_(),
+	N_right_(), 
+	WTmass_wrong_(),
+	BTag_wrong_(), 
+	N_wrong_()
 {
 }
 
 TTBarSolver::~TTBarSolver()
-{
-	if(probfile != 0) {probfile->Close();}
-  else if(WTmass_right) {
-    delete WTmass_right;
-    delete WTmass_wrong;
-    delete BTag_right;
-    delete N_right;
-    delete N_wrong;
-  }
-}
+{}
 
 void TTBarSolver::Init(string filename, bool usebtag, bool usens, bool usemass)
 {
-	USEBTAG = usebtag;
-	USENS = usens;
-	USEMASS = usemass;
+	USEBTAG_ = usebtag;
+	USENS_ = usens;
+	USEMASS_ = usemass;
   if(!filename.empty()) {
-    TDirectory* dir = gDirectory;
-    probfile = new TFile(filename.c_str(), "READ");
-    WTmass_right = dynamic_cast<TH2D*>(probfile->Get("TRUTH/truth_Wmasshad_tmasshad_right"));
-    WTmass_right->Scale(1./WTmass_right->Integral("width"));
-    WTmass_wrong = dynamic_cast<TH2D*>(probfile->Get("TRUTH/truth_Wmasshad_tmasshad_wrong"));
-    WTmass_wrong->Scale(1./WTmass_wrong->Integral("width"));
-    BTag_right = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_btag_true"));
-    BTag_right->Scale(1./BTag_right->Integral("width"));
-    BTag_wrong = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_btag_wrong"));
-    BTag_wrong->Scale(1./BTag_wrong->Integral("width"));
-    N_right = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_nschi_right"));
-    N_right->Scale(1./N_right->Integral("width"));
-    N_wrong = dynamic_cast<TH1D*>(probfile->Get("TRUTH/truth_nschi_wrong"));
-    N_wrong->Scale(1./N_wrong->Integral("width"));
-    dir->cd();
+		DirectoryWard dward;
+    TFile* probfile = TFile::Open(filename.c_str(), "READ");
+		Init(probfile, usebtag, usens, usemass);
   }  
 }
 
 void TTBarSolver::Init(TDirectory* dir, bool usebtag, bool usens, bool usemass, string wtname, string bname, string nuname) {
-	USEBTAG = usebtag;
-	USENS = usens;
-	USEMASS = usemass;
+	USEBTAG_ = usebtag;
+	USENS_ = usens;
+	USEMASS_ = usemass;
   if(dir) {
-    TH1::AddDirectory(false);
-    WTmass_right = (TH2D*) (dynamic_cast<TH2D*>( dir->Get( (wtname+"_right").c_str() ) )->Clone("wt_right"));
-    WTmass_right->Scale(1./WTmass_right->Integral("width"));
-    WTmass_wrong = (TH2D*) (dynamic_cast<TH2D*>( dir->Get( (wtname+"_wrong").c_str() ) )->Clone("wt_wrong"));
-    WTmass_wrong->Scale(1./WTmass_wrong->Integral("width"));
-    BTag_right = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (bname+"_right").c_str() ) )->Clone("b_right"));
-    BTag_right->Scale(1./BTag_right->Integral("width"));
-    BTag_wrong = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (bname+"_wrong").c_str() ) )->Clone("b_wrong"));
-    BTag_wrong->Scale(1./BTag_wrong->Integral("width"));
-    N_right = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (nuname+"_right").c_str() ) )->Clone("nu_right"));
-    N_right->Scale(1./N_right->Integral("width"));
-    N_wrong = (TH1D*) (dynamic_cast<TH1D*>( dir->Get( (nuname+"_wrong").c_str() ) )->Clone("nu_wrong"));
-    N_wrong->Scale(1./N_wrong->Integral("width"));
-    TH1::AddDirectory(true);
+		HistoOwnershipWard hward;
+    WTmass_right_ = preproccess_histo<TH2D>(dir, (wtname+"_right"), "wt_right");
+    WTmass_wrong_ = preproccess_histo<TH2D>(dir, (wtname+"_wrong"), "wt_wrong");
+    BTag_right_ = preproccess_histo<TH1D>(dir, (bname+"_right"), "b_right");
+    BTag_wrong_ = preproccess_histo<TH1D>(dir, (bname+"_wrong"), "b_wrong");
+    N_right_ = preproccess_histo<TH1D>(dir, (nuname+"_right"), "nu_right");
+    N_wrong_ = preproccess_histo<TH1D>(dir, (nuname+"_wrong"), "nu_wrong");
   }  
 }
 
@@ -94,48 +74,48 @@ void TTBarSolver::Solve(Jet* bhad, Jet* j1had, Jet* j2had, Jet* blep, TLorentzVe
 	//umety_ = 25;//Sqrt(met_->pyUnc());
 	rhomet_ = 0.;//met_->pxpyUnc()/(umetx_*umety_);
 
-	nschi = -1;
-	res = 1.E10;
-	nstest = 1.E10;
-	masstest = 1.E10;
+	nschi_ = -1;
+	res_ = 1.E10;
+	nstest_ = 1.E10;
+	masstest_ = 1.E10;
 	//cout << bhad->csvIncl() << " " << blep->csvIncl() << " " << j1had->csvIncl() << " " << j2had->csvIncl() << endl;
-  if(USEBTAG && BTag_right && BTag_wrong) {
+  if(USEBTAG_ && BTag_right_ && BTag_wrong_) {
     //std::cout << bhad->csvIncl() << std::endl;
-    btagtest = -1.*Log(BTag_right->Interpolate(bhad->csvIncl())/BTag_wrong->Interpolate(bhad->csvIncl()));
-    btagtest -= Log(BTag_right->Interpolate(blep->csvIncl())/BTag_wrong->Interpolate(blep->csvIncl()));
-    btagtest -= Log(BTag_wrong->Interpolate(j1had->csvIncl())/BTag_right->Interpolate(j1had->csvIncl()));
-    btagtest -= Log(BTag_wrong->Interpolate(j2had->csvIncl())/BTag_right->Interpolate(j2had->csvIncl()));
+    btagtest_ = -1.*Log(BTag_right_->Interpolate(bhad->csvIncl())/BTag_wrong_->Interpolate(bhad->csvIncl()));
+    btagtest_ -= Log(BTag_right_->Interpolate(blep->csvIncl())/BTag_wrong_->Interpolate(blep->csvIncl()));
+    btagtest_ -= Log(BTag_wrong_->Interpolate(j1had->csvIncl())/BTag_right_->Interpolate(j1had->csvIncl()));
+    btagtest_ -= Log(BTag_wrong_->Interpolate(j2had->csvIncl())/BTag_right_->Interpolate(j2had->csvIncl()));
 	}
 
 	TTBS = this;
-	minuit.SetFCN(myfuncln);
-	minuit.SetPrintLevel(-1);
+	minuit_.SetFCN(myfuncln);
+	minuit_.SetPrintLevel(-1);
 	Int_t flags = 0;
-	minuit.mnparm(0, "top mass", 173., 1., 10, 1000, flags);
-	minuit.mnparm(1, "w mass", 80., 1., 10, 1000, flags);
-	minuit.mnparm(2, "ubhad", 1, 0.01, 0.5, 1.5, flags);
-	minuit.mnparm(3, "uj1had", 1, 0.01, 0.5, 1.5, flags);
-	minuit.mnparm(4, "uj2had", 1, 0.01, 0.5, 1.5, flags);
-	minuit.mnparm(5, "ublep", 1, 0.01, 0.5, 1.5, flags);
-	minuit.mnparm(6, "ullep", 1, 0.01, 0.5, 1.5, flags);
-	minuit.mnparm(7, "umetx", 1, 0.01, 0.5, 1.5, flags);
-	minuit.mnparm(8, "umety", 1, 0.01, 0.5, 1.5, flags);
-	//minuit.mnparm(9, "metz", neutrino.Pz(), 1., 0., 10000., flags);
-	//minuit.mnparm(10, "wn mass", 80., 1., 10, 1000, flags);
+	minuit_.mnparm(0, "top mass", 173., 1., 10, 1000, flags);
+	minuit_.mnparm(1, "w mass", 80., 1., 10, 1000, flags);
+	minuit_.mnparm(2, "ubhad", 1, 0.01, 0.5, 1.5, flags);
+	minuit_.mnparm(3, "uj1had", 1, 0.01, 0.5, 1.5, flags);
+	minuit_.mnparm(4, "uj2had", 1, 0.01, 0.5, 1.5, flags);
+	minuit_.mnparm(5, "ublep", 1, 0.01, 0.5, 1.5, flags);
+	minuit_.mnparm(6, "ullep", 1, 0.01, 0.5, 1.5, flags);
+	minuit_.mnparm(7, "umetx", 1, 0.01, 0.5, 1.5, flags);
+	minuit_.mnparm(8, "umety", 1, 0.01, 0.5, 1.5, flags);
+	//minuit_.mnparm(9, "metz", neutrino.Pz(), 1., 0., 10000., flags);
+	//minuit_.mnparm(10, "wn mass", 80., 1., 10, 1000, flags);
 	if(!LEPMASS)
 	{
-		minuit.FixParameter(0);
-		minuit.FixParameter(1);
+		minuit_.FixParameter(0);
+		minuit_.FixParameter(1);
 	}
 	if(!SMEAR)
 	{
-		minuit.FixParameter(2);
-		minuit.FixParameter(3);
-		minuit.FixParameter(4);
-		minuit.FixParameter(5);
-		minuit.FixParameter(6);
-		minuit.FixParameter(7);
-		minuit.FixParameter(8);
+		minuit_.FixParameter(2);
+		minuit_.FixParameter(3);
+		minuit_.FixParameter(4);
+		minuit_.FixParameter(5);
+		minuit_.FixParameter(6);
+		minuit_.FixParameter(7);
+		minuit_.FixParameter(8);
 	}
 	if(!LEPMASS && !SMEAR)
 	{
@@ -153,8 +133,8 @@ void TTBarSolver::Solve(Jet* bhad, Jet* j1had, Jet* j2had, Jet* blep, TLorentzVe
 	}
 	else
 	{
-		minuit.SetMaxIterations(500);
-		minuit.Migrad();
+		minuit_.SetMaxIterations(500);
+		minuit_.Migrad();
 	}
 }
 
@@ -166,37 +146,37 @@ double TTBarSolver::Test(double* par)
 	blepT_ = TLorentzVector(blep_->Px()*par[5], blep_->Py()*par[5], blep_->Pz()*par[5], blep_->E()*par[5]);
 	llepT_ = TLorentzVector(llep_->Px()*par[6], llep_->Py()*par[6], llep_->Pz()*par[6], llep_->E()*par[6]);
 	NeutrinoSolver NS(&llepT_, &blepT_, par[1], par[0]);
-	metT_ = TLorentzVector(NS.GetBest(met_->Px()*par[7], met_->Py()*par[8], umetx_, umety_, rhomet_, nschi));
-	//cout << nschi << " NS " << (metT_ + *llep_ + *blep_).M() << " " << (metT_ + *llep_).M() << endl;
-	if(nschi > 0. && nschi < 10000. && N_right)
+	metT_ = TLorentzVector(NS.GetBest(met_->Px()*par[7], met_->Py()*par[8], umetx_, umety_, rhomet_, nschi_));
+	//cout << nschi_ << " NS " << (metT_ + *llep_ + *blep_).M() << " " << (metT_ + *llep_).M() << endl;
+	if(nschi_ > 0. && nschi_ < 10000. && N_right_)
 	{
-		nstest = -1.*Log(N_right->Interpolate(Sqrt(nschi)));
+		nstest_ = -1.*Log(N_right_->Interpolate(Sqrt(nschi_)));
 	}
 
 	double mwhad = (j1hadT_ + j2hadT_).M();
 	double mthad = (j1hadT_ + j2hadT_ + bhadT_).M();
-	if(mthad < 500. && mwhad < 500. && WTmass_right)
+	if(mthad < 500. && mwhad < 500. && WTmass_right_)
 	{
-		double massdisval = WTmass_right->Interpolate(mwhad, mthad);
-		if(massdisval > 1.0E-10) {masstest = -1.*Log(massdisval);}
-		//masstest = -1.*Log(WTmass_right->Interpolate(mwhad, mthad)/Max(1., WTmass_wrong->Interpolate(mwhad, mthad)));
+		double massdisval = WTmass_right_->Interpolate(mwhad, mthad);
+		if(massdisval > 1.0E-10) {masstest_ = -1.*Log(massdisval);}
+		//masstest_ = -1.*Log(WTmass_right_->Interpolate(mwhad, mthad)/Max(1., WTmass_wrong_->Interpolate(mwhad, mthad)));
 	}
 
-	res = 0.;
+	res_ = 0.;
 	double sqrt2 = Sqrt(2);
-	res += Power((par[0]-173)/(20), 2);
-	res += Power((par[1]-80)/(20), 2);
-	res += Power((par[2]-1.)/ubhad_/sqrt2 , 2);
-	res += Power((par[3]-1.)/uj1had_/sqrt2 , 2);
-	res += Power((par[4]-1.)/uj2had_/sqrt2 , 2);
-	res += Power((par[5]-1.)/ublep_/sqrt2 , 2);
-	res += Power((par[6]-1.)/ullep_/sqrt2 , 2);
-	res += Power((par[7]-1.)/umetx_/sqrt2 , 2);
-	res += Power((par[8]-1.)/umety_/sqrt2 , 2);
-	if(USEMASS) {res += masstest;}
-	if(USENS) {res += nstest;}
-	if(USEBTAG) {res += btagtest;}
+	res_ += Power((par[0]-173)/(20), 2);
+	res_ += Power((par[1]-80)/(20), 2);
+	res_ += Power((par[2]-1.)/ubhad_/sqrt2 , 2);
+	res_ += Power((par[3]-1.)/uj1had_/sqrt2 , 2);
+	res_ += Power((par[4]-1.)/uj2had_/sqrt2 , 2);
+	res_ += Power((par[5]-1.)/ublep_/sqrt2 , 2);
+	res_ += Power((par[6]-1.)/ullep_/sqrt2 , 2);
+	res_ += Power((par[7]-1.)/umetx_/sqrt2 , 2);
+	res_ += Power((par[8]-1.)/umety_/sqrt2 , 2);
+	if(USEMASS_) {res_ += masstest_;}
+	if(USENS_) {res_ += nstest_;}
+	if(USEBTAG_) {res_ += btagtest_;}
 
-	return(res);
+	return(res_);
 }
 
