@@ -539,6 +539,7 @@ end
 task :sys_breakdown, [:wp] do |t, args|
   wpdir = "plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}"
   Rake::Task["#{wpdir}/MultiDimFit.root"].invoke()
+  Rake::Task["#{wpdir}/MaxLikeFitStatOnly.root"].invoke()
   sh "mkdir -p #{wpdir}/sys_breakdown/"  
   nuisances=File.readlines("#{wpdir}/datacard.txt").grep(/( lnN )|( shape )|( param )/).map {|x| x.split()[0]}
   #groups = [/_bin_/, /_MCStat/]
