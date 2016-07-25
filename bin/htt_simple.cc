@@ -35,6 +35,7 @@
 #include "Analyses/URTTbar/interface/PDFuncertainty.h"
 #include <sstream>
 #include <unordered_map>
+#include "URAnalysis/AnalysisFW/interface/EventList.h"
 
 using namespace TMath;
 
@@ -89,6 +90,7 @@ public:
 		sync_tree_(0),
 		sync_info_()
 	{
+		Logger::log().debug() << "htt_simple ctor" << endl;
     cut_tight_b_ = btag_sf_.tight_cut();
     cut_loose_b_ = btag_sf_.loose_cut();
     //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
@@ -104,6 +106,7 @@ public:
 
     //set tracker
     tracker_.use_weight(&evt_weight_);
+		tracker_.verbose(true);
     object_selector_.set_tracker(&tracker_);
 
     //find out which sample are we running on
@@ -114,6 +117,10 @@ public:
 		isTTbar_ = boost::starts_with(sample, "ttJets") || isSignal_;
 		isData_  = boost::starts_with(sample, "data");
 
+		if(isData_) {
+			if(sample.find("SingleElectron") != std::string::npos) object_selector_.lepton_type(-1);
+			else object_selector_.lepton_type(1);
+		}
 		sync_ = values.count("sync");
     if(!isData_) mc_weights_.init(sample);
 
@@ -234,7 +241,12 @@ public:
 		string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
 		tracker_.group(leptype);
 		tracker_.track("object selection", leptype);
-
+		
+		// cout << object_selector_.clean_jets().size() << endl;
+		// for(auto i : object_selector_.clean_jets()) {
+		// 	cout << *i << endl;
+		// }
+		// cout << "Muon: " << *object_selector_.lepton() << endl;
     //MC Weight for lepton selection
 		float lep_weight=1;
     if(!isData_) { 
@@ -265,7 +277,10 @@ public:
 		evt_weight_ *= bweight;
 
 		//cut on MT
-		double mt = (*object_selector_.lepton()+*object_selector_.met()).Mt() ;
+		TLorentzVector *l = object_selector_.lepton();
+		TLorentzVector *met = object_selector_.met();
+		double mt = sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
+		//(*object_selector_.lepton()+*object_selector_.met()).Mt() ;
 		if(mt < cut_MT_) return;
 		tracker_.track("MT cut", leptype);
     
@@ -280,13 +295,14 @@ public:
 			fill_selection_plots(evtdir.str(), event);
 		} else {
 			cout << "passing event " << " / " << event.run << ":" << event.lumi << ":" << event.evt << 
-				" / Muon: "<< (object_selector_.lepton_type() == -1) << endl;
+				" / Muon: "<< !(object_selector_.lepton_type() == -1) << endl;
 			sync_info_["hasMuon"] = (object_selector_.lepton_type() == -1) ? 0 : 1;
 			sync_info_["btagweight"] = bweight;
 			sync_info_["leptonweight"] = lep_weight;
 			sync_info_["finalweight"] = evt_weight_;
 			sync_tree_->Fill();
 		} 
+		tracker_.track("END", leptype);
 	}
 
   //This method is called once every file, contains the event loop
@@ -297,6 +313,12 @@ public:
 		int limit = values["limit"].as<int>();
 		int report = values["report"].as<int>();
 		int skip  = values["skip"].as<int>();
+		string pick = values["pick"].as<string>();
+		EventList picker;
+		if(pick.size() != 0) {
+			EventList nn(pick);
+			picker = nn;
+		}
 
     if(evt_idx_ >= limit) return;
     Logger::log().debug() << "htt_simple::analyze" << endl;
@@ -305,6 +327,13 @@ public:
     while(event.next()) {
 			// if(evt_idx_ % 1000 == 0) Logger::log().warning() << "Beginning event: " <<
       //                           evt_idx_ << endl;
+			if(picker.active()) {
+				if(picker.contains(event.run, event.lumi, event.evt)) {
+					Logger::log().debug() << "Picking event " << " run: " << event.run << " lumisection: " << 
+						event.lumi << " eventnumber: " << event.evt << endl;
+				}
+				else continue;
+			}
 			if(limit > 0 && evt_idx_ > limit) {
 				return;
 			}
@@ -342,6 +371,7 @@ public:
 			return;
 		}
 		outFile_.Write();
+		tracker_.writeTo(outFile_);
 		for(string ltype : {"electrons", "muons"}) {
 			TDirectory* tdir = (TDirectory*) outFile_.Get(ltype.c_str());
 			tracker_.writeTo(*tdir, ltype);
@@ -362,7 +392,8 @@ public:
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("report,r", opts::value<int>()->default_value(10000), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
-      ("sync", "dump sync ntuple");
+      ("sync", "dump sync ntuple")
+      ("pick", opts::value<string>()->default_value(""), "pick from evtlist");
 
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");

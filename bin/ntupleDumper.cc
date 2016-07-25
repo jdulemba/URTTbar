@@ -19,6 +19,7 @@
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
+#include "URAnalysis/AnalysisFW/interface/EventList.h"
 //#include <map>
 
 using namespace std;
@@ -58,8 +59,22 @@ public:
 		int skip  = values["skip"].as<int>();
     int report = values["report"].as<int>();
 		bool mc = values["mc"].as<bool>();
+		string pick = values["pick"].as<string>();
+		EventList picker;
+		if(pick.size() != 0) {
+			EventList nn(pick);
+			picker = nn;
+		}
+
     Logger::log().debug() << "-- DONE -- reporting every -- " << report << endl;
     while(event.next()) {
+			if(picker.active()) {
+				if(picker.contains(event.run, event.lumi, event.evt)) {
+					Logger::log().debug() << "Picking event " << " run: " << event.run << " lumisection: " << 
+						event.lumi << " eventnumber: " << event.evt << endl;
+				}
+				else continue;
+			}
 			if(limit > 0 && evt_idx > limit) {
 				return;
 			}
@@ -98,7 +113,7 @@ public:
 				cout <<" #" << i+1 << endl;
 				cout <<"  Raw momentum (pt, eta, phi, m): " << jet.uncorrPt() << ", " << jet.uncorrEta() << ", " << jet.uncorrPhi() <<", "<<jet.uncorrM() << endl;
 				double pt = (mc) ? jet.Pt()*jet.JER() : jet.Pt();
-				cout <<"  Fully corrected pt: " << pt << endl;
+				cout <<"  Fully corrected pt: " << pt << " JER: " << jet.JER() << " JES: " << jet.Pt()/jet.uncorrPt() << endl;
 				if(mc) {
 					double jerup = Abs(jet.JERUp()-jet.JER());
 					double jerdw = Abs(jet.JERDown()-jet.JER());
@@ -141,7 +156,8 @@ public:
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("report", opts::value<int>()->default_value(10000), "report every in debug mode")
-			("mc", opts::value<bool>()->default_value(false), "report every in debug mode");
+			("mc", opts::value<bool>()->default_value(false), "report every in debug mode")
+      ("pick", opts::value<string>()->default_value(""), "pick from evtlist");
   }
 };
 
