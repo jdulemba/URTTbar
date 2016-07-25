@@ -22,7 +22,7 @@ public:
 	//why this here? it is likely to break 
   //if we ever move to threaded running!
 	static bool USEISO;
-	enum IDS {TIGHT_15, MEDIUM_15, LOOSE_15, VETO_15};
+	enum IDS {TIGHT_15, MEDIUM_15, LOOSE_15, VETO_15, TIGHT_15_NoECAL_Gap};
   static const std::map<std::string, IDElectron::IDS> id_names;
 
   static IDS id(std::string label);

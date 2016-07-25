@@ -243,7 +243,7 @@ private:
 class Filter{
 friend class URStreamer;
 public:
-//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_):
+//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_CSCTightHalo2015Filter_):
 //    
 //  {}
   Filter():
@@ -258,7 +258,9 @@ public:
     Flag_METFilters_(0),
     Flag_HBHENoiseFilter_(0),
     Flag_trkPOG_toomanystripclus53X_(0),
-    Flag_hcalLaserEventFilter_(0)
+    Flag_hcalLaserEventFilter_(0),
+    Flag_HBHENoiseIsoFilter_(0),
+    Flag_CSCTightHalo2015Filter_(0)
   {}
   Int_t Flag_goodVertices() const {return Flag_goodVertices_;}
   Int_t Flag_CSCTightHaloFilter() const {return Flag_CSCTightHaloFilter_;}
@@ -272,6 +274,8 @@ public:
   Int_t Flag_HBHENoiseFilter() const {return Flag_HBHENoiseFilter_;}
   Int_t Flag_trkPOG_toomanystripclus53X() const {return Flag_trkPOG_toomanystripclus53X_;}
   Int_t Flag_hcalLaserEventFilter() const {return Flag_hcalLaserEventFilter_;}
+  Int_t Flag_HBHENoiseIsoFilter() const {return Flag_HBHENoiseIsoFilter_;}
+  Int_t Flag_CSCTightHalo2015Filter() const {return Flag_CSCTightHalo2015Filter_;}
 private:
   Int_t Flag_goodVertices_;
   Int_t Flag_CSCTightHaloFilter_;
@@ -285,6 +289,8 @@ private:
   Int_t Flag_HBHENoiseFilter_;
   Int_t Flag_trkPOG_toomanystripclus53X_;
   Int_t Flag_hcalLaserEventFilter_;
+  Int_t Flag_HBHENoiseIsoFilter_;
+  Int_t Flag_CSCTightHalo2015Filter_;
   void setFlag_goodVertices(const Int_t value) {Flag_goodVertices_ = value;}
   void setFlag_CSCTightHaloFilter(const Int_t value) {Flag_CSCTightHaloFilter_ = value;}
   void setFlag_trkPOGFilters(const Int_t value) {Flag_trkPOGFilters_ = value;}
@@ -297,6 +303,8 @@ private:
   void setFlag_HBHENoiseFilter(const Int_t value) {Flag_HBHENoiseFilter_ = value;}
   void setFlag_trkPOG_toomanystripclus53X(const Int_t value) {Flag_trkPOG_toomanystripclus53X_ = value;}
   void setFlag_hcalLaserEventFilter(const Int_t value) {Flag_hcalLaserEventFilter_ = value;}
+  void setFlag_HBHENoiseIsoFilter(const Int_t value) {Flag_HBHENoiseIsoFilter_ = value;}
+  void setFlag_CSCTightHalo2015Filter(const Int_t value) {Flag_CSCTightHalo2015Filter_ = value;}
 };
 
 class Trigger{
@@ -1213,6 +1221,8 @@ public:
     filter_Flag_HBHENoiseFilter_(0),
     filter_Flag_trkPOG_toomanystripclus53X_(0),
     filter_Flag_hcalLaserEventFilter_(0),
+    filter_Flag_HBHENoiseIsoFilter_(0),
+    filter_Flag_CSCTightHalo2015Filter_(0),
     rho_value_(0),
     muons_pt_(0),
     muons_eta_(0),
@@ -1602,6 +1612,8 @@ public:
       tree_->SetBranchStatus("filter.Flag_HBHENoiseFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseFilter", &filter_Flag_HBHENoiseFilter_);
       tree_->SetBranchStatus("filter.Flag_trkPOG_toomanystripclus53X", 1); tree_->SetBranchAddress("filter.Flag_trkPOG_toomanystripclus53X", &filter_Flag_trkPOG_toomanystripclus53X_);
       tree_->SetBranchStatus("filter.Flag_hcalLaserEventFilter", 1); tree_->SetBranchAddress("filter.Flag_hcalLaserEventFilter", &filter_Flag_hcalLaserEventFilter_);
+      tree_->SetBranchStatus("filter.Flag_HBHENoiseIsoFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseIsoFilter", &filter_Flag_HBHENoiseIsoFilter_);
+      tree_->SetBranchStatus("filter.Flag_CSCTightHalo2015Filter", 1); tree_->SetBranchAddress("filter.Flag_CSCTightHalo2015Filter", &filter_Flag_CSCTightHalo2015Filter_);
       are_filter_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -2079,6 +2091,8 @@ public:
     obj.setFlag_HBHENoiseFilter(filter_Flag_HBHENoiseFilter_);
     obj.setFlag_trkPOG_toomanystripclus53X(filter_Flag_trkPOG_toomanystripclus53X_);
     obj.setFlag_hcalLaserEventFilter(filter_Flag_hcalLaserEventFilter_);
+    obj.setFlag_HBHENoiseIsoFilter(filter_Flag_HBHENoiseIsoFilter_);
+    obj.setFlag_CSCTightHalo2015Filter(filter_Flag_CSCTightHalo2015Filter_);
   
     return obj;
   }
@@ -2789,6 +2803,8 @@ private:
   Int_t filter_Flag_HBHENoiseFilter_;
   Int_t filter_Flag_trkPOG_toomanystripclus53X_;
   Int_t filter_Flag_hcalLaserEventFilter_;
+  Int_t filter_Flag_HBHENoiseIsoFilter_;
+  Int_t filter_Flag_CSCTightHalo2015Filter_;
   Double_t rho_value_;
   vector<float> *muons_pt_;
   vector<float> *muons_eta_;

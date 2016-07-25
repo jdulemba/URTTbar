@@ -75,6 +75,7 @@ BTagSFProducer::BTagSFProducer(const DataFile &sf_file, const DataFile &eff_file
   eff_bottom_loose(), 
   eff_bottom_tight()
 {
+	Logger::log().debug() << "BTagSFProducer ctor" << endl;
   configure(sf_file, eff_file, tighttag, loosetag, float_c, float_l, float_b);
 }
 

@@ -58,7 +58,6 @@ private:
   vector<IDElectron*> loose_electrons_;
   vector<IDElectron*> medium_electrons_;
   IDMet met_;
-  JetScaler &jet_scaler_;  
 
   //tracker
   CutFlowTracker *tracker_=0;
@@ -66,6 +65,10 @@ private:
   //cuts
   bool is_configured_ = false;
   bool apply_jer_ = true;
+  bool use_trg_ = true;
+  int trg_cfg_ = 0;
+  bool use_filters_ = true;
+	bool smear_met_ = true;
   int objsel_=0;
 	int pass_lepton_ = 0;
   IDMuon::IDS cut_loosemu_id_, cut_tightmu_id_;

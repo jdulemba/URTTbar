@@ -16,11 +16,15 @@ TTObjectSelector::TTObjectSelector(int objsel):
   tight_muons_(),
   sel_electrons_(),
   loose_electrons_(),
-  medium_electrons_(),
-  jet_scaler_(JetScaler::instance()) {
+  medium_electrons_() {
     URParser &parser = URParser::instance();
 
     //parser.addCfgParameter(const std::string group, const std::string parameterName, const std::string description, T def_value);
+    parser.addCfgParameter<int>("event", "use_trig"   , "", 1);
+    parser.addCfgParameter<int>("event", "use_filters", "", 1);
+    parser.addCfgParameter<int>("event", "smear_met", "", 1);
+		parser.addCfgParameter<int>("event", "trig_config", "", 2015);
+
     parser.addCfgParameter<std::string>("loose_muons", "id", "ID to be applied");
     parser.addCfgParameter<float>      ("loose_muons", "ptmin", "minimum pt");
     parser.addCfgParameter<float>      ("loose_muons", "etamax", "maximum eta");
@@ -43,6 +47,10 @@ TTObjectSelector::TTObjectSelector(int objsel):
     parser.addCfgParameter<float>("jets", "etamax", "maximum eta");
     
     parser.parseArguments();
+		use_trg_     = (parser.getCfgPar<int>("event", "use_trig"   ) == 1);
+		trg_cfg_     = parser.getCfgPar<int>("event", "trig_config");
+		use_filters_ = (parser.getCfgPar<int>("event", "use_filters") == 1);
+    smear_met_   = (parser.getCfgPar<int>("event", "smear_met") == 1);
 
     cut_loosemu_id_ = IDMuon::id(
       parser.getCfgPar<std::string>("loose_muons", "id"    ));
@@ -141,7 +149,7 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 	const vector<Met>& mets = event.METs();
 	if(mets.size() == 1) {
 		met_ = mets[0];
-		if(event.run == 1 && apply_jer_) met_.setvect(met_.pxsmear(), met_.pysmear());
+		if(event.run == 1 && apply_jer_ && smear_met_)   met_.setvect(met_.pxsmear(), met_.pysmear());
 		if(shift == systematics::SysShifts::JER_UP)      met_.shiftvect(   met_.pxuncJER(),    met_.pyuncJER());
 		else if(shift == systematics::SysShifts::JER_DW) met_.shiftvect(-1*met_.pxuncJER(), -1*met_.pyuncJER());
 		else if(shift == systematics::SysShifts::JES_DW) met_.shiftvect(   met_.pxuncJES(),    met_.pyuncJES());
@@ -168,10 +176,36 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
 
   //Trigger!
   bool isMC = (event.run == 1);
-  bool electron_trig = (isMC) ? (event.trigger().HLT_Ele27_WPLoose_Gsf() == 1) : (event.trigger().HLT_Ele27_eta2p1_WPLoose_Gsf() == 1);
-  bool muon_trig = (isMC) ? (event.trigger().HLT_IsoMu27() == 1) : (event.trigger().HLT_IsoMu20() == 1 || event.trigger().HLT_IsoTkMu20());
-  if(!(electron_trig || muon_trig)) return false;
+	bool electron_trig = false, muon_trig = false;
+	switch(trg_cfg_) {
+	case 2015:
+		electron_trig = (event.trigger().HLT_Ele23_WPLoose_Gsf() == 1);
+		muon_trig = (event.trigger().HLT_IsoMu20() == 1 || event.trigger().HLT_IsoTkMu20() == 1);
+		//std::cout << "TRG: " << event.trigger().HLT_IsoMu20() << " -- " << event.trigger().HLT_IsoTkMu20() << std::endl;
+		break;
+	case 2016:
+		electron_trig = (event.trigger().HLT_Ele27_WPLoose_Gsf() == 1);
+		muon_trig = (event.trigger().HLT_IsoMu22() == 1 || event.trigger().HLT_IsoTkMu22() == 1);
+		break;
+	default:
+		Logger::log().fatal() << "Trigger configuration can only be 2015 or 2016" << std::endl;
+		throw 42;
+	}
+	if((use_trg_ || !isMC) && !(electron_trig || muon_trig)) return false;
   if(tracker_) tracker_->track("trigger");
+
+	//Filters
+	auto filters = event.filter();
+	bool filter_answer = (filters.Flag_HBHENoiseFilter() == 1); 
+	filter_answer &= (filters.Flag_HBHENoiseIsoFilter() == 1); 
+	filter_answer &= (filters.Flag_CSCTightHalo2015Filter() == 1);
+	filter_answer &= (filters.Flag_EcalDeadCellTriggerPrimitiveFilter() == 1);
+	filter_answer &= (filters.Flag_eeBadScFilter() == 1);
+	// std::cout << filters.Flag_HBHENoiseFilter() << " " << filters.Flag_HBHENoiseIsoFilter()  << " "
+	// 					<< filters.Flag_CSCTightHaloFilter() << " " << filters.Flag_EcalDeadCellTriggerPrimitiveFilter() << " "
+	// 					<< filters.Flag_eeBadScFilter() << std::endl;
+	if(use_filters_ && !filter_answer) return false;
+  if(tracker_) tracker_->track("Evt filters");
 
   bool has_muons = select_muons(event, shift);
   bool has_electrons = select_electrons(event, shift);
@@ -192,6 +226,23 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   if(tracker_) tracker_->track("right trigger");
   
   select_jetmet(event, shift);
+	// std::cout << "njets: " << clean_jets_.size() << std::endl;
+	// for(size_t idx =0 ; idx<clean_jets_.size(); idx++) {
+	// 	auto jet = clean_jets_[idx];
+	// 	cout << "#" << idx << endl;
+	// 	cout <<"  Raw momentum (pt, eta, phi, m): " << jet->uncorrPt() << ", " << jet->uncorrEta() << ", " << jet->uncorrPhi() <<", "<<jet->uncorrM() << endl;
+	// 	double pt = (isMC) ? jet->Pt()*jet->JER() : jet->Pt();
+	// 	cout <<"  Fully corrected pt: " << pt << " JER: " << jet->JER() << " JES: " << jet->Pt()/jet->uncorrPt() << endl;
+	// 	if(isMC) {
+	// 		double jerup = Abs(jet->JERUp()-jet->JER());
+	// 		double jerdw = Abs(jet->JERDown()-jet->JER());
+	// 		double max_unc = (jerup > jerdw) ? jerup : jerdw;
+	// 		cout <<"  JEC uncertainty: "<< jet->JESUnc() << ", JER uncertainty: " << max_unc << endl;
+	// 	}
+	// 	cout <<"  Pass jet ID: " << jet->ID() << endl;
+	// 	cout <<"  CSV: "<< jet->csvIncl()<<", cMVA: "<< jet->CombinedMVA() << endl;
+	// 	cout <<"  cCvsL: "<< jet->CvsLtag()<<", cCvsB: "<< jet->CvsBtag() << endl;
+	// }
   if(clean_jets_.size() < cut_nminjets_) return false;
  
   if(tracker_) tracker_->track("has N jets");

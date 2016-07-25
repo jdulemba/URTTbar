@@ -16,8 +16,8 @@ private:
 	double rndm_;
   TLorentzVector uncorr_;
 public:
-	enum BTag {NONE, CSVLOOSE, CSVMEDIUM, CSVTIGHT, CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT};
-	enum IDType {NOTSET, CSV, CTAG};
+	enum BTag {NONE, CSVLOOSE, CSVMEDIUM, CSVTIGHT, CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   MVALOOSE, MVAMEDIUM, MVATIGHT};
+	enum IDType {NOTSET, CSV, CTAG, MVA};
   
   static const std::unordered_map<std::string, IDJet::BTag> tag_names;
   static IDJet::BTag tag(std::string label);
