@@ -243,6 +243,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
 		evt_type_ = LOOSEEL;
 		pass_lepton_ = -1;
 	}
+	if(!allow_loose_ && (evt_type_ == LOOSEMU || evt_type_ == LOOSEEL)) return false;
 
 	//right lepton
   if(objsel_ == -1 && (evt_type_ == TIGHTMU || evt_type_ == LOOSEMU)) return false;
