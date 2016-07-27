@@ -295,7 +295,7 @@ public:
     if(!isData_) { 
       if(object_selector_.tight_muons().size() == 1)
         evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
-      if(object_selector_.medium_electrons().size() == 1)
+      if(object_selector_.tight_electrons().size() == 1)
         evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
 		}
 
@@ -346,8 +346,8 @@ public:
       matched_perm = matcher_.match(
         genp_selector_.ttbar_final_system(),
         object_selector_.clean_jets(), 
-        object_selector_.loose_electrons(),
-        object_selector_.loose_muons()
+        object_selector_.veto_electrons(),
+        object_selector_.veto_muons()
         );
       matched_perm.SetMET(object_selector_.met());
     }

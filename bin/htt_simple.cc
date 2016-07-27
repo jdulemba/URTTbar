@@ -75,6 +75,10 @@ private:
 	long long sync_evt_; //the only one cannot work with floats
 
 public:
+	inline double MT(TLorentzVector *l, TLorentzVector *met) {
+		return sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
+	}
+
   htt_simple(const std::string output_filename):
     AnalyzerBase("htt_simple", output_filename), 
 		tracker_(),
@@ -84,15 +88,17 @@ public:
     electron_sf_("electron_sf", false),
     muon_sf_("muon_sf"),
 		randomizer_(),    
-		btag_sf_("bjets.tightb", "bjets.looseb"),
+		btag_sf_("permutations.tightb", "permutations.looseb"),
 		systematics_(),
 		sync_(false),
 		sync_tree_(0),
 		sync_info_()
 	{
+		object_selector_.allow_loose();//allow loose but not tight lepton events
 		Logger::log().debug() << "htt_simple ctor" << endl;
     cut_tight_b_ = btag_sf_.tight_cut();
     cut_loose_b_ = btag_sf_.loose_cut();
+		//tracker_.verbose(true);
     //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
     //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
     
@@ -106,7 +112,6 @@ public:
 
     //set tracker
     tracker_.use_weight(&evt_weight_);
-		tracker_.verbose(true);
     object_selector_.set_tracker(&tracker_);
 
     //find out which sample are we running on
@@ -151,6 +156,11 @@ public:
 		book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
 		book<TH1F>(folder, "jets_eta" , ";#eta(j) (GeV)",  300, -3, 3);
 		book<TH1F>(folder, "jets_CSV" , ";#eta(j) (GeV)",  200, -1, 1);
+		book<TH1F>(folder, "max_jets_CSV" , ";#eta(j) (GeV)",  200, -1, 1);
+		book<TH1F>(folder, "lep_iso", ";#eta(j) (GeV)",  100, 0, 10);
+		book<TH1F>(folder, "lep_wp" , ";#eta(j) (GeV)",  4, 0, 4);
+		book<TH1F>(folder, "MT" , ";#eta(j) (GeV)",  200, 0, 100);
+		
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
   }
 
@@ -167,11 +177,28 @@ public:
 		dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
 		dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
 		dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
+		double max_csv = -10000;
     for(IDJet* jet : object_selector_.clean_jets()) {
       dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
       dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
 			dir->second["jets_CSV"].fill(jet->csvIncl(), evt_weight_);
+			if(jet->csvIncl() > max_csv) max_csv = jet->csvIncl();
     }
+		dir->second["MT"].fill(MT(object_selector_.lepton(), object_selector_.met()), evt_weight_);
+		dir->second["max_jets_CSV"].fill(max_csv, evt_weight_);
+		if(object_selector_.lepton_type() == 1) {
+			dir->second["lep_iso"].fill(object_selector_.muon()->RelPFIsoDb(), evt_weight_);
+		}
+		else {
+			auto electron = object_selector_.electron();			
+			dir->second["lep_iso"].fill(electron->PFIsolationRho2015(), evt_weight_);
+			int elwp = -1;
+			if(electron->TightID25ns()) elwp = 3;
+			else if(electron->MediumID25ns()) elwp =2;
+			else if(electron->LooseID25ns()) elwp =1;
+			else if(electron->VetoID25ns()) elwp =0;
+			dir->second["lep_wp" ].fill(elwp, evt_weight_);
+		}
   }
 
 	void book_selection_plots(string folder) {
@@ -208,21 +235,23 @@ public:
 		
 
 		vector<string> leptons = {"electrons", "muons"};		
-		vector<string> njets = {/*"3jets",*/ "4jets", "5Pjets"};
+		vector<string> lepIDs  = {"looseNOTTight", "tight"};		
 		//vector<string> tagging = {"ctagged", "notag"};
 		for(auto& lepton : leptons) {
 			for(auto& sys : systematics_) {
 				string sys_name = systematics::shift_to_name.at(sys);
 				string dname = lepton+"/"+sys_name+"/preselection";
 				Logger::log().debug() << "Booking histos in: " << dname << endl;
-				book_presel_plots(dname);
-				for(auto& njet : njets) {
-					stringstream dstream;
-					dstream << lepton << "/";
-					dstream << sys_name<<"/"<<njet;
-					
-					Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
-					book_selection_plots(dstream.str());
+				book_presel_plots(dname);				
+				for(auto& lepid : lepIDs) {
+					for(auto& btag : {"pass", "inverted"}) {
+						stringstream dstream;
+						dstream << lepton << "/";
+						dstream << sys_name<<"/" << lepid << "/" << btag;
+						
+						Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
+						book_selection_plots(dstream.str());
+					}
 				}
 			}			
 		}
@@ -236,8 +265,6 @@ public:
     //select reco objects
     if( !object_selector_.select(event, shift) ) return;
 		int njets = object_selector_.clean_jets().size();		
-		bool totrack = true;//(njets == 3);
-		if(!totrack) tracker_.deactivate();
 		string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
 		tracker_.group(leptype);
 		tracker_.track("object selection", leptype);
@@ -252,7 +279,7 @@ public:
     if(!isData_) { 
       if(object_selector_.tight_muons().size() == 1)
         lep_weight = muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
-      if(object_selector_.medium_electrons().size() == 1)
+      if(object_selector_.tight_electrons().size() == 1)
         lep_weight = electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
 		}
 		evt_weight_ *= lep_weight;
@@ -263,34 +290,42 @@ public:
 		presel_dir << sys_name << "/preselection";
     if(!sync_) fill_presel_plots(presel_dir.str(), event);
 
+		//cut on MT
+		// double mt = MT(object_selector_.lepton(), object_selector_.met());
+		// //(*object_selector_.lepton()+*object_selector_.met()).Mt() ;
+		// if(mt < cut_MT_) return;
+		// tracker_.track("MT cut", leptype);
+
 		//cut on btag
 		auto &clean_jets = object_selector_.clean_jets();
+		bool btag_pass = true;
 		sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
-		if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
+		if(!clean_jets[0]->BTagId(cut_tight_b_)) btag_pass = false;
 		tracker_.track("tight b cut", leptype);
-		if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
+		if(!clean_jets[1]->BTagId(cut_loose_b_)) btag_pass = false;
 		tracker_.track("loose b cut", leptype);
+
+		bool btag_fail = !btag_pass && !clean_jets[0]->BTagId(IDJet::BTag::CSVLOOSE);
+		if(!btag_pass && !btag_fail) return;
+		tracker_.track("btype", leptype);
 
     //find mc weight for btag
 		double bweight = 1;
-    if(!isData_) bweight *= btag_sf_.scale_factor(clean_jets, shift);
+    if(!isData_ && btag_pass) bweight *= btag_sf_.scale_factor(clean_jets, shift);
 		evt_weight_ *= bweight;
-
-		//cut on MT
-		TLorentzVector *l = object_selector_.lepton();
-		TLorentzVector *met = object_selector_.met();
-		double mt = sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
-		//(*object_selector_.lepton()+*object_selector_.met()).Mt() ;
-		if(mt < cut_MT_) return;
-		tracker_.track("MT cut", leptype);
     
 		stringstream evtdir;		
 		evtdir << leptype << "/" << sys_name << "/";
-		switch(njets) {
-		case 3: evtdir << "3jets"; break;
-		case 4: evtdir << "4jets"; break;
-		default:evtdir << "5Pjets"; break;
+		switch(object_selector_.event_type()) {
+		case TTObjectSelector::EvtType::TIGHTMU: 
+		case TTObjectSelector::EvtType::TIGHTEL: evtdir << "tight"; break;
+		case TTObjectSelector::EvtType::LOOSEMU: 
+		case TTObjectSelector::EvtType::LOOSEEL: evtdir << "looseNOTTight"; break;
+		default: throw 42; break;
 		}
+		if(btag_fail) evtdir << "/" << "inverted";
+		else evtdir << "/" << "pass";
+
 		if(!sync_){
 			fill_selection_plots(evtdir.str(), event);
 		} else {

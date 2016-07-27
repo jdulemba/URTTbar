@@ -84,13 +84,13 @@ public:
     mc_weights_.init(sample);
     
     parser.addCfgParameter<float>("event", "MT", "");
-		parser.addCfgParameter<string>("bjets", "tightb", "");
-		parser.addCfgParameter<string>("bjets", "looseb", "");
+		parser.addCfgParameter<string>("permutations", "tightb", "");
+		parser.addCfgParameter<string>("permutations", "looseb", "");
 		parser.parseArguments();
 		cut_MT_ = parser.getCfgPar<float>("event", "MT");
 
-    cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("bjets", "tightb"));
-    cut_loose_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("bjets", "looseb"));
+    cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("permutations", "tightb"));
+    cut_loose_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("permutations", "looseb"));
 		sameCut_=false;
 		if(cut_tight_b_ == cut_loose_b_) sameCut_=true;
 
@@ -178,7 +178,7 @@ public:
     //find mc weight
     if(object_selector_.tight_muons().size() == 1)
       evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
-    if(object_selector_.medium_electrons().size() == 1)
+    if(object_selector_.tight_electrons().size() == 1)
       evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
     tracker_.track("MC weights");
 

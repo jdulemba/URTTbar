@@ -573,8 +573,8 @@ public:
     matched = matcher_.match(
       genp_selector_.ttbar_system(),
       permutator_.capped_jets(), 
-      object_selector_.loose_electrons(),
-      object_selector_.loose_muons()
+      object_selector_.veto_electrons(),
+      object_selector_.veto_muons()
       );
     matched.SetMET(object_selector_.met());
 

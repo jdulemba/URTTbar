@@ -211,8 +211,8 @@ public:
       matched_perm = matcher_.match(
         genp_selector_.ttbar_final_system(),
         object_selector_.clean_jets(), 
-        object_selector_.loose_electrons(),
-        object_selector_.loose_muons()
+        object_selector_.veto_electrons(),
+        object_selector_.veto_muons()
         );
       matched_perm.SetMET(object_selector_.met());
     }
