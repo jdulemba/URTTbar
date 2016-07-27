@@ -6,6 +6,7 @@
 using namespace TMath;
 
 const std::map<std::string, IDElectron::IDS> IDElectron::id_names = {
+  {"FAIL"   , IDElectron::IDS::FAIL   },
   {"TIGHT_15"   , IDElectron::IDS::TIGHT_15   },
   {"MEDIUM_15"  , IDElectron::IDS::MEDIUM_15  },
   {"LOOSE_15"   , IDElectron::IDS::LOOSE_15   },
@@ -41,7 +42,7 @@ double IDElectron::PFIsolationRho2015() const
   if(abs(eta)>2.3 && abs(eta)<=2.4) effarea = 0.2243;
   if(abs(eta)>2.4 && abs(eta)<=5 ) effarea = 0.2687;
 
-	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation" << endl;}
+	if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation: " << rho_ << endl;}
 	effarea *= Max(rho_, 0.);
 	//return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
 	//return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
@@ -108,6 +109,7 @@ bool IDElectron::ID(IDS idtyp)
   double sceta = Abs(TVector3(x(), y(), z()).Eta());
 	if(sceta > 2.5) return(false);
   switch(idtyp) {
+	case FAIL: return false;
   case TIGHT_15: return TightID25ns();
   case MEDIUM_15: return MediumID25ns();
   case LOOSE_15: return LooseID25ns();

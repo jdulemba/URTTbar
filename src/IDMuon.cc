@@ -6,6 +6,7 @@
 using namespace TMath;
 
 const std::map<std::string, IDMuon::IDS> IDMuon::id_names = {
+	{"FAIL", IDMuon::IDS::FAIL},
   {"TIGHT_12"  , IDMuon::IDS::TIGHT_12},
   {"LOOSE_12"  , IDMuon::IDS::LOOSE_12},
   {"TIGHT_12Db", IDMuon::IDS::TIGHT_12Db},
@@ -13,7 +14,9 @@ const std::map<std::string, IDMuon::IDS> IDMuon::id_names = {
   {"TIGHT_15", IDMuon::IDS::TIGHT_15},
   {"LOOSE_15", IDMuon::IDS::LOOSE_15},
 	{"TIGHT_15Db", IDMuon::IDS::TIGHT_15Db},
-	{"LOOSE_15Db", IDMuon::IDS::LOOSE_15Db} 
+	{"TIGHT_NOISO", IDMuon::IDS::TIGHT_NOISO},
+	{"LOOSE_15Db", IDMuon::IDS::LOOSE_15Db},
+	{"ANTILOOSE_15Db", IDMuon::IDS::ANTILOOSE_15Db} 
 };
 
 IDMuon::IDS IDMuon::id(const std::string label) {
@@ -75,7 +78,8 @@ double IDMuon::CorPFIsolation2015()
 
 bool IDMuon::ID(IDS idtyp)
 {
-	if(idtyp == TIGHT_12 || idtyp == TIGHT_12Db)
+	if(idtyp == FAIL) return false;
+	else if(idtyp == TIGHT_12 || idtyp == TIGHT_12Db)
 	{
 		if(TMath::Abs(Eta()) > 2.4) return(false);
 		if(!isPF()) return(false);
@@ -111,8 +115,14 @@ bool IDMuon::ID(IDS idtyp)
 	else if(idtyp == IDMuon::IDS::TIGHT_15Db) {
 		return isTight() && (PFIsoDb()/Pt()) <  0.15;
 	}
+	else if(idtyp == TIGHT_NOISO) {
+		return isTight();
+	}
   else if(idtyp == IDMuon::IDS::LOOSE_15Db) {
 		return isLoose() && (PFIsoDb()/Pt()) < 0.25;
+	}
+	else if(idtyp == IDMuon::IDS::ANTILOOSE_15Db) {
+		return isLoose() && (PFIsoDb()/Pt()) > 0.25 && (PFIsoDb()/Pt()) < 1.0;
 	}
 	return(false);
 }
