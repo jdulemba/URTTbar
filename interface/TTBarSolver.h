@@ -68,6 +68,7 @@ class TTBarSolver
 		double Test(double* par);
 		static TTBarSolver* TTBS; 
 		TTBarSolver();
+		TTBarSolver(bool dummy);
 		~TTBarSolver();
 
   template <class T>

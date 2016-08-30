@@ -14,13 +14,14 @@ from argparse import ArgumentParser
 from URAnalysis.Utilities.roottools import slice_hist
 import ROOT
 
+project = os.environ['URA_PROJECT']
 parser = ArgumentParser()
 parser.add_argument('todo', nargs='+', help='things to do', choices=['shapes', 'comparisons', 'effs'])
 args = parser.parse_args()
 
 jobid = os.environ['jobid']
 plotter = BasePlotter(
-   'plots/%s/tsgen' % jobid,
+   '%s/plots/%s/tsgen' % (project, jobid),
    defaults = {'save' : {'png' : True, 'pdf' : False}}
 )
 
@@ -75,7 +76,7 @@ styles = {
       }
 }
 
-tfile = root_open('results/%s/topspin_gen/ttJets.root' % jobid)
+tfile = root_open('%s/results/%s/topspin_gen/ttJets.root' % (project, jobid))
 
 variables = [
    (16, 'NE', 'helframe_costheta_%s', 'cos #theta_{hel}', ['dtype', 'utype', 'lep', 'nu']),

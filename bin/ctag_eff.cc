@@ -201,13 +201,13 @@ public:
     //Get appropriate SFs for the probe working points
     DataFile csv_sfs(parser.getCfgPar<string>("general.csv_sffile"));
     DataFile wjet_efficiency(parser.getCfgPar<string>("general.wjets_efficiencies"));
-    DataFile dummy;
+    DataFile ctag_sfs(parser.getCfgPar<string>("general.ctag_sffile"));
     wp_SFs_["csvLoose" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE, IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["csvTight" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT, IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["csvMedium"] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["ctagLoose" ] = BTagSFProducer(dummy, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, 0.5, 0.5); 
-    wp_SFs_["ctagTight" ] = BTagSFProducer(dummy, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, 0.5, 0.5); 
-    wp_SFs_["ctagMedium"] = BTagSFProducer(dummy, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, 0.5, 0.5); 
+    wp_SFs_["ctagLoose" ] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 0.5); 
+    wp_SFs_["ctagTight" ] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 0.5); 
+    wp_SFs_["ctagMedium"] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 0.5); 
 
     wp_SFs_["csvLoose" ].ignore_general_shifts();
     wp_SFs_["csvTight" ].ignore_general_shifts();
@@ -745,6 +745,7 @@ public:
       ("report,s", opts::value<int>()->default_value(10000), "report every");
 
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
+    parser.addCfgParameter<std::string>("general", "ctag_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");
 
     parser.addCfgParameter<std::string>("permutations", "ordering", "ID to be applied");

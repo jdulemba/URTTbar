@@ -74,7 +74,7 @@ TTKinFitter::KFResult TTKinFitter::fit(Permutation &perm) {
   TMatrix cov(3, 3); //covariance matrix
   TMatrix cov_inv(3, 3);
   for(int i=0; i<3; i++) {
-    nrgs_in(i, 0) = jets[i]->E();
+    nrgs_in(i, 0) = jets[i]->Vect().Mag();
     float res = pow(jet_scaler_.resolution(*jets[i]), 2);
     cov(i, i) = res;
     cov_inv(i, i) = 1./res;

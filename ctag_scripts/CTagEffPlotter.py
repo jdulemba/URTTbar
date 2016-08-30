@@ -81,7 +81,7 @@ class CTagPlotter(Plotter):
 			lumi_scaling=lscaling
 			)
 		self.defaults = {
-			'blurb' : [13, self.views['data']['intlumi']]
+			'watermark' : ['(13 TeV, 25ns)', True, self.views['data']['intlumi']]
 			}
 		self.jobid = jobid
 
@@ -319,7 +319,6 @@ class CTagPlotter(Plotter):
 				title
 				),
 			fillcolor = color,
-			linecolor = color
 			)
 
 	def add_systematics(self, nobbb=False):
@@ -369,7 +368,7 @@ class CTagPlotter(Plotter):
 			samples.append(histo)
 
 		#QCD may not have all the bins filled, needs special care
-		qcd_histo = histo.Clone()			
+		qcd_histo = histo.Clone()
 		qcd_histo.Reset()
 		for sample in qcd_samples:
 			qcd_flow = self.get_view(sample).Get('cut_flow')
@@ -840,6 +839,8 @@ class CTagPlotter(Plotter):
 				ytitle='Events', ignore_style=True,				
 				method='datamc'
 				)
+			self.keep[0].SetMinimum(10**-3)
+			self.canvas.Update()
 			# Add legend
 			self.pad.cd()
 			self.add_legend(
@@ -1036,10 +1037,10 @@ variables = [
   ("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
   ("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
 	("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
-  ("Wjets_CvsL", "CvsL (W Jet)", 1, None, False),
-  ("Wjets_CvsB", "CvsB (W Jet)", 1, None, True),
-  ("Bjets_CvsB", "CvsB (B Jet)", 1, None, False),
-  ("Bjets_CvsL", "CvsL (B Jet)", 1, None, True),
+  ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
+  ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
+  ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
+  ("Bjets_CvsL", "CvsL Discriminator (B Jet)", 1, None, False),
   #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None, False),
   #("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
   #("Whad_pt"  , "p_{T}(W_{had}) (GeV)", 10, None, False),
@@ -1056,8 +1057,8 @@ variables = [
 preselection = [
   ("njets"	 , "# of selected jets", range(13), None, False),
   ("jets_CSV", "jet CSV",	2, None, False),
-  ("jets_CvsB", "jet CvsB", 1, None, True),
-  ("jets_CvsL", "jet CvsL", 1, None, False),
+  ("jets_CvsB", "CvsB Discriminator", 1, None, False),
+  ("jets_CvsL", "CvsL Discriminator", 1, None, False),
   ("jets_eta", "#eta(jet)", 10, None, False),
   ("jets_pt", "p_{T}(jet)", 10, None, False),
   ("lep_eta", "#eta(l)", 10, None, False),
@@ -1067,7 +1068,7 @@ preselection = [
 ]
 
 permutation_presel = [
-	("mass_discriminant", "#lambda_{M}", 1, None, True),
+	("mass_discriminant", "#lambda_{M}", 1, None, False),
 	("Wmasshad", "M(W_{h})", 2, None, False),
 	("tmasshad", "M(t_{h})", 2, None, False),
 ]
@@ -1440,6 +1441,11 @@ if args.shapes:
 		if not args.noPOIpropagation:
 			del plotter.card.systematics[ctag_nuisance_name]
 		if not args.noLightFit and not args.noPOIpropagation: del plotter.card.systematics[lightctag_nuisance_name]
+		##if args.noPOIpropagation and args.noLightFit:
+		##	#assign new name to CTAGL nuisance for signal sample, such that it is uncorrelated from the bkg ones
+		##	newname = 'NuisLightSF'
+		##	plotter.card.add_systematic(newname, 'param', '', '', 0., 1)
+		##	category_constants['light_SF']['nuisance_name'] = newname
 
 		#
 		# Replace V+Jets and QCD shapes with cumulative ones

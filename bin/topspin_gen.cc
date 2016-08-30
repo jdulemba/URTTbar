@@ -146,6 +146,9 @@ public:
     book<TH1F>(dir, "wdeta", "", 100, 0., 3.);
     
     book<TH1F>(dir, "ttm",   "", 100, 300., 1000);
+    book<TH1F>(dir, "thm",   "",  80, 130., 210);
+    book<TH1F>(dir, "tlm",   "",  80, 130., 210);
+    book<TH1F>(dir, "Whm",   "",  80,  40., 120);
     book<TH1F>(dir, "ttpt",  "", 100, 0., 800);
     book<TH1F>(dir, "tteta", "", 100, 0., 3.);
   }
@@ -157,6 +160,11 @@ public:
       throw 42;
     }    
     hdir->second["npass"].fill(0.5);
+
+    hdir->second["thm"].fill(ttbar.thad().M(), evt_weight_);
+    hdir->second["tlm"].fill(ttbar.tlep().M(), evt_weight_);
+    hdir->second["Whm"].fill(ttbar.thad().W().M(), evt_weight_);
+
     hdir->second[ "lpt"].fill(ttbar.tlep().W().l().Pt(), evt_weight_);
     hdir->second["blpt"].fill(ttbar.tlep().b().Pt(), evt_weight_);
     hdir->second["bhpt"].fill(ttbar.thad().b().Pt(), evt_weight_);
@@ -442,6 +450,7 @@ public:
   void book_fit_plots(string dir) {
     book<TH1F>(dir, "niter" , "", 100, 0, 100);    
     book<TH1F>(dir, "chi2" , "", 100, 0, 50);    
+    book<TH1F>(dir, "status" , "", 3, -0.5, 2.5);    
   }
 
   void fill_fit_plots(string dir, TTKinFitter::KFResult& result) {
@@ -453,6 +462,7 @@ public:
     }
     hdir->second["niter"].fill(result.niter);
     hdir->second["chi2"].fill(result.chi2);
+    hdir->second["status"].fill(result.status);
   }
 
   //This method is called once per job at the beginning of the analysis
@@ -485,6 +495,7 @@ public:
       string dir = lepdir+"/"+pdir;
       book_res_plots(dir);
       book_fit_plots(dir);
+      book_kin_plots(dir);
     }
   }
 
@@ -591,6 +602,7 @@ public:
       hyp::TTbar ttfit(matched);
       fill_res_plots(decay+"matchfit", ttfit , gen_ptr);
       fill_fit_plots(decay+"matchfit", result);
+      fill_kin_plots(decay+"matchfit", ttfit);
       matched.WJa()->resetp4();
       matched.WJb()->resetp4();
       matched.BHad()->resetp4();
@@ -638,11 +650,13 @@ public:
       fill_eff_plots(ttgen, decay+"selected");
       fill_res_plots( decay+"selfit", ttfit ,gen_ptr);
       fill_fit_plots( decay+"selfit", result);
+      fill_kin_plots( decay+"selfit", ttfit);
     }
     else {
       fill(best, decay+"wrong", gen_ptr);
       fill_res_plots(decay+"wrongfit", ttfit , gen_ptr);
       fill_fit_plots(decay+"wrongfit", result);
+      fill_kin_plots(decay+"wrongfit", ttfit);
     }
     tracker_.track("end");
   }

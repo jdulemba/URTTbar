@@ -3,6 +3,8 @@
 #include "Analyses/URTTbar/interface/IDMet.h"
 #include "URAnalysis/AnalysisFW/interface/Wards.h"
 #include <iostream>
+#include "URParser.h"
+#include "DataFile.h"
 
 TTBarSolver* TTBarSolver::TTBS = 0; 
 
@@ -21,6 +23,31 @@ TTBarSolver::TTBarSolver() :
 	N_wrong_()
 {
 }
+
+TTBarSolver::TTBarSolver(bool dummy): 
+  minuit(9), 
+  probfile(0) {
+  URParser &parser = URParser::instance();
+  //parser.addCfgParameter(const std::string group, const std::string parameterName, const std::string description, T def_value);
+  parser.addCfgParameter<string>("ttsolver", "filename", "");
+  parser.addCfgParameter<string>("ttsolver", "dirname" , "");
+  parser.addCfgParameter<bool>("ttsolver", "btag" , "");
+  parser.addCfgParameter<bool>("ttsolver", "nusolver" , "");
+  parser.addCfgParameter<bool>("ttsolver", "invmass" , "");
+  
+  parser.parseArguments();
+  
+  string fname = parser.getCfgPar<string>("ttsolver", "filename");
+  string dname = parser.getCfgPar<string>("ttsolver", "dirname" );
+  bool btag    = parser.getCfgPar<bool>("ttsolver", "btag");
+  bool nusl    = parser.getCfgPar<bool>("ttsolver", "nusolver");
+  bool mass    = parser.getCfgPar<bool>("ttsolver", "invmass" );
+
+  TFile probfile(DataFile(fname).path().c_str());
+  TDirectory *td = (TDirectory*) probfile.Get(dname.c_str());
+  Init(td, btag, nusl, mass);
+}
+
 
 TTBarSolver::~TTBarSolver()
 {}
