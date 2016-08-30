@@ -539,6 +539,7 @@ end
 task :sys_breakdown, [:wp] do |t, args|
   wpdir = "plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}"
   Rake::Task["#{wpdir}/MultiDimFit.root"].invoke()
+  Rake::Task["#{wpdir}/MaxLikeFitStatOnly.root"].invoke()
   sh "mkdir -p #{wpdir}/sys_breakdown/"  
   nuisances=File.readlines("#{wpdir}/datacard.txt").grep(/( lnN )|( shape )|( param )/).map {|x| x.split()[0]}
   #groups = [/_bin_/, /_MCStat/]
@@ -621,6 +622,7 @@ task :ctag_plotfit do |t|
   Rake::Task['ctag_fitall'].invoke()
   #Rake::Task['breakdown_all'].invoke()
   sh 'python ctag_scripts/make_ctag_tables.py'
-  #sh "write_csv.py ctag"
+  Rake::Task['breakdown_all'].invoke()
+  sh "write_csv.py ctag"
   #sh "mv ctag.csv plots/#{jobid}/ctageff/."
 end
