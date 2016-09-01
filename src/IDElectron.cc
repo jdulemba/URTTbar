@@ -12,6 +12,7 @@ const std::map<std::string, IDElectron::IDS> IDElectron::id_names = {
   {"LOOSE_15"   , IDElectron::IDS::LOOSE_15   },
   {"VETO_15"    , IDElectron::IDS::VETO_15    },
 	{"TIGHT_15_NoECAL_Gap", IDElectron::IDS::TIGHT_15_NoECAL_Gap},
+	{"NOTVETO_15", IDElectron::IDS::NOTVETO_15}
 };
 
 IDElectron::IDS IDElectron::id(const std::string label) {
@@ -115,6 +116,7 @@ bool IDElectron::ID(IDS idtyp)
   case LOOSE_15: return LooseID25ns();
 	case VETO_15: return VetoID25ns();
 	case TIGHT_15_NoECAL_Gap: return (TightID25ns() && (fabs(etaSC()) <= 1.4442 || fabs(etaSC()) >= 1.5660)); //removes EB-EE gap  
+	case NOTVETO_15: return !VetoID25ns();
   }
   return false;
 }
