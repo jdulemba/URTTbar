@@ -6,8 +6,8 @@
 using namespace TMath;
 using namespace std;
 
-TTPermutator::TTPermutator():
-  URSelector("permutations"),
+TTPermutator::TTPermutator(std::string cfgname):
+  URSelector(cfgname),
   jets_(),
   capped_jets_() {
   jet_pos_ = {{0, 0, 0, 0}};

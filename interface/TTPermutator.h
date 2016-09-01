@@ -6,10 +6,11 @@
 #include "URAnalysis/AnalysisFW/interface/URSelector.h"
 #include <array>
 #include "URAnalysis/AnalysisFW/interface/CutFlowTracker.h"
+#include <string>
 
 class TTPermutator: public URSelector {
 public:
-  TTPermutator();
+  TTPermutator(std::string cfgname="permutations");
   bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0);
   Permutation next(bool &keep_going);
   void reset() {
