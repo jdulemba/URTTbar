@@ -278,18 +278,57 @@ class HTTPlotter(Plotter):
 
 		self.mc_samples = mc_default
 
-	def make_sample_table(self):
+	def make_sample_table(self, threshold=None, absolute=False, fname='yields.raw_txt'):
 		stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
 		names = [i.title for i in stack.hists]
 		yields = [i.Integral() for i in stack.hists]
-		tot = sum(yields)
-		yields = [100*i/tot for i in yields]
+		def ratio(lst):
+			tot = sum(lst)/100. if not absolute else 1.
+			return [i/tot for i in lst] if tot else [0. for _ in lst]
+		yields = ratio(yields)
 		mlen = max(len(i) for i in names)
 		format = '%'+str(mlen)+'s     %.1f%%\n'
-		fullname = os.path.join(self.outputdir, 'yields.raw_txt')
+		header = ('%'+str(mlen)+'s    frac') % 'sample'
+		if threshold is not None:
+			binid = stack.hists[0].xaxis.FindBin(threshold)
+			fbin = stack.hists[0].nbins()+1
+			less = ratio([i.Integral(1, binid-1) for i in stack.hists])
+			above = ratio([i.Integral(binid, fbin) for i in stack.hists])
+			yields = [i for i in zip(yields, less, above)]
+			format = format.replace('\n', '    %.1f%%    %.1f%%\n')
+			header += '    <%.0f %s     >%.0f %s' % (threshold, stack.hists[0].xaxis.title, threshold, stack.hists[0].xaxis.title)
+		header += '\n'
+		fullname = os.path.join(self.outputdir, fname)
 		with open(fullname, 'w') as f:
+			f.write(header)
 			for i in zip(names, yields):
-				f.write(format % i)
+				info = i
+				if threshold is not None:
+					#repack info
+					a, b = i
+					c, d, e = b
+					info = (a, c, d, e)
+				f.write(format % info)
+
+	def get_yields(self, thr):
+		stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
+		obs = self.keep[1]
+		assert(obs.title == 'Observed')
+		hists = stack.hists
+		hists.append(obs)
+		ret = []
+		for hist in hists:
+			name = hist.title
+			binid = hist.xaxis.FindBin(thr)
+			fbin = hist.nbins()+1
+			loe = ROOT.Double()
+			lov = hist.IntegralAndError(1, binid-1, loe)
+			hie = ROOT.Double()
+			hiv = hist.IntegralAndError(binid, fbin, hie)
+			ret.append(
+				(name, (lov, loe), (hiv, hie))
+				)
+		return ret
 
 plotter = HTTPlotter(args.mode)
 
@@ -304,6 +343,7 @@ variables = [
 ]
 
 preselection = [
+	(False, "MT" , "MT",  10, None, False),
   (False, "njets"	 , "# of selected jets", range(13), None, False),
   (False, "jets_eta", "#eta(jet)", 10, None, False),
   (False, "jets_pt", "p_{T}(jet)", 10, None, False),
@@ -314,7 +354,6 @@ preselection = [
 	(True , "max_jets_CSV", 'Max CSV', 1, [0, 1], False),
 	(False, "lep_iso", 'l rel Iso', 1, [0,1], False),
 	(False, "lep_wp" , "electron wp", 1, None, False),
-	(False, "MT" , "MT",  10, None, False),
 ]
 
 permutations = [
@@ -339,7 +378,17 @@ for logy, var, axis, rebin, x_range, leftside in preselection:
 		show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)		
 	plotter.save(var)
 
-for dirid in itertools.product(['looseNOTTight', 'tight'], ['inverted', 'pass']):
+#2D Histos
+qcd_view = plotter.get_view('QCD*')
+for var, x, y in  [('MT_iso', 'M_{T}', 'Iso'), ('MT_btag', 'M_{T}', 'max(CSV)'), ('iso_btag', 'Iso', 'max(CSV)')]:
+	histo = qcd_view.Get('nosys/preselection/%s' % var)
+	histo.xaxis.title = x
+	histo.yaxis.title = y
+	histo.Draw('colz')
+	plotter.save(var)
+
+vals = []
+for dirid in itertools.product(['looseNOTTight', 'tight'], ['inverted', '1tag', '2tag']):
 	tdir = '%s/%s' % dirid
 	plotter.set_subdir(tdir)
 	first = True
@@ -350,8 +399,22 @@ for dirid in itertools.product(['looseNOTTight', 'tight'], ['inverted', 'pass'])
 			show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)
 		if first:
 			first = False
-			plotter.make_sample_table()
+			plotter.make_sample_table(threshold=50)
+			plotter.make_sample_table(threshold=50, absolute=True, fname='yields_abs.raw_txt')
+			vals.append(
+				(tdir, plotter.get_yields(50))
+				)
 		plotter.save(var)
+
+jmap = {}
+for tdir, sams in vals:
+	for sam, lo, hi in sams:
+		if sam not in jmap:
+			jmap[sam] = {}
+		jmap[sam]['%s/%s' % (tdir, 'hi')] = hi
+		jmap[sam]['%s/%s' % (tdir, 'lo')] = lo
+with open('yields.json', 'w') as out:
+	out.write(prettyjson.dumps(jmap))
 
 #for var, axis, rebin, x_range, leftside in permutations:
 #		plotter.make_preselection_plot(
