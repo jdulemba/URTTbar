@@ -45,6 +45,10 @@ static map<string, IDJet::BTag> available_bjet_id = {
 	{"ctagMedium", IDJet::BTag::CTAGMEDIUM},
 	{"ctagLoose" , IDJet::BTag::CTAGLOOSE},
 	{"ctagTight" , IDJet::BTag::CTAGTIGHT},
+
+	{"mvaMedium", IDJet::BTag::MVAMEDIUM},
+	{"mvaLoose" , IDJet::BTag::MVALOOSE},
+	{"mvaTight" , IDJet::BTag::MVATIGHT},
 };	
 
 static map<string, std::function<bool(const Permutation &, const Permutation &)> > available_ordering = {
@@ -194,20 +198,30 @@ public:
 		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);};
 		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
 		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
+
 		working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
 		working_points_["ctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGTIGHT);};
 		working_points_["ctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGMEDIUM);};
+
+		working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
+		working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
+		working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
 
     //Get appropriate SFs for the probe working points
     DataFile csv_sfs(parser.getCfgPar<string>("general.csv_sffile"));
     DataFile wjet_efficiency(parser.getCfgPar<string>("general.wjets_efficiencies"));
     DataFile ctag_sfs(parser.getCfgPar<string>("general.ctag_sffile"));
+    DataFile cmva_sfs(parser.getCfgPar<string>("general.cmva_sffile"));
+		
     wp_SFs_["csvLoose" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE, IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["csvTight" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT, IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["csvMedium"] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["ctagLoose" ] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 0.5); 
     wp_SFs_["ctagTight" ] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 0.5); 
     wp_SFs_["ctagMedium"] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 0.5); 
+    wp_SFs_["cmvaLoose" ] = BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["cmvaTight" ] = BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["cmvaMedium"] = BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
 
     wp_SFs_["csvLoose" ].ignore_general_shifts();
     wp_SFs_["csvTight" ].ignore_general_shifts();
@@ -215,6 +229,9 @@ public:
     wp_SFs_["ctagLoose" ].ignore_general_shifts(); 
     wp_SFs_["ctagTight" ].ignore_general_shifts(); 
     wp_SFs_["ctagMedium"].ignore_general_shifts(); 
+    wp_SFs_["cmvaLoose" ].ignore_general_shifts(); 
+    wp_SFs_["cmvaTight" ].ignore_general_shifts(); 
+    wp_SFs_["cmvaMedium"].ignore_general_shifts(); 
     // // working_points_[] = [](const Jet* jet) {};
 
 		naming_[TTNaming::RIGHT ] = "semilep_visible_right";
@@ -593,7 +610,7 @@ public:
     if(!isData_) { 
       if(object_selector_.tight_muons().size() == 1)
         evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
-      if(object_selector_.medium_electrons().size() == 1)
+      if(object_selector_.tight_electrons().size() == 1)
         evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
 		}
 
@@ -648,8 +665,8 @@ public:
       matched_perm = matcher_.match(
         genp_selector_.ttbar_final_system(),
         object_selector_.clean_jets(), 
-        object_selector_.loose_electrons(),
-        object_selector_.loose_muons()
+        object_selector_.veto_electrons(),
+        object_selector_.veto_muons()
         );
       matched_perm.SetMET(object_selector_.met());
     }
@@ -742,8 +759,10 @@ public:
       ("nopdf", opts::value<int>()->default_value(0), "do not run pdf uncertainties")
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
-      ("report,s", opts::value<int>()->default_value(10000), "report every");
+      ("report", opts::value<int>()->default_value(10000), "report every");
 
+		parser.addCfgParameter<std::string>("general", "ctag_sffile", "");
+		parser.addCfgParameter<std::string>("general", "cmva_sffile", "");
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
     parser.addCfgParameter<std::string>("general", "ctag_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");

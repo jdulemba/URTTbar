@@ -28,6 +28,7 @@ from URAnalysis.Utilities.datacard import DataCard
 from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.Utilities.latex import t2latex
 import re
+import itertools
 
 parser = ArgumentParser()
 parser.add_argument('mode', choices=['electrons', 'muons'], help='choose leptonic decay type')
@@ -55,7 +56,7 @@ class HTTPlotter(Plotter):
 			'hadscale_down' : 'ttJets_scaledown',
 			}
 		jobid = os.environ['jobid']
-		files = glob.glob('results/%s/topspin_reco/*.root' % jobid)
+		files = glob.glob('results/%s/htt_simple/*.root' % jobid)
 		files = filter(filtering, files)
 		logging.debug('files found %s' % files.__repr__())
 		lumis = glob.glob('inputs/%s/*.lumi' % jobid)
@@ -77,13 +78,14 @@ class HTTPlotter(Plotter):
 			}
 		self.jobid = jobid
 
-		self.views['ttJets_preselection'] = {
-			'view' : self.create_tt_subsample(
-				['semilep_visible_right'],
-				't#bar{t}',
-				'#6666b3'
-				)
-			}
+		self.views['ttJets_preselection'] = self.views['ttJets']
+		#{
+		#	'view' : self.create_tt_subsample(
+		#		['semilep_visible_right'],
+		#		't#bar{t}',
+		#		'#6666b3'
+		#		)
+		#	}
 		self.views['ttJets_right'] = {
 			'view' : self.create_tt_subsample(
 				['semilep_visible_right'],
@@ -113,9 +115,10 @@ class HTTPlotter(Plotter):
 			#'WJets',
 			#'ZJets',
 			'single*',
-			'ttJets_other',
-			'ttJets_partial',
-			'ttJets_right',
+			'ttJets',
+			#'ttJets_other',
+			#'ttJets_partial',
+			#'ttJets_right',
 			]
 
 		self.card_names = {
@@ -275,7 +278,57 @@ class HTTPlotter(Plotter):
 
 		self.mc_samples = mc_default
 
+	def make_sample_table(self, threshold=None, absolute=False, fname='yields.raw_txt'):
+		stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
+		names = [i.title for i in stack.hists]
+		yields = [i.Integral() for i in stack.hists]
+		def ratio(lst):
+			tot = sum(lst)/100. if not absolute else 1.
+			return [i/tot for i in lst] if tot else [0. for _ in lst]
+		yields = ratio(yields)
+		mlen = max(len(i) for i in names)
+		format = '%'+str(mlen)+'s     %.1f%%\n'
+		header = ('%'+str(mlen)+'s    frac') % 'sample'
+		if threshold is not None:
+			binid = stack.hists[0].xaxis.FindBin(threshold)
+			fbin = stack.hists[0].nbins()+1
+			less = ratio([i.Integral(1, binid-1) for i in stack.hists])
+			above = ratio([i.Integral(binid, fbin) for i in stack.hists])
+			yields = [i for i in zip(yields, less, above)]
+			format = format.replace('\n', '    %.1f%%    %.1f%%\n')
+			header += '    <%.0f %s     >%.0f %s' % (threshold, stack.hists[0].xaxis.title, threshold, stack.hists[0].xaxis.title)
+		header += '\n'
+		fullname = os.path.join(self.outputdir, fname)
+		with open(fullname, 'w') as f:
+			f.write(header)
+			for i in zip(names, yields):
+				info = i
+				if threshold is not None:
+					#repack info
+					a, b = i
+					c, d, e = b
+					info = (a, c, d, e)
+				f.write(format % info)
 
+	def get_yields(self, thr):
+		stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
+		obs = self.keep[1]
+		assert(obs.title == 'Observed')
+		hists = stack.hists
+		hists.append(obs)
+		ret = []
+		for hist in hists:
+			name = hist.title
+			binid = hist.xaxis.FindBin(thr)
+			fbin = hist.nbins()+1
+			loe = ROOT.Double()
+			lov = hist.IntegralAndError(1, binid-1, loe)
+			hie = ROOT.Double()
+			hiv = hist.IntegralAndError(binid, fbin, hie)
+			ret.append(
+				(name, (lov, loe), (hiv, hie))
+				)
+		return ret
 
 plotter = HTTPlotter(args.mode)
 
@@ -290,13 +343,17 @@ variables = [
 ]
 
 preselection = [
-  ("njets"	 , "# of selected jets", range(13), None, False),
-  ("jets_eta", "#eta(jet)", 10, None, False),
-  ("jets_pt", "p_{T}(jet)", 10, None, False),
-  ("lep_eta", "#eta(l)", 10, None, False),
-  ("lep_pt", "p_{T}(l)", 10, None, False),
-  ("nvtx", "# of reconstructed vertices", range(41), None, False),
-  ("rho", "#rho", range(40), None, False),
+	(False, "MT" , "MT",  10, None, False),
+  (False, "njets"	 , "# of selected jets", range(13), None, False),
+  (False, "jets_eta", "#eta(jet)", 10, None, False),
+  (False, "jets_pt", "p_{T}(jet)", 10, None, False),
+  (False, "lep_eta", "#eta(l)", 10, None, False),
+  (False, "lep_pt", "p_{T}(l)", 10, None, False),
+  (False, "nvtx", "# of reconstructed vertices", range(41), None, False),
+  (False, "rho", "#rho", range(40), None, False),
+	(True , "max_jets_CSV", 'Max CSV', 1, [0, 1], False),
+	(False, "lep_iso", 'l rel Iso', 1, [0,1], False),
+	(False, "lep_wp" , "electron wp", 1, None, False),
 ]
 
 permutations = [
@@ -314,28 +371,66 @@ jet_categories = ["3jets", "4jets", "5Pjets"]
 #plotter.save('cut_flow')
 
 plotter.set_subdir('preselection')
-for var, axis, rebin, x_range, leftside in preselection:
+for logy, var, axis, rebin, x_range, leftside in preselection:
 	plotter.make_preselection_plot(
 		'nosys/preselection', var, sort=True,
 		xaxis=axis, leftside=leftside, rebin=rebin, 
-		show_ratio=True, ratio_range=0.5)		
+		show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)		
 	plotter.save(var)
-	
-for var, axis, rebin, x_range, leftside in permutations:
-		plotter.make_preselection_plot(
-			'nosys/preselection', var, sort=True,
-			xaxis=axis, leftside=leftside, rebin=rebin, 
-			show_ratio=True, ratio_range=0.5)
+
+#2D Histos
+qcd_view = plotter.get_view('QCD*')
+for var, x, y in  [('MT_iso', 'M_{T}', 'Iso'), ('MT_btag', 'M_{T}', 'max(CSV)'), ('iso_btag', 'Iso', 'max(CSV)')]:
+	histo = qcd_view.Get('nosys/preselection/%s' % var)
+	histo.xaxis.title = x
+	histo.yaxis.title = y
+	histo.Draw('colz')
+	plotter.save(var)
+
+vals = []
+for dirid in itertools.product(['looseNOTTight', 'tight'], ['inverted', '1tag', '2tag']):
+	tdir = '%s/%s' % dirid
+	plotter.set_subdir(tdir)
+	first = True
+	for logy, var, axis, rebin, x_range, leftside in preselection:
+		plotter.plot_mc_vs_data(
+			'nosys/%s' % tdir, var, sort=True,
+			xaxis=axis, leftside=leftside, rebin=rebin,
+			show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)
+		if first:
+			first = False
+			plotter.make_sample_table(threshold=50)
+			plotter.make_sample_table(threshold=50, absolute=True, fname='yields_abs.raw_txt')
+			vals.append(
+				(tdir, plotter.get_yields(50))
+				)
 		plotter.save(var)
 
-for jdir in jet_categories:
-	plotter.set_subdir(jdir)
-	folder = 'nosys/%s' % jdir
-	for var, axis, rebin, x_range, leftside in variables+permutations:
-		plotter.plot_mc_vs_data(
-			folder, var, rebin, #sort=True,
-			xaxis=axis, leftside=False,
-			xrange=x_range, show_ratio=True, 
-			ratio_range=0.5)		
-		plotter.save(var)
+jmap = {}
+for tdir, sams in vals:
+	for sam, lo, hi in sams:
+		if sam not in jmap:
+			jmap[sam] = {}
+		jmap[sam]['%s/%s' % (tdir, 'hi')] = hi
+		jmap[sam]['%s/%s' % (tdir, 'lo')] = lo
+with open('yields.json', 'w') as out:
+	out.write(prettyjson.dumps(jmap))
+
+#for var, axis, rebin, x_range, leftside in permutations:
+#		plotter.make_preselection_plot(
+#			'nosys/preselection', var, sort=True,
+#			xaxis=axis, leftside=leftside, rebin=rebin, 
+#			show_ratio=True, ratio_range=0.5)
+#		plotter.save(var)
+#
+#for jdir in jet_categories:
+#	plotter.set_subdir(jdir)
+#	folder = 'nosys/%s' % jdir
+#	for var, axis, rebin, x_range, leftside in variables+permutations:
+#		plotter.plot_mc_vs_data(
+#			folder, var, rebin, #sort=True,
+#			xaxis=axis, leftside=False,
+#			xrange=x_range, show_ratio=True, 
+#			ratio_range=0.5)		
+#		plotter.save(var)
 		

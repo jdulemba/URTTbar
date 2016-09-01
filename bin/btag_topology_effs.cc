@@ -148,7 +148,7 @@ public:
     //find mc weight
     if(object_selector_.tight_muons().size() == 1)
       evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
-    if(object_selector_.medium_electrons().size() == 1)
+    if(object_selector_.tight_electrons().size() == 1)
       evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
     tracker_.track("MC weights");
  

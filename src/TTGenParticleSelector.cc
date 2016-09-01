@@ -37,8 +37,8 @@ TTGenParticleSelector::TTGenParticleSelector(SelMode mode):
   setmode(mode);
 
   URParser &parser = URParser::instance();
-  parser.addCfgParameter<float>("gen_jets", "ptmin", "minimum pt");
-  parser.addCfgParameter<float>("gen_jets", "etamax", "maximum eta");
+  parser.addCfgParameter<float>("gen_jets", "ptmin", "minimum pt", 0.);
+  parser.addCfgParameter<float>("gen_jets", "etamax", "maximum eta", 999.);
 
   parser.addCfgParameter<float>("acceptance", "lepton_ptmin", "minimum lepton pt", 0.);
   parser.addCfgParameter<float>("acceptance", "lepton_etamax", "maximum lepton eta", 999.);
@@ -51,7 +51,7 @@ TTGenParticleSelector::TTGenParticleSelector(SelMode mode):
   parser.addCfgParameter<float>("acceptance", "bjet_pthard", "minimum leading b-jet pt", 0.);
   parser.addCfgParameter<float>("acceptance", "bjet_etamax", "maximum b-jet eta", 999.);
 
-  parser.addCfgParameter<float>("acceptance", "parton_separation", "parton separation");
+  parser.addCfgParameter<float>("acceptance", "parton_separation", "parton separation", 0.);
 
   parser.parseArguments();
   parser.parseArguments();
