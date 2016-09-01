@@ -3,8 +3,8 @@
 #include "Analyses/URTTbar/interface/IDMet.h"
 #include "URAnalysis/AnalysisFW/interface/Wards.h"
 #include <iostream>
-#include "URParser.h"
-#include "DataFile.h"
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
+#include "URAnalysis/AnalysisFW/interface/DataFile.h"
 
 TTBarSolver* TTBarSolver::TTBS = 0; 
 
