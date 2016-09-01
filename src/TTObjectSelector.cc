@@ -122,9 +122,6 @@ bool TTObjectSelector::select_electrons(URStreamer &event, systematics::SysShift
 }
 
 bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts shift) {
-	double  metcorrx = 0.;
-	double  metcorry = 0.;
-
 	//SET JETS
 	const vector<Jet>& jets = event.jets();
 	for(vector<Jet>::const_iterator jetit = jets.begin(); jetit != jets.end(); ++jetit)
