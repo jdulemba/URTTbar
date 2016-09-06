@@ -31,7 +31,6 @@ TTObjectSelector::TTObjectSelector(int objsel):
     parser.addCfgParameter<int>("event", "use_trig"   , "", 1);
     parser.addCfgParameter<int>("event", "use_filters", "", 1);
     parser.addCfgParameter<int>("event", "smear_met", "", 1);
-		parser.addCfgParameter<int>("event", "trig_config", "", 2015);
 		parser.addCfgParameter<int>("event", "allow_loose", "", 0);
 
     parser.addCfgParameter<int>  ("jets", "n_min", "minimum number of jets");
@@ -41,7 +40,6 @@ TTObjectSelector::TTObjectSelector(int objsel):
     
     parser.parseArguments();
 		use_trg_     = (parser.getCfgPar<int>("event", "use_trig"   ) == 1);
-		trg_cfg_     = parser.getCfgPar<int>("event", "trig_config");
 		use_filters_ = (parser.getCfgPar<int>("event", "use_filters") == 1);
     smear_met_   = (parser.getCfgPar<int>("event", "smear_met") == 1);
 		allow_loose_ = (parser.getCfgPar<int>("event", "allow_loose") == 1);
@@ -155,36 +153,32 @@ bool TTObjectSelector::pass_through(URStreamer &event, systematics::SysShifts sh
 
 bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift) {
   //Trigger!
-  bool isMC = (event.run == 1);
-	switch(trg_cfg_) {
-	case 2015:
-		el_trg_ = (event.trigger().HLT_Ele23_WPLoose_Gsf() == 1);
-		mu_trg_ = (event.trigger().HLT_IsoMu20() == 1 || event.trigger().HLT_IsoTkMu20() == 1);
-		//std::cout << "TRG: " << event.trigger().HLT_IsoMu20() << " -- " << event.trigger().HLT_IsoTkMu20() << std::endl;
-		break;
-	case 2016:
-		el_trg_ = (event.trigger().HLT_Ele27_WPLoose_Gsf() == 1);
-		mu_trg_ = (event.trigger().HLT_IsoMu22() == 1 || event.trigger().HLT_IsoTkMu22() == 1);
-		break;
-	default:
-		Logger::log().fatal() << "Trigger configuration can only be 2015 or 2016" << std::endl;
-		throw 42;
-	}
+  //bool isMC = (event.run == 1);
+	//if(!use_trg_ && isMC) return true;
+	el_trg_ = (event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() == 1);
+	mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
+	//el_trg_ = (event.trigger().HLT_Ele27_WPLoose_Gsf() == 1);
+	//mu_trg_ = (event.trigger().HLT_IsoMu22() == 1 || event.trigger().HLT_IsoTkMu22() == 1);	
 
-	return !((use_trg_ || !isMC) && !(el_trg_ || mu_trg_));
+	// cout << event.trigger().HLT_Ele27_WPLoose_Gsf() << " " <<  event.trigger().HLT_IsoMu22() << " " << event.trigger().HLT_IsoTkMu22() << endl;
+	// cout << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << " " << event.trigger().HLT_IsoMu24() << " " << event.trigger().HLT_IsoTkMu22() << endl;
+	// throw 42;
+	return (el_trg_ || mu_trg_);
 }
 
 bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shift) {
 	//Filters
+	bool filter_answer = true;
 	auto filters = event.filter();
-	bool filter_answer = (filters.Flag_HBHENoiseFilter() == 1); 
+	//filter_answer &= (filters.Flag_HBHENoiseFilter() == 1); 
+	//cout << filters.Flag_HBHENoiseFilter() << endl;
 	filter_answer &= (filters.Flag_HBHENoiseIsoFilter() == 1); 
-	filter_answer &= (filters.Flag_CSCTightHalo2015Filter() == 1);
 	filter_answer &= (filters.Flag_EcalDeadCellTriggerPrimitiveFilter() == 1);
+	filter_answer &= (filters.Flag_goodVertices() == 1);
 	filter_answer &= (filters.Flag_eeBadScFilter() == 1);
-	// std::cout << filters.Flag_HBHENoiseFilter() << " " << filters.Flag_HBHENoiseIsoFilter()  << " "
-	// 					<< filters.Flag_CSCTightHaloFilter() << " " << filters.Flag_EcalDeadCellTriggerPrimitiveFilter() << " "
-	// 					<< filters.Flag_eeBadScFilter() << std::endl;
+	filter_answer &= (filters.Flag_globalTightHalo2016Filter() == 1);
+	filter_answer &= (filters.Flag_BadPFMuon() == 1);
+	filter_answer &= (filters.Flag_BadChargedCandidate() == 1);	
 	return filter_answer;
 }
 
@@ -203,6 +197,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   
   if(!(has_muons || has_electrons)) return false;
   if(tracker_) tracker_->track("has leptons");
+	//cout << el_trg_ || mu_trg_ << endl;
 
   //1 lepton and no veto ones
 	if(tight_muons_.size()) {
@@ -241,15 +236,22 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
 		evt_type_ = LOOSEEL;
 		pass_lepton_ = -1;
 	}
+	else {
+		return false;
+	}
 	if(!allow_loose_ && (evt_type_ == LOOSEMU || evt_type_ == LOOSEEL)) return false;
-
+  if(tracker_) tracker_->track("loose/tight lepton");
+	// cout << tight_muons_.size() << " " << loose_muons_.size() << " " << veto_muons_.size() << " // " << tight_electrons_.size() << " " << loose_electrons_.size() << " " << veto_electrons_.size() << endl;
+	// cout << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << " // " << event.trigger().HLT_IsoMu24() << " " << event.trigger().HLT_IsoTkMu22() << endl;
 	//right lepton
-  if(objsel_ == -1 && (evt_type_ == TIGHTMU || evt_type_ == LOOSEMU)) return false;
-  if(objsel_ == 1  && (evt_type_ == TIGHTEL || evt_type_ == LOOSEEL)) return false;
+	bool mutype = (evt_type_ == TIGHTMU || evt_type_ == LOOSEMU);
+  if(objsel_ == -1 && mutype ) return false;
+  if(objsel_ == 1  && !mutype) return false;
+  if(tracker_) tracker_->track("right lepton");
   
   //right trigger 
-  if(has_muons && !mu_trg_) return false;
-  if(has_electrons && !el_trg_) return false;
+  if(mutype && !mu_trg_) return false;
+  if(!mutype && !el_trg_) return false;
   if(tracker_) tracker_->track("right trigger");
   
   select_jetmet(event, shift);

@@ -125,7 +125,6 @@ private:
   bool is_configured_ = false;
   bool apply_jer_ = true;
   bool use_trg_ = true;
-  int trg_cfg_ = 0;
   bool use_filters_ = true;
 	bool smear_met_ = true;
 	bool allow_loose_ = true;

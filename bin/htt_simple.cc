@@ -36,6 +36,7 @@
 #include <sstream>
 #include <unordered_map>
 #include "URAnalysis/AnalysisFW/interface/EventList.h"
+#include "TROOT.h"
 
 using namespace TMath;
 
@@ -98,7 +99,6 @@ public:
 		Logger::log().debug() << "htt_simple ctor" << endl;
     cut_tight_b_ = btag_sf_.tight_cut();
     cut_loose_b_ = btag_sf_.loose_cut();
-		//tracker_.verbose(true);
     //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
     //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
     
@@ -127,6 +127,7 @@ public:
 			else object_selector_.lepton_type(1);
 		}
 		sync_ = values.count("sync");
+		if(sync_) tracker_.verbose(true);
     if(!isData_) mc_weights_.init(sample);
 
 		systematics_ = {systematics::SysShifts::NOSYS};//systematics::get_systematics(output_file);
@@ -236,6 +237,7 @@ public:
 			sync_info_["puweight"] = -1;
 			sync_info_["mcweight"] = -1;
 			sync_info_["lumi"] = -1;
+			sync_info_["run"] = -1;
 
 			sync_tree_->Branch("evt", &sync_evt_);
 			for(auto& entry :  sync_info_) {
@@ -247,6 +249,7 @@ public:
 
 		vector<string> leptons = {"electrons", "muons"};		
 		vector<string> lepIDs  = {"looseNOTTight", "tight"};		
+		vector<string> MTs     = {"MTLow", "MTHigh"};		
 		//vector<string> tagging = {"ctagged", "notag"};
 		for(auto& lepton : leptons) {
 			for(auto& sys : systematics_) {
@@ -255,11 +258,11 @@ public:
 				Logger::log().debug() << "Booking histos in: " << dname << endl;
 				book_presel_plots(dname);				
 				for(auto& lepid : lepIDs) {
-					for(auto& btag : {"1tag", "2tag", "inverted"}) {
+					for(auto& mt : MTs) {
 						stringstream dstream;
 						dstream << lepton << "/";
-						dstream << sys_name<<"/" << lepid << "/" << btag;
-						
+						dstream << sys_name<<"/" << lepid << "/" << mt;
+					
 						Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
 						book_selection_plots(dstream.str());
 					}
@@ -301,25 +304,16 @@ public:
 		presel_dir << sys_name << "/preselection";
     if(!sync_) fill_presel_plots(presel_dir.str(), event);
 
-		//cut on MT
-		// double mt = MT(object_selector_.lepton(), object_selector_.met());
-		// //(*object_selector_.lepton()+*object_selector_.met()).Mt() ;
-		// if(mt < cut_MT_) return;
-		// tracker_.track("MT cut", leptype);
-
 		//cut on btag
 		auto &clean_jets = object_selector_.clean_jets();
-		int nbtags = 0;
-		sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
-		if(clean_jets[0]->BTagId(cut_tight_b_)) nbtags++;
-		if(clean_jets[1]->BTagId(cut_tight_b_)) nbtags++; //WATCH OUT! SAME BTAG WP!
-		if(nbtags == 0 && !clean_jets[0]->BTagId(IDJet::BTag::CSVLOOSE)) nbtags--;
-		if(nbtags == 0) return;
+		sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
+		if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
+		if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
 		tracker_.track("b cuts", leptype);
 
     //find mc weight for btag
 		double bweight = 1;
-    if(!isData_ && nbtags > 0) bweight *= btag_sf_.scale_factor(clean_jets, shift);
+    if(!isData_ && !sync_) bweight *= btag_sf_.scale_factor(clean_jets, shift);
 		evt_weight_ *= bweight;
     
 		stringstream evtdir;		
@@ -332,23 +326,37 @@ public:
 		default: throw 42; break;
 		}
 
-		if(nbtags == 1) evtdir << "/" << "1tag"; 
-		else if(nbtags == 2) evtdir << "/" << "2tag"; 
-		else if(nbtags == -1) evtdir << "/" << "inverted"; 
-		else throw 42;
+		//cut on MT
+		double mt = MT(object_selector_.lepton(), object_selector_.met());
+		//(*object_selector_.lepton()+*object_selector_.met()).Mt() ;
+		//cout << "MT: " << mt << " - " << cut_MT_ << endl;
+		bool mtlow = false;
+		if(mt < cut_MT_) {
+			mtlow=true;
+			evtdir << "MTLow";
+		} else {
+			evtdir << "MTHigh";
+		}
+		tracker_.track("MT cut", leptype);
 
 		if(!sync_){
 			fill_selection_plots(evtdir.str(), event);
-		} else {
-			cout << "passing event " << " / " << event.run << ":" << event.lumi << ":" << event.evt << 
-				" / Muon: "<< !(object_selector_.lepton_type() == -1) << endl;
+			tracker_.track("END", leptype);
+		} else if(!mtlow && (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL)) {
+			// cout << "passing event " << " / " << event.run << ":" << event.lumi << ":" << event.evt << 
+			// 	" / Muon: "<< !(object_selector_.lepton_type() == -1) << endl;
+			sync_info_["run"]  = event.run;
+			sync_info_["lumi"] = event.lumi;
+			sync_evt_ = event.evt;
+			sync_info_["puweight"] = (isData_) ? 1. : mc_weights_.pu_weight( event);
+			sync_info_["mcweight"] = (isData_) ? 1. : mc_weights_.gen_weight(event);
 			sync_info_["hasMuon"] = (object_selector_.lepton_type() == -1) ? 0 : 1;
 			sync_info_["btagweight"] = bweight;
 			sync_info_["leptonweight"] = lep_weight;
 			sync_info_["finalweight"] = evt_weight_;
 			sync_tree_->Fill();
+			tracker_.track("SYNC END", leptype);
 		} 
-		tracker_.track("END", leptype);
 	}
 
   //This method is called once every file, contains the event loop
@@ -390,12 +398,6 @@ public:
 			evt_idx_--;
 			if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
 			evt_idx_++;
-			if(sync_) {
-				sync_info_["lumi"] = event.lumi;
-				sync_evt_ = event.evt;
-				sync_info_["puweight"] = (isData_) ? 1. : mc_weights_.pu_weight( event);
-				sync_info_["mcweight"] = (isData_) ? 1. : mc_weights_.gen_weight(event);
-			}
 			for(auto shift : systematics_){
         evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
 
@@ -412,12 +414,12 @@ public:
   //every histogram/tree produced, override it if you need something more
   virtual void end(){
 		outFile_.cd();
+		tracker_.writeTo(outFile_);
 		if(sync_) {
 			sync_tree_->Write();
 			return;
 		}
 		outFile_.Write();
-		tracker_.writeTo(outFile_);
 		for(string ltype : {"electrons", "muons"}) {
 			TDirectory* tdir = (TDirectory*) outFile_.Get(ltype.c_str());
 			tracker_.writeTo(*tdir, ltype);
@@ -452,5 +454,9 @@ int main(int argc, char *argv[])
 {
   URParser &parser = URParser::instance(argc, argv);
   URDriver<htt_simple> test;
-  return test.run();
+	int excode = test.run();
+	//Logger::log().debug() << "RUNNING DONE " << std::endl;
+	auto files = gROOT->GetListOfFiles(); //make ROOT aware that some files do not exist, because REASONS
+	Logger::log().debug() << "Nfiles " << files->GetSize() << std::endl; //need to print out this otherwise ROOT loses its shit in 7.4.X (such I/O, much features)
+  return excode;
 }

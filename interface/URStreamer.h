@@ -243,7 +243,7 @@ private:
 class Filter{
 friend class URStreamer;
 public:
-//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_CSCTightHalo2015Filter_):
+//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_globalTightHalo2016Filter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_BadPFMuon_,const Int_t &i_Flag_BadChargedCandidate_):
 //    
 //  {}
   Filter():
@@ -257,10 +257,12 @@ public:
     Flag_eeBadScFilter_(0),
     Flag_METFilters_(0),
     Flag_HBHENoiseFilter_(0),
+    Flag_HBHENoiseIsoFilter_(0),
+    Flag_globalTightHalo2016Filter_(0),
     Flag_trkPOG_toomanystripclus53X_(0),
     Flag_hcalLaserEventFilter_(0),
-    Flag_HBHENoiseIsoFilter_(0),
-    Flag_CSCTightHalo2015Filter_(0)
+    Flag_BadPFMuon_(0),
+    Flag_BadChargedCandidate_(0)
   {}
   Int_t Flag_goodVertices() const {return Flag_goodVertices_;}
   Int_t Flag_CSCTightHaloFilter() const {return Flag_CSCTightHaloFilter_;}
@@ -272,10 +274,12 @@ public:
   Int_t Flag_eeBadScFilter() const {return Flag_eeBadScFilter_;}
   Int_t Flag_METFilters() const {return Flag_METFilters_;}
   Int_t Flag_HBHENoiseFilter() const {return Flag_HBHENoiseFilter_;}
+  Int_t Flag_HBHENoiseIsoFilter() const {return Flag_HBHENoiseIsoFilter_;}
+  Int_t Flag_globalTightHalo2016Filter() const {return Flag_globalTightHalo2016Filter_;}
   Int_t Flag_trkPOG_toomanystripclus53X() const {return Flag_trkPOG_toomanystripclus53X_;}
   Int_t Flag_hcalLaserEventFilter() const {return Flag_hcalLaserEventFilter_;}
-  Int_t Flag_HBHENoiseIsoFilter() const {return Flag_HBHENoiseIsoFilter_;}
-  Int_t Flag_CSCTightHalo2015Filter() const {return Flag_CSCTightHalo2015Filter_;}
+  Int_t Flag_BadPFMuon() const {return Flag_BadPFMuon_;}
+  Int_t Flag_BadChargedCandidate() const {return Flag_BadChargedCandidate_;}
 private:
   Int_t Flag_goodVertices_;
   Int_t Flag_CSCTightHaloFilter_;
@@ -287,10 +291,12 @@ private:
   Int_t Flag_eeBadScFilter_;
   Int_t Flag_METFilters_;
   Int_t Flag_HBHENoiseFilter_;
+  Int_t Flag_HBHENoiseIsoFilter_;
+  Int_t Flag_globalTightHalo2016Filter_;
   Int_t Flag_trkPOG_toomanystripclus53X_;
   Int_t Flag_hcalLaserEventFilter_;
-  Int_t Flag_HBHENoiseIsoFilter_;
-  Int_t Flag_CSCTightHalo2015Filter_;
+  Int_t Flag_BadPFMuon_;
+  Int_t Flag_BadChargedCandidate_;
   void setFlag_goodVertices(const Int_t value) {Flag_goodVertices_ = value;}
   void setFlag_CSCTightHaloFilter(const Int_t value) {Flag_CSCTightHaloFilter_ = value;}
   void setFlag_trkPOGFilters(const Int_t value) {Flag_trkPOGFilters_ = value;}
@@ -301,99 +307,137 @@ private:
   void setFlag_eeBadScFilter(const Int_t value) {Flag_eeBadScFilter_ = value;}
   void setFlag_METFilters(const Int_t value) {Flag_METFilters_ = value;}
   void setFlag_HBHENoiseFilter(const Int_t value) {Flag_HBHENoiseFilter_ = value;}
+  void setFlag_HBHENoiseIsoFilter(const Int_t value) {Flag_HBHENoiseIsoFilter_ = value;}
+  void setFlag_globalTightHalo2016Filter(const Int_t value) {Flag_globalTightHalo2016Filter_ = value;}
   void setFlag_trkPOG_toomanystripclus53X(const Int_t value) {Flag_trkPOG_toomanystripclus53X_ = value;}
   void setFlag_hcalLaserEventFilter(const Int_t value) {Flag_hcalLaserEventFilter_ = value;}
-  void setFlag_HBHENoiseIsoFilter(const Int_t value) {Flag_HBHENoiseIsoFilter_ = value;}
-  void setFlag_CSCTightHalo2015Filter(const Int_t value) {Flag_CSCTightHalo2015Filter_ = value;}
+  void setFlag_BadPFMuon(const Int_t value) {Flag_BadPFMuon_ = value;}
+  void setFlag_BadChargedCandidate(const Int_t value) {Flag_BadChargedCandidate_ = value;}
 };
 
 class Trigger{
 friend class URStreamer;
 public:
-//  Trigger(const Int_t &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_DoubleIsoMu17_eta2p1_,const Int_t &i_HLT_notexists_,const Int_t &i_HLT_IsoMu24_eta2p1_,const Int_t &i_HLT_IsoMu20_eta2p1_,const Int_t &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const Int_t &i_HLT_IsoMu18_,const Int_t &i_HLT_IsoTkMu20_,const Int_t &i_HLT_IsoMu20_,const Int_t &i_HLT_IsoTkMu27_,const Int_t &i_HLT_IsoMu27_,const Int_t &i_HLT_Mu50_,const Int_t &i_HLT_Mu45_eta2p1_,const Int_t &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_Ele23_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_WPLoose_Gsf_,const Int_t &i_HLT_IsoMu22_,const Int_t &i_HLT_IsoTkMu22_):
+//  Trigger(const Int_t &i_HLT_IsoMu18_,const Int_t &i_HLT_IsoMu20_,const Int_t &i_HLT_IsoTkMu20_,const Int_t &i_HLT_IsoMu20_eta2p1_,const Int_t &i_HLT_IsoMu22_,const Int_t &i_HLT_IsoTkMu22_,const Int_t &i_HLT_IsoMu24_,const Int_t &i_HLT_IsoTkMu24_,const Int_t &i_HLT_IsoMu24_eta2p1_,const Int_t &i_HLT_IsoMu27_,const Int_t &i_HLT_IsoTkMu27_,const Int_t &i_HLT_Mu45_eta2p1_,const Int_t &i_HLT_Mu50_,const Int_t &i_HLT_DoubleIsoMu17_eta2p1_,const Int_t &i_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_,const Int_t &i_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_,const Int_t &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_Ele23_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_WPTight_Gsf_,const Int_t &i_Ele27_eta2p1_WPLoose_Gsf_HT200_,const Int_t &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const Int_t &i_Ele35_WPLoose_Gsf_,const Int_t &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const Int_t &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const Int_t &i_HLT_notexists_):
 //    
 //  {}
   Trigger():
-    HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
-    HLT_DoubleIsoMu17_eta2p1_(0),
-    HLT_notexists_(0),
-    HLT_IsoMu24_eta2p1_(0),
-    HLT_IsoMu20_eta2p1_(0),
-    HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     HLT_IsoMu18_(0),
-    HLT_IsoTkMu20_(0),
     HLT_IsoMu20_(0),
-    HLT_IsoTkMu27_(0),
+    HLT_IsoTkMu20_(0),
+    HLT_IsoMu20_eta2p1_(0),
+    HLT_IsoMu22_(0),
+    HLT_IsoTkMu22_(0),
+    HLT_IsoMu24_(0),
+    HLT_IsoTkMu24_(0),
+    HLT_IsoMu24_eta2p1_(0),
     HLT_IsoMu27_(0),
-    HLT_Mu50_(0),
+    HLT_IsoTkMu27_(0),
     HLT_Mu45_eta2p1_(0),
+    HLT_Mu50_(0),
+    HLT_DoubleIsoMu17_eta2p1_(0),
+    HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_(0),
+    HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_(0),
     HLT_Ele22_eta2p1_WPLoose_Gsf_(0),
     HLT_Ele23_WPLoose_Gsf_(0),
     HLT_Ele27_WPLoose_Gsf_(0),
-    HLT_IsoMu22_(0),
-    HLT_IsoTkMu22_(0)
+    HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
+    HLT_Ele27_WPTight_Gsf_(0),
+    Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    HLT_Ele32_eta2p1_WPTight_Gsf_(0),
+    Ele35_WPLoose_Gsf_(0),
+    HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
+    HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    HLT_notexists_(0)
   {}
-  Int_t HLT_Ele27_eta2p1_WPLoose_Gsf() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_;}
-  Int_t HLT_DoubleIsoMu17_eta2p1() const {return HLT_DoubleIsoMu17_eta2p1_;}
-  Int_t HLT_notexists() const {return HLT_notexists_;}
-  Int_t HLT_IsoMu24_eta2p1() const {return HLT_IsoMu24_eta2p1_;}
-  Int_t HLT_IsoMu20_eta2p1() const {return HLT_IsoMu20_eta2p1_;}
-  Int_t HLT_DoubleEle33_CaloIdL_GsfTrkIdVL() const {return HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;}
   Int_t HLT_IsoMu18() const {return HLT_IsoMu18_;}
-  Int_t HLT_IsoTkMu20() const {return HLT_IsoTkMu20_;}
   Int_t HLT_IsoMu20() const {return HLT_IsoMu20_;}
-  Int_t HLT_IsoTkMu27() const {return HLT_IsoTkMu27_;}
+  Int_t HLT_IsoTkMu20() const {return HLT_IsoTkMu20_;}
+  Int_t HLT_IsoMu20_eta2p1() const {return HLT_IsoMu20_eta2p1_;}
+  Int_t HLT_IsoMu22() const {return HLT_IsoMu22_;}
+  Int_t HLT_IsoTkMu22() const {return HLT_IsoTkMu22_;}
+  Int_t HLT_IsoMu24() const {return HLT_IsoMu24_;}
+  Int_t HLT_IsoTkMu24() const {return HLT_IsoTkMu24_;}
+  Int_t HLT_IsoMu24_eta2p1() const {return HLT_IsoMu24_eta2p1_;}
   Int_t HLT_IsoMu27() const {return HLT_IsoMu27_;}
-  Int_t HLT_Mu50() const {return HLT_Mu50_;}
+  Int_t HLT_IsoTkMu27() const {return HLT_IsoTkMu27_;}
   Int_t HLT_Mu45_eta2p1() const {return HLT_Mu45_eta2p1_;}
+  Int_t HLT_Mu50() const {return HLT_Mu50_;}
+  Int_t HLT_DoubleIsoMu17_eta2p1() const {return HLT_DoubleIsoMu17_eta2p1_;}
+  Int_t HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ() const {return HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;}
+  Int_t HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ() const {return HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;}
   Int_t HLT_Ele22_eta2p1_WPLoose_Gsf() const {return HLT_Ele22_eta2p1_WPLoose_Gsf_;}
   Int_t HLT_Ele23_WPLoose_Gsf() const {return HLT_Ele23_WPLoose_Gsf_;}
   Int_t HLT_Ele27_WPLoose_Gsf() const {return HLT_Ele27_WPLoose_Gsf_;}
-  Int_t HLT_IsoMu22() const {return HLT_IsoMu22_;}
-  Int_t HLT_IsoTkMu22() const {return HLT_IsoTkMu22_;}
+  Int_t HLT_Ele27_eta2p1_WPLoose_Gsf() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_;}
+  Int_t HLT_Ele27_WPTight_Gsf() const {return HLT_Ele27_WPTight_Gsf_;}
+  Int_t Ele27_eta2p1_WPLoose_Gsf_HT200() const {return Ele27_eta2p1_WPLoose_Gsf_HT200_;}
+  Int_t HLT_Ele32_eta2p1_WPTight_Gsf() const {return HLT_Ele32_eta2p1_WPTight_Gsf_;}
+  Int_t Ele35_WPLoose_Gsf() const {return Ele35_WPLoose_Gsf_;}
+  Int_t HLT_DoubleEle33_CaloIdL_GsfTrkIdVL() const {return HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;}
+  Int_t HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ() const {return HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;}
+  Int_t HLT_notexists() const {return HLT_notexists_;}
 private:
-  Int_t HLT_Ele27_eta2p1_WPLoose_Gsf_;
-  Int_t HLT_DoubleIsoMu17_eta2p1_;
-  Int_t HLT_notexists_;
-  Int_t HLT_IsoMu24_eta2p1_;
-  Int_t HLT_IsoMu20_eta2p1_;
-  Int_t HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   Int_t HLT_IsoMu18_;
-  Int_t HLT_IsoTkMu20_;
   Int_t HLT_IsoMu20_;
-  Int_t HLT_IsoTkMu27_;
+  Int_t HLT_IsoTkMu20_;
+  Int_t HLT_IsoMu20_eta2p1_;
+  Int_t HLT_IsoMu22_;
+  Int_t HLT_IsoTkMu22_;
+  Int_t HLT_IsoMu24_;
+  Int_t HLT_IsoTkMu24_;
+  Int_t HLT_IsoMu24_eta2p1_;
   Int_t HLT_IsoMu27_;
-  Int_t HLT_Mu50_;
+  Int_t HLT_IsoTkMu27_;
   Int_t HLT_Mu45_eta2p1_;
+  Int_t HLT_Mu50_;
+  Int_t HLT_DoubleIsoMu17_eta2p1_;
+  Int_t HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;
+  Int_t HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
   Int_t HLT_Ele22_eta2p1_WPLoose_Gsf_;
   Int_t HLT_Ele23_WPLoose_Gsf_;
   Int_t HLT_Ele27_WPLoose_Gsf_;
-  Int_t HLT_IsoMu22_;
-  Int_t HLT_IsoTkMu22_;
-  void setHLT_Ele27_eta2p1_WPLoose_Gsf(const Int_t value) {HLT_Ele27_eta2p1_WPLoose_Gsf_ = value;}
-  void setHLT_DoubleIsoMu17_eta2p1(const Int_t value) {HLT_DoubleIsoMu17_eta2p1_ = value;}
-  void setHLT_notexists(const Int_t value) {HLT_notexists_ = value;}
-  void setHLT_IsoMu24_eta2p1(const Int_t value) {HLT_IsoMu24_eta2p1_ = value;}
-  void setHLT_IsoMu20_eta2p1(const Int_t value) {HLT_IsoMu20_eta2p1_ = value;}
-  void setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(const Int_t value) {HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = value;}
+  Int_t HLT_Ele27_eta2p1_WPLoose_Gsf_;
+  Int_t HLT_Ele27_WPTight_Gsf_;
+  Int_t Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  Int_t HLT_Ele32_eta2p1_WPTight_Gsf_;
+  Int_t Ele35_WPLoose_Gsf_;
+  Int_t HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
+  Int_t HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Int_t HLT_notexists_;
   void setHLT_IsoMu18(const Int_t value) {HLT_IsoMu18_ = value;}
-  void setHLT_IsoTkMu20(const Int_t value) {HLT_IsoTkMu20_ = value;}
   void setHLT_IsoMu20(const Int_t value) {HLT_IsoMu20_ = value;}
-  void setHLT_IsoTkMu27(const Int_t value) {HLT_IsoTkMu27_ = value;}
+  void setHLT_IsoTkMu20(const Int_t value) {HLT_IsoTkMu20_ = value;}
+  void setHLT_IsoMu20_eta2p1(const Int_t value) {HLT_IsoMu20_eta2p1_ = value;}
+  void setHLT_IsoMu22(const Int_t value) {HLT_IsoMu22_ = value;}
+  void setHLT_IsoTkMu22(const Int_t value) {HLT_IsoTkMu22_ = value;}
+  void setHLT_IsoMu24(const Int_t value) {HLT_IsoMu24_ = value;}
+  void setHLT_IsoTkMu24(const Int_t value) {HLT_IsoTkMu24_ = value;}
+  void setHLT_IsoMu24_eta2p1(const Int_t value) {HLT_IsoMu24_eta2p1_ = value;}
   void setHLT_IsoMu27(const Int_t value) {HLT_IsoMu27_ = value;}
-  void setHLT_Mu50(const Int_t value) {HLT_Mu50_ = value;}
+  void setHLT_IsoTkMu27(const Int_t value) {HLT_IsoTkMu27_ = value;}
   void setHLT_Mu45_eta2p1(const Int_t value) {HLT_Mu45_eta2p1_ = value;}
+  void setHLT_Mu50(const Int_t value) {HLT_Mu50_ = value;}
+  void setHLT_DoubleIsoMu17_eta2p1(const Int_t value) {HLT_DoubleIsoMu17_eta2p1_ = value;}
+  void setHLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ(const Int_t value) {HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_ = value;}
+  void setHLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(const Int_t value) {HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_ = value;}
   void setHLT_Ele22_eta2p1_WPLoose_Gsf(const Int_t value) {HLT_Ele22_eta2p1_WPLoose_Gsf_ = value;}
   void setHLT_Ele23_WPLoose_Gsf(const Int_t value) {HLT_Ele23_WPLoose_Gsf_ = value;}
   void setHLT_Ele27_WPLoose_Gsf(const Int_t value) {HLT_Ele27_WPLoose_Gsf_ = value;}
-  void setHLT_IsoMu22(const Int_t value) {HLT_IsoMu22_ = value;}
-  void setHLT_IsoTkMu22(const Int_t value) {HLT_IsoTkMu22_ = value;}
+  void setHLT_Ele27_eta2p1_WPLoose_Gsf(const Int_t value) {HLT_Ele27_eta2p1_WPLoose_Gsf_ = value;}
+  void setHLT_Ele27_WPTight_Gsf(const Int_t value) {HLT_Ele27_WPTight_Gsf_ = value;}
+  void setEle27_eta2p1_WPLoose_Gsf_HT200(const Int_t value) {Ele27_eta2p1_WPLoose_Gsf_HT200_ = value;}
+  void setHLT_Ele32_eta2p1_WPTight_Gsf(const Int_t value) {HLT_Ele32_eta2p1_WPTight_Gsf_ = value;}
+  void setEle35_WPLoose_Gsf(const Int_t value) {Ele35_WPLoose_Gsf_ = value;}
+  void setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(const Int_t value) {HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = value;}
+  void setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(const Int_t value) {HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
+  void setHLT_notexists(const Int_t value) {HLT_notexists_ = value;}
 };
 
 class Electron: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutVeto_,const float &i_eidMVAWP80_,const float &i_eidMVAWP90_,const float &i_eidTrgMVAWP80_,const float &i_eidTrgMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const float &i_hadronicOverEM_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
+//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutVeto_,const float &i_eidMVAWP80_,const float &i_eidMVAWP90_,const float &i_eidTrgMVAWP80_,const float &i_eidTrgMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPTight_Gsf_,const bool &i_Ele27_eta2p1_WPLoose_Gsf_HT200_,const bool &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const bool &i_Ele35_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const float &i_hadronicOverEM_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
 //    
 //  {}
   Electron():
@@ -436,11 +480,16 @@ public:
     pfHadronIso_(0),
     pfNeutralIso_(0),
     pfPhotonIso_(0),
-    HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
-    HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     HLT_Ele22_eta2p1_WPLoose_Gsf_(0),
     HLT_Ele23_WPLoose_Gsf_(0),
     HLT_Ele27_WPLoose_Gsf_(0),
+    HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
+    HLT_Ele27_WPTight_Gsf_(0),
+    Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    HLT_Ele32_eta2p1_WPTight_Gsf_(0),
+    Ele35_WPLoose_Gsf_(0),
+    HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
+    HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
     e1x5_(0),
     e5x5_(0),
     sigmaIEtaIEta_(0),
@@ -493,11 +542,16 @@ public:
   float pfHadronIso() const {return pfHadronIso_;}
   float pfNeutralIso() const {return pfNeutralIso_;}
   float pfPhotonIso() const {return pfPhotonIso_;}
-  bool HLT_Ele27_eta2p1_WPLoose_Gsf() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_;}
-  bool HLT_DoubleEle33_CaloIdL_GsfTrkIdVL() const {return HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;}
   bool HLT_Ele22_eta2p1_WPLoose_Gsf() const {return HLT_Ele22_eta2p1_WPLoose_Gsf_;}
   bool HLT_Ele23_WPLoose_Gsf() const {return HLT_Ele23_WPLoose_Gsf_;}
   bool HLT_Ele27_WPLoose_Gsf() const {return HLT_Ele27_WPLoose_Gsf_;}
+  bool HLT_Ele27_eta2p1_WPLoose_Gsf() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_;}
+  bool HLT_Ele27_WPTight_Gsf() const {return HLT_Ele27_WPTight_Gsf_;}
+  bool Ele27_eta2p1_WPLoose_Gsf_HT200() const {return Ele27_eta2p1_WPLoose_Gsf_HT200_;}
+  bool HLT_Ele32_eta2p1_WPTight_Gsf() const {return HLT_Ele32_eta2p1_WPTight_Gsf_;}
+  bool Ele35_WPLoose_Gsf() const {return Ele35_WPLoose_Gsf_;}
+  bool HLT_DoubleEle33_CaloIdL_GsfTrkIdVL() const {return HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;}
+  bool HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ() const {return HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;}
   float e1x5() const {return e1x5_;}
   float e5x5() const {return e5x5_;}
   float sigmaIEtaIEta() const {return sigmaIEtaIEta_;}
@@ -550,11 +604,16 @@ private:
   float pfHadronIso_;
   float pfNeutralIso_;
   float pfPhotonIso_;
-  bool HLT_Ele27_eta2p1_WPLoose_Gsf_;
-  bool HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   bool HLT_Ele22_eta2p1_WPLoose_Gsf_;
   bool HLT_Ele23_WPLoose_Gsf_;
   bool HLT_Ele27_WPLoose_Gsf_;
+  bool HLT_Ele27_eta2p1_WPLoose_Gsf_;
+  bool HLT_Ele27_WPTight_Gsf_;
+  bool Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  bool HLT_Ele32_eta2p1_WPTight_Gsf_;
+  bool Ele35_WPLoose_Gsf_;
+  bool HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
+  bool HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
   float e1x5_;
   float e5x5_;
   float sigmaIEtaIEta_;
@@ -606,11 +665,16 @@ private:
   void setpfHadronIso(const float value) {pfHadronIso_ = value;}
   void setpfNeutralIso(const float value) {pfNeutralIso_ = value;}
   void setpfPhotonIso(const float value) {pfPhotonIso_ = value;}
-  void setHLT_Ele27_eta2p1_WPLoose_Gsf(const bool value) {HLT_Ele27_eta2p1_WPLoose_Gsf_ = value;}
-  void setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(const bool value) {HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = value;}
   void setHLT_Ele22_eta2p1_WPLoose_Gsf(const bool value) {HLT_Ele22_eta2p1_WPLoose_Gsf_ = value;}
   void setHLT_Ele23_WPLoose_Gsf(const bool value) {HLT_Ele23_WPLoose_Gsf_ = value;}
   void setHLT_Ele27_WPLoose_Gsf(const bool value) {HLT_Ele27_WPLoose_Gsf_ = value;}
+  void setHLT_Ele27_eta2p1_WPLoose_Gsf(const bool value) {HLT_Ele27_eta2p1_WPLoose_Gsf_ = value;}
+  void setHLT_Ele27_WPTight_Gsf(const bool value) {HLT_Ele27_WPTight_Gsf_ = value;}
+  void setEle27_eta2p1_WPLoose_Gsf_HT200(const bool value) {Ele27_eta2p1_WPLoose_Gsf_HT200_ = value;}
+  void setHLT_Ele32_eta2p1_WPTight_Gsf(const bool value) {HLT_Ele32_eta2p1_WPTight_Gsf_ = value;}
+  void setEle35_WPLoose_Gsf(const bool value) {Ele35_WPLoose_Gsf_ = value;}
+  void setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(const bool value) {HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = value;}
+  void setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(const bool value) {HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
   void sete1x5(const float value) {e1x5_ = value;}
   void sete5x5(const float value) {e5x5_ = value;}
   void setsigmaIEtaIEta(const float value) {sigmaIEtaIEta_ = value;}
@@ -875,7 +939,7 @@ private:
 class Muon: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Muon(const int &i_charge_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_ECalEnergy_,const float &i_HCalEnergy_,const int &i_numChambers_,const int &i_numMatchedStations_,const float &i_trackiso_,const float &i_ecaliso_,const float &i_hcaliso_,const float &i_pfChargedIso04_,const float &i_pfNeutralIso04_,const float &i_pfPhotonIso04_,const float &i_pfPUIso04_,const float &i_trkIso03_,const float &i_ptErr_,const float &i_chi2_,const int &i_ndof_,const float &i_validHits_,const float &i_pixelHits_,const float &i_trackerLayers_,const bool &i_isGlobal_,const bool &i_isTracker_,const bool &i_isCalo_,const bool &i_isPF_,const bool &i_isStandAlone_,const bool &i_isLoose_,const bool &i_HLT_DoubleIsoMu17_eta2p1_,const bool &i_HLT_IsoMu24_eta2p1_,const bool &i_HLT_IsoMu20_eta2p1_,const bool &i_HLT_IsoMu18_,const bool &i_HLT_IsoTkMu20_,const bool &i_HLT_IsoMu20_,const bool &i_HLT_IsoTkMu27_,const bool &i_HLT_IsoMu27_,const bool &i_HLT_Mu50_,const bool &i_HLT_Mu45_eta2p1_,const bool &i_HLT_IsoMu22_,const bool &i_HLT_IsoTkMu22_):
+//  Muon(const int &i_charge_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_ECalEnergy_,const float &i_HCalEnergy_,const int &i_numChambers_,const int &i_numMatchedStations_,const float &i_trackiso_,const float &i_ecaliso_,const float &i_hcaliso_,const float &i_pfChargedIso04_,const float &i_pfNeutralIso04_,const float &i_pfPhotonIso04_,const float &i_pfPUIso04_,const float &i_trkIso03_,const float &i_ptErr_,const float &i_chi2_,const int &i_ndof_,const float &i_validHits_,const float &i_pixelHits_,const float &i_trackerLayers_,const bool &i_isGlobal_,const bool &i_isTracker_,const bool &i_isCalo_,const bool &i_isPF_,const bool &i_isStandAlone_,const bool &i_isLoose_,const bool &i_HLT_IsoMu18_,const bool &i_HLT_IsoMu20_,const bool &i_HLT_IsoTkMu20_,const bool &i_HLT_IsoMu20_eta2p1_,const bool &i_HLT_IsoMu22_,const bool &i_HLT_IsoTkMu22_,const bool &i_HLT_IsoMu24_,const bool &i_HLT_IsoTkMu24_,const bool &i_HLT_IsoMu24_eta2p1_,const bool &i_HLT_IsoMu27_,const bool &i_HLT_IsoTkMu27_,const bool &i_HLT_Mu45_eta2p1_,const bool &i_HLT_Mu50_,const bool &i_HLT_DoubleIsoMu17_eta2p1_,const bool &i_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_,const bool &i_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_):
 //    
 //  {}
   Muon():
@@ -913,18 +977,22 @@ public:
     isPF_(0),
     isStandAlone_(0),
     isLoose_(0),
-    HLT_DoubleIsoMu17_eta2p1_(0),
-    HLT_IsoMu24_eta2p1_(0),
-    HLT_IsoMu20_eta2p1_(0),
     HLT_IsoMu18_(0),
-    HLT_IsoTkMu20_(0),
     HLT_IsoMu20_(0),
-    HLT_IsoTkMu27_(0),
-    HLT_IsoMu27_(0),
-    HLT_Mu50_(0),
-    HLT_Mu45_eta2p1_(0),
+    HLT_IsoTkMu20_(0),
+    HLT_IsoMu20_eta2p1_(0),
     HLT_IsoMu22_(0),
-    HLT_IsoTkMu22_(0)
+    HLT_IsoTkMu22_(0),
+    HLT_IsoMu24_(0),
+    HLT_IsoTkMu24_(0),
+    HLT_IsoMu24_eta2p1_(0),
+    HLT_IsoMu27_(0),
+    HLT_IsoTkMu27_(0),
+    HLT_Mu45_eta2p1_(0),
+    HLT_Mu50_(0),
+    HLT_DoubleIsoMu17_eta2p1_(0),
+    HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_(0),
+    HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_(0)
   {}
   int charge() const {return charge_;}
   float dB() const {return dB_;}
@@ -959,18 +1027,22 @@ public:
   bool isPF() const {return isPF_;}
   bool isStandAlone() const {return isStandAlone_;}
   bool isLoose() const {return isLoose_;}
-  bool HLT_DoubleIsoMu17_eta2p1() const {return HLT_DoubleIsoMu17_eta2p1_;}
-  bool HLT_IsoMu24_eta2p1() const {return HLT_IsoMu24_eta2p1_;}
-  bool HLT_IsoMu20_eta2p1() const {return HLT_IsoMu20_eta2p1_;}
   bool HLT_IsoMu18() const {return HLT_IsoMu18_;}
-  bool HLT_IsoTkMu20() const {return HLT_IsoTkMu20_;}
   bool HLT_IsoMu20() const {return HLT_IsoMu20_;}
-  bool HLT_IsoTkMu27() const {return HLT_IsoTkMu27_;}
-  bool HLT_IsoMu27() const {return HLT_IsoMu27_;}
-  bool HLT_Mu50() const {return HLT_Mu50_;}
-  bool HLT_Mu45_eta2p1() const {return HLT_Mu45_eta2p1_;}
+  bool HLT_IsoTkMu20() const {return HLT_IsoTkMu20_;}
+  bool HLT_IsoMu20_eta2p1() const {return HLT_IsoMu20_eta2p1_;}
   bool HLT_IsoMu22() const {return HLT_IsoMu22_;}
   bool HLT_IsoTkMu22() const {return HLT_IsoTkMu22_;}
+  bool HLT_IsoMu24() const {return HLT_IsoMu24_;}
+  bool HLT_IsoTkMu24() const {return HLT_IsoTkMu24_;}
+  bool HLT_IsoMu24_eta2p1() const {return HLT_IsoMu24_eta2p1_;}
+  bool HLT_IsoMu27() const {return HLT_IsoMu27_;}
+  bool HLT_IsoTkMu27() const {return HLT_IsoTkMu27_;}
+  bool HLT_Mu45_eta2p1() const {return HLT_Mu45_eta2p1_;}
+  bool HLT_Mu50() const {return HLT_Mu50_;}
+  bool HLT_DoubleIsoMu17_eta2p1() const {return HLT_DoubleIsoMu17_eta2p1_;}
+  bool HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ() const {return HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;}
+  bool HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ() const {return HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;}
 private:
   int charge_;
   float dB_;
@@ -1005,18 +1077,22 @@ private:
   bool isPF_;
   bool isStandAlone_;
   bool isLoose_;
-  bool HLT_DoubleIsoMu17_eta2p1_;
-  bool HLT_IsoMu24_eta2p1_;
-  bool HLT_IsoMu20_eta2p1_;
   bool HLT_IsoMu18_;
-  bool HLT_IsoTkMu20_;
   bool HLT_IsoMu20_;
-  bool HLT_IsoTkMu27_;
-  bool HLT_IsoMu27_;
-  bool HLT_Mu50_;
-  bool HLT_Mu45_eta2p1_;
+  bool HLT_IsoTkMu20_;
+  bool HLT_IsoMu20_eta2p1_;
   bool HLT_IsoMu22_;
   bool HLT_IsoTkMu22_;
+  bool HLT_IsoMu24_;
+  bool HLT_IsoTkMu24_;
+  bool HLT_IsoMu24_eta2p1_;
+  bool HLT_IsoMu27_;
+  bool HLT_IsoTkMu27_;
+  bool HLT_Mu45_eta2p1_;
+  bool HLT_Mu50_;
+  bool HLT_DoubleIsoMu17_eta2p1_;
+  bool HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;
+  bool HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
   void setcharge(const int value) {charge_ = value;}
   void setdB(const float value) {dB_ = value;}
   void setipDXY(const float value) {ipDXY_ = value;}
@@ -1050,18 +1126,22 @@ private:
   void setisPF(const bool value) {isPF_ = value;}
   void setisStandAlone(const bool value) {isStandAlone_ = value;}
   void setisLoose(const bool value) {isLoose_ = value;}
-  void setHLT_DoubleIsoMu17_eta2p1(const bool value) {HLT_DoubleIsoMu17_eta2p1_ = value;}
-  void setHLT_IsoMu24_eta2p1(const bool value) {HLT_IsoMu24_eta2p1_ = value;}
-  void setHLT_IsoMu20_eta2p1(const bool value) {HLT_IsoMu20_eta2p1_ = value;}
   void setHLT_IsoMu18(const bool value) {HLT_IsoMu18_ = value;}
-  void setHLT_IsoTkMu20(const bool value) {HLT_IsoTkMu20_ = value;}
   void setHLT_IsoMu20(const bool value) {HLT_IsoMu20_ = value;}
-  void setHLT_IsoTkMu27(const bool value) {HLT_IsoTkMu27_ = value;}
-  void setHLT_IsoMu27(const bool value) {HLT_IsoMu27_ = value;}
-  void setHLT_Mu50(const bool value) {HLT_Mu50_ = value;}
-  void setHLT_Mu45_eta2p1(const bool value) {HLT_Mu45_eta2p1_ = value;}
+  void setHLT_IsoTkMu20(const bool value) {HLT_IsoTkMu20_ = value;}
+  void setHLT_IsoMu20_eta2p1(const bool value) {HLT_IsoMu20_eta2p1_ = value;}
   void setHLT_IsoMu22(const bool value) {HLT_IsoMu22_ = value;}
   void setHLT_IsoTkMu22(const bool value) {HLT_IsoTkMu22_ = value;}
+  void setHLT_IsoMu24(const bool value) {HLT_IsoMu24_ = value;}
+  void setHLT_IsoTkMu24(const bool value) {HLT_IsoTkMu24_ = value;}
+  void setHLT_IsoMu24_eta2p1(const bool value) {HLT_IsoMu24_eta2p1_ = value;}
+  void setHLT_IsoMu27(const bool value) {HLT_IsoMu27_ = value;}
+  void setHLT_IsoTkMu27(const bool value) {HLT_IsoTkMu27_ = value;}
+  void setHLT_Mu45_eta2p1(const bool value) {HLT_Mu45_eta2p1_ = value;}
+  void setHLT_Mu50(const bool value) {HLT_Mu50_ = value;}
+  void setHLT_DoubleIsoMu17_eta2p1(const bool value) {HLT_DoubleIsoMu17_eta2p1_ = value;}
+  void setHLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ(const bool value) {HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_ = value;}
+  void setHLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(const bool value) {HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_ = value;}
   void setLotentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
 };
 
@@ -1191,24 +1271,33 @@ public:
     run(0),
     lumi(0),
     evt(0),
-    trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
-    trigger_HLT_DoubleIsoMu17_eta2p1_(0),
-    trigger_HLT_notexists_(0),
-    trigger_HLT_IsoMu24_eta2p1_(0),
-    trigger_HLT_IsoMu20_eta2p1_(0),
-    trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     trigger_HLT_IsoMu18_(0),
-    trigger_HLT_IsoTkMu20_(0),
     trigger_HLT_IsoMu20_(0),
-    trigger_HLT_IsoTkMu27_(0),
+    trigger_HLT_IsoTkMu20_(0),
+    trigger_HLT_IsoMu20_eta2p1_(0),
+    trigger_HLT_IsoMu22_(0),
+    trigger_HLT_IsoTkMu22_(0),
+    trigger_HLT_IsoMu24_(0),
+    trigger_HLT_IsoTkMu24_(0),
+    trigger_HLT_IsoMu24_eta2p1_(0),
     trigger_HLT_IsoMu27_(0),
-    trigger_HLT_Mu50_(0),
+    trigger_HLT_IsoTkMu27_(0),
     trigger_HLT_Mu45_eta2p1_(0),
+    trigger_HLT_Mu50_(0),
+    trigger_HLT_DoubleIsoMu17_eta2p1_(0),
+    trigger_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_(0),
+    trigger_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_(0),
     trigger_HLT_Ele22_eta2p1_WPLoose_Gsf_(0),
     trigger_HLT_Ele23_WPLoose_Gsf_(0),
     trigger_HLT_Ele27_WPLoose_Gsf_(0),
-    trigger_HLT_IsoMu22_(0),
-    trigger_HLT_IsoTkMu22_(0),
+    trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
+    trigger_HLT_Ele27_WPTight_Gsf_(0),
+    trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    trigger_HLT_Ele32_eta2p1_WPTight_Gsf_(0),
+    trigger_Ele35_WPLoose_Gsf_(0),
+    trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
+    trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    trigger_HLT_notexists_(0),
     filter_Flag_goodVertices_(0),
     filter_Flag_CSCTightHaloFilter_(0),
     filter_Flag_trkPOGFilters_(0),
@@ -1219,10 +1308,12 @@ public:
     filter_Flag_eeBadScFilter_(0),
     filter_Flag_METFilters_(0),
     filter_Flag_HBHENoiseFilter_(0),
+    filter_Flag_HBHENoiseIsoFilter_(0),
+    filter_Flag_globalTightHalo2016Filter_(0),
     filter_Flag_trkPOG_toomanystripclus53X_(0),
     filter_Flag_hcalLaserEventFilter_(0),
-    filter_Flag_HBHENoiseIsoFilter_(0),
-    filter_Flag_CSCTightHalo2015Filter_(0),
+    filter_Flag_BadPFMuon_(0),
+    filter_Flag_BadChargedCandidate_(0),
     rho_value_(0),
     muons_pt_(0),
     muons_eta_(0),
@@ -1260,18 +1351,22 @@ public:
     muons_isPF_(0),
     muons_isStandAlone_(0),
     muons_isLoose_(0),
-    muons_HLT_DoubleIsoMu17_eta2p1_(0),
-    muons_HLT_IsoMu24_eta2p1_(0),
-    muons_HLT_IsoMu20_eta2p1_(0),
     muons_HLT_IsoMu18_(0),
-    muons_HLT_IsoTkMu20_(0),
     muons_HLT_IsoMu20_(0),
-    muons_HLT_IsoTkMu27_(0),
-    muons_HLT_IsoMu27_(0),
-    muons_HLT_Mu50_(0),
-    muons_HLT_Mu45_eta2p1_(0),
+    muons_HLT_IsoTkMu20_(0),
+    muons_HLT_IsoMu20_eta2p1_(0),
     muons_HLT_IsoMu22_(0),
     muons_HLT_IsoTkMu22_(0),
+    muons_HLT_IsoMu24_(0),
+    muons_HLT_IsoTkMu24_(0),
+    muons_HLT_IsoMu24_eta2p1_(0),
+    muons_HLT_IsoMu27_(0),
+    muons_HLT_IsoTkMu27_(0),
+    muons_HLT_Mu45_eta2p1_(0),
+    muons_HLT_Mu50_(0),
+    muons_HLT_DoubleIsoMu17_eta2p1_(0),
+    muons_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_(0),
+    muons_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_(0),
     jets_pt_(0),
     jets_eta_(0),
     jets_phi_(0),
@@ -1364,11 +1459,16 @@ public:
     electrons_pfHadronIso_(0),
     electrons_pfNeutralIso_(0),
     electrons_pfPhotonIso_(0),
-    electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
-    electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     electrons_HLT_Ele22_eta2p1_WPLoose_Gsf_(0),
     electrons_HLT_Ele23_WPLoose_Gsf_(0),
     electrons_HLT_Ele27_WPLoose_Gsf_(0),
+    electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
+    electrons_HLT_Ele27_WPTight_Gsf_(0),
+    electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    electrons_HLT_Ele32_eta2p1_WPTight_Gsf_(0),
+    electrons_Ele35_WPLoose_Gsf_(0),
+    electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
+    electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
     electrons_e1x5_(0),
     electrons_e5x5_(0),
     electrons_sigmaIEtaIEta_(0),
@@ -1610,10 +1710,12 @@ public:
       tree_->SetBranchStatus("filter.Flag_eeBadScFilter", 1); tree_->SetBranchAddress("filter.Flag_eeBadScFilter", &filter_Flag_eeBadScFilter_);
       tree_->SetBranchStatus("filter.Flag_METFilters", 1); tree_->SetBranchAddress("filter.Flag_METFilters", &filter_Flag_METFilters_);
       tree_->SetBranchStatus("filter.Flag_HBHENoiseFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseFilter", &filter_Flag_HBHENoiseFilter_);
+      tree_->SetBranchStatus("filter.Flag_HBHENoiseIsoFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseIsoFilter", &filter_Flag_HBHENoiseIsoFilter_);
+      tree_->SetBranchStatus("filter.Flag_globalTightHalo2016Filter", 1); tree_->SetBranchAddress("filter.Flag_globalTightHalo2016Filter", &filter_Flag_globalTightHalo2016Filter_);
       tree_->SetBranchStatus("filter.Flag_trkPOG_toomanystripclus53X", 1); tree_->SetBranchAddress("filter.Flag_trkPOG_toomanystripclus53X", &filter_Flag_trkPOG_toomanystripclus53X_);
       tree_->SetBranchStatus("filter.Flag_hcalLaserEventFilter", 1); tree_->SetBranchAddress("filter.Flag_hcalLaserEventFilter", &filter_Flag_hcalLaserEventFilter_);
-      tree_->SetBranchStatus("filter.Flag_HBHENoiseIsoFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseIsoFilter", &filter_Flag_HBHENoiseIsoFilter_);
-      tree_->SetBranchStatus("filter.Flag_CSCTightHalo2015Filter", 1); tree_->SetBranchAddress("filter.Flag_CSCTightHalo2015Filter", &filter_Flag_CSCTightHalo2015Filter_);
+      tree_->SetBranchStatus("filter.Flag_BadPFMuon", 1); tree_->SetBranchAddress("filter.Flag_BadPFMuon", &filter_Flag_BadPFMuon_);
+      tree_->SetBranchStatus("filter.Flag_BadChargedCandidate", 1); tree_->SetBranchAddress("filter.Flag_BadChargedCandidate", &filter_Flag_BadChargedCandidate_);
       are_filter_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -1621,24 +1723,33 @@ public:
   
   void loadTrigger(){
     if(!are_trigger_loaded_){
-      tree_->SetBranchStatus("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf", &trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_);
-      tree_->SetBranchStatus("trigger.HLT_DoubleIsoMu17_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_DoubleIsoMu17_eta2p1", &trigger_HLT_DoubleIsoMu17_eta2p1_);
-      tree_->SetBranchStatus("trigger.HLT_notexists", 1); tree_->SetBranchAddress("trigger.HLT_notexists", &trigger_HLT_notexists_);
-      tree_->SetBranchStatus("trigger.HLT_IsoMu24_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu24_eta2p1", &trigger_HLT_IsoMu24_eta2p1_);
-      tree_->SetBranchStatus("trigger.HLT_IsoMu20_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu20_eta2p1", &trigger_HLT_IsoMu20_eta2p1_);
-      tree_->SetBranchStatus("trigger.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", 1); tree_->SetBranchAddress("trigger.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", &trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
       tree_->SetBranchStatus("trigger.HLT_IsoMu18", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu18", &trigger_HLT_IsoMu18_);
-      tree_->SetBranchStatus("trigger.HLT_IsoTkMu20", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu20", &trigger_HLT_IsoTkMu20_);
       tree_->SetBranchStatus("trigger.HLT_IsoMu20", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu20", &trigger_HLT_IsoMu20_);
-      tree_->SetBranchStatus("trigger.HLT_IsoTkMu27", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu27", &trigger_HLT_IsoTkMu27_);
+      tree_->SetBranchStatus("trigger.HLT_IsoTkMu20", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu20", &trigger_HLT_IsoTkMu20_);
+      tree_->SetBranchStatus("trigger.HLT_IsoMu20_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu20_eta2p1", &trigger_HLT_IsoMu20_eta2p1_);
+      tree_->SetBranchStatus("trigger.HLT_IsoMu22", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu22", &trigger_HLT_IsoMu22_);
+      tree_->SetBranchStatus("trigger.HLT_IsoTkMu22", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu22", &trigger_HLT_IsoTkMu22_);
+      tree_->SetBranchStatus("trigger.HLT_IsoMu24", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu24", &trigger_HLT_IsoMu24_);
+      tree_->SetBranchStatus("trigger.HLT_IsoTkMu24", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu24", &trigger_HLT_IsoTkMu24_);
+      tree_->SetBranchStatus("trigger.HLT_IsoMu24_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu24_eta2p1", &trigger_HLT_IsoMu24_eta2p1_);
       tree_->SetBranchStatus("trigger.HLT_IsoMu27", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu27", &trigger_HLT_IsoMu27_);
-      tree_->SetBranchStatus("trigger.HLT_Mu50", 1); tree_->SetBranchAddress("trigger.HLT_Mu50", &trigger_HLT_Mu50_);
+      tree_->SetBranchStatus("trigger.HLT_IsoTkMu27", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu27", &trigger_HLT_IsoTkMu27_);
       tree_->SetBranchStatus("trigger.HLT_Mu45_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_Mu45_eta2p1", &trigger_HLT_Mu45_eta2p1_);
+      tree_->SetBranchStatus("trigger.HLT_Mu50", 1); tree_->SetBranchAddress("trigger.HLT_Mu50", &trigger_HLT_Mu50_);
+      tree_->SetBranchStatus("trigger.HLT_DoubleIsoMu17_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_DoubleIsoMu17_eta2p1", &trigger_HLT_DoubleIsoMu17_eta2p1_);
+      tree_->SetBranchStatus("trigger.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", 1); tree_->SetBranchAddress("trigger.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", &trigger_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_);
+      tree_->SetBranchStatus("trigger.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ", 1); tree_->SetBranchAddress("trigger.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ", &trigger_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
       tree_->SetBranchStatus("trigger.HLT_Ele22_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele22_eta2p1_WPLoose_Gsf", &trigger_HLT_Ele22_eta2p1_WPLoose_Gsf_);
       tree_->SetBranchStatus("trigger.HLT_Ele23_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele23_WPLoose_Gsf", &trigger_HLT_Ele23_WPLoose_Gsf_);
       tree_->SetBranchStatus("trigger.HLT_Ele27_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_WPLoose_Gsf", &trigger_HLT_Ele27_WPLoose_Gsf_);
-      tree_->SetBranchStatus("trigger.HLT_IsoMu22", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu22", &trigger_HLT_IsoMu22_);
-      tree_->SetBranchStatus("trigger.HLT_IsoTkMu22", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu22", &trigger_HLT_IsoTkMu22_);
+      tree_->SetBranchStatus("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf", &trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_);
+      tree_->SetBranchStatus("trigger.HLT_Ele27_WPTight_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_WPTight_Gsf", &trigger_HLT_Ele27_WPTight_Gsf_);
+      tree_->SetBranchStatus("trigger.Ele27_eta2p1_WPLoose_Gsf_HT200", 1); tree_->SetBranchAddress("trigger.Ele27_eta2p1_WPLoose_Gsf_HT200", &trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+      tree_->SetBranchStatus("trigger.HLT_Ele32_eta2p1_WPTight_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele32_eta2p1_WPTight_Gsf", &trigger_HLT_Ele32_eta2p1_WPTight_Gsf_);
+      tree_->SetBranchStatus("trigger.Ele35_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.Ele35_WPLoose_Gsf", &trigger_Ele35_WPLoose_Gsf_);
+      tree_->SetBranchStatus("trigger.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", 1); tree_->SetBranchAddress("trigger.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", &trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
+      tree_->SetBranchStatus("trigger.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", 1); tree_->SetBranchAddress("trigger.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", &trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
+      tree_->SetBranchStatus("trigger.HLT_notexists", 1); tree_->SetBranchAddress("trigger.HLT_notexists", &trigger_HLT_notexists_);
       are_trigger_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -1687,11 +1798,16 @@ public:
       tree_->SetBranchStatus("electrons.pfHadronIso", 1); tree_->SetBranchAddress("electrons.pfHadronIso", &electrons_pfHadronIso_);
       tree_->SetBranchStatus("electrons.pfNeutralIso", 1); tree_->SetBranchAddress("electrons.pfNeutralIso", &electrons_pfNeutralIso_);
       tree_->SetBranchStatus("electrons.pfPhotonIso", 1); tree_->SetBranchAddress("electrons.pfPhotonIso", &electrons_pfPhotonIso_);
-      tree_->SetBranchStatus("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf", &electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_);
-      tree_->SetBranchStatus("electrons.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", 1); tree_->SetBranchAddress("electrons.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", &electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
       tree_->SetBranchStatus("electrons.HLT_Ele22_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele22_eta2p1_WPLoose_Gsf", &electrons_HLT_Ele22_eta2p1_WPLoose_Gsf_);
       tree_->SetBranchStatus("electrons.HLT_Ele23_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele23_WPLoose_Gsf", &electrons_HLT_Ele23_WPLoose_Gsf_);
       tree_->SetBranchStatus("electrons.HLT_Ele27_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_WPLoose_Gsf", &electrons_HLT_Ele27_WPLoose_Gsf_);
+      tree_->SetBranchStatus("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf", &electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_);
+      tree_->SetBranchStatus("electrons.HLT_Ele27_WPTight_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_WPTight_Gsf", &electrons_HLT_Ele27_WPTight_Gsf_);
+      tree_->SetBranchStatus("electrons.Ele27_eta2p1_WPLoose_Gsf_HT200", 1); tree_->SetBranchAddress("electrons.Ele27_eta2p1_WPLoose_Gsf_HT200", &electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+      tree_->SetBranchStatus("electrons.HLT_Ele32_eta2p1_WPTight_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele32_eta2p1_WPTight_Gsf", &electrons_HLT_Ele32_eta2p1_WPTight_Gsf_);
+      tree_->SetBranchStatus("electrons.Ele35_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.Ele35_WPLoose_Gsf", &electrons_Ele35_WPLoose_Gsf_);
+      tree_->SetBranchStatus("electrons.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", 1); tree_->SetBranchAddress("electrons.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", &electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
+      tree_->SetBranchStatus("electrons.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", 1); tree_->SetBranchAddress("electrons.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", &electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
       tree_->SetBranchStatus("electrons.e1x5", 1); tree_->SetBranchAddress("electrons.e1x5", &electrons_e1x5_);
       tree_->SetBranchStatus("electrons.e5x5", 1); tree_->SetBranchAddress("electrons.e5x5", &electrons_e5x5_);
       tree_->SetBranchStatus("electrons.sigmaIEtaIEta", 1); tree_->SetBranchAddress("electrons.sigmaIEtaIEta", &electrons_sigmaIEtaIEta_);
@@ -1828,18 +1944,22 @@ public:
       tree_->SetBranchStatus("muons.isPF", 1); tree_->SetBranchAddress("muons.isPF", &muons_isPF_);
       tree_->SetBranchStatus("muons.isStandAlone", 1); tree_->SetBranchAddress("muons.isStandAlone", &muons_isStandAlone_);
       tree_->SetBranchStatus("muons.isLoose", 1); tree_->SetBranchAddress("muons.isLoose", &muons_isLoose_);
-      tree_->SetBranchStatus("muons.HLT_DoubleIsoMu17_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_DoubleIsoMu17_eta2p1", &muons_HLT_DoubleIsoMu17_eta2p1_);
-      tree_->SetBranchStatus("muons.HLT_IsoMu24_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_IsoMu24_eta2p1", &muons_HLT_IsoMu24_eta2p1_);
-      tree_->SetBranchStatus("muons.HLT_IsoMu20_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_IsoMu20_eta2p1", &muons_HLT_IsoMu20_eta2p1_);
       tree_->SetBranchStatus("muons.HLT_IsoMu18", 1); tree_->SetBranchAddress("muons.HLT_IsoMu18", &muons_HLT_IsoMu18_);
-      tree_->SetBranchStatus("muons.HLT_IsoTkMu20", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu20", &muons_HLT_IsoTkMu20_);
       tree_->SetBranchStatus("muons.HLT_IsoMu20", 1); tree_->SetBranchAddress("muons.HLT_IsoMu20", &muons_HLT_IsoMu20_);
-      tree_->SetBranchStatus("muons.HLT_IsoTkMu27", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu27", &muons_HLT_IsoTkMu27_);
-      tree_->SetBranchStatus("muons.HLT_IsoMu27", 1); tree_->SetBranchAddress("muons.HLT_IsoMu27", &muons_HLT_IsoMu27_);
-      tree_->SetBranchStatus("muons.HLT_Mu50", 1); tree_->SetBranchAddress("muons.HLT_Mu50", &muons_HLT_Mu50_);
-      tree_->SetBranchStatus("muons.HLT_Mu45_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_Mu45_eta2p1", &muons_HLT_Mu45_eta2p1_);
+      tree_->SetBranchStatus("muons.HLT_IsoTkMu20", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu20", &muons_HLT_IsoTkMu20_);
+      tree_->SetBranchStatus("muons.HLT_IsoMu20_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_IsoMu20_eta2p1", &muons_HLT_IsoMu20_eta2p1_);
       tree_->SetBranchStatus("muons.HLT_IsoMu22", 1); tree_->SetBranchAddress("muons.HLT_IsoMu22", &muons_HLT_IsoMu22_);
       tree_->SetBranchStatus("muons.HLT_IsoTkMu22", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu22", &muons_HLT_IsoTkMu22_);
+      tree_->SetBranchStatus("muons.HLT_IsoMu24", 1); tree_->SetBranchAddress("muons.HLT_IsoMu24", &muons_HLT_IsoMu24_);
+      tree_->SetBranchStatus("muons.HLT_IsoTkMu24", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu24", &muons_HLT_IsoTkMu24_);
+      tree_->SetBranchStatus("muons.HLT_IsoMu24_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_IsoMu24_eta2p1", &muons_HLT_IsoMu24_eta2p1_);
+      tree_->SetBranchStatus("muons.HLT_IsoMu27", 1); tree_->SetBranchAddress("muons.HLT_IsoMu27", &muons_HLT_IsoMu27_);
+      tree_->SetBranchStatus("muons.HLT_IsoTkMu27", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu27", &muons_HLT_IsoTkMu27_);
+      tree_->SetBranchStatus("muons.HLT_Mu45_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_Mu45_eta2p1", &muons_HLT_Mu45_eta2p1_);
+      tree_->SetBranchStatus("muons.HLT_Mu50", 1); tree_->SetBranchAddress("muons.HLT_Mu50", &muons_HLT_Mu50_);
+      tree_->SetBranchStatus("muons.HLT_DoubleIsoMu17_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_DoubleIsoMu17_eta2p1", &muons_HLT_DoubleIsoMu17_eta2p1_);
+      tree_->SetBranchStatus("muons.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", 1); tree_->SetBranchAddress("muons.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", &muons_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_);
+      tree_->SetBranchStatus("muons.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ", 1); tree_->SetBranchAddress("muons.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ", &muons_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
       are_muons_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -2089,10 +2209,12 @@ public:
     obj.setFlag_eeBadScFilter(filter_Flag_eeBadScFilter_);
     obj.setFlag_METFilters(filter_Flag_METFilters_);
     obj.setFlag_HBHENoiseFilter(filter_Flag_HBHENoiseFilter_);
+    obj.setFlag_HBHENoiseIsoFilter(filter_Flag_HBHENoiseIsoFilter_);
+    obj.setFlag_globalTightHalo2016Filter(filter_Flag_globalTightHalo2016Filter_);
     obj.setFlag_trkPOG_toomanystripclus53X(filter_Flag_trkPOG_toomanystripclus53X_);
     obj.setFlag_hcalLaserEventFilter(filter_Flag_hcalLaserEventFilter_);
-    obj.setFlag_HBHENoiseIsoFilter(filter_Flag_HBHENoiseIsoFilter_);
-    obj.setFlag_CSCTightHalo2015Filter(filter_Flag_CSCTightHalo2015Filter_);
+    obj.setFlag_BadPFMuon(filter_Flag_BadPFMuon_);
+    obj.setFlag_BadChargedCandidate(filter_Flag_BadChargedCandidate_);
   
     return obj;
   }
@@ -2103,24 +2225,33 @@ public:
     loadTrigger();
   
     Trigger obj;
-    obj.setHLT_Ele27_eta2p1_WPLoose_Gsf(trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_);
-    obj.setHLT_DoubleIsoMu17_eta2p1(trigger_HLT_DoubleIsoMu17_eta2p1_);
-    obj.setHLT_notexists(trigger_HLT_notexists_);
-    obj.setHLT_IsoMu24_eta2p1(trigger_HLT_IsoMu24_eta2p1_);
-    obj.setHLT_IsoMu20_eta2p1(trigger_HLT_IsoMu20_eta2p1_);
-    obj.setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
     obj.setHLT_IsoMu18(trigger_HLT_IsoMu18_);
-    obj.setHLT_IsoTkMu20(trigger_HLT_IsoTkMu20_);
     obj.setHLT_IsoMu20(trigger_HLT_IsoMu20_);
-    obj.setHLT_IsoTkMu27(trigger_HLT_IsoTkMu27_);
+    obj.setHLT_IsoTkMu20(trigger_HLT_IsoTkMu20_);
+    obj.setHLT_IsoMu20_eta2p1(trigger_HLT_IsoMu20_eta2p1_);
+    obj.setHLT_IsoMu22(trigger_HLT_IsoMu22_);
+    obj.setHLT_IsoTkMu22(trigger_HLT_IsoTkMu22_);
+    obj.setHLT_IsoMu24(trigger_HLT_IsoMu24_);
+    obj.setHLT_IsoTkMu24(trigger_HLT_IsoTkMu24_);
+    obj.setHLT_IsoMu24_eta2p1(trigger_HLT_IsoMu24_eta2p1_);
     obj.setHLT_IsoMu27(trigger_HLT_IsoMu27_);
-    obj.setHLT_Mu50(trigger_HLT_Mu50_);
+    obj.setHLT_IsoTkMu27(trigger_HLT_IsoTkMu27_);
     obj.setHLT_Mu45_eta2p1(trigger_HLT_Mu45_eta2p1_);
+    obj.setHLT_Mu50(trigger_HLT_Mu50_);
+    obj.setHLT_DoubleIsoMu17_eta2p1(trigger_HLT_DoubleIsoMu17_eta2p1_);
+    obj.setHLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ(trigger_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_);
+    obj.setHLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(trigger_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
     obj.setHLT_Ele22_eta2p1_WPLoose_Gsf(trigger_HLT_Ele22_eta2p1_WPLoose_Gsf_);
     obj.setHLT_Ele23_WPLoose_Gsf(trigger_HLT_Ele23_WPLoose_Gsf_);
     obj.setHLT_Ele27_WPLoose_Gsf(trigger_HLT_Ele27_WPLoose_Gsf_);
-    obj.setHLT_IsoMu22(trigger_HLT_IsoMu22_);
-    obj.setHLT_IsoTkMu22(trigger_HLT_IsoTkMu22_);
+    obj.setHLT_Ele27_eta2p1_WPLoose_Gsf(trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_);
+    obj.setHLT_Ele27_WPTight_Gsf(trigger_HLT_Ele27_WPTight_Gsf_);
+    obj.setEle27_eta2p1_WPLoose_Gsf_HT200(trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+    obj.setHLT_Ele32_eta2p1_WPTight_Gsf(trigger_HLT_Ele32_eta2p1_WPTight_Gsf_);
+    obj.setEle35_WPLoose_Gsf(trigger_Ele35_WPLoose_Gsf_);
+    obj.setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
+    obj.setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
+    obj.setHLT_notexists(trigger_HLT_notexists_);
   
     return obj;
   }
@@ -2170,11 +2301,16 @@ public:
     auto it_electrons_pfHadronIso_ = electrons_pfHadronIso_->cbegin();
     auto it_electrons_pfNeutralIso_ = electrons_pfNeutralIso_->cbegin();
     auto it_electrons_pfPhotonIso_ = electrons_pfPhotonIso_->cbegin();
-    auto it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_ = electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_->cbegin();
-    auto it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_->cbegin();
     auto it_electrons_HLT_Ele22_eta2p1_WPLoose_Gsf_ = electrons_HLT_Ele22_eta2p1_WPLoose_Gsf_->cbegin();
     auto it_electrons_HLT_Ele23_WPLoose_Gsf_ = electrons_HLT_Ele23_WPLoose_Gsf_->cbegin();
     auto it_electrons_HLT_Ele27_WPLoose_Gsf_ = electrons_HLT_Ele27_WPLoose_Gsf_->cbegin();
+    auto it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_ = electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_->cbegin();
+    auto it_electrons_HLT_Ele27_WPTight_Gsf_ = electrons_HLT_Ele27_WPTight_Gsf_->cbegin();
+    auto it_electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_ = electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_->cbegin();
+    auto it_electrons_HLT_Ele32_eta2p1_WPTight_Gsf_ = electrons_HLT_Ele32_eta2p1_WPTight_Gsf_->cbegin();
+    auto it_electrons_Ele35_WPLoose_Gsf_ = electrons_Ele35_WPLoose_Gsf_->cbegin();
+    auto it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_->cbegin();
+    auto it_electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_->cbegin();
     auto it_electrons_e1x5_ = electrons_e1x5_->cbegin();
     auto it_electrons_e5x5_ = electrons_e5x5_->cbegin();
     auto it_electrons_sigmaIEtaIEta_ = electrons_sigmaIEtaIEta_->cbegin();
@@ -2228,11 +2364,16 @@ public:
       obj.setpfHadronIso(*it_electrons_pfHadronIso_);
       obj.setpfNeutralIso(*it_electrons_pfNeutralIso_);
       obj.setpfPhotonIso(*it_electrons_pfPhotonIso_);
-      obj.setHLT_Ele27_eta2p1_WPLoose_Gsf(*it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_);
-      obj.setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(*it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
       obj.setHLT_Ele22_eta2p1_WPLoose_Gsf(*it_electrons_HLT_Ele22_eta2p1_WPLoose_Gsf_);
       obj.setHLT_Ele23_WPLoose_Gsf(*it_electrons_HLT_Ele23_WPLoose_Gsf_);
       obj.setHLT_Ele27_WPLoose_Gsf(*it_electrons_HLT_Ele27_WPLoose_Gsf_);
+      obj.setHLT_Ele27_eta2p1_WPLoose_Gsf(*it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_);
+      obj.setHLT_Ele27_WPTight_Gsf(*it_electrons_HLT_Ele27_WPTight_Gsf_);
+      obj.setEle27_eta2p1_WPLoose_Gsf_HT200(*it_electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+      obj.setHLT_Ele32_eta2p1_WPTight_Gsf(*it_electrons_HLT_Ele32_eta2p1_WPTight_Gsf_);
+      obj.setEle35_WPLoose_Gsf(*it_electrons_Ele35_WPLoose_Gsf_);
+      obj.setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(*it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
+      obj.setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(*it_electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
       obj.sete1x5(*it_electrons_e1x5_);
       obj.sete5x5(*it_electrons_e5x5_);
       obj.setsigmaIEtaIEta(*it_electrons_sigmaIEtaIEta_);
@@ -2289,11 +2430,16 @@ public:
       ++it_electrons_pfHadronIso_;
       ++it_electrons_pfNeutralIso_;
       ++it_electrons_pfPhotonIso_;
-      ++it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_;
-      ++it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
       ++it_electrons_HLT_Ele22_eta2p1_WPLoose_Gsf_;
       ++it_electrons_HLT_Ele23_WPLoose_Gsf_;
       ++it_electrons_HLT_Ele27_WPLoose_Gsf_;
+      ++it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_;
+      ++it_electrons_HLT_Ele27_WPTight_Gsf_;
+      ++it_electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_;
+      ++it_electrons_HLT_Ele32_eta2p1_WPTight_Gsf_;
+      ++it_electrons_Ele35_WPLoose_Gsf_;
+      ++it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
+      ++it_electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
       ++it_electrons_e1x5_;
       ++it_electrons_e5x5_;
       ++it_electrons_sigmaIEtaIEta_;
@@ -2553,18 +2699,22 @@ public:
     auto it_muons_isPF_ = muons_isPF_->cbegin();
     auto it_muons_isStandAlone_ = muons_isStandAlone_->cbegin();
     auto it_muons_isLoose_ = muons_isLoose_->cbegin();
-    auto it_muons_HLT_DoubleIsoMu17_eta2p1_ = muons_HLT_DoubleIsoMu17_eta2p1_->cbegin();
-    auto it_muons_HLT_IsoMu24_eta2p1_ = muons_HLT_IsoMu24_eta2p1_->cbegin();
-    auto it_muons_HLT_IsoMu20_eta2p1_ = muons_HLT_IsoMu20_eta2p1_->cbegin();
     auto it_muons_HLT_IsoMu18_ = muons_HLT_IsoMu18_->cbegin();
-    auto it_muons_HLT_IsoTkMu20_ = muons_HLT_IsoTkMu20_->cbegin();
     auto it_muons_HLT_IsoMu20_ = muons_HLT_IsoMu20_->cbegin();
-    auto it_muons_HLT_IsoTkMu27_ = muons_HLT_IsoTkMu27_->cbegin();
-    auto it_muons_HLT_IsoMu27_ = muons_HLT_IsoMu27_->cbegin();
-    auto it_muons_HLT_Mu50_ = muons_HLT_Mu50_->cbegin();
-    auto it_muons_HLT_Mu45_eta2p1_ = muons_HLT_Mu45_eta2p1_->cbegin();
+    auto it_muons_HLT_IsoTkMu20_ = muons_HLT_IsoTkMu20_->cbegin();
+    auto it_muons_HLT_IsoMu20_eta2p1_ = muons_HLT_IsoMu20_eta2p1_->cbegin();
     auto it_muons_HLT_IsoMu22_ = muons_HLT_IsoMu22_->cbegin();
     auto it_muons_HLT_IsoTkMu22_ = muons_HLT_IsoTkMu22_->cbegin();
+    auto it_muons_HLT_IsoMu24_ = muons_HLT_IsoMu24_->cbegin();
+    auto it_muons_HLT_IsoTkMu24_ = muons_HLT_IsoTkMu24_->cbegin();
+    auto it_muons_HLT_IsoMu24_eta2p1_ = muons_HLT_IsoMu24_eta2p1_->cbegin();
+    auto it_muons_HLT_IsoMu27_ = muons_HLT_IsoMu27_->cbegin();
+    auto it_muons_HLT_IsoTkMu27_ = muons_HLT_IsoTkMu27_->cbegin();
+    auto it_muons_HLT_Mu45_eta2p1_ = muons_HLT_Mu45_eta2p1_->cbegin();
+    auto it_muons_HLT_Mu50_ = muons_HLT_Mu50_->cbegin();
+    auto it_muons_HLT_DoubleIsoMu17_eta2p1_ = muons_HLT_DoubleIsoMu17_eta2p1_->cbegin();
+    auto it_muons_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_ = muons_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_->cbegin();
+    auto it_muons_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_ = muons_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_->cbegin();
     for(; it_muons_pt_ != muons_pt_->cend(); ){
       Muon obj;
       obj.setcharge(*it_muons_charge_);
@@ -2600,18 +2750,22 @@ public:
       obj.setisPF(*it_muons_isPF_);
       obj.setisStandAlone(*it_muons_isStandAlone_);
       obj.setisLoose(*it_muons_isLoose_);
-      obj.setHLT_DoubleIsoMu17_eta2p1(*it_muons_HLT_DoubleIsoMu17_eta2p1_);
-      obj.setHLT_IsoMu24_eta2p1(*it_muons_HLT_IsoMu24_eta2p1_);
-      obj.setHLT_IsoMu20_eta2p1(*it_muons_HLT_IsoMu20_eta2p1_);
       obj.setHLT_IsoMu18(*it_muons_HLT_IsoMu18_);
-      obj.setHLT_IsoTkMu20(*it_muons_HLT_IsoTkMu20_);
       obj.setHLT_IsoMu20(*it_muons_HLT_IsoMu20_);
-      obj.setHLT_IsoTkMu27(*it_muons_HLT_IsoTkMu27_);
-      obj.setHLT_IsoMu27(*it_muons_HLT_IsoMu27_);
-      obj.setHLT_Mu50(*it_muons_HLT_Mu50_);
-      obj.setHLT_Mu45_eta2p1(*it_muons_HLT_Mu45_eta2p1_);
+      obj.setHLT_IsoTkMu20(*it_muons_HLT_IsoTkMu20_);
+      obj.setHLT_IsoMu20_eta2p1(*it_muons_HLT_IsoMu20_eta2p1_);
       obj.setHLT_IsoMu22(*it_muons_HLT_IsoMu22_);
       obj.setHLT_IsoTkMu22(*it_muons_HLT_IsoTkMu22_);
+      obj.setHLT_IsoMu24(*it_muons_HLT_IsoMu24_);
+      obj.setHLT_IsoTkMu24(*it_muons_HLT_IsoTkMu24_);
+      obj.setHLT_IsoMu24_eta2p1(*it_muons_HLT_IsoMu24_eta2p1_);
+      obj.setHLT_IsoMu27(*it_muons_HLT_IsoMu27_);
+      obj.setHLT_IsoTkMu27(*it_muons_HLT_IsoTkMu27_);
+      obj.setHLT_Mu45_eta2p1(*it_muons_HLT_Mu45_eta2p1_);
+      obj.setHLT_Mu50(*it_muons_HLT_Mu50_);
+      obj.setHLT_DoubleIsoMu17_eta2p1(*it_muons_HLT_DoubleIsoMu17_eta2p1_);
+      obj.setHLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ(*it_muons_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_);
+      obj.setHLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(*it_muons_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
       obj.setLotentzVector(*it_muons_pt_, *it_muons_eta_, *it_muons_phi_);
       muons_.push_back( obj );
       ++it_muons_pt_;
@@ -2650,18 +2804,22 @@ public:
       ++it_muons_isPF_;
       ++it_muons_isStandAlone_;
       ++it_muons_isLoose_;
-      ++it_muons_HLT_DoubleIsoMu17_eta2p1_;
-      ++it_muons_HLT_IsoMu24_eta2p1_;
-      ++it_muons_HLT_IsoMu20_eta2p1_;
       ++it_muons_HLT_IsoMu18_;
-      ++it_muons_HLT_IsoTkMu20_;
       ++it_muons_HLT_IsoMu20_;
-      ++it_muons_HLT_IsoTkMu27_;
-      ++it_muons_HLT_IsoMu27_;
-      ++it_muons_HLT_Mu50_;
-      ++it_muons_HLT_Mu45_eta2p1_;
+      ++it_muons_HLT_IsoTkMu20_;
+      ++it_muons_HLT_IsoMu20_eta2p1_;
       ++it_muons_HLT_IsoMu22_;
       ++it_muons_HLT_IsoTkMu22_;
+      ++it_muons_HLT_IsoMu24_;
+      ++it_muons_HLT_IsoTkMu24_;
+      ++it_muons_HLT_IsoMu24_eta2p1_;
+      ++it_muons_HLT_IsoMu27_;
+      ++it_muons_HLT_IsoTkMu27_;
+      ++it_muons_HLT_Mu45_eta2p1_;
+      ++it_muons_HLT_Mu50_;
+      ++it_muons_HLT_DoubleIsoMu17_eta2p1_;
+      ++it_muons_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;
+      ++it_muons_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
     }
     return muons_;
   }
@@ -2773,24 +2931,33 @@ private:
   TTree *tree_;
   Long64_t entries_;
   Long64_t current_entry_;
-  Int_t trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_;
-  Int_t trigger_HLT_DoubleIsoMu17_eta2p1_;
-  Int_t trigger_HLT_notexists_;
-  Int_t trigger_HLT_IsoMu24_eta2p1_;
-  Int_t trigger_HLT_IsoMu20_eta2p1_;
-  Int_t trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   Int_t trigger_HLT_IsoMu18_;
-  Int_t trigger_HLT_IsoTkMu20_;
   Int_t trigger_HLT_IsoMu20_;
-  Int_t trigger_HLT_IsoTkMu27_;
+  Int_t trigger_HLT_IsoTkMu20_;
+  Int_t trigger_HLT_IsoMu20_eta2p1_;
+  Int_t trigger_HLT_IsoMu22_;
+  Int_t trigger_HLT_IsoTkMu22_;
+  Int_t trigger_HLT_IsoMu24_;
+  Int_t trigger_HLT_IsoTkMu24_;
+  Int_t trigger_HLT_IsoMu24_eta2p1_;
   Int_t trigger_HLT_IsoMu27_;
-  Int_t trigger_HLT_Mu50_;
+  Int_t trigger_HLT_IsoTkMu27_;
   Int_t trigger_HLT_Mu45_eta2p1_;
+  Int_t trigger_HLT_Mu50_;
+  Int_t trigger_HLT_DoubleIsoMu17_eta2p1_;
+  Int_t trigger_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;
+  Int_t trigger_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
   Int_t trigger_HLT_Ele22_eta2p1_WPLoose_Gsf_;
   Int_t trigger_HLT_Ele23_WPLoose_Gsf_;
   Int_t trigger_HLT_Ele27_WPLoose_Gsf_;
-  Int_t trigger_HLT_IsoMu22_;
-  Int_t trigger_HLT_IsoTkMu22_;
+  Int_t trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_;
+  Int_t trigger_HLT_Ele27_WPTight_Gsf_;
+  Int_t trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  Int_t trigger_HLT_Ele32_eta2p1_WPTight_Gsf_;
+  Int_t trigger_Ele35_WPLoose_Gsf_;
+  Int_t trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
+  Int_t trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Int_t trigger_HLT_notexists_;
   Int_t filter_Flag_goodVertices_;
   Int_t filter_Flag_CSCTightHaloFilter_;
   Int_t filter_Flag_trkPOGFilters_;
@@ -2801,10 +2968,12 @@ private:
   Int_t filter_Flag_eeBadScFilter_;
   Int_t filter_Flag_METFilters_;
   Int_t filter_Flag_HBHENoiseFilter_;
+  Int_t filter_Flag_HBHENoiseIsoFilter_;
+  Int_t filter_Flag_globalTightHalo2016Filter_;
   Int_t filter_Flag_trkPOG_toomanystripclus53X_;
   Int_t filter_Flag_hcalLaserEventFilter_;
-  Int_t filter_Flag_HBHENoiseIsoFilter_;
-  Int_t filter_Flag_CSCTightHalo2015Filter_;
+  Int_t filter_Flag_BadPFMuon_;
+  Int_t filter_Flag_BadChargedCandidate_;
   Double_t rho_value_;
   vector<float> *muons_pt_;
   vector<float> *muons_eta_;
@@ -2842,18 +3011,22 @@ private:
   vector<bool> *muons_isPF_;
   vector<bool> *muons_isStandAlone_;
   vector<bool> *muons_isLoose_;
-  vector<bool> *muons_HLT_DoubleIsoMu17_eta2p1_;
-  vector<bool> *muons_HLT_IsoMu24_eta2p1_;
-  vector<bool> *muons_HLT_IsoMu20_eta2p1_;
   vector<bool> *muons_HLT_IsoMu18_;
-  vector<bool> *muons_HLT_IsoTkMu20_;
   vector<bool> *muons_HLT_IsoMu20_;
-  vector<bool> *muons_HLT_IsoTkMu27_;
-  vector<bool> *muons_HLT_IsoMu27_;
-  vector<bool> *muons_HLT_Mu50_;
-  vector<bool> *muons_HLT_Mu45_eta2p1_;
+  vector<bool> *muons_HLT_IsoTkMu20_;
+  vector<bool> *muons_HLT_IsoMu20_eta2p1_;
   vector<bool> *muons_HLT_IsoMu22_;
   vector<bool> *muons_HLT_IsoTkMu22_;
+  vector<bool> *muons_HLT_IsoMu24_;
+  vector<bool> *muons_HLT_IsoTkMu24_;
+  vector<bool> *muons_HLT_IsoMu24_eta2p1_;
+  vector<bool> *muons_HLT_IsoMu27_;
+  vector<bool> *muons_HLT_IsoTkMu27_;
+  vector<bool> *muons_HLT_Mu45_eta2p1_;
+  vector<bool> *muons_HLT_Mu50_;
+  vector<bool> *muons_HLT_DoubleIsoMu17_eta2p1_;
+  vector<bool> *muons_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;
+  vector<bool> *muons_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
   vector<float> *jets_pt_;
   vector<float> *jets_eta_;
   vector<float> *jets_phi_;
@@ -2946,11 +3119,16 @@ private:
   vector<float> *electrons_pfHadronIso_;
   vector<float> *electrons_pfNeutralIso_;
   vector<float> *electrons_pfPhotonIso_;
-  vector<bool> *electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_;
-  vector<bool> *electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   vector<bool> *electrons_HLT_Ele22_eta2p1_WPLoose_Gsf_;
   vector<bool> *electrons_HLT_Ele23_WPLoose_Gsf_;
   vector<bool> *electrons_HLT_Ele27_WPLoose_Gsf_;
+  vector<bool> *electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_;
+  vector<bool> *electrons_HLT_Ele27_WPTight_Gsf_;
+  vector<bool> *electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  vector<bool> *electrons_HLT_Ele32_eta2p1_WPTight_Gsf_;
+  vector<bool> *electrons_Ele35_WPLoose_Gsf_;
+  vector<bool> *electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
+  vector<bool> *electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
   vector<float> *electrons_e1x5_;
   vector<float> *electrons_e5x5_;
   vector<float> *electrons_sigmaIEtaIEta_;
