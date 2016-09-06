@@ -8,6 +8,13 @@ import ROOT
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 log = rootpy.log["/make_permutation_distros.py"]
 from URAnalysis.PlotTools.BasePlotter import BasePlotter
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument('out', help='output file name')
+#parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
+args = parser.parse_args()
+
 
 #configuration
 shapes = [
@@ -39,7 +46,7 @@ for fname in input_files:
    right_view = merge_views(tfile, right)
    wrong_view = merge_views(tfile, wrong)
    #write output file
-   outname = 'inputs/%s/INPUT/%s_%s.root' % (jobid, output_name_base, sample)
+   outname = 'inputs/%s/INPUT/%s.root' % (jobid, args.out)
    with io.root_open(outname, 'w') as out:
       for shift in systematics:
          if not hasattr(test_dir, shift):
