@@ -5,21 +5,38 @@
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
 #include "TROOT.h"
 
+#include "URAnalysis/AnalysisFW/interface/URParser.h"
+#include "Analyses/URTTbar/interface/LeptonSF.h"
+#include "Analyses/URTTbar/interface/MCWeightProducer.h"
+#include "Analyses/URTTbar/interface/systematics.h"
+#include <unordered_map>
+#include "URAnalysis/AnalysisFW/interface/RObject.h"
+
 class TESTCRASH : public AnalyzerBase
 {
 private:
   unsigned long evt_idx_ = 0;
+	MCWeightProducer mc_weights_;
+	LeptonSF muon_sf_;
+  unordered_map<string, RObject > histos_;
   // Add your private variables/methods here
 public:
   TESTCRASH(const std::string output_filename):
-    AnalyzerBase("TESTCRASH", output_filename) {
+    AnalyzerBase("TESTCRASH", output_filename),
+		mc_weights_(),
+		muon_sf_("muon_sf"){
+		opts::variables_map &values = URParser::instance().values();
+		string output_file = values["output"].as<std::string>();
+		string sample = systematics::get_sample(output_file);
+		mc_weights_.init(sample);
 	};
   
   //This method is called once per job at the beginning of the analysis
   //book here your histograms/tree and run every initialization needed
   virtual void begin()
   {
-    //outFile_.cd();
+    outFile_.cd();
+		histos_["pippo"] = RObject::book<TH1D>("pippo", "pippo", 1,0,1);
   }
 
   //This method is called once every file, contains the event loop

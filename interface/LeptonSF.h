@@ -3,19 +3,34 @@
 
 #include "TH2.h"
 #include <string>
+#include <memory>
+#include "TFile.h"
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 class LeptonSF {
 public:
   LeptonSF(std::string parname, bool ptx=true);
   ~LeptonSF() {
-    if(id_) delete id_;
-    if(iso_) delete iso_;
-    if(trig_) delete trig_;
-  }
+		Logger::log().debug() << "LeptonSF" << std::endl;
+	}
   double get_sf(double pt, double eta) const;
 private:
-  double get_weight(TH2 *h, double pt, double eta) const;
-  TH2 *id_=0, *iso_=0, *trig_=0;
+  template <class T>
+  std::shared_ptr<T> get_from(TFile &file, std::string path, std::string newname) {
+    T* original = (T*) file.Get( path.c_str() );
+    if(!original) {
+      Logger::log().warning() << "Could not get " << path << " from the file " << file.GetName() << "!" << std::endl;
+			std::shared_ptr<T> ptr;
+			return ptr;
+    }
+    std::shared_ptr<T> ptr((T*) original->Clone(newname.c_str()));
+    return ptr;
+  }
+
+  double get_weight(std::shared_ptr<TH2> h, double pt, double eta) const;
+	std::shared_ptr<TH2> id_; 
+	std::shared_ptr<TH2> iso_; 
+	std::shared_ptr<TH2> trig_;
   bool pt_as_x_=true;
   bool abs_etas_[3] = {true, true, true};
 };

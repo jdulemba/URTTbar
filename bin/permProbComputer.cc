@@ -20,6 +20,7 @@
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
 #include "Analyses/URTTbar/interface/Hypotheses.h"
+#include "TROOT.h"
 //#include <map>
 
 using namespace std;
@@ -352,5 +353,9 @@ int main(int argc, char *argv[])
 {
   URParser &parser = URParser::instance(argc, argv);
   URDriver<permProbComputer> test;
-  return test.run();
+	int excode = test.run();
+	//Logger::log().debug() << "RUNNING DONE " << std::endl;
+	auto files = gROOT->GetListOfFiles(); //make ROOT aware that some files do not exist, because REASONS
+	Logger::log().debug() << "Nfiles " << files->GetSize() << std::endl; //need to print out this otherwise ROOT loses its shit in 7.4.X (such I/O, much features)
+  return excode;
 }

@@ -20,7 +20,7 @@
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
 #include <unordered_map>
-
+#include "TROOT.h"
 using namespace std;
 
 class htt_flav_effs : public AnalyzerBase
@@ -260,5 +260,9 @@ int main(int argc, char *argv[])
 {
   URParser &parser = URParser::instance(argc, argv);
   URDriver<htt_flav_effs> test;
-  return test.run();
+	int excode = test.run();
+	//Logger::log().debug() << "RUNNING DONE " << std::endl;
+	auto files = gROOT->GetListOfFiles(); //make ROOT aware that some files do not exist, because REASONS
+	Logger::log().debug() << "Nfiles " << files->GetSize() << std::endl; //need to print out this otherwise ROOT loses its shit in 7.4.X (such I/O, much features)
+  return excode;
 }

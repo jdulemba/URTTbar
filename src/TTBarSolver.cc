@@ -25,8 +25,7 @@ TTBarSolver::TTBarSolver() :
 }
 
 TTBarSolver::TTBarSolver(bool dummy): 
-  minuit(9), 
-  probfile(0) {
+  minuit_(9) {
   URParser &parser = URParser::instance();
   //parser.addCfgParameter(const std::string group, const std::string parameterName, const std::string description, T def_value);
   parser.addCfgParameter<string>("ttsolver", "filename", "");

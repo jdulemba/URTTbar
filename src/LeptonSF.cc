@@ -1,6 +1,7 @@
 #include "Analyses/URTTbar/interface/LeptonSF.h"
 #include "URAnalysis/AnalysisFW/interface/DataFile.h"
 #include "URAnalysis/AnalysisFW/interface/URParser.h"
+#include "URAnalysis/AnalysisFW/interface/Wards.h"
 #include "TFile.h"
 #include "TMath.h"
 #include <iostream>
@@ -17,13 +18,11 @@ LeptonSF::LeptonSF(std::string parname, bool ptx):
 
   DataFile sf_file = parser.getCfgPar<std::string>("general", parname);
   TFile file(sf_file.path().c_str());
-  TH1::AddDirectory(false); //TODO: add ward and raise warning if histo is missing
-  TH2F *ptr = (TH2F*) file.Get("id");
-  id_   = (ptr) ? (TH2F*) ptr->Clone("id_clone") : NULL;
-  ptr = (TH2F*) file.Get("iso");
-  iso_  = (ptr) ? (TH2F*) ptr->Clone("iso_clone") : NULL;
-  ptr = (TH2F*) file.Get("trg");
-  trig_ = (ptr) ? (TH2F*) ptr->Clone("trg_clone") : NULL;
+	HistoOwnershipWard hward;
+	DirectoryWard dward;
+  id_   = get_from<TH2D>(file, "id" , "id_clone");
+  iso_  = get_from<TH2D>(file, "iso", "iso_clone");
+  trig_ = get_from<TH2D>(file, "trg", "trg_clone");
   
   TH1I *h = (TH1I*) file.Get("info");
   if(h) {
@@ -31,11 +30,10 @@ LeptonSF::LeptonSF(std::string parname, bool ptx):
     for(int i=0; i<2; i++)
       abs_etas_[i] = (h->GetBinContent(i+1) > 0.5);
   }
-  TH1::AddDirectory(true);
 }
 
-double LeptonSF::get_weight(TH2 *h, double pt, double eta) const {
-  if(!h) return 1.;
+double LeptonSF::get_weight(std::shared_ptr<TH2> h, double pt, double eta) const {
+  if(!h.get()) return 1.;
   int pt_bin = h->GetXaxis()->FindFixBin((pt_as_x_) ? pt : eta);
   pt_bin = TMath::Max(pt_bin, 1);
   pt_bin = TMath::Min(pt_bin, h->GetNbinsX());
