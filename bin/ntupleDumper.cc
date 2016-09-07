@@ -20,6 +20,7 @@
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
 #include "URAnalysis/AnalysisFW/interface/EventList.h"
+#include "TROOT.h"
 //#include <map>
 
 using namespace std;
@@ -83,6 +84,22 @@ public:
 				continue;
 			}
 			cout << "***** Event "<<event.run<<":"<<event.lumi<<":"<<event.evt<<" *****"<< endl << endl;
+			cout << "Trigger: " << endl;
+			cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << endl; 
+			cout << "  HLT_IsoMu24: " << event.trigger().HLT_IsoMu24() << endl; 
+			cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
+			cout << endl;
+
+			cout << "Event Filters: " << endl;
+			cout << "  Flag_HBHENoiseIsoFilter: " <<                  event.filter().Flag_HBHENoiseIsoFilter() << endl; 								 
+			cout << "  Flag_EcalDeadCellTriggerPrimitiveFilter: " << 	event.filter().Flag_EcalDeadCellTriggerPrimitiveFilter() << endl;	 
+			cout << "  Flag_goodVertices: " << 												event.filter().Flag_goodVertices() << endl;												 
+			cout << "  Flag_eeBadScFilter: " << 											event.filter().Flag_eeBadScFilter() << endl;											 
+			cout << "  Flag_globalTightHalo2016Filter: " << 					event.filter().Flag_globalTightHalo2016Filter() << endl;					 
+			cout << "  Flag_BadPFMuon: " << 													event.filter().Flag_BadPFMuon() << endl;													 
+			cout << "  Flag_BadChargedCandidate: " << 	              event.filter().Flag_BadChargedCandidate() << endl;	                
+			cout << endl;
+			
 			cout << "Electrons:" << endl;
 			auto& els = event.electrons();
 			double rho = event.rho().value();
@@ -166,5 +183,9 @@ int main(int argc, char *argv[])
 {
   URParser &parser = URParser::instance(argc, argv);
   URDriver<ntupleDumper> test;
-  return test.run();
+	int excode = test.run();
+	//Logger::log().debug() << "RUNNING DONE " << std::endl;
+	auto files = gROOT->GetListOfFiles(); //make ROOT aware that some files do not exist, because REASONS
+	Logger::log().debug() << "Nfiles " << files->GetSize() << std::endl; //need to print out this otherwise ROOT loses its shit in 7.4.X (such I/O, much features)
+  return excode;
 }
