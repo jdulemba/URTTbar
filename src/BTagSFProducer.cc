@@ -56,7 +56,7 @@ BTagSFProducer::BTagSFProducer(std::string tight, std::string loose, float float
   IDJet::BTag loosetag = IDJet::BTag::NONE;
   if(loose.size() > 0) {
     string b = parser.getCfgPar<string>(loose);
-    cout << loose << " --> " << b << endl;
+    //cout << loose << " --> " << b << endl;
     loosetag = IDJet::tag(b);
   }
 
