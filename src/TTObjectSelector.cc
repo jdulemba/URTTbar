@@ -170,8 +170,7 @@ bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shi
 	//Filters
 	bool filter_answer = true;
 	auto filters = event.filter();
-	//filter_answer &= (filters.Flag_HBHENoiseFilter() == 1); 
-	//cout << filters.Flag_HBHENoiseFilter() << endl;
+	filter_answer &= (filters.Flag_HBHENoiseFilter() == 1); 
 	filter_answer &= (filters.Flag_HBHENoiseIsoFilter() == 1); 
 	filter_answer &= (filters.Flag_EcalDeadCellTriggerPrimitiveFilter() == 1);
 	filter_answer &= (filters.Flag_goodVertices() == 1);
@@ -182,11 +181,20 @@ bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shi
 	return filter_answer;
 }
 
+bool TTObjectSelector::pass_vertex(URStreamer &event, systematics::SysShifts shift) {
+	auto vtxs = event.vertexs();
+	if(vtxs.size() == 0) return false; //should never happen, but also the Titanic should have never sank...
+	return !vtxs[0].isFake() && vtxs[0].ndof() > 4. && fabs(vtxs[0].z()) < 24. && vtxs[0].rho() < 2.;
+}
+
 bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   reset();
 
 	if(!pass_trig(event, shift)) return false;
   if(tracker_) tracker_->track("trigger");
+
+	if(!pass_vertex(event, shift)) return false;
+	if(tracker_) tracker_->track("good vtx");
 
 	bool filter_answer = pass_filter(event, shift);
 	if(use_filters_ && !filter_answer) return false;
@@ -241,8 +249,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
 	}
 	if(!allow_loose_ && (evt_type_ == LOOSEMU || evt_type_ == LOOSEEL)) return false;
   if(tracker_) tracker_->track("loose/tight lepton");
-	// cout << tight_muons_.size() << " " << loose_muons_.size() << " " << veto_muons_.size() << " // " << tight_electrons_.size() << " " << loose_electrons_.size() << " " << veto_electrons_.size() << endl;
-	// cout << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << " // " << event.trigger().HLT_IsoMu24() << " " << event.trigger().HLT_IsoTkMu22() << endl;
+
 	//right lepton
 	bool mutype = (evt_type_ == TIGHTMU || evt_type_ == LOOSEMU);
   if(objsel_ == -1 && mutype ) return false;
@@ -253,7 +260,11 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   if(mutype && !mu_trg_) return false;
   if(!mutype && !el_trg_) return false;
   if(tracker_) tracker_->track("right trigger");
-  
+
+	// if(evt_type_  == TIGHTMU || evt_type_ == TIGHTEL) {
+	// 	cout << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
+	// }
+	
   select_jetmet(event, shift);
   if(clean_jets_.size() < cut_nminjets_) return false;
  

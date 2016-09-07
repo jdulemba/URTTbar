@@ -29,19 +29,21 @@ public:
 			URParser &parser = URParser::instance();
 			parser.addCfgParameter<std::string>(name, "id", "ID to be applied", "FAIL");
 			parser.addCfgParameter<float>      (name, "ptmin", "minimum pt", 9999.);
-			parser.addCfgParameter<float>      (name, "etamax", "maximum eta", 0.);
+			parser.addCfgParameter<float>      (name, "etamax", "maximum eta", 9999.);
+			parser.addCfgParameter<float>      (name, "etascmax", "maximum eta SC", 9999.);
 			parser.parseArguments();
 			id_ = LEP::id(
 				parser.getCfgPar<std::string>(name, "id"    ));
 			ptmin_  = parser.getCfgPar<float>(name, "ptmin" );
 			etamax_ = parser.getCfgPar<float>(name, "etamax");
+			etascmax_ = parser.getCfgPar<float>(name, "etascmax");
 		}
 		bool pass(LEP &el) {
-			return el.ID(id_) && el.Pt() > ptmin_ && fabs(el.Eta()) < etamax_;
+			return el.ID(id_) && el.Pt() > ptmin_ && fabs(el.Eta()) < etamax_ && fabs(el.etaSC()) < etascmax_;
 		}
 	private:
 		typename LEP::IDS id_;
-		float ptmin_, etamax_;
+		float ptmin_, etamax_, etascmax_;
 	};
 
 	enum EvtType {NOTSET, TIGHTMU, TIGHTEL, LOOSEMU, LOOSEEL};
@@ -83,6 +85,7 @@ public:
   void set_tracker(CutFlowTracker *t) {tracker_ = t;}
 	bool pass_trig(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
 	bool pass_filter(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
+	bool pass_vertex(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
 
 private:
 

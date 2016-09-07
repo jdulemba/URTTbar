@@ -25,6 +25,7 @@ public:
 	bool ID(IDS idtyp);
   bool isTight();
   bool isLoose();
+	double etaSC() const {return 0.;} //dummy value just to woek in templates w/ electrons
 };
 
 #endif

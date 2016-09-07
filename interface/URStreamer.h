@@ -8,21 +8,6 @@
 #include <vector>
 using namespace std;
 
-class Npnlolhe{
-friend class URStreamer;
-public:
-//  Npnlolhe(const Int_t &i_npnlo_):
-//    
-//  {}
-  Npnlolhe():
-    npnlo_(0)
-  {}
-  Int_t npnlo() const {return npnlo_;}
-private:
-  Int_t npnlo_;
-  void setnpnlo(const Int_t value) {npnlo_ = value;}
-};
-
 class Met{
 friend class URStreamer;
 public:
@@ -313,6 +298,25 @@ private:
   void setFlag_hcalLaserEventFilter(const Int_t value) {Flag_hcalLaserEventFilter_ = value;}
   void setFlag_BadPFMuon(const Int_t value) {Flag_BadPFMuon_ = value;}
   void setFlag_BadChargedCandidate(const Int_t value) {Flag_BadChargedCandidate_ = value;}
+};
+
+class Lheinfo{
+friend class URStreamer;
+public:
+//  Lheinfo(const Int_t &i_npnlo_,const Int_t &i_procID_):
+//    
+//  {}
+  Lheinfo():
+    npnlo_(0),
+    procID_(0)
+  {}
+  Int_t npnlo() const {return npnlo_;}
+  Int_t procID() const {return procID_;}
+private:
+  Int_t npnlo_;
+  Int_t procID_;
+  void setnpnlo(const Int_t value) {npnlo_ = value;}
+  void setprocID(const Int_t value) {procID_ = value;}
 };
 
 class Trigger{
@@ -1205,7 +1209,7 @@ private:
 class Vertex{
 friend class URStreamer;
 public:
-//  Vertex(const float &i_x_,const float &i_y_,const float &i_z_,const float &i_chi2_,const float &i_ndof_,const float &i_nTracks_):
+//  Vertex(const float &i_x_,const float &i_y_,const float &i_z_,const float &i_chi2_,const float &i_ndof_,const float &i_nTracks_,const bool &i_isFake_,const float &i_rho_):
 //    
 //  {}
   Vertex():
@@ -1214,7 +1218,9 @@ public:
     z_(0),
     chi2_(0),
     ndof_(0),
-    nTracks_(0)
+    nTracks_(0),
+    isFake_(0),
+    rho_(0)
   {}
   float x() const {return x_;}
   float y() const {return y_;}
@@ -1222,6 +1228,8 @@ public:
   float chi2() const {return chi2_;}
   float ndof() const {return ndof_;}
   float nTracks() const {return nTracks_;}
+  bool isFake() const {return isFake_;}
+  float rho() const {return rho_;}
 private:
   float x_;
   float y_;
@@ -1229,12 +1237,16 @@ private:
   float chi2_;
   float ndof_;
   float nTracks_;
+  bool isFake_;
+  float rho_;
   void setx(const float value) {x_ = value;}
   void sety(const float value) {y_ = value;}
   void setz(const float value) {z_ = value;}
   void setchi2(const float value) {chi2_ = value;}
   void setndof(const float value) {ndof_ = value;}
   void setnTracks(const float value) {nTracks_ = value;}
+  void setisFake(const bool value) {isFake_ = value;}
+  void setrho(const float value) {rho_ = value;}
 };
 
 class Puinfo{
@@ -1506,6 +1518,8 @@ public:
     vertexs_chi2_(0),
     vertexs_ndof_(0),
     vertexs_nTracks_(0),
+    vertexs_isFake_(0),
+    vertexs_rho_(0),
     METs_px_(0),
     METs_py_(0),
     METs_pxsmear_(0),
@@ -1523,7 +1537,8 @@ public:
     genInfo_x2_(0),
     genInfo_renScale_(0),
     MCWeights_weights_(0),
-    NPNLOLHE_npnlo_(0),
+    LHEInfo_npnlo_(0),
+    LHEInfo_procID_(0),
     PUInfos_bx_(0),
     PUInfos_nPU_(0),
     PUInfos_nInteractions_(0),
@@ -1556,13 +1571,13 @@ public:
     genjets_e_(0),
     genjets_invisibleEnergy_(0),
     genjets_pdgId_(0),
-    are_NPNLOLHE_loaded_(0), NPNLOLHE_(),
     are_METs_loaded_(0), METs_(),
     are_MCWeights_loaded_(0), MCWeights_(),
     are_genInfo_loaded_(0), genInfo_(),
     are_photons_loaded_(0), photons_(),
     are_LHEPaticles_loaded_(0), LHEPaticles_(),
     are_filter_loaded_(0), filter_(),
+    are_LHEInfo_loaded_(0), LHEInfo_(),
     are_trigger_loaded_(0), trigger_(),
     are_electrons_loaded_(0), electrons_(),
     are_genjets_loaded_(0), genjets_(),
@@ -1588,12 +1603,12 @@ public:
   }
 
   bool next(){
-    
     METs_.clear();
     MCWeights_.clear();
     
     photons_.clear();
     LHEPaticles_.clear();
+    
     
     
     electrons_.clear();
@@ -1612,14 +1627,6 @@ public:
     return false;
   }
 
-  void loadNpnlolhe(){
-    if(!are_NPNLOLHE_loaded_){
-      tree_->SetBranchStatus("NPNLOLHE.npnlo", 1); tree_->SetBranchAddress("NPNLOLHE.npnlo", &NPNLOLHE_npnlo_);
-      are_NPNLOLHE_loaded_ = true;
-      tree_->GetEntry(current_entry_);
-    }
-  }
-  
   void loadMets(){
     if(!are_METs_loaded_){
       tree_->SetBranchStatus("METs.px", 1); tree_->SetBranchAddress("METs.px", &METs_px_);
@@ -1717,6 +1724,15 @@ public:
       tree_->SetBranchStatus("filter.Flag_BadPFMuon", 1); tree_->SetBranchAddress("filter.Flag_BadPFMuon", &filter_Flag_BadPFMuon_);
       tree_->SetBranchStatus("filter.Flag_BadChargedCandidate", 1); tree_->SetBranchAddress("filter.Flag_BadChargedCandidate", &filter_Flag_BadChargedCandidate_);
       are_filter_loaded_ = true;
+      tree_->GetEntry(current_entry_);
+    }
+  }
+  
+  void loadLheinfo(){
+    if(!are_LHEInfo_loaded_){
+      tree_->SetBranchStatus("LHEInfo.npnlo", 1); tree_->SetBranchAddress("LHEInfo.npnlo", &LHEInfo_npnlo_);
+      tree_->SetBranchStatus("LHEInfo.procID", 1); tree_->SetBranchAddress("LHEInfo.procID", &LHEInfo_procID_);
+      are_LHEInfo_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
   }
@@ -1994,6 +2010,8 @@ public:
       tree_->SetBranchStatus("vertexs.chi2", 1); tree_->SetBranchAddress("vertexs.chi2", &vertexs_chi2_);
       tree_->SetBranchStatus("vertexs.ndof", 1); tree_->SetBranchAddress("vertexs.ndof", &vertexs_ndof_);
       tree_->SetBranchStatus("vertexs.nTracks", 1); tree_->SetBranchAddress("vertexs.nTracks", &vertexs_nTracks_);
+      tree_->SetBranchStatus("vertexs.isFake", 1); tree_->SetBranchAddress("vertexs.isFake", &vertexs_isFake_);
+      tree_->SetBranchStatus("vertexs.rho", 1); tree_->SetBranchAddress("vertexs.rho", &vertexs_rho_);
       are_vertexs_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -2010,17 +2028,6 @@ public:
   }
   
 
-  const Npnlolhe NPNLOLHE(){
-    //non-vectorial objects are recomputed every
-    //time for simplicity 
-    loadNpnlolhe();
-  
-    Npnlolhe obj;
-    obj.setnpnlo(NPNLOLHE_npnlo_);
-  
-    return obj;
-  }
-  
   const vector<Met>& METs(){
     if(METs_.size() > 0) return METs_;
     loadMets();
@@ -2215,6 +2222,18 @@ public:
     obj.setFlag_hcalLaserEventFilter(filter_Flag_hcalLaserEventFilter_);
     obj.setFlag_BadPFMuon(filter_Flag_BadPFMuon_);
     obj.setFlag_BadChargedCandidate(filter_Flag_BadChargedCandidate_);
+  
+    return obj;
+  }
+  
+  const Lheinfo LHEInfo(){
+    //non-vectorial objects are recomputed every
+    //time for simplicity 
+    loadLheinfo();
+  
+    Lheinfo obj;
+    obj.setnpnlo(LHEInfo_npnlo_);
+    obj.setprocID(LHEInfo_procID_);
   
     return obj;
   }
@@ -2885,6 +2904,8 @@ public:
     auto it_vertexs_chi2_ = vertexs_chi2_->cbegin();
     auto it_vertexs_ndof_ = vertexs_ndof_->cbegin();
     auto it_vertexs_nTracks_ = vertexs_nTracks_->cbegin();
+    auto it_vertexs_isFake_ = vertexs_isFake_->cbegin();
+    auto it_vertexs_rho_ = vertexs_rho_->cbegin();
     for(; it_vertexs_x_ != vertexs_x_->cend(); ){
       Vertex obj;
       obj.setx(*it_vertexs_x_);
@@ -2893,6 +2914,8 @@ public:
       obj.setchi2(*it_vertexs_chi2_);
       obj.setndof(*it_vertexs_ndof_);
       obj.setnTracks(*it_vertexs_nTracks_);
+      obj.setisFake(*it_vertexs_isFake_);
+      obj.setrho(*it_vertexs_rho_);
       
       vertexs_.push_back( obj );
       ++it_vertexs_x_;
@@ -2901,6 +2924,8 @@ public:
       ++it_vertexs_chi2_;
       ++it_vertexs_ndof_;
       ++it_vertexs_nTracks_;
+      ++it_vertexs_isFake_;
+      ++it_vertexs_rho_;
     }
     return vertexs_;
   }
@@ -3166,6 +3191,8 @@ private:
   vector<float> *vertexs_chi2_;
   vector<float> *vertexs_ndof_;
   vector<float> *vertexs_nTracks_;
+  vector<bool> *vertexs_isFake_;
+  vector<float> *vertexs_rho_;
   vector<float> *METs_px_;
   vector<float> *METs_py_;
   vector<float> *METs_pxsmear_;
@@ -3183,7 +3210,8 @@ private:
   Float_t genInfo_x2_;
   Float_t genInfo_renScale_;
   vector<float> *MCWeights_weights_;
-  Int_t NPNLOLHE_npnlo_;
+  Int_t LHEInfo_npnlo_;
+  Int_t LHEInfo_procID_;
   vector<float> *PUInfos_bx_;
   vector<float> *PUInfos_nPU_;
   vector<float> *PUInfos_nInteractions_;
@@ -3216,8 +3244,6 @@ private:
   vector<float> *genjets_e_;
   vector<float> *genjets_invisibleEnergy_;
   vector<float> *genjets_pdgId_;
-  bool are_NPNLOLHE_loaded_;
-  Npnlolhe NPNLOLHE_;
   bool are_METs_loaded_;
   vector<Met> METs_;
   bool are_MCWeights_loaded_;
@@ -3230,6 +3256,8 @@ private:
   vector<Lhepaticle> LHEPaticles_;
   bool are_filter_loaded_;
   Filter filter_;
+  bool are_LHEInfo_loaded_;
+  Lheinfo LHEInfo_;
   bool are_trigger_loaded_;
   Trigger trigger_;
   bool are_electrons_loaded_;
