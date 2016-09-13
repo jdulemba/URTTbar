@@ -140,13 +140,13 @@ void BTagSFProducer::configure(const DataFile &sf_file, const DataFile &eff_file
       sf_file.path() << std::endl;
     throw 42;
   }
-  readers_tight_[0] = BTagCalibrationReader(&calibration_, wp_tight, "mujets", "down"); //[down, central, up]
-  readers_tight_[1] = BTagCalibrationReader(&calibration_, wp_tight, "mujets", "central"); //[down, central, up]
-  readers_tight_[2] = BTagCalibrationReader(&calibration_, wp_tight, "mujets", "up"); //[down, central, up]
+  readers_tight_[0] = BTagCalibrationReader(&calibration_, wp_tight, "used", "down"); //[down, central, up]
+  readers_tight_[1] = BTagCalibrationReader(&calibration_, wp_tight, "used", "central"); //[down, central, up]
+  readers_tight_[2] = BTagCalibrationReader(&calibration_, wp_tight, "used", "up"); //[down, central, up]
 
-  readers_loose_[0] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "down"); //[down, central, up]
-  readers_loose_[1] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "central"); //[down, central, up]
-  readers_loose_[2] = BTagCalibrationReader(&calibration_, wp_loose, "mujets", "up"); //[down, central, up]
+  readers_loose_[0] = BTagCalibrationReader(&calibration_, wp_loose, "used", "down"); //[down, central, up]
+  readers_loose_[1] = BTagCalibrationReader(&calibration_, wp_loose, "used", "central"); //[down, central, up]
+  readers_loose_[2] = BTagCalibrationReader(&calibration_, wp_loose, "used", "up"); //[down, central, up]
 }
 
 BTagSFProducer::~BTagSFProducer() {
