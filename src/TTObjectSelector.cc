@@ -261,9 +261,9 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   if(!mutype && !el_trg_) return false;
   if(tracker_) tracker_->track("right trigger");
 
-	if(evt_type_  == TIGHTMU || evt_type_ == TIGHTEL) {
-		cout << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
-	}
+	// if(evt_type_  == TIGHTMU || evt_type_ == TIGHTEL) {
+	// 	cout << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
+	// }
 	
   select_jetmet(event, shift);
   if(clean_jets_.size() < cut_nminjets_) return false;
