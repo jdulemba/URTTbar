@@ -156,7 +156,7 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
   //bool isMC = (event.run == 1);
 	//if(!use_trg_ && isMC) return true;
 	el_trg_ = (event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() == 1);
-	mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
+	mu_trg_ = (event.trigger().HLT_IsoMu22() == 1 || event.trigger().HLT_IsoTkMu22() == 1);	
 	//el_trg_ = (event.trigger().HLT_Ele27_WPLoose_Gsf() == 1);
 	//mu_trg_ = (event.trigger().HLT_IsoMu22() == 1 || event.trigger().HLT_IsoTkMu22() == 1);	
 
