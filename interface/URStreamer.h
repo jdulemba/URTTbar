@@ -742,7 +742,7 @@ private:
 class Jet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
+//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_qgTag_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
 //    
 //  {}
   Jet():
@@ -750,6 +750,7 @@ public:
     charge_(0),
     e_(0),
     area_(0),
+    qgTag_(0),
     JESUnc_(0),
     JER_(0),
     JERUp_(0),
@@ -798,6 +799,7 @@ public:
   int charge() const {return charge_;}
   float e() const {return e_;}
   float area() const {return area_;}
+  float qgTag() const {return qgTag_;}
   float JESUnc() const {return JESUnc_;}
   float JER() const {return JER_;}
   float JERUp() const {return JERUp_;}
@@ -846,6 +848,7 @@ private:
   int charge_;
   float e_;
   float area_;
+  float qgTag_;
   float JESUnc_;
   float JER_;
   float JERUp_;
@@ -893,6 +896,7 @@ private:
   void setcharge(const int value) {charge_ = value;}
   void sete(const float value) {e_ = value;}
   void setarea(const float value) {area_ = value;}
+  void setqgTag(const float value) {qgTag_ = value;}
   void setJESUnc(const float value) {JESUnc_ = value;}
   void setJER(const float value) {JER_ = value;}
   void setJERUp(const float value) {JERUp_ = value;}
@@ -1386,6 +1390,7 @@ public:
     jets_e_(0),
     jets_area_(0),
     jets_mass_(0),
+    jets_qgTag_(0),
     jets_JESUnc_(0),
     jets_JER_(0),
     jets_JERUp_(0),
@@ -1873,6 +1878,7 @@ public:
       tree_->SetBranchStatus("jets.e", 1); tree_->SetBranchAddress("jets.e", &jets_e_);
       tree_->SetBranchStatus("jets.area", 1); tree_->SetBranchAddress("jets.area", &jets_area_);
       tree_->SetBranchStatus("jets.mass", 1); tree_->SetBranchAddress("jets.mass", &jets_mass_);
+      tree_->SetBranchStatus("jets.qgTag", 1); tree_->SetBranchAddress("jets.qgTag", &jets_qgTag_);
       tree_->SetBranchStatus("jets.JESUnc", 1); tree_->SetBranchAddress("jets.JESUnc", &jets_JESUnc_);
       tree_->SetBranchStatus("jets.JER", 1); tree_->SetBranchAddress("jets.JER", &jets_JER_);
       tree_->SetBranchStatus("jets.JERUp", 1); tree_->SetBranchAddress("jets.JERUp", &jets_JERUp_);
@@ -2528,6 +2534,7 @@ public:
     auto it_jets_e_ = jets_e_->cbegin();
     auto it_jets_area_ = jets_area_->cbegin();
     auto it_jets_mass_ = jets_mass_->cbegin();
+    auto it_jets_qgTag_ = jets_qgTag_->cbegin();
     auto it_jets_JESUnc_ = jets_JESUnc_->cbegin();
     auto it_jets_JER_ = jets_JER_->cbegin();
     auto it_jets_JERUp_ = jets_JERUp_->cbegin();
@@ -2577,6 +2584,7 @@ public:
       obj.setcharge(*it_jets_charge_);
       obj.sete(*it_jets_e_);
       obj.setarea(*it_jets_area_);
+      obj.setqgTag(*it_jets_qgTag_);
       obj.setJESUnc(*it_jets_JESUnc_);
       obj.setJER(*it_jets_JER_);
       obj.setJERUp(*it_jets_JERUp_);
@@ -2630,6 +2638,7 @@ public:
       ++it_jets_e_;
       ++it_jets_area_;
       ++it_jets_mass_;
+      ++it_jets_qgTag_;
       ++it_jets_JESUnc_;
       ++it_jets_JER_;
       ++it_jets_JERUp_;
@@ -3059,6 +3068,7 @@ private:
   vector<float> *jets_e_;
   vector<float> *jets_area_;
   vector<float> *jets_mass_;
+  vector<float> *jets_qgTag_;
   vector<float> *jets_JESUnc_;
   vector<float> *jets_JER_;
   vector<float> *jets_JERUp_;
