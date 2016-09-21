@@ -53,11 +53,15 @@ private:
 	bool isTTbar_, isSignal_, isData_;
 
   //selectors and helpers
+  TTGenParticleSelector genp_selector_;
+	TTGenMatcher matcher_;
+	TTPermutator permutator_;
   TTObjectSelector object_selector_;
   float evt_weight_;
 	TRandom3 randomizer_;// = TRandom3(98765);
   MCWeightProducer mc_weights_;
   BTagSFProducer btag_sf_;
+  TTBarSolver solver_;
 
 	//Scale factors
 	LeptonSF electron_sf_, muon_sf_;
@@ -83,6 +87,9 @@ public:
   htt_simple(const std::string output_filename):
     AnalyzerBase("htt_simple", output_filename), 
 		tracker_(),
+		genp_selector_(),
+		matcher_(),
+		permutator_(),
     object_selector_(),
     mc_weights_(),
     evt_weight_(1.),
@@ -90,6 +97,7 @@ public:
     muon_sf_("muon_sf"),
 		randomizer_(),    
 		btag_sf_("permutations.tightb", "permutations.looseb"),
+    solver_(true),
 		systematics_(),
 		sync_(false),
 		sync_tree_(0),
@@ -113,6 +121,7 @@ public:
     //set tracker
     tracker_.use_weight(&evt_weight_);
     object_selector_.set_tracker(&tracker_);
+		permutator_.set_tracker(&tracker_);
 
     //find out which sample are we running on
     opts::variables_map &values = parser.values();
@@ -128,7 +137,9 @@ public:
 		}
 		sync_ = values.count("sync");
 		if(sync_) tracker_.verbose(true);
-    if(!isData_) mc_weights_.init(sample);
+    if(!isData_) mc_weights_.init(
+			sample,
+			!(boost::starts_with(sample, "QCD") || boost::starts_with(sample, "WZ") || boost::starts_with(sample, "WW") || boost::starts_with(sample, "WZ")));
 
 		systematics_ = {systematics::SysShifts::NOSYS};//systematics::get_systematics(output_file);
 	}
@@ -145,6 +156,31 @@ public:
 	{
 		getDir(folder)->cd();
 		histos_[folder][name] = RObject::book<H>(name.c_str(), args ...);
+	}
+
+	void book_combo_plots(string folder){
+		book<TH1F>(folder, "mass_discriminant", "", 20,   0., 20.);
+		book<TH1F>(folder, "nu_discriminant", "", 20,   0., 20.);
+		book<TH1F>(folder, "full_discriminant", "", 20,   0., 20.);
+    
+		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
+		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
+
+		book<TH1F>(folder, "mtt", "", 180, 200., 2000);			
+	}
+
+	void fill_combo_plots(string folder, const Permutation &hyp){
+		auto dir = histos_.find(folder);
+		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
+		dir->second["nu_discriminant"  ].fill(hyp.NuDiscr(), evt_weight_);
+		dir->second["full_discriminant"].fill(hyp.Prob(), evt_weight_);
+		
+		double whad_mass = hyp.WHad().M();
+		double thad_mass = hyp.THad().M();
+		dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
+		dir->second["tmasshad"].fill(thad_mass, evt_weight_);
+
+		dir->second["mtt"].fill(hyp.LVect().M(), evt_weight_);
 	}
 
   void book_presel_plots(string folder) {
@@ -248,26 +284,33 @@ public:
 		
 
 		vector<string> leptons = {"electrons", "muons"};		
+		vector<string> subs    = {"/right", "/right_tl", "/right_th", "/wrong", "/noslep"};		
 		vector<string> lepIDs  = {"looseNOTTight", "tight"};		
 		vector<string> MTs     = {"MTLow", "MTHigh"};		
 		//vector<string> tagging = {"ctagged", "notag"};
 		for(auto& lepton : leptons) {
 			for(auto& sys : systematics_) {
-				string sys_name = systematics::shift_to_name.at(sys);
+				string sys_name = systematics::shift_to_name.at(sys);					
 				string dname = lepton+"/"+sys_name+"/preselection";
 				Logger::log().debug() << "Booking histos in: " << dname << endl;
 				book_presel_plots(dname);				
-				for(auto& lepid : lepIDs) {
-					for(auto& mt : MTs) {
-						stringstream dstream;
-						dstream << lepton << "/";
-						dstream << sys_name<<"/" << lepid << "/" << mt;
-					
-						Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
-						book_selection_plots(dstream.str());
+				book_combo_plots(dname);
+				for(auto& subsample : subs) {
+					string sub = (isTTbar_) ? subsample : "";
+					for(auto& lepid : lepIDs) {
+						for(auto& mt : MTs) {
+							stringstream dstream;
+							dstream << lepton << sub << "/";
+							dstream << sys_name << "/" << lepid << "/" << mt;
+							
+							Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
+							book_selection_plots(dstream.str());
+							book_combo_plots(dstream.str());
+						}
 					}
 				}
-			}			
+			}
+			if(!isTTbar_) break;
 		}
 	}
 
@@ -292,9 +335,9 @@ public:
 		float lep_weight=1;
     if(!isData_) { 
       if(object_selector_.tight_muons().size() == 1)
-        lep_weight = muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+        lep_weight = muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
       if(object_selector_.tight_electrons().size() == 1)
-        lep_weight = electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+        lep_weight = electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
 		}
 		evt_weight_ *= lep_weight;
 
@@ -311,13 +354,84 @@ public:
 		if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
 		tracker_.track("b cuts", leptype);
 
+    if( !permutator_.preselection(
+          object_selector_.clean_jets(), object_selector_.lepton(), 
+          object_selector_.met() ) ) return;
+    tracker_.track("perm preselection");
+				
     //find mc weight for btag
 		double bweight = 1;
     if(!isData_ && !sync_) bweight *= btag_sf_.scale_factor(clean_jets, shift);
 		evt_weight_ *= bweight;
     
+		//cut on MT
+		double mt = MT(object_selector_.lepton(), object_selector_.met());
+		bool mtlow = (mt < cut_MT_);
+
+		if(sync_) {
+			if(!mtlow && (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL)) {
+				sync_info_["run"]  = event.run;
+				sync_info_["lumi"] = event.lumi;
+				sync_evt_ = event.evt;
+				sync_info_["puweight"] = (isData_) ? 1. : mc_weights_.pu_weight( event);
+				sync_info_["mcweight"] = (isData_) ? 1. : mc_weights_.gen_weight(event);
+				sync_info_["hasMuon"] = (object_selector_.lepton_type() == -1) ? 0 : 1;
+				sync_info_["btagweight"] = bweight;
+				sync_info_["leptonweight"] = lep_weight;
+				sync_info_["finalweight"] = evt_weight_;
+				sync_tree_->Fill();
+				tracker_.track("SYNC END", leptype);
+			}
+			return;
+		}
+
+    //Find best permutation
+    bool go_on = true;
+    Permutation best_permutation;
+    size_t ncycles_=0;
+    while(go_on) {
+      ncycles_++;
+      Permutation test_perm = permutator_.next(go_on);
+      if(go_on) {
+        test_perm.Solve(solver_);
+        double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
+        fill_combo_plots(presel_dir.str(), test_perm);
+        //if(bjet_lpt < test_perm.WJa()->Pt()) continue;
+        if(test_perm.Prob()  < best_permutation.Prob()){
+          best_permutation = test_perm;
+        }
+      }
+    }
+    if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9
+    tracker_.track("best perm");
+
+		//create event dir (contains the dir path to be filled)
 		stringstream evtdir;		
-		evtdir << leptype << "/" << sys_name << "/";
+		evtdir << leptype;
+
+    //Gen matching (TT events only)
+    Permutation matched_perm;
+    if(isTTbar_) {
+			if(genp_selector_.ttbar_system().type == GenTTBar::DecayType::SEMILEP) {
+				matched_perm = matcher_.match(
+					genp_selector_.ttbar_final_system(),
+					object_selector_.clean_jets(), 
+					object_selector_.veto_electrons(),
+					object_selector_.veto_muons()
+					);
+				matched_perm.SetMET(object_selector_.met());
+				
+				if(best_permutation.IsCorrect(matched_perm))          evtdir << "/right";
+				else if(best_permutation.IsTHadCorrect(matched_perm)) evtdir << "/right_th";
+				else if(best_permutation.IsTLepCorrect(matched_perm)) evtdir << "/right_tl";
+				else evtdir << "/wrong";
+			}
+			else evtdir << "/noslep";
+    }
+    tracker_.track("matched perm");
+
+		//check isolation type
+		evtdir << "/" << sys_name << "/";
 		switch(object_selector_.event_type()) {
 		case TTObjectSelector::EvtType::TIGHTMU: 
 		case TTObjectSelector::EvtType::TIGHTEL: evtdir << "tight"; break;
@@ -326,37 +440,17 @@ public:
 		default: throw 42; break;
 		}
 
-		//cut on MT
-		double mt = MT(object_selector_.lepton(), object_selector_.met());
-		//(*object_selector_.lepton()+*object_selector_.met()).Mt() ;
-		//cout << "MT: " << mt << " - " << cut_MT_ << endl;
-		bool mtlow = false;
-		if(mt < cut_MT_) {
-			mtlow=true;
-			evtdir << "MTLow";
-		} else {
-			evtdir << "MTHigh";
-		}
+		//check MT category
+		if(mtlow)
+			evtdir << "/MTLow";
+		else 
+			evtdir << "/MTHigh";
 		tracker_.track("MT cut", leptype);
 
-		if(!sync_){
-			fill_selection_plots(evtdir.str(), event);
-			tracker_.track("END", leptype);
-		} else if(!mtlow && (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL)) {
-			// cout << "passing event " << " / " << event.run << ":" << event.lumi << ":" << event.evt << 
-			// 	" / Muon: "<< !(object_selector_.lepton_type() == -1) << endl;
-			sync_info_["run"]  = event.run;
-			sync_info_["lumi"] = event.lumi;
-			sync_evt_ = event.evt;
-			sync_info_["puweight"] = (isData_) ? 1. : mc_weights_.pu_weight( event);
-			sync_info_["mcweight"] = (isData_) ? 1. : mc_weights_.gen_weight(event);
-			sync_info_["hasMuon"] = (object_selector_.lepton_type() == -1) ? 0 : 1;
-			sync_info_["btagweight"] = bweight;
-			sync_info_["leptonweight"] = lep_weight;
-			sync_info_["finalweight"] = evt_weight_;
-			sync_tree_->Fill();
-			tracker_.track("SYNC END", leptype);
-		} 
+		//fill right category
+		fill_combo_plots(evtdir.str(), best_permutation);
+		fill_selection_plots(evtdir.str(), event);
+		tracker_.track("END", leptype);
 	}
 
   //This method is called once every file, contains the event loop
@@ -398,6 +492,11 @@ public:
 			evt_idx_--;
 			if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
 			evt_idx_++;
+
+			if(isTTbar_){
+				genp_selector_.select(event);			
+			}
+
 			for(auto shift : systematics_){
         evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
 
