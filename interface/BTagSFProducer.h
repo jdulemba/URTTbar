@@ -46,7 +46,7 @@ private:
 
   bool ignore_partial_shifts_=false;
   bool ignore_general_shifts_=false;
-  bool no_loose_cut_=false;
+  bool no_loose_cut_=false, no_tight_cut_=false;
   //Systematics use
   //How much to float the single SF components
   //-1: how much the SF tell you to do. 0: Do not float at all (disable systematic). 0< <1 always return such value (Up > 1/Down < 1). >1 Invalid!

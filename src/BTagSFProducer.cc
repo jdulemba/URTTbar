@@ -98,7 +98,9 @@ void BTagSFProducer::configure(const DataFile &sf_file, const DataFile &eff_file
   BTagEntry::OperatingPoint wp_tight = IDJet::tag_tightness(tighttag);  
   BTagEntry::OperatingPoint wp_loose = IDJet::tag_tightness(loosetag);
   no_loose_cut_ = (wp_loose == BTagEntry::OperatingPoint::OP_NOTSET);
+	no_tight_cut_ = (wp_tight == BTagEntry::OperatingPoint::OP_NOTSET);
   if(no_loose_cut_) wp_loose = wp_tight;
+	if(no_tight_cut_) return;
 
   //Get efficiencies
   TFile eff_tfile(eff_file.path().c_str());
@@ -153,6 +155,7 @@ BTagSFProducer::~BTagSFProducer() {
 }
 
 double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift) {
+	if(no_tight_cut_) return 1.;
   if(ignore_partial_shifts_ && 
      (shift == SysShifts::BTAG_B_UP || shift == SysShifts::BTAG_B_DW || shift == SysShifts::BTAG_C_UP || 
       shift == SysShifts::BTAG_C_DW || shift == SysShifts::BTAG_L_UP || shift == SysShifts::BTAG_L_DW)) {
