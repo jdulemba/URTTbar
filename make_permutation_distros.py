@@ -20,7 +20,7 @@ args = parser.parse_args()
 shapes = [
    ('mWhad_vs_mtophad', 'M(W_{had})', 'M(t_{had})', 'A.U.'),
    ('nusolver_chi2', '\chi^2', 'A.U', '')]
-jet_only_shapes = ['btag_value']
+jet_only_shapes = []
 systematics = ['nosys']#, 'jes_up', 'jes_down', 'jer_up', 'met_up', 'met_down']
 right = ['semilep_visible_right']
 wrong = ['semilep_wrong', 'semilep_right_thad', 'semilep_right_tlep', 'other_tt_decay']
