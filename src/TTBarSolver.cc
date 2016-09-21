@@ -69,12 +69,18 @@ void TTBarSolver::Init(TDirectory* dir, bool usebtag, bool usens, bool usemass, 
 	USEMASS_ = usemass;
   if(dir) {
 		HistoOwnershipWard hward;
-    WTmass_right_ = preproccess_histo<TH2D>(dir, (wtname+"_right"), "wt_right");
-    WTmass_wrong_ = preproccess_histo<TH2D>(dir, (wtname+"_wrong"), "wt_wrong");
-    BTag_right_ = preproccess_histo<TH1D>(dir, (bname+"_right"), "b_right");
-    BTag_wrong_ = preproccess_histo<TH1D>(dir, (bname+"_wrong"), "b_wrong");
-    N_right_ = preproccess_histo<TH1D>(dir, (nuname+"_right"), "nu_right");
-    N_wrong_ = preproccess_histo<TH1D>(dir, (nuname+"_wrong"), "nu_wrong");
+		if(USEMASS_) {
+			WTmass_right_ = preproccess_histo<TH2D>(dir, (wtname+"_right"), "wt_right");
+			WTmass_wrong_ = preproccess_histo<TH2D>(dir, (wtname+"_wrong"), "wt_wrong");
+		}
+		if(USEBTAG_) {
+			BTag_right_ = preproccess_histo<TH1D>(dir, (bname+"_right"), "b_right");
+			BTag_wrong_ = preproccess_histo<TH1D>(dir, (bname+"_wrong"), "b_wrong");
+		}
+		if(USENS_) {
+			N_right_ = preproccess_histo<TH1D>(dir, (nuname+"_right"), "nu_right");
+			N_wrong_ = preproccess_histo<TH1D>(dir, (nuname+"_wrong"), "nu_wrong");
+		}
   }  
 }
 
