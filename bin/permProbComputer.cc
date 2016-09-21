@@ -21,6 +21,7 @@
 #include "Analyses/URTTbar/interface/LeptonSF.h"
 #include "Analyses/URTTbar/interface/Hypotheses.h"
 #include "TROOT.h"
+#include <algorithm>
 //#include <map>
 
 using namespace std;
@@ -87,7 +88,7 @@ public:
 		isTTbar_ = boost::starts_with(sample, "ttJets") || isSignal;
 
     //choose systematics to run based on sample
-    systematics_ = systematics::get_systematics(output_file);
+    systematics_ = {systematics::SysShifts::NOSYS};
     if(!isTTbar_) {
       Logger::log().error() << "This analyzer is only supposed to run on ttbar samples!" << endl;
       throw 49;
@@ -105,6 +106,11 @@ public:
   ~permProbComputer() {
   }
 
+	template <class T> 
+	pair<const T,const T> Minmax(const T& a, const T& b) {
+		return (b<a) ? std::make_pair(b, min(a, .99999)) : std::make_pair(a, min(b, .99999));
+	}
+
   //This method is called once per job at the beginning of the analysis
   //book here your histograms/tree and run every initialization needed
   virtual void begin() {
@@ -119,21 +125,28 @@ public:
         //TODO add plots
         histos_[shift][evt_type]["mWhad_vs_mtophad"] = RObject::book<TH2D>("mWhad_vs_mtophad", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
         histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", 75, 0., 150.);
-        histos_[shift][evt_type]["wfr_jcosth_delta"] = RObject::book<TH1D>("wfr_jcosth_delta", "", 100, 0., 2);
-
-        histos_[shift][evt_type]["thfr"] = RObject::book<TH1D>("thfr", "", 100, -2., 2);
-        histos_[shift][evt_type]["tlfr"] = RObject::book<TH1D>("tlfr", "", 100, -2., 2);
-        if(evt_type == RIGHT || evt_type == WRONG){
-          histos_[shift][evt_type]["btag_value"] = RObject::book<TH1D>("btag_value", ";CSV raw value;# Events", 100, 0., 1.);
-          histos_[shift][evt_type]["btag_first_idx"] = RObject::book<TH1D>("btag_first_idx", ";idx;# Events", 41, -0.5, 40.5);
-          histos_[shift][evt_type]["btag_last_idx"] = RObject::book<TH1D>("btag_last_idx", ";idx;# Events", 41, -0.5, 40.5);
-          histos_[shift][evt_type]["pt_first_idx"] = RObject::book<TH1D>("pt_first_idx", ";idx;# Events", 41, -0.5, 40.5);
-          histos_[shift][evt_type]["pt_last_idx"] = RObject::book<TH1D>("pt_last_idx", ";idx;# Events", 41, -0.5, 40.5);
-        }
+        histos_[shift][evt_type]["wjets_cMVA"] = RObject::book<TH2D>("wjets_cMVA", "", 100, -1., 1, 100, -1., 1);
+        histos_[shift][evt_type]["bjets_cMVA"] = RObject::book<TH2D>("bjets_cMVA", "", 100, -1., 1, 100, -1., 1);
+        histos_[shift][evt_type]["wjets_qgt"] = RObject::book<TH2D>("wjets_qgt", "", 50, 0., 1, 50, 0., 1);
+        histos_[shift][evt_type]["bjets_qgt"] = RObject::book<TH2D>("bjets_qgt", "", 50, 0., 1, 50, 0., 1);
+        histos_[shift][evt_type]["wjets_bqgt"] = RObject::book<TH1D>("wjets_bqgt", "", 50, 0., 1);
+        histos_[shift][evt_type]["wjets_wqgt"] = RObject::book<TH1D>("wjets_wqgt", "", 50, 0., 1);
+        histos_[shift][evt_type]["wjets_cMVA_WP"] = RObject::book<TH2D>("wjets_cMVA_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
+        histos_[shift][evt_type]["bjets_cMVA_WP"] = RObject::book<TH2D>("bjets_cMVA_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
+        histos_[shift][evt_type]["lb_ratio"] = RObject::book<TH1D>("lb_ratio", "", 100, 0., 5.);
+        histos_[shift][evt_type]["w1b_ratio"] = RObject::book<TH1D>("w1b_ratio", "", 100, 0., 5.);
+        histos_[shift][evt_type]["w2b_ratio"] = RObject::book<TH1D>("w2b_ratio", "", 100, 0., 5.);
+        histos_[shift][evt_type]["lb_w2b_ratio"] = RObject::book<TH2D>("lb_w2b_ratio", "", 100, 0., 5., 100, 0., 5.);
       }
     }
-
   }
+
+	int btag_idval(const IDJet* jet) {
+		if(jet->BTagId(IDJet::BTag::MVATIGHT)) return 3;
+		else if(jet->BTagId(IDJet::BTag::MVAMEDIUM)) return 2;
+		else if(jet->BTagId(IDJet::BTag::MVALOOSE) ) return 1;
+		return 0;
+	}
   
   void process_evt(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS) {
     //Fill truth of resp matrix
@@ -174,65 +187,6 @@ public:
     }
     matched_perm.SetMET(object_selector_.met());
     tracker_.track("gen matching");
-
-    //get selected jets
-    auto jets = object_selector_.clean_jets();
-		IDJet* bhad = matched_perm.BHad();
-		IDJet* blep = matched_perm.BLep();
-    if(matched_perm.BHad()) plots[TTNaming::RIGHT]["btag_value"].fill(bhad->csvIncl(), evt_weight_);
-    if(matched_perm.BLep()) plots[TTNaming::RIGHT]["btag_value"].fill(blep->csvIncl(), evt_weight_);
-
-    //fill wrong btags and pt indexes
-    bool right_1st=false, wrong_1st=false;
-    size_t idx=0, right_last=4000, wrong_last=4000;
-    sort(jets.begin(), jets.end(), [](IDJet* A, IDJet* B){return(A->Pt() > B->Pt());});
-    for(IDJet* jet : jets) {
-      if(jet != bhad && jet != blep) {
-        plots[TTNaming::WRONG]["btag_value"].fill(jet->csvIncl(), evt_weight_);
-        if(!wrong_1st){
-          plots[TTNaming::WRONG]["pt_first_idx"].fill(idx, evt_weight_);
-          wrong_1st=true;
-        }
-        wrong_last=idx;
-      }
-      else {
-        if(!right_1st){
-          plots[TTNaming::RIGHT]["pt_first_idx"].fill(idx, evt_weight_);
-          right_1st=true;
-        }
-        right_last=idx;
-      }
-      
-      idx++;
-    }
-    plots[TTNaming::WRONG]["pt_last_idx"].fill(wrong_last, evt_weight_);
-    plots[TTNaming::RIGHT]["pt_last_idx"].fill(right_last, evt_weight_);
-
-    //fill btag indexes
-    right_1st=false; wrong_1st=false;
-    idx=0; right_last=4000; wrong_last=4000;
-    sort(jets.begin(), jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() < B->csvIncl());});//larger first
-    for(IDJet* jet : jets) {
-      if(jet != bhad && jet != blep) {
-        if(!wrong_1st){
-          plots[TTNaming::WRONG]["btag_first_idx"].fill(idx, evt_weight_);
-          wrong_1st=true;
-        }
-        wrong_last=idx;
-      }
-      else {
-        if(!right_1st){
-          plots[TTNaming::RIGHT]["btag_first_idx"].fill(idx, evt_weight_);
-          right_1st=true;
-        }
-        right_last=idx;
-      }
-      
-      idx++;
-    }
-    plots[TTNaming::WRONG]["btag_last_idx"].fill(wrong_last, evt_weight_);
-    plots[TTNaming::RIGHT]["btag_last_idx"].fill(right_last, evt_weight_);
-    tracker_.track("btag and pt idx plots");
     
     //Find best permutation
     bool go_on = true;
@@ -250,28 +204,30 @@ public:
         
         plots[perm_status]["mWhad_vs_mtophad"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
         plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
+
+				auto b_mM = Minmax(test_perm.BHad()->CombinedMVA(), test_perm.BLep()->CombinedMVA());
+				auto w_mM = Minmax(test_perm.WJa()->CombinedMVA(), test_perm.WJb()->CombinedMVA());
+        plots[perm_status]["wjets_cMVA"].fill(pow(w_mM.first, 11), pow(w_mM.second, 11), evt_weight_);
+        plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
+
+				auto b_mM_qg = Minmax(test_perm.BHad()->qgTag(), test_perm.BLep()->qgTag());
+				auto w_mM_qg = Minmax(test_perm.WJa() ->qgTag(), test_perm.WJb() ->qgTag());
+        plots[perm_status]["wjets_qgt"].fill(w_mM_qg.first, w_mM_qg.second, evt_weight_);
+        plots[perm_status]["bjets_qgt"].fill(b_mM_qg.first, b_mM_qg.second, evt_weight_);
+        plots[perm_status]["wjets_bqgt"].fill(w_mM_qg.second, evt_weight_);
+        plots[perm_status]["wjets_wqgt"].fill(pow(w_mM_qg.first, 8),  evt_weight_);
 				
-				hyp::TTbar ttang(test_perm);
-				auto hadwcm = ttang.thad().W().to_CM();
-				auto leptcm = ttang.tlep().to_CM();
-				auto hadtcm = ttang.thad().to_CM();				
-				auto ttcm   = ttang.to_CM();
+				auto bwp_mM = Minmax(btag_idval(test_perm.BHad()), btag_idval(test_perm.BLep()));
+				auto wwp_mM = Minmax(btag_idval(test_perm.WJa() ), btag_idval(test_perm.WJb() ));
+        plots[perm_status]["wjets_cMVA_WP"].fill(wwp_mM.first, wwp_mM.second, evt_weight_);
+        plots[perm_status]["bjets_cMVA_WP"].fill(bwp_mM.first, bwp_mM.second, evt_weight_);
 
-				double cj1 = hadtcm.W().unit3D().Dot(hadwcm.down().unit3D());
-				double cj2 = hadtcm.W().unit3D().Dot(hadwcm.up().unit3D());
-				double cjm = (cj1 < cj2) ? cj1 : cj2;
-				double cjM = (cj1 > cj2) ? cj1 : cj2;
-
-				double cwl = leptcm.W().unit3D().Dot(ttcm.tlep().unit3D());
-				double cwh = hadtcm.W().unit3D().Dot(ttcm.thad().unit3D());
-
-				double cbl = leptcm.b().unit3D().Dot(ttcm.tlep().unit3D());
-				double cbh = hadtcm.b().unit3D().Dot(ttcm.thad().unit3D());
-
-        plots[perm_status]["wfr_jcosth_delta"].fill(cjM-cjm, evt_weight_);
-        plots[perm_status]["thfr"].fill(cbh - cwh, evt_weight_);
-        plots[perm_status]["tlfr"].fill(cbl - cwl, evt_weight_);
-      }
+				auto wpt_mM = Minmax(test_perm.WJa()->Pt(), test_perm.WJb()->Pt());
+        plots[perm_status]["lb_ratio" ].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), evt_weight_);
+        plots[perm_status]["w1b_ratio"].fill(wpt_mM.first/test_perm.BHad()->Pt(), evt_weight_);
+        plots[perm_status]["w2b_ratio"].fill(wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
+        plots[perm_status]["lb_w2b_ratio"].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
+			}
     }
     tracker_.track("end");
   }
