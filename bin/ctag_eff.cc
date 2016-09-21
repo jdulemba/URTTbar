@@ -609,9 +609,9 @@ public:
     //MC Weight for lepton selection
     if(!isData_) { 
       if(object_selector_.tight_muons().size() == 1)
-        evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+        evt_weight_ *= muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
       if(object_selector_.tight_electrons().size() == 1)
-        evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+        evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
 		}
 
     string sys_name = systematics::shift_to_name.at(shift);

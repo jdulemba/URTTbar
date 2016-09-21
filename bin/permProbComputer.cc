@@ -106,8 +106,7 @@ public:
   ~permProbComputer() {
   }
 
-	template <class T> 
-	pair<const T,const T> Minmax(const T& a, const T& b) {
+	pair<const double,const double> Minmax(const double& a, const double& b) {
 		return (b<a) ? std::make_pair(b, min(a, .99999)) : std::make_pair(a, min(b, .99999));
 	}
 
@@ -159,9 +158,9 @@ public:
 
     //find mc weight
     if(object_selector_.tight_muons().size() == 1)
-      evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+      evt_weight_ *= muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
     if(object_selector_.tight_electrons().size() == 1)
-      evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+      evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
     tracker_.track("MC weights");
 
     bool preselection_pass = permutator_.preselection(
