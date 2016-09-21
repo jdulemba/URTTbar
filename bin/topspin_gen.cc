@@ -591,7 +591,7 @@ public:
 
     tracker_.track("gen matching");
     if(matched.IsComplete()) {
-      matched.Solve(solver_);
+      solver_.Solve(matched);
       //fil reco
       hyp::TTbar ttreco(matched);
 			tracker_.track("matchfill");
@@ -618,7 +618,7 @@ public:
       test_perm.LepCharge(object_selector_.lepton_charge());
       if(go_on) {
         nperms++;
-        test_perm.Solve(solver_);
+        solver_.Solve(test_perm);
         if(test_perm.Prob() < best_permutation.Prob()){
           best_permutation = test_perm;
         }

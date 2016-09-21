@@ -193,7 +193,7 @@ public:
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
 				test_perm.LepCharge(object_selector_.lepton_charge());
-        test_perm.Solve(solver_);
+        solver_.Solve(test_perm);
         TTNaming perm_status;
         if(test_perm.IsCorrect(matched_perm)) perm_status = TTNaming::RIGHT;
         else if(test_perm.IsTHadCorrect(matched_perm)) perm_status = TTNaming::RIGHT_THAD;

@@ -326,7 +326,7 @@ public:
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
 				ncycles++;
-        test_perm.Solve(solver_, false, lazy_solving);
+				solver_.Solve(test_perm, lazy_solving);
         fill_combo_plots(presel_dir.str(), test_perm);
         if(ordering(test_perm, best_permutation)){
           best_permutation = test_perm;

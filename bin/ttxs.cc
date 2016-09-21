@@ -226,7 +226,7 @@ public:
       ncycles_++;
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
-        test_perm.Solve(solvers_[shift]);
+				solvers_[shift].Solve(test_perm);
         if(test_perm.MassDiscr() < best_perm.MassDiscr())	{
           best_perm = test_perm;
         }

@@ -10,7 +10,6 @@
 #include <sstream>
 using namespace std;
 
-class TTBarSolver;
 class IDMet;
 
 std::ostream & operator<<(std::ostream &os, const TLorentzVector& p);
@@ -33,7 +32,6 @@ class Permutation
 		IDMet* met_ = 0;
 		TLorentzVector nu_;
 		bool kinfit_ = false;
-		vector<TLorentzVector> improvedobjects;
     size_t perm_jets_ = 0; //number of jets used for permutations
 	public:
 		Permutation() {}
@@ -41,14 +39,13 @@ class Permutation
     int LepCharge() {return lepcharge_;}
     void LepCharge(int c) {lepcharge_ = c;}
 		void Reset();
-		bool IsComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0 && bjl_ != 0 && lep_ != 0 && met_ != 0 && wja_ != wjb_ && wja_ != bjh_ && wja_ != bjl_ && wjb_ != bjl_ && wjb_ != bjh_ && bjl_ != bjh_);}
-		bool IsTHadComplete() const {return(wja_ != 0 && wjb_ != 0 && bjh_ != 0);}
 		bool IsWHadComplete() const {return(wja_ != 0 && wjb_ != 0);}
+		bool IsTHadComplete() const {return(IsWHadComplete() && bjh_ != 0);}
 		bool IsTLepComplete() const {return(bjl_ != 0 && lep_ != 0 && met_ != 0);}
+		bool IsComplete() const {return (IsTHadComplete() && IsTLepComplete());}
 		int NumBJets() const {return((bjl_ != 0 ? 1 : 0) + (bjh_ != 0 ? 1 : 0));}
 		int NumWJets() const {return((wja_ != 0 ? 1 : 0) + (wjb_ != 0 ? 1 : 0));}
 		int NumTTBarJets() const {return(NumBJets() + NumWJets());}
-		double Solve(TTBarSolver& ttsolver, bool kinfit = false, bool lazy = false); //lazy allows the third jet to be NULL
 		IDJet* WJa() const {return(wja_);}
 		IDJet* WJb() const {return(wjb_);}
 		IDJet* BHad() const {return(bjh_);}
@@ -67,6 +64,7 @@ class Permutation
   friend std::ostream & operator<<(std::ostream &os, const Permutation& p);
 
 		TLorentzVector Nu() const {return(nu_);}
+		void Nu(TLorentzVector v) {nu_ = v;}
 		const TLorentzVector* NuPtr() const {return(&nu_);}
 		TLorentzVector WHad() const {
 			if(!WJa()) {
@@ -81,11 +79,16 @@ class Permutation
 		TLorentzVector TLep() const {return((WLep() + *BLep()));}
     TLorentzVector LVect() const {return THad()+TLep();}
 
-		double Prob() const {return(prob_);}
+		double Prob()      const {return prob_             ;}
 		double NuChisq() 	 const {return nu_chisq_         ;}
 		double NuDiscr() 	 const {return nu_discriminant_  ;}
 		double BDiscr()  	 const {return btag_discriminant_;}
 		double MassDiscr() const {return mass_discriminant_;}
+		void Prob(     double val) {prob_              = val;}
+		void NuChisq(  double val) {nu_chisq_          = val;}
+		void NuDiscr(  double val) {nu_discriminant_   = val;}
+		void BDiscr(   double val) {btag_discriminant_ = val;}
+		void MassDiscr(double val) {mass_discriminant_ = val;}
 
 		bool IsValid() const
 		{

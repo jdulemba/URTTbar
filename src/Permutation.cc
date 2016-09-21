@@ -1,5 +1,4 @@
 #include "Analyses/URTTbar/interface/Permutation.h"
-#include "Analyses/URTTbar/interface/TTBarSolver.h"
 #include "Analyses/URTTbar/interface/IDMet.h"
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
 
@@ -30,43 +29,6 @@ void Permutation::Reset()
 	lep_ = 0;
 	met_ = 0;
 	kinfit_ = false;
-	improvedobjects.clear();
-}
-
-double Permutation::Solve(TTBarSolver& ttsolver, bool kinfit, bool lazy)
-{
-  if(!lazy && !IsComplete()) {                          
-    Logger::log().fatal() << "The permutation you are trying to solve is not complete!" << std::endl;
-    throw 42;
-  }
-	kinfit_ = kinfit;
-	Jet *jb = wjb_;
-	Jet dummy;
-	if(!jb) {
-		if(lazy) jb = &dummy;
-		else {
-			Logger::log().fatal() << "WJb is not set and the solution is not lazy!" << std::endl;
-			throw 42;
-		}
-	}
-	ttsolver.Solve(bjh_, jb, wja_, bjl_, lep_, met_);
-	nu_ = ttsolver.Nu();
-	prob_ = ttsolver.Res();
-	nu_chisq_          = ttsolver.NSChi2();
-	nu_discriminant_   = ttsolver.NSRes();
-	btag_discriminant_ = ttsolver.BTagRes();
-	mass_discriminant_ = ttsolver.MassRes();
-
-	if(kinfit_)
-	{
-		improvedobjects.push_back(ttsolver.Wja());
-		improvedobjects.push_back(ttsolver.Wjb());
-		improvedobjects.push_back(ttsolver.BHad());
-		improvedobjects.push_back(ttsolver.BLep());
-		improvedobjects.push_back(ttsolver.L());
-		improvedobjects.push_back(ttsolver.Nu());
-	}
-	return(prob_);
 }
 
 bool operator<(const Permutation& A, const Permutation& B)

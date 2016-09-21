@@ -635,7 +635,7 @@ public:
       ncycles_++;
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
-        test_perm.Solve(solver_);
+        solver_.Solve(test_perm);
         double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
         fill_combo_plots(presel_dir+"/permutations", test_perm);
         //if(bjet_lpt < test_perm.WJa()->Pt()) continue;
