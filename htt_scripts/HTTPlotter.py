@@ -79,32 +79,26 @@ class HTTPlotter(Plotter):
 		self.jobid = jobid
 
 		self.views['ttJets_preselection'] = self.views['ttJets']
-		#{
-		#	'view' : self.create_tt_subsample(
-		#		['semilep_visible_right'],
-		#		't#bar{t}',
-		#		'#6666b3'
-		#		)
-		#	}
+
 		self.views['ttJets_right'] = {
 			'view' : self.create_tt_subsample(
-				['semilep_visible_right'],
-				't#bar{t}, right matching',
+				['right'],
+				't#bar{t} matched',
 				'#6666b3'
 				)
 			}
 		self.views['ttJets_partial'] = {
 			'view' : self.create_tt_subsample(
-				['semilep_right_tlep',  'semilep_right_thad', 'semilep_right_whad', 'semilep_wrong'],
-				't#bar{t}, partial matching',
+				['right_tl',  'right_th', 'wrong'],
+				't#bar{t} partial',
 				'#ab5555'
 				)
 			}
 
 		self.views['ttJets_other'] = {
 			'view' : self.create_tt_subsample(
-				['other'], 
-				'Other tt decay',
+				['noslep'], 
+				'Other t#bar{t}',
 				'#668db3',
 				)
 			}
@@ -115,10 +109,10 @@ class HTTPlotter(Plotter):
 			#'WJets',
 			#'ZJets',
 			'single*',
-			'ttJets',
-			#'ttJets_other',
-			#'ttJets_partial',
-			#'ttJets_right',
+			#'ttJets',
+			'ttJets_other',
+			'ttJets_partial',
+			'ttJets_right',
 			]
 
 		self.card_names = {
@@ -161,11 +155,10 @@ class HTTPlotter(Plotter):
 		
 		return views.StyleView(
 			views.TitleView(
-				urviews.MultifileView(**dirmap),
+				dirmap[''],#				urviews.MultifileView(**dirmap),
 				title
 				),
-			fillcolor = color,
-			linecolor = color
+			fillcolor = color
 			)
 
 	def cut_flow(self):
@@ -333,13 +326,16 @@ class HTTPlotter(Plotter):
 plotter = HTTPlotter(args.mode)
 
 variables = [
-	("lep_b_pt" , "p_{T}(bl) (GeV)", 10, None, False),
-	("had_b_pt" , "p_{T}(bh) (GeV)", 10, None, False),
-	("wjets_pt" , "p_{T}(j) (GeV)", 10, None, False),
-	("Whad_DR"  , "#DeltaR(jj)", 10, None, False),
-	("Whad_pt"  , "p_{T}(W_{had}) (GeV)", 10, None, False),
-  ("njets"	 , "# of selected jets", range(13), None, False),
-  ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),		
+  (False, "lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),		
+  (False, "pt_thad"	, "p_{T}(t_{had}) (GeV)", 20, None, False),		
+  (False, "eta_thad"	, "#eta_{T}(t_{had}) (GeV)", 20, None, False),		
+  (False, "pt_tlep"	, "p_{T}(t_{lep}) (GeV)", 20, None, False),		
+  (False, "eta_tlep"	, "#eta_{T}(t_{lep}) (GeV)", 20, None, False),		
+  (False, "pt_tt"	, "p_{T}(tt) (GeV)", 20, None, False),		
+  (False, "eta_tt"	, "#eta_{T}(tt) (GeV)", 20, None, False),		
+  (False, "full_discriminant_4j"	, "#lambda_{comb} 4 jets", 2, None, False),		
+  (False, "full_discriminant_5j"	, "#lambda_{comb} 5 jets", 2, None, False),		
+  (False, "full_discriminant_6Pj"	, "#lambda_{comb} > 6 jets", 2, None, False),		
 ]
 
 preselection = [
@@ -351,17 +347,16 @@ preselection = [
   (False, "lep_pt", "p_{T}(l)", 10, None, False),
   (False, "nvtx", "# of reconstructed vertices", range(41), None, False),
   (False, "rho", "#rho", range(40), None, False),
-	(True , "max_jets_CSV", 'Max CSV', 1, [0, 1], False),
 	(False, "lep_iso", 'l rel Iso', 1, [0,1], False),
 	(False, "lep_wp" , "electron wp", 1, None, False),
 ]
 
 permutations = [
-	("comb_discriminant", "#lambda_{C}", 1, (8, 30), True),
-	("nu_chi2", "#chi^{2}_{#nu}", 1, (2,6), True),
-	("mass_discriminant", "#lambda_{M}", 1, None, True),
-	("Wmasshad", "M(W_{h})", 2, (0,400), False),
-	("tmasshad", "M(t_{h})", 2, None, False),
+	(False, "full_discriminant", "#lambda_{C}", 1, (8, 30), True),
+	(False, "nu_discriminant", "#chi^{2}_{#nu}", 1, (2,6), True),
+	(False, "mass_discriminant", "#lambda_{M}", 1, None, True),
+	(False, "Wmasshad", "M(W_{h})", 2, (0,400), False),
+	(False, "tmasshad", "M(t_{h})", 2, None, False),
 ]
 
 jet_categories = ["3jets", "4jets", "5Pjets"]
@@ -371,32 +366,23 @@ jet_categories = ["3jets", "4jets", "5Pjets"]
 #plotter.save('cut_flow')
 
 plotter.set_subdir('preselection')
-for logy, var, axis, rebin, x_range, leftside in preselection:
+for logy, var, axis, rebin, x_range, leftside in preselection + permutations:
 	plotter.make_preselection_plot(
 		'nosys/preselection', var, sort=True,
 		xaxis=axis, leftside=leftside, rebin=rebin, 
 		show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)		
 	plotter.save(var)
 
-#2D Histos
-qcd_view = plotter.get_view('QCD*')
-for var, x, y in  [('MT_iso', 'M_{T}', 'Iso'), ('MT_btag', 'M_{T}', 'max(CSV)'), ('iso_btag', 'Iso', 'max(CSV)')]:
-	histo = qcd_view.Get('nosys/preselection/%s' % var)
-	histo.xaxis.title = x
-	histo.yaxis.title = y
-	histo.Draw('colz')
-	plotter.save(var)
-
 vals = []
-for dirid in itertools.product(['looseNOTTight', 'tight'], ['inverted', '1tag', '2tag']):
+for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTLow', 'MTHigh']):
 	tdir = '%s/%s' % dirid
 	plotter.set_subdir(tdir)
 	first = True
-	for logy, var, axis, rebin, x_range, leftside in preselection:
+	for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
 		plotter.plot_mc_vs_data(
 			'nosys/%s' % tdir, var, sort=True,
 			xaxis=axis, leftside=leftside, rebin=rebin,
-			show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)
+			show_ratio=True, ratio_range=0.5, xrange=x_range)
 		if first:
 			first = False
 			plotter.make_sample_table(threshold=50)
