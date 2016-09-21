@@ -161,12 +161,10 @@ public:
 	void book_combo_plots(string folder){
 		book<TH1F>(folder, "mass_discriminant", "", 20,   0., 20.);
 		book<TH1F>(folder, "nu_discriminant", "", 20,   0., 20.);
-		book<TH1F>(folder, "full_discriminant", "", 20,   0., 20.);
+		book<TH1F>(folder, "full_discriminant", "", 40,   0., 40.);
     
 		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
 		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
-
-		book<TH1F>(folder, "mtt", "", 180, 200., 2000);			
 	}
 
 	void fill_combo_plots(string folder, const Permutation &hyp){
@@ -179,8 +177,6 @@ public:
 		double thad_mass = hyp.THad().M();
 		dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
 		dir->second["tmasshad"].fill(thad_mass, evt_weight_);
-
-		dir->second["mtt"].fill(hyp.LVect().M(), evt_weight_);
 	}
 
   void book_presel_plots(string folder) {
@@ -251,10 +247,40 @@ public:
 
 	void book_selection_plots(string folder) {
 		book_presel_plots(folder);
+		book_combo_plots(folder);
+		book<TH1F>(folder, "m_tt", "", 180, 200., 2000);			
+
+		book<TH1F>(folder, "pt_thad" , "", 200, 0., 2000);			
+		book<TH1F>(folder, "eta_thad", "", 200, -10., 10);			
+		book<TH1F>(folder, "pt_tlep" , "", 200, 0., 2000);			
+		book<TH1F>(folder, "eta_tlep", "", 200, -10., 10);			
+		book<TH1F>(folder, "pt_tt" , "", 200, 0., 2000);			
+		book<TH1F>(folder, "eta_tt", "", 200, -10., 10);			
+
+		book<TH1F>(folder, "full_discriminant_4j", "" , 320, 0., 40.);
+		book<TH1F>(folder, "full_discriminant_5j", "" , 320, 0., 40.);
+		book<TH1F>(folder, "full_discriminant_6Pj", "", 320, 0., 40.);
 	}
 
-	void fill_selection_plots(string folder, URStreamer &event) {
+	void fill_selection_plots(string folder, URStreamer &event, const Permutation &hyp) {
 		fill_presel_plots(folder, event);
+		fill_combo_plots(folder, hyp);
+		auto dir = histos_.find(folder);
+
+		dir->second["pt_thad" ].fill(hyp.THad().Pt() , evt_weight_);
+		dir->second["eta_thad"].fill(hyp.THad().Eta(), evt_weight_);
+		dir->second["pt_tlep" ].fill(hyp.TLep().Pt() , evt_weight_);
+		dir->second["eta_tlep"].fill(hyp.TLep().Eta(), evt_weight_);
+		dir->second["pt_tt"   ].fill(hyp.LVect().Pt() , evt_weight_);
+		dir->second["eta_tt"  ].fill(hyp.LVect().Eta(), evt_weight_);
+		dir->second["m_tt"].fill(hyp.LVect().M(), evt_weight_);
+
+		if(object_selector_.clean_jets().size() == 4)
+			dir->second["full_discriminant_4j" ].fill(hyp.Prob(), evt_weight_);
+		else if(object_selector_.clean_jets().size() == 4)
+			dir->second["full_discriminant_5j" ].fill(hyp.Prob(), evt_weight_);
+		else
+			dir->second["full_discriminant_6Pj"].fill(hyp.Prob(), evt_weight_);
 	}
 
 	void fill(string folder, Permutation &hyp){//, TTbarHypothesis *genHyp=0) {
@@ -305,12 +331,11 @@ public:
 							
 							Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
 							book_selection_plots(dstream.str());
-							book_combo_plots(dstream.str());
 						}
 					}
+					if(!isTTbar_) break;
 				}
 			}
-			if(!isTTbar_) break;
 		}
 	}
 
@@ -393,7 +418,7 @@ public:
       ncycles_++;
       Permutation test_perm = permutator_.next(go_on);
       if(go_on) {
-        test_perm.Solve(solver_);
+        solver_.Solve(test_perm);
         double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
         fill_combo_plots(presel_dir.str(), test_perm);
         //if(bjet_lpt < test_perm.WJa()->Pt()) continue;
@@ -448,8 +473,7 @@ public:
 		tracker_.track("MT cut", leptype);
 
 		//fill right category
-		fill_combo_plots(evtdir.str(), best_permutation);
-		fill_selection_plots(evtdir.str(), event);
+		fill_selection_plots(evtdir.str(), event, best_permutation);
 		tracker_.track("END", leptype);
 	}
 
