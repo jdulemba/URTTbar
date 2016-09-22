@@ -19,7 +19,14 @@ args = parser.parse_args()
 #configuration
 shapes = [
    ('mWhad_vs_mtophad', 'M(W_{had})', 'M(t_{had})', 'A.U.'),
-   ('nusolver_chi2', '\chi^2', 'A.U', '')]
+   ('nusolver_chi2', '\chi^2', 'A.U', ''),
+	 ('wjets_bcMVA_p11', 'cMVA^{11}', 'A.U', ''),
+	 ('wjets_wcMVA_p11', 'cMVA^{11}', 'A.U.', ''),
+	 ('wjets_bqgt', 'QG Tag', 'A.U.', ''),
+	 ('wjets_wqgt', 'QG Tag', 'A.U.', ''),
+	 ('lb_ratio', 'lb ratio', 'A.U.', ''),
+	 ('w2b_ratio', 'w2b ratio', 'A.U.', ''),
+]
 jet_only_shapes = []
 systematics = ['nosys']#, 'jes_up', 'jes_down', 'jer_up', 'met_up', 'met_down']
 right = ['semilep_visible_right']

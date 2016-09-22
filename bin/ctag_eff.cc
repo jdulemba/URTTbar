@@ -133,7 +133,7 @@ public:
     object_selector_(),
     permutator_(),
     matcher_(),
-    solver_(),
+    solver_(true),
     mc_weights_(),
     evt_weight_(1.),
     electron_sf_("electron_sf", false),
@@ -179,16 +179,6 @@ public:
     pdfs_ = isTTbar_ && (systematics_.size() > 1) && (nopdf == 0);
 
     if(!isData_) mc_weights_.init(sample);
-
-    //Init solver
-    string filename = "prob_ttJets.root";
-    Logger::log().debug() << "solver file: " << filename << endl;
-    TFile probfile(DataFile(filename).path().c_str());
-    // for(auto shift : systematics_) {
-    TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-    //   if(!td) td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());      
-    solver_.Init(td, false, true, true);
-    // }
 
 		//SET CUTS FROM CFG
 		cut_ordering_ = parser.getCfgPar<string>("permutations.ordering");

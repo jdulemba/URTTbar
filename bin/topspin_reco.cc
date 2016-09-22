@@ -75,7 +75,7 @@ public:
     object_selector_(),
     permutator_(),
     matcher_(),
-    solver_(),
+    solver_(true),
     mc_weights_(),
     evt_weight_(1.),
     electron_sf_("electron_sf", false),
@@ -111,12 +111,6 @@ public:
     if(!isData_) mc_weights_.init(sample);
 
 		systematics_ = {systematics::SysShifts::NOSYS};//systematics::get_systematics(output_file);
-    //Init solver
-    string filename = "prob_ttJets.root";
-    Logger::log().debug() << "solver file: " << filename << endl;
-    TFile probfile(DataFile(filename).path().c_str());
-    TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-    solver_.Init(td, false, true, true);
 
 		naming_[TTNaming::RIGHT ] = "semilep_visible_right";
 		naming_[TTNaming::RIGHT_THAD ] = "semilep_right_thad";

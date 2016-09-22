@@ -56,7 +56,7 @@ public:
     tight_blabel_(),
     object_selector_(),
     permutator_(),
-    solver_(),
+    solver_(true),
     evt_weight_(1.),
     mc_weights_(),
     electron_sf_("electron_sf", false),
@@ -83,11 +83,6 @@ public:
       throw 49;
     }
     
-    //Init solver 
-    TFile probfile(DataFile("prob_ttJets.root").path().c_str());
-    TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-    solver_.Init(td, false, true, true);
-
     mc_weights_.init(sample);
     
     cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("best_permutation.tightb"));

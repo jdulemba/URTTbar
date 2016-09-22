@@ -25,24 +25,25 @@ private:
 	std::shared_ptr<TH2D> WTmass_right_;
 	std::shared_ptr<TH1D> N_right_; 
 
-	// std::shared_ptr<TH1D> lep_b_ratio_right_; 
-	// std::shared_ptr<TH1D> wj2_b_ratio_right_; 
-	// std::shared_ptr<TH1D> wj1_btag_right_; 
-	// std::shared_ptr<TH1D> wj2_btag_right_; 
-	// std::shared_ptr<TH1D> wj1_qgtag_right_; 
-	// std::shared_ptr<TH1D> wj2_qgtag_right_; 
+	std::shared_ptr<TH1D> lep_b_ratio_right_; 
+	std::shared_ptr<TH1D> wj2_b_ratio_right_; 
+	std::shared_ptr<TH1D> wj1_btag_right_; 
+	std::shared_ptr<TH1D> wj2_btag_right_; 
+	std::shared_ptr<TH1D> wj1_qgtag_right_; 
+	std::shared_ptr<TH1D> wj2_qgtag_right_; 
 	// std::shared_ptr<TH1D> bj2_btag_right_; 
 
-	bool USEBTAG_;
-	bool USENS_;
-	bool USEMASS_;
+	bool USEBTAG_    	 = false;
+	bool USENS_      	 = false;
+	bool USEMASS_    	 = false;
+	bool useptratios_	 = false;
+	bool usewjetqgtag_ = false;
 
 	const double mtop_ = 173.;
 	const double mw_ = 80.;	
 public:
 	double Test(double* par);
-	TTBarSolver();
-	TTBarSolver(bool dummy);
+	TTBarSolver(bool active=true);
 	~TTBarSolver();
 
   template <class T>
@@ -56,9 +57,6 @@ public:
 		ptr->Scale(1./ptr->Integral("width"));
     return ptr;
   }
-
-	void Init(string filename, bool usebtag = true, bool usens = true, bool usemass = true);//provide root file with probability distribution, switches if btag and neutrino solver information should be used for final discriminant Res()
-	void Init(TDirectory* dir=0, bool usebtag=false, bool usens=false, bool usemass=false, string wtname="mWhad_vs_mtophad", string bname="btag_value", string nuname="nusolver_chi2");
 
 	void Solve(Permutation &hyp, bool lazy=false);
 };

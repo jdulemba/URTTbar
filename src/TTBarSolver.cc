@@ -8,67 +8,57 @@
 #include "URAnalysis/AnalysisFW/interface/DataFile.h"
 #include <limits>
 
-TTBarSolver::TTBarSolver() : 
-	WTmass_right_(),
-	N_right_()
-{
-}
 
-TTBarSolver::TTBarSolver(bool dummy) {
+TTBarSolver::TTBarSolver(bool active) {
+	if(!active) return;
   URParser &parser = URParser::instance();
   //parser.addCfgParameter(const std::string group, const std::string parameterName, const std::string description, T def_value);
   parser.addCfgParameter<string>("ttsolver", "filename", "");
   parser.addCfgParameter<string>("ttsolver", "dirname" , "");
-  parser.addCfgParameter<bool>("ttsolver", "btag" , "");
   parser.addCfgParameter<bool>("ttsolver", "nusolver" , "");
   parser.addCfgParameter<bool>("ttsolver", "invmass" , "");
+  parser.addCfgParameter<bool>("ttsolver", "btag" , "", false);
+  parser.addCfgParameter<bool>("ttsolver", "ptratio" , "", false);
+  parser.addCfgParameter<bool>("ttsolver", "qarkgluon" , "", false);
   
   parser.parseArguments();
   
   string fname = parser.getCfgPar<string>("ttsolver", "filename");
   string dname = parser.getCfgPar<string>("ttsolver", "dirname" );
-  bool btag    = parser.getCfgPar<bool>("ttsolver", "btag");
-  bool nusl    = parser.getCfgPar<bool>("ttsolver", "nusolver");
-  bool mass    = parser.getCfgPar<bool>("ttsolver", "invmass" );
+  bool USEBTAG_ = parser.getCfgPar<bool>("ttsolver", "btag");
+  bool USENS_   = parser.getCfgPar<bool>("ttsolver", "nusolver");
+  bool USEMASS_ = parser.getCfgPar<bool>("ttsolver", "invmass" );
+	bool useptratios_  = parser.getCfgPar<bool>("ttsolver", "ptratio" );
+	bool usewjetqgtag_ = parser.getCfgPar<bool>("ttsolver", "qarkgluon" );
 
   TFile probfile(DataFile(fname).path().c_str());
-  TDirectory *td = (TDirectory*) probfile.Get(dname.c_str());
-  Init(td, btag, nusl, mass);
+  TDirectory *dir = (TDirectory*) probfile.Get(dname.c_str());
+
+  if(dir) {
+		HistoOwnershipWard hward;
+		if(USEMASS_) 
+			WTmass_right_ = preproccess_histo<TH2D>(dir, "mWhad_vs_mtophad_right", "wt_right");
+		if(USENS_)
+			N_right_ = preproccess_histo<TH1D>(dir, "nusolver_chi2_right", "nu_right");
+		if(USEBTAG_) {
+			wj1_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_bcMVA_p11", "j1btag_right"); //best wjet cMVA^11
+			wj2_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_wcMVA_p11", "j2btag_right"); //worst wjet cMVA^11
+		}
+		if(useptratios_) {
+			lep_b_ratio_right_ = preproccess_histo<TH1D>(dir, "lb_ratio" , "lbr_right");
+			wj2_b_ratio_right_ = preproccess_histo<TH1D>(dir, "w2b_ratio", "jbr_right");
+		}
+		if(usewjetqgtag_) {
+			wj1_qgtag_right_ = preproccess_histo<TH1D>(dir, "wjets_bqgt", "j1qgtag_right");
+			wj2_qgtag_right_ = preproccess_histo<TH1D>(dir, "wjets_wqgt", "j2qgtag_right");			
+		}
+  }  
+
 }
 
 
 TTBarSolver::~TTBarSolver()
 {}
-
-void TTBarSolver::Init(string filename, bool usebtag, bool usens, bool usemass)
-{
-	USEBTAG_ = usebtag;
-	USENS_ = usens;
-	USEMASS_ = usemass;
-  if(!filename.empty()) {
-		DirectoryWard dward;
-    TFile* probfile = TFile::Open(filename.c_str(), "READ");
-		Init(probfile, usebtag, usens, usemass);
-  }  
-}
-
-void TTBarSolver::Init(TDirectory* dir, bool usebtag, bool usens, bool usemass, string wtname, string bname, string nuname) {
-	USEBTAG_ = usebtag;
-	USENS_ = usens;
-	USEMASS_ = usemass;
-  if(dir) {
-		HistoOwnershipWard hward;
-		if(USEMASS_) {
-			WTmass_right_ = preproccess_histo<TH2D>(dir, (wtname+"_right"), "wt_right");
-		}
-		// if(USEBTAG_) {
-		// 	BTag_right_ = preproccess_histo<TH1D>(dir, (bname+"_right"), "b_right");
-		// }
-		if(USENS_) {
-			N_right_ = preproccess_histo<TH1D>(dir, (nuname+"_right"), "nu_right");
-		}
-  }  
-}
 
 void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 {
@@ -82,6 +72,8 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 	double nstest   = numeric_limits<double>::max();
 	double masstest = numeric_limits<double>::max();
 	double btagtest = numeric_limits<double>::max();
+	double ptratios = numeric_limits<double>::max();
+	double qgtest   = numeric_limits<double>::max();
 
 	NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
 	hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., nschi)); //ignore MET covariance matrix, take bare distance
@@ -92,10 +84,28 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 
 	double mwhad = hyp.WHad().M();
 	double mthad = hyp.THad().M();
+	auto min_max = [] (const double& a, const double& b) -> pair<const double,const double> { 
+		return (b<a) ? std::make_pair(b, a) : std::make_pair(a, b); };
+
 	if(mthad < 500. && mwhad < 500. && WTmass_right_) {
 		double massdisval = WTmass_right_->Interpolate(mwhad, mthad);
 		if(massdisval > 1.0E-10) {masstest = -1.*Log(massdisval);}
 		//masstest = -1.*Log(WTmass_right_->Interpolate(mwhad, mthad)/Max(1., WTmass_wrong_->Interpolate(mwhad, mthad)));
+	}
+	if(USEBTAG_) {
+		auto btags = min_max(hyp.WJa()->CombinedMVA(), hyp.WJb()->CombinedMVA());
+		btagtest = -1.*Log(wj1_btag_right_->Interpolate(pow(btags.second, 11)));
+		btagtest -= 1.*Log(wj2_btag_right_->Interpolate(pow(btags.first , 11)));
+	}
+	if(useptratios_) {
+		auto jpts = min_max(hyp.WJa()->Pt(), hyp.WJb()->Pt());
+		ptratios = -1.*Log(lep_b_ratio_right_->Interpolate(hyp.L()->Pt()/hyp.BLep()->Pt()));
+		ptratios -= 1.*Log(wj2_b_ratio_right_->Interpolate(jpts.first/hyp.BHad()->Pt()));
+	}
+	if(usewjetqgtag_) {
+		auto qgtag = min_max(hyp.WJa()->qgTag(), hyp.WJb()->qgTag());
+		qgtest = -1.*Log(wj1_qgtag_right_->Interpolate(qgtag.second));
+		qgtest -= 1.*Log(wj2_qgtag_right_->Interpolate(qgtag.first ));
 	}
 
   // if(USEBTAG_ && BTag_right_) {
@@ -110,6 +120,8 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 	if(USEMASS_) {res += masstest;}
 	if(USENS_  ) {res += nstest;}
 	if(USEBTAG_) {res += btagtest;}
+	if(useptratios_) {res += ptratios;}
+	if(usewjetqgtag_) {res += qgtest;}
 
 	//fix values in permutation
 	hyp.Prob(res);
@@ -117,5 +129,7 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 	hyp.NuDiscr(nstest);
 	hyp.BDiscr(btagtest);
 	hyp.MassDiscr(masstest);
+	hyp.QGDiscr(qgtest);
+	hyp.JRatioDiscr(ptratios);
 }
 

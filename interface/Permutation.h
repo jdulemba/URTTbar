@@ -22,6 +22,8 @@ class Permutation
 		double nu_discriminant_   = numeric_limits<double>::max();
 		double btag_discriminant_ = numeric_limits<double>::max();
 		double mass_discriminant_ = numeric_limits<double>::max();
+		double qgtag_discriminant_ = numeric_limits<double>::max();
+		double jratio_discriminant_ = numeric_limits<double>::max();
 		IDJet* wja_ = 0;
 		IDJet* wjb_ = 0;
 		IDJet* bjh_ = 0;
@@ -84,11 +86,15 @@ class Permutation
 		double NuDiscr() 	 const {return nu_discriminant_  ;}
 		double BDiscr()  	 const {return btag_discriminant_;}
 		double MassDiscr() const {return mass_discriminant_;}
+		double QGDiscr()   const {return qgtag_discriminant_;}
+		double JRatioDiscr() const {return jratio_discriminant_;}
 		void Prob(     double val) {prob_              = val;}
 		void NuChisq(  double val) {nu_chisq_          = val;}
 		void NuDiscr(  double val) {nu_discriminant_   = val;}
 		void BDiscr(   double val) {btag_discriminant_ = val;}
 		void MassDiscr(double val) {mass_discriminant_ = val;}
+		void QGDiscr(  double val) {qgtag_discriminant_= val;} 
+		void JRatioDiscr(double val) {jratio_discriminant_= val;}
 
 		bool IsValid() const
 		{

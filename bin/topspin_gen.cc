@@ -64,7 +64,7 @@ public:
     matcher_(),
     evt_weight_(1.),
     mc_weights_(),
-    solver_(),
+    solver_(true),
     electron_sf_("electron_sf", false),
     muon_sf_("muon_sf"),
     genp_selector_(),
@@ -104,14 +104,6 @@ public:
       else genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
     }
     mc_weights_.init(sample);
-
-    //Init solver
-    string filename = "prob_ttJets.root";
-    Logger::log().debug() << "solver file: " << filename << endl;
-    TFile probfile(DataFile(filename).path().c_str());
-    TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-    solver_.Init(td, false, true, true);
-
   };
   
   ~topspin_gen() {

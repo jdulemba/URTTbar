@@ -192,7 +192,7 @@ public:
 		book<TH1F>(folder, "max_jets_CSV" , ";#eta(j) (GeV)",  200, -1, 1);
 		book<TH1F>(folder, "lep_iso", ";#eta(j) (GeV)",  100, 0, 10);
 		book<TH1F>(folder, "lep_wp" , ";#eta(j) (GeV)",  4, 0, 4);
-		book<TH1F>(folder, "MT" , ";#eta(j) (GeV)",  200, 0, 100);
+		book<TH1F>(folder, "MT" , ";#eta(j) (GeV)",  500, 0, 500);
 		
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
 
@@ -277,7 +277,7 @@ public:
 
 		if(object_selector_.clean_jets().size() == 4)
 			dir->second["full_discriminant_4j" ].fill(hyp.Prob(), evt_weight_);
-		else if(object_selector_.clean_jets().size() == 4)
+		else if(object_selector_.clean_jets().size() == 5)
 			dir->second["full_discriminant_5j" ].fill(hyp.Prob(), evt_weight_);
 		else
 			dir->second["full_discriminant_6Pj"].fill(hyp.Prob(), evt_weight_);

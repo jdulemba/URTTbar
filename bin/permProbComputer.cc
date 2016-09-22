@@ -63,7 +63,7 @@ public:
     object_selector_(),
     permutator_(),
     matcher_(),
-    solver_(),
+    solver_(false),
     evt_weight_(1.),
     mc_weights_(),
     electron_sf_("electron_sf", false),
@@ -98,8 +98,6 @@ public:
     if(values["general.pseudotop"].as<int>() == 0) genp_selector_ = TTGenParticleSelector(); //TTGenParticleSelector::SelMode::LHE); //FIXME allow for herwig setting
     else genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::PSEUDOTOP);
 
-    solver_.Init("", false, false, false);
-
     mc_weights_.init(sample);
   };
   
@@ -107,7 +105,8 @@ public:
   }
 
 	pair<const double,const double> Minmax(const double& a, const double& b) {
-		return (b<a) ? std::make_pair(b, min(a, .99999)) : std::make_pair(a, min(b, .99999));
+		//return (b<a) ? std::make_pair(b, min(a, .99999)) : std::make_pair(a, min(b, .99999));
+		return (b<a) ? std::make_pair(b, a) : std::make_pair(a, b);
 	}
 
   //This method is called once per job at the beginning of the analysis
@@ -124,18 +123,20 @@ public:
         //TODO add plots
         histos_[shift][evt_type]["mWhad_vs_mtophad"] = RObject::book<TH2D>("mWhad_vs_mtophad", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
         histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", 75, 0., 150.);
-        histos_[shift][evt_type]["wjets_cMVA"] = RObject::book<TH2D>("wjets_cMVA", "", 100, -1., 1, 100, -1., 1);
-        histos_[shift][evt_type]["bjets_cMVA"] = RObject::book<TH2D>("bjets_cMVA", "", 100, -1., 1, 100, -1., 1);
-        histos_[shift][evt_type]["wjets_qgt"] = RObject::book<TH2D>("wjets_qgt", "", 50, 0., 1, 50, 0., 1);
-        histos_[shift][evt_type]["bjets_qgt"] = RObject::book<TH2D>("bjets_qgt", "", 50, 0., 1, 50, 0., 1);
-        histos_[shift][evt_type]["wjets_bqgt"] = RObject::book<TH1D>("wjets_bqgt", "", 50, 0., 1);
-        histos_[shift][evt_type]["wjets_wqgt"] = RObject::book<TH1D>("wjets_wqgt", "", 50, 0., 1);
+        histos_[shift][evt_type]["wjets_cMVA"] = RObject::book<TH2D>("wjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
+        histos_[shift][evt_type]["bjets_cMVA"] = RObject::book<TH2D>("bjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
+        histos_[shift][evt_type]["wjets_qgt"] = RObject::book<TH2D>("wjets_qgt", "", 50, -1., 1.1, 50, -1., 1.1);
+        histos_[shift][evt_type]["bjets_qgt"] = RObject::book<TH2D>("bjets_qgt", "", 50, -1., 1.1, 50, -1., 1.1);
+        histos_[shift][evt_type]["wjets_bqgt"] = RObject::book<TH1D>("wjets_bqgt", "", 50, -1., 1.1); //best
+        histos_[shift][evt_type]["wjets_wqgt"] = RObject::book<TH1D>("wjets_wqgt", "", 50, -1., 1.1); //worst
+        histos_[shift][evt_type]["wjets_bcMVA_p11"] = RObject::book<TH1D>("wjets_bcMVA_p11", "", 50, -1., 1.1); //best
+        histos_[shift][evt_type]["wjets_wcMVA_p11"] = RObject::book<TH1D>("wjets_wcMVA_p11", "", 50, -1., 1.1); //worst
         histos_[shift][evt_type]["wjets_cMVA_WP"] = RObject::book<TH2D>("wjets_cMVA_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
         histos_[shift][evt_type]["bjets_cMVA_WP"] = RObject::book<TH2D>("bjets_cMVA_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
-        histos_[shift][evt_type]["lb_ratio"] = RObject::book<TH1D>("lb_ratio", "", 100, 0., 5.);
-        histos_[shift][evt_type]["w1b_ratio"] = RObject::book<TH1D>("w1b_ratio", "", 100, 0., 5.);
-        histos_[shift][evt_type]["w2b_ratio"] = RObject::book<TH1D>("w2b_ratio", "", 100, 0., 5.);
-        histos_[shift][evt_type]["lb_w2b_ratio"] = RObject::book<TH2D>("lb_w2b_ratio", "", 100, 0., 5., 100, 0., 5.);
+        histos_[shift][evt_type]["lb_ratio" ] = RObject::book<TH1D>("lb_ratio" , "", 100, 0., 10.);
+        histos_[shift][evt_type]["w1b_ratio"] = RObject::book<TH1D>("w1b_ratio", "", 100, 0., 10.);
+        histos_[shift][evt_type]["w2b_ratio"] = RObject::book<TH1D>("w2b_ratio", "", 100, 0., 10.);
+        histos_[shift][evt_type]["lb_w2b_ratio"] = RObject::book<TH2D>("lb_w2b_ratio", "", 100, 0., 10., 100, 0., 10.);
       }
     }
   }
@@ -208,6 +209,8 @@ public:
 				auto w_mM = Minmax(test_perm.WJa()->CombinedMVA(), test_perm.WJb()->CombinedMVA());
         plots[perm_status]["wjets_cMVA"].fill(pow(w_mM.first, 11), pow(w_mM.second, 11), evt_weight_);
         plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
+        plots[perm_status]["wjets_bcMVA_p11"].fill(pow(w_mM.second, 11), evt_weight_);
+        plots[perm_status]["wjets_wcMVA_p11"].fill(pow(w_mM.first,  11), evt_weight_);
 
 				auto b_mM_qg = Minmax(test_perm.BHad()->qgTag(), test_perm.BLep()->qgTag());
 				auto w_mM_qg = Minmax(test_perm.WJa() ->qgTag(), test_perm.WJb() ->qgTag());
