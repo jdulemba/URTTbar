@@ -7,10 +7,13 @@
 #include "URAnalysis/AnalysisFW/interface/URParser.h"
 #include "URAnalysis/AnalysisFW/interface/DataFile.h"
 #include <limits>
-
+#include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 TTBarSolver::TTBarSolver(bool active) {
-	if(!active) return;
+	if(!active) {
+		Logger::log().warning() << "WARNING! TTBarSolver is being disabled!" << endl;
+		return;
+	}
   URParser &parser = URParser::instance();
   //parser.addCfgParameter(const std::string group, const std::string parameterName, const std::string description, T def_value);
   parser.addCfgParameter<string>("ttsolver", "filename", "");
@@ -25,11 +28,11 @@ TTBarSolver::TTBarSolver(bool active) {
   
   string fname = parser.getCfgPar<string>("ttsolver", "filename");
   string dname = parser.getCfgPar<string>("ttsolver", "dirname" );
-  bool USEBTAG_ = parser.getCfgPar<bool>("ttsolver", "btag");
-  bool USENS_   = parser.getCfgPar<bool>("ttsolver", "nusolver");
-  bool USEMASS_ = parser.getCfgPar<bool>("ttsolver", "invmass" );
-	bool useptratios_  = parser.getCfgPar<bool>("ttsolver", "ptratio" );
-	bool usewjetqgtag_ = parser.getCfgPar<bool>("ttsolver", "qarkgluon" );
+  USEBTAG_ = parser.getCfgPar<bool>("ttsolver", "btag");
+  USENS_   = parser.getCfgPar<bool>("ttsolver", "nusolver");
+  USEMASS_ = parser.getCfgPar<bool>("ttsolver", "invmass" );
+	useptratios_  = parser.getCfgPar<bool>("ttsolver", "ptratio" );
+	usewjetqgtag_ = parser.getCfgPar<bool>("ttsolver", "qarkgluon" );
 
   TFile probfile(DataFile(fname).path().c_str());
   TDirectory *dir = (TDirectory*) probfile.Get(dname.c_str());
@@ -41,19 +44,21 @@ TTBarSolver::TTBarSolver(bool active) {
 		if(USENS_)
 			N_right_ = preproccess_histo<TH1D>(dir, "nusolver_chi2_right", "nu_right");
 		if(USEBTAG_) {
-			wj1_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_bcMVA_p11", "j1btag_right"); //best wjet cMVA^11
-			wj2_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_wcMVA_p11", "j2btag_right"); //worst wjet cMVA^11
+			wj1_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_bcMVA_p11_right", "wjets_bcMVA_p11_wrong", "j1btag_right"); //best wjet cMVA^11
+			wj2_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_wcMVA_p11_right", "wjets_wcMVA_p11_wrong", "j2btag_right"); //worst wjet cMVA^11
 		}
 		if(useptratios_) {
-			lep_b_ratio_right_ = preproccess_histo<TH1D>(dir, "lb_ratio" , "lbr_right");
-			wj2_b_ratio_right_ = preproccess_histo<TH1D>(dir, "w2b_ratio", "jbr_right");
+			lep_b_ratio_right_ = preproccess_histo<TH1D>(dir, "lb_ratio_right" ,  "lb_ratio_wrong", "lbr_right");
+			wj2_b_ratio_right_ = preproccess_histo<TH1D>(dir, "w2b_ratio_right", "w2b_ratio_wrong", "jbr_right");
 		}
 		if(usewjetqgtag_) {
-			wj1_qgtag_right_ = preproccess_histo<TH1D>(dir, "wjets_bqgt", "j1qgtag_right");
-			wj2_qgtag_right_ = preproccess_histo<TH1D>(dir, "wjets_wqgt", "j2qgtag_right");			
+			wj1_qgtag_right_ = preproccess_histo<TH1D>(dir, "wjets_bqgt_right", "wjets_bqgt_wrong", "j1qgtag_right");
+			wj2_qgtag_right_ = preproccess_histo<TH1D>(dir, "wjets_wqgt_right", "wjets_wqgt_wrong", "j2qgtag_right");			
 		}
-  }  
-
+  } else {
+		Logger::log().error() << "could not find directory: "<< dname << " in " << fname << endl;
+		throw 42;
+	}
 }
 
 

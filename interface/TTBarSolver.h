@@ -58,6 +58,21 @@ public:
     return ptr;
   }
 
+  template <class T>
+  std::shared_ptr<T> preproccess_histo(TDirectory* dir, std::string path_right, std::string path_wrong, std::string newname) {
+    T* right = (T*) dir->Get( path_right.c_str() );
+    T* wrong = (T*) dir->Get( path_wrong.c_str() );		
+    if(!right || !wrong) {
+      Logger::log().fatal() << "Could not get " << path_right << " or " << path_wrong << " from the file " << dir->GetName() << "!" << std::endl;
+      throw 42;
+    }
+		right->Scale(1./right->Integral("width"));
+		wrong->Scale(1./wrong->Integral("width"));
+		right->Divide(wrong);
+    std::shared_ptr<T> ptr((T*) right->Clone(newname.c_str()));
+    return ptr;
+  }
+
 	void Solve(Permutation &hyp, bool lazy=false);
 };
 

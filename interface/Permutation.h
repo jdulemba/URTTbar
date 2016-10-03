@@ -52,6 +52,11 @@ class Permutation
 		IDJet* WJb() const {return(wjb_);}
 		IDJet* BHad() const {return(bjh_);}
 		IDJet* BLep() const {return(bjl_);}
+		void SwapWJets() {
+			IDJet* tmp = wja_;
+			wja_ = wjb_;
+			wjb_ = tmp;
+		}
     int permutating_jets() const {return perm_jets_;}
     void permutating_jets(int njets) { perm_jets_=njets;}
 		TLorentzVector* L() const {return(lep_);}
@@ -62,11 +67,19 @@ class Permutation
 		void BHad(IDJet* bjh){bjh_=bjh;}
 		void BLep(IDJet* bjl){bjl_=bjl;}
 		void L(TLorentzVector* lep){lep_=lep;}
-		void MET(IDMet* met){met_=met;}
+		void MET(IDMet* met){met_=met;}		
   friend std::ostream & operator<<(std::ostream &os, const Permutation& p);
 
 		TLorentzVector Nu() const {return(nu_);}
 		void Nu(TLorentzVector v) {nu_ = v;}
+		double HT() const {
+			double ret=0;
+			if(wja_) ret += wja_->Pt();
+			if(wjb_) ret += wjb_->Pt();
+			if(bjh_) ret += bjh_->Pt();
+			if(bjl_) ret += bjl_->Pt();
+			return ret;
+		}
 		const TLorentzVector* NuPtr() const {return(&nu_);}
 		TLorentzVector WHad() const {
 			if(!WJa()) {
@@ -115,6 +128,15 @@ class Permutation
 			if(WJa() != other.BLep() && WJa() != other.BHad() && WJa() != other.WJa() && WJa() != other.WJb()){return(false);}
 			if(WJb() != other.BLep() && WJb() != other.BHad() && WJb() != other.WJa() && WJb() != other.WJb()){return(false);}
 			return(true);
+		}
+		int overlap(const Permutation& other) const
+		{
+			int olap=0;
+			if(BLep() != other.BLep() && BLep() != other.BHad() && BLep() != other.WJa() && BLep() != other.WJb()){olap++;}
+			if(BHad() != other.BLep() && BHad() != other.BHad() && BHad() != other.WJa() && BHad() != other.WJb()){olap++;}
+			if(WJa() != other.BLep() && WJa() != other.BHad() && WJa() != other.WJa() && WJa() != other.WJb()){olap++;}
+			if(WJb() != other.BLep() && WJb() != other.BHad() && WJb() != other.WJa() && WJb() != other.WJb()){olap++;}
+			return olap;
 		}
 
 		bool AreHadJetsCorrect(const Permutation& other) const
