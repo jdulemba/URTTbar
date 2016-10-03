@@ -602,19 +602,15 @@ public:
 		tracker_.track("aftermfl");
   
     //Find best permutation
-    bool go_on = true;
     Permutation best_permutation;
     size_t nperms = 0;
-    while(go_on) {
-      Permutation test_perm = permutator_.next(go_on);
+		for(auto test_perm : permutator_.pemutations()) {
       test_perm.LepCharge(object_selector_.lepton_charge());
-      if(go_on) {
-        nperms++;
-        solver_.Solve(test_perm);
-        if(test_perm.Prob() < best_permutation.Prob()){
-          best_permutation = test_perm;
-        }
-      }
+			nperms++;
+			solver_.Solve(test_perm);
+			if(test_perm.Prob() < best_permutation.Prob()){
+				best_permutation = test_perm;
+			}
     }
 
     if(!best_permutation.IsComplete() || fabs(best_permutation.THad().M() - 173) > 50 || fabs(best_permutation.WHad().M() - 80) > 20) return;

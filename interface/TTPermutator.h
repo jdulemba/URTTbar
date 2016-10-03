@@ -7,18 +7,23 @@
 #include <array>
 #include "URAnalysis/AnalysisFW/interface/CutFlowTracker.h"
 #include <string>
+#include <list>
 
 class TTPermutator: public URSelector {
 public:
   TTPermutator(std::string cfgname="permutations");
   bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0);
-  Permutation next(bool &keep_going);
+	list<Permutation>& pemutations() {
+		if(!has_run_) permutate();
+		return permutations_;
+	}
   void reset() {
+		has_run_ = false;
+		permutations_.clear();
     jets_.clear();
     capped_jets_.clear();
     lepton_ = 0;
     met_ = 0;
-    jet_pos_ = {{0, 0, 0, 0}};
   }
 
   virtual void configure() override;
@@ -32,18 +37,18 @@ public:
   size_t njets_max() {return cut_max_jets_;}
 
 private:
+	void permutate();
+	list<Permutation> permutations_;
   std::vector<IDJet*> jets_;
   std::vector<IDJet*> capped_jets_;
   TLorentzVector* lepton_ = 0;
   IDMet* met_ = 0;
   bool is_configured_ = false;
   int lcharge_=0;
+	bool has_run_ = false;
 
   //tracker
   CutFlowTracker *tracker_=0;
-
-  //permutation status
-  std::array<size_t, 4> jet_pos_;
 
   //cuts
   IDJet::BTag cut_tight_b_=IDJet::BTag::NONE, cut_loose_b_=IDJet::BTag::NONE;

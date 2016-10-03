@@ -8,9 +8,9 @@ using namespace std;
 
 TTPermutator::TTPermutator(std::string cfgname):
   URSelector(cfgname),
+	permutations_(),
   jets_(),
   capped_jets_() {
-  jet_pos_ = {{0, 0, 0, 0}};
   configure();
 }
 
@@ -69,19 +69,17 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
 	return true;
 }
 
-Permutation TTPermutator::next(bool &keep_going) {
-  //Logger::log().debug() << "<--" << jet_pos_[0] << " " << jet_pos_[1] << " " << jet_pos_[2] << " " << jet_pos_[3] << std::endl;
-  keep_going = true;
+void TTPermutator::permutate() {
 	if(capped_jets_.size() == 3) capped_jets_.push_back(NULL);
   size_t bjet_cap = (bjet_idx_limit_ > 0) ? bjet_idx_limit_  : capped_jets_.size();
-  for( ; jet_pos_[0] < bjet_cap ; ++jet_pos_[0]) {
-    IDJet* bjet1 = capped_jets_[jet_pos_[0]];
+
+  for(size_t ib1=0; ib1 < bjet_cap ; ++ib1) {
+    IDJet* bjet1 = capped_jets_[ib1];
 		if(!bjet1) continue; //in 3 jet case it could be NULL, skip
 
-    for( ; jet_pos_[1] < bjet_cap ; ++jet_pos_[1]) {
-      if(jet_pos_[0] == jet_pos_[1]) continue; //same jet removal
-
-      IDJet* bjet2 = capped_jets_[jet_pos_[1]];
+    for(size_t ib2=0; ib2 < bjet_cap ; ++ib2) {
+      IDJet* bjet2 = capped_jets_[ib2];
+      if(ib1 == ib2) continue; //same jet removal
 			if(!bjet2) continue; //in 3 jet case it could be NULL, skip
 			
       if(!(bjet1->BTagId(cut_loose_b_) && bjet2->BTagId(cut_loose_b_))) continue;
@@ -89,53 +87,32 @@ Permutation TTPermutator::next(bool &keep_going) {
       if(bjet1->Pt() < cut_bjetpt_hard_ && bjet2->Pt() < cut_bjetpt_hard_) continue;
       if(bjet1->Pt() < cut_bjetpt_soft_ || bjet2->Pt() < cut_bjetpt_soft_) continue;
 
-      for( ; jet_pos_[2] < capped_jets_.size() ; ++jet_pos_[2]) {
-        if(jet_pos_[0] == jet_pos_[2] || jet_pos_[1] == jet_pos_[2]) continue; //same jet removal
-        IDJet* wjet1 = capped_jets_[jet_pos_[2]]; 
+      for(size_t iw1=0; iw1 < capped_jets_.size() ; ++iw1) {
+        IDJet* wjet1 = capped_jets_[iw1]; 
+        if(ib1 == iw1 || ib2 == iw1) continue; //same jet removal
 				if(!wjet1) continue; //in 3 jet case it could be NULL, skip
 
-        for( ; jet_pos_[3] < capped_jets_.size() ; ++jet_pos_[3]) {
-          if(jet_pos_[0] == jet_pos_[3] || jet_pos_[1] == jet_pos_[3] || jet_pos_[2] == jet_pos_[3]) continue;//same jet removal
-          IDJet* wjet2 = capped_jets_[jet_pos_[3]]; 
-          
+        for(size_t iw2=0 ; iw2 < capped_jets_.size() ; ++iw2) {
+          IDJet* wjet2 = capped_jets_[iw2]; 
+          if(ib1 == iw2 || ib2 == iw2 || iw1 == iw2) continue;//same jet removal
 					//in case of three jets it SHOULD be NULL
 					if(wjet2) {
 						//disambiguation W jets
 						if(wjet2->Pt() > wjet1->Pt()) continue;
 						if(wjet1->Pt() < cut_wjetpt_hard_ || wjet2->Pt() < cut_wjetpt_soft_) continue;
 					}
+					//std::cout << "    pass ptcut" << std::endl;
 					
-          Permutation perm(
+          permutations_.emplace_back(
             wjet1, wjet2,
             bjet1, bjet2,
             lepton_, met_,
 						lcharge_ //added this to pass lepton charge
-            );                    
-          //Logger::log().debug() <<"-->"<< jet_pos_[0] << " " << jet_pos_[1] << " " << jet_pos_[2] << " " << jet_pos_[3] << std::endl;
-          //step forward the state before returning, otherwise gets stuck
-          //I LOVE python's generators
-          jet_pos_[3]++;
-          if(jet_pos_[3] < capped_jets_.size()){
-            jet_pos_[3] = 0;
-            jet_pos_[2]++;
-            if(jet_pos_[2] < capped_jets_.size()){
-              jet_pos_[2] = 0;
-              jet_pos_[1]++;
-              if(jet_pos_[1] < bjet_cap){
-                jet_pos_[1] = 0;
-                jet_pos_[0]++; //NO RESET, if it gets beyond the limit we are done
-              }
-            }
-          }
-          return perm;
+            );
         }
-        jet_pos_[3] = 0; //reset state
       }
-      jet_pos_[2] = 0;
     }
-    jet_pos_[1] = 0;
   }
-  keep_going = false;
 	if(!capped_jets_[3]) capped_jets_.pop_back();
-  return Permutation();
+	has_run_ = true;
 }

@@ -316,16 +316,13 @@ public:
 		bool lazy_solving = (njets == 3);
 		auto ordering = (njets > 3) ? [](const Permutation &one, const Permutation &two) {return one.Prob() < two.Prob();} : \
 		    [](const Permutation &one, const Permutation &two) {return one.NuDiscr() < two.NuDiscr();};
-    while(go_on) {
-      Permutation test_perm = permutator_.next(go_on);
-      if(go_on) {
-				ncycles++;
-				solver_.Solve(test_perm, lazy_solving);
-        fill_combo_plots(presel_dir.str(), test_perm);
-        if(ordering(test_perm, best_permutation)){
-          best_permutation = test_perm;
-        }
-      }
+		for(auto test_perm : permutator_.pemutations()) {
+			ncycles++;
+			solver_.Solve(test_perm, lazy_solving);
+			fill_combo_plots(presel_dir.str(), test_perm);
+			if(ordering(test_perm, best_permutation)){
+				best_permutation = test_perm;
+			}
     }
     if((njets != 3 && best_permutation.Prob() > 1E9) || ncycles == 0) return; //FIXME, is right??? best_permutation.Prob() > 1E9
     tracker_.track("best perm", leptype);

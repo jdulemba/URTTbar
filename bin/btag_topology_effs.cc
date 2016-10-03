@@ -164,17 +164,11 @@ public:
     tracker_.track("perm preselection");
 
     //Find best permutation
-    bool go_on = true;
     Permutation best_permutation;
-    size_t ncycles_=0;
-    while(go_on) {
-      ncycles_++;
-      Permutation test_perm = permutator_.next(go_on);
-      if(go_on) {
-        solver_.Solve(test_perm);
-        if(test_perm.MassDiscr() < best_permutation.MassDiscr()){
-          best_permutation = test_perm;
-        }
+		for(auto test_perm : permutator_.pemutations()) {
+			solver_.Solve(test_perm);
+			if(test_perm.MassDiscr() < best_permutation.MassDiscr()){
+				best_permutation = test_perm;
       }
     }
     if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9

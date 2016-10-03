@@ -618,21 +618,15 @@ public:
 
 				
     //Find best permutation
-    bool go_on = true;
     Permutation best_permutation;
-    size_t ncycles_=0;
-    while(go_on) {
-      ncycles_++;
-      Permutation test_perm = permutator_.next(go_on);
-      if(go_on) {
-        solver_.Solve(test_perm);
-        double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
-        fill_combo_plots(presel_dir+"/permutations", test_perm);
-        //if(bjet_lpt < test_perm.WJa()->Pt()) continue;
-        if(ordering_fcn_(test_perm, best_permutation)){
-          best_permutation = test_perm;
-        }
-      }
+		for(auto test_perm : permutator_.pemutations()) {
+			solver_.Solve(test_perm);
+			double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
+			fill_combo_plots(presel_dir+"/permutations", test_perm);
+			//if(bjet_lpt < test_perm.WJa()->Pt()) continue;
+			if(ordering_fcn_(test_perm, best_permutation)){
+				best_permutation = test_perm;
+			}
     }
     if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9
     tracker_.track("best perm");

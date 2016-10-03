@@ -188,48 +188,46 @@ public:
     matched_perm.SetMET(object_selector_.met());
     tracker_.track("gen matching");
     
+		if(!matched_perm.IsComplete()) return;
+
     //Find best permutation
-    bool go_on = true;
-    while(go_on) {
-      Permutation test_perm = permutator_.next(go_on);
-      if(go_on) {
-				test_perm.LepCharge(object_selector_.lepton_charge());
-        solver_.Solve(test_perm);
-        TTNaming perm_status;
-        if(test_perm.IsCorrect(matched_perm)) perm_status = TTNaming::RIGHT;
-        else if(test_perm.IsTHadCorrect(matched_perm)) perm_status = TTNaming::RIGHT_THAD;
-        else if(test_perm.IsBLepCorrect(matched_perm)) perm_status = TTNaming::RIGHT_TLEP;
-        else if(ttbar.type == GenTTBar::DecayType::SEMILEP) perm_status = TTNaming::WRONG;
-        else perm_status = TTNaming::OTHER;
+		for(auto test_perm : permutator_.pemutations()) {
+			test_perm.LepCharge(object_selector_.lepton_charge());
+			solver_.Solve(test_perm);
+			TTNaming perm_status;
+			if(test_perm.IsCorrect(matched_perm)) perm_status = TTNaming::RIGHT;
+			else if(test_perm.IsTHadCorrect(matched_perm)) perm_status = TTNaming::RIGHT_THAD;
+			else if(test_perm.IsBLepCorrect(matched_perm)) perm_status = TTNaming::RIGHT_TLEP;
+			else if(ttbar.type == GenTTBar::DecayType::SEMILEP) perm_status = TTNaming::WRONG;
+			else perm_status = TTNaming::OTHER;
         
-        plots[perm_status]["mWhad_vs_mtophad"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-        plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
+			plots[perm_status]["mWhad_vs_mtophad"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
+			plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
 
-				auto b_mM = Minmax(test_perm.BHad()->CombinedMVA(), test_perm.BLep()->CombinedMVA());
-				auto w_mM = Minmax(test_perm.WJa()->CombinedMVA(), test_perm.WJb()->CombinedMVA());
-        plots[perm_status]["wjets_cMVA"].fill(pow(w_mM.first, 11), pow(w_mM.second, 11), evt_weight_);
-        plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
-        plots[perm_status]["wjets_bcMVA_p11"].fill(pow(w_mM.second, 11), evt_weight_);
-        plots[perm_status]["wjets_wcMVA_p11"].fill(pow(w_mM.first,  11), evt_weight_);
+			auto b_mM = Minmax(test_perm.BHad()->CombinedMVA(), test_perm.BLep()->CombinedMVA());
+			auto w_mM = Minmax(test_perm.WJa()->CombinedMVA(), test_perm.WJb()->CombinedMVA());
+			plots[perm_status]["wjets_cMVA"].fill(pow(w_mM.first, 11), pow(w_mM.second, 11), evt_weight_);
+			plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
+			plots[perm_status]["wjets_bcMVA_p11"].fill(pow(w_mM.second, 11), evt_weight_);
+			plots[perm_status]["wjets_wcMVA_p11"].fill(pow(w_mM.first,  11), evt_weight_);
 
-				auto b_mM_qg = Minmax(test_perm.BHad()->qgTag(), test_perm.BLep()->qgTag());
-				auto w_mM_qg = Minmax(test_perm.WJa() ->qgTag(), test_perm.WJb() ->qgTag());
-        plots[perm_status]["wjets_qgt"].fill(w_mM_qg.first, w_mM_qg.second, evt_weight_);
-        plots[perm_status]["bjets_qgt"].fill(b_mM_qg.first, b_mM_qg.second, evt_weight_);
-        plots[perm_status]["wjets_bqgt"].fill(w_mM_qg.second, evt_weight_);
-        plots[perm_status]["wjets_wqgt"].fill(pow(w_mM_qg.first, 8),  evt_weight_);
+			auto b_mM_qg = Minmax(test_perm.BHad()->qgTag(), test_perm.BLep()->qgTag());
+			auto w_mM_qg = Minmax(test_perm.WJa() ->qgTag(), test_perm.WJb() ->qgTag());
+			plots[perm_status]["wjets_qgt"].fill(w_mM_qg.first, w_mM_qg.second, evt_weight_);
+			plots[perm_status]["bjets_qgt"].fill(b_mM_qg.first, b_mM_qg.second, evt_weight_);
+			plots[perm_status]["wjets_bqgt"].fill(w_mM_qg.second, evt_weight_);
+			plots[perm_status]["wjets_wqgt"].fill(pow(w_mM_qg.first, 8),  evt_weight_);
 				
-				auto bwp_mM = Minmax(btag_idval(test_perm.BHad()), btag_idval(test_perm.BLep()));
-				auto wwp_mM = Minmax(btag_idval(test_perm.WJa() ), btag_idval(test_perm.WJb() ));
-        plots[perm_status]["wjets_cMVA_WP"].fill(wwp_mM.first, wwp_mM.second, evt_weight_);
-        plots[perm_status]["bjets_cMVA_WP"].fill(bwp_mM.first, bwp_mM.second, evt_weight_);
+			auto bwp_mM = Minmax(btag_idval(test_perm.BHad()), btag_idval(test_perm.BLep()));
+			auto wwp_mM = Minmax(btag_idval(test_perm.WJa() ), btag_idval(test_perm.WJb() ));
+			plots[perm_status]["wjets_cMVA_WP"].fill(wwp_mM.first, wwp_mM.second, evt_weight_);
+			plots[perm_status]["bjets_cMVA_WP"].fill(bwp_mM.first, bwp_mM.second, evt_weight_);
 
-				auto wpt_mM = Minmax(test_perm.WJa()->Pt(), test_perm.WJb()->Pt());
-        plots[perm_status]["lb_ratio" ].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), evt_weight_);
-        plots[perm_status]["w1b_ratio"].fill(wpt_mM.first/test_perm.BHad()->Pt(), evt_weight_);
-        plots[perm_status]["w2b_ratio"].fill(wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
-        plots[perm_status]["lb_w2b_ratio"].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
-			}
+			auto wpt_mM = Minmax(test_perm.WJa()->Pt(), test_perm.WJb()->Pt());
+			plots[perm_status]["lb_ratio" ].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), evt_weight_);
+			plots[perm_status]["w1b_ratio"].fill(wpt_mM.first/test_perm.BHad()->Pt(), evt_weight_);
+			plots[perm_status]["w2b_ratio"].fill(wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
+			plots[perm_status]["lb_w2b_ratio"].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
     }
     tracker_.track("end");
   }

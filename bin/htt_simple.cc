@@ -36,6 +36,7 @@
 #include <sstream>
 #include <unordered_map>
 #include "URAnalysis/AnalysisFW/interface/EventList.h"
+#include "Analyses/URTTbar/interface/Hypotheses.h"
 #include "TROOT.h"
 
 using namespace TMath;
@@ -165,6 +166,10 @@ public:
     
 		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
 		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
+		book<TH1F>(folder, "lbratio" , "", 100, 0., 10.);			
+		book<TH1F>(folder, "j2bratio", "", 100, 0., 10.);			
+		book<TH1F>(folder, "bjets_pt", "", 500, 0., 500.);			
+		book<TH1F>(folder, "wjets_pt", "", 500, 0., 500.);			
 	}
 
 	void fill_combo_plots(string folder, const Permutation &hyp){
@@ -177,13 +182,20 @@ public:
 		double thad_mass = hyp.THad().M();
 		dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
 		dir->second["tmasshad"].fill(thad_mass, evt_weight_);
+		dir->second["lbratio" ].fill(hyp.L()->Pt()/hyp.BLep()->Pt(), evt_weight_);
+		double minpt = ((hyp.WJa()->Pt() > hyp.WJb()->Pt()) ? hyp.WJb() : hyp.WJa())->Pt();
+		dir->second["j2bratio"].fill(minpt/hyp.BHad()->Pt(), evt_weight_);
+		dir->second["bjets_pt"].fill(hyp.BHad()->Pt(), evt_weight_);
+		dir->second["bjets_pt"].fill(hyp.BLep()->Pt(), evt_weight_);
+		dir->second["wjets_pt"].fill(hyp.WJa()->Pt(), evt_weight_);		
+		dir->second["wjets_pt"].fill(hyp.WJb()->Pt(), evt_weight_);		
 	}
 
   void book_presel_plots(string folder) {
     book<TH1F>(folder, "nvtx_noweight", "", 100, 0., 100.);
     book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
     book<TH1F>(folder, "rho", "", 100, 0., 100.);
-    book<TH1F>(folder, "weight", "", 100, 0., 20.);
+    book<TH1F>(folder, "weight", "", 100, 0., 5.);
 		book<TH1F>(folder, "lep_pt"   , ";p_{T}(l) (GeV)", 500, 0., 500.);
 		book<TH1F>(folder, "lep_eta"  , ";#eta(l) (GeV)", 300, -3, 3);
 		book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
@@ -193,13 +205,27 @@ public:
 		book<TH1F>(folder, "lep_iso", ";#eta(j) (GeV)",  100, 0, 10);
 		book<TH1F>(folder, "lep_wp" , ";#eta(j) (GeV)",  4, 0, 4);
 		book<TH1F>(folder, "MT" , ";#eta(j) (GeV)",  500, 0, 500);
+		book<TH1F>(folder, "MET" , ";#eta(j) (GeV)",  500, 0, 1000);
+		book<TH1F>(folder, "METPhi" , ";#eta(j) (GeV)",  314, -1*Pi(), Pi());
+
+		book<TH1F>(folder, "cMVA" , "",  100, -1, 1.1);
+		book<TH1F>(folder, "cMVA_p11" , "",  100, -1, 1.1);
+		book<TH1F>(folder, "qgtag" , "",  100, -1, 1.1);		
 		
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
 
 		book<TH2F>(folder, "MT_iso" , ";#eta(j) (GeV)"  ,  10, 0, 100, 10, 0, 1);
 		book<TH2F>(folder, "MT_btag" , ";#eta(j) (GeV)" ,  10, 0, 100, 10, 0, 1);
 		book<TH2F>(folder, "iso_btag" , ";#eta(j) (GeV)",  10, 0, 1,   10, 0, 1);
+		book<TH2D>(folder, "jets_cMVA_WP", "", 4, 0., 4., 4, 0., 4.);
   }
+
+	int btag_idval(const IDJet* jet) {
+		if(jet->BTagId(IDJet::BTag::MVATIGHT)) return 3;
+		else if(jet->BTagId(IDJet::BTag::MVAMEDIUM)) return 2;
+		else if(jet->BTagId(IDJet::BTag::MVALOOSE) ) return 1;
+		return 0;
+	}
 
   void fill_presel_plots(string folder, URStreamer &event) {
     auto dir = histos_.find(folder);
@@ -220,10 +246,22 @@ public:
       dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
 			dir->second["jets_CSV"].fill(jet->csvIncl(), evt_weight_);
 			if(jet->csvIncl() > max_csv) max_csv = jet->csvIncl();
+			dir->second["cMVA"    ].fill(jet->CombinedMVA(), evt_weight_);
+			dir->second["cMVA_p11"].fill(pow(jet->CombinedMVA(), 11), evt_weight_);
+			dir->second["qgtag"   ].fill(jet->qgTag(), evt_weight_);	
     }
+
+		dir->second["MET"   ].fill(object_selector_.met()->Et() , evt_weight_);
+		dir->second["METPhi"].fill(object_selector_.met()->Phi(), evt_weight_);
 		double mt = MT(object_selector_.lepton(), object_selector_.met());
 		dir->second["MT"].fill(mt, evt_weight_);
 		dir->second["max_jets_CSV"].fill(max_csv, evt_weight_);
+
+		if(mt > cut_MT_) {
+			auto &clean_jets = object_selector_.clean_jets();
+			sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});		
+			dir->second["jets_cMVA_WP"].fill(btag_idval(clean_jets[0]), btag_idval(clean_jets[1]), evt_weight_);
+		}
 
 		double iso = -1.;
 		if(object_selector_.lepton_type() == 1) {
@@ -257,12 +295,23 @@ public:
 		book<TH1F>(folder, "pt_tt" , "", 200, 0., 2000);			
 		book<TH1F>(folder, "eta_tt", "", 200, -10., 10);			
 
-		book<TH1F>(folder, "full_discriminant_4j", "" , 320, 0., 40.);
-		book<TH1F>(folder, "full_discriminant_5j", "" , 320, 0., 40.);
-		book<TH1F>(folder, "full_discriminant_6Pj", "", 320, 0., 40.);
+		book<TH1F>(folder, "full_discriminant_4j", "" , 640, 0., 80.);
+		book<TH1F>(folder, "full_discriminant_5j", "" , 640, 0., 80.);
+		book<TH1F>(folder, "full_discriminant_6Pj", "", 640, 0., 80.);
+
+		//Angular variables
+		//top angles
+    book<TH1F>(folder, "tlep_ctstar", "", 200, 0., 1);
+    book<TH1F>(folder, "thad_ctstar", "", 200, 0., 1);
+
+		//delta
+    book<TH1F>(folder, "cdelta_ld", "", 200, -1., 1);
+
+		//helicity frame
+    book<TH1F>(folder, "hframe_ctheta_d", "", 200, -1., 1);
 	}
 
-	void fill_selection_plots(string folder, URStreamer &event, const Permutation &hyp) {
+	void fill_selection_plots(string folder, URStreamer &event, Permutation &hyp) {
 		fill_presel_plots(folder, event);
 		fill_combo_plots(folder, hyp);
 		auto dir = histos_.find(folder);
@@ -281,6 +330,31 @@ public:
 			dir->second["full_discriminant_5j" ].fill(hyp.Prob(), evt_weight_);
 		else
 			dir->second["full_discriminant_6Pj"].fill(hyp.Prob(), evt_weight_);
+
+		//choose up/down
+		TLorentzVector whad(hyp.WHad());
+		TLorentzVector j1(*hyp.WJa());
+		TLorentzVector j2(*hyp.WJb());
+		j1.Boost(whad.BoostVector()*-1);
+		j2.Boost(whad.BoostVector()*-1);
+		if(j2.E() > j1.E()) hyp.SwapWJets();
+
+		//Angular variables
+		hyp::TTbar ttang(hyp);
+		auto ttcm = ttang.to_CM(); 
+		auto tlepcm = ttang.tlep().to_CM();
+		auto thadcm = ttang.thad().to_CM();
+		
+		//top angles
+    dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
+    dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
+
+    dir->second["cdelta_ld"].fill(tlepcm.W().l().unit3D().Dot(thadcm.W().down().unit3D()), evt_weight_);
+
+		//helicity frame
+    dir->second["hframe_ctheta_d"].fill(
+			thadcm.W().down().unit3D().Dot(ttcm.thad().unit3D()), 
+			evt_weight_);
 	}
 
 	void fill(string folder, Permutation &hyp){//, TTbarHypothesis *genHyp=0) {
@@ -310,7 +384,7 @@ public:
 		
 
 		vector<string> leptons = {"electrons", "muons"};		
-		vector<string> subs    = {"/right", "/right_tl", "/right_th", "/wrong", "/noslep"};		
+		vector<string> subs    = {"/right", "/matchable", "/unmatchable", "/noslep"};		
 		vector<string> lepIDs  = {"looseNOTTight", "tight"};		
 		vector<string> MTs     = {"MTLow", "MTHigh"};		
 		//vector<string> tagging = {"ctagged", "notag"};
@@ -348,6 +422,8 @@ public:
     if( !object_selector_.select(event, shift) ) return;
 		int njets = object_selector_.clean_jets().size();		
 		string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
+		bool lep_is_tight = (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || 
+												 object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL);
 		tracker_.group(leptype);
 		tracker_.track("object selection", leptype);
 		
@@ -359,8 +435,11 @@ public:
     //MC Weight for lepton selection
 		float lep_weight=1;
     if(!isData_) { 
-      if(object_selector_.tight_muons().size() == 1)
+      if(object_selector_.tight_muons().size() == 1) {
         lep_weight = muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
+				// if(-1.3 < object_selector_.muon()->Eta() && object_selector_.muon()->Eta() < -1)
+				// 	cout << "Mu " << *object_selector_.muon() << " weight: " << lep_weight << " prev: " << evt_weight_ << endl;
+			}
       if(object_selector_.tight_electrons().size() == 1)
         lep_weight = electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
 		}
@@ -370,7 +449,7 @@ public:
     stringstream presel_dir;
 		presel_dir << leptype << "/";
 		presel_dir << sys_name << "/preselection";
-    if(!sync_) fill_presel_plots(presel_dir.str(), event);
+    if(!sync_ && lep_is_tight) fill_presel_plots(presel_dir.str(), event);
 
 		//cut on btag
 		auto &clean_jets = object_selector_.clean_jets();
@@ -381,7 +460,7 @@ public:
 
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
-          object_selector_.met() ) ) return;
+          object_selector_.met(), object_selector_.lepton_charge() ) ) return;
     tracker_.track("perm preselection");
 				
     //find mc weight for btag
@@ -394,7 +473,7 @@ public:
 		bool mtlow = (mt < cut_MT_);
 
 		if(sync_) {
-			if(!mtlow && (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL)) {
+			if(!mtlow && lep_is_tight) {
 				sync_info_["run"]  = event.run;
 				sync_info_["lumi"] = event.lumi;
 				sync_evt_ = event.evt;
@@ -413,19 +492,11 @@ public:
     //Find best permutation
     bool go_on = true;
     Permutation best_permutation;
-    size_t ncycles_=0;
-    while(go_on) {
-      ncycles_++;
-      Permutation test_perm = permutator_.next(go_on);
-      if(go_on) {
-        solver_.Solve(test_perm);
-        double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
-        fill_combo_plots(presel_dir.str(), test_perm);
-        //if(bjet_lpt < test_perm.WJa()->Pt()) continue;
-        if(test_perm.Prob()  < best_permutation.Prob()){
-          best_permutation = test_perm;
-        }
-      }
+		for(auto test_perm : permutator_.pemutations()) {
+			solver_.Solve(test_perm);
+			if(lep_is_tight) fill_combo_plots(presel_dir.str(), test_perm);
+			if(test_perm.Prob()  < best_permutation.Prob())
+				best_permutation = test_perm;
     }
     if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9
     tracker_.track("best perm");
@@ -446,10 +517,9 @@ public:
 					);
 				matched_perm.SetMET(object_selector_.met());
 				
-				if(best_permutation.IsCorrect(matched_perm))          evtdir << "/right";
-				else if(best_permutation.IsTHadCorrect(matched_perm)) evtdir << "/right_th";
-				else if(best_permutation.IsTLepCorrect(matched_perm)) evtdir << "/right_tl";
-				else evtdir << "/wrong";
+				if(best_permutation.IsCorrect(matched_perm)) evtdir << "/right";
+				else if(matched_perm.IsComplete()) evtdir << "/matchable";
+				else evtdir << "/unmatchable";
 			}
 			else evtdir << "/noslep";
     }
@@ -494,6 +564,7 @@ public:
 
     if(evt_idx_ >= limit) return;
     Logger::log().debug() << "htt_simple::analyze" << endl;
+		Logger::log().debug() << tree_ << " " << tree_->GetEntries() << endl;
     URStreamer event(tree_);
 
     while(event.next()) {
