@@ -1,8 +1,9 @@
 {
    "*" : 10,
    "ttJets*" : 1,
+	 "tt[WZ]*" : 1,
    "QCD*" : 100,
-   "data*" : 20,
+   "data*" : 60,
    "single*" : 2,
    "[AH]toTTM*" : 10
 }
