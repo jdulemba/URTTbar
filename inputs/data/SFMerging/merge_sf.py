@@ -23,10 +23,26 @@ def transpose(hist2d):
 	ybins = sorted(list(ybins))[1:-1]
 	ret = Hist2D(ybins, xbins)
 	for i in hist2d:
-		idx = ret.FindFixBin(i.x.center, i.y.center)
+		idx = ret.FindFixBin(i.y.center, i.x.center)
 		ret[idx].error = i.error
 		ret[idx].value = i.value
 	return ret
+
+def fill_oflow(hist2d):
+	xbins = hist2d.nbins()
+	ybins = hist2d.nbins(1)
+	for i in range(xbins+2):
+		hist2d[i, 0].value = hist2d[i, 1].value
+		hist2d[i, 0].error = hist2d[i, 1].error
+		hist2d[i, ybins+1].value = hist2d[i, ybins].value
+		hist2d[i, ybins+1].error = hist2d[i, ybins].error
+		
+	for i in range(ybins+2):
+		hist2d[0, i].value = hist2d[1, i].value
+		hist2d[0, i].error = hist2d[1, i].error
+		hist2d[xbins+1, i].value = hist2d[xbins, i].value
+		hist2d[xbins+1, i].error = hist2d[xbins, i].error
+	return hist2d
 
 def graph2hist(graph):
 	xs = [i for i, _ in graph]
@@ -61,8 +77,8 @@ info[3].value = 0 #Iso SF in |eta| (1) of full eta (0)
 info[4].value = 0 #tracking SF in |eta| (1) of full eta (0)
 with root_open('output.root', 'w') as out:
 	out.WriteTObject(trg, 'trg')
-	out.WriteTObject(lepid.EGamma_SF2D.Clone(), 'id')
-	out.WriteTObject(iso.EGamma_SF2D.Clone(), 'iso')
+	out.WriteTObject(fill_oflow(lepid.EGamma_SF2D.Clone()), 'id')
+	out.WriteTObject(fill_oflow(iso.EGamma_SF2D.Clone()), 'iso')
 	# out.WriteTObject(htrk, 'trk')
 	out.WriteTObject(info, 'info')
 	out.WriteTObject(code, 'code')
