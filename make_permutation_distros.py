@@ -30,7 +30,7 @@ shapes = [
 jet_only_shapes = []
 systematics = ['nosys']#, 'jes_up', 'jes_down', 'jer_up', 'met_up', 'met_down']
 right = ['semilep_visible_right']
-wrong = ['semilep_wrong', 'semilep_right_thad', 'semilep_right_tlep', 'other_tt_decay']
+wrong = ['semilep_wrong', 'semilep_right_thad', 'semilep_right_tlep']
 output_name_base = 'prob'
 
 def merge_views(inview, subnames):
