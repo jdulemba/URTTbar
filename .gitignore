@@ -1,3 +1,4 @@
+*.list
 *.exe
 *.o
 *.so
