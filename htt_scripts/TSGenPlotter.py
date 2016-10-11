@@ -105,6 +105,10 @@ variables = [
 	 (1, 'NE', 'lb_ratio', 'p_{T}(l)/p_{T}(b_{l})'),
 	 (1, 'NE', 'w1b_ratio', 'p_{T}(j1)/p_{T}(b_{h})'),
 	 (1, 'NE', 'w2b_ratio', 'p_{T}(j2)/p_{T}(b_{h})'),
+	 (1, 'NE', 'wjets_bcMVA_p11', 'cMVA^{11}'),
+	 (1, 'NE', 'wjets_wcMVA_p11', 'cMVA^{11}'),
+	 (1, 'NE', 'wjets_bqgt', 'qgtag'),
+	 (1, 'NE', 'wjets_wqgt', 'qgtag'),
 ]
 
 vars2D = [
@@ -119,8 +123,8 @@ vars2D = [
 	]
 
 projections = [
-	(1, 1, 'NE', 'wjets_cMVA', 'cMVA^{5}', 'cMVA^{5}'),
-	(1, 1, 'NE', 'bjets_cMVA', 'cMVA^{5}', 'cMVA^{5}'),
+	(1, 1, 'NE', 'wjets_cMVA', 'cMVA^{11}', 'cMVA^{11}'),
+	(1, 1, 'NE', 'bjets_cMVA', 'cMVA^{11}', 'cMVA^{11}'),
 	(1, 1, 'NE', 'wjets_cMVA_WP', 'cMVA WP', 'cMVA WP'),
 	(1, 1, 'NE', 'bjets_cMVA_WP', 'cMVA WP', 'cMVA WP'),
 	(1, 1, 'NE', 'wjets_qgt', 'qgtag', 'qgtag'),
@@ -155,5 +159,5 @@ for name, xaxis, yaxis in vars2D:
 	histos = [i.Get(name) for i in samples]
 	for h in histos:
 		h.drawstyle = 'colz'
-		plotter.plot(h, xtitle=xaxis, ytitle=yaxis, ignore_style=True)
+		plotter.plot(h, xtitle=xaxis, ytitle=yaxis)
 		plotter.save(('%s_%s' % (name, h.title)).replace(' ', '_'))
