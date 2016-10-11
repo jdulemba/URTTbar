@@ -51,7 +51,7 @@ private:
 	CutFlowTracker tracker_;
 
 	//switches
-	bool isTTbar_, isSignal_, isData_;
+	bool isTTbar_, isSignal_, isData_, runsys_, has_pdfs_;
 
   //selectors and helpers
   TTGenParticleSelector genp_selector_;
@@ -129,7 +129,7 @@ public:
 		string output_file = values["output"].as<std::string>();
 		string sample = systematics::get_sample(output_file);
     isSignal_ = boost::starts_with(sample, "AtoTT") || boost::starts_with(sample, "HtoTT");
-		isTTbar_ = boost::starts_with(sample, "ttJets") || isSignal_;
+		isTTbar_ = boost::starts_with(sample, "ttJets");
 		isData_  = boost::starts_with(sample, "data");
 
 		if(isData_) {
@@ -137,12 +137,31 @@ public:
 			else object_selector_.lepton_type(1);
 		}
 		sync_ = values.count("sync");
+		has_pdfs_ = !(
+			boost::starts_with(sample, "QCD") || 
+			boost::starts_with(sample, "singletbar_tW") || boost::starts_with(sample, "singlet_tW") ||
+			boost::starts_with(sample, "WZ") || boost::starts_with(sample, "WW") || boost::starts_with(sample, "ZZ"));
 		if(sync_) tracker_.verbose(true);
-    if(!isData_) mc_weights_.init(
-			sample,
-			!(boost::starts_with(sample, "QCD") || boost::starts_with(sample, "WZ") || boost::starts_with(sample, "WW") || boost::starts_with(sample, "WZ")));
+    if(!isData_) mc_weights_.init(sample, has_pdfs_);
 
-		systematics_ = {systematics::SysShifts::NOSYS};//systematics::get_systematics(output_file);
+		runsys_ = !(values.count("nosys") || isData_);
+		if(!runsys_)
+			systematics_ = {systematics::SysShifts::NOSYS};
+		else {
+			using namespace systematics;
+			typedef SysShifts sys;
+			systematics_ = {
+				sys::NOSYS, 
+				sys::JES_UP, sys::JES_DW, 
+				sys::JER_UP, sys::JER_DW, 
+				sys::MET_UP, sys::MET_DW,
+				sys::RENORM_UP,	sys::RENORM_DW, 
+				sys::FACTOR_UP,	sys::FACTOR_DW,
+				sys::PU_UP, sys::PU_DW,
+				sys::BEFF_UP, sys::BEFF_DW, 
+				sys::BFAKE_UP, sys::BFAKE_DW, 
+			};
+		}
 	}
   
 	TDirectory* getDir(std::string path){
@@ -309,12 +328,26 @@ public:
 
 		//helicity frame
     book<TH1F>(folder, "hframe_ctheta_d", "", 200, -1., 1);
+
+		//2D plots
+		book<TH2F>(folder, "mtt_tlep_ctstar", "", 90, 200., 2000, 100, 0., 1);
+
+		//PDF uncertainties
+    book<TH1D>(folder, "PDFYields", "", 249, 0, 249);		
 	}
 
 	void fill_selection_plots(string folder, URStreamer &event, Permutation &hyp) {
 		fill_presel_plots(folder, event);
 		fill_combo_plots(folder, hyp);
 		auto dir = histos_.find(folder);
+
+		//PDF uncertainties
+		if(has_pdfs_) {
+			const vector<Mcweight>& ws =  event.MCWeights();
+			for(size_t h = 0 ; h < ws.size() ; ++h) {
+				dir->second["PDFYields"].fill(h, evt_weight_*ws[h].weights()/ws[0].weights());
+			}
+		}
 
 		dir->second["pt_thad" ].fill(hyp.THad().Pt() , evt_weight_);
 		dir->second["eta_thad"].fill(hyp.THad().Eta(), evt_weight_);
@@ -348,6 +381,7 @@ public:
 		//top angles
     dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
     dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
+		dir->second["mtt_tlep_ctstar"].fill(hyp.LVect().M(), ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
 
     dir->second["cdelta_ld"].fill(tlepcm.W().l().unit3D().Dot(thadcm.W().down().unit3D()), evt_weight_);
 
@@ -384,7 +418,9 @@ public:
 		
 
 		vector<string> leptons = {"electrons", "muons"};		
-		vector<string> subs    = {"/right", "/matchable", "/unmatchable", "/noslep"};		
+		vector<string> subs    ;
+		if(isSignal_) subs = {"/positive", "/negative"};
+		else subs = {"/right", "/matchable", "/unmatchable", "/noslep"};		
 		vector<string> lepIDs  = {"looseNOTTight", "tight"};		
 		vector<string> MTs     = {"MTLow", "MTHigh"};		
 		//vector<string> tagging = {"ctagged", "notag"};
@@ -396,7 +432,7 @@ public:
 				book_presel_plots(dname);				
 				book_combo_plots(dname);
 				for(auto& subsample : subs) {
-					string sub = (isTTbar_) ? subsample : "";
+					string sub = (isTTbar_ || isSignal_) ? subsample : "";
 					for(auto& lepid : lepIDs) {
 						for(auto& mt : MTs) {
 							stringstream dstream;
@@ -407,7 +443,7 @@ public:
 							book_selection_plots(dstream.str());
 						}
 					}
-					if(!isTTbar_) break;
+					if(!(isTTbar_ || isSignal_)) break;
 				}
 			}
 		}
@@ -490,7 +526,6 @@ public:
 		}
 
     //Find best permutation
-    bool go_on = true;
     Permutation best_permutation;
 		for(auto test_perm : permutator_.pemutations()) {
 			solver_.Solve(test_perm);
@@ -522,7 +557,11 @@ public:
 				else evtdir << "/unmatchable";
 			}
 			else evtdir << "/noslep";
-    }
+    } 
+		else if (isSignal_) {
+			if(evt_weight_ > 0.) evtdir << "/positive";
+			else evtdir << "/negative";
+		}
     tracker_.track("matched perm");
 
 		//check isolation type
@@ -629,12 +668,12 @@ public:
 		URParser &parser = URParser::instance();
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
 		opts.add_options()
-      ("nosys", opts::value<int>()->default_value(0), "do not run systematics")
       ("nopdfs", opts::value<int>()->default_value(0), "do not run pdf uncertainties")
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("report,r", opts::value<int>()->default_value(10000), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("sync", "dump sync ntuple")
+      ("nosys", "do not run systematics")
       ("pick", opts::value<string>()->default_value(""), "pick from evtlist");
 
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
