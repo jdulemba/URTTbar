@@ -155,13 +155,16 @@ BTagSFProducer::~BTagSFProducer() {
 }
 
 double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift) {
+	using namespace systematics;
 	if(no_tight_cut_) return 1.;
   if(ignore_partial_shifts_ && 
      (shift == SysShifts::BTAG_B_UP || shift == SysShifts::BTAG_B_DW || shift == SysShifts::BTAG_C_UP || 
       shift == SysShifts::BTAG_C_DW || shift == SysShifts::BTAG_L_UP || shift == SysShifts::BTAG_L_DW)) {
     shift = SysShifts::NOSYS; //reset value
   }
-  if(ignore_general_shifts_ && (shift == SysShifts::BTAG_UP || shift == SysShifts::BTAG_DW))  {
+  if(ignore_general_shifts_ && (shift == SysShifts::BTAG_UP || shift == SysShifts::BTAG_DW || 
+																shift == SysShifts::BEFF_UP || shift == SysShifts::BEFF_DW ||
+																shift == SysShifts::BFAKE_UP || shift == SysShifts::BFAKE_DW ))  {
     shift = SysShifts::NOSYS;
   }
 
@@ -210,14 +213,14 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
     } //switch(Abs(jet->hadronFlavour()))  
 
     unsigned int idx=1;
-    if(shift == systematics::SysShifts::BTAG_UP) idx=2;
-    else if(shift == systematics::SysShifts::BTAG_DW) idx=0;
-    else if(shift == systematics::SysShifts::BTAG_L_UP && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) idx=2;
-    else if(shift == systematics::SysShifts::BTAG_B_UP && jet_flav == BTagEntry::JetFlavor::FLAV_B) idx=2;
-    else if(shift == systematics::SysShifts::BTAG_C_UP && jet_flav == BTagEntry::JetFlavor::FLAV_C) idx=2;
-    else if(shift == systematics::SysShifts::BTAG_L_DW && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) idx=0;
-    else if(shift == systematics::SysShifts::BTAG_B_DW && jet_flav == BTagEntry::JetFlavor::FLAV_B) idx=0;
-    else if(shift == systematics::SysShifts::BTAG_C_DW && jet_flav == BTagEntry::JetFlavor::FLAV_C) idx=0;
+    if(shift == SysShifts::BTAG_UP) idx=2;
+    else if(shift == SysShifts::BTAG_DW) idx=0;
+    else if((shift == SysShifts::BTAG_L_UP || shift == SysShifts::BFAKE_UP) && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) idx=2;
+    else if((shift == SysShifts::BTAG_B_UP || shift == SysShifts::BEFF_UP)  && jet_flav == BTagEntry::JetFlavor::FLAV_B) idx=2;
+    else if((shift == SysShifts::BTAG_C_UP || shift == SysShifts::BFAKE_UP) && jet_flav == BTagEntry::JetFlavor::FLAV_C) idx=2;
+    else if((shift == SysShifts::BTAG_L_DW || shift == SysShifts::BFAKE_DW) && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) idx=0;
+    else if((shift == SysShifts::BTAG_B_DW || shift == SysShifts::BEFF_DW)  && jet_flav == BTagEntry::JetFlavor::FLAV_B) idx=0;
+    else if((shift == SysShifts::BTAG_C_DW || shift == SysShifts::BFAKE_DW) && jet_flav == BTagEntry::JetFlavor::FLAV_C) idx=0;
 
     // if( 
     //   (skip_b_ && jet_flav == BTagEntry::JetFlavor::FLAV_B) ||
