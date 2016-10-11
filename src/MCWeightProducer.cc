@@ -3,7 +3,8 @@
 #include "Analyses/URTTbar/interface/URStreamer.h"
 #include "TFile.h"
 #include "TMath.h"
-
+#include <iostream>
+using namespace std;
 using namespace TMath;
 
 float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift) {
@@ -11,7 +12,6 @@ float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift
   float ret = info.weight()/Abs(info.weight());
   
   const vector<Mcweight>& ws =  evt.MCWeights();
-  //TODO: check if correct!
   switch(shift) {
   case systematics::SysShifts::FACTOR_DW: ret *= ret*ws[2].weights()/ws[0].weights(); break;
   case systematics::SysShifts::FACTOR_UP: ret *= ret*ws[1].weights()/ws[0].weights(); break;
