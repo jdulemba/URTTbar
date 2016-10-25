@@ -10,7 +10,14 @@ require tools
 require 'json'
 
 def psub(target, sub)
-  return proc {|name| name.sub(target, sub)}
+  ret = proc {|name| 
+    puts name
+    puts target
+    puts sub
+    puts name.sub(target, sub)
+    name.sub(target, sub)
+  }
+  return ret
 end
 
 def psubs(target, *subs)
@@ -239,7 +246,7 @@ task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
-$wroking_points = ['csvLoose', 'csvMedium', 'csvTight', 'ctagLoose', 'ctagMedium', 'ctagTight']
+$wroking_points = ['csvLoose', 'csvMedium', 'csvTight', 'ctagLoose', 'ctagMedium', 'ctagTight', 'cmvaLoose', 'cmvaMedium', 'cmvaTight']
 task :ctag_fitall do |t|
   $wroking_points.each do |wp|
     Rake::Task["ctag_postfit"].invoke(wp)
