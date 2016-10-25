@@ -17,7 +17,8 @@ def scoring(name):
 jet_types = [('bjet', 'bottom'), ('cjet', 'charm'), ('ljet', 'light')]
 
 jobid = os.environ['jobid']
-input_file = 'results/%s/btag_topology_effs/ttJets.root' % jobid
+project = os.environ['URA_PROJECT']
+input_file = '%s/results/%s/btag_topology_effs/ttJets.root' % (project, jobid)
 tfile = io.root_open(input_file)
 
 pt_bins  = [0., 30, 60, 100, 150, 200, 1000]
@@ -40,7 +41,7 @@ def make_efficiency(hpass, hall):
          log.error('bin (%.0f, %.2f) has 0 efficiency' % (bin_eff.x.center, bin_eff.y.center))
    return eff
 
-with io.root_open('inputs/%s/INPUT/ttselection_%s_%s_efficiencies.root' % (jobid, alljet_cut_types[0], alljet_cut_types[1]), 'recreate') as outfile:   
+with io.root_open('%s/inputs/%s/INPUT/ctageff_ttsel_%s_%s_efficiencies.root' % (project, jobid, alljet_cut_types[0], alljet_cut_types[1]), 'recreate') as outfile:   
    for jtype, dname in jet_types:
       jdir = outfile.mkdir(dname)
       jdir.cd()
@@ -54,7 +55,7 @@ with io.root_open('inputs/%s/INPUT/ttselection_%s_%s_efficiencies.root' % (jobid
          jdir.WriteTObject(eff, '%s_eff' % cut_type)
 
 
-with io.root_open('inputs/%s/INPUT/btag_wjets_efficiencies_%s_%s.root' % (jobid, alljet_cut_types[0], alljet_cut_types[1]), 'recreate') as outfile:   
+with io.root_open('%s/inputs/%s/INPUT/ctageff_wjets_efficiencies_%s_%s.root' % (project, jobid, alljet_cut_types[0], alljet_cut_types[1]), 'recreate') as outfile:   
    for jtype, dname in jet_types:
       jdir = outfile.mkdir(dname)
       jdir.cd()
