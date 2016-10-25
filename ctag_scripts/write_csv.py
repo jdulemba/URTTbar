@@ -9,7 +9,7 @@ from glob import glob
 from math import sqrt
 from pdb import set_trace
 #load CSV interfacing tools
-ROOT.gROOT.ProcessLine('.L ../URAnalysis/AnalysisFW/python/BTagCalibrationStandalone.cc+')
+ROOT.gROOT.ProcessLine('.L ../../URAnalysis/AnalysisFW/python/BTagCalibrationStandalone.cc+')
 ROOT.TH1.AddDirectory(False)
 
 def make_csv_entry(value, wpoint, flav, shift='central'):
