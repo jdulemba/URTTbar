@@ -748,7 +748,6 @@ public:
 		parser.addCfgParameter<std::string>("general", "ctag_sffile", "");
 		parser.addCfgParameter<std::string>("general", "cmva_sffile", "");
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
-    parser.addCfgParameter<std::string>("general", "ctag_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");
 
     parser.addCfgParameter<std::string>("permutations", "ordering", "ID to be applied");
