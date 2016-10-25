@@ -282,6 +282,24 @@ class CTagPlotter(Plotter):
 				'subtag'  : [6, 10, 20],
 				'ditag'	: [6, 20],	
 				},			
+			'cmvaLoose' : {
+				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'leadtag' : [6, 8, 10, 12, 14, 16, 18, 20],
+				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
+				'ditag'	: [6, 8, 10, 12, 14, 16, 18, 20],	
+				},
+			'cmvaMedium' : {
+				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'leadtag' : [6, 8, 10, 12, 14, 16, 20],
+				'subtag'  : [6, 10, 14, 20],
+				'ditag'	: [6, 10, 20],
+				},
+			'cmvaTight' : {
+				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'leadtag' : [6, 10, 14, 20],
+				'subtag'  : [6, 10, 20],
+				'ditag'	: [6, 20],	
+				},			
 			'ctagLoose' : {
 				'notag'	: [6, 10, 20],
 				'leadtag' : [6, 10, 14, 20],
@@ -1028,7 +1046,7 @@ systematics_to_check = [
 ]
 
 vars2D = [
-	('Whad_jet_pts', 'p_{T}(lead W jet) (GeV)', 'p_{T}(sub W jet) (GeV)', (1,1)),
+	# ('Whad_jet_pts', 'p_{T}(lead W jet) (GeV)', 'p_{T}(sub W jet) (GeV)', (1,1)),
 ]
 
 variables = [
@@ -1084,6 +1102,9 @@ available_wps = [
 	"ctagLoose",
 	"ctagMedium",
 	"ctagTight",
+	"cmvaMedium",
+	"cmvaLoose" ,
+	"cmvaTight" ,
 ]
 working_points = [i for i in available_wps if fnmatch(i, args.wps)]
 
@@ -1233,11 +1254,12 @@ if args.plots:
 		 for var, xaxis, yaxis, rebin in vars2D:
 			 ROOT.gStyle.SetPalette(56)
 			 path = os.path.join('nosys', base, var)
-			 plotter.plot('data', path, drawopt='colz', xaxis=xaxis, yaxis=yaxis)
+			 plotter.plot_shape('data', path, drawopt='colz', xaxis=xaxis, yaxis=yaxis)
 			 plotter.keep[0].xaxis.SetTitleOffset(1.2)
 			 plotter.keep[0].yaxis.SetTitleOffset(1.5)
 			 plotter.save(var)
-
+		 
+		 if wpoint != 'notag': continue
 		 for var, axis, rebin, x_range, leftside in variables:
 			 if var == 'mass_discriminant': rebin = plotter.binning[wpoint][cat_name]
 			 folder = os.path.join('nosys', base)
