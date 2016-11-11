@@ -10,13 +10,15 @@ using namespace TMath;
 float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift) {
   const Geninfo& info = evt.genInfo();
   float ret = info.weight()/Abs(info.weight());
-  
+
   const vector<Mcweight>& ws =  evt.MCWeights();
   switch(shift) {
-  case systematics::SysShifts::FACTOR_DW: ret *= ret*ws[2].weights()/ws[0].weights(); break;
-  case systematics::SysShifts::FACTOR_UP: ret *= ret*ws[1].weights()/ws[0].weights(); break;
-  case systematics::SysShifts::RENORM_DW: ret *= ret*ws[6].weights()/ws[0].weights(); break;
-  case systematics::SysShifts::RENORM_UP: ret *= ret*ws[3].weights()/ws[0].weights(); break;
+  case systematics::SysShifts::FACTOR_DW: ret *= ws[2].weights()/ws[0].weights(); break;
+  case systematics::SysShifts::FACTOR_UP: ret *= ws[1].weights()/ws[0].weights(); break;
+  case systematics::SysShifts::RENORM_DW: ret *= ws[6].weights()/ws[0].weights(); break;
+  case systematics::SysShifts::RENORM_UP: ret *= ws[3].weights()/ws[0].weights(); break;
+	case systematics::SysShifts::RENFACTOR_UP: ret *= ws[4].weights()/ws[0].weights(); break;
+	case systematics::SysShifts::RENFACTOR_DW: ret *= ws[8].weights()/ws[0].weights(); break;
   default: break;
   }
 	return ret;
