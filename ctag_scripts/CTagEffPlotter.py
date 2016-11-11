@@ -89,28 +89,28 @@ class CTagPlotter(Plotter):
 			'view' : self.create_tt_subsample(
 				['semilep_visible_right'],
 				't#bar{t}',
-				'#6666b3'
+				'#50d0ff'
 				)
 			}
 		self.views['ttJets_sig'] = {
 			'view' : self.create_tt_subsample(
 				['semilep_visible_right', 'semilep_right_thad', 'semilep_right_whad'], 
 				't#bar{t}, right W_{h}',
-				'#6666b3'
+				'#50d0ff'
 				)
 			}
 		self.views['ttJets_bkg'] = {
 			'view' : self.create_tt_subsample(
 				['semilep_right_tlep', 'semilep_wrong'], 
 				't#bar{t}, wrong W_{h}',
-				'#ab5555'
+				'#ff4040'
 				)
 			}
 		self.views['ttJets_other'] = {
 			'view' : self.create_tt_subsample(
 				['other'], 
 				'Other tt decay',
-				'#668db3',
+				'#008b00',
 				)
 			}
 
