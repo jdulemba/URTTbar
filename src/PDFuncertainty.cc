@@ -53,21 +53,48 @@ void PDFuncertainty::SetupWeights(URStreamer& streamer) {
 void PDFuncertainty::fill_replicas(string dirname, string name, double val, double weight, URStreamer& streamer) {
   if(!use_evt_weights_) {
     SetupWeights(streamer);
+		size_t counter=0;
     for(size_t s = 0 ; s < sets_.size() ; ++s) {
       for(size_t p = 0 ; p < pdfs_[s].size() ; ++p) {
-        hist1d_[dirname][name][s][p]->Fill(val, weight*weights_[s][p]);
+        hists_[dirname][name][counter].fill(val, weight*weights_[s][p]);
+				counter++;
       }
     }
     return;
   }
 
 	const vector<Mcweight>& ws =  streamer.MCWeights();
-	if(hist1d_[dirname][name].size() > ws.size()) {
+	if(hists_[dirname][name].size() > ws.size()) {
     Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is more than what I expected!" << endl; 
     throw 42;
 	}
 
 	for(size_t h = 0 ; h < ws.size() ; ++h) {
-		hist1d_[dirname][name][0][h]->Fill(val, weight*ws[h].weights()/ws[0].weights());
+		hists_[dirname][name][h].fill(val, weight*ws[h].weights()/ws[0].weights());
+	}
+}
+
+
+void PDFuncertainty::fill_replicas2D(string dirname, string name, double xval, double yval, double weight, URStreamer& streamer) {
+  if(!use_evt_weights_) {
+    SetupWeights(streamer);
+		size_t counter=0;
+    for(size_t s = 0 ; s < sets_.size() ; ++s) {
+      for(size_t p = 0 ; p < pdfs_[s].size() ; ++p) {
+        hists_[dirname][name][counter].fill(xval, yval, weight*weights_[s][p]);
+				counter++;
+      }
+    }
+    return;
+  }
+
+	const vector<Mcweight>& ws =  streamer.MCWeights();
+	if(hists_[dirname][name].size() > ws.size()) {
+    Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is more than what I expected!" << endl; 
+    throw 42;
+	}
+
+	for(size_t h = 0 ; h < ws.size() ; ++h) {
+		hists_[dirname][name][h].fill(xval, yval, weight*ws[h].weights()/ws[0].weights());
 	}
 }
