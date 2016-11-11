@@ -17,9 +17,7 @@ class TTPermutator;
 class BTagSFProducer {
 public:
   BTagSFProducer():
-    calibration_(),
-    readers_tight_(),
-    readers_loose_() {}
+		calibration_() {}
   BTagSFProducer(TTPermutator &permutator, float float_c=-1, float float_l=-1, float float_b=-1);
   BTagSFProducer(std::string tight, std::string loose="", float float_c=-1, float float_l=-1, float float_b=-1);
   BTagSFProducer(const DataFile &sf_file, const DataFile &eff_file, IDJet::BTag tighttag, IDJet::BTag loosetag=IDJet::BTag::NONE, float float_c=-1, float float_l=-1, float float_b=-1);
@@ -58,8 +56,8 @@ private:
   IDJet::BTag loose_ = IDJet::BTag::NONE;
 
   BTagCalibration calibration_;
-  BTagCalibrationReader readers_tight_[3]; //[down, central, up]
-  BTagCalibrationReader readers_loose_[3]; //[down, central, up]
+  BTagCalibrationReader* reader_tight_ = 0; //[down, central, up]
+  BTagCalibrationReader* reader_loose_ = 0; //[down, central, up]
 
   std::shared_ptr<TH2D> eff_light_loose; 
   std::shared_ptr<TH2D> eff_light_tight;

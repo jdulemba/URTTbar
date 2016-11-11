@@ -142,16 +142,23 @@ void BTagSFProducer::configure(const DataFile &sf_file, const DataFile &eff_file
       sf_file.path() << std::endl;
     throw 42;
   }
-  readers_tight_[0] = BTagCalibrationReader(&calibration_, wp_tight, "used", "down"); //[down, central, up]
-  readers_tight_[1] = BTagCalibrationReader(&calibration_, wp_tight, "used", "central"); //[down, central, up]
-  readers_tight_[2] = BTagCalibrationReader(&calibration_, wp_tight, "used", "up"); //[down, central, up]
+	
+  reader_tight_ = new BTagCalibrationReader(wp_tight, "central", {"up", "down"});//"used", "down"); //[down, central, up]
+	reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_B, "used");
+	reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_C, "used");
+	reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_UDSG, "used");
 
-  readers_loose_[0] = BTagCalibrationReader(&calibration_, wp_loose, "used", "down"); //[down, central, up]
-  readers_loose_[1] = BTagCalibrationReader(&calibration_, wp_loose, "used", "central"); //[down, central, up]
-  readers_loose_[2] = BTagCalibrationReader(&calibration_, wp_loose, "used", "up"); //[down, central, up]
+	if(!no_loose_cut_) {
+		reader_loose_ = new BTagCalibrationReader(wp_loose, "central", {"up", "down"});
+		reader_loose_->load(calibration_, BTagEntry::JetFlavor::FLAV_B, "used");
+		reader_loose_->load(calibration_, BTagEntry::JetFlavor::FLAV_C, "used");
+		reader_loose_->load(calibration_, BTagEntry::JetFlavor::FLAV_UDSG, "used");
+	}
 }
 
 BTagSFProducer::~BTagSFProducer() {
+	if(reader_tight_) delete reader_tight_;
+	if(reader_loose_) delete reader_loose_;
 }
 
 double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift) {
@@ -170,9 +177,6 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
 
   double mc_prob=1;
   double data_like_prob=1; //it's called data, but is on MC!
-
-  BTagCalibrationReader *reader_loose = 0; //&readers_loose_[1];
-  BTagCalibrationReader *reader_tight = 0; //&readers_tight_[1];
 
   for(auto jet : jets) {
     BTagEntry::JetFlavor jet_flav;
@@ -212,15 +216,16 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
       break;
     } //switch(Abs(jet->hadronFlavour()))  
 
-    unsigned int idx=1;
-    if(shift == SysShifts::BTAG_UP) idx=2;
-    else if(shift == SysShifts::BTAG_DW) idx=0;
-    else if((shift == SysShifts::BTAG_L_UP || shift == SysShifts::BFAKE_UP) && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) idx=2;
-    else if((shift == SysShifts::BTAG_B_UP || shift == SysShifts::BEFF_UP)  && jet_flav == BTagEntry::JetFlavor::FLAV_B) idx=2;
-    else if((shift == SysShifts::BTAG_C_UP || shift == SysShifts::BFAKE_UP) && jet_flav == BTagEntry::JetFlavor::FLAV_C) idx=2;
-    else if((shift == SysShifts::BTAG_L_DW || shift == SysShifts::BFAKE_DW) && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) idx=0;
-    else if((shift == SysShifts::BTAG_B_DW || shift == SysShifts::BEFF_DW)  && jet_flav == BTagEntry::JetFlavor::FLAV_B) idx=0;
-    else if((shift == SysShifts::BTAG_C_DW || shift == SysShifts::BFAKE_DW) && jet_flav == BTagEntry::JetFlavor::FLAV_C) idx=0;
+		std::string systematic="central";
+		int idx=1;
+    if(shift == SysShifts::BTAG_UP) {systematic="up"; idx=2;}
+    else if(shift == SysShifts::BTAG_DW) {systematic="down"; idx=0;}
+    else if((shift == SysShifts::BTAG_L_UP || shift == SysShifts::BFAKE_UP) && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) {systematic="up"; idx=2;}
+    else if((shift == SysShifts::BTAG_B_UP || shift == SysShifts::BEFF_UP)  && jet_flav == BTagEntry::JetFlavor::FLAV_B) 		{systematic="up"; idx=2;}
+    else if((shift == SysShifts::BTAG_C_UP || shift == SysShifts::BEFF_UP)  && jet_flav == BTagEntry::JetFlavor::FLAV_C) 		{systematic="up"; idx=2;}
+    else if((shift == SysShifts::BTAG_L_DW || shift == SysShifts::BFAKE_DW) && jet_flav == BTagEntry::JetFlavor::FLAV_UDSG) {systematic="down"; idx=0;}
+    else if((shift == SysShifts::BTAG_B_DW || shift == SysShifts::BEFF_DW)  && jet_flav == BTagEntry::JetFlavor::FLAV_B) 		{systematic="down"; idx=0;}
+    else if((shift == SysShifts::BTAG_C_DW || shift == SysShifts::BEFF_DW)  && jet_flav == BTagEntry::JetFlavor::FLAV_C) 		{systematic="down"; idx=0;}
 
     // if( 
     //   (skip_b_ && jet_flav == BTagEntry::JetFlavor::FLAV_B) ||
@@ -233,11 +238,9 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
     double loose_sf = -1.;
 
     if(float_value < 0) { //use provided SF
-      reader_loose = &readers_loose_[idx];
-      reader_tight = &readers_tight_[idx];
       try { 
-        tight_sf = reader_tight->eval(jet_flav, jet->Eta(), jet->Pt());
-        loose_sf = reader_loose->eval(jet_flav, jet->Eta(), jet->Pt());
+        tight_sf = reader_tight_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
+        loose_sf = reader_loose_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
       } catch(std::out_of_range e) {
         Logger::log().fatal() << "Problem accessing BTV SF for jet: " << jet_flav <<
           ", " << jet->Eta() << ", " << jet->Pt() << std::endl;
