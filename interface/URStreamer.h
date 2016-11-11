@@ -303,20 +303,24 @@ private:
 class Lheinfo{
 friend class URStreamer;
 public:
-//  Lheinfo(const Int_t &i_npnlo_,const Int_t &i_procID_):
+//  Lheinfo(const Int_t &i_npnlo_,const Int_t &i_procID_,const Double_t &i_LHEWeight_):
 //    
 //  {}
   Lheinfo():
     npnlo_(0),
-    procID_(0)
+    procID_(0),
+    LHEWeight_(0)
   {}
   Int_t npnlo() const {return npnlo_;}
   Int_t procID() const {return procID_;}
+  Double_t LHEWeight() const {return LHEWeight_;}
 private:
   Int_t npnlo_;
   Int_t procID_;
+  Double_t LHEWeight_;
   void setnpnlo(const Int_t value) {npnlo_ = value;}
   void setprocID(const Int_t value) {procID_ = value;}
+  void setLHEWeight(const Double_t value) {LHEWeight_ = value;}
 };
 
 class Trigger{
@@ -1544,6 +1548,7 @@ public:
     MCWeights_weights_(0),
     LHEInfo_npnlo_(0),
     LHEInfo_procID_(0),
+    LHEInfo_LHEWeight_(0),
     PUInfos_bx_(0),
     PUInfos_nPU_(0),
     PUInfos_nInteractions_(0),
@@ -1737,6 +1742,7 @@ public:
     if(!are_LHEInfo_loaded_){
       tree_->SetBranchStatus("LHEInfo.npnlo", 1); tree_->SetBranchAddress("LHEInfo.npnlo", &LHEInfo_npnlo_);
       tree_->SetBranchStatus("LHEInfo.procID", 1); tree_->SetBranchAddress("LHEInfo.procID", &LHEInfo_procID_);
+      tree_->SetBranchStatus("LHEInfo.LHEWeight", 1); tree_->SetBranchAddress("LHEInfo.LHEWeight", &LHEInfo_LHEWeight_);
       are_LHEInfo_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -2240,6 +2246,7 @@ public:
     Lheinfo obj;
     obj.setnpnlo(LHEInfo_npnlo_);
     obj.setprocID(LHEInfo_procID_);
+    obj.setLHEWeight(LHEInfo_LHEWeight_);
   
     return obj;
   }
@@ -3222,6 +3229,7 @@ private:
   vector<float> *MCWeights_weights_;
   Int_t LHEInfo_npnlo_;
   Int_t LHEInfo_procID_;
+  Double_t LHEInfo_LHEWeight_;
   vector<float> *PUInfos_bx_;
   vector<float> *PUInfos_nPU_;
   vector<float> *PUInfos_nInteractions_;
