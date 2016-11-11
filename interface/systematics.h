@@ -9,6 +9,7 @@ namespace systematics {
   enum SysShifts {
     NOSYS, JES_UP, JES_DW, JER_UP, JER_DW, MET_UP, MET_DW, 
     RENORM_UP, RENORM_DW, FACTOR_UP, FACTOR_DW, PU_UP, PU_DW,
+		RENFACTOR_UP, RENFACTOR_DW,
     BTAG_UP, BTAG_DW, BTAG_B_UP, BTAG_B_DW, BTAG_C_UP, BTAG_C_DW, BTAG_L_UP, BTAG_L_DW,
 		BEFF_UP, BEFF_DW, BFAKE_UP, BFAKE_DW
   };
@@ -24,6 +25,8 @@ namespace systematics {
     {"renorm_down", SysShifts::RENORM_DW}, 
     {"factor_up", SysShifts::FACTOR_UP}, 
     {"factor_down", SysShifts::FACTOR_DW},
+		{"renfactor_up", SysShifts::RENFACTOR_UP}, 
+		{"renfactor_down", SysShifts::RENFACTOR_DW},
     {"pu_up", SysShifts::PU_UP}, 
     {"pu_down", SysShifts::PU_DW},
     {"btag_up", SysShifts::BTAG_UP}, 
@@ -51,6 +54,8 @@ namespace systematics {
     {SysShifts::RENORM_DW, "renorm_down"}, 
     {SysShifts::FACTOR_UP, "factor_up"  }, 
     {SysShifts::FACTOR_DW, "factor_down"},
+		{SysShifts::RENFACTOR_UP, "renfactor_up"}, 
+		{SysShifts::RENFACTOR_DW, "renfactor_down"},
     {SysShifts::PU_UP, "pu_up"  }, 
     {SysShifts::PU_DW, "pu_down"},
     {SysShifts::BTAG_UP  , "btag_up"   }, 
