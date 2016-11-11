@@ -9,6 +9,12 @@ import itertools
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 log = rootpy.log["/make_btag_effs.py"]
 log.setLevel(rootpy.log.INFO)
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument('tag', help='output file name')
+#parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
+args = parser.parse_args()
 
 cut_scores = ['TIGHT', 'MEDIUM', 'LOOSE', 'NONE']
 def scoring(name):
@@ -53,7 +59,7 @@ for sysname, selection in itertools.product(systypes, selections):
 	bids = list(set([i.name.split('_')[1] for i in tdir.keys()]))
 	bids.sort(key=scoring)
 	fname = '%s/inputs/%s/INPUT/htt_%s_%s_%s_efficiencies.root' % (
-		ura_proj, jobid, selection, 
+		ura_proj, jobid, args.tag, 
 		bids[0], bids[1] if len(bids) == 2 else bids[0]
 		)
 	log.info('creating %s' % fname)
