@@ -51,3 +51,17 @@ task :htt_trial,[:trialID] do |t, args|
     sh "ln -s #{results} #{link}"
   end
 end
+
+task :limit,[:chan] do |t, args|
+  chdir("plots/#{$jobid}/htt/#{args.chan}") do
+    sh "setup_andrey.py #{args.chan}.root"
+    sh 'rm -rf limits'
+    sh 'mv output limits'
+    chdir("limits") do
+      sh 'combineTool.py -M T2W -i pseudoscalar/* -o workspace.root -P CombineHarvester.CombineTools.InterferenceModel:interferenceModel'
+      sh 'combineTool.py -M Asymptotic -d */*/workspace.root --there -n .limit --parallel 4'
+      sh 'combineTool.py -M CollectLimits */*/*.limit.* --use-dirs -o limits.json'
+      sh 'plotLimits.py --y-title="Coupling modifier" --x-title="M_{A} (GeV)" limits_pseudoscalar.json --show=exp'
+    end
+  end
+end
