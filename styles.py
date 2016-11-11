@@ -7,6 +7,7 @@
 # The keys are allowed to contain POSIX-style regular expressions, if multiple
 # matches are found the longest key is used.
 
+import ROOT
 styles = {
    '[WZ]Jets*' : {
       'legendstyle' : 'f',
@@ -45,7 +46,7 @@ styles = {
    'single*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : '#2aa198',
+      'fillcolor' : ROOT.kMagenta,
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "single top",
@@ -61,7 +62,7 @@ styles = {
    'tt*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : '#9999CC',
+      'fillcolor' : ROOT.kOrange + 1,
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "ttbar",
@@ -70,7 +71,7 @@ styles = {
    'QCD*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : '#0055ff',
+      'fillcolor' : ROOT.kGray,
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "QCD",
