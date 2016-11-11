@@ -9,6 +9,7 @@
 #include "Analyses/URTTbar/interface/LeptonSF.h"
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/systematics.h"
+#include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include <unordered_map>
 #include "URAnalysis/AnalysisFW/interface/RObject.h"
 
@@ -17,14 +18,14 @@ class TESTCRASH : public AnalyzerBase
 private:
   unsigned long evt_idx_ = 0;
 	MCWeightProducer mc_weights_;
-	LeptonSF muon_sf_;
+  TTGenParticleSelector genp_selector_;
   unordered_map<string, RObject > histos_;
   // Add your private variables/methods here
 public:
   TESTCRASH(const std::string output_filename):
     AnalyzerBase("TESTCRASH", output_filename),
 		mc_weights_(),
-		muon_sf_("muon_sf"){
+		genp_selector_(TTGenParticleSelector::LHE) {
 		opts::variables_map &values = URParser::instance().values();
 		string output_file = values["output"].as<std::string>();
 		string sample = systematics::get_sample(output_file);
@@ -36,7 +37,8 @@ public:
   virtual void begin()
   {
     outFile_.cd();
-		histos_["pippo"] = RObject::book<TH1D>("pippo", "pippo", 1,0,1);
+		histos_["pippo"] = RObject::book<TH1D>("m_tt", "", 400, 0., 2000);			
+		histos_["mtop"] = RObject::book<TH1D>("m_top", "", 400, 0., 400);			
   }
 
   //This method is called once every file, contains the event loop
@@ -61,6 +63,10 @@ public:
 				DO YOUR ANALYSIS HERE!
 
 			 */
+			genp_selector_.select(event);
+			histos_["pippo"].fill(genp_selector_.ttbar_final_system().M());
+			histos_["mtop"].fill(genp_selector_.ttbar_final_system().top.M());
+			histos_["mtop"].fill(genp_selector_.ttbar_final_system().tbar.M());
     }
   }
 

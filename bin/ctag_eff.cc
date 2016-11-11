@@ -283,7 +283,7 @@ public:
 	}
 
   void book_pdf_plots(string folder) {
-    pdf_uncs_.book_replicas(folder, "mass_discriminant", 20,   0., 20.);
+    pdf_uncs_.book_replicas<TH1F>(folder, "mass_discriminant", 20,   0., 20.);
   }
   void fill_pdf_plots(string folder, const Permutation &hyp, URStreamer& streamer) {
     pdf_uncs_.fill_replicas(folder, "mass_discriminant", hyp.MassDiscr(), evt_weight_, streamer);

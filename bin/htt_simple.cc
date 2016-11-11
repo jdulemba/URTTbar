@@ -51,7 +51,7 @@ private:
 	CutFlowTracker tracker_;
 
 	//switches
-	bool isTTbar_, isSignal_, isData_, runsys_, has_pdfs_;
+	bool isTTbar_, isSignal_, isData_, runsys_, has_pdfs_, optim_;
 
   //selectors and helpers
   TTGenParticleSelector genp_selector_;
@@ -63,6 +63,7 @@ private:
   MCWeightProducer mc_weights_;
   BTagSFProducer btag_sf_;
   TTBarSolver solver_;
+  PDFuncertainty pdf_uncs_;
 
 	//Scale factors
 	LeptonSF electron_sf_, muon_sf_;
@@ -99,6 +100,7 @@ public:
 		randomizer_(),    
 		btag_sf_("permutations.tightb", "permutations.looseb"),
     solver_(true),
+		pdf_uncs_(249),
 		systematics_(),
 		sync_(false),
 		sync_tree_(0),
@@ -137,14 +139,16 @@ public:
 			else object_selector_.lepton_type(1);
 		}
 		sync_ = values.count("sync");
+		optim_ = values.count("optimization");
 		has_pdfs_ = !(
 			boost::starts_with(sample, "QCD") || 
 			boost::starts_with(sample, "singletbar_tW") || boost::starts_with(sample, "singlet_tW") ||
 			boost::starts_with(sample, "WZ") || boost::starts_with(sample, "WW") || boost::starts_with(sample, "ZZ"));
+		bool isTTShift = boost::starts_with(sample, "ttJets_");
 		if(sync_) tracker_.verbose(true);
     if(!isData_) mc_weights_.init(sample, has_pdfs_);
 
-		runsys_ = !(values.count("nosys") || isData_);
+		runsys_ = !(values.count("nosys") || isData_ || isTTShift);
 		if(!runsys_)
 			systematics_ = {systematics::SysShifts::NOSYS};
 		else {
@@ -157,6 +161,7 @@ public:
 				sys::MET_UP, sys::MET_DW,
 				sys::RENORM_UP,	sys::RENORM_DW, 
 				sys::FACTOR_UP,	sys::FACTOR_DW,
+				sys::RENFACTOR_UP, sys::RENFACTOR_DW,
 				sys::PU_UP, sys::PU_DW,
 				sys::BEFF_UP, sys::BEFF_DW, 
 				sys::BFAKE_UP, sys::BFAKE_DW, 
@@ -179,6 +184,7 @@ public:
 	}
 
 	void book_combo_plots(string folder){
+		if(optim_) return;
 		book<TH1F>(folder, "mass_discriminant", "", 20,   0., 20.);
 		book<TH1F>(folder, "nu_discriminant", "", 20,   0., 20.);
 		book<TH1F>(folder, "full_discriminant", "", 40,   0., 40.);
@@ -192,6 +198,7 @@ public:
 	}
 
 	void fill_combo_plots(string folder, const Permutation &hyp){
+		if(optim_) return;
 		auto dir = histos_.find(folder);
 		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
 		dir->second["nu_discriminant"  ].fill(hyp.NuDiscr(), evt_weight_);
@@ -211,6 +218,7 @@ public:
 	}
 
   void book_presel_plots(string folder) {
+		if(optim_) return;
     book<TH1F>(folder, "nvtx_noweight", "", 100, 0., 100.);
     book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
     book<TH1F>(folder, "rho", "", 100, 0., 100.);
@@ -247,6 +255,7 @@ public:
 	}
 
   void fill_presel_plots(string folder, URStreamer &event) {
+		if(optim_) return;
     auto dir = histos_.find(folder);
 		if(dir == histos_.end()) {
 			Logger::log().error() << "could not find: " << folder << endl;
@@ -302,10 +311,16 @@ public:
 		dir->second["iso_btag"].fill(iso, max_csv, evt_weight_);
   }
 
-	void book_selection_plots(string folder) {
+	void book_selection_plots(string folder, bool pdf) {
 		book_presel_plots(folder);
 		book_combo_plots(folder);
-		book<TH1F>(folder, "m_tt", "", 180, 200., 2000);			
+		const vector<double> mbinning = {
+			250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 
+			480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 
+			680.0, 730.0, 800.0, 920.0, 1200.0};
+
+		//book<TH1F>(folder, "m_tt", "", 180, 200., 2000);			
+		book<TH1F>(folder, "m_tt", "", 19, &mbinning[0]);			
 
 		book<TH1F>(folder, "pt_thad" , "", 200, 0., 2000);			
 		book<TH1F>(folder, "eta_thad", "", 200, -10., 10);			
@@ -320,34 +335,43 @@ public:
 
 		//Angular variables
 		//top angles
-    book<TH1F>(folder, "tlep_ctstar", "", 200, 0., 1);
-    book<TH1F>(folder, "thad_ctstar", "", 200, 0., 1);
+    book<TH1F>(folder, "tlep_ctstar", "", 200, -1.0001, 1.0001);
+    book<TH1F>(folder, "thad_ctstar", "", 200, -1.0001, 1.0001);
 
 		//delta
-    book<TH1F>(folder, "cdelta_ld", "", 200, -1., 1);
+    book<TH1F>(folder, "cdelta_ld", "", 200, -1.0001, 1.0001);
 
 		//helicity frame
-    book<TH1F>(folder, "hframe_ctheta_d", "", 200, -1., 1);
+    book<TH1F>(folder, "hframe_ctheta_d", "", 200, -1.0001, 1.0001);
 
 		//2D plots
-		book<TH2F>(folder, "mtt_tlep_ctstar", "", 90, 200., 2000, 100, 0., 1);
+		//book<TH2F>(folder, "mtt_tlep_ctstar", "", 180, 200., 2000, 10, 0., 1.0001);
+		book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 5, 0., 1.0001);
 
 		//PDF uncertainties
-    book<TH1D>(folder, "PDFYields", "", 249, 0, 249);		
+    //book<TH1D>(folder, "PDFYields", "", 249, 0, 249);		
+		if(pdf) {
+			auto dir = histos_.find(folder);
+			if(dir == histos_.end()) {
+				throw std::runtime_error("Could not access folder");
+			}
+			pdf_uncs_.book_replicas(folder, "m_tt", dir->second["m_tt"]);
+			pdf_uncs_.book_replicas(folder, "mtt_tlep_ctstar", dir->second["mtt_tlep_ctstar"]);
+		}
 	}
 
-	void fill_selection_plots(string folder, URStreamer &event, Permutation &hyp) {
+	void fill_selection_plots(string folder, URStreamer &event, Permutation &hyp, bool pdf) {
 		fill_presel_plots(folder, event);
 		fill_combo_plots(folder, hyp);
 		auto dir = histos_.find(folder);
 
 		//PDF uncertainties
-		if(has_pdfs_) {
-			const vector<Mcweight>& ws =  event.MCWeights();
-			for(size_t h = 0 ; h < ws.size() ; ++h) {
-				dir->second["PDFYields"].fill(h, evt_weight_*ws[h].weights()/ws[0].weights());
-			}
-		}
+		//if(has_pdfs_) {
+		//	const vector<Mcweight>& ws =  event.MCWeights();
+		//	for(size_t h = 0 ; h < ws.size() ; ++h) {
+		//		dir->second["PDFYields"].fill(h, evt_weight_*ws[h].weights()/ws[0].weights());
+		//	}
+		//}
 
 		dir->second["pt_thad" ].fill(hyp.THad().Pt() , evt_weight_);
 		dir->second["eta_thad"].fill(hyp.THad().Eta(), evt_weight_);
@@ -356,7 +380,8 @@ public:
 		dir->second["pt_tt"   ].fill(hyp.LVect().Pt() , evt_weight_);
 		dir->second["eta_tt"  ].fill(hyp.LVect().Eta(), evt_weight_);
 		dir->second["m_tt"].fill(hyp.LVect().M(), evt_weight_);
-
+		if(pdf) pdf_uncs_.fill_replicas(folder, "m_tt", hyp.LVect().M(), evt_weight_, event);
+		
 		if(object_selector_.clean_jets().size() == 4)
 			dir->second["full_discriminant_4j" ].fill(hyp.Prob(), evt_weight_);
 		else if(object_selector_.clean_jets().size() == 5)
@@ -381,7 +406,16 @@ public:
 		//top angles
     dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
     dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
-		dir->second["mtt_tlep_ctstar"].fill(hyp.LVect().M(), ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
+		dir->second["mtt_tlep_ctstar"].fill(
+			hyp.LVect().M(), 
+			fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
+			evt_weight_
+			);
+		if(pdf) pdf_uncs_.fill_replicas2D(
+			folder, "mtt_tlep_ctstar", 
+			hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
+			evt_weight_, event
+			);
 
     dir->second["cdelta_ld"].fill(tlepcm.W().l().unit3D().Dot(thadcm.W().down().unit3D()), evt_weight_);
 
@@ -440,7 +474,8 @@ public:
 							dstream << sys_name << "/" << lepid << "/" << mt;
 							
 							Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
-							book_selection_plots(dstream.str());
+							bool runpdf = (isTTbar_ && sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
+							book_selection_plots(dstream.str(), runpdf);
 						}
 					}
 					if(!(isTTbar_ || isSignal_)) break;
@@ -565,24 +600,29 @@ public:
     tracker_.track("matched perm");
 
 		//check isolation type
+		bool runpdf = (isTTbar_ && shift == systematics::SysShifts::NOSYS);
 		evtdir << "/" << sys_name << "/";
 		switch(object_selector_.event_type()) {
 		case TTObjectSelector::EvtType::TIGHTMU: 
-		case TTObjectSelector::EvtType::TIGHTEL: evtdir << "tight"; break;
+		case TTObjectSelector::EvtType::TIGHTEL: evtdir << "tight"; runpdf &= true; break;
 		case TTObjectSelector::EvtType::LOOSEMU: 
-		case TTObjectSelector::EvtType::LOOSEEL: evtdir << "looseNOTTight"; break;
+		case TTObjectSelector::EvtType::LOOSEEL: evtdir << "looseNOTTight"; runpdf &= false; break;
 		default: throw 42; break;
 		}
 
 		//check MT category
-		if(mtlow)
+		if(mtlow) {
 			evtdir << "/MTLow";
-		else 
+			runpdf &= false;
+		}
+		else {
 			evtdir << "/MTHigh";
+			runpdf &= true;
+		}
 		tracker_.track("MT cut", leptype);
 
 		//fill right category
-		fill_selection_plots(evtdir.str(), event, best_permutation);
+		fill_selection_plots(evtdir.str(), event, best_permutation, runpdf);
 		tracker_.track("END", leptype);
 	}
 
@@ -672,6 +712,7 @@ public:
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("report,r", opts::value<int>()->default_value(10000), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+      ("optimization", "run in optimization mode: reduced number of histograms")
       ("sync", "dump sync ntuple")
       ("nosys", "do not run systematics")
       ("pick", opts::value<string>()->default_value(""), "pick from evtlist");
