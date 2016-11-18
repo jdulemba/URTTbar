@@ -27,6 +27,7 @@ from uncertainties import ufloat
 from URAnalysis.Utilities.datacard import DataCard
 from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.Utilities.latex import t2latex
+from URAnalysis.Utilities.roottools import Envelope
 import re
 import itertools
 
@@ -39,8 +40,12 @@ parser.add_argument('--shapes', action='store_true', help='')
 parser.add_argument('--all', action='store_true', help='')
 parser.add_argument('--btag', action='store_true', help='')
 parser.add_argument('--card', action='store_true', help='')
+parser.add_argument('--sysplots', action='store_true', help='dumps systematics plots, valid only if --card')
 #parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 args = parser.parse_args()
+
+if args.sysplots and not args.card:
+	raise RuntimeError('I can only draw systematics plots if I am creating the card!')
 
 def syscheck(cmd):
 	out = os.system(cmd)
@@ -57,10 +62,10 @@ class HTTPlotter(Plotter):
 			 (os.path.basename(x).startswith('data') and mode[:-1] in os.path.basename(x).lower())
 		self.tt_to_use = 'ttJets'
 		self.tt_shifted = {
-			'mtop_up' : 'ttJets_mtopup',
+			'mtop_up'   : 'ttJets_mtopup',
 			'mtop_down' : 'ttJets_mtopdown',
-			'hadscale_up' : 'ttJets_scaleup', 
-			'hadscale_down' : 'ttJets_scaledown',
+			'scale_up'   : 'ttJets_scaleup', 
+			'scale_down' : 'ttJets_scaledown',
 			}
 		jobid = os.environ['jobid']
 		files = glob.glob('results/%s/htt_simple/*.root' % jobid)
@@ -69,7 +74,9 @@ class HTTPlotter(Plotter):
 		lumis = glob.glob('inputs/%s/*.lumi' % jobid)
 		lumis = filter(filtering, lumis)
 		logging.debug('lumi files found %s' % lumis.__repr__())
-		
+		self.tt_lhe_weights = prettyjson.loads(
+			open('inputs/%s/ttJets.weights.json' % jobid).read()
+			)
 		outdir= 'plots/%s/htt/%s' % (jobid, mode)
 		super(HTTPlotter, self).__init__(
 			files, lumis, outdir, styles, None, lumi
@@ -96,21 +103,21 @@ class HTTPlotter(Plotter):
 			'view' : self.create_tt_subsample(
 				['right'],
 				't#bar{t} matched',
-				'#6666b3'
+				ROOT.kOrange + 9
 				)
 			}
 		self.views['ttJets_matchable'] = {
 			'view' : self.create_tt_subsample(
 				['matchable'], #,  'right_th', 'wrong'],
 				't#bar{t} matchable',
-				'#dddddd'
+				ROOT.kRed - 1
 				)
 			}
 		self.views['ttJets_unmatchable'] = {
 			'view' : self.create_tt_subsample(
 				['unmatchable'],#  'right_th', 'wrong'],
 				't#bar{t} unmatchable',
-				'#ab5555'
+				ROOT.kMagenta - 2
 				)
 			}
 
@@ -118,7 +125,49 @@ class HTTPlotter(Plotter):
 			'view' : self.create_tt_subsample(
 				['noslep'], 
 				'Other t#bar{t}',
-				'#668db3',
+				ROOT.kCyan - 1
+				)
+			}
+
+		##
+		## General plotting views
+		##
+		self.views['ttJets_generic'] = {
+			'view' : views.TitleView(
+				views.StyleView(
+					views.SumView(
+						self.views['ttJets_other'      ]['view'],
+						self.views['ttJets_unmatchable']['view'],
+						self.views['ttJets_matchable'  ]['view'],
+						self.views['ttJets_right'      ]['view'],						
+						),
+					fillcolor = ROOT.kOrange + 1
+					),
+				't#bar{t}'
+				)
+			}
+
+		self.views['EWK'] = {
+			'view' : views.TitleView(
+				views.StyleView(
+					views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', '[WZ]Jets', 'tt[WZ]*']]),
+					fillcolor = ROOT.kGreen + 1
+					),
+					'EW'
+				)
+			}
+
+		self.views['AllButTT'] = {
+			'view' : views.TitleView(
+				views.StyleView(
+					views.SumView(
+						self.get_view('EWK'),
+						self.get_view('QCD*'),
+						self.get_view('single*'),
+						),
+					fillcolor = ROOT.kGray
+					),
+				'Other'
 				)
 			}
 
@@ -130,33 +179,33 @@ class HTTPlotter(Plotter):
 			if sample.startswith('AtoTT_'): 
 				raise ValueError("I did not implement it yet remember to swap the H and A")
 			if sample.startswith('HtoTT_'):# or sample.startswith('AtoTT_'):
-				_, mval, width, pI = tuple(sample.split('_'))				
-				new_name = ['ggA']
-				interference = False
+				_, mass, width, pI = tuple(sample.split('_'))				
+				samtype = 'int' if pI == 'Int' else 'sgn'
 				if pI == 'Int':
-					interference = True
-					new_name.append('int')
-				new_name.extend(['neg', mval[1:], width])
-				new_name = '_'.join(new_name)
-				self.views[new_name] = {
-					'view' : self.create_subsample(sample, ['negative'], '%s negative' % sample, color='#9999CC')
-					}
-				added_samples.append(new_name)
-				new_name = new_name.replace('neg_' if interference else '_neg_', '')
-				self.views[new_name.replace('neg_' if interference else '_neg_', '')] = {
+					sub_name = 'ggA_neg-%s-%s-%s' % (samtype, width, mass)
+					self.views[sub_name] = {
+						'view' : views.ScaleView(
+							self.create_subsample(sample, ['negative'], '%s negative' % sample, color='#9999CC'),
+							-1
+							)
+						}
+					added_samples.append(sub_name)
+				sub_name = 'ggA_pos-%s-%s-%s' % (samtype, width, mass)
+				self.views[sub_name] = {
 					'view' : self.create_subsample(sample, ['positive'], '%s positive' % sample, color='#9999CC')
 					}
-				added_samples.append(new_name)
+				added_samples.append(sub_name)
 
-		self.mc_samples = [
+		self.generic_mcs = [
 			'QCD*',
-			'[WZ][WZ]',
-			'[WZ]Jets',
-			'tt[WZ]*',
-			## #'WJets',
-			#'ZJets',
-			'single*',
-			#'ttJets',
+			'EWK',
+			'single*',			
+			'ttJets_generic',
+			]
+
+		self.mc_samples = self.generic_mcs
+		self.split_mcs = [
+			'AllButTT',
 			'ttJets_other',
 			'ttJets_unmatchable',
 			'ttJets_matchable',
@@ -168,73 +217,27 @@ class HTTPlotter(Plotter):
 			'QCDmujets' if mode == 'muons' else 'QCDejets' : ['QCD*'],
 			'TT' : ['ttJets_other', 'ttJets_unmatchable', 'ttJets_matchable', 'ttJets_right'],
 			'VV' : ['[WZ][WZ]'],
-			#contested
 			'TTV': ['tt[WZ]*'],
-			'single_top' : ['single*'],
-			'vjets'		: ['[WZ]Jets'],
+			'WJets'	: ['W[0-9]Jets'],
+			'ZJets'	: ['ZJets'],
+			'tChannel' : ['single*_[st]channel'],
+			'tWChannel' : ['single*_tW'],
 			'data_obs'	: ['data']
 			}
 		self.card_names.update({i : [i] for i in added_samples})
 
 		self.systematics = {
-			#synched
-			'lumi_13TeV' : {
-				'type' : 'lnN',
-				'samples' : ['.*'],
-				'categories' : ['.*'],
-				'value' : 1.027,
-				},
+			#JES JER
 			'CMS_scale_j_13TeV' : {
-				'samples' : ['.*_whad', 'nonsemi_tt', 'single_top'],
+				'samples' : ['.*'],
 				'categories' : ['.*'],
 				'type' : 'shape',
 				'+' : lambda x: x.replace('nosys', 'jes_up'),
 				'-' : lambda x: x.replace('nosys', 'jes_down'),
-				'constants' : ('jes_down', 'jes_up'),
 				'value' : 1.00,
 				},
-			}
-		{
-			#to sync
-			'lepEff' : {
-				'type' : 'lnN',
+			'CMS_res_j_13TeV' : {
 				'samples' : ['.*'],
-				'categories' : ['.*'],
-				'value' : 1.02,
-				},
-			'ttxsec' : {
-				'type' : 'lnN',
-				'samples' : ['TT'],
-				'categories' : ['.*'],
-				'value' : 1.16,
-				},			
-			'singletxsec' : {
-				'type' : 'lnN',
-				'samples' : ['single_top'],
-				'categories' : ['.*'],
-				'value' : 1.50,
-				},			
-			'qcdxsec' : {
-				'type' : 'lnN',
-				'samples' : ['qcd'],
-				'categories' : ['.*'],
-				'value' : 1.70,
-				},			
-			'vjetxsec' : {
-				'type' : 'lnN',
-				'samples' : ['vjets'],
-				'categories' : ['.*'],
-				'value' : 1.10,
-				},			
-			'pu' : {
-				'samples' : ['.*'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'pu_up'),
-				'-' : lambda x: x.replace('nosys', 'pu_down'),
-				},
-			'JER' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad', 'single_top'],
 				'categories' : ['.*'],
 				'type' : 'shape',
 				'+' : lambda x: x.replace('nosys', 'jer_up'),
@@ -242,64 +245,99 @@ class HTTPlotter(Plotter):
 				'constants' : ('jer_down', 'jer_up'),
 				'value' : 1.00,				
 				},
-			'MTOP' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			#BTAG
+			'CMS_eff_b_13TeV' : {
+				'samples' : ['.*'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'beff_up'),
+				'-' : lambda x: x.replace('nosys', 'beff_down'),
+				'value' : 1.00,
+				},
+			'CMS_fake_b_13TeV' : {
+				'samples' : ['.*'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'bfake_up'),
+				'-' : lambda x: x.replace('nosys', 'bfake_down'),
+				'value' : 1.00,
+				},
+			#SCALE/PS
+			'QCDscaleMERenorm_TT' : {
+				'samples' : ['TT$'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'renorm_up'),
+				'-' : lambda x: x.replace('nosys', 'renorm_down'),
+				'value' : 1.00,
+				'scales' : (1./self.tt_lhe_weights['3'], 1./self.tt_lhe_weights['6']),
+				},
+			'QCDscaleMEFactor_TT' : {
+				'samples' : ['TT$'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'factor_up'),
+				'-' : lambda x: x.replace('nosys', 'factor_down'),
+				'value' : 1.00,
+				'scales' : (1./self.tt_lhe_weights['1'], 1./self.tt_lhe_weights['2']),
+				},
+			'QCDscaleMERenormFactor_TT' : {
+				'samples' : ['TT$'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'renfactor_up'),
+				'-' : lambda x: x.replace('nosys', 'renfactor_down'),
+				'value' : 1.00,
+				'scales' : (1./self.tt_lhe_weights['4'], 1./self.tt_lhe_weights['8']),
+				},
+			'QCDscalePS_TT' : {
+				'samples' : ['TT$'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'scale_up'),
+				'-' : lambda x: x.replace('nosys', 'scale_down'),
+				'value' : 1.00,
+				},
+			#TMass
+			'TMass' : {
+				'samples' : ['TT$'],
 				'categories' : ['.*'],
 				'type' : 'shape',
 				'+' : lambda x: x.replace('nosys', 'mtop_up'),
-				#'-' : lambda x: x.replace('nosys', 'mtop_down'),
-				'value' : 1.00,				
+				'-' : lambda x: x.replace('nosys', 'mtop_down'),
+				'value' : 1.00,
 				},
-			'HScale' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'hadscale_up'),
-				#'-' : lambda x: x.replace('nosys', 'hadscale_down'),
-				'constants' : ('hadscale_down', 'hadscale_up'),
-				'value' : 1.00,				
-				},
-			'BTAG' : {
+			#OTHER
+			'CMS_pileup' : {
 				'samples' : ['.*'],
 				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btag_up'),
-				'-' : lambda x: x.replace('nosys', 'btag_down'),
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'pu_up'),
+				'-' : lambda x: x.replace('nosys', 'pu_down'),
 				},
-			'CTAGB' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'single_top', 'vjets', 'qcd'],
+			'CMS_METunclustered_13TeV' : {
+				'samples' : ['.*'],
 				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btagb_up'),
-				'-' : lambda x: x.replace('nosys', 'btagb_down'),
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'met_up'),
+				'-' : lambda x: x.replace('nosys', 'met_down'),
 				},
-			'CTAGL' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'single_top', 'qcd', 'vjets'],#, 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btagl_up'),
-				'-' : lambda x: x.replace('nosys', 'btagl_down'),
-				},
-			'CTAGC' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'single_top', 'qcd', 'vjets'],#, 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btagc_up'),
-				'-' : lambda x: x.replace('nosys', 'btagc_down'),
-				},
-			'PDF' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			'pdf' : {
+				'samples' : ['TT$'],
 				'categories' : ['.*'],
 				'type' : 'pdf',
+				'pdftype' : 'nnpdf'
 				},
+
 			}
 		self.card = None
 		self.binning = {
 			}
 
-	def save_card(self, name):
+	def save_card(self, name, bbb=True):
 		if not self.card:
 			raise RuntimeError('There is no card to save!')
+		self.card.clamp_negative_bins('.*','ZJets')
 		for sys_name, info in self.systematics.iteritems():
 			if 'value' not in info: continue
 			for category in info['categories']:
@@ -311,9 +349,104 @@ class HTTPlotter(Plotter):
 						sample, 
 						info['value']
 						)
+
+		if bbb:
+			mcsamples = [i for i in self.card_names if i != 'data_obs']
+			for catname in self.card.categories.keys():
+				category = self.card.categories[catname]
+				#inflate bin errors of tt for each sample
+				hists = [category[i] for i in mcsamples]
+				for bins in zip(*hists):
+					if bins[0].overflow: continue
+					unc = quad.quad(*[i.error for i in bins[1:]])
+					idx = bins[0].idx
+					hup = category['TT'].Clone()
+					hup[idx].value += unc
+					hdw = category['TT'].Clone()
+					hdw[idx].value -= unc
+					category['TT_CMS_httbar_%s_MCstatBin%dUp'   % (catname, idx)] = hup
+					category['TT_CMS_httbar_%s_MCstatBin%dDown' % (catname, idx)] = hdw
 		self.card.save(name, self.outputdir)
-		self.card = None
 	
+	def pdf_unc_histo(self, view, var, pdf, central):
+		nnpdf = range(9, 109)
+		## ct10 = range(112, 165)
+		## mmht = range(167, 218)
+		## allpdf = [0]+range(10, 218)
+		vartemplate = '%s_mcws_pdf_%d'
+		
+		def to_up_down(central):
+			up, down = central.Clone(), central.Clone()
+			up.Reset()
+			down.Reset()
+			for ubin, dbin, cbin in zip(up, down, central):
+				ubin.value = cbin.value + cbin.error
+				dbin.value = cbin.value - cbin.error
+			return up, down
+
+		def get_and_scale(view, var, idx):
+			scale = 1./self.tt_lhe_weights['%d' % idx]
+			value = view.Get(vartemplate % (var, idx))
+			value.Scale(scale)			
+			return value
+
+		def full_envelope(view, var, idrange):
+			envelope = Envelope()
+			for idx in idrange:
+				envelope.add(
+					get_and_scale(view, var, idx)
+					)
+			return to_up_down(envelope.one_sigma)
+
+		def rms_envelope(view, var, idrange):
+			central = view.Get(vartemplate % (var, idrange[0]))
+			sqsum = central.Clone()
+			sqsum.Reset()
+			for idx in idrange[1:]:
+				histo = get_and_scale(view, var, idx)
+				for sbin, cbin, hbin in zip(sqsum, central, histo):
+					sbin.value += (cbin.value-hbin.value)**2
+
+			nreplicas = len(idrange)-1
+			for sbin, cbin in zip(sqsum, central):
+				err = math.sqrt(sbin.value/nreplicas)
+				cbin.error = err
+			return to_up_down(central)
+					
+		def quad_envelope(view, var, idrange):
+			central = view.Get(vartemplate % (var, idrange[0]))
+			sqsum = central.Clone()
+			sqsum.Reset()
+			for pos, idx in enumerate(idrange[1:]):
+				if pos % 2: continue
+				h1 = get_and_scale(view, var, idx)
+				h2 = get_and_scale(view, var, idrange[pos+1])
+				for sbin, cbin, h1bin, h2bin in zip(sqsum, central, h1, h2):
+					d1 = abs(cbin.value-h1bin.value)
+					d2 = abs(cbin.value-h2bin.value)					
+					sbin.value = quad.quad(sbin.value, max(d1,d2))
+
+			for sbin, cbin in zip(sqsum, central):				
+				cbin.error = sbin.value
+			return to_up_down(central)
+
+		if pdf == 'nnpdf':
+			up, down = full_envelope(view, var, nnpdf)
+			alpha_up = get_and_scale(view, var, 110)
+			alpha_dw = get_and_scale(view, var, 109)
+			ret_up = central.Clone()
+			ret_dw = central.Clone()
+			for idx in range(len(central)):
+				pdfu_delta = up[idx].value - central[idx].value
+				lphu_delta = alpha_up[idx].value - central[idx].value
+				ret_up[idx].value += quad.quad(pdfu_delta, lphu_delta)
+				pdfd_delta = down[idx].value - central[idx].value
+				lphd_delta = alpha_dw[idx].value - central[idx].value
+				ret_dw[idx].value -= quad.quad(pdfd_delta, lphd_delta)
+			return ret_up, ret_dw
+		else:
+			raise RuntimeError('invalid pdf type')
+
 	def write_shapes(self, category_name, folder, variable,
 									 rebin=1, preprocess=None):
 		'''
@@ -332,16 +465,16 @@ class HTTPlotter(Plotter):
 					),
 				rebin
 				)
+			if 'ggA_neg' in name or 'ggH_neg' in name:
+				card_views[name] = views.ScaleView(
+					card_views[name], 1)
 
 		if preprocess:
 			for name in card_views:
 				card_views[name] = preprocess(card_views[name])
 
 		for name, view in card_views.iteritems():
-			try:
-				histo = view.Get(path)
-			except:
-				set_trace()
+			histo = view.Get(path)
 			integral = histo.Integral()
 			
 			category[name] = histo
@@ -355,16 +488,11 @@ class HTTPlotter(Plotter):
 				if not any(re.match(i, name) for i in info['samples']): continue
 				shift = 1.0
 				if info['type'] == 'pdf': #pdf special case
-					samples = self.card_names[name]
-					histos = [self.pdf_unc_histo(i, j, 'mass_discriminant', rebin, 'nnpdf') for i in samples for j in folders]
-					hpdf = sum(histos) if len(histos) > 1 else histos[0]
-					hu = category[name].Clone()
-					hd = category[name].Clone()
-					for i,j,k in zip(hpdf, hu, hd):
-						err = (i.error/i.value)*j.value if i.value else 0.
-						j.value += err
-						k.value -= err
-					category['%s_%sUp'	% (name, sys_name)] = hu
+					hu, hd = self.pdf_unc_histo(
+						views.SubdirectoryView(view, folder),
+						variable, info['pdftype'], category[name]
+						)
+					category['%s_%sUp'   % (name, sys_name)] = hu
 					category['%s_%sDown' % (name, sys_name)] = hd					
 					plotter.card.add_systematic(sys_name, 'shape', category_name, name, 1.00)
 				elif info['type'] == 'shape' or 'value' not in info:
@@ -372,6 +500,10 @@ class HTTPlotter(Plotter):
 					path_dw = info['-'](path) if '-' in info else None
 					hup = view.Get(path_up) if path_up else None
 					hdw = view.Get(path_dw) if path_dw else None
+					if 'scales' in info:
+						sup, sdw = info['scales']
+						hup.Scale(sup)
+						hdw.Scale(sdw)
 
 					if hup is None and hdw is None:
 						raise RuntimeError('%s systematic does not define neither "+" nor "-" values' % sys_name)
@@ -422,26 +554,20 @@ class HTTPlotter(Plotter):
 
 
 	def create_subsample(self, baseview, subdirs, title, color='#9999CC'):
-		dirmap = {
-			'' : views.SumView(
-				*[views.SubdirectoryView(self.views[baseview]['view'], i) for i in subdirs]
-				 )
-			}
-		for shift, view in self.tt_shifted.iteritems():
-			dirmap[shift] = views.SumView(
-				*[views.SubdirectoryView(self.views[view]['view'], '%s/nosys' % i) for i in subdirs]
-				)
-		
 		return views.StyleView(
 			views.TitleView(
-				dirmap[''],#				urviews.MultifileView(**dirmap),
+				views.SumView(
+					*[views.SubdirectoryView(self.views[baseview]['view'], i) for i in subdirs]
+					 ),
 				title
 				),
 			fillcolor = color
 			)
 
 	def create_tt_subsample(self, subdirs, title, color='#9999CC'):
-		return self.create_subsample('ttJets', subdirs, title, color=color)
+		shifts = {shift : self.create_subsample(view, ['%s/nosys' % i for i in subdirs], title, color=color) for shift, view in self.tt_shifted.iteritems()}
+		shifts[''] = self.create_subsample('ttJets', subdirs, title, color=color)
+		return urviews.MultifileView(**shifts)
 
 	def cut_flow(self):
 		BasePlotter.set_canvas_style(self.canvas)
@@ -516,8 +642,10 @@ class HTTPlotter(Plotter):
 			del kwargs['sys_effs']
 		mc_default = self.mc_samples
 		self.mc_samples = [
-			'[WZ][WZ]', 'QCD*', '[WZ]Jets', 
-			'single*', 'ttJets_preselection'
+			'QCD*',
+			'EWK',
+			'single*',			
+			'ttJets_preselection'
 			]
 		self.plot_mc_vs_data(*args, **kwargs)
 		if systematics is not None:
@@ -611,7 +739,7 @@ class HTTPlotter(Plotter):
 plotter = HTTPlotter(args.mode)
 
 variables = [
-  (False, "m_tt"	, "m(tt) (GeV)", 2, None, False),		
+  (False, "m_tt"	, "m(tt) (GeV)", 1, None, False),		
   (False, "tlep_ctstar"	, "cos #theta^{*}(tlep)", 2, None, False),		
   (False, "thad_ctstar"	, "cos #theta^{*}(thad)", 2, None, False),		
   (False, "cdelta_ld", "cos #delta(ld)", 2, None, False),		
@@ -642,6 +770,8 @@ preselection = [
 	(True	, "cMVA"    , "cMVA",  1, None, False),
 	(True	, "cMVA_p11", "cMVA^{11}", 1, None, False),
 	(True	, "qgtag"   , "quark-gluon tag",  1, None, False),
+	(False, "METPhi", "MET #varphi", 4, None, False),
+	(False, "MET"   , "MET E_{T}"  , 1, [0, 400], False),
 ]
 
 permutations = [
@@ -679,6 +809,8 @@ if args.plots or args.all:
 		plotter.set_subdir(tdir)
 		first = True
 		for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
+			if 'discriminant' in var:
+				plotter.mc_samples = plotter.split_mcs
 			plotter.plot_mc_vs_data(
 				'nosys/%s' % tdir, var, sort=True,
 				xaxis=axis, leftside=leftside, rebin=rebin,
@@ -692,6 +824,8 @@ if args.plots or args.all:
 					(tdir, plotter.get_yields(50))
 					)
 			plotter.save(var)
+			if 'discriminant'in var:
+				plotter.mc_samples = plotter.generic_mcs
 
 	jmap = {}
 	for tdir, sams in vals:
@@ -772,29 +906,61 @@ if args.btag:
 	plotter.plot(ttfrac, drawstyle='colz')
 	plotter.save('fraction_tt')
 
+binnind2D = (
+	[250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 680.0, 730.0, 800.0, 920.0, 1200.0], #~3k events each mtt bin
+	[2] #[0, 0.2, 0.4, 0.6, 0.8, 1.0]
+)
 if args.card:
+	## plotter.write_shapes(		
+	## 	'mujets' if args.mode == 'muons' else 'ejets',
+	## 	'nosys/tight/MTHigh', 'mtt_tlep_ctstar',
+	## 	rebin=binnind2D, preprocess=urviews.LinearizeView)
 	plotter.write_shapes(		
 		'mujets' if args.mode == 'muons' else 'ejets',
-		'nosys/tight/MTHigh', 'mtt_tlep_ctstar',
-		rebin=1, preprocess=None)
+		'nosys/tight/MTHigh', 'm_tt',
+		rebin=binnind2D[0])
+	## plotter.write_shapes(		
+	## 	'mujets' if args.mode == 'muons' else 'ejets',
+	## 	'nosys/tight/MTHigh', 'tlep_ctstar',
+	## 	rebin=10)
 	plotter.set_subdir()
 	plotter.save_card(args.mode)
+	if args.sysplots:
+		categories = plotter.card.categories.keys()
+		for category in categories:
+			plotter.set_subdir('shapes/%s' % category)
+			category = plotter.card.categories[category]
+			samples  = category.keys()
+			shifted_tt = [i for i in samples if i.startswith('TT_') and i.endswith('Up')]
+			ttsample = category.TT
+			ttsample.linecolor = 'black'
+			ttsample.linewidth = 2
+			ttsample.drawstyle = 'hist'
+			ttsample.fillstyle = 'hollow'
+			for i in ttsample:
+				i.error = 0
+			for shifted in shifted_tt:
+				if 'MCstatBin' in shifted: continue
+				name = shifted[3:-2]
+				up = category[shifted]
+				down = category[shifted.replace('Up','Down')]
+				center = (up+down)/2.
+				delta = (up-down)/2.
+				for cbin, dbin in zip(center, delta):
+					cbin.error = dbin.value
+				center.fillcolor = '#b3ecfd'
+				center.linewidth  = 0
+				center.markersize = 0
+				center.drawstyle = 'E2'
+				plotter.overlay_and_compare(
+						[center], ttsample, method='ratio', lower_y_range='auto',
+						legend_def=None, xtitle='mass discriminant', ytitle='events',
+						ignore_style=False, ratio_style = {
+						'fillcolor' : '##b3ecfd',
+						'linewidth' : 0,
+						'markersize': 0,
+						'drawstyle' : 'E2'
+						}
+						)
+				plotter.save(name)
 
-#for var, axis, rebin, x_range, leftside in permutations:
-#		plotter.make_preselection_plot(
-#			'nosys/preselection', var, sort=True,
-#			xaxis=axis, leftside=leftside, rebin=rebin, 
-#			show_ratio=True, ratio_range=0.5)
-#		plotter.save(var)
-#
-#for jdir in jet_categories:
-#	plotter.set_subdir(jdir)
-#	folder = 'nosys/%s' % jdir
-#	for var, axis, rebin, x_range, leftside in variables+permutations:
-#		plotter.plot_mc_vs_data(
-#			folder, var, rebin, #sort=True,
-#			xaxis=axis, leftside=False,
-#			xrange=x_range, show_ratio=True, 
-#			ratio_range=0.5)		
-#		plotter.save(var)
-		

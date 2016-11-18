@@ -474,7 +474,7 @@ public:
 							dstream << sys_name << "/" << lepid << "/" << mt;
 							
 							Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
-							bool runpdf = (isTTbar_ && sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
+							bool runpdf = (runsys_ && isTTbar_ && sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
 							book_selection_plots(dstream.str(), runpdf);
 						}
 					}
@@ -600,7 +600,7 @@ public:
     tracker_.track("matched perm");
 
 		//check isolation type
-		bool runpdf = (isTTbar_ && shift == systematics::SysShifts::NOSYS);
+		bool runpdf = (runsys_ && isTTbar_ && shift == systematics::SysShifts::NOSYS);
 		evtdir << "/" << sys_name << "/";
 		switch(object_selector_.event_type()) {
 		case TTObjectSelector::EvtType::TIGHTMU: 
