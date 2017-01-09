@@ -1,5 +1,5 @@
 '''
-Test Analyzer Plotter macro
+Jet_Effs Analyzer Plotter macro
 '''
 
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
@@ -21,7 +21,7 @@ jobid = jobid = os.environ['jobid']
 
 parser.add_argument('analysis', help='Choose type of analysis (Test or Full_Analysis).')
 parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000, or Combined).')
-parser.add_argument('plot', help='Choose type of plots to generate (Gen_Kin, Gen_Ratios, Matched_Objects, Delta_Plots, BTagging_Eff, Merged_Perms).')
+parser.add_argument('plot', help='Choose type of plots to generate (Gen_Plots, Gen_Ratios, Matched_Objects, Delta_Plots, BTagging_Eff, Merged_Perms).')
 args = parser.parse_args()
 
 if args.analysis == "Test":
@@ -110,6 +110,14 @@ if args.sample == "ttJetsM700":
 if args.sample == "ttJetsM1000":
 	mass_min = 1000
 	mass_max = 2000
+
+DRvals = {
+		('DRP4', '#Delta R < 0.4', 'red'),
+		('DRP5', '#Delta R < 0.5', 'blue'),
+		('DRP6', '#Delta R < 0.6', 'green'),
+		('DRP8', '#Delta R < 0.8', 'black')
+	}
+
 #lpos = 'NE' #legend position
 #types = ['dtype', 'utype'] #variable is down- or up-type jet
 #colors = ['red', 'blue'] #plot legend colors (down is red, up is blue)
@@ -117,96 +125,96 @@ if args.sample == "ttJetsM1000":
 #####
 
 ########################################################################################
-if args.plot == "Gen_Kin":
+if args.plot == "Gen_Plots":
 	# Gen Object Plots
 	Gen_DR = [
-		('DR_LepBHad_hist', '#Delta R (l, b_{h})', 'DR_LepBHad'),
-		('DR_LepBLep_hist', '#Delta R (l, b_{l})', 'DR_LepBLep'),
-		('DR_LepWJa_hist', '#Delta R (l, WJa)', 'DR_LepWJa'),
-		('DR_LepWJb_hist', '#Delta R (l, WJb)', 'DR_LepWJb'),
-		('DR_BHadBLep_hist', '#Delta R (b_{h}, b_{l})', 'DR_BHadBLep'),
-		('DR_BHadWJa_hist', '#Delta R (b_{h}, WJa)', 'DR_BHadWJa'),
-		('DR_BHadWJb_hist', '#Delta R (b_{h} WJb)', 'DR_BHadWJb'),
-		('DR_BLepWJa_hist', '#Delta R (b_{l}, WJa)', 'DR_BLepWJa'),
-		('DR_BLepWJb_hist', '#Delta R (b_{l}, WJb)', 'DR_BLepWJb'),
-		('DR_WJaWJb_hist', '#Delta R (WJa, WJb)', 'DR_WJaWJb'),
-		('DRmin_thad_hist', 'min t_{h} #Delta R', 'DRmin_thad'),
-		('DRmin_tlep_hist', 'min t_{l} #Delta R', 'DRmin_tlep'),
-		('DRmax_thad_hist', 'max t_{h} #Delta R', 'DRmax_thad')
+		('DR_LepBHad', '#Delta R (l, b_{h})'),
+		('DR_LepBLep', '#Delta R (l, b_{l})'),
+		('DR_LepWJa', '#Delta R (l, WJa)'),
+		('DR_LepWJb', '#Delta R (l, WJb)'),
+		('DR_BHadBLep', '#Delta R (b_{h}, b_{l})'),
+		('DR_BHadWJa', '#Delta R (b_{h}, WJa)'),
+		('DR_BHadWJb', '#Delta R (b_{h} WJb)'),
+		('DR_BLepWJa', '#Delta R (b_{l}, WJa)'),
+		('DR_BLepWJb', '#Delta R (b_{l}, WJb)'),
+		('DR_WJaWJb', '#Delta R (WJa, WJb)'),
+		('DRmin_thad', 'min t_{h} #Delta R'),
+		('DRmin_tlep', 'min t_{l} #Delta R'),
+		('DRmax_thad', 'max t_{h} #Delta R')
 	]
 	
-	for var, xaxis, names in Gen_DR:
-	      hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis in Gen_DR:
+	      hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 	      mean = hist.GetMean()
 	      rms = hist.GetRMS()
 	
 	      plotter.set_histo_style(hist, color=defcol)
-	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
+	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
 	      box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-	      plotter.save(names)
+	      plotter.save(var)
 	
 	Gen_Pt = [
-		('Pt_Lep_hist', 'l p_{t}', 'Pt_Lep'),
-		('Pt_BHad_hist', 'b_{h} p_{t}', 'Pt_BHad'),
-		('Pt_BLep_hist', 'b_{l} p_{t}', 'Pt_BLep'),
-		('Pt_WJa_hist', 'WJa p_{t}', 'Pt_WJa'),
-		('Pt_WJb_hist', 'WJb p_{t}', 'Pt_WJb'),
-		('Pt_ttbar_hist', 't#bar t p_{t}', 'Pt_ttbar'),
-		('Pt_thad_hist', 't_{h} p_{t}', 'Pt_thad'),
-		('Pt_tlep_hist', 't_{l} p_{t}', 'Pt_tlep')
+		('Pt_Lep', 'l p_{t}'),
+		('Pt_BHad', 'b_{h} p_{t}'),
+		('Pt_BLep', 'b_{l} p_{t}'),
+		('Pt_WJa', 'WJa p_{t}'),
+		('Pt_WJb', 'WJb p_{t}'),
+		('Pt_ttbar', 't#bar t p_{t}'),
+		('Pt_thad', 't_{h} p_{t}'),
+		('Pt_tlep', 't_{l} p_{t}')
 	]
 	
-	for var, xaxis, names in Gen_Pt:
-	      hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis in Gen_Pt:
+	      hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 	      mean = hist.GetMean()
 	      rms = hist.GetRMS()
 	
 	      plotter.set_histo_style(hist, color=defcol)
-	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
+	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
 	      box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-	      plotter.save(names)
+	      plotter.save(var)
 	
 	Gen_Eta = [
-		('Eta_Lep_hist', 'l #eta', 'Eta_Lep'),
-		('Eta_BHad_hist', 'b_{h} #eta', 'Eta_BHad'),
-		('Eta_BLep_hist', 'b_{l} #eta', 'Eta_BLep'),
-		('Eta_WJa_hist', 'WJa #eta', 'Eta_WJa'),
-		('Eta_WJb_hist', 'WJb #eta', 'Eta_WJb'),
+		('Eta_Lep', 'l #eta'),
+		('Eta_BHad', 'b_{h} #eta'),
+		('Eta_BLep', 'b_{l} #eta'),
+		('Eta_WJa', 'WJa #eta'),
+		('Eta_WJb', 'WJb #eta'),
 	]
 	
-	for var, xaxis, names in Gen_Eta:
-	      hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis in Gen_Eta:
+	      hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 	      mean = hist.GetMean()
 	      rms = hist.GetRMS()
 	
 	      plotter.set_histo_style(hist, color=defcol)
-	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
+	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
 	      box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-	      plotter.save(names)
+	      plotter.save(var)
 	
 	Gen_DR_2D = [
-		('DR_LepBHad_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (l, b_{h})', 'DR_LepBHad_vs_Mtt'),
-		('DR_LepBLep_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (l, b_{l})', 'DR_LepBLep_vs_Mtt'),
-		('DR_LepWJa_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (l, WJa)', 'DR_LepWJa_vs_Mtt'),
-		('DR_LepWJb_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (l, WJb)', 'DR_LepWJb_vs_Mtt'),
-		('DR_BHadBLep_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (b_{h}, b_{l})', 'DR_BHadBLep_vs_Mtt'),
-		('DR_BHadWJa_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (b_{h}, WJa)', 'DR_BHadWJa_vs_Mtt'),
-		('DR_BHadWJb_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (b_{h}, WJb)', 'DR_BHadWJb_vs_Mtt'),
-		('DR_BLepWJa_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (b_{l}, WJa)', 'DR_BLepWJa_vs_Mtt'),
-		('DR_BLepWJb_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (b_{l}, WJb)', 'DR_BLepWJb_vs_Mtt'),
-		('DR_WJaWJb_vs_Mtt_hist', 'm_{t#bar t} [GeV]', '#Delta R (WJa, WJb)', 'DR_WJaWJb_vs_Mtt'),
-		('DRmin_thad_vs_mttbar_hist', 'm_{t#bar t} [GeV]', 'min t_{h} #Delta R', 'DRmin_thad_vs_mttbar'),
-		('DRmin_tlep_vs_mttbar_hist', 'm_{t#bar t} [GeV]', 'min t_{l} #Delta R', 'DRmin_tlep_vs_mttbar'),
-		('DRmax_thad_vs_mttbar_hist', 'm_{t#bar t} [GeV]', 'max t_{h} #Delta R', 'DRmax_thad_vs_mttbar'),
-		('DRmin_thad_vs_ptthad_hist', 't_{h} p_{t}', 'min t_{h} #Delta R', 'DRmin_thad_vs_ptthad'),
-		('DRmin_tlep_vs_pttlep_hist', 't_{l} p_{t}', 'min t_{l} #Delta R', 'DRmin_tlep_vs_pttlep'),
-		('DRmax_thad_vs_ptthad_hist', 't_{h} p_{t}', 'max t_{h} #Delta R', 'DRmax_thad_vs_ptthad')
+		('DR_LepBHad_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (l, b_{h})'),
+		('DR_LepBLep_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (l, b_{l})'),
+		('DR_LepWJa_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (l, WJa)'),
+		('DR_LepWJb_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (l, WJb)'),
+		('DR_BHadBLep_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (b_{h}, b_{l})'),
+		('DR_BHadWJa_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (b_{h}, WJa)'),
+		('DR_BHadWJb_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (b_{h}, WJb)'),
+		('DR_BLepWJa_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (b_{l}, WJa)'),
+		('DR_BLepWJb_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (b_{l}, WJb)'),
+		('DR_WJaWJb_vs_Mtt', 'm_{t#bar t} [GeV]', '#Delta R (WJa, WJb)'),
+		('DRmin_thad_vs_mttbar', 'm_{t#bar t} [GeV]', 'min t_{h} #Delta R'),
+		('DRmin_tlep_vs_mttbar', 'm_{t#bar t} [GeV]', 'min t_{l} #Delta R'),
+		('DRmax_thad_vs_mttbar', 'm_{t#bar t} [GeV]', 'max t_{h} #Delta R'),
+		('DRmin_thad_vs_ptthad', 't_{h} p_{t}', 'min t_{h} #Delta R'),
+		('DRmin_tlep_vs_pttlep', 't_{l} p_{t}', 'min t_{l} #Delta R'),
+		('DRmax_thad_vs_ptthad', 't_{h} p_{t}', 'max t_{h} #Delta R')
 	]
 	
-	for var, xaxis,yaxis, names in Gen_DR_2D:
-		hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis,yaxis in Gen_DR_2D:
+		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 	#	plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=xaxis, ytitle=yaxis)
+		plotter.plot(hist, xtitle=xaxis, ytitle=yaxis, drawstyle='hist')
 		hist.Draw('colz')
 		hist.xaxis.set_title(xaxis)
 		hist.yaxis.set_title(yaxis)
@@ -214,104 +222,104 @@ if args.plot == "Gen_Kin":
 			hist.xaxis.range_user = 0, 2000.
 		else:
 			hist.xaxis.range_user = mass_min, mass_max
-		plotter.save(names)
+		plotter.save(var)
 	
 	Gen_Pt_2D = [
-		('Pt_Lep_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'l p_{t}', 'Pt_Lep_vs_Mtt'),
-		('Pt_BHad_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'b_{h} p_{t}', 'Pt_BHad_vs_Mtt'),
-		('Pt_BLep_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'b_{l} p_{t}', 'Pt_BLep_vs_Mtt'),
-		('Pt_WJa_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'WJa p_{t}', 'Pt_WJa_vs_Mtt'),
-		('Pt_WJb_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'WJb p_{t}', 'Pt_WJb_vs_Mtt')
+		('Pt_Lep_vs_Mtt', 'm_{t#bar t} [GeV]', 'l p_{t}'),
+		('Pt_BHad_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{h} p_{t}'),
+		('Pt_BLep_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{l} p_{t}'),
+		('Pt_WJa_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJa p_{t}'),
+		('Pt_WJb_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJb p_{t}')
 	]
 	
-	for var, xaxis,yaxis, names in Gen_Pt_2D:
-		hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis,yaxis in Gen_Pt_2D:
+		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 	#	plotter.set_histo_style(hist, color=defcol)
 		plotter.plot(hist, xtitle=xaxis, ytitle=yaxis)
 		hist.Draw('colz')
 		hist.xaxis.set_title(xaxis)
 		hist.yaxis.set_title(yaxis)
-		plotter.save(names)
+		plotter.save(var)
 	
 	Gen_Eta_2D = [
-		('Eta_Lep_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'l #eta', 'Eta_Lep_vs_Mtt'),
-		('Eta_BHad_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'b_{h} #eta', 'Eta_BHad_vs_Mtt'),
-		('Eta_BLep_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'b_{l} #eta', 'Eta_BLep_vs_Mtt'),
-		('Eta_WJa_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'WJa #eta', 'Eta_WJa_vs_Mtt'),
-		('Eta_WJb_vs_Mtt_hist', 'm_{t#bar t} [GeV]', 'WJb #eta', 'Eta_WJb_vs_Mtt')
+		('Eta_Lep_vs_Mtt', 'm_{t#bar t} [GeV]', 'l #eta'),
+		('Eta_BHad_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{h} #eta'),
+		('Eta_BLep_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{l} #eta'),
+		('Eta_WJa_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJa #eta'),
+		('Eta_WJb_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJb #eta')
 	]
 	
-	for var, xaxis,yaxis, names in Gen_Eta_2D:
-		hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis, yaxis in Gen_Eta_2D:
+		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 	#	plotter.set_histo_style(hist, color=defcol)
 		plotter.plot(hist, xtitle=xaxis, ytitle=yaxis)
 		hist.Draw('colz')
 		hist.xaxis.set_title(xaxis)
 		hist.yaxis.set_title(yaxis)
-		plotter.save(names)
+		plotter.save(var)
 
 	MassTTbar = [
-		('Mass_ttbar_hist', 'm_{t#bar t} [GeV]', 'Mass tt_bar', 'Mass_ttbar'),
-		('Mass_thad_hist', 'm_{t_{h}} [GeV]', 'Mass thad', 'Mass_thad'),
-		('Mass_tlep_hist', 'm_{t_{l}} [GeV]', 'Mass tlep', 'Mass_tlep')
+		('Mass_ttbar', 'm_{t#bar t} [GeV]'),
+		('Mass_thad', 'm_{t_{h}} [GeV]'),
+		('Mass_tlep', 'm_{t_{l}} [GeV]')
 	]
 	
-	for var, xaxis, titles, names in MassTTbar:
-		hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis in MassTTbar:
+		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 	#	hist.xaxis.range_user = 150, 700
 		mean = hist.GetMean()
 		rms = hist.GetRMS()
 		plotter.set_histo_style(hist, color=defcol)
 	#	print("RMS = %f" % RMS)
-		plotter.plot(hist, title=titles, xtitle=xaxis, ytitle=defyax)
+		plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
 		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(names)
+		plotter.save(var)
 
 	nJets = [
-		('nJets_hist', 'nJets', 'nJets')
+		('nJets')
 	]
 
-	for var, xaxis, names in nJets:
+	for var in nJets:
 		efficiencies = []
-		hist = asrootpy(myfile.Get(var)).Clone()
+		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 		mean = hist.GetMean()
 		rms = hist.GetRMS()
 		total= hist.Integral()
 		plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
+		plotter.plot(hist, xtitle=var, ytitle=defyax, drawstyle='hist')
 		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(names)
+		plotter.save(var)
 		for i in range(0, hist.GetXaxis().GetNbins()):
 			efficiencies.append(format(hist.GetBinContent(i+1)/total, '.4f'))
-		print(xaxis, efficiencies)
+		print(var, efficiencies)
 
 ##################################################################################################
 if args.plot == "Gen_Ratios":
 	DRmin_ratios = [
-		('DRmin_thad_lp4_vs_mttbar_hist', 'DRmin_thad_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_mttbar'),
-		('DRmin_thad_lp4_vs_ptthad_hist', 'DRmin_thad_gp4_vs_ptthad_hist', 't_{h} p_{t}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_ptthad'),
-		('DRmin_tlep_lp4_vs_mttbar_hist', 'DRmin_tlep_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_mttbar'),
-		('DRmin_tlep_lp4_vs_pttlep_hist', 'DRmin_tlep_gp4_vs_pttlep_hist', 't_{l} p_{t}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_pttlep'),
+		('DRmin_thad_lDRP4_vs_mttbar', 'DRmin_thad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_mttbar'),
+		('DRmin_thad_lDRP4_vs_ptthad', 'DRmin_thad_gDRP4_vs_ptthad', 't_{h} p_{t}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_ptthad'),
+		('DRmin_tlep_lDRP4_vs_mttbar', 'DRmin_tlep_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_mttbar'),
+		('DRmin_tlep_lDRP4_vs_pttlep', 'DRmin_tlep_gDRP4_vs_pttlep', 't_{l} p_{t}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_pttlep'),
 		
-		('DR_LepBHad_lp4_vs_mttbar_hist', 'DR_LepBHad_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, b_{h})', 'DR_LepBHad_lp4_ratio_vs_mttbar'),
-                ('DR_LepBLep_lp4_vs_mttbar_hist', 'DR_LepBLep_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, b_{l})', 'DR_LepBLep_lp4_ratio_vs_mttbar'),
-                ('DR_LepWJa_lp4_vs_mttbar_hist', 'DR_LepWJa_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, WJa)', 'DR_LepWJa_lp4_ratio_vs_mttbar'),
-                ('DR_LepWJb_lp4_vs_mttbar_hist', 'DR_LepWJb_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, WJb)', 'DR_LepWJb_lp4_ratio_vs_mttbar'),
-                ('DR_BHadBLep_lp4_vs_mttbar_hist', 'DR_BHadBLep_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, b_{l})', 'DR_BHadBLep_lp4_ratio_vs_mttbar'),
-                ('DR_BHadWJa_lp4_vs_mttbar_hist', 'DR_BHadWJa_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, WJa)', 'DR_BHadWJa_lp4_ratio_vs_mttbar'),
-                ('DR_BHadWJb_lp4_vs_mttbar_hist', 'DR_BHadWJb_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, WJb)', 'DR_BHadWJb_lp4_ratio_vs_mttbar'),
-                ('DR_BLepWJa_lp4_vs_mttbar_hist', 'DR_BLepWJa_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{l}, WJa)', 'DR_BLepWJa_lp4_ratio_vs_mttbar'),
-                ('DR_BLepWJb_lp4_vs_mttbar_hist', 'DR_BLepWJb_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{l}, WJb)', 'DR_BLepWJb_lp4_ratio_vs_mttbar'),
-                ('DR_WJaWJb_lp4_vs_mttbar_hist', 'DR_WJaWJb_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (WJa, WJb)', 'DR_WJaWJb_lp4_ratio_vs_mttbar'),
-		('DRmax_thad_lp4_vs_mttbar_hist', 'DRmax_thad_gp4_vs_mttbar_hist', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_mttbar'),
-		('DRmax_thad_lp4_vs_ptthad_hist', 'DRmax_thad_gp4_vs_ptthad_hist', 't_{h} p_{t}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_ptthad')
+		('DR_LepBHad_lDRP4_vs_mttbar', 'DR_LepBHad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, b_{h})', 'DR_LepBHad_lp4_ratio_vs_mttbar'),
+                ('DR_LepBLep_lDRP4_vs_mttbar', 'DR_LepBLep_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, b_{l})', 'DR_LepBLep_lp4_ratio_vs_mttbar'),
+                ('DR_LepWJa_lDRP4_vs_mttbar', 'DR_LepWJa_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, WJa)', 'DR_LepWJa_lp4_ratio_vs_mttbar'),
+                ('DR_LepWJb_lDRP4_vs_mttbar', 'DR_LepWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, WJb)', 'DR_LepWJb_lp4_ratio_vs_mttbar'),
+                ('DR_BHadBLep_lDRP4_vs_mttbar', 'DR_BHadBLep_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, b_{l})', 'DR_BHadBLep_lp4_ratio_vs_mttbar'),
+                ('DR_BHadWJa_lDRP4_vs_mttbar', 'DR_BHadWJa_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, WJa)', 'DR_BHadWJa_lp4_ratio_vs_mttbar'),
+                ('DR_BHadWJb_lDRP4_vs_mttbar', 'DR_BHadWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, WJb)', 'DR_BHadWJb_lp4_ratio_vs_mttbar'),
+                ('DR_BLepWJa_lDRP4_vs_mttbar', 'DR_BLepWJa_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{l}, WJa)', 'DR_BLepWJa_lp4_ratio_vs_mttbar'),
+                ('DR_BLepWJb_lDRP4_vs_mttbar', 'DR_BLepWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{l}, WJb)', 'DR_BLepWJb_lp4_ratio_vs_mttbar'),
+                ('DR_WJaWJb_lDRP4_vs_mttbar', 'DR_WJaWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (WJa, WJb)', 'DR_WJaWJb_lp4_ratio_vs_mttbar'),
+		('DRmax_thad_lDRP4_vs_mttbar', 'DRmax_thad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_mttbar'),
+		('DRmax_thad_lDRP4_vs_ptthad', 'DRmax_thad_gDRP4_vs_ptthad', 't_{h} p_{t}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_ptthad')
 	]
 
 	for lp4, gp4, xaxis, yaxis, title, name in DRmin_ratios:# < 0.4, > 0.4, xaxis, yaxis, png name
 		efficiencies = []
 		
-		LP4 = asrootpy(myfile.Get(lp4)).Clone()
-		GP4 = asrootpy(myfile.Get(gp4)).Clone()
+		LP4 = asrootpy(myfile.Get('Gen_Plots/'+lp4)).Clone()
+		GP4 = asrootpy(myfile.Get('Gen_Plots/'+gp4)).Clone()
 		DR_Ratio = LP4/(LP4+GP4)
 		plotter.set_histo_style(DR_Ratio, color=defcol, markerstyle=20)
 		plotter.plot(DR_Ratio)
@@ -328,165 +336,185 @@ if args.plot == "Gen_Ratios":
 		print(yaxis, efficiencies)
 
 	MassTTbar = [
-		('Mass_ttbar_hist', 'm_{t#bar t} [GeV]', 'Mass tt_bar', 'Mass_ttbar'),
-		('Mass_thad_hist', 'm_{t_{h}} [GeV]', 'Mass thad', 'Mass_thad'),
-		('Mass_tlep_hist', 'm_{t_{l}} [GeV]', 'Mass tlep', 'Mass_tlep')
+		('Mass_ttbar', 'm_{t#bar t} [GeV]'),
+		('Mass_thad', 'm_{t_{h}} [GeV]'),
+		('Mass_tlep', 'm_{t_{l}} [GeV]')
 	]
 	
-	for var, xaxis, titles, names in MassTTbar:
-		hist = asrootpy(myfile.Get(var)).Clone()
+	for var, xaxis, in MassTTbar:
+		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
 		mean = hist.GetMean()
 		rms = hist.GetRMS()
 		plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, title=titles, xtitle=xaxis, ytitle=defyax)
+		plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
 		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(names)
+		plotter.save(var)
 
 ##############################################################################################
 if args.plot == "Matched_Objects":
 
-	if args.sample == "ttJetsM0":
-		Matched_WJets = [
-			('Matched_perm_WJa_ttbarM700_pt', 'Matched WJa p_{t}', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJa_ttbarM700_pt'),
-			('Matched_perm_WJa_ttbarM1000_pt', 'Matched WJa p_{t}', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJa_ttbarM1000_pt'),
-			('Matched_perm_WJb_ttbarM700_pt', 'Matched WJb p_{t}', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJb_ttbarM700_pt'),
-			('Matched_perm_WJb_ttbarM1000_pt', 'Matched WJb p_{t}', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJb_ttbarM1000_pt')
-		]
-
-		for var, xaxis, titles, names in Matched_WJets:
-			hist = asrootpy(myfile.Get(var)).Clone()
-			mean = hist.GetMean()
-			rms = hist.GetRMS()
-			plotter.set_histo_style(hist, color=defcol)
-			plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
-			box = plotter.make_text_box(titles+'\nMean = %f\nRMS = %f' % (mean,rms), position='NE')
-			plotter.save(names)
-
-		Matched_WJets_Frac = [
-			('Matched_perm_WJa_ttbarM700_frac_p', 'Matched WJa Fractional p', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJa_ttbarM700_frac_p'),
-			('Matched_perm_WJa_ttbarM1000_frac_p', 'Matched WJa Fractional p', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJa_ttbarM1000_frac_p'),
-			('Matched_perm_WJb_ttbarM700_frac_p', 'Matched WJb Fractional p', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJb_ttbarM700_frac_p'),
-			('Matched_perm_WJb_ttbarM1000_frac_p', 'Matched WJb Fractional p', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJb_ttbarM1000_frac_p')
-		]
-
-		for var, xaxis, titles, names in Matched_WJets_Frac:
-			hist = asrootpy(myfile.Get(var)).Clone()
-			mean = hist.GetMean()
-			rms = hist.GetRMS()
-#			hist.xaxis.range_user = 0, 1.0
-			plotter.set_histo_style(hist, color=defcol)
-			plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
-			box = plotter.make_text_box(titles+'\nMean = %f\nRMS = %f' % (mean,rms), position='NE')
-			plotter.save(names)
+#	if args.sample == "ttJetsM0":
+#		Matched_WJets = [
+#			('Matched_perm_WJa_ttbarM700_pt', 'Matched WJa p_{t}', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJa_ttbarM700_pt'),
+#			('Matched_perm_WJa_ttbarM1000_pt', 'Matched WJa p_{t}', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJa_ttbarM1000_pt'),
+#			('Matched_perm_WJb_ttbarM700_pt', 'Matched WJb p_{t}', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJb_ttbarM700_pt'),
+#			('Matched_perm_WJb_ttbarM1000_pt', 'Matched WJb p_{t}', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJb_ttbarM1000_pt')
+#		]
+#
+#		for var, xaxis, titles, names in Matched_WJets:
+#			hist = asrootpy(myfile.Get(var)).Clone()
+#			mean = hist.GetMean()
+#			rms = hist.GetRMS()
+#			plotter.set_histo_style(hist, color=defcol)
+#			plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
+#			box = plotter.make_text_box(titles+'\nMean = %f\nRMS = %f' % (mean,rms), position='NE')
+#			plotter.save(names)
+#
+#		Matched_WJets_Frac = [
+#			('Matched_perm_WJa_ttbarM700_frac_p', 'Matched WJa Fractional p', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJa_ttbarM700_frac_p'),
+#			('Matched_perm_WJa_ttbarM1000_frac_p', 'Matched WJa Fractional p', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJa_ttbarM1000_frac_p'),
+#			('Matched_perm_WJb_ttbarM700_frac_p', 'Matched WJb Fractional p', '700 <= m_{t#bar t} < 1000 [GeV]', 'Matched_WJb_ttbarM700_frac_p'),
+#			('Matched_perm_WJb_ttbarM1000_frac_p', 'Matched WJb Fractional p', 'm_{t#bar t} >= 1000 [GeV]', 'Matched_WJb_ttbarM1000_frac_p')
+#		]
+#
+#		for var, xaxis, titles, names in Matched_WJets_Frac:
+#			hist = asrootpy(myfile.Get(var)).Clone()
+#			mean = hist.GetMean()
+#			rms = hist.GetRMS()
+##			hist.xaxis.range_user = 0, 1.0
+#			plotter.set_histo_style(hist, color=defcol)
+#			plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
+#			box = plotter.make_text_box(titles+'\nMean = %f\nRMS = %f' % (mean,rms), position='NE')
+#			plotter.save(names)
 
 	Matched_Pt = [
-		('Matched_perm_BHad_pt', 'Matched b_{h} p_{t}', 'Matched_BHad_pt'),
-		('Matched_perm_BLep_pt', 'Matched b_{l} p_{t}', 'Matched_BLep_pt'),
-		('Matched_perm_WJa_pt', 'Matched WJa p_{t}', 'Matched_WJa_pt'),
-		('Matched_perm_WJb_pt', 'Matched WJb p_{t}', 'Matched_WJb_pt')
+		('Matched_perm_BHad_pt', 'Matched b_{h} p_{t}'),
+		('Matched_perm_BLep_pt', 'Matched b_{l} p_{t}'),
+		('Matched_perm_WJa_pt', 'Matched WJa p_{t}'),
+		('Matched_perm_WJb_pt', 'Matched WJb p_{t}')
 	]
-	
-	for var, xaxis, names in Matched_Pt:
-		hist = asrootpy(myfile.Get(var)).Clone()
-		mean = hist.GetMean()
-		rms = hist.GetRMS()
-	#	hist.xaxis.range_user = 25, 2000
-		plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
-		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(names)
+
+	for var, xaxis in Matched_Pt:
+		to_draw = []
+		for folder, legend, colors in DRvals:
+			hist = asrootpy(myfile.Get(folder+'/'+var)).Clone()
+			mean = hist.GetMean()
+			rms = hist.GetRMS()
+	#		hist.xaxis.range_user = 25, 2000
+			plotter.set_histo_style(hist, title=legend, color=colors)
+			to_draw.append(hist)
+
+		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), x_range=None, y_range=None, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
+#		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+		plotter.save(var)
 
 	Matched_Eta = [
-		('Matched_perm_BHad_eta', 'Matched b_{h} #eta', 'Matched_BHad_eta'),
-		('Matched_perm_BLep_eta', 'Matched b_{l} #eta', 'Matched_BLep_eta'),
-		('Matched_perm_WJa_eta', 'Matched WJa #eta', 'Matched_WJa_eta'),
-		('Matched_perm_WJb_eta', 'Matched WJb #eta', 'Matched_WJb_eta')
+		('Matched_perm_BHad_eta', 'Matched b_{h} #eta'),
+		('Matched_perm_BLep_eta', 'Matched b_{l} #eta'),
+		('Matched_perm_WJa_eta', 'Matched WJa #eta'),
+		('Matched_perm_WJb_eta', 'Matched WJb #eta')
 	]
 	
-	for var, xaxis, names in Matched_Eta:
-		hist = asrootpy(myfile.Get(var)).Clone()
-		mean = hist.GetMean()
-		rms = hist.GetRMS()
-		hist.xaxis.range_user = -2.4, 2.4
-		plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
-		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(names)
+	for var, xaxis in Matched_Eta:
+		to_draw = []
+		for folder, legend, colors in DRvals:
+			hist = asrootpy(myfile.Get(folder+'/'+var)).Clone()
+			mean = hist.GetMean()
+			rms = hist.GetRMS()
+			hist.xaxis.range_user = -2.4, 2.4
+			plotter.set_histo_style(hist, title=legend, color=colors)
+			to_draw.append(hist)
+
+		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax, drawstyle='hist')
+#		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+		plotter.save(var)
 
 	Same_Matched_Objs = [
-		('Matched_BHadWJa_ptthad_3J_hist', 't_{h} p_{t}', 'BHad & WJa Objs Matched to Same Jet', 'Same_Matched_BHadWJa_ptthad_3J'),
-		('Matched_BHadWJb_ptthad_3J_hist', 't_{h} p_{t}', 'BHad & WJb Objs Matched to Same Jet', 'Same_Matched_BHadWJb_ptthad_3J'),
-		('Matched_WJaWJb_ptthad_3J_hist', 't_{h} p_{t}', 'WJa & WJb Objs Matched to Same Jet', 'Same_Matched_WJaWJb_ptthad_3J'),
-		('Matched_BHadWJa_ptthad_4J_hist', 't_{h} p_{t}', 'BHad & WJa Objs Matched to Same Jet', 'Same_Matched_BHadWJa_ptthad_4J'),
-		('Matched_BHadWJb_ptthad_4J_hist', 't_{h} p_{t}', 'BHad & WJb Objs Matched to Same Jet', 'Same_Matched_BHadWJb_ptthad_4J'),
-		('Matched_WJaWJb_ptthad_4J_hist', 't_{h} p_{t}', 'WJa & WJb Objs Matched to Same Jet', 'Same_Matched_WJaWJb_ptthad_4J'),
-		('Matched_BHadWJa_ptthad_5PJ_hist', 't_{h} p_{t}', 'BHad & WJa Objs Matched to Same Jet', 'Same_Matched_BHadWJa_ptthad_5PJ'),
-		('Matched_BHadWJb_ptthad_5PJ_hist', 't_{h} p_{t}', 'BHad & WJb Objs Matched to Same Jet', 'Same_Matched_BHadWJb_ptthad_5PJ'),
-		('Matched_WJaWJb_ptthad_5PJ_hist', 't_{h} p_{t}', 'WJa & WJb Objs Matched to Same Jet', 'Same_Matched_WJaWJb_ptthad_5PJ')
+		('Matched_BHadWJa_ptthad_3J', 'BHad & WJa Objs Matched to Same Jet'),
+		('Matched_BHadWJb_ptthad_3J', 'BHad & WJb Objs Matched to Same Jet'),
+		('Matched_WJaWJb_ptthad_3J', 'WJa & WJb Objs Matched to Same Jet'),
+		('Matched_BHadWJa_ptthad_4J', 'BHad & WJa Objs Matched to Same Jet'),
+		('Matched_BHadWJb_ptthad_4J', 'BHad & WJb Objs Matched to Same Jet'),
+		('Matched_WJaWJb_ptthad_4J', 'WJa & WJb Objs Matched to Same Jet'),
+		('Matched_BHadWJa_ptthad_5PJ', 'BHad & WJa Objs Matched to Same Jet'),
+		('Matched_BHadWJb_ptthad_5PJ', 'BHad & WJb Objs Matched to Same Jet'),
+		('Matched_WJaWJb_ptthad_5PJ', 'WJa & WJb Objs Matched to Same Jet')
 	]
+	xaxis = 't_{h} p_{t}'
 
-	for var, xaxis, titles, names in Same_Matched_Objs:
-		hist = asrootpy(myfile.Get(var)).Clone()
-		mean = hist.GetMean()
-		rms = hist.GetRMS()
-		total= hist.Integral()
-		plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
-		hist.SetTitle(titles)
-		box = plotter.make_text_box(titles+'\nMean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(names)
+	for var, titles in Same_Matched_Objs:
+		to_draw = []
+		for folder, legend, colors in DRvals:
+			hist = asrootpy(myfile.Get(folder+'/'+var)).Clone()
+			mean = hist.GetMean()
+			rms = hist.GetRMS()
+			total= hist.Integral()
+			#hist.xaxis.range_user = -2.4, 2.4
+			plotter.set_histo_style(hist, title=legend, color=colors)
+			to_draw.append(hist)
+
+		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax, drawstyle='hist')
+		#box = plotter.make_text_box(titles+'\nMean = %f\nRMS = %f' % (mean,rms), position='NE')
+		plotter.save('Same_'+var)
 
 	Matched_Objs_Ratios = [
-		('Matched_BHadWJa_ptthad_3J_hist', 'All_Matched_BHadWJa_ptthad_3J_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'b_{h} & WJa Objects', 'Ratio_Matched_BHadWJa_ptthad_3J'),
-		('Matched_BHadWJb_ptthad_3J_hist', 'All_Matched_BHadWJb_ptthad_3J_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'b_{h} & WJb Objects', 'Ratio_Matched_BHadWJb_ptthad_3J'),
-		('Matched_WJaWJb_ptthad_3J_hist', 'All_Matched_WJaWJb_ptthad_3J_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'WJa & WJb Objects', 'Ratio_Matched_WJaWJb_ptthad_3J'),
-		('Matched_BHadWJa_ptthad_4J_hist', 'All_Matched_BHadWJa_ptthad_4J_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'b_{h} & WJa Objects', 'Ratio_Matched_BHadWJa_ptthad_4J'),
-		('Matched_BHadWJb_ptthad_4J_hist', 'All_Matched_BHadWJb_ptthad_4J_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'b_{h} & WJb Objects', 'Ratio_Matched_BHadWJb_ptthad_4J'),
-		('Matched_WJaWJb_ptthad_4J_hist', 'All_Matched_WJaWJb_ptthad_4J_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'WJa & WJb Objects', 'Ratio_Matched_WJaWJb_ptthad_4J'),
-		('Matched_BHadWJa_ptthad_5PJ_hist', 'All_Matched_BHadWJa_ptthad_5PJ_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'b_{h} & WJa Objects', 'Ratio_Matched_BHadWJa_ptthad_5PJ'),
-		('Matched_BHadWJb_ptthad_5PJ_hist', 'All_Matched_BHadWJb_ptthad_5PJ_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'b_{h} & WJb Objects', 'Ratio_Matched_BHadWJb_ptthad_5PJ'),
-		('Matched_WJaWJb_ptthad_5PJ_hist', 'All_Matched_WJaWJb_ptthad_5PJ_hist', 't_{h} p_{t}', 'Same Jet Matching Ratio', 'WJa & WJb Objects', 'Ratio_Matched_WJaWJb_ptthad_5PJ')
+		('Matched_BHadWJa_ptthad_3J', 'All_Matched_BHadWJa_ptthad_3J', 'b_{h} & WJa Objects'),
+		('Matched_BHadWJb_ptthad_3J', 'All_Matched_BHadWJb_ptthad_3J', 'b_{h} & WJb Objects'),
+		('Matched_WJaWJb_ptthad_3J', 'All_Matched_WJaWJb_ptthad_3J', 'WJa & WJb Objects'),
+		('Matched_BHadWJa_ptthad_4J', 'All_Matched_BHadWJa_ptthad_4J', 'b_{h} & WJa Objects'),
+		('Matched_BHadWJb_ptthad_4J', 'All_Matched_BHadWJb_ptthad_4J', 'b_{h} & WJb Objects'),
+		('Matched_WJaWJb_ptthad_4J', 'All_Matched_WJaWJb_ptthad_4J', 'WJa & WJb Objects'),
+		('Matched_BHadWJa_ptthad_5PJ', 'All_Matched_BHadWJa_ptthad_5PJ', 'b_{h} & WJa Objects'),
+		('Matched_BHadWJb_ptthad_5PJ', 'All_Matched_BHadWJb_ptthad_5PJ', 'b_{h} & WJb Objects'),
+		('Matched_WJaWJb_ptthad_5PJ', 'All_Matched_WJaWJb_ptthad_5PJ', 'WJa & WJb Objects')
 	]
 
-	for Same_Match, All_Match, xaxis, yaxis, titles, names in Matched_Objs_Ratios:
-		efficiencies = []
-		SameMatch = asrootpy(myfile.Get(Same_Match)).Clone()
-		AllMatch = asrootpy(myfile.Get(All_Match)).Clone()
-		MatchRatio = SameMatch/AllMatch
-		plotter.set_histo_style(MatchRatio, color=defcol, markerstyle=20)
-		plotter.plot(MatchRatio)
-		MatchRatio.Draw("P")
-		MatchRatio.xaxis.set_title(xaxis)
-		MatchRatio.yaxis.set_title(yaxis)
-		MatchRatio.yaxis.range_user = 0, 1
-		box = plotter.make_text_box(titles, position='NE')
-		plotter.save(names)
+	yaxis = 'Same Jet Matching Ratio'
 
-#		for i in range(0, MatchRatio.GetXaxis().GetNbins()):
-#			efficiencies.append(format(MatchRatio.GetBinContent(i+1), '.4f'))
-#		#	mass_range.append(Mu_Eff.GetXaxis().GetBinLowEdge(i+1))
-#		print(xaxis, efficiencies)
+	for Same_Match, All_Match, titles in Matched_Objs_Ratios:
+		to_draw = []
+		for folder, legend, colors in DRvals:
+			efficiencies = []
+			SameMatch = asrootpy(myfile.Get(folder+'/'+Same_Match)).Clone()
+			AllMatch = asrootpy(myfile.Get(folder+'/'+All_Match)).Clone()
+			MatchRatio = SameMatch/AllMatch
+			plotter.set_histo_style(MatchRatio, title=legend, color=colors, markerstyle=20)
+			MatchRatio.Draw("P")
+#			MatchRatio.xaxis.set_title(xaxis)
+#			MatchRatio.yaxis.set_title(yaxis)
+			MatchRatio.yaxis.range_user = 0, 1
+			to_draw.append(MatchRatio)
 
-#	nJets = [
-#		('nJets_hist', 'nJets', 'nJets'),
-#		('nMatched_objects_3J_hist', 'Matched Objects for 3 jets', 'Matched_objects_3J'),
-#		('nMatched_objects_4J_hist', 'Matched Objects for 4 jets', 'Matched_objects_4J'),
-#		('nMatched_objects_5PJ_hist', 'Matched Objects for 5+ jets', 'Matched_objects_5PJ')
-#	]
+#			for i in range(0, MatchRatio.GetXaxis().GetNbins()):
+#				efficiencies.append(format(MatchRatio.GetBinContent(i+1), '.4f'))
+#			#	mass_range.append(Mu_Eff.GetXaxis().GetBinLowEdge(i+1))
+#			#print(xaxis, efficiencies)
+
+		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), y_range=(0, 1), xtitle=xaxis, ytitle=yaxis)
+		box = plotter.make_text_box(titles, position='SE')
+		plotter.save('Ratio_'+Same_Match)
+
 #
-#	for var, xaxis, names in nJets:
-#		efficiencies = []
-#		hist = asrootpy(myfile.Get(var)).Clone()
-#		mean = hist.GetMean()
-#		rms = hist.GetRMS()
-#		total= hist.Integral()
-#		plotter.set_histo_style(hist, color=defcol)
-#		plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
-#		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-#		plotter.save(names)
-#		for i in range(0, hist.GetXaxis().GetNbins()):
-#			efficiencies.append(format(hist.GetBinContent(i+1)/total, '.4f'))
-#		print(xaxis, efficiencies)
+##	nJets = [
+##		('nJets_hist', 'nJets', 'nJets'),
+##		('nMatched_objects_3J_hist', 'Matched Objects for 3 jets', 'Matched_objects_3J'),
+##		('nMatched_objects_4J_hist', 'Matched Objects for 4 jets', 'Matched_objects_4J'),
+##		('nMatched_objects_5PJ_hist', 'Matched Objects for 5+ jets', 'Matched_objects_5PJ')
+##	]
+##
+##	for var, xaxis, names in nJets:
+##		efficiencies = []
+##		hist = asrootpy(myfile.Get(var)).Clone()
+##		mean = hist.GetMean()
+##		rms = hist.GetRMS()
+##		total= hist.Integral()
+##		plotter.set_histo_style(hist, color=defcol)
+##		plotter.plot(hist, xtitle=xaxis, ytitle=defyax)
+##		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+##		plotter.save(names)
+##		for i in range(0, hist.GetXaxis().GetNbins()):
+##			efficiencies.append(format(hist.GetBinContent(i+1)/total, '.4f'))
+##		print(xaxis, efficiencies)
 
 #############################################################################################
 if args.plot == "BTagging_Eff":
@@ -494,442 +522,75 @@ if args.plot == "BTagging_Eff":
 	yaxis = 'BTagging Efficiency'
 
 	BTag = [
-		('BTag_lp4_BHad_loose_pass', 'BTag_lp4_BHad_loose_fail', 'BTag_gp4_BHad_loose_pass', 'BTag_gp4_BHad_loose_fail', 'b_{h} Loose', '#Delta R < 0.4', 'BTag_BHad_loose_eff_DRP4'),
-		('BTag_lp4_BHad_medium_pass', 'BTag_lp4_BHad_medium_fail', 'BTag_gp4_BHad_medium_pass', 'BTag_gp4_BHad_medium_fail', 'b_{h} Medium', '#Delta R < 0.4', 'BTag_BHad_medium_eff_DRP4'),
-		('BTag_lp4_BHad_tight_pass', 'BTag_lp4_BHad_tight_fail', 'BTag_gp4_BHad_tight_pass', 'BTag_gp4_BHad_tight_fail', 'b_{h} Tight', '#Delta R < 0.4', 'BTag_BHad_tight_eff_DRP4'),
-		('BTag_lp4_BLep_loose_pass', 'BTag_lp4_BLep_loose_fail', 'BTag_gp4_BLep_loose_pass', 'BTag_gp4_BLep_loose_fail', 'b_{l} Loose', '#Delta R < 0.4', 'BTag_BLep_loose_eff_DRP4'),
-		('BTag_lp4_BLep_medium_pass', 'BTag_lp4_BLep_medium_fail', 'BTag_gp4_BLep_medium_pass', 'BTag_gp4_BLep_medium_fail', 'b_{l} Medium', '#Delta R < 0.4', 'BTag_BLep_medium_eff_DRP4'),
-		('BTag_lp4_BLep_tight_pass', 'BTag_lp4_BLep_tight_fail', 'BTag_gp4_BLep_tight_pass', 'BTag_gp4_BLep_tight_fail', 'b_{l} Tight', '#Delta R < 0.4', 'BTag_BLep_tight_eff_DRP4'),
-		('BTag_lp5_BHad_loose_pass', 'BTag_lp5_BHad_loose_fail', 'BTag_gp5_BHad_loose_pass', 'BTag_gp5_BHad_loose_fail', 'b_{h} Loose', '#Delta R < 0.5', 'BTag_BHad_loose_eff_DRP5'),
-		('BTag_lp5_BHad_medium_pass', 'BTag_lp5_BHad_medium_fail', 'BTag_gp5_BHad_medium_pass', 'BTag_gp5_BHad_medium_fail', 'b_{h} Medium', '#Delta R < 0.5', 'BTag_BHad_medium_eff_DRP5'),
-		('BTag_lp5_BHad_tight_pass', 'BTag_lp5_BHad_tight_fail', 'BTag_gp5_BHad_tight_pass', 'BTag_gp5_BHad_tight_fail', 'b_{h} Tight', '#Delta R < 0.5', 'BTag_BHad_tight_eff_DRP5'),
-		('BTag_lp5_BLep_loose_pass', 'BTag_lp5_BLep_loose_fail', 'BTag_gp5_BLep_loose_pass', 'BTag_gp5_BLep_loose_fail', 'b_{l} Loose', '#Delta R < 0.5', 'BTag_BLep_loose_eff_DRP5'),
-		('BTag_lp5_BLep_medium_pass', 'BTag_lp5_BLep_medium_fail', 'BTag_gp5_BLep_medium_pass', 'BTag_gp5_BLep_medium_fail', 'b_{l} Medium', '#Delta R < 0.5', 'BTag_BLep_medium_eff_DRP5'),
-		('BTag_lp5_BLep_tight_pass', 'BTag_lp5_BLep_tight_fail', 'BTag_gp5_BLep_tight_pass', 'BTag_gp5_BLep_tight_fail', 'b_{l} Tight', '#Delta R < 0.5', 'BTag_BLep_tight_eff_DRP5'),
-		('BTag_lp6_BHad_loose_pass', 'BTag_lp6_BHad_loose_fail', 'BTag_gp6_BHad_loose_pass', 'BTag_gp6_BHad_loose_fail', 'b_{h} Loose', '#Delta R < 0.6', 'BTag_BHad_loose_eff_DRP6'),
-		('BTag_lp6_BHad_medium_pass', 'BTag_lp6_BHad_medium_fail', 'BTag_gp6_BHad_medium_pass', 'BTag_gp6_BHad_medium_fail', 'b_{h} Medium', '#Delta R < 0.6', 'BTag_BHad_medium_eff_DRP6'),
-		('BTag_lp6_BHad_tight_pass', 'BTag_lp6_BHad_tight_fail', 'BTag_gp6_BHad_tight_pass', 'BTag_gp6_BHad_tight_fail', 'b_{h} Tight', '#Delta R < 0.6', 'BTag_BHad_tight_eff_DRP6'),
-		('BTag_lp6_BLep_loose_pass', 'BTag_lp6_BLep_loose_fail', 'BTag_gp6_BLep_loose_pass', 'BTag_gp6_BLep_loose_fail', 'b_{l} Loose', '#Delta R < 0.6', 'BTag_BLep_loose_eff_DRP6'),
-		('BTag_lp6_BLep_medium_pass', 'BTag_lp6_BLep_medium_fail', 'BTag_gp6_BLep_medium_pass', 'BTag_gp6_BLep_medium_fail', 'b_{l} Medium', '#Delta R < 0.6', 'BTag_BLep_medium_eff_DRP6'),
-		('BTag_lp6_BLep_tight_pass', 'BTag_lp6_BLep_tight_fail', 'BTag_gp6_BLep_tight_pass', 'BTag_gp6_BLep_tight_fail', 'b_{l} Tight', '#Delta R < 0.6', 'BTag_BLep_tight_eff_DRP6'),
-		('BTag_lp8_BHad_loose_pass', 'BTag_lp8_BHad_loose_fail', 'BTag_gp8_BHad_loose_pass', 'BTag_gp8_BHad_loose_fail', 'b_{h} Loose', '#Delta R < 0.8', 'BTag_BHad_loose_eff_DRP8'),
-		('BTag_lp8_BHad_medium_pass', 'BTag_lp8_BHad_medium_fail', 'BTag_gp8_BHad_medium_pass', 'BTag_gp8_BHad_medium_fail', 'b_{h} Medium', '#Delta R < 0.8', 'BTag_BHad_medium_eff_DRP8'),
-		('BTag_lp8_BHad_tight_pass', 'BTag_lp8_BHad_tight_fail', 'BTag_gp8_BHad_tight_pass', 'BTag_gp8_BHad_tight_fail', 'b_{h} Tight', '#Delta R < 0.8', 'BTag_BHad_tight_eff_DRP8'),
-		('BTag_lp8_BLep_loose_pass', 'BTag_lp8_BLep_loose_fail', 'BTag_gp8_BLep_loose_pass', 'BTag_gp8_BLep_loose_fail', 'b_{l} Loose', '#Delta R < 0.8', 'BTag_BLep_loose_eff_DRP8'),
-		('BTag_lp8_BLep_medium_pass', 'BTag_lp8_BLep_medium_fail', 'BTag_gp8_BLep_medium_pass', 'BTag_gp8_BLep_medium_fail', 'b_{l} Medium', '#Delta R < 0.8', 'BTag_BLep_medium_eff_DRP8'),
-		('BTag_lp8_BLep_tight_pass', 'BTag_lp8_BLep_tight_fail', 'BTag_gp8_BLep_tight_pass', 'BTag_gp8_BLep_tight_fail', 'b_{l} Tight', '#Delta R < 0.8', 'BTag_BLep_tight_eff_DRP8')
+		('BTag_less_BHad_loose_pass', 'BTag_less_BHad_loose_fail', 'BTag_great_BHad_loose_pass', 'BTag_great_BHad_loose_fail', 'b_{h} Loose', 'BTag_BHad_loose_eff'),
+		('BTag_less_BHad_medium_pass', 'BTag_less_BHad_medium_fail', 'BTag_great_BHad_medium_pass', 'BTag_great_BHad_medium_fail', 'b_{h} Medium', 'BTag_BHad_medium_eff'),
+		('BTag_less_BHad_tight_pass', 'BTag_less_BHad_tight_fail', 'BTag_great_BHad_tight_pass', 'BTag_great_BHad_tight_fail', 'b_{h} Tight', 'BTag_BHad_tight_eff'),
+		('BTag_less_BLep_loose_pass', 'BTag_less_BLep_loose_fail', 'BTag_great_BLep_loose_pass', 'BTag_great_BLep_loose_fail', 'b_{l} Loose', 'BTag_BLep_loose_eff'),
+		('BTag_less_BLep_medium_pass', 'BTag_less_BLep_medium_fail', 'BTag_great_BLep_medium_pass', 'BTag_great_BLep_medium_fail', 'b_{l} Medium', 'BTag_BLep_medium_eff'),
+		('BTag_less_BLep_tight_pass', 'BTag_less_BLep_tight_fail', 'BTag_great_BLep_tight_pass', 'BTag_great_BLep_tight_fail', 'b_{l} Tight', 'BTag_BLep_tight_eff')
 	]
 
 	labels = ['Merged', 'Unmerged']
-	colors = ['red', 'blue'] 
-	for Merged_Pass, Merged_Fail, Unmerged_Pass, Unmerged_Fail, title, DRvalue, name in BTag:
-		Merged_Effs = []
-		to_draw = []
+#	colors = ['red', 'blue'] 
+	for Merged_Pass, Merged_Fail, Unmerged_Pass, Unmerged_Fail, title, name in BTag:
+		Merged_DR = []
+		Unmerged_DR = []
+
+		for folder, legend, colors in DRvals:
+			to_draw = []
+			
+		#	Merged_Effs = []
+			Merged_Passing = asrootpy(myfile.Get(folder+'/'+Merged_Pass)).Clone()
+			Merged_Failing = asrootpy(myfile.Get(folder+'/'+Merged_Fail)).Clone()
+			Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
+			plotter.set_histo_style(Merged_BTag_Eff, title=labels[0], color='red', markerstyle=20)
+			plotter.plot(Merged_BTag_Eff)
+			Merged_BTag_Eff.Draw("P")
+		#	Merged_BTag_Eff.xaxis.set_title(xaxis)
+		#	Merged_BTag_Eff.yaxis.set_title(yaxis)
+			Merged_BTag_Eff.yaxis.range_user = 0, 1
+		#	for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
+		#		Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
+		#	print(title+' Merged', Merged_Effs)
+			to_draw.append(Merged_BTag_Eff)	
+
+		#	Unmerged_Effs = []
+			Unmerged_Passing = asrootpy(myfile.Get(folder+'/'+Unmerged_Pass)).Clone()
+			Unmerged_Failing = asrootpy(myfile.Get(folder+'/'+Unmerged_Fail)).Clone()
+			Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
+			plotter.set_histo_style(Unmerged_BTag_Eff, title=labels[1], color='blue', markerstyle=20)
+			plotter.plot(Unmerged_BTag_Eff)
+			Unmerged_BTag_Eff.Draw("P")
+	#		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
+	#		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
+			Unmerged_BTag_Eff.yaxis.range_user = 0, 1
+	#		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
+	#			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
+	#		print(title+' Unmerged', Unmerged_Effs)
+			to_draw.append(Unmerged_BTag_Eff)	
+
+			plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), y_range=(0,1), xtitle=xaxis, ytitle=yaxis)
+			box = plotter.make_text_box(title+'\n%s' % legend, position='NW')
+			plotter.save(name+'_'+folder)
+
+			plotter.set_histo_style(Merged_BTag_Eff, title=legend, color=colors, markerstyle=20)
+			plotter.plot(Merged_BTag_Eff)
+			Merged_BTag_Eff.Draw("P")
+			Merged_DR.append(Merged_BTag_Eff)
 		
-		Merged_Passing = asrootpy(myfile.Get(Merged_Pass)).Clone()
-		Merged_Failing = asrootpy(myfile.Get(Merged_Fail)).Clone()
-		Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
-		plotter.set_histo_style(Merged_BTag_Eff, title=labels[0], color=colors[0], markerstyle=20)
-		plotter.plot(Merged_BTag_Eff)
-		Merged_BTag_Eff.Draw("P")
-		Merged_BTag_Eff.xaxis.set_title(xaxis)
-		Merged_BTag_Eff.yaxis.set_title(yaxis)
-		Merged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
-			Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Merged', Merged_Effs)
-		to_draw.append(Merged_BTag_Eff)	
+			plotter.set_histo_style(Unmerged_BTag_Eff, title=legend, color=colors, markerstyle=20)
+			plotter.plot(Unmerged_BTag_Eff)
+			Unmerged_BTag_Eff.Draw("P")
+			Unmerged_DR.append(Unmerged_BTag_Eff)
 
-		Unmerged_Effs = []
-		Unmerged_Passing = asrootpy(myfile.Get(Unmerged_Pass)).Clone()
-		Unmerged_Failing = asrootpy(myfile.Get(Unmerged_Fail)).Clone()
-		Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
-		plotter.set_histo_style(Unmerged_BTag_Eff, title=labels[1], color=colors[1], markerstyle=20)
-		plotter.plot(Unmerged_BTag_Eff)
-		Unmerged_BTag_Eff.Draw("P")
-		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
-		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
-		Unmerged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
-			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Unmerged', Unmerged_Effs)
-		to_draw.append(Unmerged_BTag_Eff)	
+		plotter.overlay(Merged_DR, legend_def=LegendDefinition(position='NE'), y_range=(0, 1), xtitle=xaxis, ytitle=yaxis)
+		box = plotter.make_text_box('Merged '+title, position='NW')
+		plotter.save('Merged_'+name)
 
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-		box = plotter.make_text_box(title+'\n%s' % DRvalue, position='NW')
-		plotter.save(name)
+		plotter.overlay(Unmerged_DR, legend_def=LegendDefinition(position='NE'), y_range=(0, 1), xtitle=xaxis, ytitle=yaxis)
+		box = plotter.make_text_box('Unmerged '+title, position='NW')
+		plotter.save('Unmerged_'+name)
 
-	Merged_Loose_BHad = [
-		('BTag_lp4_BHad_loose_pass', 'BTag_lp4_BHad_loose_fail', '#Delta R < 0.4', 'red'),
-		('BTag_lp5_BHad_loose_pass', 'BTag_lp5_BHad_loose_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_lp6_BHad_loose_pass', 'BTag_lp6_BHad_loose_fail', '#Delta R < 0.6', 'green'),
-		('BTag_lp8_BHad_loose_pass', 'BTag_lp8_BHad_loose_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Merged_BTag_BHad_loose_eff'
-	titles = 'Merged b_{h} Loose'
-	to_draw = []
-	for Merged_Pass, Merged_Fail, DRvalue, colors in Merged_Loose_BHad:
-		Merged_Effs = []
-		
-		Merged_Passing = asrootpy(myfile.Get(Merged_Pass)).Clone()
-		Merged_Failing = asrootpy(myfile.Get(Merged_Fail)).Clone()
-		Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
-		plotter.set_histo_style(Merged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Merged_BTag_Eff)
-		Merged_BTag_Eff.Draw("P")
-		Merged_BTag_Eff.xaxis.set_title(xaxis)
-		Merged_BTag_Eff.yaxis.set_title(yaxis)
-#		Merged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
-			Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Merged', Merged_Effs)
-		to_draw.append(Merged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Merged_Loose_BLep = [
-		('BTag_lp4_BLep_loose_pass', 'BTag_lp4_BLep_loose_fail', '#Delta R < 0.4', 'red'),
-		('BTag_lp5_BLep_loose_pass', 'BTag_lp5_BLep_loose_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_lp6_BLep_loose_pass', 'BTag_lp6_BLep_loose_fail', '#Delta R < 0.6', 'green'),
-		('BTag_lp8_BLep_loose_pass', 'BTag_lp8_BLep_loose_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Merged_BTag_BLep_loose_eff'
-	titles = 'Merged b_{l} Loose'
-	to_draw = []
-	for Merged_Pass, Merged_Fail, DRvalue, colors in Merged_Loose_BLep:
-		Merged_Effs = []
-		
-		Merged_Passing = asrootpy(myfile.Get(Merged_Pass)).Clone()
-		Merged_Failing = asrootpy(myfile.Get(Merged_Fail)).Clone()
-		Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
-		plotter.set_histo_style(Merged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Merged_BTag_Eff)
-		Merged_BTag_Eff.Draw("P")
-		Merged_BTag_Eff.xaxis.set_title(xaxis)
-		Merged_BTag_Eff.yaxis.set_title(yaxis)
-#		Merged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
-			Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Merged', Merged_Effs)
-		to_draw.append(Merged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Merged_Med_BHad = [
-		('BTag_lp4_BHad_medium_pass', 'BTag_lp4_BHad_medium_fail', '#Delta R < 0.4', 'red'),
-		('BTag_lp5_BHad_medium_pass', 'BTag_lp5_BHad_medium_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_lp6_BHad_medium_pass', 'BTag_lp6_BHad_medium_fail', '#Delta R < 0.6', 'green'),
-		('BTag_lp8_BHad_medium_pass', 'BTag_lp8_BHad_medium_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Merged_BTag_BHad_medium_eff'
-	titles = 'Merged b_{h} Medium'
-	to_draw = []
-	for Merged_Pass, Merged_Fail, DRvalue, colors in Merged_Med_BHad:
-		Merged_Effs = []
-		
-		Merged_Passing = asrootpy(myfile.Get(Merged_Pass)).Clone()
-		Merged_Failing = asrootpy(myfile.Get(Merged_Fail)).Clone()
-		Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
-		plotter.set_histo_style(Merged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Merged_BTag_Eff)
-		Merged_BTag_Eff.Draw("P")
-		Merged_BTag_Eff.xaxis.set_title(xaxis)
-		Merged_BTag_Eff.yaxis.set_title(yaxis)
-#		Merged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
-			Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Merged', Merged_Effs)
-		to_draw.append(Merged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Merged_Med_BLep = [
-		('BTag_lp4_BLep_medium_pass', 'BTag_lp4_BLep_medium_fail', '#Delta R < 0.4', 'red'),
-		('BTag_lp5_BLep_medium_pass', 'BTag_lp5_BLep_medium_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_lp6_BLep_medium_pass', 'BTag_lp6_BLep_medium_fail', '#Delta R < 0.6', 'green'),
-		('BTag_lp8_BLep_medium_pass', 'BTag_lp8_BLep_medium_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Merged_BTag_BLep_medium_eff'
-	titles = 'Merged b_{l} Medium'
-	to_draw = []
-	for Merged_Pass, Merged_Fail, DRvalue, colors in Merged_Med_BLep:
-		Merged_Effs = []
-		
-		Merged_Passing = asrootpy(myfile.Get(Merged_Pass)).Clone()
-		Merged_Failing = asrootpy(myfile.Get(Merged_Fail)).Clone()
-		Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
-		plotter.set_histo_style(Merged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Merged_BTag_Eff)
-		Merged_BTag_Eff.Draw("P")
-		Merged_BTag_Eff.xaxis.set_title(xaxis)
-		Merged_BTag_Eff.yaxis.set_title(yaxis)
-#		Merged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
-			Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Merged', Merged_Effs)
-		to_draw.append(Merged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Merged_Tight_BHad = [
-		('BTag_lp4_BHad_tight_pass', 'BTag_lp4_BHad_tight_fail', '#Delta R < 0.4', 'red'),
-		('BTag_lp5_BHad_tight_pass', 'BTag_lp5_BHad_tight_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_lp6_BHad_tight_pass', 'BTag_lp6_BHad_tight_fail', '#Delta R < 0.6', 'green'),
-		('BTag_lp8_BHad_tight_pass', 'BTag_lp8_BHad_tight_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Merged_BTag_BHad_tight_eff'
-	titles = 'Merged b_{h} Tight'
-	to_draw = []
-	for Merged_Pass, Merged_Fail, DRvalue, colors in Merged_Tight_BHad:
-		Merged_Effs = []
-		
-		Merged_Passing = asrootpy(myfile.Get(Merged_Pass)).Clone()
-		Merged_Failing = asrootpy(myfile.Get(Merged_Fail)).Clone()
-		Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
-		plotter.set_histo_style(Merged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Merged_BTag_Eff)
-		Merged_BTag_Eff.Draw("P")
-		Merged_BTag_Eff.xaxis.set_title(xaxis)
-		Merged_BTag_Eff.yaxis.set_title(yaxis)
-#		Merged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
-			Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Merged', Merged_Effs)
-		to_draw.append(Merged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Merged_Tight_BLep = [
-		('BTag_lp4_BLep_tight_pass', 'BTag_lp4_BLep_tight_fail', '#Delta R < 0.4', 'red'),
-		('BTag_lp5_BLep_tight_pass', 'BTag_lp5_BLep_tight_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_lp6_BLep_tight_pass', 'BTag_lp6_BLep_tight_fail', '#Delta R < 0.6', 'green'),
-		('BTag_lp8_BLep_tight_pass', 'BTag_lp8_BLep_tight_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Merged_BTag_BLep_tight_eff'
-	titles = 'Merged b_{l} Tight'
-	to_draw = []
-	for Merged_Pass, Merged_Fail, DRvalue, colors in Merged_Tight_BLep:
-		Merged_Effs = []
-		
-		Merged_Passing = asrootpy(myfile.Get(Merged_Pass)).Clone()
-		Merged_Failing = asrootpy(myfile.Get(Merged_Fail)).Clone()
-		Merged_BTag_Eff = Merged_Passing/(Merged_Passing+Merged_Failing)
-		plotter.set_histo_style(Merged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Merged_BTag_Eff)
-		Merged_BTag_Eff.Draw("P")
-		Merged_BTag_Eff.xaxis.set_title(xaxis)
-		Merged_BTag_Eff.yaxis.set_title(yaxis)
-#		Merged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Merged_BTag_Eff.GetXaxis().GetNbins()):
-			Merged_Effs.append(format(Merged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Merged', Merged_Effs)
-		to_draw.append(Merged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Unmerged_Loose_BHad = [
-		('BTag_gp4_BHad_loose_pass', 'BTag_gp4_BHad_loose_fail', '#Delta R < 0.4', 'red'),
-		('BTag_gp5_BHad_loose_pass', 'BTag_gp5_BHad_loose_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_gp6_BHad_loose_pass', 'BTag_gp6_BHad_loose_fail', '#Delta R < 0.6', 'green'),
-		('BTag_gp8_BHad_loose_pass', 'BTag_gp8_BHad_loose_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Unmerged_BTag_BHad_loose_eff'
-	titles = 'Unmerged b_{h} Loose'
-	to_draw = []
-	for Unmerged_Pass, Unmerged_Fail, DRvalue, colors in Unmerged_Loose_BHad:
-		Unmerged_Effs = []
-		
-		Unmerged_Passing = asrootpy(myfile.Get(Unmerged_Pass)).Clone()
-		Unmerged_Failing = asrootpy(myfile.Get(Unmerged_Fail)).Clone()
-		Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
-		plotter.set_histo_style(Unmerged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Unmerged_BTag_Eff)
-		Unmerged_BTag_Eff.Draw("P")
-		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
-		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
-#		Unmerged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
-			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Unmerged', Unmerged_Effs)
-		to_draw.append(Unmerged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Unmerged_Loose_BLep = [
-		('BTag_gp4_BLep_loose_pass', 'BTag_gp4_BLep_loose_fail', '#Delta R < 0.4', 'red'),
-		('BTag_gp5_BLep_loose_pass', 'BTag_gp5_BLep_loose_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_gp6_BLep_loose_pass', 'BTag_gp6_BLep_loose_fail', '#Delta R < 0.6', 'green'),
-		('BTag_gp8_BLep_loose_pass', 'BTag_gp8_BLep_loose_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Unmerged_BTag_BLep_loose_eff'
-	titles = 'Unmerged b_{l} Loose'
-	to_draw = []
-	for Unmerged_Pass, Unmerged_Fail, DRvalue, colors in Unmerged_Loose_BLep:
-		Unmerged_Effs = []
-		
-		Unmerged_Passing = asrootpy(myfile.Get(Unmerged_Pass)).Clone()
-		Unmerged_Failing = asrootpy(myfile.Get(Unmerged_Fail)).Clone()
-		Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
-		plotter.set_histo_style(Unmerged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Unmerged_BTag_Eff)
-		Unmerged_BTag_Eff.Draw("P")
-		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
-		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
-#		Unmerged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
-			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Unmerged', Unmerged_Effs)
-		to_draw.append(Unmerged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Unmerged_Med_BHad = [
-		('BTag_gp4_BHad_medium_pass', 'BTag_gp4_BHad_medium_fail', '#Delta R < 0.4', 'red'),
-		('BTag_gp5_BHad_medium_pass', 'BTag_gp5_BHad_medium_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_gp6_BHad_medium_pass', 'BTag_gp6_BHad_medium_fail', '#Delta R < 0.6', 'green'),
-		('BTag_gp8_BHad_medium_pass', 'BTag_gp8_BHad_medium_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Unmerged_BTag_BHad_medium_eff'
-	titles = 'Unmerged b_{h} Medium'
-	to_draw = []
-	for Unmerged_Pass, Unmerged_Fail, DRvalue, colors in Unmerged_Med_BHad:
-		Unmerged_Effs = []
-		
-		Unmerged_Passing = asrootpy(myfile.Get(Unmerged_Pass)).Clone()
-		Unmerged_Failing = asrootpy(myfile.Get(Unmerged_Fail)).Clone()
-		Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
-		plotter.set_histo_style(Unmerged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Unmerged_BTag_Eff)
-		Unmerged_BTag_Eff.Draw("P")
-		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
-		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
-#		Unmerged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
-			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Unmerged', Unmerged_Effs)
-		to_draw.append(Unmerged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Unmerged_Med_BLep = [
-		('BTag_gp4_BLep_medium_pass', 'BTag_gp4_BLep_medium_fail', '#Delta R < 0.4', 'red'),
-		('BTag_gp5_BLep_medium_pass', 'BTag_gp5_BLep_medium_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_gp6_BLep_medium_pass', 'BTag_gp6_BLep_medium_fail', '#Delta R < 0.6', 'green'),
-		('BTag_gp8_BLep_medium_pass', 'BTag_gp8_BLep_medium_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Unmerged_BTag_BLep_medium_eff'
-	titles = 'Unmerged b_{l} Medium'
-	to_draw = []
-	for Unmerged_Pass, Unmerged_Fail, DRvalue, colors in Unmerged_Med_BLep:
-		Unmerged_Effs = []
-		
-		Unmerged_Passing = asrootpy(myfile.Get(Unmerged_Pass)).Clone()
-		Unmerged_Failing = asrootpy(myfile.Get(Unmerged_Fail)).Clone()
-		Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
-		plotter.set_histo_style(Unmerged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Unmerged_BTag_Eff)
-		Unmerged_BTag_Eff.Draw("P")
-		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
-		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
-#		Unmerged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
-			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Unmerged', Unmerged_Effs)
-		to_draw.append(Unmerged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Unmerged_Tight_BHad = [
-		('BTag_gp4_BHad_tight_pass', 'BTag_gp4_BHad_tight_fail', '#Delta R < 0.4', 'red'),
-		('BTag_gp5_BHad_tight_pass', 'BTag_gp5_BHad_tight_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_gp6_BHad_tight_pass', 'BTag_gp6_BHad_tight_fail', '#Delta R < 0.6', 'green'),
-		('BTag_gp8_BHad_tight_pass', 'BTag_gp8_BHad_tight_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Unmerged_BTag_BHad_tight_eff'
-	titles = 'Unmerged b_{h} Tight'
-	to_draw = []
-	for Unmerged_Pass, Unmerged_Fail, DRvalue, colors in Unmerged_Tight_BHad:
-		Unmerged_Effs = []
-		
-		Unmerged_Passing = asrootpy(myfile.Get(Unmerged_Pass)).Clone()
-		Unmerged_Failing = asrootpy(myfile.Get(Unmerged_Fail)).Clone()
-		Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
-		plotter.set_histo_style(Unmerged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Unmerged_BTag_Eff)
-		Unmerged_BTag_Eff.Draw("P")
-		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
-		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
-#		Unmerged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
-			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Unmerged', Unmerged_Effs)
-		to_draw.append(Unmerged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
-
-	Unmerged_Tight_BLep = [
-		('BTag_gp4_BLep_tight_pass', 'BTag_gp4_BLep_tight_fail', '#Delta R < 0.4', 'red'),
-		('BTag_gp5_BLep_tight_pass', 'BTag_gp5_BLep_tight_fail', '#Delta R < 0.5', 'blue'),
-		('BTag_gp6_BLep_tight_pass', 'BTag_gp6_BLep_tight_fail', '#Delta R < 0.6', 'green'),
-		('BTag_gp8_BLep_tight_pass', 'BTag_gp8_BLep_tight_fail', '#Delta R < 0.8', 'black')
-	]
-
-	name = 'Unmerged_BTag_BLep_tight_eff'
-	titles = 'Unmerged b_{l} Tight'
-	to_draw = []
-	for Unmerged_Pass, Unmerged_Fail, DRvalue, colors in Unmerged_Tight_BLep:
-		Unmerged_Effs = []
-		
-		Unmerged_Passing = asrootpy(myfile.Get(Unmerged_Pass)).Clone()
-		Unmerged_Failing = asrootpy(myfile.Get(Unmerged_Fail)).Clone()
-		Unmerged_BTag_Eff = Unmerged_Passing/(Unmerged_Passing+Unmerged_Failing)
-		plotter.set_histo_style(Unmerged_BTag_Eff, title=DRvalue, color=colors, markerstyle=20)
-		plotter.plot(Unmerged_BTag_Eff)
-		Unmerged_BTag_Eff.Draw("P")
-		Unmerged_BTag_Eff.xaxis.set_title(xaxis)
-		Unmerged_BTag_Eff.yaxis.set_title(yaxis)
-#		Unmerged_BTag_Eff.yaxis.range_user = 0, 1
-		for i in range(0, Unmerged_BTag_Eff.GetXaxis().GetNbins()):
-			Unmerged_Effs.append(format(Unmerged_BTag_Eff.GetBinContent(i+1), '.4f'))
-		print(title+' Unmerged', Unmerged_Effs)
-		to_draw.append(Unmerged_BTag_Eff)	
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=yaxis)
-	box = plotter.make_text_box(titles, position='NW')
-	plotter.save(name)
 
 #####################################################################################################################
 #for var, xaxis, title in helframe: #variable name in histogram, xaxis title, saved title of png
@@ -972,403 +633,166 @@ if args.plot == "BTagging_Eff":
 #############################################################################################
 if args.plot == "Merged_Perms": #WJet merged with BJet
 	
-#	Norm_Combined_Masses = [
-#		('Merged_BHadWJa_perm_and_WJb_mass_DRP4', 'Unmerged_BHadWJa_perm_and_WJb_mass_DRP4','m [GeV]', 'Merged b_{h} & WJa', 'Unmerged', '#Delta R < 0.4', 'Norm_BHadWJa_Combined_Masses_DRP4'),
-#		('Merged_BHadWJb_perm_and_WJa_mass_DRP4', 'Unmerged_BHadWJb_perm_and_WJa_mass_DRP4','m [GeV]', 'Merged b_{h} & WJb', 'Unmerged', '#Delta R < 0.4', 'Norm_BHadWJb_Combined_Masses_DRP4'),
-#		('Merged_BHadWJa_perm_and_WJb_mass_DRP5', 'Unmerged_BHadWJa_perm_and_WJb_mass_DRP5','m [GeV]', 'Merged b_{h} & WJa', 'Unmerged', '#Delta R < 0.5', 'Norm_BHadWJa_Combined_Masses_DRP5'),
-#		('Merged_BHadWJb_perm_and_WJa_mass_DRP5', 'Unmerged_BHadWJb_perm_and_WJa_mass_DRP5','m [GeV]', 'Merged b_{h} & WJb', 'Unmerged', '#Delta R < 0.5', 'Norm_BHadWJb_Combined_Masses_DRP5'),
-#		('Merged_BHadWJa_perm_and_WJb_mass_DRP6', 'Unmerged_BHadWJa_perm_and_WJb_mass_DRP6','m [GeV]', 'Merged b_{h} & WJa', 'Unmerged', '#Delta R < 0.6', 'Norm_BHadWJa_Combined_Masses_DRP6'),
-#		('Merged_BHadWJb_perm_and_WJa_mass_DRP6', 'Unmerged_BHadWJb_perm_and_WJa_mass_DRP6','m [GeV]', 'Merged b_{h} & WJb', 'Unmerged', '#Delta R < 0.6', 'Norm_BHadWJb_Combined_Masses_DRP6'),
-#		('Merged_BHadWJa_perm_and_WJb_mass_DRP8', 'Unmerged_BHadWJa_perm_and_WJb_mass_DRP8','m [GeV]', 'Merged b_{h} & WJa', 'Unmerged', '#Delta R < 0.8', 'Norm_BHadWJa_Combined_Masses_DRP8'),
-#		('Merged_BHadWJb_perm_and_WJa_mass_DRP8', 'Unmerged_BHadWJb_perm_and_WJa_mass_DRP8','m [GeV]', 'Merged b_{h} & WJb', 'Unmerged', '#Delta R < 0.8', 'Norm_BHadWJb_Combined_Masses_DRP8')
-#	]
-#
-#	for merged, unmerged, xaxis, Merge_label, Unmerge_label, DRvalue, name in Norm_Combined_Masses:
-#		to_draw = []
-#		Merged = asrootpy(normfile.Get(merged)).Clone()
-#		plotter.set_histo_style(Merged, title=Merge_label, xtitle=xaxis, color='red')
-#		Merged.xaxis.range_user = 0, 300
-#		to_draw.append(Merged)
-#
-#		Unmerged = asrootpy(normfile.Get(unmerged)).Clone()
-#		plotter.set_histo_style(Unmerged, title=Unmerge_label, xtitle=xaxis, color='blue')
-#		Unmerged.xaxis.range_user = 0, 300
-#		to_draw.append(Unmerged)
-#	
-#		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle='Normalized')
-#		box = plotter.make_text_box('Combined Masses\n%s' % DRvalue, position='NW')
-#		plotter.save(name)
-#
-#	Norm_BHadWJ_Masses = [
-#		('Merged_BHadWJa_perm_mass_DRP4', 'Unmerged_BHadWJa_perm_mass_DRP4','m [GeV]', '#Delta R < 0.4', 'b_{h} & WJa', 'Norm_BHadWJa_Masses_DRP4'),
-#		('Merged_BHadWJb_perm_mass_DRP4', 'Unmerged_BHadWJb_perm_mass_DRP4','m [GeV]', '#Delta R < 0.4', 'b_{h} & WJb', 'Norm_BHadWJb_Masses_DRP4'),
-#		('Merged_BHadWJa_perm_mass_DRP5', 'Unmerged_BHadWJa_perm_mass_DRP5','m [GeV]', '#Delta R < 0.5', 'b_{h} & WJa', 'Norm_BHadWJa_Masses_DRP5'),
-#		('Merged_BHadWJb_perm_mass_DRP5', 'Unmerged_BHadWJb_perm_mass_DRP5','m [GeV]', '#Delta R < 0.5', 'b_{h} & WJb', 'Norm_BHadWJb_Masses_DRP5'),
-#		('Merged_BHadWJa_perm_mass_DRP6', 'Unmerged_BHadWJa_perm_mass_DRP6','m [GeV]', '#Delta R < 0.6', 'b_{h} & WJa', 'Norm_BHadWJa_Masses_DRP6'),
-#		('Merged_BHadWJb_perm_mass_DRP6', 'Unmerged_BHadWJb_perm_mass_DRP6','m [GeV]', '#Delta R < 0.6', 'b_{h} & WJb', 'Norm_BHadWJb_Masses_DRP6'),
-#		('Merged_BHadWJa_perm_mass_DRP8', 'Unmerged_BHadWJa_perm_mass_DRP8','m [GeV]', '#Delta R < 0.8', 'b_{h} & WJa', 'Norm_BHadWJa_Masses_DRP8'),
-#		('Merged_BHadWJb_perm_mass_DRP8', 'Unmerged_BHadWJb_perm_mass_DRP8','m [GeV]', '#Delta R < 0.8', 'b_{h} & WJb', 'Norm_BHadWJb_Masses_DRP8')
-#	]
-#
-#	for merged, unmerged, xaxis, DRvalue, titles, name in Norm_BHadWJ_Masses:
-#		to_draw = []
-#		Merged = asrootpy(normfile.Get(merged)).Clone()
-#		plotter.set_histo_style(Merged, title='Merged', xtitle=xaxis, color='red')
-#		Merged.xaxis.range_user = 0, 300
-#		to_draw.append(Merged)
-#
-#		Unmerged = asrootpy(normfile.Get(unmerged)).Clone()
-#		plotter.set_histo_style(Unmerged, title='Unmerged', xtitle=xaxis, color='blue')
-#		Unmerged.xaxis.range_user = 0, 300
-#		to_draw.append(Unmerged)
-#	
-#		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle='Normalized')
-#		box = plotter.make_text_box(titles+'\n%s' % DRvalue, position='NW')
-#		plotter.save(name)
-
-
-	Norm_Merged_BHadWJa_Combined_Masses = [
-		('Merged_BHadWJa_perm_and_WJb_mass_DRP4', '#Delta R < 0.4', 'red'),
-		('Merged_BHadWJa_perm_and_WJb_mass_DRP5', '#Delta R < 0.5', 'blue'),
-		('Merged_BHadWJa_perm_and_WJb_mass_DRP6', '#Delta R < 0.6', 'green'),
-		('Merged_BHadWJa_perm_and_WJb_mass_DRP8', '#Delta R < 0.8', 'black')
+	Norm_Merged_Combined_Masses = [
+		('Merged_BHadWJa_perm_and_WJb_mass', 'm_{merged+WJb} [GeV]', 'Merged b_{h} & WJa', '_BHadWJa_'),
+		('Merged_BLepWJa_perm_and_WJb_mass', 'm_{merged+WJb} [GeV]', 'Merged b_{l} & WJa', '_BLepWJa_'),
+		('Merged_BHadWJb_perm_and_WJa_mass', 'm_{merged+WJa} [GeV]', 'Merged b_{h} & WJb', '_BHadWJb_'),
+		('Merged_BLepWJb_perm_and_WJa_mass', 'm_{merged+WJa} [GeV]', 'Merged b_{l} & WJb', '_BLepWJb_')
 	]
 
-	to_draw = []
-	for var, DRvalue, colors in Norm_Merged_BHadWJa_Combined_Masses:
-		hist = asrootpy(normfile.Get(var)).Clone()
-		plotter.set_histo_style(hist, title=DRvalue, color=colors)
-		hist.xaxis.range_user = 0, 300
-		to_draw.append(hist)
+	for var, xtitles, merged, name in Norm_Merged_Combined_Masses:
+		to_draw = []
+		for folder, legend, colors in DRvals:
+			hist = asrootpy(normfile.Get(folder+'/'+var)).Clone()
+			plotter.set_histo_style(hist, title=legend, color=colors)
+			hist.xaxis.range_user = 0, 300
+			to_draw.append(hist)
 
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{merged+WJb} [GeV]', ytitle='Normalized')
-	box = plotter.make_text_box('Combined Masses\nMerged b_{h} & WJa', position='NW')
-	plotter.save('Merged_Norm_BHadWJa_Combined_Masses')
-
-
-	Norm_Merged_BLepWJa_Combined_Masses = [
-		('Merged_BLepWJa_perm_and_WJb_mass_DRP4', '#Delta R < 0.4', 'red'),
-		('Merged_BLepWJa_perm_and_WJb_mass_DRP5', '#Delta R < 0.5', 'blue'),
-		('Merged_BLepWJa_perm_and_WJb_mass_DRP6', '#Delta R < 0.6', 'green'),
-		('Merged_BLepWJa_perm_and_WJb_mass_DRP8', '#Delta R < 0.8', 'black')
-	]
-
-	to_draw = []
-	for var, DRvalue, colors in Norm_Merged_BLepWJa_Combined_Masses:
-		hist = asrootpy(normfile.Get(var)).Clone()
-		plotter.set_histo_style(hist, title=DRvalue, color=colors)
-		hist.xaxis.range_user = 0, 300
-		to_draw.append(hist)
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{merged+WJb} [GeV]', ytitle='Normalized')
-	box = plotter.make_text_box('Combined Masses\nMerged b_{l} & WJa', position='NW')
-	plotter.save('Merged_Norm_BLepWJa_Combined_Masses')
+		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), x_range=(0, 300), xtitle=xtitles, ytitle='Normalized', drawstyle='hist')
+		box = plotter.make_text_box('Combined Masses\n%s' % merged, position='NW')
+		plotter.save('Merged_Norm'+name+'Combined_Masses')
 
 
-	Norm_Merged_BHadWJb_Combined_Masses = [
-		('Merged_BHadWJb_perm_and_WJa_mass_DRP4', '#Delta R < 0.4', 'red'),
-		('Merged_BHadWJb_perm_and_WJa_mass_DRP5', '#Delta R < 0.5', 'blue'),
-		('Merged_BHadWJb_perm_and_WJa_mass_DRP6', '#Delta R < 0.6', 'green'),
-		('Merged_BHadWJb_perm_and_WJa_mass_DRP8', '#Delta R < 0.8', 'black')
-	]
-
-	to_draw = []
-	for var, DRvalue, colors in Norm_Merged_BHadWJb_Combined_Masses:
-		Merged = asrootpy(normfile.Get(var)).Clone()
-		plotter.set_histo_style(Merged, title=DRvalue, color=colors)
-		Merged.xaxis.range_user = 0, 300
-		to_draw.append(Merged)
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{merged+WJa} [GeV]', ytitle='Normalized')
-	box = plotter.make_text_box('Combined Masses\nMerged b_{h} & WJb', position='NW')
-	plotter.save('Merged_Norm_BHadWJb_Combined_Masses')
-
-
-	Norm_Merged_BLepWJb_Combined_Masses = [
-		('Merged_BLepWJb_perm_and_WJa_mass_DRP4', '#Delta R < 0.4', 'red'),
-		('Merged_BLepWJb_perm_and_WJa_mass_DRP5', '#Delta R < 0.5', 'blue'),
-		('Merged_BLepWJb_perm_and_WJa_mass_DRP6', '#Delta R < 0.6', 'green'),
-		('Merged_BLepWJb_perm_and_WJa_mass_DRP8', '#Delta R < 0.8', 'black')
-	]
-
-	to_draw = []
-	for var, DRvalue, colors in Norm_Merged_BLepWJb_Combined_Masses:
-		Merged = asrootpy(normfile.Get(var)).Clone()
-		plotter.set_histo_style(Merged, title=DRvalue, color=colors)
-		Merged.xaxis.range_user = 0, 300
-		to_draw.append(Merged)
-
-	plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{merged+WJa} [GeV]', ytitle='Normalized')
-	box = plotter.make_text_box('Combined Masses\nMerged b_{l} & WJb', position='NW')
-	plotter.save('Merged_Norm_BLepWJb_Combined_Masses')
-
-
-	Merged_BHad_Masses = [
-		('Merged_BHadWJa_perm_mass_DRP4', 'Merged_BHadWJb_perm_mass_DRP4', 'm_{merged} [GeV]', '#Delta R < 0.4', 'Merged_BHad_Masses_DRP4'),
-		('Merged_BHadWJa_perm_mass_DRP5', 'Merged_BHadWJb_perm_mass_DRP5', 'm_{merged} [GeV]', '#Delta R < 0.5', 'Merged_BHad_Masses_DRP5'),
-		('Merged_BHadWJa_perm_mass_DRP6', 'Merged_BHadWJb_perm_mass_DRP6', 'm_{merged} [GeV]', '#Delta R < 0.6', 'Merged_BHad_Masses_DRP6'),
-		('Merged_BHadWJa_perm_mass_DRP8', 'Merged_BHadWJb_perm_mass_DRP8', 'm_{merged} [GeV]', '#Delta R < 0.8', 'Merged_BHad_Masses_DRP8')
+	Merged_B_Masses = [
+		('Merged_BHadWJa_perm_mass', 'Merged_BHadWJb_perm_mass', 'm_{merged} [GeV]', 'b_{h}', 'Merged_BHad_Masses_'),
+		('Merged_BLepWJa_perm_mass', 'Merged_BLepWJb_perm_mass', 'm_{merged} [GeV]', 'b_{l}', 'Merged_BLep_Masses_')
 	]	
 
-	for wja, wjb, xaxis, DRvalue, name in Merged_BHad_Masses:
-		to_draw = []
-		WJa = asrootpy(myfile.Get(wja)).Clone()
-		plotter.set_histo_style(WJa, title='b_{h} & WJa' , color='red')
-		WJa.xaxis.range_user = 0, 300
-		to_draw.append(WJa)
-
-		WJb = asrootpy(myfile.Get(wjb)).Clone()
-		plotter.set_histo_style(WJb, title='b_{h} & WJb' , color='blue')
-		WJb.xaxis.range_user = 0, 300
-		to_draw.append(WJb)
-
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax)
-		box = plotter.make_text_box('Merged Jet Masses\n%s' % DRvalue, position='NW')
-		plotter.save(name)
-
-
-	Merged_BLep_Masses = [
-		('Merged_BLepWJa_perm_mass_DRP4', 'Merged_BLepWJb_perm_mass_DRP4', 'm_{merged} [GeV]', '#Delta R < 0.4', 'Merged_BLep_Masses_DRP4'),
-		('Merged_BLepWJa_perm_mass_DRP5', 'Merged_BLepWJb_perm_mass_DRP5', 'm_{merged} [GeV]', '#Delta R < 0.5', 'Merged_BLep_Masses_DRP5'),
-		('Merged_BLepWJa_perm_mass_DRP6', 'Merged_BLepWJb_perm_mass_DRP6', 'm_{merged} [GeV]', '#Delta R < 0.6', 'Merged_BLep_Masses_DRP6'),
-		('Merged_BLepWJa_perm_mass_DRP8', 'Merged_BLepWJb_perm_mass_DRP8', 'm_{merged} [GeV]', '#Delta R < 0.8', 'Merged_BLep_Masses_DRP8')
-	]	
-
-	for wja, wjb, xaxis, DRvalue, name in Merged_BLep_Masses:
-		to_draw = []
-		WJa = asrootpy(myfile.Get(wja)).Clone()
-		plotter.set_histo_style(WJa, title='b_{l} & WJa' , color='red')
-		WJa.xaxis.range_user = 0, 300
-		to_draw.append(WJa)
-
-		WJb = asrootpy(myfile.Get(wjb)).Clone()
-		plotter.set_histo_style(WJb, title='b_{l} & WJb' , color='blue')
-		WJb.xaxis.range_user = 0, 300
-		to_draw.append(WJb)
-
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax)
-		box = plotter.make_text_box('Merged Jet Masses\n%s' % DRvalue, position='NW')
-		plotter.save(name)
+	for wja, wjb, xaxis, b_type, name in Merged_B_Masses:
+		for folder, legend, colors in DRvals:
+			to_draw = []
+			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			plotter.set_histo_style(WJa, title=b_type+' & WJa' , color='red')
+			WJa.xaxis.range_user = 0, 300
+			to_draw.append(WJa)
+	
+			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			plotter.set_histo_style(WJb, title=b_type+' & WJb' , color='blue')
+			WJb.xaxis.range_user = 0, 300
+			to_draw.append(WJb)
+	
+			plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), x_range=(0, 300), xtitle=xaxis, ytitle=defyax, drawstyle='hist')
+			box = plotter.make_text_box('Merged Jet Masses\n%s' % legend, position='NW')
+			plotter.save(name+folder)
 
 
 	Other_Masses = [
-		('Merged_WJb_mass_DRP4', 'Merged_WJa_mass_DRP4', 'm_{other W} [GeV]', '#Delta R < 0.4', 'Merged_OtherW_Masses_DRP4'),
-		('Merged_WJb_mass_DRP5', 'Merged_WJa_mass_DRP5', 'm_{other W} [GeV]', '#Delta R < 0.5', 'Merged_OtherW_Masses_DRP5'),
-		('Merged_WJb_mass_DRP6', 'Merged_WJa_mass_DRP6', 'm_{other W} [GeV]', '#Delta R < 0.6', 'Merged_OtherW_Masses_DRP6'),
-		('Merged_WJb_mass_DRP8', 'Merged_WJa_mass_DRP8', 'm_{other W} [GeV]', '#Delta R < 0.8', 'Merged_OtherW_Masses_DRP8')
+		('Merged_WJb_mass', 'Merged_WJa_mass', 'm_{other W} [GeV]', 'Merged_OtherW_Masses_')
 	]
 
-	for wjb, wja, xaxis, DRvalue, name in Other_Masses:
-		to_draw = []
-		WJb = asrootpy(myfile.Get(wjb)).Clone()
-		plotter.set_histo_style(WJb, title='WJb', color='red')
-		WJb.xaxis.range_user = 0, 150
-		to_draw.append(WJb)
+	for wjb, wja, xaxis, name in Other_Masses:
+		for folder, legend, colors in DRvals:
+			to_draw = []
+			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			plotter.set_histo_style(WJb, title='WJb', color='red')
+			WJb.xaxis.range_user = 0, 150
+			to_draw.append(WJb)
+	
+			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			plotter.set_histo_style(WJa, title='WJa', color='blue')
+			WJa.xaxis.range_user = 0, 150
+			to_draw.append(WJa)
+	
+			plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), x_range=(0, 150), xtitle=xaxis, ytitle=defyax, drawstyle='hist')
+			box = plotter.make_text_box('Other W Masses\n%s' % legend, position='NW')
+			plotter.save(name+folder)
 
-		WJa = asrootpy(myfile.Get(wja)).Clone()
-		plotter.set_histo_style(WJa, title='WJa', color='blue')
-		WJa.xaxis.range_user = 0, 150
-		to_draw.append(WJa)
-
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax)
-		box = plotter.make_text_box('Other W Masses\n%s' % DRvalue, position='NW')
-		plotter.save(name)
-
-	Merged_BHad_DR = [
-		('Merged_BHadWJa_perm_DRP4_LepBLep', 'Merged_BHadWJb_perm_DRP4_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.4', 'Merged_BHadWJ_LepBLep_DRP4'),
-		('Merged_BHadWJa_perm_DRP5_LepBLep', 'Merged_BHadWJb_perm_DRP5_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.5', 'Merged_BHadWJ_LepBLep_DRP5'),
-		('Merged_BHadWJa_perm_DRP6_LepBLep', 'Merged_BHadWJb_perm_DRP6_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.6', 'Merged_BHadWJ_LepBLep_DRP6'),
-		('Merged_BHadWJa_perm_DRP8_LepBLep', 'Merged_BHadWJb_perm_DRP8_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.8', 'Merged_BHadWJ_LepBLep_DRP8')
+	Merged_B_DR = [
+		('Merged_BHadWJa_perm_DRLepBLep', 'Merged_BHadWJb_perm_DRLepBLep', '#Delta R (l, b_{l})', 'b_{h}', 'Merged_BHadWJ_LepBLep_'),
+		('Merged_BLepWJa_perm_DRLepBLep', 'Merged_BLepWJb_perm_DRLepBLep', '#Delta R (l, b_{l})', 'b_{l}', 'Merged_BLepWJ_LepBLep_')
 	]
 
-	for wja, wjb, xaxis, DRvalue, name in Merged_BHad_DR:
-		to_draw = []
-		WJa = asrootpy(myfile.Get(wja)).Clone()
-		plotter.set_histo_style(WJa, title='b_{h} & WJa', color='red')
-		to_draw.append(WJa)
+	for wja, wjb, xaxis, b_type, name in Merged_B_DR:
+		for folder, legend, colors in DRvals:
+			to_draw = []
+			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			plotter.set_histo_style(WJa, title=b_type+' & WJa', color='red')
+			to_draw.append(WJa)
+			
+			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			plotter.set_histo_style(WJb, title=b_type+' & WJb', color='blue')
+			to_draw.append(WJb)
+			
+			plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax, drawstyle='hist')
+			box = plotter.make_text_box('Merged Jet\n%s' % legend, position='NW')
+			plotter.save(name+folder)
 
-		WJb = asrootpy(myfile.Get(wjb)).Clone()
-		plotter.set_histo_style(WJb, title='b_{h} & WJb', color='blue')
-		to_draw.append(WJb)
 
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax)
-		box = plotter.make_text_box('Merged Jet\n%s' % DRvalue, position='NW')
-		plotter.save(name)
+	Unmerged_Jets = [
+		('Unmerged_BHad_DRLepBLep', 'Unmerged_BLep_DRLepBLep', 'Unmerged_WJa_DRLepBLep', 'Unmerged_WJb_DRLepBLep', '#Delta R (l, b_{l})', '#Delta R (l, b_{l})', '#Delta R (l, b_{l})' , '#Delta R (l, b_{l})'),
+		('Unmerged_BHad_mass', 'Unmerged_BLep_mass', 'Unmerged_WJa_mass', 'Unmerged_WJb_mass', 'm_{b_{h}} [GeV]', 'm_{b_{l}} [GeV]', 'm_{WJa} [GeV]', 'm_{WJb} [GeV]')
+	]
+	
+	for bhad, blep, wja, wjb, bhad_xtitles, blep_xtitles, wja_xtitles, wjb_xtitles in Unmerged_Jets:
+		BHad_to_draw = []
+		BLep_to_draw = []
+		WJa_to_draw = []
+		WJb_to_draw = []
+
+		for folder, legend, colors in DRvals:
+			BHad = asrootpy(normfile.Get(folder+'/'+bhad)).Clone()
+			plotter.set_histo_style(BHad, title=legend, color=colors)
+			BHad_to_draw.append(BHad)
+	
+			BLep = asrootpy(normfile.Get(folder+'/'+blep)).Clone()
+			plotter.set_histo_style(BLep, title=legend, color=colors)
+			BLep_to_draw.append(BLep)
+	
+			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			plotter.set_histo_style(WJa, title=legend, color=colors)
+			WJa_to_draw.append(WJa)
+	
+			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			plotter.set_histo_style(WJb, title=legend, color=colors)
+			WJb_to_draw.append(WJb)
+	
+		plotter.overlay(BHad_to_draw, legend_def=LegendDefinition(position='NE'), xtitle=bhad_xtitles, ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged b_{h}', position='NW')
+		plotter.save(bhad)
+		
+		plotter.overlay(BLep_to_draw, legend_def=LegendDefinition(position='NE'), xtitle=blep_xtitles, ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged b_{l}', position='NW')
+		plotter.save(blep)
+		
+		plotter.overlay(WJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle=wja_xtitles, ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged WJa', position='NW')
+		plotter.save(wja)
+		
+		plotter.overlay(WJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle=wjb_xtitles, ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged WJb', position='NW')
+		plotter.save(wjb)
 
 
-	Merged_BLep_DR = [
-		('Merged_BLepWJa_perm_DRP4_LepBLep', 'Merged_BLepWJb_perm_DRP4_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.4', 'Merged_BLepWJ_LepBLep_DRP4'),
-		('Merged_BLepWJa_perm_DRP5_LepBLep', 'Merged_BLepWJb_perm_DRP5_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.5', 'Merged_BLepWJ_LepBLep_DRP5'),
-		('Merged_BLepWJa_perm_DRP6_LepBLep', 'Merged_BLepWJb_perm_DRP6_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.6', 'Merged_BLepWJ_LepBLep_DRP6'),
-		('Merged_BLepWJa_perm_DRP8_LepBLep', 'Merged_BLepWJb_perm_DRP8_LepBLep', '#Delta R (l, b_{l})', '#Delta R < 0.8', 'Merged_BLepWJ_LepBLep_DRP8')
+	M_U_B_Mass = [#merged/unmerged B mass
+		('Unmerged_BHad_mass', 'Merged_BHadWJa_perm_mass', 'Merged_BHadWJb_perm_mass', 'm_{jet} [GeV]', 'b_{h}', 'BHad_jet_masses_'),
+		('Unmerged_BLep_mass', 'Merged_BLepWJa_perm_mass', 'Merged_BLepWJb_perm_mass', 'm_{jet} [GeV]', 'b_{l}', 'BLep_jet_masses_')
 	]
 
-	for wja, wjb, xaxis, DRvalue, name in Merged_BLep_DR:
-		to_draw = []
-		WJa = asrootpy(myfile.Get(wja)).Clone()
-		plotter.set_histo_style(WJa, title='b_{l} & WJa', color='red')
-		to_draw.append(WJa)
+	for unmerged_b, merged_bwja, merged_bwjb, xaxis, b_type, name in M_U_B_Mass:
+		for folder, legend, colors in DRvals:
+			to_draw = []
+			Merged_BWJa = asrootpy(normfile.Get(folder+'/'+merged_bwja)).Clone()
+			plotter.set_histo_style(Merged_BWJa, title='Merged '+b_type+' & WJa', color='blue')
+			Merged_BWJa.xaxis.range_user = 0, 200
+			to_draw.append(Merged_BWJa)
 
-		WJb = asrootpy(myfile.Get(wjb)).Clone()
-		plotter.set_histo_style(WJb, title='b_{l} & WJb', color='blue')
-		to_draw.append(WJb)
+			Merged_BWJb = asrootpy(normfile.Get(folder+'/'+merged_bwjb)).Clone()
+			plotter.set_histo_style(Merged_BWJb, title='Merged '+b_type+' & WJb', color='black')
+			Merged_BWJb.xaxis.range_user = 0, 200
+			to_draw.append(Merged_BWJb)
 
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis, ytitle=defyax)
-		box = plotter.make_text_box('Merged Jet\n%s' % DRvalue, position='NW')
-		plotter.save(name)
+			Unmerged_B = asrootpy(normfile.Get(folder+'/'+unmerged_b)).Clone()
+			plotter.set_histo_style(Unmerged_B, title='Unmerged '+b_type, color='red')
+			Unmerged_B.xaxis.range_user = 0, 200
+			to_draw.append(Unmerged_B)
 
+			plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), x_range=(0, 200),  xtitle=xaxis, drawstyle='hist')
+			box = plotter.make_text_box('%s Mass\n%s' % (b_type, legend), position='NW')
+			plotter.save(name+folder)
 
-	Unmerged_DR = [
-		('Unmerged_BHad_LepBLep_DRP4', 'Unmerged_BLep_LepBLep_DRP4', 'Unmerged_WJa_LepBLep_DRP4', 'Unmerged_WJb_LepBLep_DRP4', '#Delta R < 0.4', 'red'),
-		('Unmerged_BHad_LepBLep_DRP5', 'Unmerged_BLep_LepBLep_DRP5', 'Unmerged_WJa_LepBLep_DRP5', 'Unmerged_WJb_LepBLep_DRP5', '#Delta R < 0.5', 'blue'),
-		('Unmerged_BHad_LepBLep_DRP6', 'Unmerged_BLep_LepBLep_DRP6', 'Unmerged_WJa_LepBLep_DRP6', 'Unmerged_WJb_LepBLep_DRP6', '#Delta R < 0.6', 'green'),
-		('Unmerged_BHad_LepBLep_DRP8', 'Unmerged_BLep_LepBLep_DRP8', 'Unmerged_WJa_LepBLep_DRP8', 'Unmerged_WJb_LepBLep_DRP8', '#Delta R < 0.8', 'black')
-	]
-
-	BHad_to_draw = []
-	BLep_to_draw = []
-	WJa_to_draw = []
-	WJb_to_draw = []
-	for bhad, blep, wja, wjb, DRvalue, colors in Unmerged_DR:
-		BHad = asrootpy(myfile.Get(bhad)).Clone()
-		plotter.set_histo_style(BHad, title=DRvalue, color=colors)
-		BHad_to_draw.append(BHad)
-
-		BLep = asrootpy(myfile.Get(blep)).Clone()
-		plotter.set_histo_style(BLep, title=DRvalue, color=colors)
-		BLep_to_draw.append(BLep)
-
-		WJa = asrootpy(myfile.Get(wja)).Clone()
-		plotter.set_histo_style(WJa, title=DRvalue, color=colors)
-		WJa_to_draw.append(WJa)
-
-		WJb = asrootpy(myfile.Get(wjb)).Clone()
-		plotter.set_histo_style(WJb, title=DRvalue, color=colors)
-		WJb_to_draw.append(WJb)
-
-	plotter.overlay(BHad_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='#Delta R (l, b_{l})', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged b_{h}', position='NW')
-	plotter.save('Unmerged_BHad_LepBLep')
-
-	plotter.overlay(BLep_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='#Delta R (l, b_{l})', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged b_{l}', position='NW')
-	plotter.save('Unmerged_BLep_LepBLep')
-
-	plotter.overlay(WJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='#Delta R (l, b_{l})', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged WJa', position='NW')
-	plotter.save('Unmerged_WJa_LepBLep')
-
-	plotter.overlay(WJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='#Delta R (l, b_{l})', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged WJb', position='NW')
-	plotter.save('Unmerged_WJb_LepBLep')
-
-	M_U_BHad_Mass = [#merged/unmerged BHad mass
-		('Unmerged_BHad_mass_DRP4', 'Merged_BHadWJa_perm_mass_DRP4', 'Merged_BHadWJb_perm_mass_DRP4', 'm_{jet} [GeV]', '#Delta R < 0.4', 'DRP4'),
-		('Unmerged_BHad_mass_DRP5', 'Merged_BHadWJa_perm_mass_DRP5', 'Merged_BHadWJb_perm_mass_DRP5', 'm_{jet} [GeV]', '#Delta R < 0.5', 'DRP5'),
-		('Unmerged_BHad_mass_DRP6', 'Merged_BHadWJa_perm_mass_DRP6', 'Merged_BHadWJb_perm_mass_DRP6', 'm_{jet} [GeV]', '#Delta R < 0.6', 'DRP6'),
-		('Unmerged_BHad_mass_DRP8', 'Merged_BHadWJa_perm_mass_DRP8', 'Merged_BHadWJb_perm_mass_DRP8', 'm_{jet} [GeV]', '#Delta R < 0.8', 'DRP8')
-	]
-
-	for unmerged_b, merged_bwja, merged_bwjb, xaxis, DRvalue, DRP in M_U_BHad_Mass:
-		to_draw = []
-		Merged_BWJa = asrootpy(normfile.Get(merged_bwja)).Clone()
-		plotter.set_histo_style(Merged_BWJa, title='Merged b_{h} & WJa', color='blue')
-		Merged_BWJa.xaxis.range_user = 0, 200
-		to_draw.append(Merged_BWJa)
-
-		Merged_BWJb = asrootpy(normfile.Get(merged_bwjb)).Clone()
-		plotter.set_histo_style(Merged_BWJb, title='Merged b_{h} & WJb', color='black')
-		Merged_BWJb.xaxis.range_user = 0, 200
-		to_draw.append(Merged_BWJb)
-
-		Unmerged_B = asrootpy(normfile.Get(unmerged_b)).Clone()
-		plotter.set_histo_style(Unmerged_B, title='Unmerged b_{h}', color='red')
-		Unmerged_B.xaxis.range_user = 0, 200
-		to_draw.append(Unmerged_B)
-
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis)
-		box = plotter.make_text_box('b_{h} Mass\n%s' % DRvalue, position='NW')
-		plotter.save('BHad_jet_masses_%s' % DRP)
-
-
-	M_U_BLep_Mass = [#merged/unmerged BLep mass
-		('Unmerged_BLep_mass_DRP4', 'Merged_BLepWJa_perm_mass_DRP4', 'Merged_BLepWJb_perm_mass_DRP4', 'm_{jet} [GeV]', '#Delta R < 0.4', 'DRP4'),
-		('Unmerged_BLep_mass_DRP5', 'Merged_BLepWJa_perm_mass_DRP5', 'Merged_BLepWJb_perm_mass_DRP5', 'm_{jet} [GeV]', '#Delta R < 0.5', 'DRP5'),
-		('Unmerged_BLep_mass_DRP6', 'Merged_BLepWJa_perm_mass_DRP6', 'Merged_BLepWJb_perm_mass_DRP6', 'm_{jet} [GeV]', '#Delta R < 0.6', 'DRP6'),
-		('Unmerged_BLep_mass_DRP8', 'Merged_BLepWJa_perm_mass_DRP8', 'Merged_BLepWJb_perm_mass_DRP8', 'm_{jet} [GeV]', '#Delta R < 0.8', 'DRP8')
-	]
-
-	for unmerged_b, merged_bwja, merged_bwjb, xaxis, DRvalue, DRP in M_U_BLep_Mass:
-		to_draw = []
-		Merged_BWJa = asrootpy(normfile.Get(merged_bwja)).Clone()
-		plotter.set_histo_style(Merged_BWJa, title='Merged b_{l} & WJa', color='blue')
-		Merged_BWJa.xaxis.range_user = 0, 200
-		to_draw.append(Merged_BWJa)
-
-		Merged_BWJb = asrootpy(normfile.Get(merged_bwjb)).Clone()
-		plotter.set_histo_style(Merged_BWJb, title='Merged b_{l} & WJb', color='black')
-		Merged_BWJb.xaxis.range_user = 0, 200
-		to_draw.append(Merged_BWJb)
-
-		Unmerged_B = asrootpy(normfile.Get(unmerged_b)).Clone()
-		plotter.set_histo_style(Unmerged_B, title='Unmerged b_{l}', color='red')
-		Unmerged_B.xaxis.range_user = 0, 200
-		to_draw.append(Unmerged_B)
-
-		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), xtitle=xaxis)
-		box = plotter.make_text_box('b_{l} Mass\n%s' % DRvalue, position='NW')
-		plotter.save('BLep_jet_masses_%s' % DRP)
-
-
-	Unmerged_Jet_Mass = [
-		('Unmerged_BHad_mass_DRP4', 'Unmerged_BLep_mass_DRP4', 'Unmerged_WJa_mass_DRP4', 'Unmerged_WJb_mass_DRP4', '#Delta R < 0.4', 'red'),
-		('Unmerged_BHad_mass_DRP5', 'Unmerged_BLep_mass_DRP5', 'Unmerged_WJa_mass_DRP5', 'Unmerged_WJb_mass_DRP5', '#Delta R < 0.5', 'blue'),
-		('Unmerged_BHad_mass_DRP6', 'Unmerged_BLep_mass_DRP6', 'Unmerged_WJa_mass_DRP6', 'Unmerged_WJb_mass_DRP6', '#Delta R < 0.6', 'green'),
-		('Unmerged_BHad_mass_DRP8', 'Unmerged_BLep_mass_DRP8', 'Unmerged_WJa_mass_DRP8', 'Unmerged_WJb_mass_DRP8', '#Delta R < 0.8', 'black')
-	]
-
-	BHad_to_draw = []
-	BLep_to_draw = []
-	WJa_to_draw = []
-	WJb_to_draw = []
-	for bhad, blep, wja, wjb, DRvalue, colors in Unmerged_Jet_Mass:
-		BHad = asrootpy(myfile.Get(bhad)).Clone()
-		plotter.set_histo_style(BHad, title=DRvalue, color=colors)
-		BHad_to_draw.append(BHad)
-
-		BLep = asrootpy(myfile.Get(blep)).Clone()
-		plotter.set_histo_style(BLep, title=DRvalue, color=colors)
-		BLep_to_draw.append(BLep)
-
-		WJa = asrootpy(myfile.Get(wja)).Clone()
-		plotter.set_histo_style(WJa, title=DRvalue, color=colors)
-		WJa_to_draw.append(WJa)
-
-		WJb = asrootpy(myfile.Get(wjb)).Clone()
-		plotter.set_histo_style(WJb, title=DRvalue, color=colors)
-		WJb_to_draw.append(WJb)
-
-	plotter.overlay(BHad_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{b_{h}} [GeV]', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged b_{h} Mass', position='NW')
-	plotter.save('Unmerged_BHad_mass')
-
-	plotter.overlay(BLep_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{b_{l}} [GeV]', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged b_{l} Mass', position='NW')
-	plotter.save('Unmerged_BLep_mass')
-
-	plotter.overlay(WJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{WJa} [GeV]', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged WJa Mass', position='NW')
-	plotter.save('Unmerged_WJa_mass')
-
-	plotter.overlay(WJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m_{WJb} [GeV]', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged WJb Mass', position='NW')
-	plotter.save('Unmerged_WJb_mass')
 
 	Mass_Div_Pt = [# Merged/Unmerged jet mass/pt
-		('Unmerged_BHad_massDivpt_DRP4', 'Unmerged_BLep_massDivpt_DRP4', 'Unmerged_WJa_massDivpt_DRP4', 'Unmerged_WJb_massDivpt_DRP4', 'Merged_BHadWJa_massDivpt_DRP4', 'Merged_BHadWJb_massDivpt_DRP4', 'Merged_BLepWJa_massDivpt_DRP4', 'Merged_BLepWJb_massDivpt_DRP4', '#Delta R < 0.4', 'red'),
-		('Unmerged_BHad_massDivpt_DRP5', 'Unmerged_BLep_massDivpt_DRP5', 'Unmerged_WJa_massDivpt_DRP5', 'Unmerged_WJb_massDivpt_DRP5', 'Merged_BHadWJa_massDivpt_DRP5', 'Merged_BHadWJb_massDivpt_DRP5', 'Merged_BLepWJa_massDivpt_DRP5', 'Merged_BLepWJb_massDivpt_DRP5', '#Delta R < 0.5', 'blue'),
-		('Unmerged_BHad_massDivpt_DRP6', 'Unmerged_BLep_massDivpt_DRP6', 'Unmerged_WJa_massDivpt_DRP6', 'Unmerged_WJb_massDivpt_DRP6', 'Merged_BHadWJa_massDivpt_DRP6', 'Merged_BHadWJb_massDivpt_DRP6', 'Merged_BLepWJa_massDivpt_DRP6', 'Merged_BLepWJb_massDivpt_DRP6', '#Delta R < 0.6', 'green'),
-		('Unmerged_BHad_massDivpt_DRP8', 'Unmerged_BLep_massDivpt_DRP8', 'Unmerged_WJa_massDivpt_DRP8', 'Unmerged_WJb_massDivpt_DRP8', 'Merged_BHadWJa_massDivpt_DRP8', 'Merged_BHadWJb_massDivpt_DRP8', 'Merged_BLepWJa_massDivpt_DRP8', 'Merged_BLepWJb_massDivpt_DRP8', '#Delta R < 0.8', 'black')
+		('Unmerged_BHad_massDivpt', 'Unmerged_BLep_massDivpt', 'Unmerged_WJa_massDivpt', 'Unmerged_WJb_massDivpt', 'Merged_BHadWJa_massDivpt', 'Merged_BHadWJb_massDivpt', 'Merged_BLepWJa_massDivpt', 'Merged_BLepWJb_massDivpt')
 	]
 
 	Unmerged_BHad_to_draw = []
@@ -1379,138 +803,104 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 	Merged_BHadWJb_to_draw = []
 	Merged_BLepWJa_to_draw = []
 	Merged_BLepWJb_to_draw = []
-	for U_bhad, U_blep, U_wja, U_wjb, M_bhadwja, M_bhadwjb, M_blepwja, M_blepwjb, DRvalue, colors in Mass_Div_Pt:
-		U_BHad = asrootpy(normfile.Get(U_bhad)).Clone()
-		plotter.set_histo_style(U_BHad, title=DRvalue, color=colors)
-		Unmerged_BHad_to_draw.append(U_BHad)
+	for U_bhad, U_blep, U_wja, U_wjb, M_bhadwja, M_bhadwjb, M_blepwja, M_blepwjb in Mass_Div_Pt:
+		for folder, legend, colors in DRvals:
+			U_BHad = asrootpy(normfile.Get(folder+'/'+U_bhad)).Clone()
+			plotter.set_histo_style(U_BHad, title=legend, color=colors)
+			Unmerged_BHad_to_draw.append(U_BHad)
+	
+			U_BLep = asrootpy(normfile.Get(folder+'/'+U_blep)).Clone()
+			plotter.set_histo_style(U_BLep, title=legend, color=colors)
+			Unmerged_BLep_to_draw.append(U_BLep)
+	
+			U_WJa = asrootpy(normfile.Get(folder+'/'+U_wja)).Clone()
+			plotter.set_histo_style(U_WJa, title=legend, color=colors)
+			Unmerged_WJa_to_draw.append(U_WJa)
+	
+			U_WJb = asrootpy(normfile.Get(folder+'/'+U_wjb)).Clone()
+			plotter.set_histo_style(U_WJb, title=legend, color=colors)
+			Unmerged_WJb_to_draw.append(U_WJb)
+	
+			M_BHadWJa = asrootpy(normfile.Get(folder+'/'+M_bhadwja)).Clone()
+			plotter.set_histo_style(M_BHadWJa, title=legend, color=colors)
+			Merged_BHadWJa_to_draw.append(M_BHadWJa)
+	
+			M_BHadWJb = asrootpy(normfile.Get(folder+'/'+M_bhadwjb)).Clone()
+			plotter.set_histo_style(M_BHadWJb, title=legend, color=colors)
+			Merged_BHadWJb_to_draw.append(M_BHadWJb)
+	
+			M_BLepWJa = asrootpy(normfile.Get(folder+'/'+M_blepwja)).Clone()
+			plotter.set_histo_style(M_BLepWJa, title=legend, color=colors)
+			Merged_BLepWJa_to_draw.append(M_BLepWJa)
+	
+			M_BLepWJb = asrootpy(normfile.Get(folder+'/'+M_blepwjb)).Clone()
+			plotter.set_histo_style(M_BLepWJb, title=legend, color=colors)
+			Merged_BLepWJb_to_draw.append(M_BLepWJb)
+	
+		plotter.overlay(Unmerged_BHad_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged b_{h}', position='NW')
+		plotter.save('Unmerged_BHad_massDivpt')
+	
+		plotter.overlay(Unmerged_BLep_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged b_{l}', position='NW')
+		plotter.save('Unmerged_BLep_massDivpt')
+	
+		plotter.overlay(Unmerged_WJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged WJa', position='NW')
+		plotter.save('Unmerged_WJa_massDivpt')
+	
+		plotter.overlay(Unmerged_WJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Unmerged WJb', position='NW')
+		plotter.save('Unmerged_WJb_massDivpt')
+	
+		plotter.overlay(Merged_BHadWJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Merged b_{h} & WJa', position='NW')
+		plotter.save('Merged_BHadWJa_massDivpt')
+	
+		plotter.overlay(Merged_BHadWJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Merged b_{h} & WJb', position='NW')
+		plotter.save('Merged_BHadWJb_massDivpt')
+	
+		plotter.overlay(Merged_BLepWJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Merged b_{l} & WJa', position='NW')
+		plotter.save('Merged_BLepWJa_massDivpt')
+	
+		plotter.overlay(Merged_BLepWJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('Merged b_{l} & WJb', position='NW')
+		plotter.save('Merged_BLepWJb_massDivpt')
 
-		U_BLep = asrootpy(normfile.Get(U_blep)).Clone()
-		plotter.set_histo_style(U_BLep, title=DRvalue, color=colors)
-		Unmerged_BLep_to_draw.append(U_BLep)
-
-		U_WJa = asrootpy(normfile.Get(U_wja)).Clone()
-		plotter.set_histo_style(U_WJa, title=DRvalue, color=colors)
-		Unmerged_WJa_to_draw.append(U_WJa)
-
-		U_WJb = asrootpy(normfile.Get(U_wjb)).Clone()
-		plotter.set_histo_style(U_WJb, title=DRvalue, color=colors)
-		Unmerged_WJb_to_draw.append(U_WJb)
-
-		M_BHadWJa = asrootpy(normfile.Get(M_bhadwja)).Clone()
-		plotter.set_histo_style(M_BHadWJa, title=DRvalue, color=colors)
-		Merged_BHadWJa_to_draw.append(M_BHadWJa)
-
-		M_BHadWJb = asrootpy(normfile.Get(M_bhadwjb)).Clone()
-		plotter.set_histo_style(M_BHadWJb, title=DRvalue, color=colors)
-		Merged_BHadWJb_to_draw.append(M_BHadWJb)
-
-		M_BLepWJa = asrootpy(normfile.Get(M_blepwja)).Clone()
-		plotter.set_histo_style(M_BLepWJa, title=DRvalue, color=colors)
-		Merged_BLepWJa_to_draw.append(M_BLepWJa)
-
-		M_BLepWJb = asrootpy(normfile.Get(M_blepwjb)).Clone()
-		plotter.set_histo_style(M_BLepWJb, title=DRvalue, color=colors)
-		Merged_BLepWJb_to_draw.append(M_BLepWJb)
-
-	plotter.overlay(Unmerged_BHad_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged b_{h}', position='NW')
-	plotter.save('Unmerged_BHad_massDivpt')
-
-	plotter.overlay(Unmerged_BLep_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged b_{l}', position='NW')
-	plotter.save('Unmerged_BLep_massDivpt')
-
-	plotter.overlay(WJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged WJa', position='NW')
-	plotter.save('Unmerged_WJa_massDivpt')
-
-	plotter.overlay(WJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Unmerged WJb', position='NW')
-	plotter.save('Unmerged_WJb_massDivpt')
-
-	plotter.overlay(Merged_BHadWJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Merged b_{h} & WJa', position='NW')
-	plotter.save('Merged_BHadWJa_massDivpt')
-
-	plotter.overlay(Merged_BHadWJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Merged b_{h} & WJb', position='NW')
-	plotter.save('Merged_BHadWJb_massDivpt')
-
-	plotter.overlay(Merged_BLepWJa_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Merged b_{l} & WJa', position='NW')
-	plotter.save('Merged_BLepWJa_massDivpt')
-
-	plotter.overlay(Merged_BLepWJb_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='m/p_{t}', ytitle=defyax)
-	box = plotter.make_text_box('Merged b_{l} & WJb', position='NW')
-	plotter.save('Merged_BLepWJb_massDivpt')
 
 
-
-	mBhWJ_vs_mBh = [
-		('Merged_BHadWJet_mass_vs_BHad_mass_DRP4', 'Unmerged_BHadWJet_mass_vs_BHad_mass_DRP4', 'Unmerged_BHadWJet_highest_mass_vs_BHad_mass_DRP4', '#Delta R < 0.4', 'DRP4'),
-		('Merged_BHadWJet_mass_vs_BHad_mass_DRP5', 'Unmerged_BHadWJet_mass_vs_BHad_mass_DRP5', 'Unmerged_BHadWJet_highest_mass_vs_BHad_mass_DRP5', '#Delta R < 0.5', 'DRP5'),
-		('Merged_BHadWJet_mass_vs_BHad_mass_DRP6', 'Unmerged_BHadWJet_mass_vs_BHad_mass_DRP6', 'Unmerged_BHadWJet_highest_mass_vs_BHad_mass_DRP6', '#Delta R < 0.6', 'DRP6'),
-		('Merged_BHadWJet_mass_vs_BHad_mass_DRP8', 'Unmerged_BHadWJet_mass_vs_BHad_mass_DRP8', 'Unmerged_BHadWJet_highest_mass_vs_BHad_mass_DRP8', '#Delta R < 0.8', 'DRP8')
+	mBWJ_vs_mB = [ #mass of b+wjet vs mass of b
+		('Merged_BHadWJet_mass_vs_BHad_mass', 'Unmerged_BHadWJet_mass_vs_BHad_mass', 'Unmerged_BHadWJet_highest_mass_vs_BHad_mass', 'b_{h}'),
+		('Merged_BLepWJet_mass_vs_BLep_mass', 'Unmerged_BLepWJet_mass_vs_BLep_mass', 'Unmerged_BLepWJet_highest_mass_vs_BLep_mass', 'b_{l}')
 	]
-
-	for merged, unmerged, unmerged_highest, DRvalue, DRP in mBhWJ_vs_mBh:
-		Merged = asrootpy(myfile.Get(merged)).Clone()
-		plotter.plot(Merged)
-		Merged.Draw('colz')
-		Merged.xaxis.set_title('m_{b_{h}} [GeV]')
-		Merged.yaxis.set_title('m_{b_{h}+jet} [GeV]')
-		box = plotter.make_text_box('Merged %s' % DRvalue, position='NW')
-		plotter.save('Merged_BHadWJet_mass_vs_BHad_mass_%s' % DRP)
-
-		Unmerged = asrootpy(myfile.Get(unmerged)).Clone()
-		plotter.plot(Unmerged)
-		Unmerged.Draw('colz')
-		Unmerged.xaxis.set_title('m_{b_{h}} [GeV]')
-		Unmerged.yaxis.set_title('m_{b_{h}+jet} [GeV]')
-		box = plotter.make_text_box('Unmerged %s' % DRvalue, position='NW')
-		plotter.save('Unmerged_BHadWJet_mass_vs_BHad_mass_%s' % DRP)
-
-		Unmerged_highest = asrootpy(myfile.Get(unmerged_highest)).Clone()
-		plotter.plot(Unmerged_highest)
-		Unmerged_highest.Draw('colz')
-		Unmerged_highest.xaxis.set_title('m_{b_{h}} [GeV]')
-		Unmerged_highest.yaxis.set_title('m_{b_{h}+jet} [GeV]')
-		box = plotter.make_text_box('Unmerged Highest Mass\nWJet %s' % DRvalue, position='NW')
-		plotter.save('Unmerged_BHadWJet_highest_mass_vs_BHad_mass_%s' % DRP)
-
-
-	mBLWJ_vs_mBL = [
-		('Merged_BLepWJet_mass_vs_BLep_mass_DRP4', 'Unmerged_BLepWJet_mass_vs_BLep_mass_DRP4', 'Unmerged_BLepWJet_highest_mass_vs_BLep_mass_DRP4', '#Delta R < 0.4', 'DRP4',),
-		('Merged_BLepWJet_mass_vs_BLep_mass_DRP5', 'Unmerged_BLepWJet_mass_vs_BLep_mass_DRP5', 'Unmerged_BLepWJet_highest_mass_vs_BLep_mass_DRP5', '#Delta R < 0.5', 'DRP5'),
-		('Merged_BLepWJet_mass_vs_BLep_mass_DRP6', 'Unmerged_BLepWJet_mass_vs_BLep_mass_DRP6', 'Unmerged_BLepWJet_highest_mass_vs_BLep_mass_DRP6', '#Delta R < 0.6', 'DRP6'),
-		('Merged_BLepWJet_mass_vs_BLep_mass_DRP8', 'Unmerged_BLepWJet_mass_vs_BLep_mass_DRP8', 'Unmerged_BLepWJet_highest_mass_vs_BLep_mass_DRP8', '#Delta R < 0.8', 'DRP8')
-
-	]
-
-	for merged, unmerged, unmerged_highest, DRvalue, DRP in mBLWJ_vs_mBL:
-		Merged = asrootpy(myfile.Get(merged)).Clone()
-		plotter.plot(Merged)
-		Merged.Draw('colz')
-		Merged.xaxis.set_title('m_{b_{l}} [GeV]')
-		Merged.yaxis.set_title('m_{b_{l}+jet} [GeV]')
-		box = plotter.make_text_box('Merged %s' % DRvalue, position='NW')
-		plotter.save('Merged_BLepWJet_mass_vs_BLep_mass_%s' % DRP)
-
-		Unmerged = asrootpy(myfile.Get(unmerged)).Clone()
-		plotter.plot(Unmerged)
-		Unmerged.Draw('colz')
-		Unmerged.xaxis.set_title('m_{b_{l}} [GeV]')
-		Unmerged.yaxis.set_title('m_{b_{l}+jet} [GeV]')
-		box = plotter.make_text_box('Unmerged %s' % DRvalue, position='NW')
-		plotter.save('Unmerged_BLepWJet_mass_vs_BLep_mass_%s' % DRP)
-
-		Unmerged_highest = asrootpy(myfile.Get(unmerged_highest)).Clone()
-		plotter.plot(Unmerged_highest)
-		Unmerged_highest.Draw('colz')
-		Unmerged_highest.xaxis.set_title('m_{b_{l}} [GeV]')
-		Unmerged_highest.yaxis.set_title('m_{b_{l}+jet} [GeV]')
-		box = plotter.make_text_box('Unmerged Highest Mass\nWJet %s' % DRvalue, position='NW')
-		plotter.save('Unmerged_BLepWJet_highest_mass_vs_BLep_mass_%s' % DRP)
+	
+	for merged, unmerged, unmerged_highest, b_type in mBWJ_vs_mB:
+		for folder, legend, colors in DRvals:
+			Merged = asrootpy(myfile.Get(folder+'/'+merged)).Clone()
+			plotter.plot(Merged)
+			Merged.Draw('colz')
+			Merged.xaxis.set_title('m_{%s} [GeV]' % b_type)
+			Merged.yaxis.set_title('m_{%s+jet} [GeV]' % b_type)
+			box = plotter.make_text_box('Merged '+legend, position='SE')
+			plotter.save(merged+'_'+folder)
+			
+			Unmerged = asrootpy(myfile.Get(folder+'/'+unmerged)).Clone()
+			plotter.plot(Unmerged)
+			Unmerged.Draw('colz')
+			Unmerged.xaxis.set_title('m_{%s} [GeV]' % b_type)
+			Unmerged.yaxis.set_title('m_{%s+jet} [GeV]' % b_type)
+			box = plotter.make_text_box('Unmerged '+legend, position='SE')
+			plotter.save(unmerged+'_'+folder)
+			
+			Unmerged_highest = asrootpy(myfile.Get(folder+'/'+unmerged_highest)).Clone()
+			plotter.plot(Unmerged_highest)
+			Unmerged_highest.Draw('colz')
+			Unmerged_highest.xaxis.set_title('m_{%s} [GeV]' % b_type)
+			Unmerged_highest.yaxis.set_title('m_{%s+jet} [GeV]' % b_type)
+			box = plotter.make_text_box('Unmerged Highest Mass\nWJet %s' % legend, position='SE')
+			plotter.save(unmerged_highest+'_'+folder)
 
 
 
