@@ -778,7 +778,7 @@ private:
 class Jet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
+//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const float &i_DeepCSVProbUDSG_,const float &i_DeepCSVProbB_,const float &i_DeepCSVProbC_,const float &i_DeepCSVProbBB_,const float &i_DeepCSVProbCC_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
 //    
 //  {}
   Jet():
@@ -828,6 +828,11 @@ public:
     vtxNtracks_(0),
     vtx3DVal_(0),
     vtx3DSig_(0),
+    DeepCSVProbUDSG_(0),
+    DeepCSVProbB_(0),
+    DeepCSVProbC_(0),
+    DeepCSVProbBB_(0),
+    DeepCSVProbCC_(0),
     partonFlavour_(0),
     hadronFlavour_(0)
   {}
@@ -876,6 +881,11 @@ public:
   float vtxNtracks() const {return vtxNtracks_;}
   float vtx3DVal() const {return vtx3DVal_;}
   float vtx3DSig() const {return vtx3DSig_;}
+  float DeepCSVProbUDSG() const {return DeepCSVProbUDSG_;}
+  float DeepCSVProbB() const {return DeepCSVProbB_;}
+  float DeepCSVProbC() const {return DeepCSVProbC_;}
+  float DeepCSVProbBB() const {return DeepCSVProbBB_;}
+  float DeepCSVProbCC() const {return DeepCSVProbCC_;}
   int partonFlavour() const {return partonFlavour_;}
   int hadronFlavour() const {return hadronFlavour_;}
 private:
@@ -924,6 +934,11 @@ private:
   float vtxNtracks_;
   float vtx3DVal_;
   float vtx3DSig_;
+  float DeepCSVProbUDSG_;
+  float DeepCSVProbB_;
+  float DeepCSVProbC_;
+  float DeepCSVProbBB_;
+  float DeepCSVProbCC_;
   int partonFlavour_;
   int hadronFlavour_;
   void setcharge(const int value) {charge_ = value;}
@@ -971,6 +986,11 @@ private:
   void setvtxNtracks(const float value) {vtxNtracks_ = value;}
   void setvtx3DVal(const float value) {vtx3DVal_ = value;}
   void setvtx3DSig(const float value) {vtx3DSig_ = value;}
+  void setDeepCSVProbUDSG(const float value) {DeepCSVProbUDSG_ = value;}
+  void setDeepCSVProbB(const float value) {DeepCSVProbB_ = value;}
+  void setDeepCSVProbC(const float value) {DeepCSVProbC_ = value;}
+  void setDeepCSVProbBB(const float value) {DeepCSVProbBB_ = value;}
+  void setDeepCSVProbCC(const float value) {DeepCSVProbCC_ = value;}
   void setpartonFlavour(const int value) {partonFlavour_ = value;}
   void sethadronFlavour(const int value) {hadronFlavour_ = value;}
   void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
@@ -1452,6 +1472,11 @@ public:
     jets_vtxNtracks_(0),
     jets_vtx3DVal_(0),
     jets_vtx3DSig_(0),
+    jets_DeepCSVProbUDSG_(0),
+    jets_DeepCSVProbB_(0),
+    jets_DeepCSVProbC_(0),
+    jets_DeepCSVProbBB_(0),
+    jets_DeepCSVProbCC_(0),
     jets_partonFlavour_(0),
     jets_hadronFlavour_(0),
     electrons_pt_(0),
@@ -1959,6 +1984,11 @@ public:
       tree_->SetBranchStatus("jets.vtxNtracks", 1); tree_->SetBranchAddress("jets.vtxNtracks", &jets_vtxNtracks_);
       tree_->SetBranchStatus("jets.vtx3DVal", 1); tree_->SetBranchAddress("jets.vtx3DVal", &jets_vtx3DVal_);
       tree_->SetBranchStatus("jets.vtx3DSig", 1); tree_->SetBranchAddress("jets.vtx3DSig", &jets_vtx3DSig_);
+      tree_->SetBranchStatus("jets.DeepCSVProbUDSG", 1); tree_->SetBranchAddress("jets.DeepCSVProbUDSG", &jets_DeepCSVProbUDSG_);
+      tree_->SetBranchStatus("jets.DeepCSVProbB", 1); tree_->SetBranchAddress("jets.DeepCSVProbB", &jets_DeepCSVProbB_);
+      tree_->SetBranchStatus("jets.DeepCSVProbC", 1); tree_->SetBranchAddress("jets.DeepCSVProbC", &jets_DeepCSVProbC_);
+      tree_->SetBranchStatus("jets.DeepCSVProbBB", 1); tree_->SetBranchAddress("jets.DeepCSVProbBB", &jets_DeepCSVProbBB_);
+      tree_->SetBranchStatus("jets.DeepCSVProbCC", 1); tree_->SetBranchAddress("jets.DeepCSVProbCC", &jets_DeepCSVProbCC_);
       tree_->SetBranchStatus("jets.partonFlavour", 1); tree_->SetBranchAddress("jets.partonFlavour", &jets_partonFlavour_);
       tree_->SetBranchStatus("jets.hadronFlavour", 1); tree_->SetBranchAddress("jets.hadronFlavour", &jets_hadronFlavour_);
       are_jets_loaded_ = true;
@@ -2641,6 +2671,11 @@ public:
     auto it_jets_vtxNtracks_ = jets_vtxNtracks_->cbegin();
     auto it_jets_vtx3DVal_ = jets_vtx3DVal_->cbegin();
     auto it_jets_vtx3DSig_ = jets_vtx3DSig_->cbegin();
+    auto it_jets_DeepCSVProbUDSG_ = jets_DeepCSVProbUDSG_->cbegin();
+    auto it_jets_DeepCSVProbB_ = jets_DeepCSVProbB_->cbegin();
+    auto it_jets_DeepCSVProbC_ = jets_DeepCSVProbC_->cbegin();
+    auto it_jets_DeepCSVProbBB_ = jets_DeepCSVProbBB_->cbegin();
+    auto it_jets_DeepCSVProbCC_ = jets_DeepCSVProbCC_->cbegin();
     auto it_jets_partonFlavour_ = jets_partonFlavour_->cbegin();
     auto it_jets_hadronFlavour_ = jets_hadronFlavour_->cbegin();
     for(; it_jets_pt_ != jets_pt_->cend(); ){
@@ -2690,6 +2725,11 @@ public:
       obj.setvtxNtracks(*it_jets_vtxNtracks_);
       obj.setvtx3DVal(*it_jets_vtx3DVal_);
       obj.setvtx3DSig(*it_jets_vtx3DSig_);
+      obj.setDeepCSVProbUDSG(*it_jets_DeepCSVProbUDSG_);
+      obj.setDeepCSVProbB(*it_jets_DeepCSVProbB_);
+      obj.setDeepCSVProbC(*it_jets_DeepCSVProbC_);
+      obj.setDeepCSVProbBB(*it_jets_DeepCSVProbBB_);
+      obj.setDeepCSVProbCC(*it_jets_DeepCSVProbCC_);
       obj.setpartonFlavour(*it_jets_partonFlavour_);
       obj.sethadronFlavour(*it_jets_hadronFlavour_);
       obj.setLotentzVector(*it_jets_pt_, *it_jets_eta_, *it_jets_phi_, *it_jets_mass_);
@@ -2743,6 +2783,11 @@ public:
       ++it_jets_vtxNtracks_;
       ++it_jets_vtx3DVal_;
       ++it_jets_vtx3DSig_;
+      ++it_jets_DeepCSVProbUDSG_;
+      ++it_jets_DeepCSVProbB_;
+      ++it_jets_DeepCSVProbC_;
+      ++it_jets_DeepCSVProbBB_;
+      ++it_jets_DeepCSVProbCC_;
       ++it_jets_partonFlavour_;
       ++it_jets_hadronFlavour_;
     }
@@ -3162,6 +3207,11 @@ private:
   vector<float> *jets_vtxNtracks_;
   vector<float> *jets_vtx3DVal_;
   vector<float> *jets_vtx3DSig_;
+  vector<float> *jets_DeepCSVProbUDSG_;
+  vector<float> *jets_DeepCSVProbB_;
+  vector<float> *jets_DeepCSVProbC_;
+  vector<float> *jets_DeepCSVProbBB_;
+  vector<float> *jets_DeepCSVProbCC_;
   vector<int> *jets_partonFlavour_;
   vector<int> *jets_hadronFlavour_;
   vector<float> *electrons_pt_;
