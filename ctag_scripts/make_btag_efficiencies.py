@@ -22,7 +22,7 @@ input_file = '%s/results/%s/btag_topology_effs/ttJets.root' % (project, jobid)
 tfile = io.root_open(input_file)
 
 pt_bins  = [0., 30, 60, 100, 140, 180, 1000]
-eta_bins = [-2.4, -1.4, -0.8, 0.0, 0.8, 1.4, 2.4]
+eta_bins = [-2.4, -1.2, 0.0, 1.2, 2.4]
 hview = urviews.RebinView(tfile, [pt_bins, eta_bins])
 
 alljet_cut_types = list(set([i.name.split('_')[1] for i in tfile.nosys.alljets.keys()]))
@@ -46,7 +46,7 @@ with io.root_open('%s/inputs/%s/INPUT/ctageff_ttsel_%s_%s_efficiencies.root' % (
       jdir = outfile.mkdir(dname)
       jdir.cd()
       for cut_type in alljet_cut_types:
-         log.info("computing efficiency for %s, %s jets" % (cut_type, jtype))
+         log.error("computing efficiency for %s, %s jets" % (cut_type, jtype))
          h_all  = hview.Get('nosys/alljets/btag_%s_%s_all'  % (cut_type, jtype))
          h_pass = hview.Get('nosys/alljets/btag_%s_%s_pass' % (cut_type, jtype))
          ## h_all.Rebin2D()
@@ -60,7 +60,7 @@ with io.root_open('%s/inputs/%s/INPUT/ctageff_wjets_efficiencies_%s_%s.root' % (
       jdir = outfile.mkdir(dname)
       jdir.cd()
       for cut_type in wjet_cut_types:
-         log.info("computing efficiency for %s, %s jets" % (cut_type, jtype))
+         log.error("computing efficiency for %s, %s jets" % (cut_type, jtype))
          h_all  = hview.Get('nosys/Wjets/WjetTag_%s_%s_all'  % (cut_type, jtype))
          h_pass = hview.Get('nosys/Wjets/WjetTag_%s_%s_pass' % (cut_type, jtype))
          ## h_all.Rebin2D()
