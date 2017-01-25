@@ -194,10 +194,14 @@ public:
 		working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
 		working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
 		working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
+		working_points_["DeepCsvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVLOOSE);};
+		working_points_["DeepCsvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
+		working_points_["DeepCsvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM);};
 
     //Get appropriate SFs for the probe working points
-    DataFile csv_sfs(parser.getCfgPar<string>("general.csv_sffile"));
     DataFile wjet_efficiency(parser.getCfgPar<string>("general.wjets_efficiencies"));
+    DataFile csv_sfs(parser.getCfgPar<string>("general.csv_sffile"));
+    DataFile deepcsv_sfs(parser.getCfgPar<string>("general.deepcsv_sffile"));
     DataFile ctag_sfs(parser.getCfgPar<string>("general.ctag_sffile"));
     DataFile cmva_sfs(parser.getCfgPar<string>("general.cmva_sffile"));
 		
@@ -210,6 +214,9 @@ public:
     wp_SFs_["cmvaLoose" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["cmvaTight" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["cmvaMedium"] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["DeepCsvLoose" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
+    wp_SFs_["DeepCsvTight" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["DeepCsvMedium"] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
 
     wp_SFs_["csvLoose" ]->ignore_general_shifts();
     wp_SFs_["csvTight" ]->ignore_general_shifts();
@@ -220,6 +227,9 @@ public:
     wp_SFs_["cmvaLoose" ]->ignore_general_shifts(); 
     wp_SFs_["cmvaTight" ]->ignore_general_shifts(); 
     wp_SFs_["cmvaMedium"]->ignore_general_shifts(); 
+    wp_SFs_["DeepCsvLoose" ]->ignore_general_shifts();
+    wp_SFs_["DeepCsvTight" ]->ignore_general_shifts(); 
+    wp_SFs_["DeepCsvMedium"]->ignore_general_shifts(); 
     // working_points_[] = [](const Jet* jet) {};
 
 		naming_[TTNaming::RIGHT ] = "semilep_visible_right";
@@ -305,6 +315,12 @@ public:
 		book<TH1F>(folder, "jets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_cMVA" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVb" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVl" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVbb", "", 55,  0., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVc" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVcc", "", 55,  0., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVbD", "", 55,  0., 1.1);
 
 		// book<TH1F>(folder, "jets_hflav_CvsL_B" , "", 55, -1., 1.1);
 		// book<TH1F>(folder, "jets_hflav_CvsL_C" , "", 55, -1., 1.1);
@@ -328,6 +344,12 @@ public:
       dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
 			dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
 
+			dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
+			dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
+			dir->second["jets_DeepCSVbb"].fill(jet->DeepCSVProbBB(), evt_weight_);
+			dir->second["jets_DeepCSVc" ].fill(jet->DeepCSVProbC(), evt_weight_);
+			dir->second["jets_DeepCSVcc"].fill(jet->DeepCSVProbCC(), evt_weight_);
+			dir->second["jets_DeepCSVbD"].fill(jet->DeepCSVProbB()+jet->DeepCSVProbBB(), evt_weight_);
       // int hflav = fabs(jet->hadronFlavour());
       // int pflav = fabs(jet->partonFlavour());
       // string hstr;
@@ -387,6 +409,12 @@ public:
 		book<TH1F>(folder, "Bjets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "WjetCSV"   , "", 40, -20., 20.);
 		book<TH1F>(folder, "Wjets_CMVA" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVb" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVl" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVbb", "", 55,  0., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVc" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVcc", "", 55,  0., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVbD", "", 55,  0., 1.1);
 	}
 
   void fill_notag_plots(string folder, Permutation &hyp){
@@ -452,6 +480,18 @@ public:
 		dir->second["Bjets_CvsB"].fill(hyp.BLep()->CvsBtag(), evt_weight_);
 		dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
 		dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
+		dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
+		dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
+		dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
+		dir->second["Wjets_DeepCSVc" ].fill(hyp.WJa()->DeepCSVProbC(), evt_weight_);
+		dir->second["Wjets_DeepCSVcc"].fill(hyp.WJa()->DeepCSVProbCC(), evt_weight_);
+		dir->second["Wjets_DeepCSVbD"].fill(hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB(), evt_weight_);
+		dir->second["Wjets_DeepCSVb" ].fill(hyp.WJb()->DeepCSVProbB(), evt_weight_);
+		dir->second["Wjets_DeepCSVl" ].fill(hyp.WJb()->DeepCSVProbUDSG(), evt_weight_);
+		dir->second["Wjets_DeepCSVbb"].fill(hyp.WJb()->DeepCSVProbBB(), evt_weight_);
+		dir->second["Wjets_DeepCSVc" ].fill(hyp.WJb()->DeepCSVProbC(), evt_weight_);
+		dir->second["Wjets_DeepCSVcc"].fill(hyp.WJb()->DeepCSVProbCC(), evt_weight_);
+		dir->second["Wjets_DeepCSVbD"].fill(hyp.WJb()->DeepCSVProbB()+hyp.WJb()->DeepCSVProbBB(), evt_weight_);
   }
 
 	void book_jet_plots(string folder){
@@ -760,6 +800,7 @@ public:
 		parser.addCfgParameter<std::string>("general", "ctag_sffile", "");
 		parser.addCfgParameter<std::string>("general", "cmva_sffile", "");
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
+		parser.addCfgParameter<std::string>("general", "deepcsv_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");
 
     parser.addCfgParameter<std::string>("permutations", "ordering", "ID to be applied");
