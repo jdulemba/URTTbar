@@ -65,8 +65,8 @@ class CTagPlotter(Plotter):
 		self.tt_shifted = {
 			'mtop_up' : 'ttJets_mtopup',
 			'mtop_down' : 'ttJets_mtopdown',
-			'hadscale_up' : 'ttJets_scaleup', 
-			'hadscale_down' : 'ttJets_scaledown',
+			#'hadscale_up' : 'ttJets_scaleup', 
+			#'hadscale_down' : 'ttJets_scaledown',
 			}
 		jobid = os.environ['jobid']
 		files = glob.glob('results/%s/ctag_eff/*.root' % jobid)
@@ -116,13 +116,14 @@ class CTagPlotter(Plotter):
 
 		self.mc_samples = [
 			'QCD*',
+			'tt[WZ]*',
 			'[WZ]Jets',
 			#'WJets',
 			#'ZJets',
 			'single*',
 			'ttJets_other',
 			'ttJets_bkg',
-			'ttJets_sig',
+			'ttJets_sig',		 
 			]
 
 		self.card_names = {
@@ -141,6 +142,7 @@ class CTagPlotter(Plotter):
 			'Other tt decay' : 'nonsemi_tt' ,
 			't#bar{t}, wrong W_{h}' : 'wrong_whad', 
 			't#bar{t}, right W_{h}' : 'right_whad', 
+			'ttV' : 'ttV',
 			'Observed' : 'data_obs'
 			}
 		self.signal = 'right_whad'
@@ -1232,6 +1234,7 @@ if args.plots:
 	for wpoint in working_points:
 	  for cat_dir, cat_name in jet_categories:
 		 if wpoint == 'notag' and cat_dir <> "both_untagged": continue
+		 if wpoint != 'notag': continue
 		 base = os.path.join(order, wpoint, cat_dir)
 		 for jtype in jet_types:
 			 folder = os.path.join(base, jtype)

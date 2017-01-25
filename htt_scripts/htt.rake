@@ -76,12 +76,13 @@ rule "httlimit.timestamp" => [proc{|x| timestamp2input(x)}, "#{$project_dir}/htt
   chdir("plots/#{$jobid}/htt/#{chan}") do
     $widths.each do |width|
       sh "#{$project_dir}/htt_scripts/setup_limit_htt.py #{chan}.root #{chan} #{width}"
-      chdir("output") do
+    end
+    chdir("output") do
+      $widths.each do |width|
         sh "combineTool.py -M T2W -i pseudoscalar_#{width}pc/* -o workspace.root -P CombineHarvester.CombineTools.InterferenceModel:interferenceModel"
-        sh 'combineTool.py -M Asymptotic -d */*/workspace.root --there -n .limit --parallel 5'
-        sh 'combineTool.py -M CollectLimits */*/*.limit.* --use-dirs'
-        sh "plotLimits.py --y-title='Coupling modifier' --x-title='M_{A} (GeV)' limits_pseudoscalar_#{width}pc.json --show=exp"
       end
+      sh 'combineTool.py -M Asymptotic -d */*/workspace.root --there -n .limit --parallel 8 --run blind'
+      sh 'combineTool.py -M CollectLimits */*/*.limit.* --use-dirs'
     end
     sh 'rm -rf limits'
     sh 'mv output limits'
@@ -98,7 +99,7 @@ rule "httplots.timestamp" => proc{|x| x.sub('httplots', 'httlimit')} do |t|
   chan = File.basename(channel_dir)
   chdir("plots/#{$jobid}/htt/#{chan}/limits") do
     $widths.each do |width|
-      sh "plotLimits.py --y-title='Coupling modifier' --x-title='M_{A} (GeV)' limits_pseudoscalar_#{width}pc.json -o limit#{width}pc --show=exp"
+      sh "plotLimits.py --y-title='Coupling modifier' --x-title='M_{A} (GeV)' limits_pseudoscalar_#{width}pc.json -o limit#{width}pc --show=exp --grid --mapping='lambda x: sqrt(x)'"
     end
     sh 'touch httplots.timestamp'
   end
@@ -106,4 +107,33 @@ end
 
 task :plotlimits, [:chan] do |t, args|
   Rake::Task["plots/#{$jobid}/htt/#{args.chan}/limits/httplots.timestamp"].invoke()
+end
+
+rule "sysbreakdown.timestamp" => proc{|x| x.sub('sysbreakdown', 'httlimit')} do |t|
+  channel_dir = File.dirname(File.dirname(File.expand_path(t.name)))
+  chan = File.basename(channel_dir)
+  nuisances = {
+    'BBB' => /_bin_[0-9]+/,
+    'BTag' => /CMS_[a-z]+_b_13TeV/,
+    'JESJER' => /CMS_[a-z]+_j_13TeV/,
+    'QCDscale' => /QCDscale/,
+    'TMass' => /TMass/,
+    'Hdamp' => /Hdamp_TT/,
+    'pdf' => /pdf/,
+    'QCDnorm' => /QCD_[a-z]+_norm/,    
+  }
+  chdir("plots/#{$jobid}/htt/#{chan}/limits") do
+    available=File.readlines("pseudoscalar_5pc/400/combined.txt.cmb").grep(/( lnN )|( shape )|( param )/).map {|x| x.split()[0]}
+    nuisances.each do |name, group|
+      to_freeze = available.select{|x| (group =~ x)}.join(',') 
+      sh "combineTool.py -M Asymptotic -d */[47]*/workspace.root --there -n .limit --parallel 2 --run blind --freezeNuisances=#{to_freeze}"
+      sh "combineTool.py -M CollectLimits */*/*.limit.* --use-dirs -o #{name}.json"
+    end
+  end  
+  sh "touch #{t.name}"
+end
+
+task :sysbreakdown, [:chan] do |t, args|
+  Rake::Task["plots/#{$jobid}/htt/#{args.chan}/limits/sysbreakdown.timestamp"].invoke()
+  sh "python htt_scripts/sys_effects.py #{args.chan}"
 end

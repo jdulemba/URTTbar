@@ -8,7 +8,6 @@
 #include "URAnalysis/AnalysisFW/interface/DataFile.h"
 #include "Analyses/URTTbar/interface/TTBarResponse.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
-#include "Analyses/URTTbar/interface/TTBarPlots.h"
 #include "Analyses/URTTbar/interface/TTBarSolver.h"
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"

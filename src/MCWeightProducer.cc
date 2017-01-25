@@ -9,7 +9,7 @@ using namespace TMath;
 
 float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift) {
   const Geninfo& info = evt.genInfo();
-  float ret = info.weight()/Abs(info.weight());
+  float ret = info.weight()/Abs(info.weight());	
 
   const vector<Mcweight>& ws =  evt.MCWeights();
   switch(shift) {
@@ -19,8 +19,11 @@ float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift
   case systematics::SysShifts::RENORM_UP: ret *= ws[3].weights()/ws[0].weights(); break;
 	case systematics::SysShifts::RENFACTOR_UP: ret *= ws[4].weights()/ws[0].weights(); break;
 	case systematics::SysShifts::RENFACTOR_DW: ret *= ws[8].weights()/ws[0].weights(); break;
+	case systematics::SysShifts::HDAMP_UP: ret *= ws[240].weights()/ws[0].weights(); break;
+	case systematics::SysShifts::HDAMP_DW: ret *= ws[231].weights()/ws[0].weights(); break;
   default: break;
   }
+	
 	return ret;
 }
 

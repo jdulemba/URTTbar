@@ -24,7 +24,7 @@
 #include "TUUID.h"   
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
-#include "Analyses/URTTbar/interface/TTBarPlots.h"
+
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
@@ -40,6 +40,8 @@
 #include "TROOT.h"
 
 using namespace TMath;
+using namespace systematics;
+typedef SysShifts Sys;
 
 class htt_simple : public AnalyzerBase
 {
@@ -100,7 +102,7 @@ public:
 		randomizer_(),    
 		btag_sf_("permutations.tightb", "permutations.looseb"),
     solver_(true),
-		pdf_uncs_(249),
+		pdf_uncs_(254),
 		systematics_(),
 		sync_(false),
 		sync_tree_(0),
@@ -121,11 +123,6 @@ public:
 		TUUID id;  
 		randomizer_.SetSeed(id.Hash());   
 
-    //set tracker
-    tracker_.use_weight(&evt_weight_);
-    object_selector_.set_tracker(&tracker_);
-		permutator_.set_tracker(&tracker_);
-
     //find out which sample are we running on
     opts::variables_map &values = parser.values();
 		string output_file = values["output"].as<std::string>();
@@ -133,6 +130,11 @@ public:
     isSignal_ = boost::starts_with(sample, "AtoTT") || boost::starts_with(sample, "HtoTT");
 		isTTbar_ = boost::starts_with(sample, "ttJets");
 		isData_  = boost::starts_with(sample, "data");
+
+    //set tracker
+		if(!values.count("noweights")) tracker_.use_weight(&evt_weight_);
+    object_selector_.set_tracker(&tracker_);
+		permutator_.set_tracker(&tracker_);
 
 		if(isData_) {
 			if(sample.find("SingleElectron") != std::string::npos) object_selector_.lepton_type(-1);
@@ -148,24 +150,30 @@ public:
 		if(sync_) tracker_.verbose(true);
     if(!isData_) mc_weights_.init(sample, has_pdfs_);
 
-		runsys_ = !(values.count("nosys") || isData_ || isTTShift);
+		runsys_ = !(values.count("nosys") || isData_ || isTTShift || sync_);
 		if(!runsys_)
 			systematics_ = {systematics::SysShifts::NOSYS};
 		else {
-			using namespace systematics;
-			typedef SysShifts sys;
 			systematics_ = {
-				sys::NOSYS, 
-				sys::JES_UP, sys::JES_DW, 
-				sys::JER_UP, sys::JER_DW, 
-				sys::MET_UP, sys::MET_DW,
-				sys::RENORM_UP,	sys::RENORM_DW, 
-				sys::FACTOR_UP,	sys::FACTOR_DW,
-				sys::RENFACTOR_UP, sys::RENFACTOR_DW,
-				sys::PU_UP, sys::PU_DW,
-				sys::BEFF_UP, sys::BEFF_DW, 
-				sys::BFAKE_UP, sys::BFAKE_DW, 
+				Sys::NOSYS, 
+				Sys::JES_UP,  Sys::JES_DW, 
+				Sys::JER_UP,  Sys::JER_DW, 
+				Sys::MET_UP,  Sys::MET_DW,
+				Sys::PU_UP,   Sys::PU_DW,
+				Sys::BEFF_UP, Sys::BEFF_DW, 
+				Sys::BFAKE_UP, Sys::BFAKE_DW, 
+				Sys::LEPEFF_UP, Sys::LEPEFF_DW,
 			};
+			if(isTTbar_) {
+				systematics_.push_back(Sys::HDAMP_UP);
+				systematics_.push_back(Sys::HDAMP_DW);
+				systematics_.push_back(Sys::RENORM_UP);	
+				systematics_.push_back(Sys::RENORM_DW); 
+				systematics_.push_back(Sys::FACTOR_UP);	
+				systematics_.push_back(Sys::FACTOR_DW);
+				systematics_.push_back(Sys::RENFACTOR_UP);
+				systematics_.push_back(Sys::RENFACTOR_DW);
+			}
 		}
 	}
   
@@ -237,7 +245,6 @@ public:
 
 		book<TH1F>(folder, "cMVA" , "",  100, -1, 1.1);
 		book<TH1F>(folder, "cMVA_p11" , "",  100, -1, 1.1);
-		book<TH1F>(folder, "qgtag" , "",  100, -1, 1.1);		
 		
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
 
@@ -276,7 +283,6 @@ public:
 			if(jet->csvIncl() > max_csv) max_csv = jet->csvIncl();
 			dir->second["cMVA"    ].fill(jet->CombinedMVA(), evt_weight_);
 			dir->second["cMVA_p11"].fill(pow(jet->CombinedMVA(), 11), evt_weight_);
-			dir->second["qgtag"   ].fill(jet->qgTag(), evt_weight_);	
     }
 
 		dir->second["MET"   ].fill(object_selector_.met()->Et() , evt_weight_);
@@ -469,6 +475,9 @@ public:
 					string sub = (isTTbar_ || isSignal_) ? subsample : "";
 					for(auto& lepid : lepIDs) {
 						for(auto& mt : MTs) {
+							if(sys != Sys::NOSYS && (lepid != "tight" || mt != "MTHigh")) {
+								continue;
+							}
 							stringstream dstream;
 							dstream << lepton << sub << "/";
 							dstream << sys_name << "/" << lepid << "/" << mt;
@@ -490,7 +499,7 @@ public:
 		//float weight = 1.;
 
     //select reco objects
-    if( !object_selector_.select(event, shift) ) return;
+    if( !object_selector_.select(event, shift, sync_) ) return;
 		int njets = object_selector_.clean_jets().size();		
 		string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
 		bool lep_is_tight = (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || 
@@ -602,23 +611,29 @@ public:
 		//check isolation type
 		bool runpdf = (runsys_ && isTTbar_ && shift == systematics::SysShifts::NOSYS);
 		evtdir << "/" << sys_name << "/";
+		bool tight;
 		switch(object_selector_.event_type()) {
 		case TTObjectSelector::EvtType::TIGHTMU: 
-		case TTObjectSelector::EvtType::TIGHTEL: evtdir << "tight"; runpdf &= true; break;
+		case TTObjectSelector::EvtType::TIGHTEL: evtdir << "tight"; runpdf &= true; tight=true; break;
 		case TTObjectSelector::EvtType::LOOSEMU: 
-		case TTObjectSelector::EvtType::LOOSEEL: evtdir << "looseNOTTight"; runpdf &= false; break;
+		case TTObjectSelector::EvtType::LOOSEEL: evtdir << "looseNOTTight"; runpdf &= false; tight=false; break;
 		default: throw 42; break;
 		}
+		if(!tight && shift != Sys::NOSYS) return;
 
 		//check MT category
+		bool mthigh;
 		if(mtlow) {
 			evtdir << "/MTLow";
 			runpdf &= false;
+			mthigh = false;
 		}
 		else {
 			evtdir << "/MTHigh";
 			runpdf &= true;
+			mthigh = true;
 		}
+		if(!mthigh && shift != Sys::NOSYS) return;
 		tracker_.track("MT cut", leptype);
 
 		//fill right category
@@ -635,11 +650,13 @@ public:
 		int report = values["report"].as<int>();
 		int skip  = values["skip"].as<int>();
 		string pick = values["pick"].as<string>();
+		if(values.count("bystep")) tracker_.verbose(true);
 		EventList picker;
 		if(pick.size() != 0) {
 			EventList nn(pick);
 			picker = nn;
 		}
+
 
     if(evt_idx_ >= limit) return;
     Logger::log().debug() << "htt_simple::analyze" << endl;
@@ -714,7 +731,9 @@ public:
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("optimization", "run in optimization mode: reduced number of histograms")
       ("sync", "dump sync ntuple")
+      ("bystep", "print every step")
       ("nosys", "do not run systematics")
+      ("noweights", "do not run systematics")
       ("pick", opts::value<string>()->default_value(""), "pick from evtlist");
 
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");

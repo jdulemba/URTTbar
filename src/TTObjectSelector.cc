@@ -118,7 +118,7 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 		else if(shift == systematics::SysShifts::JES_UP) jet.scale(1+jet.JESUnc());
 
 		if(jet.Pt() < cut_jet_ptmin_ || Abs(jet.Eta()) > cut_jet_etamax_) {continue;}
-		if(!jet.ID() || !jet.Clean(veto_muons_, veto_electrons_)) {continue;}
+		if(!jet.LooseID() || !jet.Clean(veto_muons_, veto_electrons_)) {continue;}
 
 		sel_jets_.push_back(jet);
 		clean_jets_.push_back(&(sel_jets_.back()));
@@ -160,7 +160,7 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
 		return true;
 	}
 	el_trg_ = (event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() == 1);
-	mu_trg_ = (event.trigger().HLT_IsoMu22() == 1 || event.trigger().HLT_IsoTkMu22() == 1);	
+	mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
 	//mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
 
 	// cout << event.trigger().HLT_Ele27_WPLoose_Gsf() << " " <<  event.trigger().HLT_IsoMu22() << " " << event.trigger().HLT_IsoTkMu22() << endl;
@@ -190,7 +190,7 @@ bool TTObjectSelector::pass_vertex(URStreamer &event, systematics::SysShifts shi
 	return !vtxs[0].isFake() && vtxs[0].ndof() > 4. && fabs(vtxs[0].z()) < 24. && vtxs[0].rho() < 2.;
 }
 
-bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
+bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift, bool sync) {
   reset();
 
 	if(!pass_trig(event, shift)) return false;
@@ -264,9 +264,9 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift) {
   if(!mutype && !el_trg_) return false;
   if(tracker_) tracker_->track("right trigger");
 
-	// if(evt_type_  == TIGHTMU || evt_type_ == TIGHTEL) {
-	// 	cout << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
-	// }
+	if(sync && (evt_type_  == TIGHTMU || evt_type_ == TIGHTEL)) {
+		cout << "SYNC " << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
+	}
 	
   select_jetmet(event, shift);
   if(clean_jets_.size() < cut_nminjets_) return false;

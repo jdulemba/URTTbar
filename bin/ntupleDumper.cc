@@ -8,7 +8,7 @@
 #include "URAnalysis/AnalysisFW/interface/DataFile.h"
 #include "Analyses/URTTbar/interface/TTBarResponse.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
-#include "Analyses/URTTbar/interface/TTBarPlots.h"
+
 #include "Analyses/URTTbar/interface/TTBarSolver.h"
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
@@ -59,7 +59,6 @@ public:
 		int limit = values["limit"].as<int>();
 		int skip  = values["skip"].as<int>();
     int report = values["report"].as<int>();
-		bool mc = values["mc"].as<bool>();
 		string pick = values["pick"].as<string>();
 		EventList picker;
 		if(pick.size() != 0) {
@@ -83,6 +82,7 @@ public:
 			if(skip > 0 && evt_idx < skip) {
 				continue;
 			}
+			bool mc = (event.run == 1);
 			cout << "***** Event "<<event.run<<":"<<event.lumi<<":"<<event.evt<<" *****"<< endl << endl;
 			cout << "Trigger: " << endl;
 			cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << endl; 
@@ -91,6 +91,7 @@ public:
 			cout << endl;
 
 			cout << "Event Filters: " << endl;
+			cout << "  Flag_HBHENoiseFilter: " <<                     event.filter().Flag_HBHENoiseFilter() << endl;
 			cout << "  Flag_HBHENoiseIsoFilter: " <<                  event.filter().Flag_HBHENoiseIsoFilter() << endl; 								 
 			cout << "  Flag_EcalDeadCellTriggerPrimitiveFilter: " << 	event.filter().Flag_EcalDeadCellTriggerPrimitiveFilter() << endl;	 
 			cout << "  Flag_goodVertices: " << 												event.filter().Flag_goodVertices() << endl;												 
@@ -100,6 +101,16 @@ public:
 			cout << "  Flag_BadChargedCandidate: " << 	              event.filter().Flag_BadChargedCandidate() << endl;	                
 			cout << endl;
 			
+
+			cout << "PVs:" << endl;
+			auto vtxs = event.vertexs();
+			int nvtx = vtxs.size();
+			float x = (nvtx) ? vtxs[0].x() : -999;
+			float y = (nvtx) ? vtxs[0].y() : -999;
+			float z = (nvtx) ? vtxs[0].z() : -999;
+			cout << "#: " << nvtx << ", FIRST x: " << x << ", y: " << y << ", z: " << z << endl;
+			cout << endl;
+
 			cout << "Electrons:" << endl;
 			auto& els = event.electrons();
 			double rho = event.rho().value();
@@ -108,6 +119,7 @@ public:
 				cout <<" #" << i+1 << endl;
 				cout <<"  Momentum (pt, eta, phi): " << el.Pt() << ", " << el.Eta() << ", " << el.Phi() << endl;
 				cout <<"  Isolation: "<< el.PFIsolationRho2015()/el.Pt() <<", eta_SC: "<< el.etaSC() << endl;
+				cout <<"  dxy: " << el.dxy() << ", dz: " << el.dz() << endl;
 				cout <<"  Pass cut-based ID (veto to tight): " << el.eidCutVeto() <<", " << el.LooseID25ns()<<", "<< el.MediumID25ns() <<", " <<el.TightID25ns()<<endl;
 				cout <<"  Triggering MVA ID (80%, 90%): " << "--"<< endl;
 				cout <<"  Pass trigger-emulating preselection: " << endl;
@@ -137,7 +149,7 @@ public:
 					double max_unc = (jerup > jerdw) ? jerup : jerdw;
 					cout <<"  JEC uncertainty: "<< jet.JESUnc() << ", JER uncertainty: " << max_unc << endl;
 				}
-				cout <<"  Pass jet ID: " << jet.ID() << endl;
+				cout <<"  Pass jet ID: " << jet.LooseID() << endl;
 				cout <<"  CSV: "<< jet.csvIncl()<<", cMVA: "<< jet.CombinedMVA() << endl;
 				cout <<"  cCvsL: "<< jet.CvsLtag()<<", cCvsB: "<< jet.CvsBtag() << endl;
 			}
@@ -173,7 +185,6 @@ public:
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("report", opts::value<int>()->default_value(10000), "report every in debug mode")
-			("mc", opts::value<bool>()->default_value(false), "report every in debug mode")
       ("pick", opts::value<string>()->default_value(""), "pick from evtlist");
   }
 };

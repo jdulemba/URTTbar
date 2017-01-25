@@ -2,9 +2,10 @@
    "*" : 10,
    "ttJets*" : 1,
 	 "tt[WZ]*" : 1,
-	 "QCD_bc_*" : 50,
+	 "QCD_bc_*" : 10,
    "QCD*" : 100,
-   "data*" : 60,
+   "data*" : 80,
    "single*" : 2,
+	 "ttZqq" : 5,
    "[AH]toTTM*" : 10
 }

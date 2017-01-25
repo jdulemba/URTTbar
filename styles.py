@@ -68,6 +68,15 @@ styles = {
       'name' : "ttbar",
       'fillstyle': 'solid',
       },
+   'tt[WZ]*' : {
+      'legendstyle' : 'f',
+      'drawstyle' : 'hist',
+      'fillcolor' : ROOT.kOrange + 1,
+      'linecolor' : 'black',
+			'linewidth' : 1,
+      'name' : "ttV",
+      'fillstyle': 'solid',
+      },
    'QCD*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',

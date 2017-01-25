@@ -112,12 +112,15 @@ private:
 class Photon: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Photon(const int &i_charge_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_,const float &i_e3x3_,const float &i_maxCrystalEnergy_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isPFlowPhoton_,const bool &i_hasConversionTracks_,const bool &i_hasPixelSeed_):
+//  Photon(const int &i_charge_,const bool &i_hasSeed_,const float &i_seedEta_,const bool &i_hasSC_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_,const float &i_e3x3_,const float &i_maxCrystalEnergy_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isPFlowPhoton_,const bool &i_hasConversionTracks_,const bool &i_hasPixelSeed_):
 //    
 //  {}
   Photon():
     TLorentzVector(),
     charge_(0),
+    hasSeed_(0),
+    seedEta_(0),
+    hasSC_(0),
     x_(0),
     y_(0),
     z_(0),
@@ -134,6 +137,9 @@ public:
     hasPixelSeed_(0)
   {}
   int charge() const {return charge_;}
+  bool hasSeed() const {return hasSeed_;}
+  float seedEta() const {return seedEta_;}
+  bool hasSC() const {return hasSC_;}
   float x() const {return x_;}
   float y() const {return y_;}
   float z() const {return z_;}
@@ -150,6 +156,9 @@ public:
   bool hasPixelSeed() const {return hasPixelSeed_;}
 private:
   int charge_;
+  bool hasSeed_;
+  float seedEta_;
+  bool hasSC_;
   float x_;
   float y_;
   float z_;
@@ -165,6 +174,9 @@ private:
   bool hasConversionTracks_;
   bool hasPixelSeed_;
   void setcharge(const int value) {charge_ = value;}
+  void sethasSeed(const bool value) {hasSeed_ = value;}
+  void setseedEta(const float value) {seedEta_ = value;}
+  void sethasSC(const bool value) {hasSC_ = value;}
   void setx(const float value) {x_ = value;}
   void sety(const float value) {y_ = value;}
   void setz(const float value) {z_ = value;}
@@ -326,19 +338,17 @@ private:
 class Trigger{
 friend class URStreamer;
 public:
-//  Trigger(const Int_t &i_HLT_IsoMu18_,const Int_t &i_HLT_IsoMu20_,const Int_t &i_HLT_IsoTkMu20_,const Int_t &i_HLT_IsoMu20_eta2p1_,const Int_t &i_HLT_IsoMu22_,const Int_t &i_HLT_IsoTkMu22_,const Int_t &i_HLT_IsoMu24_,const Int_t &i_HLT_IsoTkMu24_,const Int_t &i_HLT_IsoMu24_eta2p1_,const Int_t &i_HLT_IsoMu27_,const Int_t &i_HLT_IsoTkMu27_,const Int_t &i_HLT_Mu45_eta2p1_,const Int_t &i_HLT_Mu50_,const Int_t &i_HLT_DoubleIsoMu17_eta2p1_,const Int_t &i_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_,const Int_t &i_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_,const Int_t &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_Ele23_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_WPTight_Gsf_,const Int_t &i_Ele27_eta2p1_WPLoose_Gsf_HT200_,const Int_t &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const Int_t &i_Ele35_WPLoose_Gsf_,const Int_t &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const Int_t &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const Int_t &i_HLT_notexists_):
+//  Trigger(const Int_t &i_HLT_IsoMu18_,const Int_t &i_HLT_IsoMu20_,const Int_t &i_HLT_IsoTkMu20_,const Int_t &i_HLT_IsoMu22_,const Int_t &i_HLT_IsoTkMu22_,const Int_t &i_HLT_IsoMu24_,const Int_t &i_HLT_IsoTkMu24_,const Int_t &i_HLT_IsoMu27_,const Int_t &i_HLT_IsoTkMu27_,const Int_t &i_HLT_Mu45_eta2p1_,const Int_t &i_HLT_Mu50_,const Int_t &i_HLT_DoubleIsoMu17_eta2p1_,const Int_t &i_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_,const Int_t &i_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_,const Int_t &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_Ele23_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const Int_t &i_HLT_Ele27_WPTight_Gsf_,const Int_t &i_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_,const Int_t &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const Int_t &i_HLT_Ele35_WPLoose_Gsf_,const Int_t &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const Int_t &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const Int_t &i_HLT_notexists_):
 //    
 //  {}
   Trigger():
     HLT_IsoMu18_(0),
     HLT_IsoMu20_(0),
     HLT_IsoTkMu20_(0),
-    HLT_IsoMu20_eta2p1_(0),
     HLT_IsoMu22_(0),
     HLT_IsoTkMu22_(0),
     HLT_IsoMu24_(0),
     HLT_IsoTkMu24_(0),
-    HLT_IsoMu24_eta2p1_(0),
     HLT_IsoMu27_(0),
     HLT_IsoTkMu27_(0),
     HLT_Mu45_eta2p1_(0),
@@ -351,9 +361,9 @@ public:
     HLT_Ele27_WPLoose_Gsf_(0),
     HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
     HLT_Ele27_WPTight_Gsf_(0),
-    Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
     HLT_Ele32_eta2p1_WPTight_Gsf_(0),
-    Ele35_WPLoose_Gsf_(0),
+    HLT_Ele35_WPLoose_Gsf_(0),
     HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
     HLT_notexists_(0)
@@ -361,12 +371,10 @@ public:
   Int_t HLT_IsoMu18() const {return HLT_IsoMu18_;}
   Int_t HLT_IsoMu20() const {return HLT_IsoMu20_;}
   Int_t HLT_IsoTkMu20() const {return HLT_IsoTkMu20_;}
-  Int_t HLT_IsoMu20_eta2p1() const {return HLT_IsoMu20_eta2p1_;}
   Int_t HLT_IsoMu22() const {return HLT_IsoMu22_;}
   Int_t HLT_IsoTkMu22() const {return HLT_IsoTkMu22_;}
   Int_t HLT_IsoMu24() const {return HLT_IsoMu24_;}
   Int_t HLT_IsoTkMu24() const {return HLT_IsoTkMu24_;}
-  Int_t HLT_IsoMu24_eta2p1() const {return HLT_IsoMu24_eta2p1_;}
   Int_t HLT_IsoMu27() const {return HLT_IsoMu27_;}
   Int_t HLT_IsoTkMu27() const {return HLT_IsoTkMu27_;}
   Int_t HLT_Mu45_eta2p1() const {return HLT_Mu45_eta2p1_;}
@@ -379,9 +387,9 @@ public:
   Int_t HLT_Ele27_WPLoose_Gsf() const {return HLT_Ele27_WPLoose_Gsf_;}
   Int_t HLT_Ele27_eta2p1_WPLoose_Gsf() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_;}
   Int_t HLT_Ele27_WPTight_Gsf() const {return HLT_Ele27_WPTight_Gsf_;}
-  Int_t Ele27_eta2p1_WPLoose_Gsf_HT200() const {return Ele27_eta2p1_WPLoose_Gsf_HT200_;}
+  Int_t HLT_Ele27_eta2p1_WPLoose_Gsf_HT200() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_;}
   Int_t HLT_Ele32_eta2p1_WPTight_Gsf() const {return HLT_Ele32_eta2p1_WPTight_Gsf_;}
-  Int_t Ele35_WPLoose_Gsf() const {return Ele35_WPLoose_Gsf_;}
+  Int_t HLT_Ele35_WPLoose_Gsf() const {return HLT_Ele35_WPLoose_Gsf_;}
   Int_t HLT_DoubleEle33_CaloIdL_GsfTrkIdVL() const {return HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;}
   Int_t HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ() const {return HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;}
   Int_t HLT_notexists() const {return HLT_notexists_;}
@@ -389,12 +397,10 @@ private:
   Int_t HLT_IsoMu18_;
   Int_t HLT_IsoMu20_;
   Int_t HLT_IsoTkMu20_;
-  Int_t HLT_IsoMu20_eta2p1_;
   Int_t HLT_IsoMu22_;
   Int_t HLT_IsoTkMu22_;
   Int_t HLT_IsoMu24_;
   Int_t HLT_IsoTkMu24_;
-  Int_t HLT_IsoMu24_eta2p1_;
   Int_t HLT_IsoMu27_;
   Int_t HLT_IsoTkMu27_;
   Int_t HLT_Mu45_eta2p1_;
@@ -407,21 +413,19 @@ private:
   Int_t HLT_Ele27_WPLoose_Gsf_;
   Int_t HLT_Ele27_eta2p1_WPLoose_Gsf_;
   Int_t HLT_Ele27_WPTight_Gsf_;
-  Int_t Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  Int_t HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_;
   Int_t HLT_Ele32_eta2p1_WPTight_Gsf_;
-  Int_t Ele35_WPLoose_Gsf_;
+  Int_t HLT_Ele35_WPLoose_Gsf_;
   Int_t HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   Int_t HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
   Int_t HLT_notexists_;
   void setHLT_IsoMu18(const Int_t value) {HLT_IsoMu18_ = value;}
   void setHLT_IsoMu20(const Int_t value) {HLT_IsoMu20_ = value;}
   void setHLT_IsoTkMu20(const Int_t value) {HLT_IsoTkMu20_ = value;}
-  void setHLT_IsoMu20_eta2p1(const Int_t value) {HLT_IsoMu20_eta2p1_ = value;}
   void setHLT_IsoMu22(const Int_t value) {HLT_IsoMu22_ = value;}
   void setHLT_IsoTkMu22(const Int_t value) {HLT_IsoTkMu22_ = value;}
   void setHLT_IsoMu24(const Int_t value) {HLT_IsoMu24_ = value;}
   void setHLT_IsoTkMu24(const Int_t value) {HLT_IsoTkMu24_ = value;}
-  void setHLT_IsoMu24_eta2p1(const Int_t value) {HLT_IsoMu24_eta2p1_ = value;}
   void setHLT_IsoMu27(const Int_t value) {HLT_IsoMu27_ = value;}
   void setHLT_IsoTkMu27(const Int_t value) {HLT_IsoTkMu27_ = value;}
   void setHLT_Mu45_eta2p1(const Int_t value) {HLT_Mu45_eta2p1_ = value;}
@@ -434,9 +438,9 @@ private:
   void setHLT_Ele27_WPLoose_Gsf(const Int_t value) {HLT_Ele27_WPLoose_Gsf_ = value;}
   void setHLT_Ele27_eta2p1_WPLoose_Gsf(const Int_t value) {HLT_Ele27_eta2p1_WPLoose_Gsf_ = value;}
   void setHLT_Ele27_WPTight_Gsf(const Int_t value) {HLT_Ele27_WPTight_Gsf_ = value;}
-  void setEle27_eta2p1_WPLoose_Gsf_HT200(const Int_t value) {Ele27_eta2p1_WPLoose_Gsf_HT200_ = value;}
+  void setHLT_Ele27_eta2p1_WPLoose_Gsf_HT200(const Int_t value) {HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_ = value;}
   void setHLT_Ele32_eta2p1_WPTight_Gsf(const Int_t value) {HLT_Ele32_eta2p1_WPTight_Gsf_ = value;}
-  void setEle35_WPLoose_Gsf(const Int_t value) {Ele35_WPLoose_Gsf_ = value;}
+  void setHLT_Ele35_WPLoose_Gsf(const Int_t value) {HLT_Ele35_WPLoose_Gsf_ = value;}
   void setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(const Int_t value) {HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = value;}
   void setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(const Int_t value) {HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
   void setHLT_notexists(const Int_t value) {HLT_notexists_ = value;}
@@ -445,7 +449,7 @@ private:
 class Electron: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutVeto_,const float &i_eidMVAWP80_,const float &i_eidMVAWP90_,const float &i_eidTrgMVAWP80_,const float &i_eidTrgMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPTight_Gsf_,const bool &i_Ele27_eta2p1_WPLoose_Gsf_HT200_,const bool &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const bool &i_Ele35_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const float &i_hadronicOverEM_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
+//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dxy_,const float &i_dz_,const float &i_dB_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const float &i_hadronicOverEM_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutVeto_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutNoIsoVeto_,const float &i_eidCutNoIsoLoose_,const float &i_eidCutNoIsoMedium_,const float &i_eidCutNoIsoTight_,const float &i_eidMVAWP80_,const float &i_eidMVAWP90_,const float &i_eidTrgMVAWP80_,const float &i_eidTrgMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPTight_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_,const bool &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const bool &i_HLT_Ele35_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const bool &i_hasSeed_,const float &i_seedEta_,const bool &i_hasSC_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
 //    
 //  {}
   Electron():
@@ -455,9 +459,9 @@ public:
     neutralIso_(0),
     photonIso_(0),
     puIso_(0),
-    dB_(0),
-    ipDXY_(0),
+    dxy_(0),
     dz_(0),
+    dB_(0),
     nMissingInnerHits_(0),
     r9_(0),
     ESCOverETrack_(0),
@@ -465,6 +469,7 @@ public:
     DPhiSCTrk_(0),
     ecalEnergy_(0),
     passConversionVeto_(0),
+    hadronicOverEM_(0),
     isEB_(0),
     isEE_(0),
     isEBGap_(0),
@@ -477,10 +482,14 @@ public:
     isElectron_(0),
     ecalSeed_(0),
     trackSeed_(0),
+    eidCutVeto_(0),
     eidCutLoose_(0),
     eidCutMedium_(0),
     eidCutTight_(0),
-    eidCutVeto_(0),
+    eidCutNoIsoVeto_(0),
+    eidCutNoIsoLoose_(0),
+    eidCutNoIsoMedium_(0),
+    eidCutNoIsoTight_(0),
     eidMVAWP80_(0),
     eidMVAWP90_(0),
     eidTrgMVAWP80_(0),
@@ -493,9 +502,9 @@ public:
     HLT_Ele27_WPLoose_Gsf_(0),
     HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
     HLT_Ele27_WPTight_Gsf_(0),
-    Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
     HLT_Ele32_eta2p1_WPTight_Gsf_(0),
-    Ele35_WPLoose_Gsf_(0),
+    HLT_Ele35_WPLoose_Gsf_(0),
     HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
     e1x5_(0),
@@ -503,7 +512,9 @@ public:
     sigmaIEtaIEta_(0),
     full5x5_sigmaIEtaIEta_(0),
     sigmaIPhiIPhi_(0),
-    hadronicOverEM_(0),
+    hasSeed_(0),
+    seedEta_(0),
+    hasSC_(0),
     x_(0),
     y_(0),
     z_(0),
@@ -517,9 +528,9 @@ public:
   float neutralIso() const {return neutralIso_;}
   float photonIso() const {return photonIso_;}
   float puIso() const {return puIso_;}
-  float dB() const {return dB_;}
-  float ipDXY() const {return ipDXY_;}
+  float dxy() const {return dxy_;}
   float dz() const {return dz_;}
+  float dB() const {return dB_;}
   float nMissingInnerHits() const {return nMissingInnerHits_;}
   float r9() const {return r9_;}
   float ESCOverETrack() const {return ESCOverETrack_;}
@@ -527,6 +538,7 @@ public:
   float DPhiSCTrk() const {return DPhiSCTrk_;}
   float ecalEnergy() const {return ecalEnergy_;}
   bool passConversionVeto() const {return passConversionVeto_;}
+  float hadronicOverEM() const {return hadronicOverEM_;}
   bool isEB() const {return isEB_;}
   bool isEE() const {return isEE_;}
   bool isEBGap() const {return isEBGap_;}
@@ -539,10 +551,14 @@ public:
   bool isElectron() const {return isElectron_;}
   bool ecalSeed() const {return ecalSeed_;}
   bool trackSeed() const {return trackSeed_;}
+  float eidCutVeto() const {return eidCutVeto_;}
   float eidCutLoose() const {return eidCutLoose_;}
   float eidCutMedium() const {return eidCutMedium_;}
   float eidCutTight() const {return eidCutTight_;}
-  float eidCutVeto() const {return eidCutVeto_;}
+  float eidCutNoIsoVeto() const {return eidCutNoIsoVeto_;}
+  float eidCutNoIsoLoose() const {return eidCutNoIsoLoose_;}
+  float eidCutNoIsoMedium() const {return eidCutNoIsoMedium_;}
+  float eidCutNoIsoTight() const {return eidCutNoIsoTight_;}
   float eidMVAWP80() const {return eidMVAWP80_;}
   float eidMVAWP90() const {return eidMVAWP90_;}
   float eidTrgMVAWP80() const {return eidTrgMVAWP80_;}
@@ -555,9 +571,9 @@ public:
   bool HLT_Ele27_WPLoose_Gsf() const {return HLT_Ele27_WPLoose_Gsf_;}
   bool HLT_Ele27_eta2p1_WPLoose_Gsf() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_;}
   bool HLT_Ele27_WPTight_Gsf() const {return HLT_Ele27_WPTight_Gsf_;}
-  bool Ele27_eta2p1_WPLoose_Gsf_HT200() const {return Ele27_eta2p1_WPLoose_Gsf_HT200_;}
+  bool HLT_Ele27_eta2p1_WPLoose_Gsf_HT200() const {return HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_;}
   bool HLT_Ele32_eta2p1_WPTight_Gsf() const {return HLT_Ele32_eta2p1_WPTight_Gsf_;}
-  bool Ele35_WPLoose_Gsf() const {return Ele35_WPLoose_Gsf_;}
+  bool HLT_Ele35_WPLoose_Gsf() const {return HLT_Ele35_WPLoose_Gsf_;}
   bool HLT_DoubleEle33_CaloIdL_GsfTrkIdVL() const {return HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;}
   bool HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ() const {return HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;}
   float e1x5() const {return e1x5_;}
@@ -565,7 +581,9 @@ public:
   float sigmaIEtaIEta() const {return sigmaIEtaIEta_;}
   float full5x5_sigmaIEtaIEta() const {return full5x5_sigmaIEtaIEta_;}
   float sigmaIPhiIPhi() const {return sigmaIPhiIPhi_;}
-  float hadronicOverEM() const {return hadronicOverEM_;}
+  bool hasSeed() const {return hasSeed_;}
+  float seedEta() const {return seedEta_;}
+  bool hasSC() const {return hasSC_;}
   float x() const {return x_;}
   float y() const {return y_;}
   float z() const {return z_;}
@@ -579,9 +597,9 @@ private:
   float neutralIso_;
   float photonIso_;
   float puIso_;
-  float dB_;
-  float ipDXY_;
+  float dxy_;
   float dz_;
+  float dB_;
   float nMissingInnerHits_;
   float r9_;
   float ESCOverETrack_;
@@ -589,6 +607,7 @@ private:
   float DPhiSCTrk_;
   float ecalEnergy_;
   bool passConversionVeto_;
+  float hadronicOverEM_;
   bool isEB_;
   bool isEE_;
   bool isEBGap_;
@@ -601,10 +620,14 @@ private:
   bool isElectron_;
   bool ecalSeed_;
   bool trackSeed_;
+  float eidCutVeto_;
   float eidCutLoose_;
   float eidCutMedium_;
   float eidCutTight_;
-  float eidCutVeto_;
+  float eidCutNoIsoVeto_;
+  float eidCutNoIsoLoose_;
+  float eidCutNoIsoMedium_;
+  float eidCutNoIsoTight_;
   float eidMVAWP80_;
   float eidMVAWP90_;
   float eidTrgMVAWP80_;
@@ -617,9 +640,9 @@ private:
   bool HLT_Ele27_WPLoose_Gsf_;
   bool HLT_Ele27_eta2p1_WPLoose_Gsf_;
   bool HLT_Ele27_WPTight_Gsf_;
-  bool Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  bool HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_;
   bool HLT_Ele32_eta2p1_WPTight_Gsf_;
-  bool Ele35_WPLoose_Gsf_;
+  bool HLT_Ele35_WPLoose_Gsf_;
   bool HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   bool HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
   float e1x5_;
@@ -627,7 +650,9 @@ private:
   float sigmaIEtaIEta_;
   float full5x5_sigmaIEtaIEta_;
   float sigmaIPhiIPhi_;
-  float hadronicOverEM_;
+  bool hasSeed_;
+  float seedEta_;
+  bool hasSC_;
   float x_;
   float y_;
   float z_;
@@ -640,9 +665,9 @@ private:
   void setneutralIso(const float value) {neutralIso_ = value;}
   void setphotonIso(const float value) {photonIso_ = value;}
   void setpuIso(const float value) {puIso_ = value;}
-  void setdB(const float value) {dB_ = value;}
-  void setipDXY(const float value) {ipDXY_ = value;}
+  void setdxy(const float value) {dxy_ = value;}
   void setdz(const float value) {dz_ = value;}
+  void setdB(const float value) {dB_ = value;}
   void setnMissingInnerHits(const float value) {nMissingInnerHits_ = value;}
   void setr9(const float value) {r9_ = value;}
   void setESCOverETrack(const float value) {ESCOverETrack_ = value;}
@@ -650,6 +675,7 @@ private:
   void setDPhiSCTrk(const float value) {DPhiSCTrk_ = value;}
   void setecalEnergy(const float value) {ecalEnergy_ = value;}
   void setpassConversionVeto(const bool value) {passConversionVeto_ = value;}
+  void sethadronicOverEM(const float value) {hadronicOverEM_ = value;}
   void setisEB(const bool value) {isEB_ = value;}
   void setisEE(const bool value) {isEE_ = value;}
   void setisEBGap(const bool value) {isEBGap_ = value;}
@@ -662,10 +688,14 @@ private:
   void setisElectron(const bool value) {isElectron_ = value;}
   void setecalSeed(const bool value) {ecalSeed_ = value;}
   void settrackSeed(const bool value) {trackSeed_ = value;}
+  void seteidCutVeto(const float value) {eidCutVeto_ = value;}
   void seteidCutLoose(const float value) {eidCutLoose_ = value;}
   void seteidCutMedium(const float value) {eidCutMedium_ = value;}
   void seteidCutTight(const float value) {eidCutTight_ = value;}
-  void seteidCutVeto(const float value) {eidCutVeto_ = value;}
+  void seteidCutNoIsoVeto(const float value) {eidCutNoIsoVeto_ = value;}
+  void seteidCutNoIsoLoose(const float value) {eidCutNoIsoLoose_ = value;}
+  void seteidCutNoIsoMedium(const float value) {eidCutNoIsoMedium_ = value;}
+  void seteidCutNoIsoTight(const float value) {eidCutNoIsoTight_ = value;}
   void seteidMVAWP80(const float value) {eidMVAWP80_ = value;}
   void seteidMVAWP90(const float value) {eidMVAWP90_ = value;}
   void seteidTrgMVAWP80(const float value) {eidTrgMVAWP80_ = value;}
@@ -678,9 +708,9 @@ private:
   void setHLT_Ele27_WPLoose_Gsf(const bool value) {HLT_Ele27_WPLoose_Gsf_ = value;}
   void setHLT_Ele27_eta2p1_WPLoose_Gsf(const bool value) {HLT_Ele27_eta2p1_WPLoose_Gsf_ = value;}
   void setHLT_Ele27_WPTight_Gsf(const bool value) {HLT_Ele27_WPTight_Gsf_ = value;}
-  void setEle27_eta2p1_WPLoose_Gsf_HT200(const bool value) {Ele27_eta2p1_WPLoose_Gsf_HT200_ = value;}
+  void setHLT_Ele27_eta2p1_WPLoose_Gsf_HT200(const bool value) {HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_ = value;}
   void setHLT_Ele32_eta2p1_WPTight_Gsf(const bool value) {HLT_Ele32_eta2p1_WPTight_Gsf_ = value;}
-  void setEle35_WPLoose_Gsf(const bool value) {Ele35_WPLoose_Gsf_ = value;}
+  void setHLT_Ele35_WPLoose_Gsf(const bool value) {HLT_Ele35_WPLoose_Gsf_ = value;}
   void setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(const bool value) {HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = value;}
   void setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(const bool value) {HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
   void sete1x5(const float value) {e1x5_ = value;}
@@ -688,7 +718,9 @@ private:
   void setsigmaIEtaIEta(const float value) {sigmaIEtaIEta_ = value;}
   void setfull5x5_sigmaIEtaIEta(const float value) {full5x5_sigmaIEtaIEta_ = value;}
   void setsigmaIPhiIPhi(const float value) {sigmaIPhiIPhi_ = value;}
-  void sethadronicOverEM(const float value) {hadronicOverEM_ = value;}
+  void sethasSeed(const bool value) {hasSeed_ = value;}
+  void setseedEta(const float value) {seedEta_ = value;}
+  void sethasSC(const bool value) {hasSC_ = value;}
   void setx(const float value) {x_ = value;}
   void sety(const float value) {y_ = value;}
   void setz(const float value) {z_ = value;}
@@ -746,7 +778,7 @@ private:
 class Jet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_qgTag_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
+//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_vtxMass_,const float &i_vtxNtracks_,const float &i_vtx3DVal_,const float &i_vtx3DSig_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
 //    
 //  {}
   Jet():
@@ -754,7 +786,6 @@ public:
     charge_(0),
     e_(0),
     area_(0),
-    qgTag_(0),
     JESUnc_(0),
     JER_(0),
     JERUp_(0),
@@ -803,7 +834,6 @@ public:
   int charge() const {return charge_;}
   float e() const {return e_;}
   float area() const {return area_;}
-  float qgTag() const {return qgTag_;}
   float JESUnc() const {return JESUnc_;}
   float JER() const {return JER_;}
   float JERUp() const {return JERUp_;}
@@ -852,7 +882,6 @@ private:
   int charge_;
   float e_;
   float area_;
-  float qgTag_;
   float JESUnc_;
   float JER_;
   float JERUp_;
@@ -900,7 +929,6 @@ private:
   void setcharge(const int value) {charge_ = value;}
   void sete(const float value) {e_ = value;}
   void setarea(const float value) {area_ = value;}
-  void setqgTag(const float value) {qgTag_ = value;}
   void setJESUnc(const float value) {JESUnc_ = value;}
   void setJER(const float value) {JER_ = value;}
   void setJERUp(const float value) {JERUp_ = value;}
@@ -951,15 +979,15 @@ private:
 class Muon: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Muon(const int &i_charge_,const float &i_dB_,const float &i_ipDXY_,const float &i_dz_,const float &i_nMissingInnerHits_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_ECalEnergy_,const float &i_HCalEnergy_,const int &i_numChambers_,const int &i_numMatchedStations_,const float &i_trackiso_,const float &i_ecaliso_,const float &i_hcaliso_,const float &i_pfChargedIso04_,const float &i_pfNeutralIso04_,const float &i_pfPhotonIso04_,const float &i_pfPUIso04_,const float &i_trkIso03_,const float &i_ptErr_,const float &i_chi2_,const int &i_ndof_,const float &i_validHits_,const float &i_pixelHits_,const float &i_trackerLayers_,const bool &i_isGlobal_,const bool &i_isTracker_,const bool &i_isCalo_,const bool &i_isPF_,const bool &i_isStandAlone_,const bool &i_isLoose_,const bool &i_HLT_IsoMu18_,const bool &i_HLT_IsoMu20_,const bool &i_HLT_IsoTkMu20_,const bool &i_HLT_IsoMu20_eta2p1_,const bool &i_HLT_IsoMu22_,const bool &i_HLT_IsoTkMu22_,const bool &i_HLT_IsoMu24_,const bool &i_HLT_IsoTkMu24_,const bool &i_HLT_IsoMu24_eta2p1_,const bool &i_HLT_IsoMu27_,const bool &i_HLT_IsoTkMu27_,const bool &i_HLT_Mu45_eta2p1_,const bool &i_HLT_Mu50_,const bool &i_HLT_DoubleIsoMu17_eta2p1_,const bool &i_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_,const bool &i_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_):
+//  Muon(const int &i_charge_,const float &i_dxy_,const float &i_dz_,const float &i_dB_,const float &i_nMissingInnerHits_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_ECalEnergy_,const float &i_HCalEnergy_,const int &i_numChambers_,const int &i_numMatchedStations_,const float &i_trackiso_,const float &i_ecaliso_,const float &i_hcaliso_,const float &i_pfChargedIso04_,const float &i_pfNeutralIso04_,const float &i_pfPhotonIso04_,const float &i_pfPUIso04_,const float &i_trkIso03_,const float &i_ptErr_,const float &i_chi2_,const int &i_ndof_,const float &i_validHits_,const float &i_pixelHits_,const float &i_trackerLayers_,const bool &i_isGlobal_,const bool &i_isTracker_,const bool &i_isCalo_,const bool &i_isPF_,const bool &i_isStandAlone_,const bool &i_isLoose_,const bool &i_HLT_IsoMu18_,const bool &i_HLT_IsoMu20_,const bool &i_HLT_IsoTkMu20_,const bool &i_HLT_IsoMu22_,const bool &i_HLT_IsoTkMu22_,const bool &i_HLT_IsoMu24_,const bool &i_HLT_IsoTkMu24_,const bool &i_HLT_IsoMu27_,const bool &i_HLT_IsoTkMu27_,const bool &i_HLT_Mu45_eta2p1_,const bool &i_HLT_Mu50_,const bool &i_HLT_DoubleIsoMu17_eta2p1_,const bool &i_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_,const bool &i_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_):
 //    
 //  {}
   Muon():
     TLorentzVector(),
     charge_(0),
-    dB_(0),
-    ipDXY_(0),
+    dxy_(0),
     dz_(0),
+    dB_(0),
     nMissingInnerHits_(0),
     chargedIso_(0),
     neutralIso_(0),
@@ -992,12 +1020,10 @@ public:
     HLT_IsoMu18_(0),
     HLT_IsoMu20_(0),
     HLT_IsoTkMu20_(0),
-    HLT_IsoMu20_eta2p1_(0),
     HLT_IsoMu22_(0),
     HLT_IsoTkMu22_(0),
     HLT_IsoMu24_(0),
     HLT_IsoTkMu24_(0),
-    HLT_IsoMu24_eta2p1_(0),
     HLT_IsoMu27_(0),
     HLT_IsoTkMu27_(0),
     HLT_Mu45_eta2p1_(0),
@@ -1007,9 +1033,9 @@ public:
     HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_(0)
   {}
   int charge() const {return charge_;}
-  float dB() const {return dB_;}
-  float ipDXY() const {return ipDXY_;}
+  float dxy() const {return dxy_;}
   float dz() const {return dz_;}
+  float dB() const {return dB_;}
   float nMissingInnerHits() const {return nMissingInnerHits_;}
   float chargedIso() const {return chargedIso_;}
   float neutralIso() const {return neutralIso_;}
@@ -1042,12 +1068,10 @@ public:
   bool HLT_IsoMu18() const {return HLT_IsoMu18_;}
   bool HLT_IsoMu20() const {return HLT_IsoMu20_;}
   bool HLT_IsoTkMu20() const {return HLT_IsoTkMu20_;}
-  bool HLT_IsoMu20_eta2p1() const {return HLT_IsoMu20_eta2p1_;}
   bool HLT_IsoMu22() const {return HLT_IsoMu22_;}
   bool HLT_IsoTkMu22() const {return HLT_IsoTkMu22_;}
   bool HLT_IsoMu24() const {return HLT_IsoMu24_;}
   bool HLT_IsoTkMu24() const {return HLT_IsoTkMu24_;}
-  bool HLT_IsoMu24_eta2p1() const {return HLT_IsoMu24_eta2p1_;}
   bool HLT_IsoMu27() const {return HLT_IsoMu27_;}
   bool HLT_IsoTkMu27() const {return HLT_IsoTkMu27_;}
   bool HLT_Mu45_eta2p1() const {return HLT_Mu45_eta2p1_;}
@@ -1057,9 +1081,9 @@ public:
   bool HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ() const {return HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;}
 private:
   int charge_;
-  float dB_;
-  float ipDXY_;
+  float dxy_;
   float dz_;
+  float dB_;
   float nMissingInnerHits_;
   float chargedIso_;
   float neutralIso_;
@@ -1092,12 +1116,10 @@ private:
   bool HLT_IsoMu18_;
   bool HLT_IsoMu20_;
   bool HLT_IsoTkMu20_;
-  bool HLT_IsoMu20_eta2p1_;
   bool HLT_IsoMu22_;
   bool HLT_IsoTkMu22_;
   bool HLT_IsoMu24_;
   bool HLT_IsoTkMu24_;
-  bool HLT_IsoMu24_eta2p1_;
   bool HLT_IsoMu27_;
   bool HLT_IsoTkMu27_;
   bool HLT_Mu45_eta2p1_;
@@ -1106,9 +1128,9 @@ private:
   bool HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;
   bool HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
   void setcharge(const int value) {charge_ = value;}
-  void setdB(const float value) {dB_ = value;}
-  void setipDXY(const float value) {ipDXY_ = value;}
+  void setdxy(const float value) {dxy_ = value;}
   void setdz(const float value) {dz_ = value;}
+  void setdB(const float value) {dB_ = value;}
   void setnMissingInnerHits(const float value) {nMissingInnerHits_ = value;}
   void setchargedIso(const float value) {chargedIso_ = value;}
   void setneutralIso(const float value) {neutralIso_ = value;}
@@ -1141,12 +1163,10 @@ private:
   void setHLT_IsoMu18(const bool value) {HLT_IsoMu18_ = value;}
   void setHLT_IsoMu20(const bool value) {HLT_IsoMu20_ = value;}
   void setHLT_IsoTkMu20(const bool value) {HLT_IsoTkMu20_ = value;}
-  void setHLT_IsoMu20_eta2p1(const bool value) {HLT_IsoMu20_eta2p1_ = value;}
   void setHLT_IsoMu22(const bool value) {HLT_IsoMu22_ = value;}
   void setHLT_IsoTkMu22(const bool value) {HLT_IsoTkMu22_ = value;}
   void setHLT_IsoMu24(const bool value) {HLT_IsoMu24_ = value;}
   void setHLT_IsoTkMu24(const bool value) {HLT_IsoTkMu24_ = value;}
-  void setHLT_IsoMu24_eta2p1(const bool value) {HLT_IsoMu24_eta2p1_ = value;}
   void setHLT_IsoMu27(const bool value) {HLT_IsoMu27_ = value;}
   void setHLT_IsoTkMu27(const bool value) {HLT_IsoTkMu27_ = value;}
   void setHLT_Mu45_eta2p1(const bool value) {HLT_Mu45_eta2p1_ = value;}
@@ -1294,12 +1314,10 @@ public:
     trigger_HLT_IsoMu18_(0),
     trigger_HLT_IsoMu20_(0),
     trigger_HLT_IsoTkMu20_(0),
-    trigger_HLT_IsoMu20_eta2p1_(0),
     trigger_HLT_IsoMu22_(0),
     trigger_HLT_IsoTkMu22_(0),
     trigger_HLT_IsoMu24_(0),
     trigger_HLT_IsoTkMu24_(0),
-    trigger_HLT_IsoMu24_eta2p1_(0),
     trigger_HLT_IsoMu27_(0),
     trigger_HLT_IsoTkMu27_(0),
     trigger_HLT_Mu45_eta2p1_(0),
@@ -1312,9 +1330,9 @@ public:
     trigger_HLT_Ele27_WPLoose_Gsf_(0),
     trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
     trigger_HLT_Ele27_WPTight_Gsf_(0),
-    trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
     trigger_HLT_Ele32_eta2p1_WPTight_Gsf_(0),
-    trigger_Ele35_WPLoose_Gsf_(0),
+    trigger_HLT_Ele35_WPLoose_Gsf_(0),
     trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
     trigger_HLT_notexists_(0),
@@ -1339,9 +1357,9 @@ public:
     muons_eta_(0),
     muons_phi_(0),
     muons_charge_(0),
-    muons_dB_(0),
-    muons_ipDXY_(0),
+    muons_dxy_(0),
     muons_dz_(0),
+    muons_dB_(0),
     muons_nMissingInnerHits_(0),
     muons_chargedIso_(0),
     muons_neutralIso_(0),
@@ -1374,12 +1392,10 @@ public:
     muons_HLT_IsoMu18_(0),
     muons_HLT_IsoMu20_(0),
     muons_HLT_IsoTkMu20_(0),
-    muons_HLT_IsoMu20_eta2p1_(0),
     muons_HLT_IsoMu22_(0),
     muons_HLT_IsoTkMu22_(0),
     muons_HLT_IsoMu24_(0),
     muons_HLT_IsoTkMu24_(0),
-    muons_HLT_IsoMu24_eta2p1_(0),
     muons_HLT_IsoMu27_(0),
     muons_HLT_IsoTkMu27_(0),
     muons_HLT_Mu45_eta2p1_(0),
@@ -1394,7 +1410,6 @@ public:
     jets_e_(0),
     jets_area_(0),
     jets_mass_(0),
-    jets_qgTag_(0),
     jets_JESUnc_(0),
     jets_JER_(0),
     jets_JERUp_(0),
@@ -1447,9 +1462,9 @@ public:
     electrons_neutralIso_(0),
     electrons_photonIso_(0),
     electrons_puIso_(0),
-    electrons_dB_(0),
-    electrons_ipDXY_(0),
+    electrons_dxy_(0),
     electrons_dz_(0),
+    electrons_dB_(0),
     electrons_nMissingInnerHits_(0),
     electrons_r9_(0),
     electrons_ESCOverETrack_(0),
@@ -1457,6 +1472,7 @@ public:
     electrons_DPhiSCTrk_(0),
     electrons_ecalEnergy_(0),
     electrons_passConversionVeto_(0),
+    electrons_hadronicOverEM_(0),
     electrons_isEB_(0),
     electrons_isEE_(0),
     electrons_isEBGap_(0),
@@ -1469,10 +1485,14 @@ public:
     electrons_isElectron_(0),
     electrons_ecalSeed_(0),
     electrons_trackSeed_(0),
+    electrons_eidCutVeto_(0),
     electrons_eidCutLoose_(0),
     electrons_eidCutMedium_(0),
     electrons_eidCutTight_(0),
-    electrons_eidCutVeto_(0),
+    electrons_eidCutNoIsoVeto_(0),
+    electrons_eidCutNoIsoLoose_(0),
+    electrons_eidCutNoIsoMedium_(0),
+    electrons_eidCutNoIsoTight_(0),
     electrons_eidMVAWP80_(0),
     electrons_eidMVAWP90_(0),
     electrons_eidTrgMVAWP80_(0),
@@ -1485,9 +1505,9 @@ public:
     electrons_HLT_Ele27_WPLoose_Gsf_(0),
     electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_(0),
     electrons_HLT_Ele27_WPTight_Gsf_(0),
-    electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
     electrons_HLT_Ele32_eta2p1_WPTight_Gsf_(0),
-    electrons_Ele35_WPLoose_Gsf_(0),
+    electrons_HLT_Ele35_WPLoose_Gsf_(0),
     electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
     electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
     electrons_e1x5_(0),
@@ -1495,7 +1515,9 @@ public:
     electrons_sigmaIEtaIEta_(0),
     electrons_full5x5_sigmaIEtaIEta_(0),
     electrons_sigmaIPhiIPhi_(0),
-    electrons_hadronicOverEM_(0),
+    electrons_hasSeed_(0),
+    electrons_seedEta_(0),
+    electrons_hasSC_(0),
     electrons_x_(0),
     electrons_y_(0),
     electrons_z_(0),
@@ -1507,6 +1529,9 @@ public:
     photons_eta_(0),
     photons_phi_(0),
     photons_charge_(0),
+    photons_hasSeed_(0),
+    photons_seedEta_(0),
+    photons_hasSC_(0),
     photons_x_(0),
     photons_y_(0),
     photons_z_(0),
@@ -1681,6 +1706,9 @@ public:
       tree_->SetBranchStatus("photons.eta", 1); tree_->SetBranchAddress("photons.eta", &photons_eta_);
       tree_->SetBranchStatus("photons.phi", 1); tree_->SetBranchAddress("photons.phi", &photons_phi_);
       tree_->SetBranchStatus("photons.charge", 1); tree_->SetBranchAddress("photons.charge", &photons_charge_);
+      tree_->SetBranchStatus("photons.hasSeed", 1); tree_->SetBranchAddress("photons.hasSeed", &photons_hasSeed_);
+      tree_->SetBranchStatus("photons.seedEta", 1); tree_->SetBranchAddress("photons.seedEta", &photons_seedEta_);
+      tree_->SetBranchStatus("photons.hasSC", 1); tree_->SetBranchAddress("photons.hasSC", &photons_hasSC_);
       tree_->SetBranchStatus("photons.x", 1); tree_->SetBranchAddress("photons.x", &photons_x_);
       tree_->SetBranchStatus("photons.y", 1); tree_->SetBranchAddress("photons.y", &photons_y_);
       tree_->SetBranchStatus("photons.z", 1); tree_->SetBranchAddress("photons.z", &photons_z_);
@@ -1753,12 +1781,10 @@ public:
       tree_->SetBranchStatus("trigger.HLT_IsoMu18", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu18", &trigger_HLT_IsoMu18_);
       tree_->SetBranchStatus("trigger.HLT_IsoMu20", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu20", &trigger_HLT_IsoMu20_);
       tree_->SetBranchStatus("trigger.HLT_IsoTkMu20", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu20", &trigger_HLT_IsoTkMu20_);
-      tree_->SetBranchStatus("trigger.HLT_IsoMu20_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu20_eta2p1", &trigger_HLT_IsoMu20_eta2p1_);
       tree_->SetBranchStatus("trigger.HLT_IsoMu22", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu22", &trigger_HLT_IsoMu22_);
       tree_->SetBranchStatus("trigger.HLT_IsoTkMu22", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu22", &trigger_HLT_IsoTkMu22_);
       tree_->SetBranchStatus("trigger.HLT_IsoMu24", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu24", &trigger_HLT_IsoMu24_);
       tree_->SetBranchStatus("trigger.HLT_IsoTkMu24", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu24", &trigger_HLT_IsoTkMu24_);
-      tree_->SetBranchStatus("trigger.HLT_IsoMu24_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu24_eta2p1", &trigger_HLT_IsoMu24_eta2p1_);
       tree_->SetBranchStatus("trigger.HLT_IsoMu27", 1); tree_->SetBranchAddress("trigger.HLT_IsoMu27", &trigger_HLT_IsoMu27_);
       tree_->SetBranchStatus("trigger.HLT_IsoTkMu27", 1); tree_->SetBranchAddress("trigger.HLT_IsoTkMu27", &trigger_HLT_IsoTkMu27_);
       tree_->SetBranchStatus("trigger.HLT_Mu45_eta2p1", 1); tree_->SetBranchAddress("trigger.HLT_Mu45_eta2p1", &trigger_HLT_Mu45_eta2p1_);
@@ -1771,9 +1797,9 @@ public:
       tree_->SetBranchStatus("trigger.HLT_Ele27_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_WPLoose_Gsf", &trigger_HLT_Ele27_WPLoose_Gsf_);
       tree_->SetBranchStatus("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf", &trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_);
       tree_->SetBranchStatus("trigger.HLT_Ele27_WPTight_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_WPTight_Gsf", &trigger_HLT_Ele27_WPTight_Gsf_);
-      tree_->SetBranchStatus("trigger.Ele27_eta2p1_WPLoose_Gsf_HT200", 1); tree_->SetBranchAddress("trigger.Ele27_eta2p1_WPLoose_Gsf_HT200", &trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+      tree_->SetBranchStatus("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf_HT200", 1); tree_->SetBranchAddress("trigger.HLT_Ele27_eta2p1_WPLoose_Gsf_HT200", &trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_);
       tree_->SetBranchStatus("trigger.HLT_Ele32_eta2p1_WPTight_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele32_eta2p1_WPTight_Gsf", &trigger_HLT_Ele32_eta2p1_WPTight_Gsf_);
-      tree_->SetBranchStatus("trigger.Ele35_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.Ele35_WPLoose_Gsf", &trigger_Ele35_WPLoose_Gsf_);
+      tree_->SetBranchStatus("trigger.HLT_Ele35_WPLoose_Gsf", 1); tree_->SetBranchAddress("trigger.HLT_Ele35_WPLoose_Gsf", &trigger_HLT_Ele35_WPLoose_Gsf_);
       tree_->SetBranchStatus("trigger.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", 1); tree_->SetBranchAddress("trigger.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", &trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
       tree_->SetBranchStatus("trigger.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", 1); tree_->SetBranchAddress("trigger.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", &trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
       tree_->SetBranchStatus("trigger.HLT_notexists", 1); tree_->SetBranchAddress("trigger.HLT_notexists", &trigger_HLT_notexists_);
@@ -1792,9 +1818,9 @@ public:
       tree_->SetBranchStatus("electrons.neutralIso", 1); tree_->SetBranchAddress("electrons.neutralIso", &electrons_neutralIso_);
       tree_->SetBranchStatus("electrons.photonIso", 1); tree_->SetBranchAddress("electrons.photonIso", &electrons_photonIso_);
       tree_->SetBranchStatus("electrons.puIso", 1); tree_->SetBranchAddress("electrons.puIso", &electrons_puIso_);
-      tree_->SetBranchStatus("electrons.dB", 1); tree_->SetBranchAddress("electrons.dB", &electrons_dB_);
-      tree_->SetBranchStatus("electrons.ipDXY", 1); tree_->SetBranchAddress("electrons.ipDXY", &electrons_ipDXY_);
+      tree_->SetBranchStatus("electrons.dxy", 1); tree_->SetBranchAddress("electrons.dxy", &electrons_dxy_);
       tree_->SetBranchStatus("electrons.dz", 1); tree_->SetBranchAddress("electrons.dz", &electrons_dz_);
+      tree_->SetBranchStatus("electrons.dB", 1); tree_->SetBranchAddress("electrons.dB", &electrons_dB_);
       tree_->SetBranchStatus("electrons.nMissingInnerHits", 1); tree_->SetBranchAddress("electrons.nMissingInnerHits", &electrons_nMissingInnerHits_);
       tree_->SetBranchStatus("electrons.r9", 1); tree_->SetBranchAddress("electrons.r9", &electrons_r9_);
       tree_->SetBranchStatus("electrons.ESCOverETrack", 1); tree_->SetBranchAddress("electrons.ESCOverETrack", &electrons_ESCOverETrack_);
@@ -1802,6 +1828,7 @@ public:
       tree_->SetBranchStatus("electrons.DPhiSCTrk", 1); tree_->SetBranchAddress("electrons.DPhiSCTrk", &electrons_DPhiSCTrk_);
       tree_->SetBranchStatus("electrons.ecalEnergy", 1); tree_->SetBranchAddress("electrons.ecalEnergy", &electrons_ecalEnergy_);
       tree_->SetBranchStatus("electrons.passConversionVeto", 1); tree_->SetBranchAddress("electrons.passConversionVeto", &electrons_passConversionVeto_);
+      tree_->SetBranchStatus("electrons.hadronicOverEM", 1); tree_->SetBranchAddress("electrons.hadronicOverEM", &electrons_hadronicOverEM_);
       tree_->SetBranchStatus("electrons.isEB", 1); tree_->SetBranchAddress("electrons.isEB", &electrons_isEB_);
       tree_->SetBranchStatus("electrons.isEE", 1); tree_->SetBranchAddress("electrons.isEE", &electrons_isEE_);
       tree_->SetBranchStatus("electrons.isEBGap", 1); tree_->SetBranchAddress("electrons.isEBGap", &electrons_isEBGap_);
@@ -1814,10 +1841,14 @@ public:
       tree_->SetBranchStatus("electrons.isElectron", 1); tree_->SetBranchAddress("electrons.isElectron", &electrons_isElectron_);
       tree_->SetBranchStatus("electrons.ecalSeed", 1); tree_->SetBranchAddress("electrons.ecalSeed", &electrons_ecalSeed_);
       tree_->SetBranchStatus("electrons.trackSeed", 1); tree_->SetBranchAddress("electrons.trackSeed", &electrons_trackSeed_);
+      tree_->SetBranchStatus("electrons.eidCutVeto", 1); tree_->SetBranchAddress("electrons.eidCutVeto", &electrons_eidCutVeto_);
       tree_->SetBranchStatus("electrons.eidCutLoose", 1); tree_->SetBranchAddress("electrons.eidCutLoose", &electrons_eidCutLoose_);
       tree_->SetBranchStatus("electrons.eidCutMedium", 1); tree_->SetBranchAddress("electrons.eidCutMedium", &electrons_eidCutMedium_);
       tree_->SetBranchStatus("electrons.eidCutTight", 1); tree_->SetBranchAddress("electrons.eidCutTight", &electrons_eidCutTight_);
-      tree_->SetBranchStatus("electrons.eidCutVeto", 1); tree_->SetBranchAddress("electrons.eidCutVeto", &electrons_eidCutVeto_);
+      tree_->SetBranchStatus("electrons.eidCutNoIsoVeto", 1); tree_->SetBranchAddress("electrons.eidCutNoIsoVeto", &electrons_eidCutNoIsoVeto_);
+      tree_->SetBranchStatus("electrons.eidCutNoIsoLoose", 1); tree_->SetBranchAddress("electrons.eidCutNoIsoLoose", &electrons_eidCutNoIsoLoose_);
+      tree_->SetBranchStatus("electrons.eidCutNoIsoMedium", 1); tree_->SetBranchAddress("electrons.eidCutNoIsoMedium", &electrons_eidCutNoIsoMedium_);
+      tree_->SetBranchStatus("electrons.eidCutNoIsoTight", 1); tree_->SetBranchAddress("electrons.eidCutNoIsoTight", &electrons_eidCutNoIsoTight_);
       tree_->SetBranchStatus("electrons.eidMVAWP80", 1); tree_->SetBranchAddress("electrons.eidMVAWP80", &electrons_eidMVAWP80_);
       tree_->SetBranchStatus("electrons.eidMVAWP90", 1); tree_->SetBranchAddress("electrons.eidMVAWP90", &electrons_eidMVAWP90_);
       tree_->SetBranchStatus("electrons.eidTrgMVAWP80", 1); tree_->SetBranchAddress("electrons.eidTrgMVAWP80", &electrons_eidTrgMVAWP80_);
@@ -1830,9 +1861,9 @@ public:
       tree_->SetBranchStatus("electrons.HLT_Ele27_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_WPLoose_Gsf", &electrons_HLT_Ele27_WPLoose_Gsf_);
       tree_->SetBranchStatus("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf", &electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_);
       tree_->SetBranchStatus("electrons.HLT_Ele27_WPTight_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_WPTight_Gsf", &electrons_HLT_Ele27_WPTight_Gsf_);
-      tree_->SetBranchStatus("electrons.Ele27_eta2p1_WPLoose_Gsf_HT200", 1); tree_->SetBranchAddress("electrons.Ele27_eta2p1_WPLoose_Gsf_HT200", &electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+      tree_->SetBranchStatus("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf_HT200", 1); tree_->SetBranchAddress("electrons.HLT_Ele27_eta2p1_WPLoose_Gsf_HT200", &electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_);
       tree_->SetBranchStatus("electrons.HLT_Ele32_eta2p1_WPTight_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele32_eta2p1_WPTight_Gsf", &electrons_HLT_Ele32_eta2p1_WPTight_Gsf_);
-      tree_->SetBranchStatus("electrons.Ele35_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.Ele35_WPLoose_Gsf", &electrons_Ele35_WPLoose_Gsf_);
+      tree_->SetBranchStatus("electrons.HLT_Ele35_WPLoose_Gsf", 1); tree_->SetBranchAddress("electrons.HLT_Ele35_WPLoose_Gsf", &electrons_HLT_Ele35_WPLoose_Gsf_);
       tree_->SetBranchStatus("electrons.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", 1); tree_->SetBranchAddress("electrons.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL", &electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
       tree_->SetBranchStatus("electrons.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", 1); tree_->SetBranchAddress("electrons.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", &electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
       tree_->SetBranchStatus("electrons.e1x5", 1); tree_->SetBranchAddress("electrons.e1x5", &electrons_e1x5_);
@@ -1840,7 +1871,9 @@ public:
       tree_->SetBranchStatus("electrons.sigmaIEtaIEta", 1); tree_->SetBranchAddress("electrons.sigmaIEtaIEta", &electrons_sigmaIEtaIEta_);
       tree_->SetBranchStatus("electrons.full5x5_sigmaIEtaIEta", 1); tree_->SetBranchAddress("electrons.full5x5_sigmaIEtaIEta", &electrons_full5x5_sigmaIEtaIEta_);
       tree_->SetBranchStatus("electrons.sigmaIPhiIPhi", 1); tree_->SetBranchAddress("electrons.sigmaIPhiIPhi", &electrons_sigmaIPhiIPhi_);
-      tree_->SetBranchStatus("electrons.hadronicOverEM", 1); tree_->SetBranchAddress("electrons.hadronicOverEM", &electrons_hadronicOverEM_);
+      tree_->SetBranchStatus("electrons.hasSeed", 1); tree_->SetBranchAddress("electrons.hasSeed", &electrons_hasSeed_);
+      tree_->SetBranchStatus("electrons.seedEta", 1); tree_->SetBranchAddress("electrons.seedEta", &electrons_seedEta_);
+      tree_->SetBranchStatus("electrons.hasSC", 1); tree_->SetBranchAddress("electrons.hasSC", &electrons_hasSC_);
       tree_->SetBranchStatus("electrons.x", 1); tree_->SetBranchAddress("electrons.x", &electrons_x_);
       tree_->SetBranchStatus("electrons.y", 1); tree_->SetBranchAddress("electrons.y", &electrons_y_);
       tree_->SetBranchStatus("electrons.z", 1); tree_->SetBranchAddress("electrons.z", &electrons_z_);
@@ -1884,7 +1917,6 @@ public:
       tree_->SetBranchStatus("jets.e", 1); tree_->SetBranchAddress("jets.e", &jets_e_);
       tree_->SetBranchStatus("jets.area", 1); tree_->SetBranchAddress("jets.area", &jets_area_);
       tree_->SetBranchStatus("jets.mass", 1); tree_->SetBranchAddress("jets.mass", &jets_mass_);
-      tree_->SetBranchStatus("jets.qgTag", 1); tree_->SetBranchAddress("jets.qgTag", &jets_qgTag_);
       tree_->SetBranchStatus("jets.JESUnc", 1); tree_->SetBranchAddress("jets.JESUnc", &jets_JESUnc_);
       tree_->SetBranchStatus("jets.JER", 1); tree_->SetBranchAddress("jets.JER", &jets_JER_);
       tree_->SetBranchStatus("jets.JERUp", 1); tree_->SetBranchAddress("jets.JERUp", &jets_JERUp_);
@@ -1940,9 +1972,9 @@ public:
       tree_->SetBranchStatus("muons.eta", 1); tree_->SetBranchAddress("muons.eta", &muons_eta_);
       tree_->SetBranchStatus("muons.phi", 1); tree_->SetBranchAddress("muons.phi", &muons_phi_);
       tree_->SetBranchStatus("muons.charge", 1); tree_->SetBranchAddress("muons.charge", &muons_charge_);
-      tree_->SetBranchStatus("muons.dB", 1); tree_->SetBranchAddress("muons.dB", &muons_dB_);
-      tree_->SetBranchStatus("muons.ipDXY", 1); tree_->SetBranchAddress("muons.ipDXY", &muons_ipDXY_);
+      tree_->SetBranchStatus("muons.dxy", 1); tree_->SetBranchAddress("muons.dxy", &muons_dxy_);
       tree_->SetBranchStatus("muons.dz", 1); tree_->SetBranchAddress("muons.dz", &muons_dz_);
+      tree_->SetBranchStatus("muons.dB", 1); tree_->SetBranchAddress("muons.dB", &muons_dB_);
       tree_->SetBranchStatus("muons.nMissingInnerHits", 1); tree_->SetBranchAddress("muons.nMissingInnerHits", &muons_nMissingInnerHits_);
       tree_->SetBranchStatus("muons.chargedIso", 1); tree_->SetBranchAddress("muons.chargedIso", &muons_chargedIso_);
       tree_->SetBranchStatus("muons.neutralIso", 1); tree_->SetBranchAddress("muons.neutralIso", &muons_neutralIso_);
@@ -1975,12 +2007,10 @@ public:
       tree_->SetBranchStatus("muons.HLT_IsoMu18", 1); tree_->SetBranchAddress("muons.HLT_IsoMu18", &muons_HLT_IsoMu18_);
       tree_->SetBranchStatus("muons.HLT_IsoMu20", 1); tree_->SetBranchAddress("muons.HLT_IsoMu20", &muons_HLT_IsoMu20_);
       tree_->SetBranchStatus("muons.HLT_IsoTkMu20", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu20", &muons_HLT_IsoTkMu20_);
-      tree_->SetBranchStatus("muons.HLT_IsoMu20_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_IsoMu20_eta2p1", &muons_HLT_IsoMu20_eta2p1_);
       tree_->SetBranchStatus("muons.HLT_IsoMu22", 1); tree_->SetBranchAddress("muons.HLT_IsoMu22", &muons_HLT_IsoMu22_);
       tree_->SetBranchStatus("muons.HLT_IsoTkMu22", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu22", &muons_HLT_IsoTkMu22_);
       tree_->SetBranchStatus("muons.HLT_IsoMu24", 1); tree_->SetBranchAddress("muons.HLT_IsoMu24", &muons_HLT_IsoMu24_);
       tree_->SetBranchStatus("muons.HLT_IsoTkMu24", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu24", &muons_HLT_IsoTkMu24_);
-      tree_->SetBranchStatus("muons.HLT_IsoMu24_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_IsoMu24_eta2p1", &muons_HLT_IsoMu24_eta2p1_);
       tree_->SetBranchStatus("muons.HLT_IsoMu27", 1); tree_->SetBranchAddress("muons.HLT_IsoMu27", &muons_HLT_IsoMu27_);
       tree_->SetBranchStatus("muons.HLT_IsoTkMu27", 1); tree_->SetBranchAddress("muons.HLT_IsoTkMu27", &muons_HLT_IsoTkMu27_);
       tree_->SetBranchStatus("muons.HLT_Mu45_eta2p1", 1); tree_->SetBranchAddress("muons.HLT_Mu45_eta2p1", &muons_HLT_Mu45_eta2p1_);
@@ -2121,6 +2151,9 @@ public:
     auto it_photons_eta_ = photons_eta_->cbegin();
     auto it_photons_phi_ = photons_phi_->cbegin();
     auto it_photons_charge_ = photons_charge_->cbegin();
+    auto it_photons_hasSeed_ = photons_hasSeed_->cbegin();
+    auto it_photons_seedEta_ = photons_seedEta_->cbegin();
+    auto it_photons_hasSC_ = photons_hasSC_->cbegin();
     auto it_photons_x_ = photons_x_->cbegin();
     auto it_photons_y_ = photons_y_->cbegin();
     auto it_photons_z_ = photons_z_->cbegin();
@@ -2138,6 +2171,9 @@ public:
     for(; it_photons_pt_ != photons_pt_->cend(); ){
       Photon obj;
       obj.setcharge(*it_photons_charge_);
+      obj.sethasSeed(*it_photons_hasSeed_);
+      obj.setseedEta(*it_photons_seedEta_);
+      obj.sethasSC(*it_photons_hasSC_);
       obj.setx(*it_photons_x_);
       obj.sety(*it_photons_y_);
       obj.setz(*it_photons_z_);
@@ -2158,6 +2194,9 @@ public:
       ++it_photons_eta_;
       ++it_photons_phi_;
       ++it_photons_charge_;
+      ++it_photons_hasSeed_;
+      ++it_photons_seedEta_;
+      ++it_photons_hasSC_;
       ++it_photons_x_;
       ++it_photons_y_;
       ++it_photons_z_;
@@ -2260,12 +2299,10 @@ public:
     obj.setHLT_IsoMu18(trigger_HLT_IsoMu18_);
     obj.setHLT_IsoMu20(trigger_HLT_IsoMu20_);
     obj.setHLT_IsoTkMu20(trigger_HLT_IsoTkMu20_);
-    obj.setHLT_IsoMu20_eta2p1(trigger_HLT_IsoMu20_eta2p1_);
     obj.setHLT_IsoMu22(trigger_HLT_IsoMu22_);
     obj.setHLT_IsoTkMu22(trigger_HLT_IsoTkMu22_);
     obj.setHLT_IsoMu24(trigger_HLT_IsoMu24_);
     obj.setHLT_IsoTkMu24(trigger_HLT_IsoTkMu24_);
-    obj.setHLT_IsoMu24_eta2p1(trigger_HLT_IsoMu24_eta2p1_);
     obj.setHLT_IsoMu27(trigger_HLT_IsoMu27_);
     obj.setHLT_IsoTkMu27(trigger_HLT_IsoTkMu27_);
     obj.setHLT_Mu45_eta2p1(trigger_HLT_Mu45_eta2p1_);
@@ -2278,9 +2315,9 @@ public:
     obj.setHLT_Ele27_WPLoose_Gsf(trigger_HLT_Ele27_WPLoose_Gsf_);
     obj.setHLT_Ele27_eta2p1_WPLoose_Gsf(trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_);
     obj.setHLT_Ele27_WPTight_Gsf(trigger_HLT_Ele27_WPTight_Gsf_);
-    obj.setEle27_eta2p1_WPLoose_Gsf_HT200(trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+    obj.setHLT_Ele27_eta2p1_WPLoose_Gsf_HT200(trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_);
     obj.setHLT_Ele32_eta2p1_WPTight_Gsf(trigger_HLT_Ele32_eta2p1_WPTight_Gsf_);
-    obj.setEle35_WPLoose_Gsf(trigger_Ele35_WPLoose_Gsf_);
+    obj.setHLT_Ele35_WPLoose_Gsf(trigger_HLT_Ele35_WPLoose_Gsf_);
     obj.setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
     obj.setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
     obj.setHLT_notexists(trigger_HLT_notexists_);
@@ -2300,9 +2337,9 @@ public:
     auto it_electrons_neutralIso_ = electrons_neutralIso_->cbegin();
     auto it_electrons_photonIso_ = electrons_photonIso_->cbegin();
     auto it_electrons_puIso_ = electrons_puIso_->cbegin();
-    auto it_electrons_dB_ = electrons_dB_->cbegin();
-    auto it_electrons_ipDXY_ = electrons_ipDXY_->cbegin();
+    auto it_electrons_dxy_ = electrons_dxy_->cbegin();
     auto it_electrons_dz_ = electrons_dz_->cbegin();
+    auto it_electrons_dB_ = electrons_dB_->cbegin();
     auto it_electrons_nMissingInnerHits_ = electrons_nMissingInnerHits_->cbegin();
     auto it_electrons_r9_ = electrons_r9_->cbegin();
     auto it_electrons_ESCOverETrack_ = electrons_ESCOverETrack_->cbegin();
@@ -2310,6 +2347,7 @@ public:
     auto it_electrons_DPhiSCTrk_ = electrons_DPhiSCTrk_->cbegin();
     auto it_electrons_ecalEnergy_ = electrons_ecalEnergy_->cbegin();
     auto it_electrons_passConversionVeto_ = electrons_passConversionVeto_->cbegin();
+    auto it_electrons_hadronicOverEM_ = electrons_hadronicOverEM_->cbegin();
     auto it_electrons_isEB_ = electrons_isEB_->cbegin();
     auto it_electrons_isEE_ = electrons_isEE_->cbegin();
     auto it_electrons_isEBGap_ = electrons_isEBGap_->cbegin();
@@ -2322,10 +2360,14 @@ public:
     auto it_electrons_isElectron_ = electrons_isElectron_->cbegin();
     auto it_electrons_ecalSeed_ = electrons_ecalSeed_->cbegin();
     auto it_electrons_trackSeed_ = electrons_trackSeed_->cbegin();
+    auto it_electrons_eidCutVeto_ = electrons_eidCutVeto_->cbegin();
     auto it_electrons_eidCutLoose_ = electrons_eidCutLoose_->cbegin();
     auto it_electrons_eidCutMedium_ = electrons_eidCutMedium_->cbegin();
     auto it_electrons_eidCutTight_ = electrons_eidCutTight_->cbegin();
-    auto it_electrons_eidCutVeto_ = electrons_eidCutVeto_->cbegin();
+    auto it_electrons_eidCutNoIsoVeto_ = electrons_eidCutNoIsoVeto_->cbegin();
+    auto it_electrons_eidCutNoIsoLoose_ = electrons_eidCutNoIsoLoose_->cbegin();
+    auto it_electrons_eidCutNoIsoMedium_ = electrons_eidCutNoIsoMedium_->cbegin();
+    auto it_electrons_eidCutNoIsoTight_ = electrons_eidCutNoIsoTight_->cbegin();
     auto it_electrons_eidMVAWP80_ = electrons_eidMVAWP80_->cbegin();
     auto it_electrons_eidMVAWP90_ = electrons_eidMVAWP90_->cbegin();
     auto it_electrons_eidTrgMVAWP80_ = electrons_eidTrgMVAWP80_->cbegin();
@@ -2338,9 +2380,9 @@ public:
     auto it_electrons_HLT_Ele27_WPLoose_Gsf_ = electrons_HLT_Ele27_WPLoose_Gsf_->cbegin();
     auto it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_ = electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_->cbegin();
     auto it_electrons_HLT_Ele27_WPTight_Gsf_ = electrons_HLT_Ele27_WPTight_Gsf_->cbegin();
-    auto it_electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_ = electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_->cbegin();
+    auto it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_ = electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_->cbegin();
     auto it_electrons_HLT_Ele32_eta2p1_WPTight_Gsf_ = electrons_HLT_Ele32_eta2p1_WPTight_Gsf_->cbegin();
-    auto it_electrons_Ele35_WPLoose_Gsf_ = electrons_Ele35_WPLoose_Gsf_->cbegin();
+    auto it_electrons_HLT_Ele35_WPLoose_Gsf_ = electrons_HLT_Ele35_WPLoose_Gsf_->cbegin();
     auto it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_ = electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_->cbegin();
     auto it_electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_->cbegin();
     auto it_electrons_e1x5_ = electrons_e1x5_->cbegin();
@@ -2348,7 +2390,9 @@ public:
     auto it_electrons_sigmaIEtaIEta_ = electrons_sigmaIEtaIEta_->cbegin();
     auto it_electrons_full5x5_sigmaIEtaIEta_ = electrons_full5x5_sigmaIEtaIEta_->cbegin();
     auto it_electrons_sigmaIPhiIPhi_ = electrons_sigmaIPhiIPhi_->cbegin();
-    auto it_electrons_hadronicOverEM_ = electrons_hadronicOverEM_->cbegin();
+    auto it_electrons_hasSeed_ = electrons_hasSeed_->cbegin();
+    auto it_electrons_seedEta_ = electrons_seedEta_->cbegin();
+    auto it_electrons_hasSC_ = electrons_hasSC_->cbegin();
     auto it_electrons_x_ = electrons_x_->cbegin();
     auto it_electrons_y_ = electrons_y_->cbegin();
     auto it_electrons_z_ = electrons_z_->cbegin();
@@ -2363,9 +2407,9 @@ public:
       obj.setneutralIso(*it_electrons_neutralIso_);
       obj.setphotonIso(*it_electrons_photonIso_);
       obj.setpuIso(*it_electrons_puIso_);
-      obj.setdB(*it_electrons_dB_);
-      obj.setipDXY(*it_electrons_ipDXY_);
+      obj.setdxy(*it_electrons_dxy_);
       obj.setdz(*it_electrons_dz_);
+      obj.setdB(*it_electrons_dB_);
       obj.setnMissingInnerHits(*it_electrons_nMissingInnerHits_);
       obj.setr9(*it_electrons_r9_);
       obj.setESCOverETrack(*it_electrons_ESCOverETrack_);
@@ -2373,6 +2417,7 @@ public:
       obj.setDPhiSCTrk(*it_electrons_DPhiSCTrk_);
       obj.setecalEnergy(*it_electrons_ecalEnergy_);
       obj.setpassConversionVeto(*it_electrons_passConversionVeto_);
+      obj.sethadronicOverEM(*it_electrons_hadronicOverEM_);
       obj.setisEB(*it_electrons_isEB_);
       obj.setisEE(*it_electrons_isEE_);
       obj.setisEBGap(*it_electrons_isEBGap_);
@@ -2385,10 +2430,14 @@ public:
       obj.setisElectron(*it_electrons_isElectron_);
       obj.setecalSeed(*it_electrons_ecalSeed_);
       obj.settrackSeed(*it_electrons_trackSeed_);
+      obj.seteidCutVeto(*it_electrons_eidCutVeto_);
       obj.seteidCutLoose(*it_electrons_eidCutLoose_);
       obj.seteidCutMedium(*it_electrons_eidCutMedium_);
       obj.seteidCutTight(*it_electrons_eidCutTight_);
-      obj.seteidCutVeto(*it_electrons_eidCutVeto_);
+      obj.seteidCutNoIsoVeto(*it_electrons_eidCutNoIsoVeto_);
+      obj.seteidCutNoIsoLoose(*it_electrons_eidCutNoIsoLoose_);
+      obj.seteidCutNoIsoMedium(*it_electrons_eidCutNoIsoMedium_);
+      obj.seteidCutNoIsoTight(*it_electrons_eidCutNoIsoTight_);
       obj.seteidMVAWP80(*it_electrons_eidMVAWP80_);
       obj.seteidMVAWP90(*it_electrons_eidMVAWP90_);
       obj.seteidTrgMVAWP80(*it_electrons_eidTrgMVAWP80_);
@@ -2401,9 +2450,9 @@ public:
       obj.setHLT_Ele27_WPLoose_Gsf(*it_electrons_HLT_Ele27_WPLoose_Gsf_);
       obj.setHLT_Ele27_eta2p1_WPLoose_Gsf(*it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_);
       obj.setHLT_Ele27_WPTight_Gsf(*it_electrons_HLT_Ele27_WPTight_Gsf_);
-      obj.setEle27_eta2p1_WPLoose_Gsf_HT200(*it_electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+      obj.setHLT_Ele27_eta2p1_WPLoose_Gsf_HT200(*it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_);
       obj.setHLT_Ele32_eta2p1_WPTight_Gsf(*it_electrons_HLT_Ele32_eta2p1_WPTight_Gsf_);
-      obj.setEle35_WPLoose_Gsf(*it_electrons_Ele35_WPLoose_Gsf_);
+      obj.setHLT_Ele35_WPLoose_Gsf(*it_electrons_HLT_Ele35_WPLoose_Gsf_);
       obj.setHLT_DoubleEle33_CaloIdL_GsfTrkIdVL(*it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
       obj.setHLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(*it_electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
       obj.sete1x5(*it_electrons_e1x5_);
@@ -2411,7 +2460,9 @@ public:
       obj.setsigmaIEtaIEta(*it_electrons_sigmaIEtaIEta_);
       obj.setfull5x5_sigmaIEtaIEta(*it_electrons_full5x5_sigmaIEtaIEta_);
       obj.setsigmaIPhiIPhi(*it_electrons_sigmaIPhiIPhi_);
-      obj.sethadronicOverEM(*it_electrons_hadronicOverEM_);
+      obj.sethasSeed(*it_electrons_hasSeed_);
+      obj.setseedEta(*it_electrons_seedEta_);
+      obj.sethasSC(*it_electrons_hasSC_);
       obj.setx(*it_electrons_x_);
       obj.sety(*it_electrons_y_);
       obj.setz(*it_electrons_z_);
@@ -2429,9 +2480,9 @@ public:
       ++it_electrons_neutralIso_;
       ++it_electrons_photonIso_;
       ++it_electrons_puIso_;
-      ++it_electrons_dB_;
-      ++it_electrons_ipDXY_;
+      ++it_electrons_dxy_;
       ++it_electrons_dz_;
+      ++it_electrons_dB_;
       ++it_electrons_nMissingInnerHits_;
       ++it_electrons_r9_;
       ++it_electrons_ESCOverETrack_;
@@ -2439,6 +2490,7 @@ public:
       ++it_electrons_DPhiSCTrk_;
       ++it_electrons_ecalEnergy_;
       ++it_electrons_passConversionVeto_;
+      ++it_electrons_hadronicOverEM_;
       ++it_electrons_isEB_;
       ++it_electrons_isEE_;
       ++it_electrons_isEBGap_;
@@ -2451,10 +2503,14 @@ public:
       ++it_electrons_isElectron_;
       ++it_electrons_ecalSeed_;
       ++it_electrons_trackSeed_;
+      ++it_electrons_eidCutVeto_;
       ++it_electrons_eidCutLoose_;
       ++it_electrons_eidCutMedium_;
       ++it_electrons_eidCutTight_;
-      ++it_electrons_eidCutVeto_;
+      ++it_electrons_eidCutNoIsoVeto_;
+      ++it_electrons_eidCutNoIsoLoose_;
+      ++it_electrons_eidCutNoIsoMedium_;
+      ++it_electrons_eidCutNoIsoTight_;
       ++it_electrons_eidMVAWP80_;
       ++it_electrons_eidMVAWP90_;
       ++it_electrons_eidTrgMVAWP80_;
@@ -2467,9 +2523,9 @@ public:
       ++it_electrons_HLT_Ele27_WPLoose_Gsf_;
       ++it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_;
       ++it_electrons_HLT_Ele27_WPTight_Gsf_;
-      ++it_electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_;
+      ++it_electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_;
       ++it_electrons_HLT_Ele32_eta2p1_WPTight_Gsf_;
-      ++it_electrons_Ele35_WPLoose_Gsf_;
+      ++it_electrons_HLT_Ele35_WPLoose_Gsf_;
       ++it_electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
       ++it_electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
       ++it_electrons_e1x5_;
@@ -2477,7 +2533,9 @@ public:
       ++it_electrons_sigmaIEtaIEta_;
       ++it_electrons_full5x5_sigmaIEtaIEta_;
       ++it_electrons_sigmaIPhiIPhi_;
-      ++it_electrons_hadronicOverEM_;
+      ++it_electrons_hasSeed_;
+      ++it_electrons_seedEta_;
+      ++it_electrons_hasSC_;
       ++it_electrons_x_;
       ++it_electrons_y_;
       ++it_electrons_z_;
@@ -2541,7 +2599,6 @@ public:
     auto it_jets_e_ = jets_e_->cbegin();
     auto it_jets_area_ = jets_area_->cbegin();
     auto it_jets_mass_ = jets_mass_->cbegin();
-    auto it_jets_qgTag_ = jets_qgTag_->cbegin();
     auto it_jets_JESUnc_ = jets_JESUnc_->cbegin();
     auto it_jets_JER_ = jets_JER_->cbegin();
     auto it_jets_JERUp_ = jets_JERUp_->cbegin();
@@ -2591,7 +2648,6 @@ public:
       obj.setcharge(*it_jets_charge_);
       obj.sete(*it_jets_e_);
       obj.setarea(*it_jets_area_);
-      obj.setqgTag(*it_jets_qgTag_);
       obj.setJESUnc(*it_jets_JESUnc_);
       obj.setJER(*it_jets_JER_);
       obj.setJERUp(*it_jets_JERUp_);
@@ -2645,7 +2701,6 @@ public:
       ++it_jets_e_;
       ++it_jets_area_;
       ++it_jets_mass_;
-      ++it_jets_qgTag_;
       ++it_jets_JESUnc_;
       ++it_jets_JER_;
       ++it_jets_JERUp_;
@@ -2702,9 +2757,9 @@ public:
     auto it_muons_eta_ = muons_eta_->cbegin();
     auto it_muons_phi_ = muons_phi_->cbegin();
     auto it_muons_charge_ = muons_charge_->cbegin();
-    auto it_muons_dB_ = muons_dB_->cbegin();
-    auto it_muons_ipDXY_ = muons_ipDXY_->cbegin();
+    auto it_muons_dxy_ = muons_dxy_->cbegin();
     auto it_muons_dz_ = muons_dz_->cbegin();
+    auto it_muons_dB_ = muons_dB_->cbegin();
     auto it_muons_nMissingInnerHits_ = muons_nMissingInnerHits_->cbegin();
     auto it_muons_chargedIso_ = muons_chargedIso_->cbegin();
     auto it_muons_neutralIso_ = muons_neutralIso_->cbegin();
@@ -2737,12 +2792,10 @@ public:
     auto it_muons_HLT_IsoMu18_ = muons_HLT_IsoMu18_->cbegin();
     auto it_muons_HLT_IsoMu20_ = muons_HLT_IsoMu20_->cbegin();
     auto it_muons_HLT_IsoTkMu20_ = muons_HLT_IsoTkMu20_->cbegin();
-    auto it_muons_HLT_IsoMu20_eta2p1_ = muons_HLT_IsoMu20_eta2p1_->cbegin();
     auto it_muons_HLT_IsoMu22_ = muons_HLT_IsoMu22_->cbegin();
     auto it_muons_HLT_IsoTkMu22_ = muons_HLT_IsoTkMu22_->cbegin();
     auto it_muons_HLT_IsoMu24_ = muons_HLT_IsoMu24_->cbegin();
     auto it_muons_HLT_IsoTkMu24_ = muons_HLT_IsoTkMu24_->cbegin();
-    auto it_muons_HLT_IsoMu24_eta2p1_ = muons_HLT_IsoMu24_eta2p1_->cbegin();
     auto it_muons_HLT_IsoMu27_ = muons_HLT_IsoMu27_->cbegin();
     auto it_muons_HLT_IsoTkMu27_ = muons_HLT_IsoTkMu27_->cbegin();
     auto it_muons_HLT_Mu45_eta2p1_ = muons_HLT_Mu45_eta2p1_->cbegin();
@@ -2753,9 +2806,9 @@ public:
     for(; it_muons_pt_ != muons_pt_->cend(); ){
       Muon obj;
       obj.setcharge(*it_muons_charge_);
-      obj.setdB(*it_muons_dB_);
-      obj.setipDXY(*it_muons_ipDXY_);
+      obj.setdxy(*it_muons_dxy_);
       obj.setdz(*it_muons_dz_);
+      obj.setdB(*it_muons_dB_);
       obj.setnMissingInnerHits(*it_muons_nMissingInnerHits_);
       obj.setchargedIso(*it_muons_chargedIso_);
       obj.setneutralIso(*it_muons_neutralIso_);
@@ -2788,12 +2841,10 @@ public:
       obj.setHLT_IsoMu18(*it_muons_HLT_IsoMu18_);
       obj.setHLT_IsoMu20(*it_muons_HLT_IsoMu20_);
       obj.setHLT_IsoTkMu20(*it_muons_HLT_IsoTkMu20_);
-      obj.setHLT_IsoMu20_eta2p1(*it_muons_HLT_IsoMu20_eta2p1_);
       obj.setHLT_IsoMu22(*it_muons_HLT_IsoMu22_);
       obj.setHLT_IsoTkMu22(*it_muons_HLT_IsoTkMu22_);
       obj.setHLT_IsoMu24(*it_muons_HLT_IsoMu24_);
       obj.setHLT_IsoTkMu24(*it_muons_HLT_IsoTkMu24_);
-      obj.setHLT_IsoMu24_eta2p1(*it_muons_HLT_IsoMu24_eta2p1_);
       obj.setHLT_IsoMu27(*it_muons_HLT_IsoMu27_);
       obj.setHLT_IsoTkMu27(*it_muons_HLT_IsoTkMu27_);
       obj.setHLT_Mu45_eta2p1(*it_muons_HLT_Mu45_eta2p1_);
@@ -2807,9 +2858,9 @@ public:
       ++it_muons_eta_;
       ++it_muons_phi_;
       ++it_muons_charge_;
-      ++it_muons_dB_;
-      ++it_muons_ipDXY_;
+      ++it_muons_dxy_;
       ++it_muons_dz_;
+      ++it_muons_dB_;
       ++it_muons_nMissingInnerHits_;
       ++it_muons_chargedIso_;
       ++it_muons_neutralIso_;
@@ -2842,12 +2893,10 @@ public:
       ++it_muons_HLT_IsoMu18_;
       ++it_muons_HLT_IsoMu20_;
       ++it_muons_HLT_IsoTkMu20_;
-      ++it_muons_HLT_IsoMu20_eta2p1_;
       ++it_muons_HLT_IsoMu22_;
       ++it_muons_HLT_IsoTkMu22_;
       ++it_muons_HLT_IsoMu24_;
       ++it_muons_HLT_IsoTkMu24_;
-      ++it_muons_HLT_IsoMu24_eta2p1_;
       ++it_muons_HLT_IsoMu27_;
       ++it_muons_HLT_IsoTkMu27_;
       ++it_muons_HLT_Mu45_eta2p1_;
@@ -2975,12 +3024,10 @@ private:
   Int_t trigger_HLT_IsoMu18_;
   Int_t trigger_HLT_IsoMu20_;
   Int_t trigger_HLT_IsoTkMu20_;
-  Int_t trigger_HLT_IsoMu20_eta2p1_;
   Int_t trigger_HLT_IsoMu22_;
   Int_t trigger_HLT_IsoTkMu22_;
   Int_t trigger_HLT_IsoMu24_;
   Int_t trigger_HLT_IsoTkMu24_;
-  Int_t trigger_HLT_IsoMu24_eta2p1_;
   Int_t trigger_HLT_IsoMu27_;
   Int_t trigger_HLT_IsoTkMu27_;
   Int_t trigger_HLT_Mu45_eta2p1_;
@@ -2993,9 +3040,9 @@ private:
   Int_t trigger_HLT_Ele27_WPLoose_Gsf_;
   Int_t trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_;
   Int_t trigger_HLT_Ele27_WPTight_Gsf_;
-  Int_t trigger_Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  Int_t trigger_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_;
   Int_t trigger_HLT_Ele32_eta2p1_WPTight_Gsf_;
-  Int_t trigger_Ele35_WPLoose_Gsf_;
+  Int_t trigger_HLT_Ele35_WPLoose_Gsf_;
   Int_t trigger_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   Int_t trigger_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
   Int_t trigger_HLT_notexists_;
@@ -3020,9 +3067,9 @@ private:
   vector<float> *muons_eta_;
   vector<float> *muons_phi_;
   vector<int> *muons_charge_;
-  vector<float> *muons_dB_;
-  vector<float> *muons_ipDXY_;
+  vector<float> *muons_dxy_;
   vector<float> *muons_dz_;
+  vector<float> *muons_dB_;
   vector<float> *muons_nMissingInnerHits_;
   vector<float> *muons_chargedIso_;
   vector<float> *muons_neutralIso_;
@@ -3055,12 +3102,10 @@ private:
   vector<bool> *muons_HLT_IsoMu18_;
   vector<bool> *muons_HLT_IsoMu20_;
   vector<bool> *muons_HLT_IsoTkMu20_;
-  vector<bool> *muons_HLT_IsoMu20_eta2p1_;
   vector<bool> *muons_HLT_IsoMu22_;
   vector<bool> *muons_HLT_IsoTkMu22_;
   vector<bool> *muons_HLT_IsoMu24_;
   vector<bool> *muons_HLT_IsoTkMu24_;
-  vector<bool> *muons_HLT_IsoMu24_eta2p1_;
   vector<bool> *muons_HLT_IsoMu27_;
   vector<bool> *muons_HLT_IsoTkMu27_;
   vector<bool> *muons_HLT_Mu45_eta2p1_;
@@ -3075,7 +3120,6 @@ private:
   vector<float> *jets_e_;
   vector<float> *jets_area_;
   vector<float> *jets_mass_;
-  vector<float> *jets_qgTag_;
   vector<float> *jets_JESUnc_;
   vector<float> *jets_JER_;
   vector<float> *jets_JERUp_;
@@ -3128,9 +3172,9 @@ private:
   vector<float> *electrons_neutralIso_;
   vector<float> *electrons_photonIso_;
   vector<float> *electrons_puIso_;
-  vector<float> *electrons_dB_;
-  vector<float> *electrons_ipDXY_;
+  vector<float> *electrons_dxy_;
   vector<float> *electrons_dz_;
+  vector<float> *electrons_dB_;
   vector<float> *electrons_nMissingInnerHits_;
   vector<float> *electrons_r9_;
   vector<float> *electrons_ESCOverETrack_;
@@ -3138,6 +3182,7 @@ private:
   vector<float> *electrons_DPhiSCTrk_;
   vector<float> *electrons_ecalEnergy_;
   vector<bool> *electrons_passConversionVeto_;
+  vector<float> *electrons_hadronicOverEM_;
   vector<bool> *electrons_isEB_;
   vector<bool> *electrons_isEE_;
   vector<bool> *electrons_isEBGap_;
@@ -3150,10 +3195,14 @@ private:
   vector<bool> *electrons_isElectron_;
   vector<bool> *electrons_ecalSeed_;
   vector<bool> *electrons_trackSeed_;
+  vector<float> *electrons_eidCutVeto_;
   vector<float> *electrons_eidCutLoose_;
   vector<float> *electrons_eidCutMedium_;
   vector<float> *electrons_eidCutTight_;
-  vector<float> *electrons_eidCutVeto_;
+  vector<float> *electrons_eidCutNoIsoVeto_;
+  vector<float> *electrons_eidCutNoIsoLoose_;
+  vector<float> *electrons_eidCutNoIsoMedium_;
+  vector<float> *electrons_eidCutNoIsoTight_;
   vector<float> *electrons_eidMVAWP80_;
   vector<float> *electrons_eidMVAWP90_;
   vector<float> *electrons_eidTrgMVAWP80_;
@@ -3166,9 +3215,9 @@ private:
   vector<bool> *electrons_HLT_Ele27_WPLoose_Gsf_;
   vector<bool> *electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_;
   vector<bool> *electrons_HLT_Ele27_WPTight_Gsf_;
-  vector<bool> *electrons_Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  vector<bool> *electrons_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_;
   vector<bool> *electrons_HLT_Ele32_eta2p1_WPTight_Gsf_;
-  vector<bool> *electrons_Ele35_WPLoose_Gsf_;
+  vector<bool> *electrons_HLT_Ele35_WPLoose_Gsf_;
   vector<bool> *electrons_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_;
   vector<bool> *electrons_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
   vector<float> *electrons_e1x5_;
@@ -3176,7 +3225,9 @@ private:
   vector<float> *electrons_sigmaIEtaIEta_;
   vector<float> *electrons_full5x5_sigmaIEtaIEta_;
   vector<float> *electrons_sigmaIPhiIPhi_;
-  vector<float> *electrons_hadronicOverEM_;
+  vector<bool> *electrons_hasSeed_;
+  vector<float> *electrons_seedEta_;
+  vector<bool> *electrons_hasSC_;
   vector<float> *electrons_x_;
   vector<float> *electrons_y_;
   vector<float> *electrons_z_;
@@ -3188,6 +3239,9 @@ private:
   vector<float> *photons_eta_;
   vector<float> *photons_phi_;
   vector<int> *photons_charge_;
+  vector<bool> *photons_hasSeed_;
+  vector<float> *photons_seedEta_;
+  vector<bool> *photons_hasSC_;
   vector<float> *photons_x_;
   vector<float> *photons_y_;
   vector<float> *photons_z_;

@@ -30,6 +30,7 @@ from URAnalysis.Utilities.latex import t2latex
 from URAnalysis.Utilities.roottools import Envelope
 import re
 import itertools
+import rootpy.stats as stats
 
 parser = ArgumentParser()
 parser.add_argument('mode', choices=['electrons', 'muons'], help='choose leptonic decay type')
@@ -41,6 +42,7 @@ parser.add_argument('--all', action='store_true', help='')
 parser.add_argument('--btag', action='store_true', help='')
 parser.add_argument('--card', action='store_true', help='')
 parser.add_argument('--sysplots', action='store_true', help='dumps systematics plots, valid only if --card')
+parser.add_argument('--smoothsys', default='', help='')
 #parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 args = parser.parse_args()
 
@@ -220,10 +222,12 @@ class HTTPlotter(Plotter):
 			'TTV': ['tt[WZ]*'],
 			'WJets'	: ['W[0-9]Jets'],
 			'ZJets'	: ['ZJets'],
-			'tChannel' : ['single*_[st]channel'],
+			'tChannel' : ['singlet_[st]channel'],
 			'tWChannel' : ['single*_tW'],
 			'data_obs'	: ['data']
 			}
+		non_qcd = ['TT', 'VV', 'TTV',	'WJets', 'ZJets',	'tChannel',	'tWChannel']
+
 		self.card_names.update({i : [i] for i in added_samples})
 
 		self.systematics = {
@@ -262,6 +266,16 @@ class HTTPlotter(Plotter):
 				'-' : lambda x: x.replace('nosys', 'bfake_down'),
 				'value' : 1.00,
 				},
+			#LEP Effs
+			'CMS_eff_m' if mode == 'muons' else 'CMS_eff_e' : {
+				'samples' : ['.*'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'lepeff_up'),
+				'-' : lambda x: x.replace('nosys', 'lepeff_down'),
+				'value' : 1.00,
+				},
+
 			#SCALE/PS
 			'QCDscaleMERenorm_TT' : {
 				'samples' : ['TT$'],
@@ -296,6 +310,15 @@ class HTTPlotter(Plotter):
 				'type' : 'shape',
 				'+' : lambda x: x.replace('nosys', 'scale_up'),
 				'-' : lambda x: x.replace('nosys', 'scale_down'),
+				'value' : 1.00,
+				},
+			'Hdamp_TT' : {
+				'samples' : ['TT$'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'hdamp_up'),
+				'-' : lambda x: x.replace('nosys', 'hdamp_down'),
+				'scales' : (1./self.tt_lhe_weights['240'], 1./self.tt_lhe_weights['231']),
 				'value' : 1.00,
 				},
 			#TMass
@@ -496,10 +519,23 @@ class HTTPlotter(Plotter):
 					category['%s_%sDown' % (name, sys_name)] = hd					
 					plotter.card.add_systematic(sys_name, 'shape', category_name, name, 1.00)
 				elif info['type'] == 'shape' or 'value' not in info:
-					path_up = info['+'](path) if '+' in info else None
-					path_dw = info['-'](path) if '-' in info else None
-					hup = view.Get(path_up) if path_up else None
-					hdw = view.Get(path_dw) if path_dw else None
+					if 'mass_sf' in info:
+						#use SF instead of the shape for smoother templates
+						#get central values
+						hup = category[name].Clone()
+						hdw = category[name].Clone()
+						idx=0;
+						nsfs = len(info['mass_sf']['+'])
+						for ubin, dbin in zip(hup, hdw):
+							if ubin.overflow: continue
+							ubin.value *= info['mass_sf']['+'][idx % nsfs]
+							dbin.value *= info['mass_sf']['-'][idx % nsfs]
+							idx += 1
+					else:
+						path_up = info['+'](path) if '+' in info else None
+						path_dw = info['-'](path) if '-' in info else None
+						hup = view.Get(path_up) if path_up else None
+						hdw = view.Get(path_dw) if path_dw else None
 					if 'scales' in info:
 						sup, sdw = info['scales']
 						hup.Scale(sup)
@@ -908,17 +944,79 @@ if args.btag:
 
 binnind2D = (
 	[250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 680.0, 730.0, 800.0, 920.0, 1200.0], #~3k events each mtt bin
-	[2] #[0, 0.2, 0.4, 0.6, 0.8, 1.0]
+	[1] #[0, 0.2, 0.4, 0.6, 0.8, 1.0]
 )
 if args.card:
+	correction_factors = {}
+	category = 'mujets' if args.mode == 'muons' else 'ejets'
+	if args.smoothsys:
+		systematics = args.smoothsys.split(',')
+		for shift in systematics:
+			if not shift in plotter.systematics:
+				raise KeyError(
+					'there is no systematic called:'
+					' %s, all I have is: %s' % (shift, ', '.join(plotter.systematics.keys())),
+					)
+			
+			path = 'nosys/tight/MTHigh/m_tt'
+			view = plotter.rebin_view(
+				views.SumView(
+					*[plotter.get_view(i) for i in plotter.card_names['TT']]
+					),
+				binnind2D[0]
+				)
+			central = view.Get(path)
+			up   = view.Get(plotter.systematics[shift]['+'](path))
+			up /= central
+			ufcn = plotting.F1('pol4')
+			ufcn.decorate(linecolor='blue', linewidth=2)
+			up.fit(ufcn)
+			down = view.Get(plotter.systematics[shift]['-'](path))
+			down /= central
+			dfcn = plotting.F1('pol4')
+			dfcn.decorate(linecolor='red', linewidth=2)
+			down.fit(dfcn)
+			newd = down*-1
+			with io.root_open('test.root', 'w') as out:
+				newd.name = 'down'
+				up.name = 'up'
+				out.WriteTObject(newd, 'down')
+				out.WriteTObject(up, 'up')
+			
+			plotter.set_subdir('shapes/%s' % category)
+			plotter.overlay(
+				[up, down], linecolor=['blue', 'red'], y_range=(0.8,1.2),
+				markercolor=['blue', 'red'], title=['up', 'down'],
+				legendstyle='p', markerstyle=20, fillstyle='hollow',
+				drawstyle='E0', markersize=0.5)
+			plotter.save('%s_unsmoothed' % shift)
+			print "Simmetry test:"
+			for idx in range(ufcn.GetNpar()):
+				delta = abs(ufcn[idx].value+dfcn[idx].value)/quad.quad(ufcn[idx].error,dfcn[idx].error)
+				print '  %d: %.2f' % (idx, delta)
+			upsf, downsf = [], []
+			for bin in central:
+				if bin.overflow: continue
+				usf = ufcn(bin.x.center)
+				dsf = dfcn(bin.x.center)
+				if usf > 1 and dsf > 1:
+					print 'warning'
+				if usf < 1 and dsf < 1:
+					print 'warning'					
+				upsf.append(ufcn(bin.x.center))
+				downsf.append(dfcn(bin.x.center))
+			plotter.systematics[shift]['mass_sfs'] = {
+				'+' : upsf, '-' : downsf
+				}
+	raise ValueError()
+	plotter.write_shapes(		
+		category,
+		'nosys/tight/MTHigh', 'mtt_tlep_ctstar',
+		rebin=binnind2D, preprocess=urviews.LinearizeView)	
 	## plotter.write_shapes(		
 	## 	'mujets' if args.mode == 'muons' else 'ejets',
-	## 	'nosys/tight/MTHigh', 'mtt_tlep_ctstar',
-	## 	rebin=binnind2D, preprocess=urviews.LinearizeView)
-	plotter.write_shapes(		
-		'mujets' if args.mode == 'muons' else 'ejets',
-		'nosys/tight/MTHigh', 'm_tt',
-		rebin=binnind2D[0])
+	## 	'nosys/tight/MTHigh', 'm_tt',
+	## 	rebin=binnind2D[0])
 	## plotter.write_shapes(		
 	## 	'mujets' if args.mode == 'muons' else 'ejets',
 	## 	'nosys/tight/MTHigh', 'tlep_ctstar',
@@ -959,7 +1057,8 @@ if args.card:
 						'fillcolor' : '##b3ecfd',
 						'linewidth' : 0,
 						'markersize': 0,
-						'drawstyle' : 'E2'
+						'drawstyle' : 'E2',
+						'fillstyle' : 'solid'
 						}
 						)
 				plotter.save(name)

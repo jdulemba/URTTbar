@@ -22,8 +22,8 @@ shapes = [
    ('nusolver_chi2', '\chi^2', 'A.U', ''),
 	 ('wjets_bcMVA_p11', 'cMVA^{11}', 'A.U', ''),
 	 ('wjets_wcMVA_p11', 'cMVA^{11}', 'A.U.', ''),
-	 ('wjets_bqgt', 'QG Tag', 'A.U.', ''),
-	 ('wjets_wqgt', 'QG Tag', 'A.U.', ''),
+	 #('wjets_bqgt', 'QG Tag', 'A.U.', ''),
+	 #('wjets_wqgt', 'QG Tag', 'A.U.', ''),
 	 ('lb_ratio', 'lb ratio', 'A.U.', ''),
 	 ('w2b_ratio', 'w2b ratio', 'A.U.', ''),
 ]

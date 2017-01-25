@@ -33,7 +33,7 @@ LeptonSF::LeptonSF(std::string parname, bool ptx):
   }
 }
 
-double LeptonSF::get_2d_weight(std::shared_ptr<TH2> h, double pt, double eta) const {
+double LeptonSF::get_2d_weight(std::shared_ptr<TH2> h, double pt, double eta, int shift) const {
   if(!h.get()) return 1.;
   int pt_bin = h->GetXaxis()->FindFixBin((pt_as_x_) ? pt : eta);
   pt_bin = TMath::Max(pt_bin, 1);
@@ -43,21 +43,28 @@ double LeptonSF::get_2d_weight(std::shared_ptr<TH2> h, double pt, double eta) co
   eta_bin = TMath::Max(eta_bin, 1);
   eta_bin = TMath::Min(eta_bin, h->GetNbinsY());
 
-  return h->GetBinContent(pt_bin, eta_bin);
+	double val = h->GetBinContent(pt_bin, eta_bin);
+	double unc = h->GetBinError(pt_bin, eta_bin);	
+  return val+shift*unc;
 }
 
-double LeptonSF::get_1d_weight(std::shared_ptr<TH1> h, double pt, double eta) const {
+double LeptonSF::get_1d_weight(std::shared_ptr<TH1> h, double pt, double eta, int shift) const {
   if(!h.get()) return 1.;
   int pt_bin = h->GetXaxis()->FindFixBin((pt_as_x_) ? pt : eta);
   pt_bin = TMath::Max(pt_bin, 1);
   pt_bin = TMath::Min(pt_bin, h->GetNbinsX());
 
-  return h->GetBinContent(pt_bin);
+	double val = h->GetBinContent(pt_bin);
+	double unc = h->GetBinError(pt_bin);
+  return val+shift*unc;
 }
 
-double LeptonSF::get_sf(double pt, double eta) const {
-  return  get_2d_weight(trig_, pt, abs_etas_[0] ? Abs(eta) : eta) *
-    get_2d_weight(id_ , pt, abs_etas_[1] ? Abs(eta) : eta) *
-    get_2d_weight(iso_, pt, abs_etas_[2] ? Abs(eta) : eta) *
-		get_1d_weight(trk_, pt, abs_etas_[3] ? Abs(eta) : eta);
+double LeptonSF::get_sf(double pt, double eta, Sys shift) const {
+	int multiplier = 0;
+	if(shift == Sys::LEPEFF_UP) multiplier = 1;
+	else if(shift == Sys::LEPEFF_DW) multiplier = -1;
+  return  get_2d_weight(trig_, pt, abs_etas_[0] ? Abs(eta) : eta, multiplier) *
+    get_2d_weight(id_ , pt, abs_etas_[1] ? Abs(eta) : eta, multiplier) *
+    get_2d_weight(iso_, pt, abs_etas_[2] ? Abs(eta) : eta, multiplier) *
+		get_1d_weight(trk_, pt, abs_etas_[3] ? Abs(eta) : eta, multiplier);
 }

@@ -25,6 +25,11 @@ class Categories(object):
 		idx = self.__mapping__[name]
 		return (idx, name)
 
+	def id(self, name):
+		if name not in self.__mapping__:
+			raise KeyError('%s not present in the categories' % name)
+		return self.__mapping__[name]
+
 parser = ArgumentParser()
 parser.add_argument('inputfile')
 parser.add_argument('limit', choices=['electrons', 'muons', 'cmb'], help='choose leptonic decay type')
@@ -80,33 +85,28 @@ for parity in ['pseudoscalar']:#, 'pseudoscalar']:
 	# Normalization uncertainty
 	#
 	cb.cp().process(procs['sig'] + procs['bkg']).AddSyst(
-			cb, 'lumi_13TeV', 'lnN', ch.SystMap()(1.058))
+		cb, 'lumi_13TeV', 'lnN', ch.SystMap()(1.058))
 	
 	cb.cp().process(['VV']).AddSyst(
-			cb, 'CMS_httbar_vvXsec_13TeV', 'lnN', ch.SystMap()(1.5))
+		cb, 'CMS_httbar_vvXsec_13TeV', 'lnN', ch.SystMap()(1.5))
 	
 	cb.cp().process(['TT']).AddSyst(
-			cb, 'ttbar_rate', 'lnN', ch.SystMap()(1.06))
+		cb, 'ttbar_rate', 'lnN', ch.SystMap()(1.06))
 	
 	cb.cp().process(['tChannel']).AddSyst(
-			cb, 'st_rate', 'lnN', ch.SystMap()(1.20))
+		cb, 'CMS_httbar_tChannelNorm', 'lnN', ch.SystMap()(1.20))
 
 	cb.cp().process(['tWChannel']).AddSyst(
-			cb, 'st_rate', 'lnN', ch.SystMap()(1.15))
+		cb, 'CMS_httbar_tWChannelNorm', 'lnN', ch.SystMap()(1.15))
 	
 	cb.cp().process(['WJets']).AddSyst(
-			cb, 'w_rate', 'lnN', ch.SystMap()(1.50))
+		cb, 'w_rate', 'lnN', ch.SystMap()(1.50))
 	cb.cp().process(['ZJets']).AddSyst(
-			cb, 'z_rate', 'lnN', ch.SystMap()(1.50))
+		cb, 'z_rate', 'lnN', ch.SystMap()(1.50))
+	cb.cp().process(['TTV']).AddSyst(
+		cb, 'CMS_httbar_TTVNorm', 'lnN', 
+		ch.SystMap()(1.2))
 
-	cb.cp().process(['QCDmujets']).AddSyst(
-			cb, 'QCDmujetsRate', 'lnN', ch.SystMap()(2.))
-	cb.cp().process(['QCDejets']).AddSyst(
-			cb, 'QCDejetsRate', 'lnN', ch.SystMap()(2.))
-
-
-	cb.cp().process(procs['sig'] + procs['bkg']).AddSyst(
-			cb, 'trigger', 'lnN', ch.SystMap()(1.0115))
 
 	#
 	# Shape uncetainties
@@ -114,6 +114,7 @@ for parity in ['pseudoscalar']:#, 'pseudoscalar']:
 	#on everything
 	for name in [
 		'CMS_scale_j_13TeV',
+		'CMS_res_j_13TeV',
 		'CMS_eff_b_13TeV',
 		'CMS_fake_b_13TeV',
 		'CMS_pileup',
@@ -128,18 +129,28 @@ for parity in ['pseudoscalar']:#, 'pseudoscalar']:
 		'QCDscaleMEFactor_TT',
 		'QCDscaleMERenormFactor_TT',
 		'QCDscalePS_TT',
-		'TMass',
+		'Hdamp_TT',
 		'pdf'
 		]:
 		cb.cp().process(['TT']).AddSyst(
 			cb, name, 'shape', ch.SystMap()(1.))
 
+	#top mass is special
+	cb.cp().process(['TT']).AddSyst(
+		cb, 'TMass', 'shape', ch.SystMap()(1./6.))
+
 	if args.limit == 'muons' or args.limit == 'cmb':
+		cb.cp().process(procs['sig'] + procs['bkg']).AddSyst(
+			cb, 'CMS_eff_m', 'shape', ch.SystMap('bin_id')([cats.id('mujets')], 1.)
+			)
 		cb.cp().process(['QCDmujets']).AddSyst(
 			cb, 'QCD_mu_norm', 'lnN', ch.SystMap()(2.))
 	if args.limit == 'electrons' or args.limit == 'cmb':
 		cb.cp().process(['QCDejets']).AddSyst(
 			cb, 'QCD_el_norm', 'lnN', ch.SystMap()(2.))
+		cb.cp().process(procs['sig'] + procs['bkg']).AddSyst(
+			cb, 'CMS_eff_e', 'shape', ch.SystMap('bin_id')([cats.id('ejets')], 1.)
+			)
 		
 
 	print '>> Extracting histograms from input root files...'
@@ -150,14 +161,12 @@ for parity in ['pseudoscalar']:#, 'pseudoscalar']:
 			in_file, '$BIN/$PROCESS$MASS', '$BIN/$PROCESS$MASS_$SYSTEMATIC')
 		# in_file, '$BIN/$PROCESS', '$BIN/$PROCESS__$SYSTEMATIC')
 
-	if addBBB:
-		bbb = ch.BinByBinFactory().SetAddThreshold(0.).SetFixNorm(False)
-		bbb.MergeBinErrors(cb.cp().backgrounds())
-		bbb.AddBinByBin(cb.cp().backgrounds(), cb)
+	bbb = ch.BinByBinFactory().SetAddThreshold(0.).SetFixNorm(False)
+	bbb.AddBinByBin(cb.cp().process(['TT']), cb)
 
 	print '>> Setting standardised bin names...'
 	ch.SetStandardBinNames(cb)
-	cb.PrintAll()
+	#cb.PrintAll()
 
 	writer = ch.CardWriter(
 		'$TAG/$MASS/$ANALYSIS_$CHANNEL_$BINID.txt',

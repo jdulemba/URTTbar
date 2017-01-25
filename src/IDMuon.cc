@@ -48,7 +48,7 @@ bool IDMuon::isTight() {
   if(chi2()/ndof() > 10.) return(false);  
   if(validHits() <= 0) return(false);
   if(numMatchedStations() <= 1) return(false);
-  if(TMath::Abs(dB()) >= 0.2) return(false);
+  if(TMath::Abs(dxy()) >= 0.2) return(false);
   if(TMath::Abs(dz()) >= 0.5) return(false);
   if(pixelHits() <= 0) return(false);
   if(trackerLayers() <= 5) return(false);

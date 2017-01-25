@@ -16,8 +16,14 @@ private:
 	double rndm_;
   TLorentzVector uncorr_;
 public:
-	enum BTag {NONE, CSVLOOSE, CSVMEDIUM, CSVTIGHT, CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   MVALOOSE, MVAMEDIUM, MVATIGHT};
-	enum IDType {NOTSET, CSV, CTAG, MVA};
+	enum BTag {
+		NONE, 
+		CSVLOOSE, CSVMEDIUM, CSVTIGHT, 
+		//DEEPCSVLOOSE, DEEPCSVMEDIUM, DEEPCSVTIGHT, 
+		CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   
+		MVALOOSE, MVAMEDIUM, MVATIGHT
+	};
+	enum IDType {NOTSET, CSV, CTAG, MVA, DEEPFLAVOUR};
   
   static const std::unordered_map<std::string, IDJet::BTag> tag_names;
   static IDJet::BTag tag(std::string label);
@@ -54,18 +60,48 @@ public:
 	bool CTagId(BTag wp) const;
   bool TagId(BTag wp) const;
 
-	bool ID()	{
-		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID?rev=93#Recommendations_for_13_TeV_data
+	bool LooseID()	{
+		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
 		//to be filled in new tree version
-		if(TMath::Abs(Eta()) <= 3.) {
-			if(numberOfDaughters() <= 1) {return false;}
+		if(TMath::Abs(Eta()) <= 2.7) {
 			if(neutralHadronEnergyFraction() >= 0.99){return false;}
 			if(neutralEmEnergyFraction() >= 0.99){return false;}
+			if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;}
 			if(TMath::Abs(Eta()) < 2.4)	{
 				if(chargedHadronEnergyFraction() <= 0.){return false;}
 				if(chargedMultiplicity() <= 0.){return false;}
 				if(chargedEmEnergyFraction() >= 0.99){return false;}
 			}
+			return true;
+		} else if(TMath::Abs(Eta()) <= 3) {
+			if(neutralEmEnergyFraction() <= 0.01) return false;
+			if(neutralHadronEnergyFraction() >= 0.98) return false; 
+			if(neutralMultiplicity() <= 2) return false;
+			return true;
+		} else {
+			if(neutralEmEnergyFraction() >= .9) return false;
+			if(neutralMultiplicity() <= 10) return false;
+			return true;
+		}
+	}
+
+	bool TightID()	{
+		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
+		//to be filled in new tree version
+		if(TMath::Abs(Eta()) <= 2.7) {
+			if(neutralHadronEnergyFraction() >= 0.90){return false;}
+			if(neutralEmEnergyFraction() >= 0.90){return false;}
+			if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;}
+			if(TMath::Abs(Eta()) < 2.4)	{
+				if(chargedHadronEnergyFraction() <= 0.){return false;}
+				if(chargedMultiplicity() <= 0.){return false;}
+				if(chargedEmEnergyFraction() >= 0.99){return false;}
+			}
+			return true;
+		} else if(TMath::Abs(Eta()) <= 3) {
+			if(neutralEmEnergyFraction() <= 0.01) return false;
+			if(neutralHadronEnergyFraction() >= 0.98) return false; 
+			if(neutralMultiplicity() <= 2) return false;
 			return true;
 		} else {
 			if(neutralEmEnergyFraction() >= .9) return false;

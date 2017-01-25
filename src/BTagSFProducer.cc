@@ -75,7 +75,6 @@ BTagSFProducer::BTagSFProducer(const DataFile &sf_file, const DataFile &eff_file
   eff_bottom_loose(), 
   eff_bottom_tight()
 {
-	Logger::log().debug() << "BTagSFProducer ctor" << endl;
   configure(sf_file, eff_file, tighttag, loosetag, float_c, float_l, float_b);
 }
 
@@ -240,7 +239,8 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
     if(float_value < 0) { //use provided SF
       try { 
         tight_sf = reader_tight_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
-        loose_sf = reader_loose_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
+				if(!no_loose_cut_)
+					loose_sf = reader_loose_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
       } catch(std::out_of_range e) {
         Logger::log().fatal() << "Problem accessing BTV SF for jet: " << jet_flav <<
           ", " << jet->Eta() << ", " << jet->Pt() << std::endl;

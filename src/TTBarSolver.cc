@@ -108,9 +108,8 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 		ptratios -= 1.*Log(wj2_b_ratio_right_->Interpolate(jpts.first/hyp.BHad()->Pt()));
 	}
 	if(usewjetqgtag_) {
-		auto qgtag = min_max(hyp.WJa()->qgTag(), hyp.WJb()->qgTag());
-		qgtest = -1.*Log(wj1_qgtag_right_->Interpolate(qgtag.second));
-		qgtest -= 1.*Log(wj2_qgtag_right_->Interpolate(qgtag.first ));
+    Logger::log().fatal() << "USE of QGTag is not supported any longer!" << std::endl;
+    throw 42;
 	}
 
   // if(USEBTAG_ && BTag_right_) {

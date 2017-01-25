@@ -24,7 +24,7 @@
 #include "TUUID.h"   
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
-#include "Analyses/URTTbar/interface/TTBarPlots.h"
+
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
@@ -89,7 +89,7 @@ private:
 	string cut_ordering_;
 	std::function<bool(const Permutation &, const Permutation &)> ordering_fcn_;
 	map<string, std::function<bool(const IDJet*)> > working_points_;
-	map<string, BTagSFProducer> wp_SFs_;  
+	map<string, BTagSFProducer*> wp_SFs_;  
 
 	//Scale factors
 	LeptonSF electron_sf_, muon_sf_;
@@ -140,7 +140,7 @@ public:
     muon_sf_("muon_sf"),
 		randomizer_(),
     btag_sf_("best_permutation.tightb", "best_permutation.looseb", 0.5, -1, -1),
-    pdf_uncs_(249)
+    pdf_uncs_(254)
 	{
     btag_sf_.ignore_partial_shifts();
     cut_tight_b_ = btag_sf_.tight_cut();
@@ -188,11 +188,9 @@ public:
 		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);};
 		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
 		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
-
 		working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
 		working_points_["ctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGTIGHT);};
 		working_points_["ctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGMEDIUM);};
-
 		working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
 		working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
 		working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
@@ -203,26 +201,26 @@ public:
     DataFile ctag_sfs(parser.getCfgPar<string>("general.ctag_sffile"));
     DataFile cmva_sfs(parser.getCfgPar<string>("general.cmva_sffile"));
 		
-    wp_SFs_["csvLoose" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["csvTight" ] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["csvMedium"] = BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["ctagLoose" ] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 0.5); 
-    wp_SFs_["ctagTight" ] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 0.5); 
-    wp_SFs_["ctagMedium"] = BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 0.5); 
-    wp_SFs_["cmvaLoose" ] = BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["cmvaTight" ] = BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["cmvaMedium"] = BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["csvLoose" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
+    wp_SFs_["csvTight" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["csvMedium"] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["ctagLoose" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 0.5); 
+    wp_SFs_["ctagTight" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 0.5); 
+    wp_SFs_["ctagMedium"] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 0.5); 
+    wp_SFs_["cmvaLoose" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["cmvaTight" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["cmvaMedium"] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
 
-    wp_SFs_["csvLoose" ].ignore_general_shifts();
-    wp_SFs_["csvTight" ].ignore_general_shifts();
-    wp_SFs_["csvMedium"].ignore_general_shifts();
-    wp_SFs_["ctagLoose" ].ignore_general_shifts(); 
-    wp_SFs_["ctagTight" ].ignore_general_shifts(); 
-    wp_SFs_["ctagMedium"].ignore_general_shifts(); 
-    wp_SFs_["cmvaLoose" ].ignore_general_shifts(); 
-    wp_SFs_["cmvaTight" ].ignore_general_shifts(); 
-    wp_SFs_["cmvaMedium"].ignore_general_shifts(); 
-    // // working_points_[] = [](const Jet* jet) {};
+    wp_SFs_["csvLoose" ]->ignore_general_shifts();
+    wp_SFs_["csvTight" ]->ignore_general_shifts();
+    wp_SFs_["csvMedium"]->ignore_general_shifts();
+    wp_SFs_["ctagLoose" ]->ignore_general_shifts(); 
+    wp_SFs_["ctagTight" ]->ignore_general_shifts(); 
+    wp_SFs_["ctagMedium"]->ignore_general_shifts(); 
+    wp_SFs_["cmvaLoose" ]->ignore_general_shifts(); 
+    wp_SFs_["cmvaTight" ]->ignore_general_shifts(); 
+    wp_SFs_["cmvaMedium"]->ignore_general_shifts(); 
+    // working_points_[] = [](const Jet* jet) {};
 
 		naming_[TTNaming::RIGHT ] = "semilep_visible_right";
 		naming_[TTNaming::RIGHT_THAD ] = "semilep_right_thad";
@@ -234,6 +232,10 @@ public:
     Logger::log().debug() << "Constructor completed" << std::endl;
 	}
   
+	~ctag_eff() {
+		wp_SFs_.erase(wp_SFs_.begin(), wp_SFs_.end());
+	}
+
 	TDirectory* getDir(string path){
 		TDirectory* out = (TDirectory*) outFile_.Get(path.c_str());
 		if(out) return out;
@@ -255,8 +257,8 @@ public:
     
 		book<TH2F>(folder, "flav_map", ";leading;subleading", 3, 0., 3., 3, 0., 3.);
 
-		book<TH1F>(folder, "tmasshad", "", 100, 0., 500);			
-		book<TH1F>(folder, "Wmasshad", "", 100, 0., 500);			
+		book<TH1F>(folder, "tmasshad", "", 50, 0., 500);			
+		book<TH1F>(folder, "Wmasshad", "", 50, 0., 500);			
 	}
 
 	void fill_combo_plots(string folder, const Permutation &hyp){
@@ -302,11 +304,12 @@ public:
 		book<TH1F>(folder, "jets_CvsL" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "jets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
+		book<TH1F>(folder, "jets_cMVA" , "", 55, -1., 1.1);
 
-		book<TH1F>(folder, "jets_hflav_CvsL_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "jets_hflav_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "jets_hflav_CvsL_S" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "jets_hflav_CvsL_L" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "jets_hflav_CvsL_B" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "jets_hflav_CvsL_C" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "jets_hflav_CvsL_S" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "jets_hflav_CvsL_L" , "", 55, -1., 1.1);
   }
 
   void fill_presel_plots(string folder, URStreamer &event) {
@@ -323,15 +326,16 @@ public:
       dir->second["jets_CvsL"].fill(jet->CvsLtag(), evt_weight_);
       dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
       dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
+			dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
 
-      int hflav = fabs(jet->hadronFlavour());
-      int pflav = fabs(jet->partonFlavour());
-      string hstr;
-      if(hflav == 5) hstr="B";
-      else if(hflav == 4) hstr="C";
-      else if(pflav == 3) hstr="S";
-      else hstr="L"; 
-      dir->second["jets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+      // int hflav = fabs(jet->hadronFlavour());
+      // int pflav = fabs(jet->partonFlavour());
+      // string hstr;
+      // if(hflav == 5) hstr="B";
+      // else if(hflav == 4) hstr="C";
+      // else if(pflav == 3) hstr="S";
+      // else hstr="L"; 
+      // dir->second["jets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
     }
 		dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
   }
@@ -351,28 +355,28 @@ public:
 		book<TH2F>(folder, "subB_subW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
 
     //info by flavor    
-		book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 42, -1., 1.1);
-		book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 42, -1., 1.1);
-		book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 42, -1., 1.1);
+		// book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 42, -1., 1.1);
+		// book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 42, -1., 1.1);
+		// book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 42, -1., 1.1);
 
-		book<TH1F>(folder, "Wjets_hflav_CvsB_B" , "", 42, -1., 1.1);
-		book<TH1F>(folder, "Wjets_hflav_CvsB_C" , "", 42, -1., 1.1);
-		book<TH1F>(folder, "Wjets_hflav_CvsB_L" , "", 42, -1., 1.1);
+		// book<TH1F>(folder, "Wjets_hflav_CvsB_B" , "", 42, -1., 1.1);
+		// book<TH1F>(folder, "Wjets_hflav_CvsB_C" , "", 42, -1., 1.1);
+		// book<TH1F>(folder, "Wjets_hflav_CvsB_L" , "", 42, -1., 1.1);
 
-		book<TH1F>(folder, "Wjets_hflav_jpt_C" , "", 100, 0., 500.);    
-		book<TH1F>(folder, "Wjets_hflav_jpt_L" , "", 100, 0., 500.);    
-		book<TH1F>(folder, "Wjets_hflavJP_jpt_C" , "", 20, 25., 100.);    
-		book<TH1F>(folder, "Wjets_hflavJP_jpt_L" , "", 20, 25., 100.);    
-		book<TH2F>(folder, "Wjets_hflav_jpt_jeta_C" , "", 20, 25., 100., 16, -2.5, 2.5);    
-		book<TH2F>(folder, "Wjets_hflav_jpt_jeta_L" , "", 20, 25., 100., 16, -2.5, 2.5);    
+		// book<TH1F>(folder, "Wjets_hflav_jpt_C" , "", 100, 0., 500.);    
+		// book<TH1F>(folder, "Wjets_hflav_jpt_L" , "", 100, 0., 500.);    
+		// book<TH1F>(folder, "Wjets_hflavJP_jpt_C" , "", 20, 25., 100.);    
+		// book<TH1F>(folder, "Wjets_hflavJP_jpt_L" , "", 20, 25., 100.);    
+		// book<TH2F>(folder, "Wjets_hflav_jpt_jeta_C" , "", 20, 25., 100., 16, -2.5, 2.5);    
+		// book<TH2F>(folder, "Wjets_hflav_jpt_jeta_L" , "", 20, 25., 100., 16, -2.5, 2.5);    
     
 
-		book<TH1F>(folder, "Wja_hflav_CvsL_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wja_hflav_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wja_hflav_CvsL_L" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjb_hflav_CvsL_B" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjb_hflav_CvsL_C" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjb_hflav_CvsL_L" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "Wja_hflav_CvsL_B" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "Wja_hflav_CvsL_C" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "Wja_hflav_CvsL_L" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "Wjb_hflav_CvsL_B" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "Wjb_hflav_CvsL_C" , "", 55, -1., 1.1);
+		// book<TH1F>(folder, "Wjb_hflav_CvsL_L" , "", 55, -1., 1.1);
 
 		book<TH1F>(folder, "Wja_CvsL" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Wjb_CvsL" , "", 55, -1., 1.1);
@@ -382,6 +386,7 @@ public:
 		book<TH1F>(folder, "Bjets_CvsL" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "Bjets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "WjetCSV"   , "", 40, -20., 20.);
+		book<TH1F>(folder, "Wjets_CMVA" , "", 55, -1., 1.1);
 	}
 
   void fill_notag_plots(string folder, Permutation &hyp){
@@ -407,32 +412,32 @@ public:
 		dir->second["subB_subW_pts"  ].fill(sb->Pt(), sj->Pt(), evt_weight_);
 
     string wj="Wja";
-    for(IDJet* jet : {hyp.WJa(), hyp.WJb()}){
-      int hflav = fabs(jet->hadronFlavour());
-      int pflav = fabs(jet->partonFlavour());
-      string hstr;
-      if(hflav == 5) hstr="B";
-      else if(hflav == 4) {
-        hstr="C";
-        dir->second["Wjets_hflav_jpt_C"].fill(jet->Pt(), evt_weight_);
-        dir->second["Wjets_hflavJP_jpt_C"].fill(jet->Pt(), evt_weight_);
-        dir->second["Wjets_hflav_jpt_jeta_C"].fill(jet->Pt(), jet->Eta(), evt_weight_);
-      }
-      // else if(pflav == 3) {
-      //   hstr="S";
-      //   dir->second["Wjets_hflav_jpt_LS"].fill(jet->Pt(), evt_weight_);
-      // }
-      else {
-        hstr="L"; 
-        dir->second["Wjets_hflav_jpt_L"].fill(jet->Pt(), evt_weight_);
-        dir->second["Wjets_hflavJP_jpt_L"].fill(jet->Pt(), evt_weight_);
-        dir->second["Wjets_hflav_jpt_jeta_L"].fill(jet->Pt(), jet->Eta(), evt_weight_);
-      }
+    // for(IDJet* jet : {hyp.WJa(), hyp.WJb()}){
+    //   int hflav = fabs(jet->hadronFlavour());
+    //   int pflav = fabs(jet->partonFlavour());
+    //   string hstr;
+    //   if(hflav == 5) hstr="B";
+    //   else if(hflav == 4) {
+    //     hstr="C";
+    //     dir->second["Wjets_hflav_jpt_C"].fill(jet->Pt(), evt_weight_);
+    //     dir->second["Wjets_hflavJP_jpt_C"].fill(jet->Pt(), evt_weight_);
+    //     dir->second["Wjets_hflav_jpt_jeta_C"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+    //   }
+    //   // else if(pflav == 3) {
+    //   //   hstr="S";
+    //   //   dir->second["Wjets_hflav_jpt_LS"].fill(jet->Pt(), evt_weight_);
+    //   // }
+    //   else {
+    //     hstr="L"; 
+    //     dir->second["Wjets_hflav_jpt_L"].fill(jet->Pt(), evt_weight_);
+    //     dir->second["Wjets_hflavJP_jpt_L"].fill(jet->Pt(), evt_weight_);
+    //     dir->second["Wjets_hflav_jpt_jeta_L"].fill(jet->Pt(), jet->Eta(), evt_weight_);
+    //   }
 
-      dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
-      dir->second["Wjets_hflav_CvsB_"+hstr].fill(jet->CvsBtag(), evt_weight_);
-      dir->second[wj+"_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
-    }
+    //   dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+    //   dir->second["Wjets_hflav_CvsB_"+hstr].fill(jet->CvsBtag(), evt_weight_);
+    //   dir->second[wj+"_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+    // }
 
 		dir->second["Wja_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
 		dir->second["Wjb_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
@@ -445,6 +450,8 @@ public:
 		dir->second["Bjets_CvsL"].fill(hyp.BLep()->CvsLtag(), evt_weight_);
 		dir->second["Bjets_CvsB"].fill(hyp.BHad()->CvsBtag(), evt_weight_);
 		dir->second["Bjets_CvsB"].fill(hyp.BLep()->CvsBtag(), evt_weight_);
+		dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
+		dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
   }
 
 	void book_jet_plots(string folder){
@@ -516,20 +523,23 @@ public:
 						string folder = base + "/" + tag;
 						
 						book_combo_plots(folder);
-            if(pdfs_ && sys == systematics::SysShifts::NOSYS) book_pdf_plots(folder);
-						if(working_point == "notag") book_notag_plots(folder);
-
-						for(auto& w_folder : wjet_folders){
-							string current = folder + "/" + w_folder;
-              book_jet_plots(current);
+            if(pdfs_ && sys == systematics::SysShifts::NOSYS) {
+							book_pdf_plots(folder);
 						}
+						if(working_point == "notag") {
+							book_notag_plots(folder);
+							for(auto& w_folder : wjet_folders){
+								string current = folder + "/" + w_folder;
+								book_jet_plots(current);
+							}
+						} //if(working_point == "notag")
 					}//for(auto& tag : tagging)
 				}//for(auto& wp_item : working_points_)
 			}//for(auto& sys : systematics){
 		}//for(auto& genCategory : folders)
   }
 
-	void fill(string folder, Permutation &hyp){//, TTbarHypothesis *genHyp=0) {
+	void fill(string folder, Permutation &hyp, bool subjet){//, TTbarHypothesis *genHyp=0) {
 		auto dir = histos_.find(folder);
 		if(dir == histos_.end()) {
 			Logger::log().error() << "fill: histogram folder: " << folder <<
@@ -539,12 +549,13 @@ public:
 
 		fill_combo_plots(folder, hyp);
 		
-		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
-		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
-
-		//FILL JET INFORMATION
-		fill_jet_plots(folder + "/leading",       leading);
-		fill_jet_plots(folder + "/subleading", subleading);
+		if(subjet) {
+			//FILL JET INFORMATION
+			const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
+			const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();			
+			fill_jet_plots(folder + "/leading",       leading);
+			fill_jet_plots(folder + "/subleading", subleading);
+		}
 	}
 
 	/*void fill_other_jet_plots(string folder, Permutation &hyp, std::function<bool(const IDJet*)>& fcn, float weight) {
@@ -667,15 +678,16 @@ public:
 
     for(auto& wpoint : working_points_){        
       auto wp_sf = wp_SFs_.find(wpoint.first);
-      if(!isData_ && wp_sf != wp_SFs_.end()) evt_weight_ = weight*wp_sf->second.scale_factor({best_permutation.WJa(), best_permutation.WJb()}, shift);
+      if(!isData_ && wp_sf != wp_SFs_.end()) evt_weight_ = weight*wp_sf->second->scale_factor({best_permutation.WJa(), best_permutation.WJb()}, shift);
       else evt_weight_ = weight;
       string jet_category = get_wjet_category(best_permutation, wpoint.second);
       string folder = ttsubdir+sys_dir+"/"+cut_ordering_+"/"+wpoint.first;
       //fill_other_jet_plots(folder, best_permutation, wpoint.second, evt_weight_);
       folder += jet_category;
       //Logger::log().debug() << "filling: " << folder << endl;
-      if(wpoint.first == "notag") fill_notag_plots(folder, best_permutation);
-      fill(folder, best_permutation);
+			bool notag = (wpoint.first == "notag");
+      if(notag) fill_notag_plots(folder, best_permutation);
+      fill(folder, best_permutation, notag);
       if(pdfs_ && shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
     }
 	}
@@ -705,7 +717,7 @@ public:
 			if(skip > 0 && evt_idx_ < skip) {
 				continue;
 			}
-			if(evt_idx_ % 10000 == 1) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
+			if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
 
 			//long and time consuming
 			if(isTTbar_){

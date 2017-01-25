@@ -6,15 +6,18 @@
 #include <memory>
 #include "TFile.h"
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
+#include "Analyses/URTTbar/interface/systematics.h"
 
 class LeptonSF {
 public:
+	typedef systematics::SysShifts Sys;
   LeptonSF(std::string parname, bool ptx=true);
   ~LeptonSF() {
 		Logger::log().debug() << "LeptonSF" << std::endl;
 	}
-  double get_sf(double pt, double eta) const;
+  double get_sf(double pt, double eta, Sys shift = Sys::NOSYS) const;
 private:
+
   template <class T>
   std::shared_ptr<T> get_from(TFile &file, std::string path, std::string newname) {
     T* original = (T*) file.Get( path.c_str() );
@@ -27,8 +30,8 @@ private:
     return ptr;
   }
 
-  double get_2d_weight(std::shared_ptr<TH2> h, double pt, double eta) const;
-  double get_1d_weight(std::shared_ptr<TH1> h, double pt, double eta) const;
+  double get_2d_weight(std::shared_ptr<TH2> h, double pt, double eta, int shift) const;
+  double get_1d_weight(std::shared_ptr<TH1> h, double pt, double eta, int shift) const;
 	std::shared_ptr<TH1> trk_; 
 	std::shared_ptr<TH2> id_; 
 	std::shared_ptr<TH2> iso_; 

@@ -53,7 +53,7 @@ public:
   void lepton_type(int ltype) {objsel_=ltype;} //-1 e only, 1 mu only, 0 any
 	int lepton_type() {return pass_lepton_;} //-1 passing e, 1 passing mu
   void reset();
-  bool select(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
+  bool select(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS, bool sync=false);
   bool pass_through(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS);
 	void allow_loose(bool val=true) {allow_loose_ = val;}
 
