@@ -77,7 +77,7 @@ public:
 		bool isTTbar = boost::starts_with(sample, "ttJets");
 
     //choose systematics to run based on sample
-    systematics_ = systematics::get_systematics(output_file);
+    systematics_ = {systematics::SysShifts::NOSYS};
     if(!isTTbar) {
       Logger::log().error() << "This analyzer is only supposed to run on ttbar samples!" << endl;
       throw 49;
@@ -123,6 +123,7 @@ public:
       tdir->cd();
       Logger::log().debug() << "booking: " << dir_sys->GetName() << "/" << dir << std::endl;
       for(auto entry : IDJet::tag_names) {
+				Logger::log().debug() << "Saving flavour probabilities for: " << entry.first << std::endl;
         for(string flav : {"_bjet_", "_cjet_", "_ljet_"}) {
           for(string cat : {"all", "pass"}) {
             string name = "WjetTag_" + entry.first + flav + cat;
