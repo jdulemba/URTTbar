@@ -143,9 +143,15 @@ void BTagSFProducer::configure(const DataFile &sf_file, const DataFile &eff_file
   }
 	
   reader_tight_ = new BTagCalibrationReader(wp_tight, "central", {"up", "down"});//"used", "down"); //[down, central, up]
-	reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_B, "used");
-	reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_C, "used");
-	reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_UDSG, "used");
+	if(float_b_ < 0.) {
+		reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_B, "used");
+	}
+	if(float_c_ < 0.) {
+		reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_C, "used");
+	}
+	if(float_l_ < 0.) {
+		reader_tight_->load(calibration_, BTagEntry::JetFlavor::FLAV_UDSG, "used");
+	}
 
 	if(!no_loose_cut_) {
 		reader_loose_ = new BTagCalibrationReader(wp_loose, "central", {"up", "down"});
