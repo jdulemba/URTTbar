@@ -117,7 +117,7 @@ class CTagPlotter(Plotter):
 
 		self.mc_samples = [
 			'QCD*',
-			'tt[WZ]*',
+			#'tt[WZ]*',
 			'[WZ]Jets',
 			#'WJets',
 			#'ZJets',
@@ -143,7 +143,7 @@ class CTagPlotter(Plotter):
 			'Other tt decay' : 'nonsemi_tt' ,
 			't#bar{t}, wrong W_{h}' : 'wrong_whad', 
 			't#bar{t}, right W_{h}' : 'right_whad', 
-			'ttV' : 'ttV',
+			#'ttV' : 'ttV',
 			'Observed' : 'data_obs'
 			}
 		self.signal = 'right_whad'

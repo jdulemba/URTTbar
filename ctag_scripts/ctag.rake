@@ -85,7 +85,7 @@ task :publish_ctag do |t|
 end
 
 task :analyze_ctag do |t|
-  Rake::Task['analyze_batch'].invoke('ctag_eff.cc', '(?=(?!data_SingleElectron))(?=(?![HA]toTT_)).*', 'ctag_scripts/ctag_eff.cfg')
+  Rake::Task['analyze_batch'].invoke('ctag_eff.cc', '(?=(?!data_SingleElectron))(?=(?![HA]toTT_))(?=(?!tt[WZ])).*', 'ctag_scripts/ctag_eff.cfg')
 end
 
 rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
@@ -250,7 +250,7 @@ task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
-$wroking_points = [#'csvLoose', 
+$wroking_points = ['csvLoose', 
                    'csvMedium', 'csvTight', 
                    'ctagLoose', 'ctagMedium', 'ctagTight', 
                    'cmvaLoose', 'cmvaMedium', 'cmvaTight',
@@ -281,9 +281,10 @@ task :ctag_toy_diagnostics, [:wp ] do |t, args|
 end
 
 task :ctag_shapes do |t|
-  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="ctag*" --noPOIpropagation --noLightFit'
   sh 'python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation'
-  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="csv*"  --noLightFit --noPOIpropagation '
+  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Loose"  --noLightFit --noPOIpropagation '
+  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Medium" --noPOIpropagation --noLightFit'
+  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Tight" --noPOIpropagation --noLightFit'
 end
 
 task :ctag_plotfit do |t|
