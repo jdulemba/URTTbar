@@ -50,6 +50,9 @@ parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF 
 parser.add_argument('--noPOIpropagation', action='store_true')
 args = parser.parse_args()
 
+skip = raw_input('Should I skip HScale? [Yy/Nn]')
+skip_HScale = (skip.lower() == 'y')
+
 def syscheck(cmd):
 	out = os.system(cmd)
 	if out == 0:
@@ -69,16 +72,14 @@ class CTagPlotter(Plotter):
 			#'hadscale_down' : 'ttJets_scaledown',
 			}
 		jobid = os.environ['jobid']
-		files = glob.glob('results/%s/ctag_eff/*.root' % jobid)
+		files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
 		logging.debug('files found %s' % files.__repr__())
 		lumis = glob.glob('inputs/%s/*.lumi' % jobid)
 		logging.debug('lumi files found %s' % lumis.__repr__())
 		
 		outdir= 'plots/%s/ctageff' % jobid
-		lscaling = 0.5
 		super(CTagPlotter, self).__init__(
 			files, lumis, outdir, styles, None, lumi,
-			lumi_scaling=lscaling
 			)
 		self.defaults = {
 			'watermark' : ['(13 TeV, 25ns)', True, self.views['data']['intlumi']]
@@ -302,6 +303,24 @@ class CTagPlotter(Plotter):
 				'subtag'  : [6, 10, 20],
 				'ditag'	: [6, 20],	
 				},			
+			'DeepCsvLoose' : {
+				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'leadtag' : [6, 8, 10, 12, 14, 16, 18, 20],
+				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
+				'ditag'	: [6, 8, 10, 12, 14, 16, 18, 20],	
+				},
+			'DeepCsvMedium' : {
+				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'leadtag' : [6, 8, 10, 12, 14, 16, 20],
+				'subtag'  : [6, 10, 14, 20],
+				'ditag'	: [6, 10, 20],
+				},
+			'DeepCsvTight' : {
+				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'leadtag' : [6, 10, 14, 20],
+				'subtag'  : [6, 10, 20],
+				'ditag'	: [6, 20],	
+				},			
 			'ctagLoose' : {
 				'notag'	: [6, 10, 20],
 				'leadtag' : [6, 10, 14, 20],
@@ -346,6 +365,7 @@ class CTagPlotter(Plotter):
 			raise ValueError('The card is not defined!')
 		for sys_name, info in self.systematics.iteritems():
 			if 'value' not in info: continue
+			if sys_name == 'HScale' and skip_HScale: continue
 			for category in info['categories']:
 				for sample in info['samples']:
 					plotter.card.add_systematic(
@@ -511,6 +531,7 @@ class CTagPlotter(Plotter):
 			# shape and dynamically assigned systematics
 			#
 			for sys_name, info in self.systematics.iteritems():
+				if sys_name == 'HScale' and skip_HScale: continue
 				if not any(re.match(i, category_name) for i in info['categories']): continue
 				if not any(re.match(i, name) for i in info['samples']): continue
 				shift = 1.0
@@ -1107,6 +1128,9 @@ available_wps = [
 	"cmvaMedium",
 	"cmvaLoose" ,
 	"cmvaTight" ,
+	"DeepCsvLoose" ,
+	"DeepCsvTight" ,
+	"DeepCsvMedium",
 ]
 working_points = [i for i in available_wps if fnmatch(i, args.wps)]
 
@@ -1220,7 +1244,7 @@ if args.plots:
 	for h in charm.hists:
 		print h.title, '\t\t', h.Integral(), '\t', h.GetMean(), '\t', h.GetRMS()
 	charm_signal = charm.hists[-1].Clone()
-
+	
 	charm = stacks.Get('Wjets_hflav_jpt_L')
 	print "\n\nLight Pts"
 	print "sample\t\t\tIntegral\t\tMean pT\t\tpT RMS"
@@ -1343,6 +1367,7 @@ if args.shapes:
 	lfer = info['lcfrac'].std_dev
 	sfer = info['scfrac'].std_dev	
 	for name, shift in plotter.systematics.iteritems():
+		if name == 'HScale' and skip_HScale: continue
 		if 'constants' in shift:			
 			dw, up = shift['constants']
 			su = plotter.write_summary_table(working_points, dw)

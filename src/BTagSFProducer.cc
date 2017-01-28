@@ -245,7 +245,9 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
     if(float_value < 0) { //use provided SF
       try { 
         tight_sf = reader_tight_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
-				if(!no_loose_cut_)
+				if(no_loose_cut_)
+					loose_sf = tight_sf;
+				else
 					loose_sf = reader_loose_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
       } catch(std::out_of_range e) {
         Logger::log().fatal() << "Problem accessing BTV SF for jet: " << jet_flav <<

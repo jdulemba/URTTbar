@@ -98,7 +98,8 @@ private:
   IDJet::BTag cut_loose_b_=IDJet::BTag::NONE;
 
   unsigned long evt_idx_ = 0;
-
+	vector<float> pt_binning_ = {25.,35.,50.,70.,200.};
+	
 public:
   std::vector<systematics::SysShifts> get_systematics(std::string outname) {
     std::string sample = systematics::get_sample(outname);
@@ -185,7 +186,7 @@ public:
 		ordering_fcn_ = available_ordering[cut_ordering_];
 
 		working_points_["notag"]     = [](const IDJet* jet) {return false;};
-		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);};
+		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);}; 
 		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
 		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
 		working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
@@ -246,6 +247,10 @@ public:
 		wp_SFs_.erase(wp_SFs_.begin(), wp_SFs_.end());
 	}
 
+	// int get_bin(IDJet *j1, IDJet *j2) {
+	// 	pt_binning_
+	// }
+
 	TDirectory* getDir(string path){
 		TDirectory* out = (TDirectory*) outFile_.Get(path.c_str());
 		if(out) return out;
@@ -269,11 +274,13 @@ public:
 
 		book<TH1F>(folder, "tmasshad", "", 50, 0., 500);			
 		book<TH1F>(folder, "Wmasshad", "", 50, 0., 500);			
+    book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
 	}
 
 	void fill_combo_plots(string folder, const Permutation &hyp){
 		auto dir = histos_.find(folder);
 		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
+    dir->second["evt_weight"].fill(evt_weight_);
     float lflav = -1;
     switch(hyp.WJa()->hadronFlavour()) {
     case 5: lflav = 2.5; break;
@@ -494,21 +501,24 @@ public:
 		dir->second["Wjets_DeepCSVbD"].fill(hyp.WJb()->DeepCSVProbB()+hyp.WJb()->DeepCSVProbBB(), evt_weight_);
   }
 
-	void book_jet_plots(string folder){
+	void book_jet_plots(string folder, bool extended){
+    book<TH1F>(folder, "hadronflav","hflav", 28, -0.5, 27.5);
+		if(!extended) return;
     book<TH1F>(folder, "eta"	,"eta"	, 100, -5, 5);
     book<TH1F>(folder, "pt" 	,"pt" 	, 100, 0 , 500);
     book<TH1F>(folder, "phi"	,"phi"	, 100, -4, 4);
     book<TH1F>(folder, "pflav_smart","pflav", 55, -27.5, 27.5);
     book<TH1F>(folder, "abs_pflav_smart","pflav", 28, -0.5, 27.5);
-    book<TH1F>(folder, "hadronflav","hflav", 28, -0.5, 27.5);
     book<TH1F>(folder, "energy", ";E_{jet} (GeV)", 100, 0., 500.);
     book<TH1F>(folder, "ncharged", "", 50, 0., 50.);						
     book<TH1F>(folder, "nneutral", "", 50, 0., 50.);						
     book<TH1F>(folder, "ntotal"  , "", 50, 0., 50.);						
 	}
 
-	void fill_jet_plots(string folder, const IDJet* jet){//, const Genparticle* genp=0){
+	void fill_jet_plots(string folder, const IDJet* jet, bool extended){//, const Genparticle* genp=0){
 		auto dir = histos_.find(folder);
+    dir->second["hadronflav"].fill(fabs(jet->hadronFlavour()), evt_weight_);
+		if(!extended) return;
 		dir->second["eta"	 ].fill(jet->Eta(), evt_weight_);
 		dir->second["pt" 	 ].fill(jet->Pt() , evt_weight_);
 		dir->second["phi"	 ].fill(jet->Phi(), evt_weight_);
@@ -520,7 +530,6 @@ public:
 
 		dir->second["pflav_smart"].fill(jet->flavor(), evt_weight_);
 		dir->second["abs_pflav_smart"].fill(fabs(jet->flavor()), evt_weight_);
-    dir->second["hadronflav"].fill(fabs(jet->hadronFlavour()), evt_weight_);
 	}
 
   virtual void begin()
@@ -552,7 +561,9 @@ public:
           book_combo_plots(gcategory+sys_name+"/permutations");
         }
 				string criterion = cut_ordering_;
+				
 				for(auto& wp_item : working_points_) {
+					Logger::log().debug()	<< "Booking plots for " << wp_item.first << endl;
 					string working_point = wp_item.first;
 					string base;
 					if(!genCategory.empty()) base  = genCategory +"/";
@@ -566,12 +577,13 @@ public:
             if(pdfs_ && sys == systematics::SysShifts::NOSYS) {
 							book_pdf_plots(folder);
 						}
-						if(working_point == "notag") {
+						bool notag = (working_point == "notag");
+						for(auto& w_folder : wjet_folders){
+							string current = folder + "/" + w_folder;
+							book_jet_plots(current, notag);
+						}
+						if(notag) {
 							book_notag_plots(folder);
-							for(auto& w_folder : wjet_folders){
-								string current = folder + "/" + w_folder;
-								book_jet_plots(current);
-							}
 						} //if(working_point == "notag")
 					}//for(auto& tag : tagging)
 				}//for(auto& wp_item : working_points_)
@@ -579,7 +591,7 @@ public:
 		}//for(auto& genCategory : folders)
   }
 
-	void fill(string folder, Permutation &hyp, bool subjet){//, TTbarHypothesis *genHyp=0) {
+	void fill(string folder, Permutation &hyp, bool extended){//, TTbarHypothesis *genHyp=0) {
 		auto dir = histos_.find(folder);
 		if(dir == histos_.end()) {
 			Logger::log().error() << "fill: histogram folder: " << folder <<
@@ -589,13 +601,11 @@ public:
 
 		fill_combo_plots(folder, hyp);
 		
-		if(subjet) {
-			//FILL JET INFORMATION
-			const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
-			const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();			
-			fill_jet_plots(folder + "/leading",       leading);
-			fill_jet_plots(folder + "/subleading", subleading);
-		}
+		//FILL JET INFORMATION
+		const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
+		const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();			
+		fill_jet_plots(folder + "/leading",       leading, extended);
+		fill_jet_plots(folder + "/subleading", subleading, extended);
 	}
 
 	/*void fill_other_jet_plots(string folder, Permutation &hyp, std::function<bool(const IDJet*)>& fcn, float weight) {

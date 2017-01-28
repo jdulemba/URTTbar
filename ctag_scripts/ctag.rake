@@ -84,6 +84,10 @@ task :publish_ctag do |t|
   publish_pics("plots/#{$jobid}/#{link}", "#{ENV['HOME']}/public_html/#{$jobid}/#{link}")
 end
 
+task :analyze_ctag do |t|
+  Rake::Task['analyze_batch'].invoke('ctag_eff.cc', '(?=(?!data_SingleElectron))(?=(?![HA]toTT_)).*', 'ctag_scripts/ctag_eff.cfg')
+end
+
 rule /fitModel.root$/ => psub(/fitModel.root$/, 'datacard.txt') do |t|
   dir = File.dirname(t.name)
   chdir(dir) do
@@ -177,8 +181,8 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
         toy_cmd += '--saveToys --expectSignal 1 -t -1'
       end
       puts 'running MaxLikelihood fit with Profile-Likelyhood errors'
-      sh "#{combine_cmd} #{toy_cmd} &> fit.log"
-      sh "cat fit.log"
+      sh "#{combine_cmd} #{toy_cmd}"# &> fit.log"
+      #sh "cat fit.log"
       sh "mv mlfit.root #{File.basename(t.name)}"      
       sh "mv higgsCombineTest.MaxLikelihoodFit.mH120.root MLFit_workspace.root"
     end
@@ -239,14 +243,19 @@ end
 
 task :ctag_postfit, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
-  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp}"
+  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} both"
 end
 
 task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
-$wroking_points = ['csvLoose', 'csvMedium', 'csvTight', 'ctagLoose', 'ctagMedium', 'ctagTight', 'cmvaLoose', 'cmvaMedium', 'cmvaTight']
+$wroking_points = [#'csvLoose', 
+                   'csvMedium', 'csvTight', 
+                   'ctagLoose', 'ctagMedium', 'ctagTight', 
+                   'cmvaLoose', 'cmvaMedium', 'cmvaTight',
+                   'DeepCsvLoose', 'DeepCsvMedium', 'DeepCsvTight'
+                  ]
 task :ctag_fitall do |t|
   $wroking_points.each do |wp|
     Rake::Task["ctag_postfit"].invoke(wp)

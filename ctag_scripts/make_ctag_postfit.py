@@ -16,6 +16,18 @@ from styles import styles
 from pdb import set_trace
 from labels import set_pretty_label
 from URAnalysis.Utilities.tables import Table
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument('working_point')
+parser.add_argument('plots', choices=['prefit', 'postfit', 'both'],
+                    help='what to plot')
+args = parser.parse_args()
+plots_to_do = []
+if args.plots == 'prefit' or args.plots == 'both':
+	plots_to_do.append(('prefit', 'shapes_prefit'))
+if args.plots == 'postfit' or args.plots == 'both':
+	plots_to_do.append(('postfit', 'shapes_fit_s'))
 
 def fix_binning(postfit, correct_bin):
    ret = correct_bin.Clone()
@@ -29,10 +41,6 @@ def fix_binning(postfit, correct_bin):
    ret.xaxis.title = '#lambda_{M}'
    return ret
 
-parser = ArgumentParser()
-parser.add_argument('working_point')
-
-args = parser.parse_args()
 input_dir = 'plots/%s/ctageff/mass_discriminant/%s' % (os.environ['jobid'], args.working_point)
 
 mlfit_file = io.root_open(
@@ -41,7 +49,7 @@ mlfit_file = io.root_open(
 datacard_file = io.root_open(
    '%s/datacard.root' % input_dir
 ) #contains data
-
+#set_trace()
 def ordering(histo):
    multiplier = 1.
    if histo.title.startswith('right_whad'):
@@ -100,7 +108,7 @@ def print_var_line(varname, result):
    Merr = max(var.error) if hasattr(var.error, '__len__') else var.error
    return 'best fit value %s: %.3f %.3f/%.3f\n' % (varname, var.value, merr, Merr)
 
-for pfit, tdir in [('postfit', 'shapes_fit_s'), ('prefit', 'shapes_prefit')]:
+for pfit, tdir in plots_to_do:
    shapes = mlfit_file.Get(tdir)
    out_dir = '%s/%s' % (input_dir,pfit)
    plotter.set_outdir(out_dir)
