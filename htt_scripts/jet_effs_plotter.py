@@ -643,7 +643,7 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 	for var, xtitles, merged, name in Norm_Merged_Combined_Masses:
 		to_draw = []
 		for folder, legend, colors in DRvals:
-			hist = asrootpy(normfile.Get(folder+'/'+var)).Clone()
+			hist = asrootpy(myfile.Get(folder+'/'+var)).Clone()
 			plotter.set_histo_style(hist, title=legend, color=colors)
 			hist.xaxis.range_user = 0, 300
 			to_draw.append(hist)
@@ -661,12 +661,12 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 	for wja, wjb, xaxis, b_type, name in Merged_B_Masses:
 		for folder, legend, colors in DRvals:
 			to_draw = []
-			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			WJa = asrootpy(myfile.Get(folder+'/'+wja)).Clone()
 			plotter.set_histo_style(WJa, title=b_type+' & WJa' , color='red')
 			WJa.xaxis.range_user = 0, 300
 			to_draw.append(WJa)
 	
-			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			WJb = asrootpy(myfile.Get(folder+'/'+wjb)).Clone()
 			plotter.set_histo_style(WJb, title=b_type+' & WJb' , color='blue')
 			WJb.xaxis.range_user = 0, 300
 			to_draw.append(WJb)
@@ -683,12 +683,12 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 	for wjb, wja, xaxis, name in Other_Masses:
 		for folder, legend, colors in DRvals:
 			to_draw = []
-			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			WJb = asrootpy(myfile.Get(folder+'/'+wjb)).Clone()
 			plotter.set_histo_style(WJb, title='WJb', color='red')
 			WJb.xaxis.range_user = 0, 150
 			to_draw.append(WJb)
 	
-			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			WJa = asrootpy(myfile.Get(folder+'/'+wja)).Clone()
 			plotter.set_histo_style(WJa, title='WJa', color='blue')
 			WJa.xaxis.range_user = 0, 150
 			to_draw.append(WJa)
@@ -705,11 +705,11 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 	for wja, wjb, xaxis, b_type, name in Merged_B_DR:
 		for folder, legend, colors in DRvals:
 			to_draw = []
-			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			WJa = asrootpy(myfile.Get(folder+'/'+wja)).Clone()
 			plotter.set_histo_style(WJa, title=b_type+' & WJa', color='red')
 			to_draw.append(WJa)
 			
-			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			WJb = asrootpy(myfile.Get(folder+'/'+wjb)).Clone()
 			plotter.set_histo_style(WJb, title=b_type+' & WJb', color='blue')
 			to_draw.append(WJb)
 			
@@ -730,19 +730,19 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 		WJb_to_draw = []
 
 		for folder, legend, colors in DRvals:
-			BHad = asrootpy(normfile.Get(folder+'/'+bhad)).Clone()
+			BHad = asrootpy(myfile.Get(folder+'/'+bhad)).Clone()
 			plotter.set_histo_style(BHad, title=legend, color=colors)
 			BHad_to_draw.append(BHad)
 	
-			BLep = asrootpy(normfile.Get(folder+'/'+blep)).Clone()
+			BLep = asrootpy(myfile.Get(folder+'/'+blep)).Clone()
 			plotter.set_histo_style(BLep, title=legend, color=colors)
 			BLep_to_draw.append(BLep)
 	
-			WJa = asrootpy(normfile.Get(folder+'/'+wja)).Clone()
+			WJa = asrootpy(myfile.Get(folder+'/'+wja)).Clone()
 			plotter.set_histo_style(WJa, title=legend, color=colors)
 			WJa_to_draw.append(WJa)
 	
-			WJb = asrootpy(normfile.Get(folder+'/'+wjb)).Clone()
+			WJb = asrootpy(myfile.Get(folder+'/'+wjb)).Clone()
 			plotter.set_histo_style(WJb, title=legend, color=colors)
 			WJb_to_draw.append(WJb)
 	
@@ -771,17 +771,17 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 	for unmerged_b, merged_bwja, merged_bwjb, xaxis, b_type, name in M_U_B_Mass:
 		for folder, legend, colors in DRvals:
 			to_draw = []
-			Merged_BWJa = asrootpy(normfile.Get(folder+'/'+merged_bwja)).Clone()
+			Merged_BWJa = asrootpy(myfile.Get(folder+'/'+merged_bwja)).Clone()
 			plotter.set_histo_style(Merged_BWJa, title='Merged '+b_type+' & WJa', color='blue')
 			Merged_BWJa.xaxis.range_user = 0, 200
 			to_draw.append(Merged_BWJa)
 
-			Merged_BWJb = asrootpy(normfile.Get(folder+'/'+merged_bwjb)).Clone()
+			Merged_BWJb = asrootpy(myfile.Get(folder+'/'+merged_bwjb)).Clone()
 			plotter.set_histo_style(Merged_BWJb, title='Merged '+b_type+' & WJb', color='black')
 			Merged_BWJb.xaxis.range_user = 0, 200
 			to_draw.append(Merged_BWJb)
 
-			Unmerged_B = asrootpy(normfile.Get(folder+'/'+unmerged_b)).Clone()
+			Unmerged_B = asrootpy(myfile.Get(folder+'/'+unmerged_b)).Clone()
 			plotter.set_histo_style(Unmerged_B, title='Unmerged '+b_type, color='red')
 			Unmerged_B.xaxis.range_user = 0, 200
 			to_draw.append(Unmerged_B)
@@ -805,35 +805,35 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 	Merged_BLepWJb_to_draw = []
 	for U_bhad, U_blep, U_wja, U_wjb, M_bhadwja, M_bhadwjb, M_blepwja, M_blepwjb in Mass_Div_Pt:
 		for folder, legend, colors in DRvals:
-			U_BHad = asrootpy(normfile.Get(folder+'/'+U_bhad)).Clone()
+			U_BHad = asrootpy(myfile.Get(folder+'/'+U_bhad)).Clone()
 			plotter.set_histo_style(U_BHad, title=legend, color=colors)
 			Unmerged_BHad_to_draw.append(U_BHad)
 	
-			U_BLep = asrootpy(normfile.Get(folder+'/'+U_blep)).Clone()
+			U_BLep = asrootpy(myfile.Get(folder+'/'+U_blep)).Clone()
 			plotter.set_histo_style(U_BLep, title=legend, color=colors)
 			Unmerged_BLep_to_draw.append(U_BLep)
 	
-			U_WJa = asrootpy(normfile.Get(folder+'/'+U_wja)).Clone()
+			U_WJa = asrootpy(myfile.Get(folder+'/'+U_wja)).Clone()
 			plotter.set_histo_style(U_WJa, title=legend, color=colors)
 			Unmerged_WJa_to_draw.append(U_WJa)
 	
-			U_WJb = asrootpy(normfile.Get(folder+'/'+U_wjb)).Clone()
+			U_WJb = asrootpy(myfile.Get(folder+'/'+U_wjb)).Clone()
 			plotter.set_histo_style(U_WJb, title=legend, color=colors)
 			Unmerged_WJb_to_draw.append(U_WJb)
 	
-			M_BHadWJa = asrootpy(normfile.Get(folder+'/'+M_bhadwja)).Clone()
+			M_BHadWJa = asrootpy(myfile.Get(folder+'/'+M_bhadwja)).Clone()
 			plotter.set_histo_style(M_BHadWJa, title=legend, color=colors)
 			Merged_BHadWJa_to_draw.append(M_BHadWJa)
 	
-			M_BHadWJb = asrootpy(normfile.Get(folder+'/'+M_bhadwjb)).Clone()
+			M_BHadWJb = asrootpy(myfile.Get(folder+'/'+M_bhadwjb)).Clone()
 			plotter.set_histo_style(M_BHadWJb, title=legend, color=colors)
 			Merged_BHadWJb_to_draw.append(M_BHadWJb)
 	
-			M_BLepWJa = asrootpy(normfile.Get(folder+'/'+M_blepwja)).Clone()
+			M_BLepWJa = asrootpy(myfile.Get(folder+'/'+M_blepwja)).Clone()
 			plotter.set_histo_style(M_BLepWJa, title=legend, color=colors)
 			Merged_BLepWJa_to_draw.append(M_BLepWJa)
 	
-			M_BLepWJb = asrootpy(normfile.Get(folder+'/'+M_blepwjb)).Clone()
+			M_BLepWJb = asrootpy(myfile.Get(folder+'/'+M_blepwjb)).Clone()
 			plotter.set_histo_style(M_BLepWJb, title=legend, color=colors)
 			Merged_BLepWJb_to_draw.append(M_BLepWJb)
 	
@@ -902,6 +902,89 @@ if args.plot == "Merged_Perms": #WJet merged with BJet
 			box = plotter.make_text_box('Unmerged Highest Mass\nWJet %s' % legend, position='SE')
 			plotter.save(unmerged_highest+'_'+folder)
 
+	Merged_AllEvents_Ratio = [
+		('All_BHad_events_vs_mttbar', 'Merged_BHadBLep_vs_mttbar', 'b_{h} & b_{l}', 'Merged_BHadBLep_Frac'),
+		('All_BHad_events_vs_mttbar', 'Merged_BHadWJa_vs_mttbar', 'b_{h} & WJa', 'Merged_BHadWJa_Frac'),
+		('All_BHad_events_vs_mttbar', 'Merged_BHadWJb_vs_mttbar', 'b_{h} & WJb', 'Merged_BHadWJb_Frac'),
+		('All_BLep_events_vs_mttbar', 'Merged_BHadBLep_vs_mttbar', 'b_{l} & b_{h}', 'Merged_BLepBHad_Frac'),
+		('All_BLep_events_vs_mttbar', 'Merged_BLepWJa_vs_mttbar', 'b_{l} & WJa', 'Merged_BLepWJa_Frac'),
+		('All_BLep_events_vs_mttbar', 'Merged_BLepWJb_vs_mttbar', 'b_{l} & WJb', 'Merged_BLepWJb_Frac'),
+		('All_WJa_events_vs_mttbar', 'Merged_BHadWJa_vs_mttbar', 'WJa & b_{h}', 'Merged_WJaBHad_Frac'),
+		('All_WJa_events_vs_mttbar', 'Merged_BLepWJa_vs_mttbar', 'WJa & b_{l}', 'Merged_WJaBLep_Frac'),
+		('All_WJa_events_vs_mttbar', 'Merged_WJaWJb_vs_mttbar', 'WJa & WJb', 'Merged_WJaWJb_Frac'),
+		('All_WJb_events_vs_mttbar', 'Merged_WJaWJb_vs_mttbar', 'WJb & WJa', 'Merged_WJbWJa_Frac'),
+		('All_WJb_events_vs_mttbar', 'Merged_BHadWJb_vs_mttbar', 'WJb & b_{h}', 'Merged_WJbBHad_Frac'),
+		('All_WJb_events_vs_mttbar', 'Merged_BLepWJb_vs_mttbar', 'WJb & b_{l}', 'Merged_WJbBLep_Frac')
+	]
+
+	for all_events, merged, objects, name in Merged_AllEvents_Ratio:
+
+		to_draw = []
+		
+		for folder, legend, colors in DRvals:
+			All = asrootpy(myfile.Get(folder+'/'+all_events)).Clone()
+			Merged = asrootpy(myfile.Get(folder+'/'+merged)).Clone()
+			Merged_Frac = Merged/All
+			plotter.set_histo_style(Merged_Frac, title=legend, color=colors, markerstyle=20)
+			plotter.plot(Merged_Frac)
+			Merged_Frac.Draw("P")
+		#	Merged_Frac.xaxis.set_title(xaxis)
+		#	Merged_Frac.yaxis.set_title(yaxis)
+			Merged_Frac.yaxis.range_user = 0, 1
+			to_draw.append(Merged_Frac)
+
+		plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'),y_range=(0,1), xtitle='m_{t#bart}', ytitle='Fraction of Merged Events/ Total Events')
+		box = plotter.make_text_box(objects, position='NW')
+		plotter.save(name)
+
+
+	Invar_mass_BWJet_Kin = [
+		('Merged_BHadWJet_l100_pt', 'Merged_BHadWJet_l100_eta', 'Merged_BLepWJet_l100_pt', 'Merged_BLepWJet_l100_eta')
+	]
+
+	for bhad_pt, bhad_eta, blep_pt, blep_eta in Invar_mass_BWJet_Kin:
+
+		BHad_Pt_to_draw = []
+		BHad_Eta_to_draw = []
+		BLep_Pt_to_draw = []
+		BLep_Eta_to_draw = []
+
+		for folder, legend, colors in DRvals:
+			BHad_Pt = asrootpy(myfile.Get(folder+'/'+bhad_pt)).Clone()
+			plotter.set_histo_style(BHad_Pt, title=legend, color=colors)
+			BHad_Pt.xaxis.range_user = 0, 600
+			BHad_Pt_to_draw.append(BHad_Pt)
+
+			BHad_Eta = asrootpy(myfile.Get(folder+'/'+bhad_eta)).Clone()
+			plotter.set_histo_style(BHad_Eta, title=legend, color=colors)
+			BHad_Eta.xaxis.range_user = -2.4, 2.4
+			BHad_Eta_to_draw.append(BHad_Eta)
+
+			BLep_Pt = asrootpy(myfile.Get(folder+'/'+blep_pt)).Clone()
+			plotter.set_histo_style(BLep_Pt, title=legend, color=colors)
+			BLep_Pt.xaxis.range_user = 0, 600
+			BLep_Pt_to_draw.append(BLep_Pt)
+
+			BLep_Eta = asrootpy(myfile.Get(folder+'/'+blep_eta)).Clone()
+			plotter.set_histo_style(BLep_Eta, title=legend, color=colors)
+			BLep_Eta.xaxis.range_user = -2.4, 2.4
+			BLep_Eta_to_draw.append(BLep_Eta)
+
+		plotter.overlay(BHad_Pt_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='Merged b_{h} p_{T}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('m_{merged+WJet} < 100 GeV', position='NW')
+		plotter.save('Merged_BHadWJet_l100_pt')
+
+		plotter.overlay(BHad_Eta_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='Merged b_{h} #eta', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('m_{merged+WJet} < 100 GeV', position='NW')
+		plotter.save('Merged_BHadWJet_l100_eta')
+
+		plotter.overlay(BLep_Pt_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='Merged b_{l} p_{T}', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('m_{merged+WJet} < 100 GeV', position='NW')
+		plotter.save('Merged_BLepWJet_l100_pt')
+
+		plotter.overlay(BLep_Eta_to_draw, legend_def=LegendDefinition(position='NE'), xtitle='Merged b_{l} #eta', ytitle=defyax, drawstyle='hist')
+		box = plotter.make_text_box('m_{merged+WJet} < 100 GeV', position='NW')
+		plotter.save('Merged_BLepWJet_l100_eta')
 
 
 #############################################################################################
