@@ -61,6 +61,9 @@ class jet_effs : public AnalyzerBase
 //            const char *DRnames_[1] = {"DRP4"};
 //	    double DR_[1] = {0.4};
 
+	    double Disc_slope_ = 16.3189;
+	    double Disc_int_ = 833.0182;
+
         //histograms
 	    unordered_map<string, map< string, RObject> > histos_;
 	    //map<TTNaming, string> naming_;
@@ -73,13 +76,16 @@ class jet_effs : public AnalyzerBase
 	    int pt_bins_ = 200;
 	    int DR_bins_ = 200;
 	    int eta_bins_ = 200;
+	    int costh_bins_ = 100;
 
 	    double DR_min_ = 0.;
 	    double DR_max_ = 8.;
 	    double pt_min_ = 0.;
 	    double pt_max_ = 2000.;
-	    double eta_min_ = -8.;
-	    double eta_max_ = 8.;
+	    double eta_min_ = -2.4;
+	    double eta_max_ = 2.4;
+	    double costh_min_ = -1.;
+	    double costh_max_ = 1.;
 
 		//values for ttree
 	    double Merged_BHadWJet_mass = -1.;
@@ -359,14 +365,33 @@ class jet_effs : public AnalyzerBase
                 book<TH1F>(folder, "Eta_WJa", "", eta_bins_, eta_min_, eta_max_);
                 book<TH1F>(folder, "Eta_WJb", "", eta_bins_, eta_min_, eta_max_);
 
+			//Cos theta
+		book<TH1F>(folder, "Costh_Lep", "", costh_bins_, costh_min_, costh_max_);
+		book<TH1F>(folder, "Costh_BLep", "", costh_bins_, costh_min_, costh_max_);
+		book<TH1F>(folder, "Costh_BHad", "", costh_bins_, costh_min_, costh_max_);
+		book<TH1F>(folder, "Costh_WJa", "", costh_bins_, costh_min_, costh_max_);
+		book<TH1F>(folder, "Costh_WJb", "", costh_bins_, costh_min_, costh_max_);
+
 			//System Plots
                 book<TH1F>(folder, "Mass_ttbar", "", mass_bins_, mass_min_, mass_max_);
+		book<TH1F>(folder, "Costh_ttbar", "", costh_bins_, costh_min_, costh_max_);
                 book<TH1F>(folder, "Mass_thad", "", mass_bins_, 125., 250.);
                 book<TH1F>(folder, "Mass_tlep", "", mass_bins_, 125., 250.);
                 book<TH1F>(folder, "nJets", "", 13, 2.5, 15.5);
                 book<TH1F>(folder, "nMatched_objects_3J", "", 4, 0.5, 4.5);
                 book<TH1F>(folder, "nMatched_objects_4J", "", 4, 0.5, 4.5);
                 book<TH1F>(folder, "nMatched_objects_5PJ", "", 4, 0.5, 4.5);
+
+
+	// Delta (gen-reco) Plots
+		string delt = "Delta_Plots";
+
+		book<TH1F>(delt, "Merged_THad_Delta_mass", "", mass_bins_, -2*mass_max_, 2*mass_max_);
+		book<TH1F>(delt, "Merged_THad_Delta_costh", "", costh_bins_, -2*costh_max_, 2*costh_max_);
+
+		book<TH1F>(delt, "Unmerged_THad_Delta_mass", "", mass_bins_, -2*mass_max_, 2*mass_max_);
+		book<TH1F>(delt, "Unmerged_THad_Delta_costh", "", costh_bins_, -2*costh_max_, 2*costh_max_);
+
 
 	//Reco Jets
 		for( int i = 0; i < 4; i++ ){
@@ -445,28 +470,35 @@ class jet_effs : public AnalyzerBase
         	        book<TH1F>(DRnames_[i], "BTag_great_BLep_tight_fail", "", nbins, mass_min_, mass_max_);
 
 				//Merged jets
-        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_perm_and_WJb_mass", "", 100, 0., 300.);
-        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_perm_mass", "", 100, 0., 300.);
-        	        book<TH1F>(DRnames_[i], "Merged_WJb_mass", "", 100, 0., 200.);
-        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_perm_DRLepBLep", "", DR_bins_, DR_min_, DR_max_);
-        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_massDivpt", "", 50, 0., 0.5);
 
+					//BHad and WJa
+        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_perm_and_WJb_mass", "", 100, 0., 300.);// invariant mass of WJb and merged BHadWJa
+        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_perm_mass", "", 100, 0., 300.);// mass of merged BHad & WJa
+        	        book<TH1F>(DRnames_[i], "Merged_WJb_mass", "", 100, 0., 200.);// WJb mass when BHad&WJa merged
+        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_perm_DRLepBLep", "", DR_bins_, DR_min_, DR_max_);//DR between gen l,BLep when BHadWJa merged
+        	        book<TH1F>(DRnames_[i], "Merged_BHadWJa_massDivpt", "", 50, 0., 0.5);// mass/pt for merged BHadWJa
+			book<TH1F>(DRnames_[i], "Merged_BHadWJa_DRBHadWJb", "", DR_bins_, DR_min_, DR_max_); //DR between merged BHadWJa and WJb
+
+					//BHad and WJb
         	        book<TH1F>(DRnames_[i], "Merged_BHadWJb_perm_and_WJa_mass", "", 100, 0., 300.);
         	        book<TH1F>(DRnames_[i], "Merged_BHadWJb_perm_mass", "", 100, 0., 300.);
         	        book<TH1F>(DRnames_[i], "Merged_WJa_mass", "", 100, 0., 200.);
         	        book<TH1F>(DRnames_[i], "Merged_BHadWJb_perm_DRLepBLep", "", DR_bins_, DR_min_, DR_max_);
         	        book<TH1F>(DRnames_[i], "Merged_BHadWJb_massDivpt", "", 50, 0., 0.5);
+			book<TH1F>(DRnames_[i], "Merged_BHadWJb_DRBHadWJa", "", DR_bins_, DR_min_, DR_max_); //DR between merged BHadWJb and WJa
 
 			book<TH1F>(DRnames_[i], "Merged_BHadWJet_l100_pt", "", pt_bins_, pt_min_, pt_max_); //pt for merged bhad and W masses < 100
 			book<TH1F>(DRnames_[i], "Merged_BHadWJet_l100_eta", "", eta_bins_, eta_min_, eta_max_); //eta for merged bhad and W masses < 100
 
         	        book<TH2D>(DRnames_[i], "Merged_BHadWJet_mass_vs_BHad_mass","",100, 0.,300.,100,0., 300.);
 
+					//BLep and WJa
         	        book<TH1F>(DRnames_[i], "Merged_BLepWJa_perm_and_WJb_mass", "", 100, 0., 300.);
         	        book<TH1F>(DRnames_[i], "Merged_BLepWJa_perm_mass", "", 100, 0., 100.);
         	        book<TH1F>(DRnames_[i], "Merged_BLepWJa_perm_DRLepBLep", "", DR_bins_, DR_min_, DR_max_);
         	        book<TH1F>(DRnames_[i], "Merged_BLepWJa_massDivpt", "", 50, 0., 0.5);
 
+					//BLep and WJb
         	        book<TH1F>(DRnames_[i], "Merged_BLepWJb_perm_and_WJa_mass", "", 100, 0., 300.);
         	        book<TH1F>(DRnames_[i], "Merged_BLepWJb_perm_mass", "", 100, 0., 100.);
         	        book<TH1F>(DRnames_[i], "Merged_BLepWJb_perm_DRLepBLep", "", DR_bins_, DR_min_, DR_max_);
@@ -477,6 +509,7 @@ class jet_effs : public AnalyzerBase
 
         	        book<TH2D>(DRnames_[i], "Merged_BLepWJet_mass_vs_BLep_mass","",100, 0.,300.,100,0., 300.);
 
+					//BHad and BLep
 			book<TH1F>(DRnames_[i], "Merged_BHadBLep_perm_and_WJa_mass", "", 100, 0., 300.);
 			book<TH1F>(DRnames_[i], "Merged_BHadBLep_perm_and_WJb_mass", "", 100, 0., 300.);
 			book<TH1F>(DRnames_[i], "Merged_BHadBLep_perm_mass", "", 100, 0., 300.);
@@ -507,46 +540,54 @@ class jet_effs : public AnalyzerBase
         	        book<TH2D>(DRnames_[i], "Unmerged_BLepWJet_mass_vs_BLep_mass","",100, 0., 300., 100, 0., 300.);
         	        book<TH2D>(DRnames_[i], "Unmerged_BLepWJet_highest_mass_vs_BLep_mass", "", 100, 0., 300., 100, 0., 300.);
 
-				// Fraction of merged events	
-//	                book<TH1F>(DRnames_[i], "Merged_LepBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_LepBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_LepWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_LepWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "Merged_BHadBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "Merged_BHadWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "Merged_BHadWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "Merged_BLepWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "Merged_BLepWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_BLepBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "Merged_WJaWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_WJaBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_WJaBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_WJbWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_WJbBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Merged_WJbBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
+				// Fraction of merged events
+					//3 jets in events 
+//	                book<TH1F>(DRnames_[i], "Merged_BHadBLep_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_BHadWJa_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_BHadWJb_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "Merged_BLepWJa_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "Merged_BLepWJb_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_WJaWJb_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
 	
-//	                book<TH1F>(DRnames_[i], "Unmerged_LepBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_LepBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_LepWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_LepWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_BHadBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_BHadWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_BHadWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_BLepWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_BLepWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_BLepBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_WJaWJb_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_WJaBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_WJaBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_WJbWJa_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_WJbBHad_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(DRnames_[i], "Unmerged_WJbBLep_vs_mttbar", "", nbins, mass_min_, mass_max_);
+					//4 jets in events
+//	                book<TH1F>(DRnames_[i], "Merged_BHadBLep_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_BHadWJa_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_BHadWJb_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "Merged_BLepWJa_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "Merged_BLepWJb_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_WJaWJb_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+	
+					// 5 or more jets in events
+//	                book<TH1F>(DRnames_[i], "Merged_BHadBLep_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_BHadWJa_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_BHadWJb_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "Merged_BLepWJa_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "Merged_BLepWJb_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "Merged_WJaWJb_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+	
+	                book<TH1F>(DRnames_[i], "All_BHad_events_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "All_BLep_events_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "All_WJa_events_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "All_WJb_events_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);
 
-	                book<TH1F>(DRnames_[i], "All_BHad_events_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "All_BLep_events_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "All_WJa_events_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(DRnames_[i], "All_WJb_events_vs_mttbar", "", nbins, mass_min_, mass_max_);
-			
+	                book<TH1F>(DRnames_[i], "All_BHad_events_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "All_BLep_events_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "All_WJa_events_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "All_WJb_events_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);
+
+	                book<TH1F>(DRnames_[i], "All_BHad_events_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+//	                book<TH1F>(DRnames_[i], "All_BLep_events_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "All_WJa_events_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+	                book<TH1F>(DRnames_[i], "All_WJb_events_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);
+
+				// Fraction of 3 jets from hadronic side merging
+			book<TH1F>(DRnames_[i], "Merged_BHadWJaWJb_vs_mttbar_3J", "", nbins, mass_min_, mass_max_);// 3 jets in events
+			book<TH1F>(DRnames_[i], "Merged_BHadWJaWJb_vs_mttbar_4J", "", nbins, mass_min_, mass_max_);// 4 jets in events
+			book<TH1F>(DRnames_[i], "Merged_BHadWJaWJb_vs_mttbar_5PJ", "", nbins, mass_min_, mass_max_);// 5 or more jets in events
+
+			book<TH1F>(DRnames_[i], "Merged_BHadWJaWJb_mass", "", 100, 0., 300.);			
+			book<TH1F>(DRnames_[i], "Merged_BHadWJaWJb_pt", "", pt_bins_, pt_min_, pt_max_);			
+			book<TH1F>(DRnames_[i], "Merged_BHadWJaWJb_eta", "", eta_bins_, eta_min_, eta_max_);			
 
 		}
 
@@ -567,6 +608,7 @@ class jet_effs : public AnalyzerBase
                         if(evt_idx_ % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
 
 			auto gen_dir = histos_.find("Gen_Plots");
+			auto delt_dir = histos_.find("Delta_Plots");
 
 			//generator selection
 			bool selection = genp_selector_.select(event);
@@ -578,13 +620,15 @@ class jet_effs : public AnalyzerBase
 			GenTTBar &ttbar = genp_selector_.ttbar_system();
 			gen_dir->second["Pt_ttbar"].fill(ttbar.Pt());
                         gen_dir->second["Mass_ttbar"].fill(ttbar.M());
+			gen_dir->second["Costh_ttbar"].fill(ttbar.CosTheta());
 
 			//Gen level matching
 			Permutation matched_perm;
 	    		//double nmatched_objects = 0;
+			njets_ = object_selector_.clean_jets().size();
 
 			if( object_selector_.select(event) ){
-				gen_dir->second["nJets"].fill(object_selector_.clean_jets().size());
+				gen_dir->second["nJets"].fill(njets_);
 				if( ttbar.type == GenTTBar::DecayType::SEMILEP ){
 					matched_perm = matcher_.match(
 						genp_selector_.ttbar_final_system(),
@@ -628,6 +672,12 @@ class jet_effs : public AnalyzerBase
 			double Eta_WJa = 1e3;
 			double Eta_WJb = 1e3;
 
+			double Costh_Lep = 1e3;
+			double Costh_BHad = 1e3;
+			double Costh_BLep = 1e3;
+			double Costh_WJa = 1e3;
+			double Costh_WJb = 1e3;
+
 			//initialize gen jets
       			const GenObject* lepton = 0;
 			const GenObject* BLep = 0;
@@ -657,6 +707,9 @@ class jet_effs : public AnalyzerBase
                         	Eta_Lep = lepton->Eta();
 				gen_dir->second["Eta_Lep_vs_Mtt"].fill(ttbar.M(), Eta_Lep);
                         	gen_dir->second["Eta_Lep"].fill(Eta_Lep);
+
+				Costh_Lep = lepton->CosTheta();
+				gen_dir->second["Costh_Lep"].fill(Costh_Lep);
 			}
 			if( ttbar.lep_b() ){
 				BLep = ttbar.lep_b();
@@ -667,6 +720,9 @@ class jet_effs : public AnalyzerBase
                         	Eta_BLep = BLep->Eta();
                         	gen_dir->second["Eta_BLep_vs_Mtt"].fill(ttbar.M(), Eta_BLep);
                         	gen_dir->second["Eta_BLep"].fill(Eta_BLep);
+
+				Costh_BLep = BLep->CosTheta();
+				gen_dir->second["Costh_BLep"].fill(Costh_BLep);
 			}
 			if( ttbar.had_b() ){
 				BHad = ttbar.had_b();
@@ -678,6 +734,9 @@ class jet_effs : public AnalyzerBase
                         	gen_dir->second["Eta_BHad_vs_Mtt"].fill(ttbar.M(), Eta_BHad);
                         	gen_dir->second["Eta_BHad"].fill(Eta_BHad);
 //				cout << "BHad Energy, |p|: " << BHad->E() << ", " << sqrt(pow(BHad->Px(), 2.0)+pow(BHad->Py(),2.0)+pow(BHad->Pz(),2.0)) << endl;
+
+				Costh_BHad = BHad->CosTheta();
+				gen_dir->second["Costh_BHad"].fill(Costh_BHad);
 			}
 			if( ttbar.had_W() ){
 				if( ttbar.had_W()->first && !ttbar.had_W()->second ){
@@ -689,6 +748,9 @@ class jet_effs : public AnalyzerBase
                         		Eta_WJa = WJa->Eta();
                         		gen_dir->second["Eta_WJa_vs_Mtt"].fill(ttbar.M(), Eta_WJa);
                         		gen_dir->second["Eta_WJa"].fill(Eta_WJa);
+	
+					Costh_WJa = WJa->CosTheta();
+					gen_dir->second["Costh_WJa"].fill(Costh_WJa);
 				}
 				if( ttbar.had_W()->second && !ttbar.had_W()->first ){
 					WJb = ttbar.had_W()->second;
@@ -699,6 +761,9 @@ class jet_effs : public AnalyzerBase
                         		Eta_WJb = WJb->Eta();
                         		gen_dir->second["Eta_WJb_vs_Mtt"].fill(ttbar.M(), Eta_WJb);
                         		gen_dir->second["Eta_WJb"].fill(Eta_WJb);
+	
+					Costh_WJb = WJb->CosTheta();
+					gen_dir->second["Costh_WJb"].fill(Costh_WJb);
 				}
 				if( ttbar.had_W()->first && ttbar.had_W()->second ){
 					WJa = (ttbar.had_W()->first->E() > ttbar.had_W()->second->E() ) ? ttbar.had_W()->first : ttbar.had_W()->second;
@@ -711,6 +776,9 @@ class jet_effs : public AnalyzerBase
                         		Eta_WJa = WJa->Eta();
                         		gen_dir->second["Eta_WJa_vs_Mtt"].fill(ttbar.M(), Eta_WJa);
                         		gen_dir->second["Eta_WJa"].fill(Eta_WJa);
+	
+					Costh_WJa = WJa->CosTheta();
+					gen_dir->second["Costh_WJa"].fill(Costh_WJa);
 
 					Pt_WJb = WJb->Pt();
                         		gen_dir->second["Pt_WJb_vs_Mtt"].fill(ttbar.M(), Pt_WJb);
@@ -719,6 +787,9 @@ class jet_effs : public AnalyzerBase
                         		Eta_WJb = WJb->Eta();
                         		gen_dir->second["Eta_WJb_vs_Mtt"].fill(ttbar.M(), Eta_WJb);
                         		gen_dir->second["Eta_WJb"].fill(Eta_WJb);
+	
+					Costh_WJb = WJb->CosTheta();
+					gen_dir->second["Costh_WJb"].fill(Costh_WJb);
 				}
 			}
 
@@ -928,11 +999,94 @@ class jet_effs : public AnalyzerBase
 				}
 			}
 
+//	/////// attempt THad reconstruction starting with only 3 jets
+//			const IDJet* j1 = 0;
+//			const IDJet* j2 = 0;
+//			const IDJet* j3 = 0;
+//
+//			if( object_selector_.clean_jets().size() == 3 ){
+//				int k = 0;
+//				int btag_count = 0;
+//				vector<IDJet*> jets_vector;
+//				for( vector<IDJet*>::const_iterator jets = object_selector_.clean_jets().begin(); jets != object_selector_.clean_jets().end(); ++jets ){
+//					jets_vector.push_back(*jets);
+//					if( k == 0 ) j1 = *jets;
+//					if( k == 1 ) j2 = *jets;
+//					if( k == 2 ) j3 = *jets;
+////					cout << "jets_vec pt = " << (jets_vector[k])->Pt() << endl;
+//					++k;
+//				}
+//
+//				if( j1->BTagId(cut_loose_b_) ) btag_count = btag_count+1;
+//				if( j2->BTagId(cut_loose_b_) ) btag_count = btag_count+1;
+//				if( j3->BTagId(cut_loose_b_) ) btag_count = btag_count+1;
+//
+//				if( btag_count == 2 ){
+//					if( j1->BTagId(cut_loose_b_) && j2->BTagId(cut_loose_b_) ){ //j1 and j2 are b-tagged
+//						if( (*j1+*j3).M() + Disc_slope_*j1->M() > Disc_int_ ){ //j1 is merged
+//							if( thad ){
+//								delt_dir->second["THad_Delta_mass"].fill(thad->M()-((*j1+*j3).M()));
+//								delt_dir->second["THad_Delta_costh"].fill(thad->CosTheta()-(*j1+*j3).CosTheta());
+//							}
+//						}
+//						if( (*j2+*j3).M() + Disc_slope_*j2->M() > Disc_int_ ){ //j2 is merged
+//							if( thad ){
+//								delt_dir->second["THad_Delta_mass"].fill(thad->M()-((*j2+*j3).M()));
+//								delt_dir->second["THad_Delta_costh"].fill(thad->CosTheta()-(*j2+*j3).CosTheta());
+//							}
+//						}
+//					}
+//
+//					if( j1->BTagId(cut_loose_b_) && j3->BTagId(cut_loose_b_) ){ //j1 and j3 are loose b-tagged
+//						if( (*j1+*j2).M() + Disc_slope_*j1->M() > Disc_int_ ){ //j1 is merged
+//							if( thad ){
+//								delt_dir->second["THad_Delta_mass"].fill(thad->M()-((*j1+*j2).M()));
+//								delt_dir->second["THad_Delta_costh"].fill(thad->CosTheta()-(*j1+*j2).CosTheta());
+//							}
+//						}
+//						if( (*j3+*j2).M() + Disc_slope_*j3->M() > Disc_int_ ){ //j3 is merged
+//							if( thad ){
+//								delt_dir->second["THad_Delta_mass"].fill(thad->M()-((*j3+*j2).M()));
+//								delt_dir->second["THad_Delta_costh"].fill(thad->CosTheta()-(*j3+*j2).CosTheta());
+//							}
+//						}
+//					}
+//
+//					if( j2->BTagId(cut_loose_b_) && j3->BTagId(cut_loose_b_) ){ //j2 and j3 are loose b-tagged
+//						if( (*j2+*j1).M() + Disc_slope_*j2->M() > Disc_int_ ){ //j2 is merged
+//							if( thad ){
+//								delt_dir->second["THad_Delta_mass"].fill(thad->M()-((*j2+*j1).M()));
+//								delt_dir->second["THad_Delta_costh"].fill(thad->CosTheta()-(*j2+*j1).CosTheta());
+//							}
+//						}
+//						if( (*j3+*j1).M() + Disc_slope_*j3->M() > Disc_int_ ){ //j3 is merged
+//							if( thad ){
+//								delt_dir->second["THad_Delta_mass"].fill(thad->M()-((*j3+*j1).M()));
+//								delt_dir->second["THad_Delta_costh"].fill(thad->CosTheta()-(*j3+*j1).CosTheta());
+//							}
+//						}
+//					}
+//				}
+////					// Discriminate bewteen merged/unmerged
+////						// y+Disc_slope_ > Disc_int_    => jet is merged
+////				if( (*j1+*j2).M() + Disc_slope_*j1->M() < Disc_int_ ){
+////					cout << "j1 unmerged" << endl;
+////					cout << "reco thad mass: " << (*j1+*j2+*j3).M() << endl;
+////					if( !(thad == 0) ) cout << "thad gen-reco mass: " << thad->M()-((*j1+*j2+*j3).M()) << endl;
+////				}
+////				if( (*j1+*j3).M() + Disc_slope_*j1->M() > Disc_int_ ) cout << "j1 & j3 merged" << endl;
+////				if( (*j2+*j1).M() + Disc_slope_*j2->M() > Disc_int_ ) cout << "j2 & j1 merged" << endl;
+////				if( (*j2+*j3).M() + Disc_slope_*j2->M() > Disc_int_ ) cout << "j2 & j3 merged" << endl;
+////				if( (*j3+*j1).M() + Disc_slope_*j3->M() > Disc_int_ ) cout << "j3 & j1 merged" << endl;
+////				if( (*j3+*j2).M() + Disc_slope_*j3->M() > Disc_int_ ) cout << "j3 & j2 merged" << endl;
+//			}
+
 
 			//Perm Matching
 			for( int i = 0; i < 4; i++ ){
 
 				auto reco_dir = histos_.find(DRnames_[i]);
+
 
 				//initialize permutation objects
 					//jets
@@ -941,12 +1095,8 @@ class jet_effs : public AnalyzerBase
 				const IDJet* best_WJa = 0;
 				const IDJet* best_WJb = 0;
 
-//					//leptons
-//				const IDMuon* best_mu = 0;
-//				const IDElectron* best_el = 0;
-//				const IDJet* best_lepton = 0;
 
-				if( object_selector_.clean_jets().size() < 3 ) continue;//events must have at least 3 jets
+				if( njets_ < 3 ) continue;//events must have at least 3 jets
 
 				list<IDJet*> bhad_list;
 				float bhad_DR = 1e10;// itialize dr to high number
@@ -996,87 +1146,16 @@ class jet_effs : public AnalyzerBase
 						}
 					}
 				}
-//				const vector<Muon>& muons = event.muons();
-//				list<IDMuon> mu_list;
-//				float mu_DR = 1e10;//initialize dr to high number
-//				for(vector<Muon>::const_iterator muon = muons.begin(); muon != muons.end(); ++muon){
-//					if( !(lepton == 0) ){
-//						IDMuon mu(*muon, event.rho().value());
-//						if( mu.DeltaR(*lepton) > DR_[i] ) continue;
-//						if( mu.DeltaR(*lepton) < mu_DR ){
-//							mu_DR = mu.DeltaR(*lepton);
-//							mu_list.push_back(mu);
-//							best_mu = &(mu_list.back());
-//						}
-//					}
-//				}
-//				const vector<Electron>& electrons = event.electrons();
-//				list<IDElectron> el_list;
-//				float el_DR = 1e10;//initialize dr to high number
-//				for(vector<Electron>::const_iterator electron = electrons.begin(); electron != electrons.end(); ++electron){
-//					if( !(lepton == 0) ){
-//						IDElectron el(*electron, event.rho().value());
-//						if( el.DeltaR(*lepton) > DR_[i] ) continue;
-//						if( el.DeltaR(*lepton) < el_DR ){
-//							el_DR = el.DeltaR(*lepton);
-//							el_list.push_back(el);
-//							best_el = &(el_list.back());
-//						}
-//					}
-//				}
-//				list<IDJet*> lep_list;
-//				float lep_DR = 1e10;// itialize dr to high number
-//				if( object_selector_.clean_jets().size() < 3 ) continue;
-//				for(vector<IDJet*>::const_iterator jets = object_selector_.clean_jets().begin(); jets != object_selector_.clean_jets().end(); ++jets){
-//					if( !(lepton == 0) ){
-//						if( (*jets)->DeltaR(*lepton) > DR_[i] ) continue;
-//						if( (*jets)->DeltaR(*lepton) < lep_DR ){
-//							lep_DR = (*jets)->DeltaR(*lepton);
-//							lep_list.push_back(*jets);
-//							best_lepton = (lep_list.back());
-//						}
-//					}
-//				}
-////
-////				if( !(best_lepton == 0) && i == 0){
-////					cout << "best lep pt: " << best_lepton->Pt() << endl;
-////					cout << "gen lepton pt: " << lepton->Pt() << endl;
-////					cout << "Event Number: " << evt_idx_ << endl;
-////				}
-//
-//				if( !(best_mu == 0) && !(best_el == 0) && (i == 0) ){
-//					cout << "DR best_mu lep: " << best_mu->DeltaR(*lepton) << endl;
-//					cout << "DR best_el lep: " << best_el->DeltaR(*lepton) << endl;
-//					cout << "Event Number: " << evt_idx_ << endl;
-//				}
-//				if( !(best_mu == 0) && !(best_lepton == 0) && (i == 0) ){
-//					cout << "DR best_mu lep: " << best_mu->DeltaR(*lepton) << endl;
-//					cout << "DR best_lepton lep: " << best_lepton->DeltaR(*lepton) << endl;
-//					cout << "Event Number: " << evt_idx_ << endl;
-//				}
-//				if( !(best_el == 0) && !(best_lepton == 0) && (i == 0) ){
-//					cout << "DR best_el lep: " << best_el->DeltaR(*lepton) << endl;
-//					cout << "DR best_lepton lep: " << best_lepton->DeltaR(*lepton) << endl;
-//					cout << "Event Number: " << evt_idx_ << endl;
-//				}
-//
-////				if( !(best_mu == 0) && i == 0 ){
-//////					cout << "best mu pt: " << best_mu->Pt() << endl;
-//////					cout << "gen lepton pt: " << lepton->Pt() << endl;
-//////					cout << "Event Number: " << evt_idx_ << endl;
-////				}
-////				if( !(best_el == 0) && i == 0 ){
-//////					cout << "best el pt: " << best_el->Pt() << endl;
-//////					cout << "gen lepton pt: " << lepton->Pt() << endl;
-//////					cout << "Event Number: " << evt_idx_ << endl;
-////				}
 
 				//Reco Obj. Kinematic Vars
 				if( !(best_BHad == 0) ){//reco BHad exists
 					reco_dir->second["Matched_perm_BHad_pt"].fill(best_BHad->Pt());
 					reco_dir->second["Matched_perm_BHad_eta"].fill(best_BHad->Eta());
 //							++nmatched_objects;
-	                		reco_dir->second["All_BHad_events_vs_mttbar"].fill(ttbar.M());
+	                	
+					if( njets_ == 3) reco_dir->second["All_BHad_events_vs_mttbar_3J"].fill(ttbar.M());
+					if( njets_ == 4) reco_dir->second["All_BHad_events_vs_mttbar_4J"].fill(ttbar.M());
+					if( njets_ >= 5) reco_dir->second["All_BHad_events_vs_mttbar_5PJ"].fill(ttbar.M());
 
 					if( best_BHad == best_BLep || best_BHad == best_WJa || best_BHad == best_WJb ){//reco BHad merged with something
 						if( best_BHad->BTagId(cut_loose_b_) ) reco_dir->second["BTag_less_BHad_loose_pass"].fill(ttbar.M());
@@ -1091,7 +1170,7 @@ class jet_effs : public AnalyzerBase
 					reco_dir->second["Matched_perm_BLep_pt"].fill(best_BLep->Pt());
 					reco_dir->second["Matched_perm_BLep_eta"].fill(best_BLep->Eta());
 //					++nmatched_objects; 
-	                		reco_dir->second["All_BLep_events_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["All_BLep_events_vs_mttbar"].fill(ttbar.M());
 
 					if( best_BLep == best_BHad || best_BLep == best_WJa || best_BLep == best_WJb ){//reco BLep merged with something
 						if( best_BLep->BTagId(cut_loose_b_) ) reco_dir->second["BTag_less_BLep_loose_pass"].fill(ttbar.M());
@@ -1107,7 +1186,9 @@ class jet_effs : public AnalyzerBase
 					reco_dir->second["Matched_perm_WJa_pt"].fill(best_WJa->Pt());
 					reco_dir->second["Matched_perm_WJa_eta"].fill(best_WJa->Eta());
 
-	                		reco_dir->second["All_WJa_events_vs_mttbar"].fill(ttbar.M());
+	                		if( njets_ == 3 ) reco_dir->second["All_WJa_events_vs_mttbar_3J"].fill(ttbar.M());
+	                		if( njets_ == 4 ) reco_dir->second["All_WJa_events_vs_mttbar_4J"].fill(ttbar.M());
+	                		if( njets_ >= 5 ) reco_dir->second["All_WJa_events_vs_mttbar_5PJ"].fill(ttbar.M());
 
                         		if( ttbar.M() >= 700 && ttbar.M() < 1000 ){
                         		        reco_dir->second["Matched_perm_WJa_ttbarM700_pt"].fill(best_WJa->Pt());
@@ -1123,7 +1204,9 @@ class jet_effs : public AnalyzerBase
 					reco_dir->second["Matched_perm_WJb_pt"].fill(best_WJb->Pt());
 					reco_dir->second["Matched_perm_WJb_eta"].fill(best_WJb->Eta());
 
-	                		reco_dir->second["All_WJb_events_vs_mttbar"].fill(ttbar.M());
+	                		if( njets_ == 3 ) reco_dir->second["All_WJb_events_vs_mttbar_3J"].fill(ttbar.M());
+	                		if( njets_ == 4 ) reco_dir->second["All_WJb_events_vs_mttbar_4J"].fill(ttbar.M());
+	                		if( njets_ >= 5 ) reco_dir->second["All_WJb_events_vs_mttbar_5PJ"].fill(ttbar.M());
 
 					if( ttbar.M() >= 700 && ttbar.M() < 1000 ){
 					        reco_dir->second["Matched_perm_WJb_ttbarM700_pt"].fill(best_WJb->Pt());
@@ -1142,9 +1225,9 @@ class jet_effs : public AnalyzerBase
 					if( !best_BLep->BTagId(cut_medium_b_) ) reco_dir->second["BTag_great_BLep_medium_fail"].fill(ttbar.M());	
 					if( !best_BLep->BTagId(cut_tight_b_) ) reco_dir->second["BTag_great_BLep_tight_fail"].fill(ttbar.M());
 
-//	                		reco_dir->second["Unmerged_BLepBHad_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_BLepWJa_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_BLepWJb_vs_mttbar"].fill(ttbar.M());;
+//	                		reco_dir->second["Unmerged_BLepBHad_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_BLepWJa_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_BLepWJb_vs_mttbar"].fill(ttbar.M());
 
 
 					reco_dir->second["Unmerged_BLep_mass"].fill(best_BLep->M());
@@ -1183,10 +1266,14 @@ class jet_effs : public AnalyzerBase
 					if( !best_BHad->BTagId(cut_medium_b_) ) reco_dir->second["BTag_great_BHad_medium_fail"].fill(ttbar.M());	
 					if( !best_BHad->BTagId(cut_tight_b_) ) reco_dir->second["BTag_great_BHad_tight_fail"].fill(ttbar.M());
 
-//	                		reco_dir->second["Unmerged_BHadBLep_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_BHadWJa_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_BHadWJb_vs_mttbar"].fill(ttbar.M());;
+//	                		reco_dir->second["Unmerged_BHadBLep_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_BHadWJa_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_BHadWJb_vs_mttbar"].fill(ttbar.M());
 
+					if( best_WJa && best_WJb && thad ){
+						delt_dir->second["Unmerged_THad_Delta_mass"].fill(thad->M()-(*best_BHad+*best_WJa+*best_WJb).M());
+						delt_dir->second["Unmerged_THad_Delta_costh"].fill(thad->CosTheta()-(*best_BHad+*best_WJa+*best_WJb).CosTheta());
+					}
 
 					reco_dir->second["Unmerged_BHad_mass"].fill(best_BHad->M());
 					if( !(DR_LepBLep == -1) ) reco_dir->second["Unmerged_BHad_DRLepBLep"].fill(DR_LepBLep);
@@ -1230,9 +1317,9 @@ class jet_effs : public AnalyzerBase
 					}
 				}
 				if( !(best_WJa == 0) && !(best_WJa == best_BHad) && !(best_WJa == best_WJb) && !(best_WJa == best_BLep) ){//reco WJa not merged with anything
-//	                		reco_dir->second["Unmerged_WJaWJb_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_WJaBHad_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_WJaBLep_vs_mttbar"].fill(ttbar.M());;
+//	                		reco_dir->second["Unmerged_WJaWJb_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_WJaBHad_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_WJaBLep_vs_mttbar"].fill(ttbar.M());
 
 
 					reco_dir->second["Unmerged_WJa_massDivpt"].fill(best_WJa->M()/best_WJa->Pt());
@@ -1240,32 +1327,43 @@ class jet_effs : public AnalyzerBase
 					if( !(DR_LepBLep == -1) ) reco_dir->second["Unmerged_WJa_DRLepBLep"].fill(DR_LepBLep);
 				}
 				if( !(best_WJb == 0) && !(best_WJb == best_BHad) && !(best_WJb == best_WJa) && !(best_WJb == best_BLep) ){//reco WJb not merged with anything
-//	                		reco_dir->second["Unmerged_WJbWJa_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_WJbBHad_vs_mttbar"].fill(ttbar.M());;
-//	                		reco_dir->second["Unmerged_WJbBLep_vs_mttbar"].fill(ttbar.M());;
+//	                		reco_dir->second["Unmerged_WJbWJa_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_WJbBHad_vs_mttbar"].fill(ttbar.M());
+//	                		reco_dir->second["Unmerged_WJbBLep_vs_mttbar"].fill(ttbar.M());
 
 					reco_dir->second["Unmerged_WJb_massDivpt"].fill(best_WJb->M()/best_WJb->Pt());
 					reco_dir->second["Unmerged_WJb_mass"].fill(best_WJb->M());
 					if( !(DR_LepBLep == -1) ) reco_dir->second["Unmerged_WJb_DRLepBLep"].fill(DR_LepBLep);
 				}
 				if( !(best_BHad == 0) && !(best_WJa == 0) ){ //reco BHad and WJa exist
-					if( object_selector_.clean_jets().size() == 3 ) reco_dir->second["All_Matched_BHadWJa_ptthad_3J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() == 4 ) reco_dir->second["All_Matched_BHadWJa_ptthad_4J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() > 4 ) reco_dir->second["All_Matched_BHadWJa_ptthad_5PJ"].fill(thad->Pt());
+					if( njets_ == 3 ) reco_dir->second["All_Matched_BHadWJa_ptthad_3J"].fill(thad->Pt());
+					if( njets_ == 4 ) reco_dir->second["All_Matched_BHadWJa_ptthad_4J"].fill(thad->Pt());
+					if( njets_ > 4 ) reco_dir->second["All_Matched_BHadWJa_ptthad_5PJ"].fill(thad->Pt());
 				}
 				if( !(best_BHad == 0) && !(best_WJb == 0) ){ //reco BHad and WJb exist
-					if( object_selector_.clean_jets().size() == 3 ) reco_dir->second["All_Matched_BHadWJb_ptthad_3J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() == 4 ) reco_dir->second["All_Matched_BHadWJb_ptthad_4J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() > 4 ) reco_dir->second["All_Matched_BHadWJb_ptthad_5PJ"].fill(thad->Pt());
+					if( njets_ == 3 ) reco_dir->second["All_Matched_BHadWJb_ptthad_3J"].fill(thad->Pt());
+					if( njets_ == 4 ) reco_dir->second["All_Matched_BHadWJb_ptthad_4J"].fill(thad->Pt());
+					if( njets_ > 4 ) reco_dir->second["All_Matched_BHadWJb_ptthad_5PJ"].fill(thad->Pt());
 				}
 				if( !(best_WJa == 0) && !(best_WJb == 0) ){ //reco WJa and WJb exist
-					if( object_selector_.clean_jets().size() == 3 ) reco_dir->second["All_Matched_WJaWJb_ptthad_3J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() == 4 ) reco_dir->second["All_Matched_WJaWJb_ptthad_4J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() > 4 ) reco_dir->second["All_Matched_WJaWJb_ptthad_5PJ"].fill(thad->Pt());
+					if( njets_ == 3 ) reco_dir->second["All_Matched_WJaWJb_ptthad_3J"].fill(thad->Pt());
+					if( njets_ == 4 ) reco_dir->second["All_Matched_WJaWJb_ptthad_4J"].fill(thad->Pt());
+					if( njets_ > 4 ) reco_dir->second["All_Matched_WJaWJb_ptthad_5PJ"].fill(thad->Pt());
 				}
 				if( best_BHad == best_WJa && !(best_BHad == 0) && !(best_BHad == best_BLep) && !(best_BHad == best_WJb) ){//only reco BHad and WJa merged
 
-	                		reco_dir->second["Merged_BHadWJa_vs_mttbar"].fill(ttbar.M());;
+	                		if( njets_ == 3 ){
+						reco_dir->second["Merged_BHadWJa_vs_mttbar_3J"].fill(ttbar.M());
+						reco_dir->second["Matched_BHadWJa_ptthad_3J"].fill(thad->Pt());
+					}
+	                		if( njets_ == 4 ){
+						reco_dir->second["Merged_BHadWJa_vs_mttbar_4J"].fill(ttbar.M());
+						reco_dir->second["Matched_BHadWJa_ptthad_4J"].fill(thad->Pt());
+					}
+	                		if( njets_ >= 5 ){
+						reco_dir->second["Merged_BHadWJa_vs_mttbar_5PJ"].fill(ttbar.M());
+						reco_dir->second["Matched_BHadWJa_ptthad_5PJ"].fill(thad->Pt());
+					}
 
 					reco_dir->second["Merged_BHadWJa_massDivpt"].fill(best_BHad->M()/best_BHad->Pt());
 					if( !(DR_LepBLep == -1) ) reco_dir->second["Merged_BHadWJa_perm_DRLepBLep"].fill(DR_LepBLep);
@@ -1273,6 +1371,9 @@ class jet_effs : public AnalyzerBase
 					if( !(best_WJb == 0) && !(best_WJb == best_BHad) && !(best_WJb == best_BLep) ){//reco WJb exists and not merged
 						reco_dir->second["Merged_BHadWJet_mass_vs_BHad_mass"].fill(best_BHad->M(), (*best_BHad+*best_WJb).M());
 						reco_dir->second["Merged_BHadWJa_perm_and_WJb_mass"].fill((*best_BHad+*best_WJb).M());//comb invariant mass of merged jet and other wjet
+
+						reco_dir->second["Merged_BHadWJa_DRBHadWJb"].fill(best_BHad->DeltaR(*best_WJb));
+
 						if( (*best_BHad+*best_WJb).M() < 100 ){
 							reco_dir->second["Merged_BHadWJet_l100_pt"].fill(best_BHad->Pt());
 							reco_dir->second["Merged_BHadWJet_l100_eta"].fill(best_BHad->Eta());
@@ -1291,14 +1392,28 @@ class jet_effs : public AnalyzerBase
 						if( !(Merged_ptthad == -1.) && (i == 0) ) t8->Fill();
 
 						reco_dir->second["Merged_WJb_mass"].fill(best_WJb->M());
+
+						if( thad ){
+							delt_dir->second["Merged_THad_Delta_mass"].fill(thad->M()-(*best_BHad+*best_WJb).M());
+							delt_dir->second["Merged_THad_Delta_costh"].fill(thad->CosTheta()-(*best_BHad+*best_WJb).CosTheta());
+						}
+
 					}
-					if( object_selector_.clean_jets().size() == 3 ) reco_dir->second["Matched_BHadWJa_ptthad_3J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() == 4 ) reco_dir->second["Matched_BHadWJa_ptthad_4J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() > 4 ) reco_dir->second["Matched_BHadWJa_ptthad_5PJ"].fill(thad->Pt());
 				}
 				if( best_BHad == best_WJb && !(best_BHad == 0) && !(best_BHad == best_BLep) && !(best_BHad == best_WJa) ){//only reco BHad and WJb merged
 
-	                		reco_dir->second["Merged_BHadWJb_vs_mttbar"].fill(ttbar.M());;
+	                		if( njets_ == 3 ){
+						reco_dir->second["Merged_BHadWJb_vs_mttbar_3J"].fill(ttbar.M());
+						reco_dir->second["Matched_BHadWJb_ptthad_3J"].fill(thad->Pt());
+					}
+	                		if( njets_ == 4 ){
+						reco_dir->second["Merged_BHadWJb_vs_mttbar_4J"].fill(ttbar.M());
+						reco_dir->second["Matched_BHadWJb_ptthad_4J"].fill(thad->Pt());
+					}
+	                		if( njets_ >= 5 ){
+						reco_dir->second["Merged_BHadWJb_vs_mttbar_5PJ"].fill(ttbar.M());
+						reco_dir->second["Matched_BHadWJb_ptthad_5PJ"].fill(thad->Pt());
+					}
 
 					reco_dir->second["Merged_BHadWJb_massDivpt"].fill(best_BHad->M()/best_BHad->Pt());
 					if( !(DR_LepBLep == -1) ) reco_dir->second["Merged_BHadWJb_perm_DRLepBLep"].fill(DR_LepBLep);
@@ -1306,6 +1421,9 @@ class jet_effs : public AnalyzerBase
 					if( !(best_WJa == 0) && !(best_WJa == best_BHad) && !(best_WJa == best_BLep) ){//reco WJa exists and not merged
 						reco_dir->second["Merged_BHadWJet_mass_vs_BHad_mass"].fill(best_BHad->M(), (*best_BHad+*best_WJa).M());
 						reco_dir->second["Merged_BHadWJb_perm_and_WJa_mass"].fill((*best_BHad+*best_WJa).M());//comb mass of merged jet and other wjet
+
+						reco_dir->second["Merged_BHadWJb_DRBHadWJa"].fill(best_BHad->DeltaR(*best_WJa));
+
 						if( (*best_BHad+*best_WJa).M() < 100 ){
 							reco_dir->second["Merged_BHadWJet_l100_pt"].fill(best_BHad->Pt());
 							reco_dir->second["Merged_BHadWJet_l100_eta"].fill(best_BHad->Eta());
@@ -1324,23 +1442,38 @@ class jet_effs : public AnalyzerBase
 						if( !(Merged_ptthad == -1.) && (i == 0) ) t8->Fill();
 
 						reco_dir->second["Merged_WJa_mass"].fill(best_WJa->M());
+
+						if( thad ){
+							delt_dir->second["Merged_THad_Delta_mass"].fill(thad->M()-(*best_BHad+*best_WJa).M());
+							delt_dir->second["Merged_THad_Delta_costh"].fill(thad->CosTheta()-(*best_BHad+*best_WJa).CosTheta());
+						}
+
 					}
-					if( object_selector_.clean_jets().size() == 3 ) reco_dir->second["Matched_BHadWJb_ptthad_3J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() == 4 ) reco_dir->second["Matched_BHadWJb_ptthad_4J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() > 4 ) reco_dir->second["Matched_BHadWJb_ptthad_5PJ"].fill(thad->Pt());
 				}
 				if( best_WJa == best_WJb && !(best_WJa == 0) && !(best_WJa == best_BHad) && !(best_WJa == best_BLep) ){//only reco WJa and WJb merged
 
-	                		reco_dir->second["Merged_WJaWJb_vs_mttbar"].fill(ttbar.M());;
+					if( njets_ == 3 ){
+						reco_dir->second["Matched_WJaWJb_ptthad_3J"].fill(thad->Pt());
+						reco_dir->second["Merged_WJaWJb_vs_mttbar_3J"].fill(ttbar.M());
+					}
+					if( njets_ == 4 ){
+						reco_dir->second["Matched_WJaWJb_ptthad_4J"].fill(thad->Pt());
+						reco_dir->second["Merged_WJaWJb_vs_mttbar_4J"].fill(ttbar.M());
+					}
+					if( njets_ > 4 ){
+						reco_dir->second["Matched_WJaWJb_ptthad_5PJ"].fill(thad->Pt());
+						reco_dir->second["Merged_WJaWJb_vs_mttbar_5PJ"].fill(ttbar.M());
+					}
 
-					if( object_selector_.clean_jets().size() == 3 ) reco_dir->second["Matched_WJaWJb_ptthad_3J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() == 4 ) reco_dir->second["Matched_WJaWJb_ptthad_4J"].fill(thad->Pt());
-					if( object_selector_.clean_jets().size() > 4 ) reco_dir->second["Matched_WJaWJb_ptthad_5PJ"].fill(thad->Pt());
+					if( thad && best_BHad ){
+						delt_dir->second["Merged_THad_Delta_mass"].fill(thad->M()-(*best_WJa+*best_BHad).M());
+						delt_dir->second["Merged_THad_Delta_costh"].fill(thad->CosTheta()-(*best_WJa+*best_BHad).CosTheta());
+					}
 				}
 
 				if( best_BLep == best_WJa && !(best_BLep == 0) && !(best_BHad == best_BLep) && !(best_BLep == best_WJb) ){//only reco BLep and WJa merged
 
-	                		reco_dir->second["Merged_BLepWJa_vs_mttbar"].fill(ttbar.M());;
+//	                		reco_dir->second["Merged_BLepWJa_vs_mttbar"].fill(ttbar.M());
 
 					reco_dir->second["Merged_BLepWJa_massDivpt"].fill(best_BLep->M()/best_BLep->Pt());
 					if( !(DR_LepBLep == -1) ) reco_dir->second["Merged_BLepWJa_perm_DRLepBLep"].fill(DR_LepBLep);
@@ -1365,7 +1498,7 @@ class jet_effs : public AnalyzerBase
 				}
 				if( best_BLep == best_WJb && !(best_BLep == 0) && !(best_BHad == best_BLep) && !(best_BLep == best_WJa) ){//only reco BLep and WJb merged
 
-	                		reco_dir->second["Merged_BLepWJb_vs_mttbar"].fill(ttbar.M());;
+//	                		reco_dir->second["Merged_BLepWJb_vs_mttbar"].fill(ttbar.M());
 
 					reco_dir->second["Merged_BLepWJb_massDivpt"].fill(best_BLep->M()/best_BLep->Pt());
 					if( !(DR_LepBLep == -1) ) reco_dir->second["Merged_BLepWJb_perm_DRLepBLep"].fill(DR_LepBLep);
@@ -1388,9 +1521,9 @@ class jet_effs : public AnalyzerBase
 					//if( object_selector_.clean_jets().size() == 4 ) reco_dir->second["Matched_BHadWJb_ptthad_4J"].fill(thad->Pt());
 					//if( object_selector_.clean_jets().size() > 4 ) reco_dir->second["Matched_BHadWJb_ptthad_5PJ"].fill(thad->Pt());
 				}
-				if( best_BHad== best_BLep && !(best_BHad == 0) && !(best_BHad == best_WJa) && !(best_BHad == best_WJb) ){//only reco BHad and BLep merged
+				if( (best_BHad == best_BLep) && !(best_BHad == 0) && !(best_BHad == best_WJa) && !(best_BHad == best_WJb) ){//only reco BHad and BLep merged
 
-	                		reco_dir->second["Merged_BHadBLep_vs_mttbar"].fill(ttbar.M());;
+//	                		reco_dir->second["Merged_BHadBLep_vs_mttbar"].fill(ttbar.M());
 
 					reco_dir->second["Merged_BHadBLep_massDivpt"].fill(best_BHad->M()/best_BHad->Pt());
 					if( !(DR_BHadBLep == -1) ) reco_dir->second["Merged_BHadBLep_perm_DRBHadBLep"].fill(DR_BHadBLep);
@@ -1403,6 +1536,17 @@ class jet_effs : public AnalyzerBase
 						reco_dir->second["Merged_BsWJb_mass_vs_Bs_mass"].fill(best_BHad->M(), (*best_BHad+*best_WJb).M());
 						reco_dir->second["Merged_BHadBLep_perm_and_WJb_mass"].fill((*best_BHad+*best_WJb).M());
 					}
+				}
+
+					// BHad, WJa, and WJb are all merged, but not with BLep
+				if( !(best_BHad == 0) && (best_BHad == best_WJa) && (best_BHad == best_WJb) && !(best_BHad == best_BLep) ){
+					if( njets_ == 3 ) reco_dir->second["Merged_BHadWJaWJb_vs_mttbar_3J"].fill(ttbar.M());
+					if( njets_ == 4 ) reco_dir->second["Merged_BHadWJaWJb_vs_mttbar_4J"].fill(ttbar.M());
+					if( njets_ >= 5 ) reco_dir->second["Merged_BHadWJaWJb_vs_mttbar_5PJ"].fill(ttbar.M());
+
+					reco_dir->second["Merged_BHadWJaWJb_mass"].fill(best_BHad->M());
+					reco_dir->second["Merged_BHadWJaWJb_pt"].fill(best_BHad->Pt());
+					reco_dir->second["Merged_BHadWJaWJb_eta"].fill(best_BHad->Eta());
 				}
 			}
 
