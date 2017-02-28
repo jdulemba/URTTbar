@@ -66,8 +66,10 @@ class HTTPlotter(Plotter):
 		self.tt_shifted = {
 			'mtop_up'   : 'ttJets_mtopup',
 			'mtop_down' : 'ttJets_mtopdown',
-			'scale_up'   : 'ttJets_scaleup', 
-			'scale_down' : 'ttJets_scaledown',
+			'isr_up'   : 'ttJets_isrup',
+			'isr_down' : 'ttJets_isrdown',
+			'fsr_up'   : 'ttJets_fsrup',
+			'fsr_down' : 'ttJets_fsrdown',
 			}
 		jobid = os.environ['jobid']
 		files = glob.glob('results/%s/htt_simple/*.root' % jobid)
@@ -178,9 +180,9 @@ class HTTPlotter(Plotter):
 		## 
 		added_samples = []
 		for sample in self.views.keys():
-			if sample.startswith('AtoTT_'): 
+			if sample.startswith('HtoTT_'): 
 				raise ValueError("I did not implement it yet remember to swap the H and A")
-			if sample.startswith('HtoTT_'):# or sample.startswith('AtoTT_'):
+			if sample.startswith('AtoTT_'):# or sample.startswith('AtoTT_'):
 				_, mass, width, pI = tuple(sample.split('_'))				
 				samtype = 'int' if pI == 'Int' else 'sgn'
 				if pI == 'Int':
@@ -724,24 +726,34 @@ class HTTPlotter(Plotter):
 		stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
 		names = [i.title for i in stack.hists]
 		yields = [i.Integral() for i in stack.hists]
+		data = [i for i in self.keep if hasattr(i, 'title') and i.title == 'Observed'][0]
 		def ratio(lst):
 			tot = sum(lst)/100. if not absolute else 1.
 			return [i/tot for i in lst] if tot else [0. for _ in lst]
 		yields = ratio(yields)
+		if absolute:
+			yields.append(data.Integral())
+			names.append('Observed')
 		mlen = max(len(i) for i in names)
-		format = '%'+str(mlen)+'s     %.1f%%\n'
+		format = '%'+str(mlen)+('s     %.1f%%\n' if not absolute else 's     %.0f\n')
 		header = ('%'+str(mlen)+'s    frac') % 'sample'
 		if threshold is not None:
 			binid = stack.hists[0].xaxis.FindBin(threshold)
 			fbin = stack.hists[0].nbins()+1
 			less = ratio([i.Integral(1, binid-1) for i in stack.hists])
 			above = ratio([i.Integral(binid, fbin) for i in stack.hists])
+			if absolute:
+				less.append(data.Integral(1, binid-1))
+				above.append(data.Integral(binid, fbin))
+				format = format.replace('\n', '    %.0f    %.0f\n')
+			else:
+				format = format.replace('\n', '    %.1f%%    %.1f%%\n')
 			yields = [i for i in zip(yields, less, above)]
-			format = format.replace('\n', '    %.1f%%    %.1f%%\n')
 			header += '    <%.0f %s     >%.0f %s' % (threshold, stack.hists[0].xaxis.title, threshold, stack.hists[0].xaxis.title)
 		header += '\n'
 		fullname = os.path.join(self.outputdir, fname)
 		with open(fullname, 'w') as f:
+			f.write('Lumi :%.1f' % self.views['data']['intlumi'])
 			f.write(header)
 			for i in zip(names, yields):
 				info = i
@@ -750,7 +762,10 @@ class HTTPlotter(Plotter):
 					a, b = i
 					c, d, e = b
 					info = (a, c, d, e)
-				f.write(format % info)
+				try:
+					f.write(format % info)
+				except:
+					set_trace()
 
 	def get_yields(self, thr):
 		stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
@@ -780,7 +795,8 @@ variables = [
   (False, "thad_ctstar"	, "cos #theta^{*}(thad)", 2, None, False),		
   (False, "cdelta_ld", "cos #delta(ld)", 2, None, False),		
   (False, "hframe_ctheta_d", "cos #theta(d-jet)", 2, None, False),		
-
+  (False, "lead_jet_pt" , 'leading jet p_{T}', 10, (0, 300), False),
+  (False, "lead_jet_eta", 'leading jet #eta' ,  5, None, False),
   (False, "pt_thad"	, "p_{T}(t_{had}) (GeV)", 5, (0, 1000), False),		
   (False, "eta_thad"	, "#eta_{T}(t_{had}) (GeV)", 5, None, False),		
   (False, "pt_tlep"	, "p_{T}(t_{lep}) (GeV)", 5, (0, 1000), False),		
@@ -805,7 +821,6 @@ preselection = [
 	(False, "lep_wp" , "electron wp", 1, None, False),
 	(True	, "cMVA"    , "cMVA",  1, None, False),
 	(True	, "cMVA_p11", "cMVA^{11}", 1, None, False),
-	(True	, "qgtag"   , "quark-gluon tag",  1, None, False),
 	(False, "METPhi", "MET #varphi", 4, None, False),
 	(False, "MET"   , "MET E_{T}"  , 1, [0, 400], False),
 ]
@@ -840,7 +855,7 @@ if args.preselection or args.all:
 
 if args.plots or args.all:
 	vals = []
-	for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTLow', 'MTHigh']):
+	for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh']):
 		tdir = '%s/%s' % dirid
 		plotter.set_subdir(tdir)
 		first = True
@@ -850,7 +865,7 @@ if args.plots or args.all:
 			plotter.plot_mc_vs_data(
 				'nosys/%s' % tdir, var, sort=True,
 				xaxis=axis, leftside=leftside, rebin=rebin,
-				show_ratio=True, ratio_range=0.5, xrange=x_range,
+				show_ratio=True, ratio_range=0.2, xrange=x_range,
 				logy=logy)
 			if first:
 				first = False
