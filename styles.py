@@ -18,6 +18,15 @@ styles = {
       'name' : "V + jets",
       'fillstyle': 'solid',
       },
+   'W[1-5]Jets*' : {
+      'legendstyle' : 'f',
+      'drawstyle' : 'hist',
+      'fillcolor' : '#FFCC66',
+      'linecolor' : 'black',
+			'linewidth' : 1,
+      'name' : "V + jets",
+      'fillstyle': 'solid',
+      },
    '[WZ][WZ]' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
