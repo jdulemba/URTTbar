@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include "URAnalysis/AnalysisFW/interface/AnalyzerBase.h"
 #include "Analyses/URTTbar/interface/URStreamer.h"
@@ -108,6 +109,14 @@ public:
 		return (b<a) ? std::make_pair(b, a) : std::make_pair(a, b);
 	}
 
+	void range(vector<double>& vec, double min, double max, double step){
+		double binval = min;
+		while(binval <= max) {
+			vec.push_back(binval);
+			binval += step;
+		}
+	}
+
   //This method is called once per job at the beginning of the analysis
   //book here your histograms/tree and run every initialization needed
   virtual void begin() {
@@ -121,7 +130,10 @@ public:
         dir_sys->cd();
         //TODO add plots
         histos_[shift][evt_type]["mWhad_vs_mtophad"] = RObject::book<TH2D>("mWhad_vs_mtophad", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
-        histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", 75, 0., 150.);
+				vector<double> binning;
+				range(binning, 0., 10., 1.);
+				range(binning, 12, 200., 2.);
+        histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", binning.size()-1, &binning[0]);
         histos_[shift][evt_type]["wjets_cMVA"] = RObject::book<TH2D>("wjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
         histos_[shift][evt_type]["bjets_cMVA"] = RObject::book<TH2D>("bjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
         // histos_[shift][evt_type]["wjets_qgt"] = RObject::book<TH2D>("wjets_qgt", "", 50, -1., 1.1, 50, -1., 1.1);
