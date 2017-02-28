@@ -136,6 +136,8 @@ private:
 
   float cut_jet_ptmin_, cut_jet_etamax_;
   size_t cut_nminjets_;
+	int cut_nmaxjets_;
+	float cut_mt_;
 };
 
 #endif

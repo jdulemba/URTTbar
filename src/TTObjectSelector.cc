@@ -32,8 +32,10 @@ TTObjectSelector::TTObjectSelector(int objsel):
     parser.addCfgParameter<int>("event", "use_filters", "", 1);
     parser.addCfgParameter<int>("event", "smear_met", "", 1);
 		parser.addCfgParameter<int>("event", "allow_loose", "", 0);
+		parser.addCfgParameter<float>("event", "MTCut", "", -1);
 
     parser.addCfgParameter<int>  ("jets", "n_min", "minimum number of jets");
+    parser.addCfgParameter<int>  ("jets", "n_max", "maximum number of jets", -1);
     parser.addCfgParameter<int>  ("jets", "applyJER", "");
     parser.addCfgParameter<float>("jets", "ptmin", "minimum pt");
     parser.addCfgParameter<float>("jets", "etamax", "maximum eta");
@@ -43,8 +45,10 @@ TTObjectSelector::TTObjectSelector(int objsel):
 		use_filters_ = (parser.getCfgPar<int>("event", "use_filters") == 1);
     smear_met_   = (parser.getCfgPar<int>("event", "smear_met") == 1);
 		allow_loose_ = (parser.getCfgPar<int>("event", "allow_loose") == 1);
-    
+		cut_mt_      = parser.getCfgPar<float>("event", "MTCut");
+
     cut_nminjets_ = parser.getCfgPar<int>  ("jets", "n_min" );
+		cut_nmaxjets_ = parser.getCfgPar<int>  ("jets", "n_max" );
     apply_jer_ = (parser.getCfgPar<int>("jets", "applyJER" ) > 0.5);
     Logger::log().debug() << "Running JER: " << apply_jer_ << std::endl;
     cut_jet_ptmin_ = parser.getCfgPar<float>("jets", "ptmin" );
@@ -254,24 +258,31 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift, b
   if(tracker_) tracker_->track("loose/tight lepton");
 
 	//right lepton
+	bool tight_lepton = (evt_type_ == TIGHTMU || evt_type_ == TIGHTEL);
 	bool mutype = (evt_type_ == TIGHTMU || evt_type_ == LOOSEMU);
   if(objsel_ == -1 && mutype ) return false;
   if(objsel_ == 1  && !mutype) return false;
-  if(tracker_) tracker_->track("right lepton");
+  if(tracker_ && tight_lepton) tracker_->track("right lepton");
   
   //right trigger 
   if(mutype && !mu_trg_) return false;
   if(!mutype && !el_trg_) return false;
-  if(tracker_) tracker_->track("right trigger");
+  if(tracker_ && tight_lepton) tracker_->track("right trigger");
 
-	if(sync && (evt_type_  == TIGHTMU || evt_type_ == TIGHTEL)) {
+	if(sync && tight_lepton) {
 		cout << "SYNC " << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
 	}
 	
   select_jetmet(event, shift);
   if(clean_jets_.size() < cut_nminjets_) return false;
- 
-  if(tracker_) tracker_->track("has N jets");
+	if(cut_nmaxjets_ >= 0 && clean_jets_.size() > cut_nmaxjets_) return false;
+  if(tracker_ && tight_lepton) tracker_->track("has N jets");
+
+	TLorentzVector* l = lepton();
+	float mt = sqrt(pow(l->Pt() + met()->Pt(), 2) - pow(l->Px() + met()->Px(), 2) - pow(l->Py() + met()->Py(), 2));
+	if(mt < cut_mt_) return false;
+	if(tracker_ && tight_lepton) tracker_->track("TTObjectSelector::MT CUT");
+
   return true;
 }
 
