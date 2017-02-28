@@ -84,8 +84,11 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 	hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., nschi)); //ignore MET covariance matrix, take bare distance
 
 	//Fill chi discriminant
-	if(nschi > 0. && nschi < 10000. && N_right_)
-		nstest = -1.*Log(N_right_->Interpolate(Sqrt(nschi)));
+	if(N_right_) {
+		int binx = N_right_->GetXaxis()->FindFixBin(Sqrt(nschi));
+		if(binx <= N_right_->GetNbinsX()) 
+			nstest = -1.*Log(N_right_->GetBinContent(binx));
+	}
 
 	double mwhad = hyp.WHad().M();
 	double mthad = hyp.THad().M();
@@ -93,7 +96,21 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 		return (b<a) ? std::make_pair(b, a) : std::make_pair(a, b); };
 
 	if(mthad < 500. && mwhad < 500. && WTmass_right_) {
-		double massdisval = WTmass_right_->Interpolate(mwhad, mthad);
+		int binx = TMath::Max(
+			1,
+			TMath::Min(
+				WTmass_right_->GetXaxis()->FindFixBin(mwhad),
+				WTmass_right_->GetNbinsX()
+				)
+			);
+		int biny = TMath::Max(
+			1,
+			TMath::Min(
+				WTmass_right_->GetYaxis()->FindFixBin(mthad),
+				WTmass_right_->GetNbinsY()
+				)
+			);
+		double massdisval = WTmass_right_->GetBinContent(binx, biny);
 		if(massdisval > 1.0E-10) {masstest = -1.*Log(massdisval);}
 		//masstest = -1.*Log(WTmass_right_->Interpolate(mwhad, mthad)/Max(1., WTmass_wrong_->Interpolate(mwhad, mthad)));
 	}
