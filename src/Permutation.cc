@@ -42,10 +42,12 @@ bool operator>(const Permutation& A, const Permutation& B)
 }
 
 std::ostream & operator<<(std::ostream &os, const TLorentzVector& p) {
-  return os << "LV(" << p.Px() << ", " << p.Py()<< ", "<< p.Pz()<< ", "<< p.E()<< ")";
+  return os << "LV(" << p.Pt() << ", " << p.Eta()<< ", "<< p.Phi() << /*", "<< p.E()<<*/ ")";
 }
 
 std::ostream & operator<<(std::ostream &os, const Permutation& p) {
-  return os << "l: " << p.lep_ << ", b_l: " << p.bjl_ << ", b_h: " << p.bjh_ << ", j1: " << p.wja_ << ", j1: " << p.wjb_ << std::endl
-            << ", full discr: " << p.prob_ << ", mass disc: " << p.mass_discriminant_;
+  return os << "l: " << p.lep_ << ", b_l: " << p.bjl_ << ", b_h: " << p.bjh_ << ", j1: " << p.wja_ << ", j2: " << p.wjb_ << std::endl
+						<< "l: " << *p.lep_ << ", b_l: " << *p.bjl_ << ", b_h: " << *p.bjh_ << ", j1: " << *p.wja_ << ", j2: " << *p.wjb_ << std::endl
+            << "M(thad): " << p.THad().M() << ", M(whad): " << p.WHad().M() << ", full discr: " << p.prob_ << ", mass disc: " << p.mass_discriminant_ << ", nu chi2: " << p.nu_chisq_ 
+						<< ", nu disc: " << p.nu_discriminant_;
 }
