@@ -47,6 +47,15 @@ class htt_simple : public AnalyzerBase
 {
 public:
 	//enum TTNaming {RIGHT, RIGHT_THAD, RIGHT_WHAD, RIGHT_TLEP, WRONG, OTHER};
+	struct SyncInfo {
+		int Run;
+		long int LumiSection;
+		long int Event; 
+		bool RecoSuccess; 
+		float MassTT;
+		bool hasMuon;
+	};
+
 private:
 	//histograms and helpers
 	unordered_map<string, unordered_map<string, RObject> > histos_;
@@ -75,13 +84,11 @@ private:
 
   //cuts
   IDJet::BTag cut_tight_b_=IDJet::BTag::NONE, cut_loose_b_=IDJet::BTag::NONE;
-	double cut_MT_=0;
 
 	//sync
 	bool sync_;
 	TTree *sync_tree_;
-	map<string, float> sync_info_;
-	long long sync_evt_; //the only one cannot work with floats
+	SyncInfo sync_info_;
 
 public:
 	inline double MT(TLorentzVector *l, TLorentzVector *met) {
@@ -116,9 +123,6 @@ public:
     //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
     
     URParser &parser = URParser::instance();
-    parser.addCfgParameter<float>("event", "MT", "");
-		parser.parseArguments();
-		cut_MT_ = parser.getCfgPar<float>("event", "MT");
 
 		TUUID id;  
 		randomizer_.SetSeed(id.Hash());   
@@ -235,6 +239,8 @@ public:
 		book<TH1F>(folder, "lep_eta"  , ";#eta(l) (GeV)", 300, -3, 3);
 		book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
 		book<TH1F>(folder, "jets_eta" , ";#eta(j) (GeV)",  300, -3, 3);
+		book<TH1F>(folder, "lead_jet_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
+		book<TH1F>(folder, "lead_jet_eta" , ";#eta(j) (GeV)",  300, -3, 3);
 		book<TH1F>(folder, "jets_CSV" , ";#eta(j) (GeV)",  200, -1, 1);
 		book<TH1F>(folder, "max_jets_CSV" , ";#eta(j) (GeV)",  200, -1, 1);
 		book<TH1F>(folder, "lep_iso", ";#eta(j) (GeV)",  100, 0, 10);
@@ -276,6 +282,8 @@ public:
 		dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
 		dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
 		double max_csv = -10000;
+		double max_pt = -1;
+		double max_eta = 0;
     for(IDJet* jet : object_selector_.clean_jets()) {
       dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
       dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
@@ -283,7 +291,13 @@ public:
 			if(jet->csvIncl() > max_csv) max_csv = jet->csvIncl();
 			dir->second["cMVA"    ].fill(jet->CombinedMVA(), evt_weight_);
 			dir->second["cMVA_p11"].fill(pow(jet->CombinedMVA(), 11), evt_weight_);
+			if(jet->Pt() > max_pt) {
+				max_pt = jet->Pt();
+				max_eta = jet->Eta();
+			}
     }
+		dir->second["lead_jet_pt" ].fill(max_pt , evt_weight_);
+		dir->second["lead_jet_eta"].fill(max_eta, evt_weight_);
 
 		dir->second["MET"   ].fill(object_selector_.met()->Et() , evt_weight_);
 		dir->second["METPhi"].fill(object_selector_.met()->Phi(), evt_weight_);
@@ -291,11 +305,9 @@ public:
 		dir->second["MT"].fill(mt, evt_weight_);
 		dir->second["max_jets_CSV"].fill(max_csv, evt_weight_);
 
-		if(mt > cut_MT_) {
-			auto &clean_jets = object_selector_.clean_jets();
-			sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});		
-			dir->second["jets_cMVA_WP"].fill(btag_idval(clean_jets[0]), btag_idval(clean_jets[1]), evt_weight_);
-		}
+		auto &clean_jets = object_selector_.clean_jets();
+		sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});		
+		dir->second["jets_cMVA_WP"].fill(btag_idval(clean_jets[0]), btag_idval(clean_jets[1]), evt_weight_);
 
 		double iso = -1.;
 		if(object_selector_.lepton_type() == 1) {
@@ -440,19 +452,12 @@ public:
     outFile_.cd();
 		if(sync_) {
 			sync_tree_ = new TTree("sync", "sync");
-			sync_info_["hasMuon"] = -1;
-			sync_info_["finalweight"] = -1;
-			sync_info_["leptonweight"] = -1;
-			sync_info_["btagweight"] = -1;
-			sync_info_["puweight"] = -1;
-			sync_info_["mcweight"] = -1;
-			sync_info_["lumi"] = -1;
-			sync_info_["run"] = -1;
-
-			sync_tree_->Branch("evt", &sync_evt_);
-			for(auto& entry :  sync_info_) {
-				sync_tree_->Branch(entry.first.c_str(), &entry.second);
-			}
+			sync_tree_->Branch("Run", &sync_info_.Run, "Run/i");
+			sync_tree_->Branch("LumiSection", &sync_info_.LumiSection, "LumiSection/l");
+			sync_tree_->Branch("Event", &sync_info_.Event, "Event/l");
+			sync_tree_->Branch("RecoSuccess", &sync_info_.RecoSuccess, "RecoSuccess/O");
+			sync_tree_->Branch("MassTT", &sync_info_.MassTT, "MassTT/f");
+			sync_tree_->Branch("hasMuon", &sync_info_.hasMuon, "hasMuon/O");
 			return;
 		}
 		
@@ -462,7 +467,7 @@ public:
 		if(isSignal_) subs = {"/positive", "/negative"};
 		else subs = {"/right", "/matchable", "/unmatchable", "/noslep"};		
 		vector<string> lepIDs  = {"looseNOTTight", "tight"};		
-		vector<string> MTs     = {"MTLow", "MTHigh"};		
+		vector<string> MTs     = {"MTHigh"};		
 		//vector<string> tagging = {"ctagged", "notag"};
 		for(auto& lepton : leptons) {
 			for(auto& sys : systematics_) {
@@ -504,13 +509,11 @@ public:
 		string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
 		bool lep_is_tight = (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || 
 												 object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL);
-		tracker_.group(leptype);
-		tracker_.track("object selection", leptype);
+		if(lep_is_tight) {
+			tracker_.group(leptype);
+			tracker_.track("object selection", leptype);
+		}
 		
-		// cout << object_selector_.clean_jets().size() << endl;
-		// for(auto i : object_selector_.clean_jets()) {
-		// 	cout << *i << endl;
-		// }
 		// cout << "Muon: " << *object_selector_.lepton() << endl;
     //MC Weight for lepton selection
 		float lep_weight=1;
@@ -536,49 +539,72 @@ public:
 		sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
 		if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
 		if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
-		tracker_.track("b cuts", leptype);
+		if(lep_is_tight) tracker_.track("b cuts", leptype);
 
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
-          object_selector_.met(), object_selector_.lepton_charge() ) ) return;
-    tracker_.track("perm preselection");
+          object_selector_.met(), object_selector_.lepton_charge(),
+					lep_is_tight) ) return;
+    if(lep_is_tight) tracker_.track("perm preselection");
 				
     //find mc weight for btag
 		double bweight = 1;
     if(!isData_ && !sync_) bweight *= btag_sf_.scale_factor(clean_jets, shift);
 		evt_weight_ *= bweight;
     
-		//cut on MT
-		double mt = MT(object_selector_.lepton(), object_selector_.met());
-		bool mtlow = (mt < cut_MT_);
+		// cout << object_selector_.clean_jets().size() << " --> " << permutator_.capped_jets().size() << endl;
+		// for(auto i : object_selector_.clean_jets()) {
+		// 	cout << *i << endl;
+		// }
+		// cout << endl << endl;
+    //Find best permutation
+    Permutation best_permutation;
+		int idx = 0;
+		for(auto& test_perm : permutator_.pemutations()) {
+			solver_.Solve(test_perm);
+			// cout << "Permutation #" << idx << "  " << test_perm.Prob() << " -- " << best_permutation.Prob() << endl;
+			// idx++;
+			// if(test_perm.IsComplete()) {
+			// 	cout << test_perm << endl;
+			// }
+			// else {
+			// 	cout << "Permutation incomplete!" << endl
+			// 			 << "l: " << test_perm.L() << ", b_l: " << test_perm.BLep() << ", b_h: " 
+			// 			 << test_perm.BHad() << ", j1: " << test_perm.WJa() << ", j2: " 
+			// 			 << test_perm.WJb() << endl;
+			// }
+			if(!sync_ && lep_is_tight) fill_combo_plots(presel_dir.str(), test_perm);
+			if(test_perm.Prob()  < best_permutation.Prob()) {
+				best_permutation = test_perm;
+				// cout << "This is the best so far!" << endl; 
+			}
+			// cout << endl;
+    }
+		bool reco_success = (best_permutation.IsComplete() && best_permutation.Prob() <= 1E9);
+    if(!sync_ && !reco_success) return;
+    if(lep_is_tight) tracker_.track("best perm");
 
+		cout << "BEST PERM" << endl;
+		if(best_permutation.IsComplete()){
+			cout << best_permutation << endl;
+		} 
+		else cout << "Permutation incomplete!" <<endl;
 		if(sync_) {
-			if(!mtlow && lep_is_tight) {
-				sync_info_["run"]  = event.run;
-				sync_info_["lumi"] = event.lumi;
-				sync_evt_ = event.evt;
-				sync_info_["puweight"] = (isData_) ? 1. : mc_weights_.pu_weight( event);
-				sync_info_["mcweight"] = (isData_) ? 1. : mc_weights_.gen_weight(event);
-				sync_info_["hasMuon"] = (object_selector_.lepton_type() == -1) ? 0 : 1;
-				sync_info_["btagweight"] = bweight;
-				sync_info_["leptonweight"] = lep_weight;
-				sync_info_["finalweight"] = evt_weight_;
+			if(lep_is_tight) {
+				sync_info_.Run  = event.run;
+				sync_info_.LumiSection = event.lumi;
+				sync_info_.Event= event.evt;
+				sync_info_.hasMuon = (object_selector_.lepton_type() == -1) ? 0 : 1;
+				sync_info_.RecoSuccess = reco_success;
+				if(reco_success)
+					sync_info_.MassTT = best_permutation.LVect().M();
+				else
+					sync_info_.MassTT = -1;
 				sync_tree_->Fill();
 				tracker_.track("SYNC END", leptype);
 			}
 			return;
 		}
-
-    //Find best permutation
-    Permutation best_permutation;
-		for(auto test_perm : permutator_.pemutations()) {
-			solver_.Solve(test_perm);
-			if(lep_is_tight) fill_combo_plots(presel_dir.str(), test_perm);
-			if(test_perm.Prob()  < best_permutation.Prob())
-				best_permutation = test_perm;
-    }
-    if(!best_permutation.IsComplete() || best_permutation.Prob() > 1E9) return; //FIXME, is right??? best_permutation.Prob() > 1E9
-    tracker_.track("best perm");
 
 		//create event dir (contains the dir path to be filled)
 		stringstream evtdir;		
@@ -606,7 +632,7 @@ public:
 			if(evt_weight_ > 0.) evtdir << "/positive";
 			else evtdir << "/negative";
 		}
-    tracker_.track("matched perm");
+    if(lep_is_tight) tracker_.track("matched perm");
 
 		//check isolation type
 		bool runpdf = (runsys_ && isTTbar_ && shift == systematics::SysShifts::NOSYS);
@@ -621,24 +647,12 @@ public:
 		}
 		if(!tight && shift != Sys::NOSYS) return;
 
-		//check MT category
-		bool mthigh;
-		if(mtlow) {
-			evtdir << "/MTLow";
-			runpdf &= false;
-			mthigh = false;
-		}
-		else {
-			evtdir << "/MTHigh";
-			runpdf &= true;
-			mthigh = true;
-		}
-		if(!mthigh && shift != Sys::NOSYS) return;
-		tracker_.track("MT cut", leptype);
+		//MT category (fixed, now)
+		evtdir << "/MTHigh";
 
 		//fill right category
 		fill_selection_plots(evtdir.str(), event, best_permutation, runpdf);
-		tracker_.track("END", leptype);
+		if(lep_is_tight) tracker_.track("END", leptype);
 	}
 
   //This method is called once every file, contains the event loop
@@ -657,7 +671,6 @@ public:
 			picker = nn;
 		}
 
-
     if(evt_idx_ >= limit) return;
     Logger::log().debug() << "htt_simple::analyze" << endl;
 		Logger::log().debug() << tree_ << " " << tree_->GetEntries() << endl;
@@ -668,7 +681,7 @@ public:
       //                           evt_idx_ << endl;
 			if(picker.active()) {
 				if(picker.contains(event.run, event.lumi, event.evt)) {
-					Logger::log().debug() << "Picking event " << " run: " << event.run << " lumisection: " << 
+					Logger::log().fatal() << "Picking event " << " run: " << event.run << " lumisection: " << 
 						event.lumi << " eventnumber: " << event.evt << endl;
 				}
 				else continue;
