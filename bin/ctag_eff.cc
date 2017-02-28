@@ -196,8 +196,8 @@ public:
 		working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
 		working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
 		working_points_["DeepCsvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVLOOSE);};
-		working_points_["DeepCsvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
 		working_points_["DeepCsvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM);};
+		working_points_["DeepCsvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
 
     //Get appropriate SFs for the probe working points
     DataFile wjet_efficiency(parser.getCfgPar<string>("general.wjets_efficiencies"));
@@ -730,6 +730,7 @@ public:
       auto wp_sf = wp_SFs_.find(wpoint.first);
       if(!isData_ && wp_sf != wp_SFs_.end()) evt_weight_ = weight*wp_sf->second->scale_factor({best_permutation.WJa(), best_permutation.WJb()}, shift);
       else evt_weight_ = weight;
+
       string jet_category = get_wjet_category(best_permutation, wpoint.second);
       string folder = ttsubdir+sys_dir+"/"+cut_ordering_+"/"+wpoint.first;
       //fill_other_jet_plots(folder, best_permutation, wpoint.second, evt_weight_);
