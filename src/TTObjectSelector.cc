@@ -163,7 +163,7 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
 		mu_trg_ = true;
 		return true;
 	}
-	el_trg_ = (event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() == 1);
+	el_trg_ = (event.trigger().HLT_Ele27_WPTight_Gsf() == 1);
 	mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
 	//mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
 
