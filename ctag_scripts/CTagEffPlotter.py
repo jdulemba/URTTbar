@@ -50,9 +50,6 @@ parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF 
 parser.add_argument('--noPOIpropagation', action='store_true')
 args = parser.parse_args()
 
-skip = raw_input('Should I skip HScale? [Yy/Nn]')
-skip_HScale = (skip.lower() == 'y')
-
 def syscheck(cmd):
 	out = os.system(cmd)
 	if out == 0:
@@ -68,8 +65,10 @@ class CTagPlotter(Plotter):
 		self.tt_shifted = {
 			'mtop_up' : 'ttJets_mtopup',
 			'mtop_down' : 'ttJets_mtopdown',
-			#'hadscale_up' : 'ttJets_scaleup', 
-			#'hadscale_down' : 'ttJets_scaledown',
+			'isr_up'   : 'ttJets_isrup',
+			'isr_down' : 'ttJets_isrdown',
+			'fsr_up'   : 'ttJets_fsrup',
+			'fsr_down' : 'ttJets_fsrdown',
 			}
 		jobid = os.environ['jobid']
 		files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
@@ -90,50 +89,65 @@ class CTagPlotter(Plotter):
 			'view' : self.create_tt_subsample(
 				['semilep_visible_right'],
 				't#bar{t}',
-				'#50d0ff'
+				'#6666b3'
 				)
 			}
 		self.views['ttJets_sig'] = {
 			'view' : self.create_tt_subsample(
 				['semilep_visible_right', 'semilep_right_thad', 'semilep_right_whad'], 
 				't#bar{t}, right W_{h}',
-				'#50d0ff'
+				'#6666b3'
 				)
 			}
 		self.views['ttJets_bkg'] = {
 			'view' : self.create_tt_subsample(
 				['semilep_right_tlep', 'semilep_wrong'], 
 				't#bar{t}, wrong W_{h}',
-				'#ff4040'
+				'#ab5555'
 				)
 			}
 		self.views['ttJets_other'] = {
 			'view' : self.create_tt_subsample(
 				['other'], 
 				'Other tt decay',
-				'#008b00',
+				'#668db3',
 				)
 			}
+
+		self.views['VJets'] = {
+			'view' : views.SumView(
+				self.get_view('W[1-5]Jets'),
+				self.get_view('ZJets'),
+				)
+			}
+
+		##self.views['SingleTOP'] = {
+    ##  'view' : views.ScaleView(
+    ##    self.get_view('singlet*'),
+		##		2
+    ##    )
+    ##  }
 
 		self.mc_samples = [
 			'QCD*',
 			#'tt[WZ]*',
-			'[WZ]Jets',
+			'VJets',
 			#'WJets',
 			#'ZJets',
-			'single*',
+			'singlet*',
 			'ttJets_other',
 			'ttJets_bkg',
 			'ttJets_sig',		 
 			]
 
 		self.card_names = {
-			'qcd' : ['QCD*'],
-			'vjets'		: ['[WZ]Jets'],
+			#'qcd' : ['QCD*'],
+			'vjets'		: ['ZJets', 'W[1-5]Jets'],
 			'right_whad' : ['ttJets_sig'],
 			'wrong_whad' : ['ttJets_bkg'],
 			'nonsemi_tt' : ['ttJets_other'],
-			'single_top' : ['single*'],
+			'single_top' : ['singlet*'],
+			#'single_top' : ['SingleTOP'],
 			'data_obs'	: ['data']
 			}
 		self.card_by_title = {
@@ -154,7 +168,7 @@ class CTagPlotter(Plotter):
 				'type' : 'lnN',
 				'samples' : ['.*'],
 				'categories' : ['.*'],
-				'value' : 1.027,
+				'value' : 1.062,
 				},
 			'lepEff' : {
 				'type' : 'lnN',
@@ -184,7 +198,7 @@ class CTagPlotter(Plotter):
 				'type' : 'lnN',
 				'samples' : ['vjets'],
 				'categories' : ['.*'],
-				'value' : 1.10,
+				'value' : 1.20,
 				},			
 			'pu' : {
 				'samples' : ['.*'],
@@ -207,16 +221,31 @@ class CTagPlotter(Plotter):
 				'categories' : ['.*'],
 				'type' : 'shape',
 				'+' : lambda x: x.replace('nosys', 'mtop_up'),
-				#'-' : lambda x: x.replace('nosys', 'mtop_down'),
+				'-' : lambda x: x.replace('nosys', 'mtop_down'),
 				'value' : 1.00,				
 				},
-			'HScale' : {
+			'ISR' : {
 				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
 				'categories' : ['.*'],
 				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'hadscale_up'),
-				#'-' : lambda x: x.replace('nosys', 'hadscale_down'),
-				'constants' : ('hadscale_down', 'hadscale_up'),
+				'+' : lambda x: x.replace('nosys', 'isr_up'),
+				'-' : lambda x: x.replace('nosys', 'isr_down'),
+				'constants' : (
+					'isr_down', 
+					'isr_up'
+					),
+				'value' : 1.00,				
+				},
+			'FSR' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'fsr_up'),
+				'-' : lambda x: x.replace('nosys', 'fsr_down'),
+				'constants' : (
+					'fsr_down', 
+					'fsr_up'
+					),
 				'value' : 1.00,				
 				},
 			'JES' : {
@@ -268,76 +297,76 @@ class CTagPlotter(Plotter):
 				'notag'	: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
 				},
 			'csvLoose' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 18, 20],
-				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
-				'ditag'	: [6, 8, 10, 12, 14, 16, 18, 20],	
+				'notag'	  : [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag'	  : [6, 8, 10, 12, 20],	
 				},
 			'csvMedium' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 20],
-				'subtag'  : [6, 10, 14, 20],
-				'ditag'	: [6, 10, 20],
+				'notag'	  : [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag'	  : [6, 8, 10, 12, 20],
 				},
 			'csvTight' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 10, 14, 20],
-				'subtag'  : [6, 10, 20],
-				'ditag'	: [6, 20],	
+				'notag'  	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag'	  : [6, 12, 20],
 				},			
 			'cmvaLoose' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 18, 20],
-				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
-				'ditag'	: [6, 8, 10, 12, 14, 16, 18, 20],	
+				'notag'	  : [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag'	  : [6, 8, 10, 12, 20],	
 				},
 			'cmvaMedium' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 20],
-				'subtag'  : [6, 10, 14, 20],
-				'ditag'	: [6, 10, 20],
+				'notag'  	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'cmvaTight' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 10, 14, 20],
-				'subtag'  : [6, 10, 20],
-				'ditag'	: [6, 20],	
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 12, 20],
 				},			
 			'DeepCsvLoose' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 18, 20],
-				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
-				'ditag'	: [6, 8, 10, 12, 14, 16, 18, 20],	
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],	
 				},
 			'DeepCsvMedium' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 20],
-				'subtag'  : [6, 10, 14, 20],
-				'ditag'	: [6, 10, 20],
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'DeepCsvTight' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 10, 14, 20],
-				'subtag'  : [6, 10, 20],
-				'ditag'	: [6, 20],	
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 12, 20],
 				},			
 			'ctagLoose' : {
-				'notag'	: [6, 10, 20],
-				'leadtag' : [6, 10, 14, 20],
-				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
-				'ditag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'ctagMedium' : {
-				'notag'	: [6, 8, 10, 12, 14, 16, 18, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 18, 20],
-				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
-				'ditag'	: [6, 8, 10, 12, 14, 16, 18, 20],
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'ctagTight' : {
-				'notag'	: [6, 10, 14, 20],
-				'leadtag' : [6, 8, 10, 12, 14, 16, 18, 20],
-				'subtag'  : [6, 8, 10, 12, 14, 16, 18, 20],
-				'ditag'	: [6, 10, 20],
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			}
 
@@ -365,7 +394,6 @@ class CTagPlotter(Plotter):
 			raise ValueError('The card is not defined!')
 		for sys_name, info in self.systematics.iteritems():
 			if 'value' not in info: continue
-			if sys_name == 'HScale' and skip_HScale: continue
 			for category in info['categories']:
 				for sample in info['samples']:
 					plotter.card.add_systematic(
@@ -530,8 +558,8 @@ class CTagPlotter(Plotter):
 			#
 			# shape and dynamically assigned systematics
 			#
-			for sys_name, info in self.systematics.iteritems():
-				if sys_name == 'HScale' and skip_HScale: continue
+			
+			for sys_name, info in self.systematics.iteritems():				
 				if not any(re.match(i, category_name) for i in info['categories']): continue
 				if not any(re.match(i, name) for i in info['samples']): continue
 				shift = 1.0
@@ -613,14 +641,13 @@ class CTagPlotter(Plotter):
 		info = {}
 		pflav_path = '{systematic}/mass_discriminant/{wpoint}/{jtag}/{jrank}/%s' % self.flavour_info
 		def get_info(sys, wpoint, jtag, jrank):
-			histo = ritghtW_view.Get(
-				pflav_path.format(
-					systematic=sys, 
-					wpoint=wpoint,
-					jtag=jtag,
-					jrank=jrank
-					)
+			hpath = pflav_path.format(
+				systematic=sys, 
+				wpoint=wpoint,
+				jtag=jtag,
+				jrank=jrank
 				)
+			histo = ritghtW_view.Get(hpath)
 			ret = {}
 			err = ROOT.Double()
 			tot = histo.IntegralAndError(1, histo.GetNbinsX(), err)
@@ -1064,7 +1091,8 @@ systematics_to_check = [
 	'CTAGB', 
 	'CTAGC', 
 	'MTOP', 
-	'HScale',
+	'FSR', 
+	'ISR', 
 	'pu'
 ]
 
@@ -1082,6 +1110,13 @@ variables = [
   ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
   ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
   ("Bjets_CvsL", "CvsL Discriminator (B Jet)", 1, None, False),
+	("Wjets_CMVA"     , "cMVA Discriminator", 1, None, False),
+	("Wjets_DeepCSVb" , "DeepCSVb Discriminator", 1, None, False),
+	("Wjets_DeepCSVl" , "DeepCSVl Discriminator", 1, None, False),
+	("Wjets_DeepCSVbb", "DeepCSVbb Discriminator", 1, None, False),
+	("Wjets_DeepCSVc" , "DeepCSVc Discriminator", 1, None, False),
+	("Wjets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
+	("Wjets_DeepCSVbD", "DeepCSV Discriminator", 1, None, False),
   #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None, False),
   #("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
   #("Whad_pt"  , "p_{T}(W_{had}) (GeV)", 10, None, False),
@@ -1100,6 +1135,13 @@ preselection = [
   ("jets_CSV", "jet CSV",	2, None, False),
   ("jets_CvsB", "CvsB Discriminator", 1, None, False),
   ("jets_CvsL", "CvsL Discriminator", 1, None, False),
+	("jets_cMVA"     , "cMVA Discriminator", 1, None, False),
+	("jets_DeepCSVb" , "DeepCSVb Discriminator" , 1, None, False),
+	("jets_DeepCSVl" , "DeepCSVl Discriminator" , 1, None, False),
+	("jets_DeepCSVbb", "DeepCSVbb Discriminator", 1, None, False),
+	("jets_DeepCSVc" , "DeepCSVc Discriminator" , 1, None, False),
+	("jets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
+	("jets_DeepCSVbD", "DeepCSVbD Discriminator", 1, None, False),
   ("jets_eta", "#eta(jet)", 10, None, False),
   ("jets_pt", "p_{T}(jet)", 10, None, False),
   ("lep_eta", "#eta(l)", 10, None, False),
@@ -1192,8 +1234,8 @@ if args.mceffs:
 
 if args.plots:
 	#cut flow
-	flow = plotter.cut_flow()
-	plotter.save('cut_flow')
+	## flow = plotter.cut_flow()
+	## plotter.save('cut_flow')
 
 	plotter.set_subdir('preselection')
 	for var, axis, rebin, x_range, leftside in preselection:
@@ -1331,7 +1373,9 @@ if args.systematics:
 								 ),
 							fillstyle = 'hollow',
 							linestyle = 1,
-							linewidth = 2
+							linewidth = 2,
+							drawstyle = 'hist e',
+							markersize = 0,
 							),
 						plotter.binning[wpoint][cat_name],
 						)
@@ -1367,11 +1411,10 @@ if args.shapes:
 	lfer = info['lcfrac'].std_dev
 	sfer = info['scfrac'].std_dev	
 	for name, shift in plotter.systematics.iteritems():
-		if name == 'HScale' and skip_HScale: continue
 		if 'constants' in shift:			
 			dw, up = shift['constants']
-			su = plotter.write_summary_table(working_points, dw)
-			sd = plotter.write_summary_table(working_points, up)
+			su = plotter.write_summary_table(working_points, dw) if dw is not None else info
+			sd = plotter.write_summary_table(working_points, up) if up is not None else info
 			for attr in ['lcfrac', 'scfrac']:
 				delta = max(
 					abs(info[attr].nominal_value - su[attr].nominal_value),
@@ -1396,10 +1439,10 @@ if args.shapes:
 	#	
 	all_tag = [os.path.join('nosys', 'mass_discriminant', 'notag', 'both_untagged')]
 	common_shapes = { #pointless to check effect of JES on samples with such low statitics
-		'qcd$' : plotter.get_shape(all_tag, 'qcd', rebin=1),
+		'qcd$' : plotter.get_shape(all_tag, 'qcd', rebin=1) if 'qcd' in plotter.card_names else None,
 		## 'qcd.+JESUp$' : plotter.get_shape(all_tag, 'qcd', rebin=mass_discriminant_binning, systematic='JES+'),
 		## 'qcd.+JESDown$' : plotter.get_shape(all_tag, 'qcd', rebin=mass_discriminant_binning, systematic='JES-'),
-		'vjets$' : plotter.get_shape(all_tag, 'vjets', rebin=1),
+		'vjets$' : plotter.get_shape(all_tag, 'vjets', rebin=1) if 'vjets' in plotter.card_names else None,
 		## 'vjets.+JESUp$' : plotter.get_shape(all_tag, 'vjets', rebin=mass_discriminant_binning, systematic='JES+'),
 		## 'vjets.+JESDown$' : plotter.get_shape(all_tag, 'vjets', rebin=mass_discriminant_binning, systematic='JES-'),
 		}
@@ -1441,7 +1484,13 @@ if args.shapes:
 			} #TODO add formulas for inclusive categories
 		lightctag_nuisance_name = 'CTAGL'
 		ctag_nuisance_name = 'CTAGC'
-		category_constants = {'parshifts' : shifts, 'light_SF' : {'nuisance_name' : lightctag_nuisance_name, 'floating' : 0.5}, 'charm_SF' : {'floating' : 0.5}} #float between 0.5/1.5
+		category_constants = {
+			'parshifts' : shifts, 
+			'light_SF' : {
+				'nuisance_name' : lightctag_nuisance_name, #have another systematic to take care of it
+				}, 
+			'charm_SF' : {'floating' : 0.5} #float between 0.5/1.5
+			}
 		for category in categories:
 			#
 			# Remove CTAGL systematic from right_whad sample, get the value 
@@ -1464,8 +1513,25 @@ if args.shapes:
 				default = eval(yield_str.replace('x', '0.'))
 				formula_str = '{0} - {1}/{2}'.format(value, yield_str, default)
 				formula = ROOT.TF1('blah', formula_str, -2, 2)
-				constant = formula.GetX(0, -2, 2)				
+				#look for sign changes
+				xvals = [i/100. for i in range(-200, 200)]
+				vals  = [formula(i) for i in xvals]
+				crossings = []
+				for i in range(len(xvals)-1):
+					if vals[i]*vals[i+1] < 0:
+						crossings.append(xvals[i])
+				crossings.sort(key=lambda x: abs(x))
+				if crossings:
+					constant = formula.GetX(0, crossings[0], crossings[0]+0.01)				
+				else:
+					constant = formula.GetX(0, -2, 2)
 				category_constants['light_SF'][category] = constant
+				if len(crossings) > 1:
+					logging.warning(
+						"multiple roots found for %s, %s storing the smallest as default and the other as alternate" % (wpoint, category)
+						)
+					constant = formula.GetX(0, crossings[1], crossings[1]+0.01)				
+					category_constants['light_SF']['ALTERNATE %s' % category] = constant
 			elif not args.noPOIpropagation:
 				category_constants['light_SF'][category] = {}
 				for cat_pat, sample_pat, value in plotter.card.systematics[lightctag_nuisance_name].applies_:
@@ -1490,17 +1556,14 @@ if args.shapes:
 				
 		if not args.noPOIpropagation:
 			del plotter.card.systematics[ctag_nuisance_name]
-		if not args.noLightFit and not args.noPOIpropagation: del plotter.card.systematics[lightctag_nuisance_name]
-		##if args.noPOIpropagation and args.noLightFit:
-		##	#assign new name to CTAGL nuisance for signal sample, such that it is uncorrelated from the bkg ones
-		##	newname = 'NuisLightSF'
-		##	plotter.card.add_systematic(newname, 'param', '', '', 0., 1)
-		##	category_constants['light_SF']['nuisance_name'] = newname
+		if not args.noLightFit and not args.noPOIpropagation: 
+			del plotter.card.systematics[lightctag_nuisance_name]
 
 		#
 		# Replace V+Jets and QCD shapes with cumulative ones
 		#
 		for pattern, shape in common_shapes.iteritems():
+			if shape is None: continue
 			for category in categories:
 				binned_shape = shape.Clone()
 				binned_shape = urviews.RebinView.rebin(binned_shape, plotter.binning[wpoint][category])

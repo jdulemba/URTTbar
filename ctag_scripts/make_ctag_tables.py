@@ -21,6 +21,12 @@ wps = [
 	('ctagLoose' , 'c-tagger L'),
 	('ctagMedium', 'c-tagger M'),
 	('ctagTight' , 'c-tagger T'),
+	('DeepCsvLoose' , 'DeepCSV L'), 
+	('DeepCsvMedium',	'DeepCSV M'),
+	('DeepCsvTight' ,	'DeepCSV T'), 
+	('cmvaLoose' , 'cMVAv2 L' ),
+	('cmvaMedium', 'cMVAv2 M'),
+	('cmvaTight' , 'cMVAv2 T' ),
 	]
 
 categories = [
@@ -40,8 +46,9 @@ samples = [
 ]
 
 jobid = os.environ['jobid']
-table = open('plots/%s/ctageff/mass_discriminant/prefit_yields.tex' % jobid, 'w')
-results = open('plots/%s/ctageff/mass_discriminant/results.tex' % jobid, 'w')
+project = os.environ['URA_PROJECT']
+table   = open('%s/plots/%s/ctageff/mass_discriminant/prefit_yields.tex' % (project, jobid), 'w')
+results = open('%s/plots/%s/ctageff/mass_discriminant/results.tex'       % (project, jobid), 'w')
 ncols = len(samples)+3
 table.write(
 	'''
@@ -60,7 +67,7 @@ for wp, wpname in wps:
 	table.write('\multicolumn{%d}{c}{ %s } \\\\ \n' % (ncols, wp))
 	table.write('\hline \n')
 		
-	wpdir = 'plots/%s/ctageff/mass_discriminant/%s' % (jobid, wp)
+	wpdir = '%s/plots/%s/ctageff/mass_discriminant/%s' % (project, jobid, wp)
 	data_f = io.root_open('%s/datacard.root'   % (wpdir))
 	mc_f   = io.root_open('%s/MaxLikeFit.root' % (wpdir))
 	stat_f = io.root_open('%s/MaxLikeFitStatOnly.root' % (wpdir))
@@ -70,7 +77,11 @@ for wp, wpname in wps:
 	stat_pars = rootpy.asrootpy(stat_f.fit_s.floatParsFinal())
 	results.write(
 		tex.tabline(
-			[wpname, tex.format_roovar(pars['charmSF'], True), tex.format_roovar(stat_pars['charmSF'], True, erronly=True)], convert=False
+			[
+				wpname, 
+				tex.format_roovar(pars['charmSF'], True), 
+				tex.format_roovar(stat_pars['charmSF'], True, erronly=True)
+				], convert=False
 			)
 		)
 	

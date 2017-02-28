@@ -21,7 +21,7 @@ project = os.environ['URA_PROJECT']
 input_file = '%s/results/%s/btag_topology_effs/ttJets.root' % (project, jobid)
 tfile = io.root_open(input_file)
 
-pt_bins  = [0., 30, 60, 100, 140, 180, 1000]
+pt_bins  = [0., 40, 80, 120, 1000]
 eta_bins = [-2.4, -1.2, 0.0, 1.2, 2.4]
 hview = urviews.RebinView(tfile, [pt_bins, eta_bins])
 

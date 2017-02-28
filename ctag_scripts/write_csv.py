@@ -59,14 +59,14 @@ class CorrelationMatrix(object):
       idx2 = self.ymapping[v2]
       return self.matrix[idx1,idx2].value
 
-wps = glob('plots/%s/ctageff/mass_discriminant/%s*' % (jobid, args.algo.lower()))
+wps = glob('plots/%s/ctageff/mass_discriminant/%s*' % (jobid, args.algo))
 wp_mapping = { i:j for j, i in enumerate(['Loose', 'Medium', 'Tight'])}
 sfs = ['bottomSF', 'charmSF', 'lightSF']
 
 for wp in wps:
    wp_name = os.path.basename(wp)[len(args.algo):]
    wp_idx = wp_mapping[wp_name]
-   shifts = ['%s/MaxLikeFit.root' % wp, '%s/MaxLikeFitStatistic.root' % wp] + glob('%s/sys_breakdown/*.root' % wp)
+   shifts = ['%s/MaxLikeFit.root' % wp, '%s/MaxLikeFitStatistic.root' % wp] + glob('%s/for_cmb/*.root' % wp)
    first = True
    stat_errs = {}
    correlations = CorrelationMatrix(
@@ -81,7 +81,7 @@ for wp in wps:
             err = max(abs(i) for i in var.error) if hasattr(var.error, '__len__') else var.error
             shift_name = ''
             sign = +1
-            if 'sys_breakdown' in shift:
+            if 'for_cmb' in shift:
                base = os.path.basename(shift)
                shift_name = '_%s' % base.replace('.root', '')
                sign = -1 if shift_name in correlations and correlations[sf_name, shift_name] < 0 else +1

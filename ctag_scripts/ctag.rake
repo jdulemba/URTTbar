@@ -195,7 +195,7 @@ rule /MaxLikeFitStatOnly\.root$/ => psub(/MaxLikeFitStatOnly/, 'MultiDimFit') do
   dir = File.dirname(t.name)
   bname = File.basename(t.name)
   chdir(dir) do
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit -S 0 --minos=all --snapshotName MultiDimFit"
+    sh "combine MultiDimFit.root -M MaxLikelihoodFit --freezeNuisances all --minos=all --snapshotName MultiDimFit"
     sh "mv mlfit.root #{File.basename(t.name)}"      
   end
 end
@@ -205,12 +205,14 @@ task :sys_breakdown, [:wp] do |t, args|
   Rake::Task["#{wpdir}/MultiDimFit.root"].invoke()
   Rake::Task["#{wpdir}/MaxLikeFitStatOnly.root"].invoke()
   sh "mkdir -p #{wpdir}/sys_breakdown/"  
+  sh "mkdir -p #{wpdir}/for_cmb/"
   nuisances=File.readlines("#{wpdir}/datacard.txt").grep(/( lnN )|( shape )|( param )/).map {|x| x.split()[0]}
-  #groups = [/_bin_/, /_MCStat/]
-  #group_names = ['bbb', 'MCStat']
-  singles = [/JES/,/pu/]
+  groups = [/[IF]SR/, /_MCStat/, /.*xsec/, /CTAG[BC]/]
+  group_names = ['showering', 'MCStat', 'XSections', 'CTagUnc']
+  singles = [/JES/,/pu/, /MTOP/, /PDF/, /BTAG/, /CTAGL/]
+  for_cmb = [/JES/,/pu/]
   chdir(wpdir) do
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit -S 0 --minos=all --snapshotName MultiDimFit &> /dev/null"
+    sh "combine MultiDimFit.root -M MaxLikelihoodFit --freezeNuisances all --minos=all --snapshotName MultiDimFit &> /dev/null"
     sh "mv mlfit.root MaxLikeFitStatistic.root"
     nuisances.each do |nuisance|
       if singles.map {|g| g =~ nuisance}.any?
@@ -222,18 +224,31 @@ task :sys_breakdown, [:wp] do |t, args|
     end
     
     puts 'running for groups'
-    ## groups.zip(group_names).each do |group, name|
-    ##   to_freeze = nuisances.select{|x| not (group =~ x)}.join(',')
-    ##   if to_freeze.length == 0
-    ##     next
-    ##   end
-    ##   sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
-    ##   sh "mv mlfit.root sys_breakdown/#{name}.root"
-    ## end
-    to_freeze = nuisances.select{|x| singles.map{|y| y =~ x}.any? }.join(',')
+    groups.zip(group_names).each do |group, name|
+      to_freeze = nuisances.select{|x| not (group =~ x)}.join(',')
+      if to_freeze.length == 0
+        next
+      end
+      sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
+      sh "mv mlfit.root sys_breakdown/#{name}.root"
+    end
+
+    #
+    # Breakdown for combination with W+c
+    #
+    nuisances.each do |nuisance|
+      if for_cmb.map {|g| g =~ nuisance}.any?
+        puts nuisance
+        to_freeze = nuisances.select{|x| x != nuisance}.join(',')
+        sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
+        sh "mv mlfit.root for_cmb/#{nuisance}.root"
+      end
+    end
+    to_freeze = nuisances.select{|x| for_cmb.map{|y| y =~ x}.any? }.join(',')
     sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
-    sh "mv mlfit.root sys_breakdown/other.root"
+    sh "mv mlfit.root for_cmb/other.root"
   end
+  sh "python ctag_scripts/make_sys_table.py #{args.wp}"
 end
 
 #tasks
@@ -244,6 +259,11 @@ end
 task :ctag_postfit, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
   sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} both"
+end
+
+task :ctag_prefit, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} prefit"
 end
 
 task :ctag_scan, [:wp] do |t, args|
@@ -290,9 +310,9 @@ end
 task :ctag_plotfit do |t|
   Rake::Task['ctag_shapes'].invoke()
   Rake::Task['ctag_fitall'].invoke()
+  Rake::Task['breakdown_all'].invoke()
   #Rake::Task['breakdown_all'].invoke()
   sh 'python ctag_scripts/make_ctag_tables.py'
-  Rake::Task['breakdown_all'].invoke()
-  sh "write_csv.py ctag"
+  sh "ctag_scripts/write_csv.py ctag"
   #sh "mv ctag.csv plots/#{jobid}/ctageff/."
 end
