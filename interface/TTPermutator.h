@@ -8,11 +8,12 @@
 #include "URAnalysis/AnalysisFW/interface/CutFlowTracker.h"
 #include <string>
 #include <list>
+#include <iostream>
 
 class TTPermutator: public URSelector {
 public:
   TTPermutator(std::string cfgname="permutations");
-  bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0);
+  bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0, bool track=true);
 	list<Permutation>& pemutations() {
 		if(!has_run_) permutate();
 		return permutations_;

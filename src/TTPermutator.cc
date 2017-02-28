@@ -40,7 +40,7 @@ void TTPermutator::configure() {
   }
 }
 
-bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc) {
+bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc, bool track) {
 	reset(); //clear everything
 	jets_ = jets;
 	lepton_ = lepton;
@@ -62,9 +62,9 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
 	}
 		
 	if(!capped_jets_[0]->BTagId(cut_tight_b_)) return false;
-	if(tracker_) tracker_->track("tight b cut");
+	if(tracker_ && track) tracker_->track("tight b cut");
 	if(!capped_jets_[1]->BTagId(cut_loose_b_)) return false;
-	if(tracker_) tracker_->track("loose b cut");
+	if(tracker_ && track) tracker_->track("loose b cut");
 
 	return true;
 }
