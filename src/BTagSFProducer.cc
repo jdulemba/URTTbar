@@ -166,7 +166,7 @@ BTagSFProducer::~BTagSFProducer() {
 	if(reader_loose_) delete reader_loose_;
 }
 
-double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift) {
+double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift, bool debug) {
 	using namespace systematics;
 	if(no_tight_cut_) return 1.;
   if(ignore_partial_shifts_ && 
@@ -269,6 +269,12 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
         loose_sf = 1+float_value;
       }
     }
+
+		if(debug) {
+			Logger::log().debug() << "BTagSFProducer: jpt: " << jet->Pt() << ", jeta: " << jet->Eta()
+														<< ", ID: " << jet->TagId(tight_) << ", eff_tight: " << eff_tight 
+														<< ", tight_sf: " << tight_sf << endl;
+		}
 
     if(jet->TagId(tight_)) {
       mc_prob *= eff_tight;

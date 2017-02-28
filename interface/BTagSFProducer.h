@@ -22,7 +22,7 @@ public:
   BTagSFProducer(std::string tight, std::string loose="", float float_c=-1, float float_l=-1, float float_b=-1);
   BTagSFProducer(const DataFile &sf_file, const DataFile &eff_file, IDJet::BTag tighttag, IDJet::BTag loosetag=IDJet::BTag::NONE, float float_c=-1, float float_l=-1, float float_b=-1);
   ~BTagSFProducer();    
-  double scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift);
+  double scale_factor(const std::vector<IDJet*> &jets, systematics::SysShifts shift, bool debug=false);
   IDJet::BTag tight_cut() {return tight_;}
   IDJet::BTag loose_cut() {return loose_;}
   void ignore_partial_shifts() {ignore_partial_shifts_=true;}
