@@ -54,7 +54,7 @@ public:
       throw 42;
     }
     std::shared_ptr<T> ptr((T*) original->Clone(newname.c_str()));
-		ptr->Scale(1./ptr->Integral("width"));
+		ptr->Scale(1./ptr->Integral(), "width");
     return ptr;
   }
 
