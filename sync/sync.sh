@@ -52,10 +52,10 @@ echo '#####################################################' >  summary.raw_txt
 echo '                      RECO STEP                      ' >> summary.raw_txt
 echo '#####################################################' >> summary.raw_txt
 
-./compare_sync_tree.py data_SingleMuRECO.sync.root lyon/Andrey_v2.root --labels='Rochester,Lyon' --nolist >> summary.raw_txt
+./compare_sync_tree.py data_SingleMuRECO.sync.root lyon/Andrey_v4.root --labels='Rochester,Lyon' --nolist >> summary.raw_txt
 echo >> summary.raw_txt
 
-./compare_sync_tree.py data_SingleMuRECO.sync.root ughent/ntuplesynchro_v2.root --labels='Rochester,Ghent' --nolist >> summary.raw_txt
+./compare_sync_tree.py data_SingleMuRECO.sync.root ughent/ntuplesynchro_v4.root --labels='Rochester,Ghent' --nolist >> summary.raw_txt
 echo >> summary.raw_txt
 echo >> summary.raw_txt
 
