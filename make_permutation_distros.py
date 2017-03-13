@@ -38,7 +38,7 @@ def merge_views(inview, subnames):
    return views.SumView(*subviews)
 
 jobid = os.environ['jobid']
-input_files = glob.glob('results/%s/permProbComputer/ttJets*.root' % jobid)
+input_files = glob.glob('results/%s/permProbComputer/ttJets.root' % jobid)
 plotter = BasePlotter(
    'plots/%s/permutations' % jobid,
 )
