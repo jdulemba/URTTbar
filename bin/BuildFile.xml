@@ -21,7 +21,7 @@
 <bin file="htt_simple.cc"        name="htt_simple"/>
 <bin file="htt_flav_effs.cc"        name="htt_flav_effs"/>
 <bin file="permStudy.cc"        name="permStudy"/>
-
+<bin file="jet_effs.cc"        name="jet_effs"/>
 
 <!--bin file="topspin_reco.cc"       name="topspin_reco"/-->
 <!--bin file="ttxs.cc"               name="ttxs"/-->              
