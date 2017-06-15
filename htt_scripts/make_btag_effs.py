@@ -51,7 +51,7 @@ def make_efficiency(hpass, hall):
 
 #ltypes = ['electrons', 'muons']
 systypes = ['nosys']
-selections = ['alljets']#, 'mtfail', 'mtpass']
+selections = ['mtpass'] #'alljets']#, 'mtfail', 'mtpass']
 
 for sysname, selection in itertools.product(systypes, selections):
 	dirname = '/'.join([sysname, selection])

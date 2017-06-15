@@ -45,7 +45,6 @@ private:
 
   IDJet::BTag cut_tight_b_=IDJet::BTag::NONE;
   IDJet::BTag cut_loose_b_=IDJet::BTag::NONE;
-	float cut_MT_;
 	bool sameCut_;
 
 public:
@@ -83,11 +82,9 @@ public:
     
     mc_weights_.init(sample);
     
-    parser.addCfgParameter<float>("event", "MT", "");
 		parser.addCfgParameter<string>("permutations", "tightb", "");
 		parser.addCfgParameter<string>("permutations", "looseb", "");
 		parser.parseArguments();
-		cut_MT_ = parser.getCfgPar<float>("event", "MT");
 
     cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("permutations", "tightb"));
     cut_loose_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("permutations", "looseb"));
@@ -120,7 +117,7 @@ public:
   //book here your histograms/tree and run every initialization needed
   virtual void begin() {
     outFile_.cd();
-		vector<string> dirs = {"alljets", "mtpass", "mtfail"};
+		vector<string> dirs = {"mtpass"};
 		vector<string> ltypes = {"electrons", "muons"};
 		for(auto ltype : ltypes) {
 			for(auto shift : systematics_) {
@@ -182,14 +179,10 @@ public:
       evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
     tracker_.track("MC weights");
 
-		fill(leptype+"/"+sys_name+"/"+"alljets");
+		//fill(leptype+"/"+sys_name+"/"+"alljets");
 
 		double mt = (*object_selector_.lepton()+*object_selector_.met()).Mt() ;
-		if(mt < cut_MT_) {
-			fill(leptype+"/"+sys_name+"/"+"mtfail");
-		} else {
-			fill(leptype+"/"+sys_name+"/"+"mtpass");
-		}    
+		fill(leptype+"/"+sys_name+"/"+"mtpass");
     tracker_.track("end");
   }
 
