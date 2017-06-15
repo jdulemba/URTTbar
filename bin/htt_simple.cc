@@ -337,6 +337,8 @@ public:
 			480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 
 			680.0, 730.0, 800.0, 920.0, 1200.0};
 
+		//const vector<double> ctbinning = {0.0, 0.4, 0.6, 0.75, 0.9, 1.0};
+
 		//book<TH1F>(folder, "m_tt", "", 180, 200., 2000);			
 		book<TH1F>(folder, "m_tt", "", 19, &mbinning[0]);			
 
@@ -353,8 +355,8 @@ public:
 
 		//Angular variables
 		//top angles
-    book<TH1F>(folder, "tlep_ctstar", "", 200, -1.0001, 1.0001);
-    book<TH1F>(folder, "thad_ctstar", "", 200, -1.0001, 1.0001);
+    book<TH1F>(folder, "tlep_ctstar", "", 20, 0., 1.);
+    book<TH1F>(folder, "thad_ctstar", "", 20, 0., 1.);
 
 		//delta
     book<TH1F>(folder, "cdelta_ld", "", 200, -1.0001, 1.0001);
@@ -364,7 +366,7 @@ public:
 
 		//2D plots
 		//book<TH2F>(folder, "mtt_tlep_ctstar", "", 180, 200., 2000, 10, 0., 1.0001);
-		book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 5, 0., 1.0001);
+		book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 20, 0., 1.);
 
 		//PDF uncertainties
     //book<TH1D>(folder, "PDFYields", "", 249, 0, 249);		
@@ -422,16 +424,16 @@ public:
 		auto thadcm = ttang.thad().to_CM();
 		
 		//top angles
-    dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
-    dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
+		double tlep_ctstar = min(fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 0.99999);
+		double thad_ctstar = min(fabs(ttang.unit3D().Dot(ttcm.thad().unit3D())), 0.99999);
+    dir->second["tlep_ctstar"].fill(tlep_ctstar, evt_weight_);
+    dir->second["thad_ctstar"].fill(thad_ctstar, evt_weight_);
 		dir->second["mtt_tlep_ctstar"].fill(
-			hyp.LVect().M(), 
-			fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
-			evt_weight_
+			hyp.LVect().M(), tlep_ctstar, evt_weight_
 			);
 		if(pdf) pdf_uncs_.fill_replicas2D(
 			folder, "mtt_tlep_ctstar", 
-			hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
+			hyp.LVect().M(), tlep_ctstar,
 			evt_weight_, event
 			);
 
@@ -584,11 +586,11 @@ public:
     if(!sync_ && !reco_success) return;
     if(lep_is_tight) tracker_.track("best perm");
 
-		cout << "BEST PERM" << endl;
-		if(best_permutation.IsComplete()){
-			cout << best_permutation << endl;
-		} 
-		else cout << "Permutation incomplete!" <<endl;
+		// cout << "BEST PERM" << endl;
+		// if(best_permutation.IsComplete()){
+		// 	cout << best_permutation << endl;
+		// } 
+		// else cout << "Permutation incomplete!" <<endl;
 		if(sync_) {
 			if(lep_is_tight) {
 				sync_info_.Run  = event.run;
