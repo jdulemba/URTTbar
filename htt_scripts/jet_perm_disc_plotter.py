@@ -20,9 +20,9 @@ parser = argparse.ArgumentParser(description='Create plots using files from jet_
 
 jobid = jobid = os.environ['jobid']
 
-parser.add_argument('analysis', help='Choose type of analysis (Test or Full_Analysis).')
-parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000, or Combined).')
-parser.add_argument('plot', help='Choose type of plots to generate (Had_Comp, Delta_Plots).')
+parser.add_argument('analysis', help='Choose type of analysis (Test or Full).')
+parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000).')
+parser.add_argument('plot', help='Choose type of plots to generate (Had_Comp, Delta_Plots, Perm_Disc, NS_Chi, NS_Disc, Combined_Disc, Combine_Discs).')
 args = parser.parse_args()
 
 if args.analysis == "Test":
@@ -44,7 +44,7 @@ if args.analysis == "Test":
 			defaults = {'save' : {'png' : True, 'pdf' : False}}
 		)
 
-elif args.analysis == "Full_Analysis":
+elif args.analysis == "Full":
 	if args.sample == "ttJetsM0" or args.sample == "ttJetsM700" or args.sample == "ttJetsM1000":
 		print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
 		myfile = root_open('../results/%s/jet_perm_disc/%s.root' % (jobid, args.sample), 'read')
@@ -63,6 +63,30 @@ elif args.analysis == "Full_Analysis":
 			defaults = {'save' : {'png' : True, 'pdf' : False}}
 		)
 
+
+def stack_plots(lists):
+    lists.sort()
+    total = 0
+#    ratio_hists = []
+    Stack_hists = []
+
+    for i in lists:
+        total += i
+
+    for i in lists:
+#        ratio_hists.append(i/total)
+        i.SetFillStyle(1001)
+        Stack_hists.append(i)
+
+    if len(Stack_hists) == 4:
+        stack = plotter.create_stack(Stack_hists[0], Stack_hists[1], Stack_hists[2], Stack_hists[3])
+        norm_stack = plotter.create_stack(Stack_hists[0]/total, Stack_hists[1]/total, Stack_hists[2]/total, Stack_hists[3]/total)
+    elif len(Stack_hists) == 3:
+        stack = plotter.create_stack(Stack_hists[0], Stack_hists[1], Stack_hists[2])
+        norm_stack = plotter.create_stack(Stack_hists[0]/total, Stack_hists[1]/total, Stack_hists[2]/total)
+        
+    return stack, norm_stack
+    
 
 ##### Global Var. Definitions ####
 defcol = 'black' # default color
@@ -375,6 +399,411 @@ if args.plot == "Delta_Plots":
 	plotter.save('3J_Sig_Background_Delta_costh')
 	
 
+##############################################################################################
+
+if args.plot == "Mass_Disc":
+
+
+        #### 3J Perm Disc  values
+    Likelihood_All_3J = [
+        ('3J_Permdisc_All', 'All Mass Disc Values from Event', 'black', '-Log(likelihood)', '3J_Massdisc_Event_All'),
+        ('3J_Permdisc_Lowest', 'Lowest Mass Disc Value from Event', 'black', '-Log(likelihood)', '3J_Massdisc_Event_Lowest'),
+        ('3J_Permdisc_Best_Perm', 'Perm Mass Value from Event Best Perm', 'black', '-Log(likelihood)', '3J_Massdisc_Event_Best_Perm')
+    ]
+   
+    for var, legends, colors, xaxis, names in Likelihood_All_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(names)
+
+#        #from pdb import set_trace; set_trace()
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, drawstyle='hist')
+#        plotter.save(names+'_Norm')
+
+    ### Plots for lowest likelihood values from event
+
+            ### 3 jets
+
+    Matched_Perm_Likelihood_3J = [
+        ('3J_Permdisc_Best_Perm_RIGHT', 'RIGHT', 'black', '-Log(likelihood)'),
+        ('3J_Permdisc_Best_Perm_MERGE_SWAP', 'MERGE_SWAP', 'red', '-Log(likelihood)'),
+        ('3J_Permdisc_Best_Perm_MERGE', 'MERGE', 'green', '-Log(likelihood)'),
+        ('3J_Permdisc_Best_Perm_WRONG', 'WRONG', 'blue', '-Log(likelihood)')
+    ]
+   
+    to_draw = [] 
+    for var, legends, colors, xaxis in Matched_Perm_Likelihood_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(var+'_Categories')
+        to_draw.append(hist)
+
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+##        plotter.save(var+'_Matched_Perm_Norm')
+#        norm_to_draw.append(norm_hist)
+
+    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Massdisc_Best_Perm_Categories')
+
+#    plotter.overlay(norm_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+#    plotter.save('3J_Permdisc_Best_Perm_Matched_Perm_Norm')
+   
+        
+    stack, norm_stack = stack_plots(to_draw)
+
+    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Massdisc_Best_Perm_Categories_Stack')
+
+    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Massdisc_Best_Perm_Categories_Stack_Norm')
+
+
+##############################################################################################
+
+if args.plot == "NS_Chi":
+
+
+        #### 3J NS chi^2  values
+    Likelihood_All_3J = [
+        ('3J_NSchi_All', 'All Values from Event', 'black', '#chi^{2}', '3J_NSchi_Event_All'),
+        ('3J_NSchi_Lowest', 'Lowest Value from Event', 'black', '#chi^{2}', '3J_NSchi_Event_Lowest'),
+        ('3J_NSchi_Best_Perm', 'Value from Event Best Perm', 'black', '#chi^{2}', '3J_NSchi_Event_Best_Perm')
+    ]
+   
+    for var, legends, colors, xaxis, names in Likelihood_All_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(names)
+
+#        #from pdb import set_trace; set_trace()
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, drawstyle='hist')
+#        plotter.save(names+'_Norm')
+
+    ### Plots for lowest likelihood values from event
+
+            ### 3 jets
+
+    Matched_Perm_Likelihood_3J = [
+        ('3J_NSchi_Best_Perm_RIGHT', 'RIGHT', 'black', '#chi^{2}'),
+        ('3J_NSchi_Best_Perm_MERGE_SWAP', 'MERGE_SWAP', 'red', '#chi^{2}'),
+        ('3J_NSchi_Best_Perm_MERGE', 'MERGE', 'green', '#chi^{2}'),
+        ('3J_NSchi_Best_Perm_WRONG', 'WRONG', 'blue', '#chi^{2}')
+    ]
+   
+    to_draw = [] 
+    for var, legends, colors, xaxis in Matched_Perm_Likelihood_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(var+'_Categories')
+        to_draw.append(hist)
+
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+#        plotter.save(var+'_Matched_Perm_Norm')
+#        norm_to_draw.append(norm_hist)
+
+    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_NSchi_Best_Perm_Categories')
+
+#    plotter.overlay(norm_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+#    plotter.save('3J_NSchi_Best_Perm_Matched_Perm_Norm')
+
+        
+    stack, norm_stack = stack_plots(to_draw)
+
+    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_NSchi_Best_Perm_Categories_Stack')
+
+    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_NSchi_Best_Perm_Categories_Stack_Norm')
+
+
+##############################################################################################
+
+if args.plot == "NS_Disc":
+
+
+        #### 3J NS Disc  values
+    Likelihood_All_3J = [
+        ('3J_NSdisc_All', 'All NS Disc Values from Event', 'black', '-Log(likelihood)', '3J_NSdisc_Event_All'),
+        ('3J_NSdisc_Lowest', 'Lowest NS Disc Value from Event', 'black', '-Log(likelihood)', '3J_NSdisc_Event_Lowest'),
+        ('3J_NSdisc_Best_Perm', 'NS Disc Value from Best Perm', 'black', '-Log(likelihood)', '3J_NSdisc_Event_Best_Perm')
+    ]
+   
+    for var, legends, colors, xaxis, names in Likelihood_All_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(names)
+
+#        #from pdb import set_trace; set_trace()
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, drawstyle='hist')
+#        plotter.save(names+'_Norm')
+
+    ### Plots for lowest likelihood values from event
+
+            ### 3 jets
+
+    Matched_Perm_Likelihood_3J = [
+        ('3J_NSdisc_Best_Perm_RIGHT', 'RIGHT', 'black', '-Log(likelihood)'),
+        ('3J_NSdisc_Best_Perm_MERGE_SWAP', 'MERGE_SWAP', 'red', '-Log(likelihood)'),
+        ('3J_NSdisc_Best_Perm_MERGE', 'MERGE', 'green', '-Log(likelihood)'),
+        ('3J_NSdisc_Best_Perm_WRONG', 'WRONG', 'blue', '-Log(likelihood)')
+    ]
+   
+    to_draw = [] 
+    for var, legends, colors, xaxis in Matched_Perm_Likelihood_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(var+'_Categories')
+        to_draw.append(hist)
+
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+#        plotter.save(var+'_Matched_Perm_Norm')
+#        norm_to_draw.append(norm_hist)
+
+    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_NSdisc_Best_Perm_Categories')
+
+#    plotter.overlay(norm_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+#    plotter.save('3J_Permdisc_Best_Perm_Matched_Perm_Norm')
+        
+    stack, norm_stack = stack_plots(to_draw)
+
+    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_NSdisc_Best_Perm_Categories_Stack')
+
+    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_NSdisc_Best_Perm_Categories_Stack_Norm')
+
+
+##############################################################################################
+
+if args.plot == "Combined_Disc":
+
+
+        #### 3J Combined Disc  values
+    Likelihood_All_3J = [
+        ('3J_Totaldisc_All', 'All Combined Disc Values from Event', 'black', '-Log(likelihood)', '3J_Combined_Disc_Event_All'),
+        ('3J_Totaldisc_Lowest', 'Lowest Combined Disc Value from Event', 'black', '-Log(likelihood)', '3J_Combined_Disc_Event_Lowest'),
+        ('3J_Totaldisc_Best_Perm', 'Combined Disc Value from Event Best Perm', 'black', '-Log(likelihood)', '3J_Combined_Disc_Event_Best_Perm')
+    ]
+   
+    for var, legends, colors, xaxis, names in Likelihood_All_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(names)
+
+#        #from pdb import set_trace; set_trace()
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, drawstyle='hist')
+#        plotter.save(names+'_Norm')
+
+    ### Plots for lowest likelihood values from event
+
+            ### 3 jets
+
+    Matched_Perm_Likelihood_3J = [
+        ('3J_Totaldisc_Best_Perm_RIGHT', 'RIGHT', 'black', '-Log(likelihood)', '3J_Combined_Disc_Best_Perm_RIGHT'),
+        ('3J_Totaldisc_Best_Perm_MERGE_SWAP', 'MERGE_SWAP', 'red', '-Log(likelihood)', '3J_Combined_Disc_Best_Perm_MERGE_SWAP'),
+        ('3J_Totaldisc_Best_Perm_MERGE', 'MERGE', 'green', '-Log(likelihood)', '3J_Combined_Disc_Best_Perm_MERGE'),
+        ('3J_Totaldisc_Best_Perm_WRONG', 'WRONG', 'blue', '-Log(likelihood)', '3J_Combined_Disc_Best_Perm_WRONG')
+    ]
+   
+    to_draw = [] 
+    for var, legends, colors, xaxis, names in Matched_Perm_Likelihood_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle=xaxis)
+        plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(names+'_Categories')
+        to_draw.append(hist)
+
+#        norm_hist = asrootpy(normfile.Get('Likelihood_Plots/'+var)).Clone()
+#        plotter.set_histo_style(norm_hist, title=legends, color=colors, xtitle=xaxis)
+#        plotter.plot(norm_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+#        plotter.save(var+'_Matched_Perm_Norm')
+#        norm_to_draw.append(norm_hist)
+
+    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Combined_Disc_Best_Perm_Categories')
+
+#    plotter.overlay(norm_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+#    plotter.save('3J_Permdisc_Best_Perm_Matched_Perm_Norm')
+
+        
+    stack, norm_stack = stack_plots(to_draw)
+
+    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Combined_Disc_Best_Perm_Categories_Stack')
+
+    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Combined_Disc_Best_Perm_Categories_Stack_Norm')
+
+    
+
+##############################################################################################
+
+if args.plot == "Combine_Discs":
+
+    Likelihood_All_3J = [
+        ('3J_Totaldisc_All', 'Combined Disc', 'black'),
+        ('3J_Permdisc_All', 'Mass', 'red'),
+        ('3J_NSdisc_All', 'Nu Solver', 'blue')
+    ]
+
+    to_draw = []
+
+    for var, legends, colors in Likelihood_All_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle='-Log(likelihood)')
+        plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        to_draw.append(hist)
+
+
+    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Alldiscs_Event_All')
+
+
+    Likelihood_Lowest_3J = [
+        ('3J_Totaldisc_Lowest', 'Combined Disc', 'black'),
+        ('3J_Permdisc_Lowest', 'Mass', 'red'),
+        ('3J_NSdisc_Lowest', 'Nu Solver', 'blue')
+    ]
+
+    to_draw = []
+
+    for var, legends, colors in Likelihood_All_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle='-Log(likelihood)')
+        plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        to_draw.append(hist)
+
+
+    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Alldiscs_Event_Lowest')
+
+
+    Likelihood_Best_Perm_3J = [
+        ('3J_Totaldisc_Best_Perm', 'Combined Disc', 'black'),
+        ('3J_Permdisc_Best_Perm', 'Mass', 'red'),
+        ('3J_NSdisc_Best_Perm', 'Nu Solver', 'blue')
+    ]
+
+    to_draw = []
+
+    for var, legends, colors in Likelihood_Best_Perm_3J:
+        hist = asrootpy(myfile.Get('Likelihood_Plots/'+var)).Clone()
+        if hist.Integral() == 0:
+            print var
+            continue
+
+        plotter.set_histo_style(hist, title=legends, color=colors, xtitle='-Log(likelihood)')
+        plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        to_draw.append(hist)
+
+
+    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+    plotter.save('3J_Alldiscs_Event_Best_Perm')
+
+
 
 ##############################################
-print('~/nobackup/CMSSW_8_0_7_patch2/src/Analyses/URTTbar/htt_scripts/plots/jet_perm_disc/%s/%s/%s/%s/' % (jobid, args.analysis, args.plot, args.sample))
+print('cp ~/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/jet_perm_disc/%s/%s/%s/%s/*.png .' % (jobid, args.analysis, args.plot, args.sample))

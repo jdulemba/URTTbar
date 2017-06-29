@@ -560,7 +560,7 @@ public:
     //Find best permutation
     Permutation best_permutation;
 		int idx = 0;
-		for(auto& test_perm : permutator_.pemutations()) {
+		for(auto& test_perm : permutator_.permutations()) {
 			solver_.Solve(test_perm);
 			// cout << "Permutation #" << idx << "  " << test_perm.Prob() << " -- " << best_permutation.Prob() << endl;
 			// idx++;

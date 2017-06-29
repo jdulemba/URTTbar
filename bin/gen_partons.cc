@@ -30,7 +30,7 @@
 #include "Analyses/URTTbar/interface/IDMet.h"
 #include "TUUID.h"
 #include "Analyses/URTTbar/interface/systematics.h"
-#include "Analyses/URTTbar/interface/TTBarPlots.h"
+//#include "Analyses/URTTbar/interface/TTBarPlots.h"
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/BTagSFProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
@@ -45,18 +45,18 @@ using namespace TMath;
 
 class gen_partons : public AnalyzerBase
 {
-	private:
+    private:
         //counters
-	    unsigned long evt_idx_ = 0; //event index
-	    double njets_ = 0;
-	    double matched_BHadWJa_ = 0;
-	    double matched_BHadWJb_ = 0;
-	    double matched_WJaWJb_ = 0;
-	    double jet_pt_min_ = 25;
-	    double jet_eta_cut_ = 2.4;
-
-            const char *DRnames_[2] = {"DRP4", "DRP8"};
-	    double DR_[2] = {0.4, 0.8};
+        unsigned long evt_idx_ = 0; //event index
+        double njets_ = 0;
+        double matched_BHadWJa_ = 0;
+        double matched_BHadWJb_ = 0;
+        double matched_WJaWJb_ = 0;
+        double jet_pt_min_ = 25;
+        double jet_eta_cut_ = 2.4;
+        
+        const char *DRnames_[2] = {"DRP4", "DRP8"};
+        double DR_[2] = {0.4, 0.8};
 //            const char *DRnames_[4] = {"DRP4", "DRP5", "DRP6", "DRP8"};
 //	    double DR_[4] = {0.4, 0.5, 0.6, 0.8};
 //            const char *DRnames_[1] = {"DRP4"};
@@ -93,11 +93,11 @@ class gen_partons : public AnalyzerBase
 	    bool isData_, isTTbar_;
 
 	//selectors and helpers
-            TTObjectSelector object_selector_; //selects ttbar objects
-            TTGenParticleSelector genp_selector_; //selects generator level objects
+        TTObjectSelector object_selector_; //selects ttbar objects
+        TTGenParticleSelector genp_selector_; //selects generator level objects
 	    TTBarSolver solver_; //solves ttbar events
 	    TTGenMatcher matcher_; //matches particles on generator level
-            TTPermutator permutator_;
+        TTPermutator permutator_;
 
 	    float evt_weight_;
 	    MCWeightProducer mc_weights_;
@@ -139,7 +139,7 @@ class gen_partons : public AnalyzerBase
                         Logger::log().debug() << "solver file: " << filename << endl;
                         TFile probfile(DataFile(filename).path().c_str());
                         TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-			solver_.Init(td, false, true, true, true, true); //probfile, btag, nusolv,massdis,anghad,anglep
+//			solver_.Init(td, false, true, true, true, true); //probfile, btag, nusolv,massdis,anghad,anglep
 
 //			cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("best_permutation.tightb"));
 //			cut_loose_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("best_permutation.looseb"));
@@ -230,108 +230,108 @@ class gen_partons : public AnalyzerBase
 //
 //                book<TH1F>(folder, "DRmax_thad", "", DR_bins_, DR_min_, DR_max_);
 //
-		for( int i = 0; i < 2; i++ ){
+        for( int i = 0; i < 2; i++ ){
 //			book<TH1F>(folder, std::string("DRmin_thad_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(folder, std::string("DRmin_thad_l")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
-//	                book<TH1F>(folder, std::string("DRmin_tlep_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(folder, std::string("DRmin_tlep_l")+DRnames_[i]+"_vs_pttlep", "", nbins, pt_min_, pt_max_);
+//	        book<TH1F>(folder, std::string("DRmin_thad_l")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
+//	        book<TH1F>(folder, std::string("DRmin_tlep_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+//	        book<TH1F>(folder, std::string("DRmin_tlep_l")+DRnames_[i]+"_vs_pttlep", "", nbins, pt_min_, pt_max_);
 //	
-//	                book<TH1F>(folder, std::string("DRmin_thad_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(folder, std::string("DRmin_thad_g")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
-//	                book<TH1F>(folder, std::string("DRmin_tlep_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(folder, std::string("DRmin_tlep_g")+DRnames_[i]+"_vs_pttlep", "", nbins, pt_min_, pt_max_);
+//	        book<TH1F>(folder, std::string("DRmin_thad_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+//	        book<TH1F>(folder, std::string("DRmin_thad_g")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
+//	        book<TH1F>(folder, std::string("DRmin_tlep_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+//	        book<TH1F>(folder, std::string("DRmin_tlep_g")+DRnames_[i]+"_vs_pttlep", "", nbins, pt_min_, pt_max_);
 //
-//	                book<TH1F>(folder, std::string("DRmax_thad_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(folder, std::string("DRmax_thad_l")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
+//	        book<TH1F>(folder, std::string("DRmax_thad_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+//	        book<TH1F>(folder, std::string("DRmax_thad_l")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
 //	
-//	                book<TH1F>(folder, std::string("DRmax_thad_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-//	                book<TH1F>(folder, std::string("DRmax_thad_g")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
+//	        book<TH1F>(folder, std::string("DRmax_thad_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+//	        book<TH1F>(folder, std::string("DRmax_thad_g")+DRnames_[i]+"_vs_ptthad", "", nbins, pt_min_, pt_max_);
 	
-	                book<TH1F>(folder, std::string("DR_LepBHad_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_LepBLep_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_LepWJa_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_LepWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BHadBLep_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BHadWJa_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BHadWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BLepWJa_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BLepWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_WJaWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepBHad_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepBLep_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepWJa_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BHadBLep_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BHadWJa_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BHadWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BLepWJa_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BLepWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_WJaWJb_l")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
 	
-	                book<TH1F>(folder, std::string("DR_LepBHad_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_LepBLep_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_LepWJa_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_LepWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BHadBLep_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BHadWJa_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BHadWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BLepWJa_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_BLepWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
-	                book<TH1F>(folder, std::string("DR_WJaWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepBHad_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepBLep_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepWJa_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_LepWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BHadBLep_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BHadWJa_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BHadWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BLepWJa_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_BLepWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
+	        book<TH1F>(folder, std::string("DR_WJaWJb_g")+DRnames_[i]+"_vs_mttbar", "", nbins, mass_min_, mass_max_);
 		}
 
 			//Pt
-                book<TH2D>(folder, "Pt_Lep_vs_Mtt", "m_{t#bar t} [GeV]; l p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
-                book<TH2D>(folder, "Pt_BLep_vs_Mtt", "m_{t#bar t} [GeV]; b_{l} p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
-                book<TH2D>(folder, "Pt_BHad_vs_Mtt", "m_{t#bar t} [GeV]; b_{h} p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
-                book<TH2D>(folder, "Pt_WJa_vs_Mtt", "m_{t#bar t} [GeV]; WJa p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
-                book<TH2D>(folder, "Pt_WJb_vs_Mtt", "m_{t#bar t} [GeV]; WJb p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
-                book<TH2D>(folder, "Pt_thad_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
+            book<TH2D>(folder, "Pt_Lep_vs_Mtt", "m_{t#bar t} [GeV]; l p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
+            book<TH2D>(folder, "Pt_BLep_vs_Mtt", "m_{t#bar t} [GeV]; b_{l} p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
+            book<TH2D>(folder, "Pt_BHad_vs_Mtt", "m_{t#bar t} [GeV]; b_{h} p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
+            book<TH2D>(folder, "Pt_WJa_vs_Mtt", "m_{t#bar t} [GeV]; WJa p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
+            book<TH2D>(folder, "Pt_WJb_vs_Mtt", "m_{t#bar t} [GeV]; WJb p_{t} ", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
+            book<TH2D>(folder, "Pt_thad_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, pt_bins_, pt_min_, pt_max_);
 
-                book<TH1F>(folder, "Pt_Lep", "", pt_bins_, pt_min_, pt_max_);
-                book<TH1F>(folder, "Pt_BLep", "", pt_bins_, pt_min_, pt_max_);
-                book<TH1F>(folder, "Pt_BHad", "", pt_bins_, pt_min_, pt_max_);
-                book<TH1F>(folder, "Pt_WJa", "", pt_bins_, pt_min_, pt_max_);
-                book<TH1F>(folder, "Pt_WJb", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_Lep", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_BLep", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_BHad", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_WJa", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_WJb", "", pt_bins_, pt_min_, pt_max_);
 
-                book<TH1F>(folder, "Pt_ttbar", "", pt_bins_, pt_min_, pt_max_);
-                book<TH1F>(folder, "Pt_thad", "", pt_bins_, pt_min_, pt_max_);
-                book<TH1F>(folder, "Pt_tlep", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_ttbar", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_thad", "", pt_bins_, pt_min_, pt_max_);
+            book<TH1F>(folder, "Pt_tlep", "", pt_bins_, pt_min_, pt_max_);
 
 			//Eta
-                book<TH2D>(folder, "Eta_Lep_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
-                book<TH2D>(folder, "Eta_BLep_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
-                book<TH2D>(folder, "Eta_BHad_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
-                book<TH2D>(folder, "Eta_WJa_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
-                book<TH2D>(folder, "Eta_WJb_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
+            book<TH2D>(folder, "Eta_Lep_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
+            book<TH2D>(folder, "Eta_BLep_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
+            book<TH2D>(folder, "Eta_BHad_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
+            book<TH2D>(folder, "Eta_WJa_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
+            book<TH2D>(folder, "Eta_WJb_vs_Mtt", "", mass_bins_, mass_min_, mass_max_, eta_bins_, eta_min_, eta_max_);
 
-                book<TH1F>(folder, "Eta_Lep", "", eta_bins_, eta_min_, eta_max_);
-                book<TH1F>(folder, "Eta_BLep", "", eta_bins_, eta_min_, eta_max_);
-                book<TH1F>(folder, "Eta_BHad", "", eta_bins_, eta_min_, eta_max_);
-                book<TH1F>(folder, "Eta_WJa", "", eta_bins_, eta_min_, eta_max_);
-                book<TH1F>(folder, "Eta_WJb", "", eta_bins_, eta_min_, eta_max_);
+            book<TH1F>(folder, "Eta_Lep", "", eta_bins_, eta_min_, eta_max_);
+            book<TH1F>(folder, "Eta_BLep", "", eta_bins_, eta_min_, eta_max_);
+            book<TH1F>(folder, "Eta_BHad", "", eta_bins_, eta_min_, eta_max_);
+            book<TH1F>(folder, "Eta_WJa", "", eta_bins_, eta_min_, eta_max_);
+            book<TH1F>(folder, "Eta_WJb", "", eta_bins_, eta_min_, eta_max_);
 
 			//Cos theta
-		book<TH1F>(folder, "Costh_Lep", "", costh_bins_, costh_min_, costh_max_);
-		book<TH1F>(folder, "Costh_BLep", "", costh_bins_, costh_min_, costh_max_);
-		book<TH1F>(folder, "Costh_BHad", "", costh_bins_, costh_min_, costh_max_);
-		book<TH1F>(folder, "Costh_WJa", "", costh_bins_, costh_min_, costh_max_);
-		book<TH1F>(folder, "Costh_WJb", "", costh_bins_, costh_min_, costh_max_);
-		book<TH1F>(folder, "Costh_ttbar", "", costh_bins_, costh_min_, costh_max_);
+    		book<TH1F>(folder, "Costh_Lep", "", costh_bins_, costh_min_, costh_max_);
+    		book<TH1F>(folder, "Costh_BLep", "", costh_bins_, costh_min_, costh_max_);
+    		book<TH1F>(folder, "Costh_BHad", "", costh_bins_, costh_min_, costh_max_);
+    		book<TH1F>(folder, "Costh_WJa", "", costh_bins_, costh_min_, costh_max_);
+    		book<TH1F>(folder, "Costh_WJb", "", costh_bins_, costh_min_, costh_max_);
+    		book<TH1F>(folder, "Costh_ttbar", "", costh_bins_, costh_min_, costh_max_);
 
 			// Mass
-                book<TH1F>(folder, "Mass_Lep", "", mass_bins_, 0, 300);
-                book<TH1F>(folder, "Mass_BLep", "", mass_bins_, 0, 300);
-                book<TH1F>(folder, "Mass_BHad", "", mass_bins_, 0, 300);
-                book<TH1F>(folder, "Mass_WJa", "", mass_bins_, 0, 300);
-                book<TH1F>(folder, "Mass_WJb", "", mass_bins_, 0, 300);
+            book<TH1F>(folder, "Mass_Lep", "", mass_bins_, 0, 300);
+            book<TH1F>(folder, "Mass_BLep", "", mass_bins_, 0, 300);
+            book<TH1F>(folder, "Mass_BHad", "", mass_bins_, 0, 300);
+            book<TH1F>(folder, "Mass_WJa", "", mass_bins_, 0, 300);
+            book<TH1F>(folder, "Mass_WJb", "", mass_bins_, 0, 300);
 
-                book<TH1F>(folder, "Mass_ttbar", "", mass_bins_, mass_min_, mass_max_);
-                book<TH1F>(folder, "Mass_thad", "", mass_bins_, 125., 250.);
-                book<TH1F>(folder, "Mass_tlep", "", mass_bins_, 125., 250.);
+            book<TH1F>(folder, "Mass_ttbar", "", mass_bins_, mass_min_, mass_max_);
+            book<TH1F>(folder, "Mass_thad", "", mass_bins_, 125., 250.);
+            book<TH1F>(folder, "Mass_tlep", "", mass_bins_, 125., 250.);
 
 			//System Plots
-                book<TH1F>(folder, "nJets", "", 13, 2.5, 15.5);
+            book<TH1F>(folder, "nJets", "", 13, 2.5, 15.5);
 
 			// plots for different DR values
-                for( int i = 0; i < 2; i++ ){
+            for( int i = 0; i < 2; i++ ){
 			// all numbers of jets allowed
-                        book<TH1F>(DRnames_[i], "Gen_Had_Resolved_vs_mttbar", "", nbins, mass_min_, mass_max_); // 3 hadronic jets resolved
-                        book<TH1F>(DRnames_[i], "Gen_Merged_BHadWJet_vs_mttbar", "", nbins, mass_min_, mass_max_); // BHad and WJa or WJb merged
-                        book<TH1F>(DRnames_[i], "Gen_Merged_WJets_vs_mttbar", "", nbins, mass_min_, mass_max_); // jets from W merged
-                        book<TH1F>(DRnames_[i], "Gen_Merged_THad_vs_mttbar", "", nbins, mass_min_, mass_max_); // all jets on hadronic side merged
-                        book<TH1F>(DRnames_[i], "Gen_Non_Reconstructable_vs_mttbar", "", nbins, mass_min_, mass_max_); // 1 or more partons not matched
-                }
+                book<TH1F>(DRnames_[i], "Gen_Had_Resolved_vs_mttbar", "", nbins, mass_min_, mass_max_); // 3 hadronic jets resolved
+                book<TH1F>(DRnames_[i], "Gen_Merged_BHadWJet_vs_mttbar", "", nbins, mass_min_, mass_max_); // BHad and WJa or WJb merged
+                book<TH1F>(DRnames_[i], "Gen_Merged_WJets_vs_mttbar", "", nbins, mass_min_, mass_max_); // jets from W merged
+                book<TH1F>(DRnames_[i], "Gen_Merged_THad_vs_mttbar", "", nbins, mass_min_, mass_max_); // all jets on hadronic side merged
+                book<TH1F>(DRnames_[i], "Gen_Non_Reconstructable_vs_mttbar", "", nbins, mass_min_, mass_max_); // 1 or more partons not matched
+            }
 
 		Logger::log().debug() << "End of begin() " << evt_idx_ << endl;
         }
@@ -342,44 +342,54 @@ class gen_partons : public AnalyzerBase
 	{
 		Logger::log().debug() << "Beginning of analyze() " << evt_idx_ << endl;
 
-                URStreamer event(tree_);
+        URStreamer event(tree_);
 
 		while(event.next() /*&& evt_idx_ < 30*/)
-                {
-                        evt_idx_++;
-                        if(evt_idx_ % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
+        {
+            evt_idx_++;
+            if(evt_idx_ % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
 
-			auto gen_dir = histos_.find("Gen_Plots");
+            auto gen_dir = histos_.find("Gen_Plots");
+            
+            //generator selection
+            bool selection = genp_selector_.select(event);
+            if( !selection ){
+                Logger::log().debug() << "event has no selection " << endl;
+                continue;
+            }
+            tracker_.track("gen selection");
+            GenTTBar &ttbar = genp_selector_.ttbar_system();
 
-			//generator selection
-			bool selection = genp_selector_.select(event);
-                        tracker_.track("gen selection");
-                        if( !selection ){
-                                Logger::log().debug() << "event has no selection " << endl;
-                                continue;
-                        }
-			GenTTBar &ttbar = genp_selector_.ttbar_system();
+//            if( !ttbar.had_b() || !ttbar.lep_b() || !ttbar.had_W()->first || !ttbar.had_W()->second ){
+//                cout << "parton missing" << endl;
+//                continue; // require
+//            }
 
-                        Permutation matched_perm;
-                        if( object_selector_.select(event) ){
-                                if( ttbar.type == GenTTBar::DecayType::SEMILEP ){
-                                        matched_perm = matcher_.match(
-                                                genp_selector_.ttbar_final_system(),
-                                                object_selector_.clean_jets(),
-                                                object_selector_.loose_electrons(),
-                                                object_selector_.loose_muons());
-                                }
-                                matched_perm.SetMET(object_selector_.met());
-                        }
 
-			if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ) continue;
-
-			njets_ = object_selector_.clean_jets().size();
-
+            njets_ = 0;
+            if( object_selector_.select(event) ) njets_ = object_selector_.clean_jets().size();
+            if( njets_ < 3 ) continue;
+            
+//            Permutation matched_perm;
+//            if( object_selector_.select(event) ){
+//                if( ttbar.type == GenTTBar::DecayType::SEMILEP ){
+//                    matched_perm = matcher_.match(
+//                        genp_selector_.ttbar_final_system(),
+//                        object_selector_.clean_jets(),
+//                        object_selector_.loose_electrons(),
+//                        object_selector_.loose_muons());
+//                }
+//                matched_perm.SetMET(object_selector_.met());
+//            }
+            
+            if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ) continue;
+            
+//            njets_ = object_selector_.clean_jets().size();
+            
 //			if( njets_ < 3 ) continue;
 
 			gen_dir->second["Pt_ttbar"].fill(ttbar.Pt());
-                        gen_dir->second["Mass_ttbar"].fill(ttbar.M());
+            gen_dir->second["Mass_ttbar"].fill(ttbar.M());
 			gen_dir->second["Costh_ttbar"].fill(ttbar.CosTheta());
 
 			//initialize kinematic vars
@@ -413,9 +423,9 @@ class gen_partons : public AnalyzerBase
 			double Costh_WJb = 1e3;
 
 			//initialize gen partons
-      			const GenObject* lepton = 0;
+      		const GenObject* lepton = 0;
 			const GenObject* BLep = 0;
-      			const GenObject* BHad = 0;
+      		const GenObject* BHad = 0;
 			const GenObject* WJa = 0;
 			const GenObject* WJb = 0;
 			const GenTop* tlep = 0;
@@ -436,182 +446,190 @@ class gen_partons : public AnalyzerBase
 			if( ttbar.lepton() ){
 				lepton = ttbar.lepton();
 				Pt_Lep = lepton->Pt();
-                        	gen_dir->second["Pt_Lep_vs_Mtt"].fill(ttbar.M(), Pt_Lep);
-                        	gen_dir->second["Pt_Lep"].fill(Pt_Lep);
+                gen_dir->second["Pt_Lep_vs_Mtt"].fill(ttbar.M(), Pt_Lep);
+                gen_dir->second["Pt_Lep"].fill(Pt_Lep);
 
-                        	Eta_Lep = lepton->Eta();
+                Eta_Lep = lepton->Eta();
 				gen_dir->second["Eta_Lep_vs_Mtt"].fill(ttbar.M(), Eta_Lep);
-                        	gen_dir->second["Eta_Lep"].fill(Eta_Lep);
+               	gen_dir->second["Eta_Lep"].fill(Eta_Lep);
 
 				Costh_Lep = lepton->CosTheta();
 				gen_dir->second["Costh_Lep"].fill(Costh_Lep);
 
-                        	gen_dir->second["Mass_Lep"].fill(lepton->M());
+                gen_dir->second["Mass_Lep"].fill(lepton->M());
 			}
 			if( ttbar.lep_b() ){
 				BLep = ttbar.lep_b();
 				Pt_BLep = BLep->Pt();
-                       		gen_dir->second["Pt_BLep_vs_Mtt"].fill(ttbar.M(), Pt_BLep);
-                        	gen_dir->second["Pt_BLep"].fill(Pt_BLep);
+                gen_dir->second["Pt_BLep_vs_Mtt"].fill(ttbar.M(), Pt_BLep);
+                gen_dir->second["Pt_BLep"].fill(Pt_BLep);
 
-                        	Eta_BLep = BLep->Eta();
-                        	gen_dir->second["Eta_BLep_vs_Mtt"].fill(ttbar.M(), Eta_BLep);
-                        	gen_dir->second["Eta_BLep"].fill(Eta_BLep);
+                Eta_BLep = BLep->Eta();
+                gen_dir->second["Eta_BLep_vs_Mtt"].fill(ttbar.M(), Eta_BLep);
+                gen_dir->second["Eta_BLep"].fill(Eta_BLep);
 
 				Costh_BLep = BLep->CosTheta();
 				gen_dir->second["Costh_BLep"].fill(Costh_BLep);
 
-                        	gen_dir->second["Mass_BLep"].fill(BLep->M());
+                gen_dir->second["Mass_BLep"].fill(BLep->M());
 			}
 			if( ttbar.had_b() ){
 				BHad = ttbar.had_b();
 				Pt_BHad = BHad->Pt();
-                        	gen_dir->second["Pt_BHad_vs_Mtt"].fill(ttbar.M(), Pt_BHad);
-                        	gen_dir->second["Pt_BHad"].fill(Pt_BHad);
+                gen_dir->second["Pt_BHad_vs_Mtt"].fill(ttbar.M(), Pt_BHad);
+                gen_dir->second["Pt_BHad"].fill(Pt_BHad);
 
-                        	Eta_BHad = BHad->Eta();
-                        	gen_dir->second["Eta_BHad_vs_Mtt"].fill(ttbar.M(), Eta_BHad);
-                        	gen_dir->second["Eta_BHad"].fill(Eta_BHad);
+                Eta_BHad = BHad->Eta();
+                gen_dir->second["Eta_BHad_vs_Mtt"].fill(ttbar.M(), Eta_BHad);
+                gen_dir->second["Eta_BHad"].fill(Eta_BHad);
 
 				Costh_BHad = BHad->CosTheta();
 				gen_dir->second["Costh_BHad"].fill(Costh_BHad);
 
-                        	gen_dir->second["Mass_BHad"].fill(BHad->M());
+                gen_dir->second["Mass_BHad"].fill(BHad->M());
 			}
 			if( ttbar.had_W() ){
 				if( ttbar.had_W()->first && !ttbar.had_W()->second ){
 					WJa = ttbar.had_W()->first;
 					Pt_WJa = WJa->Pt();
-                        		gen_dir->second["Pt_WJa_vs_Mtt"].fill(ttbar.M(), Pt_WJa);
-                        		gen_dir->second["Pt_WJa"].fill(Pt_WJa);
+                    gen_dir->second["Pt_WJa_vs_Mtt"].fill(ttbar.M(), Pt_WJa);
+                    gen_dir->second["Pt_WJa"].fill(Pt_WJa);
 
-                        		Eta_WJa = WJa->Eta();
-                        		gen_dir->second["Eta_WJa_vs_Mtt"].fill(ttbar.M(), Eta_WJa);
-                        		gen_dir->second["Eta_WJa"].fill(Eta_WJa);
+                    Eta_WJa = WJa->Eta();
+                    gen_dir->second["Eta_WJa_vs_Mtt"].fill(ttbar.M(), Eta_WJa);
+                    gen_dir->second["Eta_WJa"].fill(Eta_WJa);
 	
 					Costh_WJa = WJa->CosTheta();
 					gen_dir->second["Costh_WJa"].fill(Costh_WJa);
 
-	                        	gen_dir->second["Mass_WJa"].fill(WJa->M());
+	                gen_dir->second["Mass_WJa"].fill(WJa->M());
 				}
 				if( ttbar.had_W()->second && !ttbar.had_W()->first ){
 					WJb = ttbar.had_W()->second;
 					Pt_WJb = WJb->Pt();
-                        		gen_dir->second["Pt_WJb_vs_Mtt"].fill(ttbar.M(), Pt_WJb);
-                        		gen_dir->second["Pt_WJb"].fill(Pt_WJb);
+                    gen_dir->second["Pt_WJb_vs_Mtt"].fill(ttbar.M(), Pt_WJb);
+                    gen_dir->second["Pt_WJb"].fill(Pt_WJb);
 
-                        		Eta_WJb = WJb->Eta();
-                        		gen_dir->second["Eta_WJb_vs_Mtt"].fill(ttbar.M(), Eta_WJb);
-                        		gen_dir->second["Eta_WJb"].fill(Eta_WJb);
+                    Eta_WJb = WJb->Eta();
+                    gen_dir->second["Eta_WJb_vs_Mtt"].fill(ttbar.M(), Eta_WJb);
+                    gen_dir->second["Eta_WJb"].fill(Eta_WJb);
 	
 					Costh_WJb = WJb->CosTheta();
 					gen_dir->second["Costh_WJb"].fill(Costh_WJb);
 
-	                        	gen_dir->second["Mass_WJb"].fill(WJb->M());
+	                gen_dir->second["Mass_WJb"].fill(WJb->M());
 				}
 				if( ttbar.had_W()->first && ttbar.had_W()->second ){
 					WJa = (ttbar.had_W()->first->E() > ttbar.had_W()->second->E() ) ? ttbar.had_W()->first : ttbar.had_W()->second;
 					WJb = (ttbar.had_W()->first->E() > ttbar.had_W()->second->E() ) ? ttbar.had_W()->second : ttbar.had_W()->first;
 
 					Pt_WJa = WJa->Pt();
-                        		gen_dir->second["Pt_WJa_vs_Mtt"].fill(ttbar.M(), Pt_WJa);
-                        		gen_dir->second["Pt_WJa"].fill(Pt_WJa);
+                    gen_dir->second["Pt_WJa_vs_Mtt"].fill(ttbar.M(), Pt_WJa);
+                    gen_dir->second["Pt_WJa"].fill(Pt_WJa);
 
-                        		Eta_WJa = WJa->Eta();
-                        		gen_dir->second["Eta_WJa_vs_Mtt"].fill(ttbar.M(), Eta_WJa);
-                        		gen_dir->second["Eta_WJa"].fill(Eta_WJa);
+                    Eta_WJa = WJa->Eta();
+                    gen_dir->second["Eta_WJa_vs_Mtt"].fill(ttbar.M(), Eta_WJa);
+                    gen_dir->second["Eta_WJa"].fill(Eta_WJa);
 	
 					Costh_WJa = WJa->CosTheta();
 					gen_dir->second["Costh_WJa"].fill(Costh_WJa);
 
-	                        	gen_dir->second["Mass_WJa"].fill(WJa->M());
+	                gen_dir->second["Mass_WJa"].fill(WJa->M());
 
 					Pt_WJb = WJb->Pt();
-                        		gen_dir->second["Pt_WJb_vs_Mtt"].fill(ttbar.M(), Pt_WJb);
-                        		gen_dir->second["Pt_WJb"].fill(Pt_WJb);
+                    gen_dir->second["Pt_WJb_vs_Mtt"].fill(ttbar.M(), Pt_WJb);
+                    gen_dir->second["Pt_WJb"].fill(Pt_WJb);
 
-                        		Eta_WJb = WJb->Eta();
-                        		gen_dir->second["Eta_WJb_vs_Mtt"].fill(ttbar.M(), Eta_WJb);
-                        		gen_dir->second["Eta_WJb"].fill(Eta_WJb);
+                    Eta_WJb = WJb->Eta();
+                    gen_dir->second["Eta_WJb_vs_Mtt"].fill(ttbar.M(), Eta_WJb);
+                    gen_dir->second["Eta_WJb"].fill(Eta_WJb);
 	
 					Costh_WJb = WJb->CosTheta();
 					gen_dir->second["Costh_WJb"].fill(Costh_WJb);
 
-	                        	gen_dir->second["Mass_WJb"].fill(WJb->M());
+	                gen_dir->second["Mass_WJb"].fill(WJb->M());
 				}
 			}
 
+//cout << "gen complete: " << ttbar.is_complete() << endl;
+
+            if( !BHad || !BLep || !WJa || !WJb ){
+                cout << "parton missing" << endl;
+                continue; // require
+            }
+
+
 			for( int i = 0; i < 2; i++ ){
 
-                                auto DR_dir = histos_.find(DRnames_[i]);
+                auto DR_dir = histos_.find(DRnames_[i]);
 
 
                         /// parton level hadronic event categories
-				if( !BHad || !WJa || !WJb ){
-				        DR_dir->second["Gen_Non_Reconstructable_vs_mttbar"].fill(ttbar.M());
-				}
+//				if( !BHad || !WJa || !WJb ){
+//				        DR_dir->second["Gen_Non_Reconstructable_vs_mttbar"].fill(ttbar.M());
+//				}
 				if( BHad && WJa && WJb ){
-				        /// all 3 had jets merged
-				        if( BHad->DeltaR(*WJa) < DR_[i] && BHad->DeltaR(*WJb) < DR_[i] && WJa->DeltaR(*WJb) < DR_[i] ){
-				                if( lepton && BLep ){
-				                        if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_THad_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				                if( lepton && !BLep ){
-				                        if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_THad_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				                if( !lepton && BLep ){
-				                        if( BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_THad_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				        }
+				    /// all 3 had jets merged
+				    if( BHad->DeltaR(*WJa) < DR_[i] && BHad->DeltaR(*WJb) < DR_[i] && WJa->DeltaR(*WJb) < DR_[i] ){
+				            if( lepton && BLep ){
+				                    if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_THad_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				            if( lepton && !BLep ){
+				                    if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_THad_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				            if( !lepton && BLep ){
+				                    if( BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_THad_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				    }
 				
-				        /// W jets merged
-				        if( BHad->DeltaR(*WJa) > DR_[i] && BHad->DeltaR(*WJb) > DR_[i] && WJa->DeltaR(*WJb) < DR_[i] ){
-				                if( lepton && BLep ){
-				                        if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_WJets_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				                if( lepton && !BLep ){
-				                        if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_WJets_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				                if( !lepton && BLep ){
-				                        if( BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_WJets_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				        }
+				    /// W jets merged
+				    if( BHad->DeltaR(*WJa) > DR_[i] && BHad->DeltaR(*WJb) > DR_[i] && WJa->DeltaR(*WJb) < DR_[i] ){
+				            if( lepton && BLep ){
+				                    if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_WJets_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				            if( lepton && !BLep ){
+				                    if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_WJets_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				            if( !lepton && BLep ){
+				                    if( BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_WJets_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				    }
 				
-				        /// BHad and WJa merged
-				        if( BHad->DeltaR(*WJa) < DR_[i] && BHad->DeltaR(*WJb) > DR_[i] && WJa->DeltaR(*WJb) > DR_[i] ){
-				                if( lepton && BLep ){
-				                        if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_BHadWJet_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				                if( lepton && !BLep ){
-				                        if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_BHadWJet_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				                if( !lepton && BLep ){
-				                        if( BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
-				                                DR_dir->second["Gen_Merged_BHadWJet_vs_mttbar"].fill(ttbar.M());
-				                        }
-				                }
-				        }
+				    /// BHad and WJa merged
+				    if( BHad->DeltaR(*WJa) < DR_[i] && BHad->DeltaR(*WJb) > DR_[i] && WJa->DeltaR(*WJb) > DR_[i] ){
+				            if( lepton && BLep ){
+				                    if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_BHadWJet_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				            if( lepton && !BLep ){
+				                    if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_BHadWJet_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				            if( !lepton && BLep ){
+				                    if( BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
+				                            DR_dir->second["Gen_Merged_BHadWJet_vs_mttbar"].fill(ttbar.M());
+				                    }
+				            }
+				    }
 				
-				        /// BHad and WJb merged
-				        if( BHad->DeltaR(*WJa) > DR_[i] && BHad->DeltaR(*WJb) < DR_[i] && WJa->DeltaR(*WJb) > DR_[i] ){
-				                if( lepton && BLep ){
-				                        if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
+				    /// BHad and WJb merged
+				    if( BHad->DeltaR(*WJa) > DR_[i] && BHad->DeltaR(*WJb) < DR_[i] && WJa->DeltaR(*WJb) > DR_[i] ){
+				            if( lepton && BLep ){
+				                    if( lepton->DeltaR(*BHad) > DR_[i] && lepton->DeltaR(*WJa) > DR_[i] && lepton->DeltaR(*WJb) > DR_[i] && BLep->DeltaR(*BHad) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] && BLep->DeltaR(*WJa) > DR_[i] ){
 				                                DR_dir->second["Gen_Merged_BHadWJet_vs_mttbar"].fill(ttbar.M());
 				                        }
 				                }
@@ -648,7 +666,7 @@ class gen_partons : public AnalyzerBase
 				}
 			}
 
-			if( njets_ < 3 ) continue;
+//			if( njets_ < 3 ) continue;
 
 				//DR
 			if( BHad && BLep && WJa && WJb && lepton){// all partons

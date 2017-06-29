@@ -297,6 +297,7 @@ void TTGenParticleSelector::reset() {
   jets_.clear();
   added_jets_.clear();
   is_in_acceptance_ =-1;
+  is_bhad_in_acceptance_ =-1;
 }
 
 bool  TTGenParticleSelector::select(URStreamer& event) {
@@ -362,6 +363,39 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
   return true;
 }
 
+//// Joseph added
+bool TTGenParticleSelector::is_bhad_in_acceptance(GenTTBar::DecayType decay_mode) {
+  if(is_bhad_in_acceptance_ > -1) return is_bhad_in_acceptance_; //caching!
+  if(ttbar_.type != decay_mode) {
+    is_bhad_in_acceptance_ = 0;
+    return false;
+  }
+  if(decay_mode != GenTTBar::DecayType::SEMILEP) { //TODO
+    Logger::log().error() << "The code is not yet ready to handle acceptances with decay modes different from semileptonic! Fix it!" << std::endl;
+    return false;
+  }
+
+  //bjets check   
+  if(ttbar_.top.b->Pt() < cut_bjet_ptsoft_ ){
+    is_bhad_in_acceptance_ = 0;
+    return false;
+  }
+//  if(ttbar_.top.b->Pt() < cut_bjet_pthard_ && ttbar_.tbar.b->Pt() < cut_bjet_pthard_){
+//    is_bhad_in_acceptance_ = 0;
+//    return false;
+//  }
+  if(Abs(ttbar_.top.b->Eta()) > cut_bjet_etamax_ ){
+    is_bhad_in_acceptance_ = 0;
+    return false;
+  }
+
+  is_bhad_in_acceptance_ = 1;
+  return true;
+
+}  
+////
+
+
 bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
   if(is_in_acceptance_ > -1) return is_in_acceptance_; //caching!
   if(ttbar_.type != decay_mode) {
@@ -395,7 +429,7 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
     is_in_acceptance_ = 0;
     return false;
   }
-  if(Abs(ttbar_.top.b->Eta()) < cut_bjet_etamax_ || Abs(ttbar_.tbar.b->Eta()) < cut_bjet_etamax_){
+  if(Abs(ttbar_.top.b->Eta()) > cut_bjet_etamax_ || Abs(ttbar_.tbar.b->Eta()) > cut_bjet_etamax_){
     is_in_acceptance_ = 0;
     return false;
   }

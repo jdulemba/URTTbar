@@ -604,7 +604,7 @@ public:
     //Find best permutation
     Permutation best_permutation;
     size_t nperms = 0;
-		for(auto test_perm : permutator_.pemutations()) {
+		for(auto test_perm : permutator_.permutations()) {
       test_perm.LepCharge(object_selector_.lepton_charge());
 			nperms++;
 			solver_.Solve(test_perm);

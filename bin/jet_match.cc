@@ -30,7 +30,7 @@
 #include "Analyses/URTTbar/interface/IDMet.h"
 #include "TUUID.h"
 #include "Analyses/URTTbar/interface/systematics.h"
-#include "Analyses/URTTbar/interface/TTBarPlots.h"
+//#include "Analyses/URTTbar/interface/TTBarPlots.h"
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/BTagSFProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
@@ -130,7 +130,7 @@ class jet_match : public AnalyzerBase
                         Logger::log().debug() << "solver file: " << filename << endl;
                         TFile probfile(DataFile(filename).path().c_str());
                         TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-			solver_.Init(td, false, true, true, true, true); //probfile, btag, nusolv,massdis,anghad,anglep
+//			solver_.Init(td, false, true, true, true, true); //probfile, btag, nusolv,massdis,anghad,anglep
 
 //			cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("best_permutation.tightb"));
 //			cut_loose_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("best_permutation.looseb"));

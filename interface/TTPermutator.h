@@ -14,10 +14,27 @@ class TTPermutator: public URSelector {
 public:
   TTPermutator(std::string cfgname="permutations");
   bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0, bool track=true);
-	list<Permutation>& pemutations() {
-		if(!has_run_) permutate();
-		return permutations_;
-	}
+  list<Permutation>& permutations() {
+  	if(!has_run_) permutate();
+  	return permutations_;
+  }
+
+/// Joseph added for perm disc
+  list<Permutation>& permutations_3J(IDJet* wj1, IDJet* wj2, IDJet* bj1, IDJet* bj2, TLorentzVector* lep, IDMet* met, int lc) {
+  	if(!has_run_) permutate_3J(wj1, wj2, bj1, bj2, lep, met, lc);
+  	return permutations_3J_;
+  }
+
+  void reset_3J() {
+		has_run_ = false;
+		permutations_3J_.clear();
+    jets_.clear();
+    capped_jets_.clear();
+    lepton_ = 0;
+    met_ = 0;
+  }
+
+///
   void reset() {
 		has_run_ = false;
 		permutations_.clear();
@@ -40,6 +57,17 @@ public:
 private:
 	void permutate();
 	list<Permutation> permutations_;
+
+/// Joseph added for perm disc
+  void permutate_3J(IDJet* wj1, IDJet* wj2, IDJet* bj1, IDJet* bj2, TLorentzVector* lep, IDMet* met, int lc);
+  list<Permutation> permutations_3J_;
+
+//  void permutate_3J(IDJet* wja, IDJet* bjh, IDJet* bjl, TLorentzVector* lep);
+//  list<Permutation> permutations_3J_;
+
+///
+
+
   std::vector<IDJet*> jets_;
   std::vector<IDJet*> capped_jets_;
   TLorentzVector* lepton_ = 0;

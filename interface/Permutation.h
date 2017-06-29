@@ -17,6 +17,13 @@ std::ostream & operator<<(std::ostream &os, const TLorentzVector& p);
 class Permutation
 {
 	private:
+
+    //// Joseph added for perm discriminant
+        double perm_discriminant_ = numeric_limits<double>::max();
+        vector<double> perm_discriminant_vec_;
+    //
+
+
 		double prob_ = numeric_limits<double>::max();
 		double nu_chisq_          = numeric_limits<double>::max();
 		double nu_discriminant_   = numeric_limits<double>::max();
@@ -30,16 +37,17 @@ class Permutation
 		IDJet* bjl_ = 0;
 
 		TLorentzVector* lep_ = 0;
-    int lepcharge_=0;
+        int lepcharge_=0;
 		IDMet* met_ = 0;
 		TLorentzVector nu_;
 		bool kinfit_ = false;
-    size_t perm_jets_ = 0; //number of jets used for permutations
+        size_t perm_jets_ = 0; //number of jets used for permutations
+
 	public:
 		Permutation() {}
 		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge=0);
-    int LepCharge() {return lepcharge_;}
-    void LepCharge(int c) {lepcharge_ = c;}
+        int LepCharge() {return lepcharge_;}
+        void LepCharge(int c) {lepcharge_ = c;}
 		void Reset();
 		bool IsWHadComplete() const {return(wja_ != 0 && wjb_ != 0);}
 		bool IsTHadComplete() const {return(IsWHadComplete() && bjh_ != 0);}
@@ -57,8 +65,8 @@ class Permutation
 			wja_ = wjb_;
 			wjb_ = tmp;
 		}
-    int permutating_jets() const {return perm_jets_;}
-    void permutating_jets(int njets) { perm_jets_=njets;}
+        int permutating_jets() const {return perm_jets_;}
+        void permutating_jets(int njets) { perm_jets_=njets;}
 		TLorentzVector* L() const {return(lep_);}
 		IDMet* MET() const {return(met_);}
 		void SetMET(IDMet* met) {met_ = met;}
@@ -92,7 +100,17 @@ class Permutation
 		TLorentzVector WLep() const {return((*L() + Nu()));}
 		TLorentzVector THad() const {return((WHad() + *BHad()));}
 		TLorentzVector TLep() const {return((WLep() + *BLep()));}
-    TLorentzVector LVect() const {return THad()+TLep();}
+        TLorentzVector LVect() const {return THad()+TLep();}
+
+
+    //// Joseph added for perm discriminant
+        double PermDiscr() const {return perm_discriminant_;}
+        void PermDiscr(double val) {perm_discriminant_ = val;}
+
+        vector<double> PermDiscr_Vec() const { return perm_discriminant_vec_;}
+        void PermDiscr_Vec(vector<double> val) {perm_discriminant_vec_ = val;}
+
+    ////
 
 		double Prob()      const {return prob_             ;}
 		double NuChisq() 	 const {return nu_chisq_         ;}
@@ -108,6 +126,61 @@ class Permutation
 		void MassDiscr(double val) {mass_discriminant_ = val;}
 		void QGDiscr(  double val) {qgtag_discriminant_= val;} 
 		void JRatioDiscr(double val) {jratio_discriminant_= val;}
+
+    ////// Joseph added for perm discr
+        bool IsEmpty() const
+        {
+            if( WJa() == 0 && WJb() == 0 && BHad() == 0 && BLep() == 0 ) {return(true);}
+            return(false);
+        }
+
+        bool Merged_BHadWJa() const // only BHad and WJa merged
+        {
+            if( BHad() && (BHad() == WJa()) && (BHad() != WJb()) && (BHad() != BLep()) && (BLep() != WJb() ) ) {return(true);}
+            return(false);
+        }
+
+        bool Merged_BHadWJb() const // only BHad and WJb merged
+        {
+            if( BHad() && (BHad() == WJb()) && (BHad() != WJa()) && (BHad() != BLep()) && (BLep() != WJa() ) ) {return(true);}
+            return(false);
+        }
+
+        bool Merged_BLepWJa() const // only BLep and WJa merged
+        {
+            if( BLep() && (BLep() == WJa()) && (BLep() != WJb()) && (BLep() != BHad()) && (BHad() != WJb() ) ) {return(true);}
+            return(false);
+        }
+
+        bool Merged_BLepWJb() const // only BLep and WJb merged
+        {
+            if( BLep() && (BLep() == WJb()) && (BLep() != WJa()) && (BLep() != BHad()) && (BHad() != WJa() ) ) {return(true);}
+            return(false);
+        }
+
+        bool Merged_WJets() const // only WJa and WJb merged
+        {
+            if( WJa() && (WJa() == WJb()) && (WJa() != BHad()) && (WJa() != BLep()) && (BHad() != BLep() ) ) {return(true);}
+            return(false);
+        }
+
+        bool Merged_Event() const // event has a merged jet present
+        {
+            if( Merged_BHadWJa() || Merged_BHadWJb() || Merged_BLepWJa() || Merged_BLepWJb() || Merged_WJets() ) {return(true);}
+            return(false);
+        }
+
+        bool AreBsFlipped(const Permutation& other) const // bjets have flipped positions
+        {
+            return( BHad() == other.BLep() && BLep() == other.BHad() );
+        }
+
+		bool AreBsSame(const Permutation& other) const //bjets are selected correct and in the right position
+		{
+			return(IsBHadCorrect(other) && IsBLepCorrect(other));
+//			return( BLep() == other.BLep() && BHad() == other.BHad() );
+		}
+    /////
 
 		bool IsValid() const
 		{

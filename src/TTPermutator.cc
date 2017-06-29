@@ -70,49 +70,54 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
 }
 
 void TTPermutator::permutate() {
-	if(capped_jets_.size() == 3) capped_jets_.push_back(NULL);
-  size_t bjet_cap = (bjet_idx_limit_ > 0) ? bjet_idx_limit_  : capped_jets_.size();
-
-  for(size_t ib1=0; ib1 < bjet_cap ; ++ib1) {
-    IDJet* bjet1 = capped_jets_[ib1];
-		if(!bjet1) continue; //in 3 jet case it could be NULL, skip
-
-    for(size_t ib2=0; ib2 < bjet_cap ; ++ib2) {
-      IDJet* bjet2 = capped_jets_[ib2];
-      if(ib1 == ib2) continue; //same jet removal
-			if(!bjet2) continue; //in 3 jet case it could be NULL, skip
-			
-      if(!(bjet1->BTagId(cut_loose_b_) && bjet2->BTagId(cut_loose_b_))) continue;
-      if(!(bjet1->BTagId(cut_tight_b_) || bjet2->BTagId(cut_tight_b_))) continue;
-      if(bjet1->Pt() < cut_bjetpt_hard_ && bjet2->Pt() < cut_bjetpt_hard_) continue;
-      if(bjet1->Pt() < cut_bjetpt_soft_ || bjet2->Pt() < cut_bjetpt_soft_) continue;
-
-      for(size_t iw1=0; iw1 < capped_jets_.size() ; ++iw1) {
-        IDJet* wjet1 = capped_jets_[iw1]; 
-        if(ib1 == iw1 || ib2 == iw1) continue; //same jet removal
-				if(!wjet1) continue; //in 3 jet case it could be NULL, skip
-
-        for(size_t iw2=0 ; iw2 < capped_jets_.size() ; ++iw2) {
-          IDJet* wjet2 = capped_jets_[iw2]; 
-          if(ib1 == iw2 || ib2 == iw2 || iw1 == iw2) continue;//same jet removal
-					//in case of three jets it SHOULD be NULL
-					if(wjet2) {
-						//disambiguation W jets
-						if(wjet2->Pt() > wjet1->Pt()) continue;
-						if(wjet1->Pt() < cut_wjetpt_hard_ || wjet2->Pt() < cut_wjetpt_soft_) continue;
-					}
-					//std::cout << "    pass ptcut" << std::endl;
-					
-          permutations_.emplace_back(
-            wjet1, wjet2,
-            bjet1, bjet2,
-            lepton_, met_,
-						lcharge_ //added this to pass lepton charge
-            );
+    if(capped_jets_.size() == 3) capped_jets_.push_back(NULL);
+    size_t bjet_cap = (bjet_idx_limit_ > 0) ? bjet_idx_limit_  : capped_jets_.size();
+    
+    for(size_t ib1=0; ib1 < bjet_cap ; ++ib1) {
+        IDJet* bjet1 = capped_jets_[ib1];
+        if(!bjet1) continue; //in 3 jet case it could be NULL, skip
+        
+        for(size_t ib2=0; ib2 < bjet_cap ; ++ib2) {
+            IDJet* bjet2 = capped_jets_[ib2];
+            if(ib1 == ib2) continue; //same jet removal
+              	if(!bjet2) continue; //in 3 jet case it could be NULL, skip
+              	
+            if(!(bjet1->BTagId(cut_loose_b_) && bjet2->BTagId(cut_loose_b_))) continue;
+            if(!(bjet1->BTagId(cut_tight_b_) || bjet2->BTagId(cut_tight_b_))) continue;
+            if(bjet1->Pt() < cut_bjetpt_hard_ && bjet2->Pt() < cut_bjetpt_hard_) continue;
+            if(bjet1->Pt() < cut_bjetpt_soft_ || bjet2->Pt() < cut_bjetpt_soft_) continue;
+            
+            for(size_t iw1=0; iw1 < capped_jets_.size() ; ++iw1) {
+                IDJet* wjet1 = capped_jets_[iw1]; 
+                if(ib1 == iw1 || ib2 == iw1) continue; //same jet removal
+                if(!wjet1) continue; //in 3 jet case it could be NULL, skip
+                
+                for(size_t iw2=0 ; iw2 < capped_jets_.size() ; ++iw2) {
+                    IDJet* wjet2 = capped_jets_[iw2]; 
+                    if(ib1 == iw2 || ib2 == iw2 || iw1 == iw2) continue;//same jet removal
+                			//in case of three jets it SHOULD be NULL
+                	if(wjet2) {
+                	//disambiguation W jets
+                		if(wjet2->Pt() > wjet1->Pt()) continue;
+                		if(wjet1->Pt() < cut_wjetpt_hard_ || wjet2->Pt() < cut_wjetpt_soft_) continue;
+                	}
+                	//std::cout << "    pass ptcut" << std::endl;
+                			
+                    permutations_.emplace_back(wjet1, wjet2, bjet1, bjet2, lepton_, met_, lcharge_); //added this to pass lepton charge
+                }
+            }
         }
-      }
     }
-  }
 	if(!capped_jets_[3]) capped_jets_.pop_back();
 	has_run_ = true;
 }
+
+/// Joseph added for perm disc
+void TTPermutator::permutate_3J(IDJet* wj1, IDJet* wj2, IDJet* bj1, IDJet* bj2, TLorentzVector* lep, IDMet* met, int lc){
+
+    permutations_3J_.emplace_back(wj1, wj2, bj1, bj2, lep, met, lc); //added this to pass lepton charge
+    permutations_3J_.emplace_back(wj1, wj2, bj2, bj1, lep, met, lc); //added this to pass lepton charge
+	has_run_ = true;
+
+}
+///

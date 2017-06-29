@@ -19,9 +19,9 @@ parser = argparse.ArgumentParser(description='Create plots using files from gen_
 
 jobid = jobid = os.environ['jobid']
 
-parser.add_argument('analysis', help='Choose type of analysis (Test or Full_Analysis).')
+parser.add_argument('analysis', help='Choose type of analysis (Test or Full).')
 parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000, or Combined).')
-parser.add_argument('plot', help='Choose type of plots to generate (DR, Pt, Eta, Costh, Mass, nJets, Ratios, Had_Comp).')
+parser.add_argument('plot', help='Choose type of plots to generate (DR, Pt, Eta, Costh, Mass, nJets, Ratios, 3J, 4J, 5PJ, AllJets, 3Partons, Had_Comp_DR).')
 args = parser.parse_args()
 
 if args.analysis == "Test":
@@ -43,7 +43,7 @@ if args.analysis == "Test":
 			defaults = {'save' : {'png' : True, 'pdf' : False}}
 		)
 
-elif args.analysis == "Full_Analysis":
+elif args.analysis == "Full":
 	if args.sample == "ttJetsM0" or args.sample == "ttJetsM700" or args.sample == "ttJetsM1000":
 		print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
 		myfile = root_open('../results/%s/gen_partons/%s.root' % (jobid, args.sample), 'read')
@@ -61,6 +61,31 @@ elif args.analysis == "Full_Analysis":
 			'plots/gen_partons/%s/%s/%s/%s' % (jobid, args.analysis, args.plot, args.sample),
 			defaults = {'save' : {'png' : True, 'pdf' : False}}
 		)
+
+
+def stack_plots(lists):
+    lists.sort()
+    total = 0
+    ratio_hists = []
+    Stack_hists = []
+ 
+    for i in lists:
+        total += i
+    for i in lists:
+        ratio_hists.append(i/total)
+        i.SetFillStyle(1001)
+        Stack_hists.append(i)
+
+    if len(Stack_hists) == 4:
+        stack = plotter.create_stack(Stack_hists[0], Stack_hists[1], Stack_hists[2], Stack_hists[3])
+        norm_stack = plotter.create_stack(Stack_hists[0]/total, Stack_hists[1]/total, Stack_hists[2]/total, Stack_hists[3]/total)
+    elif len(Stack_hists) == 3:
+        stack = plotter.create_stack(Stack_hists[0], Stack_hists[1], Stack_hists[2])
+        norm_stack = plotter.create_stack(Stack_hists[0]/total, Stack_hists[1]/total, Stack_hists[2]/total)
+
+    return stack, norm_stack, ratio_hists
+
+
 
 
 ##### Global Var. Definitions ####
@@ -350,7 +375,7 @@ if args.plot == "Ratios":
 
 
 ##################################################################################################
-if args.plot == "Had_Comp":
+if args.plot == "Had_Comp_DR":
 ### compares relative frequencies of:
 ### 1.   three jets on hadronic side being resolved
 ### 2.   only bhad and one w jet merging
@@ -359,265 +384,721 @@ if args.plot == "Had_Comp":
 ### 5.   non-reconstructable events
 
 
-    ### Events with all jets
-        Hadronic_Events = [
+    ### Events with all jets at different DR values
+        Hadronic_Events_M = [
                 ('Gen_Had_Resolved_vs_mttbar', 'Resolved', 'blue'),
                 ('Gen_Merged_BHadWJet_vs_mttbar', 'Merged b_{h} and W jet', 'red'),
                 ('Gen_Merged_WJets_vs_mttbar', 'Merged W jets', 'black'),
-                ('Gen_Merged_THad_vs_mttbar', 'All 3 Merged', 'green'),
-                ('Gen_Non_Reconstructable_vs_mttbar', 'Non Reconstructable', 'magenta')
+                ('Gen_Merged_THad_vs_mttbar', 'All 3 Merged', 'green')
+#                ('Gen_Non_Reconstructable_vs_mttbar', 'Non Reconstructable', 'magenta')
         ]
 
         for name, title, col in DRvals:
 
                 to_draw = []
-                Add_Ratio_Hists = []
-                Ratio_Hists = []
 
-                for var, legends, colors in Hadronic_Events:
+                for var, legends, colors in Hadronic_Events_M:
                         hist = asrootpy(myfile.Get(name+'/'+var)).Clone()
                         plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
                         to_draw.append(hist)
 
-                total = to_draw[0]+to_draw[1]+to_draw[2]+to_draw[3]+to_draw[4]
 
                 ### plot log of event occurrences
                 plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='m_{t#bar t} [GeV]', ytitle='A.U. '+title, drawstyle='hist')
                 plotter.save('AllJets_Hadronic_Events_vs_mttbar_log_'+name)
 
 
+                stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
                 ### plot event ratios
-                NonReco_Ratio = to_draw[4]/total
-                Ratio_Hists.append(NonReco_Ratio)
-
-                Resolved_Ratio = to_draw[0]/total
-                Ratio_Hists.append(Resolved_Ratio)
-
-                M_BHadW_Ratio = to_draw[1]/total
-                Ratio_Hists.append(M_BHadW_Ratio)
-
-                M_WJet_Ratio = to_draw[2]/total
-                Ratio_Hists.append(M_WJet_Ratio)
-
-                M_THad_Ratio = to_draw[3]/total
-                Ratio_Hists.append(M_THad_Ratio)
-
                 plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.15), xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
                 plotter.save('AllJets_Hadronic_Events_vs_mttbar_ratio_'+name)
 
 
                 ### create stacked hists of ratios
-                stack_hists = []
-                for i in range(len(to_draw)):
-                        stack_hists.append(to_draw[i].Integral())
-                stack_hists.sort()
-
-                for i in range(len(stack_hists)):
-                        for j in range(len(to_draw)):
-                                if to_draw[j].Integral() == stack_hists[i]:
-                                        to_draw[j].SetFillStyle(1001)
-                                        Add_Ratio_Hists.append(to_draw[j])
-
-                stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total, Add_Ratio_Hists[4]/total)
                 plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title)
                 plotter.save('AllJets_Hadronic_Events_vs_mttbar_stack_'+name)
 
+                plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title)
+                plotter.save('AllJets_Hadronic_Events_vs_mttbar_stack_Norm_'+name)
 
 
-#    ### Events with 3 jets
-#        Hadronic_Events_3J = [
-#                ('3J_Had_Resolved_vs_mttbar', 'Resolved', 'blue'),
-#                ('3J_Merged_BHadWJet_vs_mttbar', 'Merged b_{h} and W jet', 'red'),
-#                ('3J_Merged_WJets_vs_mttbar', 'Merged W jets', 'black'),
-#                ('3J_Merged_THad_vs_mttbar', 'All 3 Merged', 'green'),
-#                ('3J_Non_Reconstructable_vs_mttbar', 'Non Reconstructable', 'magenta')
-#        ]
-#
-#        for name, title, col in DRvals:
-#
-#                to_draw = []
-#                Add_Ratio_Hists = []
-#                Ratio_Hists = []
-#
-#                for var, legends, colors in Hadronic_Events_3J:
-#                        hist = asrootpy(myfile.Get(name+'/'+var)).Clone()
-#                        plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
-#                        to_draw.append(hist)
-#
-#                total = to_draw[0]+to_draw[1]+to_draw[2]+to_draw[3]+to_draw[4]
-#
-#                ### plot log of event occurrences
-#                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='m_{t#bar t} [GeV]', ytitle='A.U. '+title, drawstyle='hist')
-#                plotter.save('3J_Hadronic_Events_vs_mttbar_log_'+name)
-#
-#
-#                ### plot event ratios
-#                NonReco_Ratio = to_draw[4]/total
-#                Ratio_Hists.append(NonReco_Ratio)
-#
-#                Resolved_Ratio = to_draw[0]/total
-#                Ratio_Hists.append(Resolved_Ratio)
-#
-#                M_BHadW_Ratio = to_draw[1]/total
-#                Ratio_Hists.append(M_BHadW_Ratio)
-#
-#                M_WJet_Ratio = to_draw[2]/total
-#                Ratio_Hists.append(M_WJet_Ratio)
-#
-#                M_THad_Ratio = to_draw[3]/total
-#                Ratio_Hists.append(M_THad_Ratio)
-#
-#                plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.15), xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
-#                plotter.save('3J_Hadronic_Events_vs_mttbar_ratio_'+name)
-#
-#
-#                ### create stacked hists of ratios
-#                stack_hists = []
-#                for i in range(len(to_draw)):
-#                        stack_hists.append(to_draw[i].Integral())
-#                stack_hists.sort()
-#
-#                for i in range(len(stack_hists)):
-#                        for j in range(len(to_draw)):
-#                                if to_draw[j].Integral() == stack_hists[i]:
-#                                        to_draw[j].SetFillStyle(1001)
-#                                        Add_Ratio_Hists.append(to_draw[j])
-#
-#                stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total, Add_Ratio_Hists[4]/total)
-#                plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title)
-#                plotter.save('3J_Hadronic_Events_vs_mttbar_stack_'+name)
-#
-#
-#
-#   ### Events with 4 jets
-#        Hadronic_Events_4J = [
-#                ('4J_Had_Resolved_vs_mttbar', 'Resolved', 'blue'),
-#                ('4J_Merged_BHadWJet_vs_mttbar', 'Merged b_{h} and W jet', 'red'),
-#                ('4J_Merged_WJets_vs_mttbar', 'Merged W jets', 'black'),
-#                ('4J_Merged_THad_vs_mttbar', 'All 3 Merged', 'green'),
-#                ('4J_Non_Reconstructable_vs_mttbar', 'Non Reconstructable', 'magenta')
-#        ]
-#
-#        for name, title, col in DRvals:
-#
-#                to_draw = []
-#                Add_Ratio_Hists = []
-#                Ratio_Hists = []
-#
-#                for var, legends, colors in Hadronic_Events_4J:
-#                        hist = asrootpy(myfile.Get(name+'/'+var)).Clone()
-#                        plotter.set_histo_style(hist, title=legends, color=colors, drawstyle='hist', linestyle='solid')
-#                        to_draw.append(hist)
-#
-#                total = to_draw[0]+to_draw[1]+to_draw[2]+to_draw[3]+to_draw[4]
-#
-#                ### plot log of event occurrences
-#                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='m_{t#bar t} [GeV]', ytitle='A.U. '+title, drawstyle='hist')
-#                plotter.save('4J_Hadronic_Events_vs_mttbar_log_'+name)
-#
-#
-#                ### plot event ratios
-#                NonReco_Ratio = to_draw[4]/total
-#                Ratio_Hists.append(NonReco_Ratio)
-#
-#                Resolved_Ratio = to_draw[0]/total
-#                Ratio_Hists.append(Resolved_Ratio)
-#
-#                M_BHadW_Ratio = to_draw[1]/total
-#                Ratio_Hists.append(M_BHadW_Ratio)
-#
-#                M_WJet_Ratio = to_draw[2]/total
-#                Ratio_Hists.append(M_WJet_Ratio)
-#
-#                M_THad_Ratio = to_draw[3]/total
-#                Ratio_Hists.append(M_THad_Ratio)
-#
-#                plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,0.85), xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
-#                plotter.save('4J_Hadronic_Events_vs_mttbar_ratio_'+name)
-#
-#
-#                ### create stacked hists of ratios
-#                stack_hists = []
-#                for i in range(len(to_draw)):
-#                        stack_hists.append(to_draw[i].Integral())
-#                stack_hists.sort()
-#
-#                for i in range(len(stack_hists)):
-#                        for j in range(len(to_draw)):
-#                                if to_draw[j].Integral() == stack_hists[i]:
-#                                        to_draw[j].SetFillStyle(1001)
-#                                        Add_Ratio_Hists.append(to_draw[j])
-#
-#                stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total, Add_Ratio_Hists[4]/total)
-#                plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0, 1.3), xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
-#                plotter.save('4J_Hadronic_Events_vs_mttbar_stack_'+name)
-#
-#
-#
-#    ##### Events with 5 or more jets
-#        Hadronic_Events_5PJ = [
-#                ('5PJ_Had_Resolved_vs_mttbar', 'Resolved', 'blue'),
-#                ('5PJ_Merged_BHadWJet_vs_mttbar', 'Merged b_{h} and W jet', 'red'),
-#                ('5PJ_Merged_WJets_vs_mttbar', 'Merged W jets', 'black'),
-#                ('5PJ_Merged_THad_vs_mttbar', 'All 3 Merged', 'green'),
-#                ('5PJ_Non_Reconstructable_vs_mttbar', 'Non Reconstructable', 'magenta')
-#        ]
-#
-#        for name, title, col in DRvals:
-#
-#                to_draw = []
-#                Add_Ratio_Hists = []
-#                Ratio_Hists = []
-#
-#                for var, legends, colors in Hadronic_Events_5PJ:
-#                        hist = asrootpy(myfile.Get(name+'/'+var)).Clone()
-#                        plotter.set_histo_style(hist, title=legends, color=colors, drawstyle='hist', linestyle='solid')
-#                        to_draw.append(hist)
-#
-#                total = to_draw[0]+to_draw[1]+to_draw[2]+to_draw[3]+to_draw[4]
-#
-#                ### plot log of event occurrences
-#                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='m_{t#bar t} [GeV]', ytitle='A.U. '+title, drawstyle='hist')
-#                plotter.save('5PJ_Hadronic_Events_vs_mttbar_log_'+name)
-#
-#
-#                ### plot event ratios
-#                NonReco_Ratio = to_draw[4]/total
-#                Ratio_Hists.append(NonReco_Ratio)
-#
-#                Resolved_Ratio = to_draw[0]/total
-#                Ratio_Hists.append(Resolved_Ratio)
-#
-#                M_BHadW_Ratio = to_draw[1]/total
-#                Ratio_Hists.append(M_BHadW_Ratio)
-#
-#                M_WJet_Ratio = to_draw[2]/total
-#                Ratio_Hists.append(M_WJet_Ratio)
-#
-#                M_THad_Ratio = to_draw[3]/total
-#                Ratio_Hists.append(M_THad_Ratio)
-#
-#                plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,0.75), xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
-#                plotter.save('5PJ_Hadronic_Events_vs_mttbar_ratio_'+name)
-#
-#
-#                ### create stacked hists of ratios
-#                stack_hists = []
-#                for i in range(len(to_draw)):
-#                        stack_hists.append(to_draw[i].Integral())
-#                stack_hists.sort()
-#
-#                for i in range(len(stack_hists)):
-#                        for j in range(len(to_draw)):
-#                                if to_draw[j].Integral() == stack_hists[i]:
-#                                        to_draw[j].SetFillStyle(1001)
-#                                        Add_Ratio_Hists.append(to_draw[j])
-#
-#                stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total, Add_Ratio_Hists[4]/total)
-#                plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0, 1.3), xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
-#                plotter.save('5PJ_Hadronic_Events_vs_mttbar_stack_'+name)
-#
+        Hadronic_Events_PT = [
+                ('Gen_Had_Resolved_vs_thadpt', 'Resolved', 'blue'),
+                ('Gen_Merged_BHadWJet_vs_thadpt', 'Merged b_{h} and W jet', 'red'),
+                ('Gen_Merged_WJets_vs_thadpt', 'Merged W jets', 'black'),
+                ('Gen_Merged_THad_vs_thadpt', 'All 3 Merged', 'green')
+#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+        ]
+
+        for name, title, col in DRvals:
+
+                to_draw = []
+
+                for var, legends, colors in Hadronic_Events_PT:
+                        hist = asrootpy(myfile.Get(name+'/'+var)).Clone()
+                        plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                        to_draw.append(hist)
+
+
+                ### plot log of event occurrences
+                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U. '+title, drawstyle='hist')
+                plotter.save('AllJets_Hadronic_Events_vs_thadpt_log_'+name)
+
+
+                stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+
+                ### plot event ratios
+                plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.15), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
+                plotter.save('AllJets_Hadronic_Events_vs_thadpt_ratio_'+name)
+
+
+                ### create stacked hists of ratios
+                plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction '+title)
+                plotter.save('AllJets_Hadronic_Events_vs_thadpt_stack_'+name)
+
+                plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction '+title)
+                plotter.save('AllJets_Hadronic_Events_vs_thadpt_stack_Norm_'+name)
+
+#################################################################
+
+if args.plot == "AllJets":
+
+#### All jets
+
+        Hadronic_Events_Comp = [
+                ('Gen_Had_Resolved_DRP4_vs_thadpt', 'Resolved #Delta R < 0.4', 'blue'),
+#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+#                ('Gen_Merged_WJets_DRP8_vs_thadpt', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Gen_Merged_THad_DRP8_vs_thadpt', 'All 3 Merged #Delta R < 0.8', 'green'),
+#                ('Gen_Merged_BHadWJet_DRP4_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.4', 'cyan'),
+#                ('Gen_Merged_WJets_DRP4_vs_thadpt', 'Merged W jets #Delta R < 0.4', 'yellow')
+#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+                ('Gen_Partially_Merged_DRP8_vs_thadpt', 'Partial Merge #Delta R < 0.8', 'black')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_Comp:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+#        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
+
+#######################################################################
+
+if args.plot == "3Partons":
+
+#### one parton lost from acceptance
+
+        Hadronic_Events_3Part = [
+                ('Three_Parton_Gen_Had_Resolved_DRP4_vs_thadpt', 'Resolved #Delta R < 0.4', 'blue'),
+                ('Three_Parton_Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+                ('Three_Parton_Gen_Merged_WJets_DRP8_vs_thadpt', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Three_Parton_Gen_Merged_THad_DRP8_vs_thadpt', 'All 3 Merged #Delta R < 0.8', 'green')
+#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_3Part:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        plotter.save('Three_Partons_Hadronic_Events_Comp_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        plotter.save('Three_Partons_Hadronic_Events_Comp_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Three_Partons_Hadronic_Events_Comp_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Three_Partons_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
+
+
+    ### bhad missing
+        Hadronic_Events_3Part_BHad_Missing = [
+                ('Three_Parton_BHad_Missing_Gen_Had_Resolved_DRP4_vs_thadpt', 'Resolved #Delta R < 0.4', 'blue'),
+                ('Three_Parton_BHad_Missing_Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+                ('Three_Parton_BHad_Missing_Gen_Merged_WJets_DRP8_vs_thadpt', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Three_Parton_BHad_Missing_Gen_Merged_THad_DRP8_vs_thadpt', 'All 3 Merged #Delta R < 0.8', 'green')
+#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_3Part_BHad_Missing:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        box = plotter.make_text_box('b_{h} Lost', position='NW')
+        plotter.save('Three_Partons_BHad_Missing_Hadronic_Events_Comp_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        box = plotter.make_text_box('b_{h} Lost', position='NW')
+        plotter.save('Three_Partons_BHad_Missing_Hadronic_Events_Comp_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('b_{h} Lost', position='NW')
+        plotter.save('Three_Partons_BHad_Missing_Hadronic_Events_Comp_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('b_{h} Lost', position='NW')
+        plotter.save('Three_Partons_BHad_Missing_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
+
+
+    ### blep missing
+        Hadronic_Events_3Part_BLep_Missing = [
+                ('Three_Parton_BLep_Missing_Gen_Had_Resolved_DRP4_vs_thadpt', 'Resolved #Delta R < 0.4', 'blue'),
+                ('Three_Parton_BLep_Missing_Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+                ('Three_Parton_BLep_Missing_Gen_Merged_WJets_DRP8_vs_thadpt', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Three_Parton_BLep_Missing_Gen_Merged_THad_DRP8_vs_thadpt', 'All 3 Merged #Delta R < 0.8', 'green')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_3Part_BLep_Missing:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        box = plotter.make_text_box('b_{l} Lost', position='NW')
+        plotter.save('Three_Partons_BLep_Missing_Hadronic_Events_Comp_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        box = plotter.make_text_box('b_{l} Lost', position='NW')
+        plotter.save('Three_Partons_BLep_Missing_Hadronic_Events_Comp_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('b_{l} Lost', position='NW')
+        plotter.save('Three_Partons_BLep_Missing_Hadronic_Events_Comp_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('b_{l} Lost', position='NW')
+        plotter.save('Three_Partons_BLep_Missing_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
+
+
+
+    ### wja missing
+        Hadronic_Events_3Part_WJa_Missing = [
+                ('Three_Parton_WJa_Missing_Gen_Had_Resolved_DRP4_vs_thadpt', 'Resolved #Delta R < 0.4', 'blue'),
+                ('Three_Parton_WJa_Missing_Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+                ('Three_Parton_WJa_Missing_Gen_Merged_WJets_DRP8_vs_thadpt', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Three_Parton_WJa_Missing_Gen_Merged_THad_DRP8_vs_thadpt', 'All 3 Merged #Delta R < 0.8', 'green')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_3Part_BLep_Missing:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        box = plotter.make_text_box('WJa Lost', position='NW')
+        plotter.save('Three_Partons_WJa_Missing_Hadronic_Events_Comp_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        box = plotter.make_text_box('WJa Lost', position='NW')
+        plotter.save('Three_Partons_WJa_Missing_Hadronic_Events_Comp_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('WJa Lost', position='NW')
+        plotter.save('Three_Partons_WJa_Missing_Hadronic_Events_Comp_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('WJa Lost', position='NW')
+        plotter.save('Three_Partons_WJa_Missing_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
+
+
+    ### wjb missing
+        Hadronic_Events_3Part_WJb_Missing = [
+                ('Three_Parton_WJb_Missing_Gen_Had_Resolved_DRP4_vs_thadpt', 'Resolved #Delta R < 0.4', 'blue'),
+                ('Three_Parton_WJb_Missing_Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+                ('Three_Parton_WJb_Missing_Gen_Merged_WJets_DRP8_vs_thadpt', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Three_Parton_WJb_Missing_Gen_Merged_THad_DRP8_vs_thadpt', 'All 3 Merged #Delta R < 0.8', 'green')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_3Part_BLep_Missing:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        box = plotter.make_text_box('WJb Lost', position='NW')
+        plotter.save('Three_Partons_WJb_Missing_Hadronic_Events_Comp_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        box = plotter.make_text_box('WJb Lost', position='NW')
+        plotter.save('Three_Partons_WJb_Missing_Hadronic_Events_Comp_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('WJb Lost', position='NW')
+        plotter.save('Three_Partons_WJb_Missing_Hadronic_Events_Comp_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        box = plotter.make_text_box('WJb Lost', position='NW')
+        plotter.save('Three_Partons_WJb_Missing_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
+
+#####################################################################
+
+if args.plot == "3J":
+
+#### events with 3 jets
+
+        Hadronic_Events_3J = [
+                ('Gen_Had_Resolved_DRP4_vs_thadpt_3J', 'Resolved #Delta R < 0.4', 'blue'),
+#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt_3J', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+#                ('Gen_Merged_WJets_DRP8_vs_thadpt_3J', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Gen_Merged_THad_DRP8_vs_thadpt_3J', 'All 3 Merged #Delta R < 0.8', 'green'),
+#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+                ('Gen_Partially_Merged_DRP8_vs_thadpt', 'Partial Merge #Delta R < 0.8', 'black')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_3J:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        plotter.save('Hadronic_Events_3J_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        plotter.save('Hadronic_Events_3J_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Hadronic_Events_3J_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Hadronic_Events_3J_vs_thadpt_stack_Norm')
+
+##################################################################
+
+if args.plot == "4J":
+
+#### events with 4 jets
+
+        Hadronic_Events_4J = [
+                ('Gen_Had_Resolved_DRP4_vs_thadpt_4J', 'Resolved #Delta R < 0.4', 'blue'),
+#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt_4J', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+#                ('Gen_Merged_WJets_DRP8_vs_thadpt_4J', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Gen_Merged_THad_DRP8_vs_thadpt_4J', 'All 3 Merged #Delta R < 0.8', 'green'),
+                ('Gen_Partially_Merged_DRP8_vs_thadpt_4J', 'Partial Merge #Delta R < 0.8', 'black')
+#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_4J:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        plotter.save('Hadronic_Events_4J_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        plotter.save('Hadronic_Events_4J_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Hadronic_Events_4J_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Hadronic_Events_4J_vs_thadpt_stack_Norm')
 
 #############################################################
 
-print('~/nobackup/CMSSW_8_0_7_patch2/src/Analyses/URTTbar/htt_scripts/plots/gen_partons/%s/%s/%s/%s/' % (jobid, args.analysis, args.plot, args.sample))
+if args.plot == "5PJ":
+
+#### events with 5+ jets
+
+        Hadronic_Events_5PJ = [
+                ('Gen_Had_Resolved_DRP4_vs_thadpt_5PJ', 'Resolved #Delta R < 0.4', 'blue'),
+#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt_5PJ', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
+#                ('Gen_Merged_WJets_DRP8_vs_thadpt_5PJ', 'Merged W jets #Delta R < 0.8', 'black'),
+                ('Gen_Merged_THad_DRP8_vs_thadpt_5PJ', 'All 3 Merged #Delta R < 0.8', 'green'),
+                ('Gen_Partially_Merged_DRP8_vs_thadpt_5PJ', 'Partial Merge #Delta R < 0.8', 'black')
+#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+        ]
+
+        to_draw = []
+
+        for var, legends, colors in Hadronic_Events_5PJ:
+                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
+                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
+                to_draw.append(hist)
+
+        ### plot log of event occurrences
+        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+        plotter.save('Hadronic_Events_5PJ_vs_thadpt_log')
+
+
+        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+
+        ### plot event ratios
+        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+        plotter.save('Hadronic_Events_5PJ_vs_thadpt_ratio')
+
+        ### create stacked hists of ratios
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Hadronic_Events_5PJ_vs_thadpt_stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+        plotter.save('Hadronic_Events_5PJ_vs_thadpt_stack_Norm')
+
+
+##### Jet event ratios
+#
+#        Hadronic_Resolved_Ratios = [
+#                ('Gen_Had_Resolved_DRP4_vs_thadpt', 'Gen_Had_Resolved_DRP4_vs_thadpt_2LJ', 'Gen_Had_Resolved_DRP4_vs_thadpt_3J', 'Gen_Had_Resolved_DRP4_vs_thadpt_4J', 'Gen_Had_Resolved_DRP4_vs_thadpt_5PJ', 'Resolved #DeltaR < 0.4')
+##                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Gen_Merged_BHadWJet_DRP8_vs_thadpt_3J', 'Gen_Merged_BHadWJet_DRP8_vs_thadpt_4J', 'Gen_Merged_BHadWJet_DRP8_vs_thadpt_5PJ', 'Merged b_{h} and W jet #DeltaR < 0.8'),
+##                 ('Gen_Merged_WJets_DRP8_vs_thadpt', 'Gen_Merged_WJets_DRP8_vs_thadpt_3J', 'Gen_Merged_WJets_DRP8_vs_thadpt_4J', 'Gen_Merged_WJets_DRP8_vs_thadpt_5PJ', 'Merged W jets #DeltaR < 0.8'),
+##                 ('Gen_Merged_THad_DRP8_vs_thadpt', 'Gen_Merged_THad_DRP8_vs_thadpt_3J', 'Gen_Merged_THad_DRP8_vs_thadpt_4J', 'Gen_Merged_THad_DRP8_vs_thadpt_5PJ', 'All 3 Merged #DeltaR < 0.8')
+##                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
+#        ]
+#
+##        for name, title, col in DRvals:
+#
+#        to_draw = []
+#        to_draw_all = []
+#        Add_Ratio_Hists = []
+#        Ratio_Hists = []
+#
+#        for All, Jet2L, Jet3, Jet4, Jet5P, legends in Hadronic_Resolved_Ratios:
+#                total = asrootpy(myfile.Get('Had_comp/'+All)).Clone()
+#                plotter.set_histo_style(total, title='All jets', drawstyle='hist', color='black', linestyle='solid')
+#                to_draw_all.append(total)
+#
+#                J2 = asrootpy(myfile.Get('Had_comp/'+Jet2L)).Clone()
+#                plotter.set_histo_style(J2, title=' < 3 jets', drawstyle='hist', color='cyan', linestyle='solid')
+#                to_draw.append(J2)
+#                to_draw_all.append(J2)
+#
+#                J3 = asrootpy(myfile.Get('Had_comp/'+Jet3)).Clone()
+#                plotter.set_histo_style(J3, title='3 jets', drawstyle='hist', color='red', linestyle='solid')
+#                to_draw.append(J3)
+#                to_draw_all.append(J3)
+#
+#                J4 = asrootpy(myfile.Get('Had_comp/'+Jet4)).Clone()
+#                plotter.set_histo_style(J4, title='4 jets', drawstyle='hist', color='blue', linestyle='solid')
+#                to_draw.append(J4)
+#                to_draw_all.append(J4)
+#
+#                J5P = asrootpy(myfile.Get('Had_comp/'+Jet5P)).Clone()
+#                plotter.set_histo_style(J5P, title='5+ jets', drawstyle='hist', color='green', linestyle='solid')
+#                to_draw.append(J5P)
+#                to_draw_all.append(J5P)
+#
+#        to_draw.sort()
+#
+#        plotter.overlay(to_draw_all, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+#        plotter.save('Hadronic_Resolved_Ratio_log_vs_thadpt')
+#
+##        Unity = total/total
+#        J2_Ratio = J2/total
+#        J3_Ratio = J3/total
+#        J4_Ratio = J4/total
+#        J5P_Ratio = J5P/total
+#
+##        Ratio_Hists.append(Unity)
+#        Ratio_Hists.append(J2_Ratio)
+#        Ratio_Hists.append(J3_Ratio)
+#        Ratio_Hists.append(J4_Ratio)
+#        Ratio_Hists.append(J5P_Ratio)
+#
+#        Ratio_Hists.sort()
+#
+#        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+#        plotter.save('Hadronic_Resolved_Ratio_vs_thadpt')
+#
+#        for i in range(len(to_draw)):
+#            to_draw[i].SetFillStyle(1001)
+#            Add_Ratio_Hists.append(to_draw[i])
+#
+#        stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total)#, Add_Ratio_Hists[4]/total)
+#        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+#        plotter.save('Hadronic_Resolved_Ratio_vs_thadpt_stack')
+#
+#
+#### partial merge
+#        Hadronic_Merge_BHadW_Ratios = [
+#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Gen_Merged_BHadWJet_DRP8_vs_thadpt_2LJ', 'Gen_Merged_BHadWJet_DRP8_vs_thadpt_3J', 'Gen_Merged_BHadWJet_DRP8_vs_thadpt_4J', 'Gen_Merged_BHadWJet_DRP8_vs_thadpt_5PJ', 'Merged b_{h} and W jet #DeltaR < 0.8')
+##                 ('Gen_Merged_WJets_DRP8_vs_thadpt', 'Gen_Merged_WJets_DRP8_vs_thadpt_3J', 'Gen_Merged_WJets_DRP8_vs_thadpt_4J', 'Gen_Merged_WJets_DRP8_vs_thadpt_5PJ', 'Merged W jets #DeltaR < 0.8')
+##                 ('Gen_Merged_THad_DRP8_vs_thadpt', 'Gen_Merged_THad_DRP8_vs_thadpt_3J', 'Gen_Merged_THad_DRP8_vs_thadpt_4J', 'Gen_Merged_THad_DRP8_vs_thadpt_5PJ', 'All 3 Merged #DeltaR < 0.8')
+#        ]
+#
+##        for name, title, col in DRvals:
+#
+#        to_draw = []
+#        to_draw_all = []
+#        Add_Ratio_Hists = []
+#        Ratio_Hists = []
+#
+#        for All, Jet2, Jet3, Jet4, Jet5P, legends in Hadronic_Merge_BHadW_Ratios:
+#            total = asrootpy(myfile.Get('Had_comp/'+All)).Clone()
+#            plotter.set_histo_style(total, title='All jets', drawstyle='hist', color='black', linestyle='solid')
+#            to_draw_all.append(total)
+#
+#            J2 = asrootpy(myfile.Get('Had_comp/'+Jet2)).Clone()
+#            plotter.set_histo_style(J2, title=' < 3 jets', drawstyle='hist', color='cyan', linestyle='solid')
+#            to_draw.append(J2)
+#            to_draw_all.append(J2)
+#
+#            J3 = asrootpy(myfile.Get('Had_comp/'+Jet3)).Clone()
+#            plotter.set_histo_style(J3, title='3 jets', drawstyle='hist', color='red', linestyle='solid')
+#            to_draw.append(J3)
+#            to_draw_all.append(J3)
+#
+#            J4 = asrootpy(myfile.Get('Had_comp/'+Jet4)).Clone()
+#            plotter.set_histo_style(J4, title='4 jets', drawstyle='hist', color='blue', linestyle='solid')
+#            to_draw.append(J4)
+#            to_draw_all.append(J4)
+#
+#            J5P = asrootpy(myfile.Get('Had_comp/'+Jet5P)).Clone()
+#            plotter.set_histo_style(J5P, title='5+ jets', drawstyle='hist', color='green', linestyle='solid')
+#            to_draw.append(J5P)
+#            to_draw_all.append(J5P)
+#
+#        to_draw.sort()
+#
+#        plotter.overlay(to_draw_all, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+#        plotter.save('Hadronic_Merged_BHadWjet_Ratio_log_vs_thadpt')
+#
+##        Unity = total/total
+#        J2_Ratio = J2/total
+#        J3_Ratio = J3/total
+#        J4_Ratio = J4/total
+#        J5P_Ratio = J5P/total
+#
+##        Ratio_Hists.append(Unity)
+#        Ratio_Hists.append(J2_Ratio)
+#        Ratio_Hists.append(J3_Ratio)
+#        Ratio_Hists.append(J4_Ratio)
+#        Ratio_Hists.append(J5P_Ratio)
+#
+#        Ratio_Hists.sort()
+#
+#
+#        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+#        plotter.save('Hadronic_Merged_BHadWjet_Ratio_vs_thadpt')
+#
+#        for i in range(len(to_draw)):
+#            to_draw[i].SetFillStyle(1001)
+#            Add_Ratio_Hists.append(to_draw[i])
+#
+#        stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total)#, Add_Ratio_Hists[4]/total)
+#        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+#        plotter.save('Hadronic_Merged_BHadWjet_Ratio_vs_thadpt_stack')
+#
+#
+#
+#### partial merge
+#        Hadronic_Merge_Wjets_Ratios = [
+#                 ('Gen_Merged_WJets_DRP8_vs_thadpt', 'Gen_Merged_WJets_DRP8_vs_thadpt_2LJ', 'Gen_Merged_WJets_DRP8_vs_thadpt_3J', 'Gen_Merged_WJets_DRP8_vs_thadpt_4J', 'Gen_Merged_WJets_DRP8_vs_thadpt_5PJ', 'Merged W jets #DeltaR < 0.8')
+##                 ('Gen_Merged_THad_DRP8_vs_thadpt', 'Gen_Merged_THad_DRP8_vs_thadpt_3J', 'Gen_Merged_THad_DRP8_vs_thadpt_4J', 'Gen_Merged_THad_DRP8_vs_thadpt_5PJ', 'All 3 Merged #DeltaR < 0.8')
+#        ]
+#
+#        to_draw = []
+#        to_draw_all = []
+#        Add_Ratio_Hists = []
+#        Ratio_Hists = []
+#
+#        for All, Jet2, Jet3, Jet4, Jet5P, legends in Hadronic_Merge_Wjets_Ratios:
+#                total = asrootpy(myfile.Get('Had_comp/'+All)).Clone()
+#                plotter.set_histo_style(total, title='All jets', drawstyle='hist', color='black', linestyle='solid')
+#                to_draw_all.append(total)
+#
+#                J2 = asrootpy(myfile.Get('Had_comp/'+Jet2)).Clone()
+#                plotter.set_histo_style(J2, title=' < 3 jets', drawstyle='hist', color='cyan', linestyle='solid')
+#                to_draw_all.append(J2)
+#                to_draw.append(J2)
+#
+#                J3 = asrootpy(myfile.Get('Had_comp/'+Jet3)).Clone()
+#                plotter.set_histo_style(J3, title='3 jets', drawstyle='hist', color='red', linestyle='solid')
+#                to_draw.append(J3)
+#                to_draw_all.append(J3)
+#
+#                J4 = asrootpy(myfile.Get('Had_comp/'+Jet4)).Clone()
+#                plotter.set_histo_style(J4, title='4 jets', drawstyle='hist', color='blue', linestyle='solid')
+#                to_draw.append(J4)
+#                to_draw_all.append(J4)
+#
+#                J5P = asrootpy(myfile.Get('Had_comp/'+Jet5P)).Clone()
+#                plotter.set_histo_style(J5P, title='5+ jets', drawstyle='hist', color='green', linestyle='solid')
+#                to_draw.append(J5P)
+#                to_draw_all.append(J5P)
+#
+#        to_draw.sort()
+#
+#        plotter.overlay(to_draw_all, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+#        plotter.save('Hadronic_Merged_Wjets_Ratio_log_vs_thadpt')
+#
+##        Unity = total/total
+#        J2_Ratio = J2/total
+#        J3_Ratio = J3/total
+#        J4_Ratio = J4/total
+#        J5P_Ratio = J5P/total
+#
+##        Ratio_Hists.append(Unity)
+#        Ratio_Hists.append(J2_Ratio)
+#        Ratio_Hists.append(J3_Ratio)
+#        Ratio_Hists.append(J4_Ratio)
+#        Ratio_Hists.append(J5P_Ratio)
+#
+#        Ratio_Hists.sort()
+#
+#
+#        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+#        plotter.save('Hadronic_Merged_Wjets_Ratio_vs_thadpt')
+#
+#        for i in range(len(to_draw)):
+#            to_draw[i].SetFillStyle(1001)
+#            Add_Ratio_Hists.append(to_draw[i])
+#
+#        stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total)#, Add_Ratio_Hists[4]/total)
+#        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+#        plotter.save('Hadronic_Merged_Wjets_Ratio_vs_thadpt_stack')
+#
+#
+#
+#### full merge
+#        Hadronic_Full_Merge_Ratios = [
+#                 ('Gen_Merged_THad_DRP8_vs_thadpt', 'Gen_Merged_THad_DRP8_vs_thadpt_2LJ', 'Gen_Merged_THad_DRP8_vs_thadpt_3J', 'Gen_Merged_THad_DRP8_vs_thadpt_4J', 'Gen_Merged_THad_DRP8_vs_thadpt_5PJ', 'All 3 Merged #DeltaR < 0.8')
+#        ]
+#
+#        to_draw = []
+#        to_draw_all = []
+#        Add_Ratio_Hists = []
+#        Ratio_Hists = []
+#
+#        for All, Jet2, Jet3, Jet4, Jet5P, legends in Hadronic_Full_Merge_Ratios:
+#                total = asrootpy(myfile.Get('Had_comp/'+All)).Clone()
+#                plotter.set_histo_style(total, title='All jets', drawstyle='hist', color='black', linestyle='solid')
+#                to_draw_all.append(total)
+#
+#                J2 = asrootpy(myfile.Get('Had_comp/'+Jet2)).Clone()
+#                plotter.set_histo_style(J2, title=' < 3 jets', drawstyle='hist', color='cyan', linestyle='solid')
+#                to_draw.append(J2)
+#                to_draw_all.append(J2)
+#
+#                J3 = asrootpy(myfile.Get('Had_comp/'+Jet3)).Clone()
+#                plotter.set_histo_style(J3, title='3 jets', drawstyle='hist', color='red', linestyle='solid')
+#                to_draw.append(J3)
+#                to_draw_all.append(J3)
+#
+#                J4 = asrootpy(myfile.Get('Had_comp/'+Jet4)).Clone()
+#                plotter.set_histo_style(J4, title='4 jets', drawstyle='hist', color='blue', linestyle='solid')
+#                to_draw.append(J4)
+#                to_draw_all.append(J4)
+#
+#                J5P = asrootpy(myfile.Get('Had_comp/'+Jet5P)).Clone()
+#                plotter.set_histo_style(J5P, title='5+ jets', drawstyle='hist', color='green', linestyle='solid')
+#                to_draw.append(J5P)
+#                to_draw_all.append(J5P)
+#
+#        to_draw.sort()
+#
+#        plotter.overlay(to_draw_all, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
+#        plotter.save('Hadronic_Merged_THad_Ratio_log_vs_thadpt')
+#
+##        Unity = total/total
+#        J2_Ratio = J2/total
+#        J3_Ratio = J3/total
+#        J4_Ratio = J4/total
+#        J5P_Ratio = J5P/total
+#
+##        Ratio_Hists.append(Unity)
+#        Ratio_Hists.append(J2_Ratio)
+#        Ratio_Hists.append(J3_Ratio)
+#        Ratio_Hists.append(J4_Ratio)
+#        Ratio_Hists.append(J5P_Ratio)
+#
+#        Ratio_Hists.sort()
+#
+#
+#        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
+#        plotter.save('Hadronic_Merged_THad_Ratio_vs_thadpt')
+#
+#        for i in range(len(to_draw)):
+#            to_draw[i].SetFillStyle(1001)
+#            Add_Ratio_Hists.append(to_draw[i])
+#
+#        stack = plotter.create_stack(Add_Ratio_Hists[0]/total, Add_Ratio_Hists[1]/total, Add_Ratio_Hists[2]/total, Add_Ratio_Hists[3]/total)#, Add_Ratio_Hists[4]/total)
+#        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
+#        plotter.save('Hadronic_Merged_THad_Ratio_vs_thadpt_stack')
+
+
+#############################################################
+
+print('cp ~/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/gen_partons/%s/%s/%s/%s/*.png .' % (jobid, args.analysis, args.plot, args.sample))
