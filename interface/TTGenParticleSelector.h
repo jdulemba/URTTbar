@@ -19,6 +19,7 @@ public:
   bool select(URStreamer& event);
 
   bool is_in_acceptance(GenTTBar::DecayType decay_mode = GenTTBar::DecayType::SEMILEP);
+  bool is_bhad_in_acceptance(GenTTBar::DecayType decay_mode = GenTTBar::DecayType::SEMILEP);
   GenTTBar & ttbar_system() {return ttbar_;}
   GenTTBar & ttbar_final_system() {return ttbar_final_;}
   vector<Genjet*>& additional_jets() {return added_jets_;}
@@ -76,6 +77,7 @@ private:
 
   //ACCEPTANCE
   int is_in_acceptance_=-1;
+  int is_bhad_in_acceptance_=-1;
   float cut_lep_ptmin_=0., cut_lep_etamax_=999.;
   float cut_wjet_pthard_=0., cut_wjet_ptsoft_=0., cut_wjet_etamax_=999.;
   float cut_bjet_ptsoft_=0., cut_bjet_pthard_=0., cut_bjet_etamax_=999.;

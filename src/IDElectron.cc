@@ -12,8 +12,7 @@ const std::map<std::string, IDElectron::IDS> IDElectron::id_names = {
   {"LOOSE_15"   , IDElectron::IDS::LOOSE_15   },
   {"VETO_15"    , IDElectron::IDS::VETO_15    },
 	{"TIGHT_15_NoECAL_Gap", IDElectron::IDS::TIGHT_15_NoECAL_Gap},
-	{"NOTVETO_15", IDElectron::IDS::NOTVETO_15},
-	{"FAKES", IDElectron::IDS::FAKES},
+	{"NOTVETO_15", IDElectron::IDS::NOTVETO_15}
 };
 
 IDElectron::IDS IDElectron::id(const std::string label) {
@@ -107,12 +106,6 @@ double IDElectron::PFIsolationRho2015() const
 //   // return true;
 // }
 
-bool IDElectron::FakeID() const {// {return IPCuts() && (eidCutNoIsoTight() > 0.5) ;TIGHT_15_NoECAL_Gap
-	bool ecalgap = (fabs(etaSC()) <= 1.4442 || fabs(etaSC()) >= 1.5660);
-	bool iso = (etaSC() < 1.479) ? PFIsolationRho2015() >= 0.0588 : PFIsolationRho2015() >= 0.0571;
-	return IPCuts() && eidCutNoIsoTight() && ecalgap && iso;
-}
-
 bool IDElectron::ID(IDS idtyp)
 {
   double sceta = Abs(TVector3(x(), y(), z()).Eta());
@@ -125,7 +118,6 @@ bool IDElectron::ID(IDS idtyp)
 	case VETO_15: return VetoID25ns();
 	case TIGHT_15_NoECAL_Gap: return (TightID25ns() && (fabs(etaSC()) <= 1.4442 || fabs(etaSC()) >= 1.5660)); //removes EB-EE gap  
 	case NOTVETO_15: return !VetoID25ns();
-	case FAKES: return FakeID();
   }
   return false;
 }

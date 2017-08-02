@@ -202,7 +202,7 @@ public:
 		if(!matched_perm.IsComplete()) return;
 
     //Find best permutation
-		for(auto test_perm : permutator_.pemutations()) {
+		for(auto test_perm : permutator_.permutations()) {
 			test_perm.LepCharge(object_selector_.lepton_charge());
 			solver_.Solve(test_perm);
 			TTNaming perm_status;

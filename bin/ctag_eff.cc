@@ -680,7 +680,7 @@ public:
 				
     //Find best permutation
     Permutation best_permutation;
-		for(auto test_perm : permutator_.pemutations()) {
+		for(auto test_perm : permutator_.permutations()) {
 			solver_.Solve(test_perm);
 			double bjet_lpt = Max(test_perm.BHad()->Pt(), test_perm.BLep()->Pt());
 			fill_combo_plots(presel_dir+"/permutations", test_perm);

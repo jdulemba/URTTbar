@@ -25,6 +25,13 @@ private:
 	std::shared_ptr<TH2D> WTmass_right_;
 	std::shared_ptr<TH1D> N_right_; 
 
+        // Joseph added for discriminants
+    std::shared_ptr<TH2D> Max_Mjet_3J_right_;
+    std::shared_ptr<TH2D> Max_Mjet_4J_right_;
+	std::shared_ptr<TH1F> N_3J_right_; 
+        //
+
+
 	std::shared_ptr<TH1D> lep_b_ratio_right_; 
 	std::shared_ptr<TH1D> wj2_b_ratio_right_; 
 	std::shared_ptr<TH1D> wj1_btag_right_; 
@@ -37,7 +44,11 @@ private:
 	bool USENS_      	 = false;
 	bool USEMASS_    	 = false;
 	bool useptratios_	 = false;
-	bool usewjetqgtag_ = false;
+	bool usewjetqgtag_   = false;
+
+        // Joseph added for perm discriminant
+    bool USEPERM_        = false;
+        //
 
 	const double mtop_ = 173.;
 	const double mw_ = 80.;	
@@ -66,14 +77,20 @@ public:
       Logger::log().fatal() << "Could not get " << path_right << " or " << path_wrong << " from the file " << dir->GetName() << "!" << std::endl;
       throw 42;
     }
-		right->Scale(1./right->Integral("width"));
-		wrong->Scale(1./wrong->Integral("width"));
+		right->Scale(1./right->Integral(), "width");
+		wrong->Scale(1./wrong->Integral(), "width");
 		right->Divide(wrong);
     std::shared_ptr<T> ptr((T*) right->Clone(newname.c_str()));
     return ptr;
   }
 
 	void Solve(Permutation &hyp, bool lazy=false);
+
+
+        // Joseph added for perm discriminant
+	void Solve_3J(Permutation &hyp, bool lazy=true);
+	void Solve_4J(Permutation &hyp, bool lazy=true);
+        //
 };
 
 #endif

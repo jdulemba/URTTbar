@@ -1,7 +1,6 @@
 #! /bin/env python
 
 from URAnalysis.PlotTools.Plotter import Plotter, BasePlotter
-from URAnalysis.PlotTools.BasePlotter import LegendDefinition
 import URAnalysis.PlotTools.views as urviews
 import os
 import glob
@@ -42,7 +41,6 @@ parser.add_argument('--shapes', action='store_true', help='')
 parser.add_argument('--all', action='store_true', help='')
 parser.add_argument('--btag', action='store_true', help='')
 parser.add_argument('--card', action='store_true', help='')
-parser.add_argument('--qcdshape', action='store_true', help='')
 parser.add_argument('--sysplots', action='store_true', help='dumps systematics plots, valid only if --card')
 parser.add_argument('--smoothsys', default='', help='')
 #parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
@@ -80,12 +78,11 @@ class HTTPlotter(Plotter):
 		lumis = glob.glob('inputs/%s/*.lumi' % jobid)
 		lumis = filter(filtering, lumis)
 		logging.debug('lumi files found %s' % lumis.__repr__())
-		full_meta = prettyjson.loads(#l jacket
-			open('inputs/%s/ttJets.meta.json' % jobid).read()
+		self.tt_lhe_weights = prettyjson.loads(
+			open('inputs/%s/ttJets.weights.json' % jobid).read()
 			)
-		self.tt_lhe_weights = [i/full_meta['events'] for i in full_meta['sum_weights']]
-
 		outdir= 'plots/%s/htt/%s' % (jobid, mode)
+
 		super(HTTPlotter, self).__init__(
 			files, lumis, outdir, styles, None, lumi
 			#defaults = {'save' : {'png' : True, 'pdf' : False}}
@@ -290,7 +287,7 @@ class HTTPlotter(Plotter):
 				'+' : lambda x: x.replace('nosys', 'renorm_up'),
 				'-' : lambda x: x.replace('nosys', 'renorm_down'),
 				'value' : 1.00,
-				'scales' : (1./self.tt_lhe_weights[3], 1./self.tt_lhe_weights[6]),
+				'scales' : (1./self.tt_lhe_weights['3'], 1./self.tt_lhe_weights['6']),
 				},
 			'QCDscaleMEFactor_TT' : {
 				'samples' : ['TT$'],
@@ -299,31 +296,23 @@ class HTTPlotter(Plotter):
 				'+' : lambda x: x.replace('nosys', 'factor_up'),
 				'-' : lambda x: x.replace('nosys', 'factor_down'),
 				'value' : 1.00,
-				'scales' : (1./self.tt_lhe_weights[1], 1./self.tt_lhe_weights[2]),
+				'scales' : (1./self.tt_lhe_weights['1'], 1./self.tt_lhe_weights['2']),
 				},
-			## 'QCDscaleMERenormFactor_TT' : {
-			## 	'samples' : ['TT$'],
-			## 	'categories' : ['.*'],
-			## 	'type' : 'shape',
-			## 	'+' : lambda x: x.replace('nosys', 'renfactor_up'),
-			## 	'-' : lambda x: x.replace('nosys', 'renfactor_down'),
-			## 	'value' : 1.00,
-			## 	'scales' : (1./self.tt_lhe_weights[4], 1./self.tt_lhe_weights[8]),
-			## 	},
-			'ISR_TT' : {
+			'QCDscaleMERenormFactor_TT' : {
 				'samples' : ['TT$'],
 				'categories' : ['.*'],
 				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'isr_up'),
-				'-' : lambda x: x.replace('nosys', 'isr_down'),
+				'+' : lambda x: x.replace('nosys', 'renfactor_up'),
+				'-' : lambda x: x.replace('nosys', 'renfactor_down'),
 				'value' : 1.00,
+				'scales' : (1./self.tt_lhe_weights['4'], 1./self.tt_lhe_weights['8']),
 				},
-			'FSR_TT' : {
+			'QCDscalePS_TT' : {
 				'samples' : ['TT$'],
 				'categories' : ['.*'],
 				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'fsr_up'),
-				'-' : lambda x: x.replace('nosys', 'fsr_down'),
+				'+' : lambda x: x.replace('nosys', 'scale_up'),
+				'-' : lambda x: x.replace('nosys', 'scale_down'),
 				'value' : 1.00,
 				},
 			'Hdamp_TT' : {
@@ -332,7 +321,7 @@ class HTTPlotter(Plotter):
 				'type' : 'shape',
 				'+' : lambda x: x.replace('nosys', 'hdamp_up'),
 				'-' : lambda x: x.replace('nosys', 'hdamp_down'),
-				'scales' : (1./self.tt_lhe_weights[240], 1./self.tt_lhe_weights[231]),
+				'scales' : (1./self.tt_lhe_weights['240'], 1./self.tt_lhe_weights['231']),
 				'value' : 1.00,
 				},
 			#TMass
@@ -422,7 +411,7 @@ class HTTPlotter(Plotter):
 			return up, down
 
 		def get_and_scale(view, var, idx):
-			scale = 1./self.tt_lhe_weights[idx]
+			scale = 1./self.tt_lhe_weights['%d' % idx]
 			value = view.Get(vartemplate % (var, idx))
 			value.Scale(scale)			
 			return value
@@ -970,76 +959,9 @@ if args.btag:
 	plotter.save('fraction_tt')
 
 binnind2D = (
-	[250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 
-	 540.0, 560.0, 580.0, 610.0, 640.0, 680.0, 730.0, 800.0, 920.0, 1200.0], #~3k events each mtt bin
+	[250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 680.0, 730.0, 800.0, 920.0, 1200.0], #~3k events each mtt bin
 	[1] #[0, 0.2, 0.4, 0.6, 0.8, 1.0]
 )
-qcdshapes = {}
-if args.qcdshape or args.all:
-	mcs = [i for i in plotter.mc_samples if not i.startswith('QCD')]
-	dirname = 'nosys/looseNOTTight/MTHigh'
-	qcd_mc_view = views.SubdirectoryView(
-		plotter.get_view([i for i in plotter.mc_samples if i.startswith('QCD')][0]),
-		dirname
-		)
-	sum_mc = views.SumView(*[
-			views.SubdirectoryView(plotter.get_view(i), dirname) for i in mcs
-			])
-	data = views.SubdirectoryView(plotter.get_view('data'), dirname)
-	qcd_view = views.SumView(
-		data,
-		views.ScaleView(sum_mc, -1.)
-		)
-	
-	plotter.set_subdir('qcd_shapes')
-	unroll = {'mtt_tlep_ctstar'}	
-	print 'QCD Shapes comparison'
-	for var, rebin, xtit, ytit in [
-		('m_tt', binnind2D[0], "m(tt) (GeV)", 'A.U.'), 
-		('tlep_ctstar', [0, 0.2, 0.4, 0.6, 0.8, 1.0], "cos #theta^{*}(tlep)", 'A.U.'), 
-		('mtt_tlep_ctstar', binnind2D, "m(tt) (GeV)", "cos #theta^{*}(tlep)")]:
-		shape = urviews.RebinView(qcd_view, rebin).Get(var)			
-		shape.Scale(1./shape.integral())
-		mc_shape = urviews.RebinView(qcd_mc_view, rebin).Get(var)
-		mc_shape.scale(1./mc_shape.integral())
-		qcdshapes[var] = shape.Clone()
-		chi2 = mc_shape.Chi2Test(shape, 'WW CHI2/NDF')
-		print 'Variable:', var, 'chi2/ndf:', chi2
-		plotter.plot(
-			shape, xtitle=xtit, ytitle=ytit,
-			drawstyle='colz' if var in unroll else ''
-			)
-		if var in unroll:
-			corr = shape.GetCorrelationFactor()
-			corr = 'Correlation: %.3f' % corr
-			txt = plotter.make_text_box(corr, position='NE')
-			plotter.keep.append(txt)
-			txt.Draw()
-		print ' --------------------- '
-		plotter.save(var)
-		#Overlay with MC and compute Pearsons Chi2
-		mc_shape.Scale(shape.Integral()/mc_shape.Integral())
-		plotter.overlay(
-			[mc_shape, shape], legend_def=LegendDefinition(position='NE'),
-			xtitle=xtit, ytitle=ytit,
-			markercolor = ['blue', 'red'],
-			drawstyle = ['e', 'e'],
-			markerstyle = 20,
-			title = ['MC', 'data-diven'],
-			legendstyle=['p', 'p']
-			)
-		txt = plotter.make_text_box('chi2/ndf: %.2f' % chi2, position='NW')
-		plotter.keep.append(txt)
-		txt.Draw()
-		plotter.save('overlay_%s' % var)
-
-	with io.root_open('%s/qcd_shapes.root' % plotter.outputdir, 'w') as out:
-		for name, obj in qcdshapes.iteritems():
-			out.WriteTObject(obj.Clone(), name)			
-			if name in unroll:
-				linear = urviews.LinearizeView.linearize(obj)
-				out.WriteTObject(linear, '%s_linear' % name)
-
 if args.card:
 	correction_factors = {}
 	category = 'mujets' if args.mode == 'muons' else 'ejets'
@@ -1102,6 +1024,7 @@ if args.card:
 			plotter.systematics[shift]['mass_sfs'] = {
 				'+' : upsf, '-' : downsf
 				}
+	raise ValueError()
 	plotter.write_shapes(		
 		category,
 		'nosys/tight/MTHigh', 'mtt_tlep_ctstar',

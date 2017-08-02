@@ -166,7 +166,7 @@ public:
 
     //Find best permutation
     Permutation best_permutation;
-		for(auto test_perm : permutator_.pemutations()) {
+		for(auto test_perm : permutator_.permutations()) {
 			solver_.Solve(test_perm);
 			if(test_perm.MassDiscr() < best_permutation.MassDiscr()){
 				best_permutation = test_perm;

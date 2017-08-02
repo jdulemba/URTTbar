@@ -6,6 +6,8 @@
 #include "Analyses/URTTbar/interface/LHEParticle.h"
 #include <iostream>
 
+using namespace TMath;
+
 class GenObject : public TLorentzVector
 {
 private:
@@ -138,6 +140,73 @@ public:
   bool is_complete() {
     return top.is_complete() && tbar.is_complete();
   }
+
+//// Joseph added
+  bool is_bhad_in_acceptance(double pt, double eta) { // check if bhad parton falls w/in pt and eta acceptance
+    if( had_b()->Pt() < pt || Abs(had_b()->Eta()) > eta ) {return(false);}
+    return(true);
+  }
+
+  bool is_blep_in_acceptance(double pt, double eta) { // check if blep parton falls w/in pt and eta acceptance
+    if( lep_b()->Pt() < pt || Abs(lep_b()->Eta()) > eta ) {return(false);}
+    return(true);
+  }
+
+  bool is_wja_in_acceptance(double pt, double eta) { // check if wja parton falls w/in pt and eta acceptance
+    if( had_W()->first->Pt() < pt || Abs(had_W()->first->Eta()) > eta ) {return(false);}
+    return(true);
+  }
+
+  bool is_wjb_in_acceptance(double pt, double eta) { // check if wjb parton falls w/in pt and eta acceptance
+    if( had_W()->second->Pt() < pt || Abs(had_W()->second->Eta()) > eta ) {return(false);}
+    return(true);
+  }
+
+  bool three_partons_in_acceptance(double pt, double eta) { // check if only 3 partons fall w/in pt and eta acceptance
+    if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+    if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+    if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+    if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
+    return(false);
+  }
+
+    bool resolved_had_partons(double dr_) // hadronic partons resolved at DR = dr_
+    {
+        if( had_b()->DeltaR(*had_W()->first) > dr_ && had_b()->DeltaR(*had_W()->second) > dr_ && had_W()->first->DeltaR(*had_W()->second) > dr_ ) {return(true);}
+        return(false);
+    }
+
+    bool merged_had_partons(double dr_) // all hadronic partons merged at DR = dr_
+    {
+        if( had_b()->DeltaR(*had_W()->first) < dr_ && had_b()->DeltaR(*had_W()->second) < dr_ && had_W()->first->DeltaR(*had_W()->second) < dr_ ) {return(true);}
+        return(false);
+    }
+
+    bool merged_bhadwja_partons(double dr_) // bhad and Wja partons merged at DR = dr_
+    {
+        if( had_b()->DeltaR(*had_W()->first) < dr_ && had_b()->DeltaR(*had_W()->second) > dr_ && had_W()->first->DeltaR(*had_W()->second) > dr_ ) {return(true);}
+        return(false);
+    }
+
+    bool merged_bhadwjb_partons(double dr_) // bhad and Wjb partons merged at DR = dr_
+    {
+        if( had_b()->DeltaR(*had_W()->second) < dr_ && had_b()->DeltaR(*had_W()->first) > dr_ && had_W()->first->DeltaR(*had_W()->second) > dr_ ) {return(true);}
+        return(false);
+    }
+
+    bool merged_bhadw_partons(double dr_) // bhad and one W parton merged at DR = dr_
+    {
+        if( (merged_bhadwja_partons(dr_) && !merged_bhadwjb_partons(dr_)) || (!merged_bhadwja_partons(dr_) && merged_bhadwjb_partons(dr_)) ) {return(true);}
+        return(false);
+    }
+
+    bool merged_w_partons(double dr_) // W partons merged at DR = dr_
+    {
+        if( had_b()->DeltaR(*had_W()->first) > dr_ && had_b()->DeltaR(*had_W()->second) > dr_ && had_W()->first->DeltaR(*had_W()->second) < dr_ ) {return(true);}
+        return(false);
+    }
+
+////
 
   GenTop* lep_top() {
     if(type == GenTTBar::DecayType::INVALID || type == GenTTBar::DecayType::FULLHAD) return 0;
