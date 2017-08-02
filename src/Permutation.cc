@@ -4,14 +4,16 @@
 
 using namespace std;
 
-Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge) :
+//Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge) :
+Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge, double rho) :
 	wja_(wja),
 	wjb_(wjb),
 	bjh_(bjh),
 	bjl_(bjl),
 	lep_(lep),
 	met_(met),
-  lepcharge_(lcharge)
+    lepcharge_(lcharge),
+    rho_(rho)
 {
 }
 
@@ -33,6 +35,7 @@ void Permutation::Reset()
 	bjl_ = 0;
 	lep_ = 0;
 	met_ = 0;
+    rho_ = 0;
 	kinfit_ = false;
 }
 
@@ -47,7 +50,8 @@ bool operator>(const Permutation& A, const Permutation& B)
 }
 
 std::ostream & operator<<(std::ostream &os, const TLorentzVector& p) {
-  return os << "LV(" << p.Pt() << ", " << p.Eta()<< ", "<< p.Phi() << /*", "<< p.E()<<*/ ")";
+  return os << "LV(" << p.Px() << ", " << p.Py()<< ", "<< p.Pz() << ", "<< p.E()<< ")";
+  //return os << "LV(" << p.Pt() << ", " << p.Eta()<< ", "<< p.Phi() << /*", "<< p.E()<<*/ ")";
 }
 
 std::ostream & operator<<(std::ostream &os, const Permutation& p) {

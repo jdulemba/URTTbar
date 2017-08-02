@@ -21,6 +21,7 @@
 #include "Analyses/URTTbar/interface/Permutation.h"
 #include <set>
 #include "Analyses/URTTbar/interface/IDMet.h"
+#include "Analyses/URTTbar/interface/JetScaler.h"
 #include "TUUID.h"   
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
@@ -38,6 +39,10 @@
 #include "URAnalysis/AnalysisFW/interface/EventList.h"
 #include "Analyses/URTTbar/interface/Hypotheses.h"
 #include "TROOT.h"
+#include <fstream>
+
+//#include "JetMETCorrections/Modules/interface/JetResolution.h"
+//#include "Analyses/URTTbar/interface/JERFile.h"
 
 using namespace TMath;
 using namespace systematics;
@@ -76,8 +81,13 @@ private:
   TTBarSolver solver_;
   PDFuncertainty pdf_uncs_;
 
+    
 	//Scale factors
 	LeptonSF electron_sf_, muon_sf_;
+
+//    JME::JetResolution pt_jet_res_; // initialize jet energy pt resolution
+//    JME::JetResolutionScaleFactor jet_res_sf_; // initialize jet energy resolution scale factors
+
 
   unsigned long evt_idx_ = 0;
 	vector<systematics::SysShifts> systematics_;
@@ -123,6 +133,16 @@ public:
     //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
     
     URParser &parser = URParser::instance();
+
+//    parser.addCfgParameter<string>("JERC", "JER_SF","");
+//    parser.addCfgParameter<string>("JERC", "PT_JER","");
+//    parser.parseArguments();
+//
+//    DataFile jer_sf_fname_(parser.getCfgPar<string>("JERC","JER_SF"));
+//    DataFile pt_jer_fname_(parser.getCfgPar<string>("JERC","PT_JER"));
+//
+//    jet_res_sf_ = JME::JetResolutionScaleFactor(jer_sf_fname_.path());
+//    pt_jet_res_ = JME::JetResolution(pt_jer_fname_.path());
 
 		TUUID id;  
 		randomizer_.SetSeed(id.Hash());   
@@ -277,7 +297,7 @@ public:
 		dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
 		dir->second["nvtx_noweight"].fill(event.vertexs().size());
 		dir->second["rho"].fill(event.rho().value(), evt_weight_);
-    dir->second["weight"].fill(evt_weight_);
+        dir->second["weight"].fill(evt_weight_);
 		dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
 		dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
 		dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
@@ -285,8 +305,8 @@ public:
 		double max_pt = -1;
 		double max_eta = 0;
     for(IDJet* jet : object_selector_.clean_jets()) {
-      dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
-      dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
+            dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
+            dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
 			dir->second["jets_CSV"].fill(jet->csvIncl(), evt_weight_);
 			if(jet->csvIncl() > max_csv) max_csv = jet->csvIncl();
 			dir->second["cMVA"    ].fill(jet->CombinedMVA(), evt_weight_);
@@ -295,6 +315,14 @@ public:
 				max_pt = jet->Pt();
 				max_eta = jet->Eta();
 			}
+
+//        float pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, jet->Pt()}, {JME::Binning::JetEta, jet->Eta()}, {JME::Binning::Rho, event.rho().value()}});
+//
+//        float sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, jet->Eta()}});
+//        float sf_down = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, jet->Eta()}}, Variation::DOWN);
+//        float sf_up = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, jet->Eta()}}, Variation::UP);
+
+
     }
 		dir->second["lead_jet_pt" ].fill(max_pt , evt_weight_);
 		dir->second["lead_jet_eta"].fill(max_eta, evt_weight_);
@@ -422,8 +450,8 @@ public:
 		auto thadcm = ttang.thad().to_CM();
 		
 		//top angles
-    dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
-    dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
+        dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
+        dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
 		dir->second["mtt_tlep_ctstar"].fill(
 			hyp.LVect().M(), 
 			fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
@@ -471,9 +499,9 @@ public:
 		//vector<string> tagging = {"ctagged", "notag"};
 		for(auto& lepton : leptons) {
 			for(auto& sys : systematics_) {
-				string sys_name = systematics::shift_to_name.at(sys);					
+				string sys_name = systematics::shift_to_name.at(sys);
 				string dname = lepton+"/"+sys_name+"/preselection";
-				Logger::log().debug() << "Booking histos in: " << dname << endl;
+				//Logger::log().debug() << "Booking histos in: " << dname << endl;
 				book_presel_plots(dname);				
 				book_combo_plots(dname);
 				for(auto& subsample : subs) {
@@ -487,7 +515,7 @@ public:
 							dstream << lepton << sub << "/";
 							dstream << sys_name << "/" << lepid << "/" << mt;
 							
-							Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
+							//Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
 							bool runpdf = (runsys_ && isTTbar_ && sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
 							book_selection_plots(dstream.str(), runpdf);
 						}
@@ -527,7 +555,6 @@ public:
         lep_weight = electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
 		}
 		evt_weight_ *= lep_weight;
-
     string sys_name = systematics::shift_to_name.at(shift);
     stringstream presel_dir;
 		presel_dir << leptype << "/";
@@ -544,7 +571,7 @@ public:
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
           object_selector_.met(), object_selector_.lepton_charge(),
-					lep_is_tight) ) return;
+          event.rho().value(), lep_is_tight) ) return;
     if(lep_is_tight) tracker_.track("perm preselection");
 				
     //find mc weight for btag
@@ -562,6 +589,7 @@ public:
 		int idx = 0;
 		for(auto& test_perm : permutator_.permutations()) {
 			solver_.Solve(test_perm);
+
 			// cout << "Permutation #" << idx << "  " << test_perm.Prob() << " -- " << best_permutation.Prob() << endl;
 			// idx++;
 			// if(test_perm.IsComplete()) {
@@ -580,6 +608,11 @@ public:
 			}
 			// cout << endl;
     }
+
+//        float wja_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, best_permutation.WJa()->Eta()}});
+//        float wja_sf_down = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, best_permutation.WJa()->Eta()}}, Variation::DOWN);
+//        float wja_sf_up = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, best_permutation.WJa()->Eta()}}, Variation::UP);
+
 		bool reco_success = (best_permutation.IsComplete() && best_permutation.Prob() <= 1E9);
     if(!sync_ && !reco_success) return;
     if(lep_is_tight) tracker_.track("best perm");
@@ -589,6 +622,9 @@ public:
 //			cout << best_permutation << endl;
 		} 
 //		else cout << "Permutation incomplete!" <<endl;
+//        cout << "wja pt res: " << wja_pt_res << ", sf: " << wja_sf << ", sf down: " << wja_sf_down << ", sf up: " << wja_sf_up << endl;
+
+
 		if(sync_) {
 			if(lep_is_tight) {
 				sync_info_.Run  = event.run;
@@ -676,9 +712,11 @@ public:
 		Logger::log().debug() << tree_ << " " << tree_->GetEntries() << endl;
     URStreamer event(tree_);
 
+
     while(event.next()) {
 			// if(evt_idx_ % 1000 == 0) Logger::log().warning() << "Beginning event: " <<
       //                           evt_idx_ << endl;
+
 			if(picker.active()) {
 				if(picker.contains(event.run, event.lumi, event.evt)) {
 					Logger::log().fatal() << "Picking event " << " run: " << event.run << " lumisection: " << 
@@ -710,6 +748,7 @@ public:
 				tracker_.group("");
 				if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
 			}
+            //cout << "evt_idx: " << evt_idx_ << endl;
 		} //while(event.next())
    }
 

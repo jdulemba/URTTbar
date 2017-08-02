@@ -13,7 +13,7 @@
 class TTPermutator: public URSelector {
 public:
   TTPermutator(std::string cfgname="permutations");
-  bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0, bool track=true);
+  bool preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc=0, double rho=-1, bool track=true);
   list<Permutation>& permutations() {
   	if(!has_run_) permutate();
   	return permutations_;
@@ -74,6 +74,7 @@ private:
   IDMet* met_ = 0;
   bool is_configured_ = false;
   int lcharge_=0;
+  double rho_=-1;
 	bool has_run_ = false;
 
   //tracker

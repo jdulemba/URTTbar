@@ -38,6 +38,7 @@ class Permutation
 
 		TLorentzVector* lep_ = 0;
         int lepcharge_=0;
+        double rho_=0;
 		IDMet* met_ = 0;
 		TLorentzVector nu_;
 		bool kinfit_ = false;
@@ -45,8 +46,10 @@ class Permutation
 
 	public:
 		Permutation() {}
-		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge=0);
+//		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge=0);
+		Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge=0, double rho=-1);
         int LepCharge() {return lepcharge_;}
+        double RhoVal() {return rho_;}
         void LepCharge(int c) {lepcharge_ = c;}
 		void Reset();
 		bool IsWHadComplete() const {return(wja_ != 0 && wjb_ != 0);}
@@ -75,7 +78,8 @@ class Permutation
 		void BHad(IDJet* bjh){bjh_=bjh;}
 		void BLep(IDJet* bjl){bjl_=bjl;}
 		void L(TLorentzVector* lep){lep_=lep;}
-		void MET(IDMet* met){met_=met;}		
+		void MET(IDMet* met){met_=met;}
+        
   friend std::ostream & operator<<(std::ostream &os, const Permutation& p);
 
 		TLorentzVector Nu() const {return(nu_);}

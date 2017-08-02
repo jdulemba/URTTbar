@@ -79,6 +79,10 @@ class ttbar_reco_3J : public AnalyzerBase
 	    IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
 
 
+        //JME::JetResolution resolution = JME::JetResolution("/path/to/a/file.txt");
+        //JME::JetResolutionScaleFactor resolution_sf = JME::JetResolutionScaleFactor("../inputs/Spring16_25nsV10_MC_Resolution/Spring16_25nsV10_MC_SF_AK4PF.txt");
+        //JME::JetResolutionScaleFactor resolution_sf = JME::JetResolutionScaleFactor::get(iSetup, "AK4PF");
+
 	public:
 	    ttbar_reco_3J(const std::string output_filename):
 		AnalyzerBase("ttbar_reco_3J", output_filename),

@@ -11,7 +11,7 @@
 #include <memory>
 #include "Analyses/URTTbar/interface/URStreamer.h"
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
-
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 using namespace std;
 using namespace TMath;
@@ -24,6 +24,9 @@ class TTBarSolver {
 private:
 	std::shared_ptr<TH2D> WTmass_right_;
 	std::shared_ptr<TH1D> N_right_; 
+
+    std::shared_ptr<TH2D> Rel_Delt_WTmass_right_; // replaces WTmass_right_ in mass discriminant
+
 
         // Joseph added for discriminants
     std::shared_ptr<TH2D> Max_Mjet_3J_right_;
@@ -49,6 +52,10 @@ private:
         // Joseph added for perm discriminant
     bool USEPERM_        = false;
         //
+
+        // find jet resolution and scale factors
+//    JME::JetResolution resolution_;
+//    JME::JetResolutionScaleFactor jer_sf_;
 
 	const double mtop_ = 173.;
 	const double mw_ = 80.;	

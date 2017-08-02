@@ -723,6 +723,32 @@ class HTTPlotter(Plotter):
 
 		self.mc_samples = mc_default
 
+	def print_table(self, lines, separate_head=True):
+        #"""Prints a formatted table given a 2 dimensional array"""
+        #Count the column width
+		widths = []
+		for line in lines:
+		    for i, size in enumerate([len(x) for x in line]):
+		        while i <= len(widths):
+		            widths.append(0)
+		        if size < widths[i]:
+		            widths[i] = size
+        
+        #Generate the format string to pad the columns
+		print_string = ""
+		for i, width in enumerate(widths):
+		    print_string += "{" + str(i) + ":" + str(width) + "} | "
+		if (len(print_string) == 0):
+		    return
+		print_string = print_string[:-3]
+        
+        #Print the actual data
+		for i, line in enumerate(lines):
+		    print(print_string.format(*line))
+		    if (i==0 and separate_head):
+		        print("-"*(sum(widths)+3*(len(widths)-1)))
+        
+
 	def make_sample_table(self, threshold=None, absolute=False, fname='yields.raw_txt'):
 		stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
 		names = [i.title for i in stack.hists]
@@ -735,6 +761,16 @@ class HTTPlotter(Plotter):
 		if absolute:
 			yields.append(data.Integral())
 			names.append('Observed')
+
+
+#		rows = []
+#		rows.append(("Sample", "Fraction"))
+#		for i in range(len(names)):
+#		    print "Name: ", names[i]
+#		    print "Yield: ", yields[i]
+#		    #rows.append((names[i], format(yields[i], '.1f')))
+#		#plotter.print_table(rows)
+
 		mlen = max(len(i) for i in names)
 		format = '%'+str(mlen)+('s     %.1f%%\n' if not absolute else 's     %.0f\n')
 		header = ('%'+str(mlen)+'s    frac') % 'sample'
@@ -811,13 +847,13 @@ variables = [
 
 preselection = [
 	(False, "MT" , "MT",  10, (0, 300), False),
-  (False, "njets"	 , "# of selected jets", range(13), None, False),
-  (False, "jets_eta", "#eta(jet)", 5, None, False),
-  (False, "jets_pt", "p_{T}(jet)", 10, (0, 300), False),
-  (False, "lep_eta", "#eta(l)", 5, None, False),
-  (False, "lep_pt"	, "p_{T}(l) (GeV)", 20, (0, 300), False),		
-  (False, "nvtx", "# of reconstructed vertices", range(41), None, False),
-  (False, "rho", "#rho", range(40), None, False),
+    (False, "njets"	 , "# of selected jets", range(13), None, False),
+    (False, "jets_eta", "#eta(jet)", 5, None, False),
+    (False, "jets_pt", "p_{T}(jet)", 10, (0, 300), False),
+    (False, "lep_eta", "#eta(l)", 5, None, False),
+    (False, "lep_pt"	, "p_{T}(l) (GeV)", 20, (0, 300), False),		
+    (False, "nvtx", "# of reconstructed vertices", range(41), None, False),
+    (False, "rho", "#rho", range(40), None, False),
 	(False, "lep_iso", 'l rel Iso', 1, [0,1], False),
 	(False, "lep_wp" , "electron wp", 1, None, False),
 	(True	, "cMVA"    , "cMVA",  1, None, False),
@@ -874,7 +910,24 @@ if args.plots or args.all:
 				plotter.make_sample_table(threshold=50, absolute=True, fname='yields_abs.raw_txt')
 				vals.append(
 					(tdir, plotter.get_yields(50))
-					)
+					)	
+			if '4j' in var:
+			    plotter.make_sample_table(threshold=50, fname='Discriminant_4J_yields.raw_txt')
+			    vals.append(
+			    	(tdir, plotter.get_yields(50))
+			    	)	
+			if '5j' in var:
+			    plotter.make_sample_table(threshold=50, fname='Discriminant_5J_yields.raw_txt')
+			    vals.append(
+			    	(tdir, plotter.get_yields(50))
+			    	)	
+			if '6Pj' in var:
+			    plotter.make_sample_table(threshold=50, fname='Discriminant_6PJ_yields.raw_txt')
+			    vals.append(
+			    	(tdir, plotter.get_yields(50))
+			    	)	
+			print var
+			#set_trace()
 			plotter.save(var)
 			if 'discriminant'in var:
 				plotter.mc_samples = plotter.generic_mcs

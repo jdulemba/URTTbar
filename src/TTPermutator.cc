@@ -40,12 +40,13 @@ void TTPermutator::configure() {
   }
 }
 
-bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc, bool track) {
+bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDMet* met, int lc, double rho, bool track) {
 	reset(); //clear everything
 	jets_ = jets;
 	lepton_ = lepton;
 	met_ = met;
 	lcharge_ = lc;
+    rho_ = rho;
   //keeping only the n leading jets. 
 	sort(jets_.begin(), jets_.end(), [](IDJet* A, IDJet* B){return(A->Pt() > B->Pt());});
 	int reducedsize = Min(jets_.size(), cut_max_jets_);
@@ -56,8 +57,10 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
 		sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
 	else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA)
 		sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
+	else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPFLAVOUR)
+		sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->DeepCSVProbB() + A->DeepCSVProbBB() > B->DeepCSVProbB() + B->DeepCSVProbBB());});
 	else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
-		Logger::log().error() << "Don't knoe how to sort bjets in Permutations!" << endl;
+		Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
 		throw 42;
 	}
 		
@@ -72,7 +75,7 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
 void TTPermutator::permutate() {
     if(capped_jets_.size() == 3) capped_jets_.push_back(NULL);
     size_t bjet_cap = (bjet_idx_limit_ > 0) ? bjet_idx_limit_  : capped_jets_.size();
-    
+   
     for(size_t ib1=0; ib1 < bjet_cap ; ++ib1) {
         IDJet* bjet1 = capped_jets_[ib1];
         if(!bjet1) continue; //in 3 jet case it could be NULL, skip
@@ -103,7 +106,7 @@ void TTPermutator::permutate() {
                 	}
                 	//std::cout << "    pass ptcut" << std::endl;
                 			
-                    permutations_.emplace_back(wjet1, wjet2, bjet1, bjet2, lepton_, met_, lcharge_); //added this to pass lepton charge
+                    permutations_.emplace_back(wjet1, wjet2, bjet1, bjet2, lepton_, met_, lcharge_, rho_); //added this to pass lepton charge and rho
                 }
             }
         }

@@ -9,6 +9,8 @@
 #include <limits>
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
 #include <list>
+//#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 
 TTBarSolver::TTBarSolver(bool active) {
 	if(!active) {
@@ -28,6 +30,8 @@ TTBarSolver::TTBarSolver(bool active) {
         // Joseph added for perm discriminant
   parser.addCfgParameter<bool>("ttsolver", "permdisc", "", false);
         //
+//  parser.addCfgParameter<string>("JERC", "JER_SF","");
+//  parser.addCfgParameter<string>("JERC", "PT_JER","");
 
   
   parser.parseArguments();
@@ -37,12 +41,17 @@ TTBarSolver::TTBarSolver(bool active) {
   USEBTAG_ = parser.getCfgPar<bool>("ttsolver", "btag");
   USENS_   = parser.getCfgPar<bool>("ttsolver", "nusolver");
   USEMASS_ = parser.getCfgPar<bool>("ttsolver", "invmass" );
-	useptratios_  = parser.getCfgPar<bool>("ttsolver", "ptratio" );
-	usewjetqgtag_ = parser.getCfgPar<bool>("ttsolver", "qarkgluon" );
+  useptratios_  = parser.getCfgPar<bool>("ttsolver", "ptratio" );
+  usewjetqgtag_ = parser.getCfgPar<bool>("ttsolver", "qarkgluon" );
 
         // Joseph added for perm discriminant
   USEPERM_ = parser.getCfgPar<bool>("ttsolver", "permdisc");
         //
+
+//  DataFile jer_sf_fname_(parser.getCfgPar<string>("JERC","JER_SF"));
+//  DataFile resolution_fname_(parser.getCfgPar<string>("JERC","PT_JER"));
+//  resolution_ = JME::JetResolution(resolution_fname_.path());
+//  jer_sf_ = JME::JetResolutionScaleFactor(jer_sf_fname_.path());
 
 
   TFile probfile(DataFile(fname).path().c_str());
@@ -52,6 +61,7 @@ TTBarSolver::TTBarSolver(bool active) {
 		HistoOwnershipWard hward;
 		if(USEMASS_) 
 			WTmass_right_ = preproccess_histo<TH2D>(dir, "mWhad_vs_mtophad_right", "wt_right");
+			//Rel_Delt_WTmass_right_ = preproccess_histo<TH2D>(dir, "Rel_Delta_mWhad_vs_Rel_Delta_mtophad_right", "rel_delt_wt_right");
 		if(USENS_)
 			N_right_ = preproccess_histo<TH1D>(dir, "nusolver_chi2_right", "nu_right");
 		if(USEBTAG_) {
@@ -103,6 +113,8 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 	double ptratios = numeric_limits<double>::max();
 	double qgtest   = numeric_limits<double>::max();
 
+	auto min_max = [] (const double& a, const double& b) -> pair<const double,const double> { 
+		return (b<a) ? std::make_pair(b, a) : std::make_pair(a, b); };
 
 	NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
 	hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., nschi)); //ignore MET covariance matrix, take bare distance
@@ -114,11 +126,51 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 			nstest = -1.*Log(N_right_->GetBinContent(binx));
 	}
 
+
+    // Fill mass discriminant
+//    if(Rel_Delt_WTmass_right_){
+//        // get nominal scale factors
+//        float WJa_sf = jer_sf_.getScaleFactor({{JME::Binning::JetEta, hyp.WJa()->Eta()}});
+//        float WJb_sf = jer_sf_.getScaleFactor({{JME::Binning::JetEta, hyp.WJb()->Eta()}});
+//        float BHad_sf = jer_sf_.getScaleFactor({{JME::Binning::JetEta, hyp.BHad()->Eta()}});
+//
+//        // get jet resolutions
+//        float WJa_res = resolution_.getResolution({{JME::Binning::JetPt, hyp.WJa()->Pt()}, {JME::Binning::JetEta, hyp.WJa()->Eta()}, {JME::Binning::Rho, hyp.RhoVal()}});
+//        float WJb_res = resolution_.getResolution({{JME::Binning::JetPt, hyp.WJb()->Pt()}, {JME::Binning::JetEta, hyp.WJb()->Eta()}, {JME::Binning::Rho, hyp.RhoVal()}});
+//        float BHad_res =resolution_.getResolution({{JME::Binning::JetPt, hyp.BHad()->Pt()}, {JME::Binning::JetEta, hyp.BHad()->Eta()}, {JME::Binning::Rho, hyp.RhoVal()}});
+//
+//        // get st devs from true masses
+//        float M_j1upj2 = (*hyp.WJa()*(WJa_res*WJa_sf+1.)+*hyp.WJb()).M();
+//        float M_j2upj1 = (*hyp.WJb()*(WJb_res*WJb_sf+1.)+*hyp.WJa()).M();
+//        float sigma2j = sqrt(pow(M_j1upj2-hyp.WHad().M(),2)+pow(M_j2upj1-hyp.WHad().M(),2));
+//
+//        float M_j1upj2j3 = (*hyp.WJa()*(WJa_res*WJa_sf+1.)+*hyp.WJb()+*hyp.BHad()).M();
+//        float M_j2upj1j3 = (*hyp.WJb()*(WJb_res*WJb_sf+1.)+*hyp.WJa()+*hyp.BHad()).M();
+//        float M_j3upj1j2 = (*hyp.BHad()*(BHad_res*BHad_sf+1.)+*hyp.WJa()+*hyp.WJb()).M();
+//        float sigma3j = sqrt(pow(M_j1upj2j3-hyp.THad().M(),2)+pow(M_j2upj1j3-hyp.THad().M(),2)+pow(M_j3upj1j2-hyp.THad().M(),2));
+//
+//        float rel_delt_mw = (hyp.WHad().M()-80.385)/sigma2j; //value from http://pdglive.lbl.gov/Particle.action?node=S043&init=0
+//        float rel_delt_mt = (hyp.THad().M()-173.1)/sigma3j; //value from http://pdglive.lbl.gov/Particle.action?node=Q007&init=0
+//
+//        
+//        int binx = TMath::Max(1,
+//                    TMath::Min(Rel_Delt_WTmass_right_->GetXaxis()->FindFixBin(rel_delt_mw), Rel_Delt_WTmass_right_->GetNbinsX())
+//            );
+//        int biny = TMath::Max(1,
+//                    TMath::Min(Rel_Delt_WTmass_right_->GetYaxis()->FindFixBin(rel_delt_mt), Rel_Delt_WTmass_right_->GetNbinsY())
+//            );
+//   
+//        double massdisval = Rel_Delt_WTmass_right_->GetBinContent(binx,biny);
+//
+//       if( massdisval > 1.0E-10 ){
+//            masstest = -1.*Log(massdisval);
+//        }
+//
+//    }
+
+// old mass disc
 	double mwhad = hyp.WHad().M();
 	double mthad = hyp.THad().M();
-	auto min_max = [] (const double& a, const double& b) -> pair<const double,const double> { 
-		return (b<a) ? std::make_pair(b, a) : std::make_pair(a, b); };
-
 	if(mthad < 500. && mwhad < 500. && WTmass_right_) {
 		int binx = TMath::Max(
 			1,

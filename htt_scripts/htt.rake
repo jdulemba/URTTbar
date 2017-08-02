@@ -1,6 +1,20 @@
 $jobid = ENV['jobid']
 $project_dir = ENV['URA_PROJECT']
 
+# This is a test task to get a feel for ruby.
+task :output do |t|
+    sh "ls #{$project_dir}/bin"
+end
+
+task :btag_effs do |t|
+    py_path = "#{$project_dir}/htt_scripts"
+    sh "python #{py_path}/make_btag_effs.py baselinJ20"
+#    command = `python make_btag_effs.py baselineJ20`
+#    sh "#{command}"
+end
+
+
+
 task :publish_htt do |t|
   link = `ls -ld plots/#{$jobid}/htt`.scan(/-> (.+)/).flatten.last
   if not link
