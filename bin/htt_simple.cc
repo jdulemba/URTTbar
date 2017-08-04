@@ -537,6 +537,8 @@ public:
 		string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
 		bool lep_is_tight = (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || 
 												 object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL);
+
+		tracker_.track("before tight lep", leptype);
 		if(lep_is_tight) {
 			tracker_.group(leptype);
 			tracker_.track("object selection", leptype);
@@ -559,13 +561,22 @@ public:
     stringstream presel_dir;
 		presel_dir << leptype << "/";
 		presel_dir << sys_name << "/preselection";
-    if(!sync_ && lep_is_tight) fill_presel_plots(presel_dir.str(), event);
+    if(!sync_ && lep_is_tight){
+        fill_presel_plots(presel_dir.str(), event);
+        tracker_.track("not sync and tight lep");
+    }
 
 		//cut on btag
 		auto &clean_jets = object_selector_.clean_jets();
 		sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
-		if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
-		if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
+		if(!clean_jets[0]->BTagId(cut_tight_b_)){
+            tracker_.track("first b cut");
+            return;
+        }
+		if(!clean_jets[1]->BTagId(cut_loose_b_)){
+            tracker_.track("second b cut");
+            return;
+        }
 		if(lep_is_tight) tracker_.track("b cuts", leptype);
 
     if( !permutator_.preselection(
@@ -614,7 +625,10 @@ public:
 //        float wja_sf_up = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, best_permutation.WJa()->Eta()}}, Variation::UP);
 
 		bool reco_success = (best_permutation.IsComplete() && best_permutation.Prob() <= 1E9);
-    if(!sync_ && !reco_success) return;
+    if(!sync_ && !reco_success){
+        tracker_.track("not sync and not reco success");
+        return;
+    }
     if(lep_is_tight) tracker_.track("best perm");
 
 //		cout << "BEST PERM" << endl;
