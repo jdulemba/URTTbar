@@ -62,8 +62,10 @@ TTBarSolver::TTBarSolver(bool active) {
 		if(USEMASS_) 
 			WTmass_right_ = preproccess_histo<TH2D>(dir, "mWhad_vs_mtophad_right", "wt_right");
 			//Rel_Delt_WTmass_right_ = preproccess_histo<TH2D>(dir, "Rel_Delta_mWhad_vs_Rel_Delta_mtophad_right", "rel_delt_wt_right");
-		if(USENS_)
-			N_right_ = preproccess_histo<TH1D>(dir, "nusolver_chi2_right", "nu_right");
+		if(USENS_){
+			//N_right_ = preproccess_histo<TH1D>(dir, "nusolver_chi2_right", "nu_right");
+			N_3J_right_ = preproccess_histo<TH1F>(dir, "3J_nusolver_chi2_correct", "3J_nu_correct");
+        }
 		if(USEBTAG_) {
 			wj1_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_bcMVA_p11_right", "wjets_bcMVA_p11_wrong", "j1btag_right"); //best wjet cMVA^11
 			wj2_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_wcMVA_p11_right", "wjets_wcMVA_p11_wrong", "j2btag_right"); //worst wjet cMVA^11
@@ -82,8 +84,6 @@ TTBarSolver::TTBarSolver(bool active) {
             Max_Mjet_3J_right_ = preproccess_histo<TH2D>(dir, "3J_mbpjet_vs_maxmjet_correct", "3J_mbpjet_vs_maxmjet_wrong", "");
             Max_Mjet_4J_right_ = preproccess_histo<TH2D>(dir, "4J_mbpjet_vs_maxmjet_correct", "4J_mbpjet_vs_maxmjet_wrong", "");
         }
-//		if(USENS_)
-//			N_3J_right_ = preproccess_histo<TH1F>(dir, "3J_nusolver_chi2_correct", "3J_nu_correct");
             //
 
 

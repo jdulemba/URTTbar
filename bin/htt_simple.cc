@@ -454,7 +454,7 @@ public:
         //dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
         //dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
 		dir->second["mtt_tlep_ctstar"].fill(
-			hyp.LVect().M(), tlep_ctstar_evt_weight_ 
+			hyp.LVect().M(), tlep_ctstar, evt_weight_ 
 			//fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
 			//evt_weight_
 			);
