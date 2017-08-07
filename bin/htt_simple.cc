@@ -533,14 +533,22 @@ public:
 		tracker_.track("start", "muons");
 		//float weight = 1.;
 
+        tracker_.track("before reco");
+
     //select reco objects
     if( !object_selector_.select(event, shift, sync_) ) return;
+        tracker_.track("b4 jet sel");
+
 		int njets = object_selector_.clean_jets().size();		
+        tracker_.track("b4 leptype");
+
 		string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
+        tracker_.track("b4 l_is_tight");
+
 		bool lep_is_tight = (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU || 
 												 object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL);
 
-		tracker_.track("before tight lep", leptype);
+		tracker_.track("b4 obj sel", leptype);
 		if(lep_is_tight) {
 			tracker_.group(leptype);
 			tracker_.track("object selection", leptype);
