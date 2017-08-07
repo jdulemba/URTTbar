@@ -79,10 +79,6 @@ class ttbar_reco_3J : public AnalyzerBase
 	    IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
 
 
-        //JME::JetResolution resolution = JME::JetResolution("/path/to/a/file.txt");
-        //JME::JetResolutionScaleFactor resolution_sf = JME::JetResolutionScaleFactor("../inputs/Spring16_25nsV10_MC_Resolution/Spring16_25nsV10_MC_SF_AK4PF.txt");
-        //JME::JetResolutionScaleFactor resolution_sf = JME::JetResolutionScaleFactor::get(iSetup, "AK4PF");
-
 	public:
 	    ttbar_reco_3J(const std::string output_filename):
 		AnalyzerBase("ttbar_reco_3J", output_filename),
@@ -442,15 +438,17 @@ class ttbar_reco_3J : public AnalyzerBase
             permutator_.reset_3J();
             return; // skip to next event if perm is empty
         }
+        cout << "check 1" << endl;
 
         tracker_.track("best perm exists");
 
+cout << "ttbar type: " << ttbar.type << endl;
         hyp::TTbar gen_ttang(ttbar);
+        cout << "gen ttcm" << endl;
+
         auto gen_ttcm = gen_ttang.to_CM();
 
         double gen_ttbar_cth = gen_ttang.unit3D().Dot(gen_ttcm.unit3D());
-        double gen_thad_cth = gen_ttang.unit3D().Dot(gen_ttcm.thad().unit3D());
-        double gen_tlep_cth = gen_ttang.unit3D().Dot(gen_ttcm.tlep().unit3D());
 
         hyp::TTbar reco_ttang(best_perm); // doesn't work because not all wjets defined
         auto reco_ttcm = reco_ttang.to_CM();
@@ -469,7 +467,7 @@ class ttbar_reco_3J : public AnalyzerBase
         
         if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
 
-//            Logger::log().debug() << "not semilep event " << evt_idx_ << endl;
+            Logger::log().debug() << "not semilep event " << evt_idx_ << endl;
 
             if( best_perm.Prob() < disc_cut_ ){
             //Reco Plots
@@ -503,7 +501,6 @@ class ttbar_reco_3J : public AnalyzerBase
             permutator_.reset_3J();
             return;
         }
-
         tracker_.track("semilep");
 
         if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
@@ -513,8 +510,8 @@ class ttbar_reco_3J : public AnalyzerBase
             exp_dir->second["Expected_Event_Categories"].fill(5);// expected other events == 5
         }
 
-//        auto gen_thadcm = gen_ttang.thad().to_CM();
-//        auto gen_tlepcm = gen_ttang.tlep().to_CM();
+        double gen_thad_cth = gen_ttang.unit3D().Dot(gen_ttcm.thad().unit3D());
+        double gen_tlep_cth = gen_ttang.unit3D().Dot(gen_ttcm.tlep().unit3D());
 
           //Gen Plots
             // Mass
