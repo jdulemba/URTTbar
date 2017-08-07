@@ -21,7 +21,7 @@
 #include "Analyses/URTTbar/interface/Permutation.h"
 #include <set>
 #include "Analyses/URTTbar/interface/IDMet.h"
-#include "Analyses/URTTbar/interface/JetScaler.h"
+//#include "Analyses/URTTbar/interface/JetScaler.h"
 #include "TUUID.h"   
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
@@ -39,8 +39,7 @@
 #include "URAnalysis/AnalysisFW/interface/EventList.h"
 #include "Analyses/URTTbar/interface/Hypotheses.h"
 #include "TROOT.h"
-#include <fstream>
-
+//#include <fstream>
 //#include "JetMETCorrections/Modules/interface/JetResolution.h"
 //#include "Analyses/URTTbar/interface/JERFile.h"
 
@@ -81,7 +80,6 @@ private:
   TTBarSolver solver_;
   PDFuncertainty pdf_uncs_;
 
-    
 	//Scale factors
 	LeptonSF electron_sf_, muon_sf_;
 
@@ -322,7 +320,6 @@ public:
 //        float sf_down = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, jet->Eta()}}, Variation::DOWN);
 //        float sf_up = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, jet->Eta()}}, Variation::UP);
 
-
     }
 		dir->second["lead_jet_pt" ].fill(max_pt , evt_weight_);
 		dir->second["lead_jet_eta"].fill(max_eta, evt_weight_);
@@ -391,8 +388,8 @@ public:
     book<TH1F>(folder, "hframe_ctheta_d", "", 200, -1.0001, 1.0001);
 
 		//2D plots
-		//book<TH2F>(folder, "mtt_tlep_ctstar", "", 180, 200., 2000, 10, 0., 1.0001);
-		book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 5, 0., 1.0001);
+		book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 20, 0., 1.0001);
+		//book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 5, 0., 1.0001);
 
 		//PDF uncertainties
     //book<TH1D>(folder, "PDFYields", "", 249, 0, 249);		
@@ -450,16 +447,21 @@ public:
 		auto thadcm = ttang.thad().to_CM();
 		
 		//top angles
-        dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
-        dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
+		double tlep_ctstar = min(fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 0.99999);
+        double thad_ctstar = min(fabs(ttang.unit3D().Dot(ttcm.thad().unit3D())), 0.99999);
+        dir->second["tlep_ctstar"].fill(tlep_ctstar, evt_weight_);
+        dir->second["thad_ctstar"].fill(thad_ctstar, evt_weight_);
+        //dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
+        //dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
 		dir->second["mtt_tlep_ctstar"].fill(
-			hyp.LVect().M(), 
-			fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
-			evt_weight_
+			hyp.LVect().M(), tlep_ctstar_evt_weight_ 
+			//fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
+			//evt_weight_
 			);
 		if(pdf) pdf_uncs_.fill_replicas2D(
 			folder, "mtt_tlep_ctstar", 
-			hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
+			hyp.LVect().M(), tlep_ctstar,
+			//hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
 			evt_weight_, event
 			);
 
@@ -570,11 +572,11 @@ public:
 		auto &clean_jets = object_selector_.clean_jets();
 		sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
 		if(!clean_jets[0]->BTagId(cut_tight_b_)){
-            tracker_.track("first b cut");
+            tracker_.track("first b not pass");
             return;
         }
 		if(!clean_jets[1]->BTagId(cut_loose_b_)){
-            tracker_.track("second b cut");
+            tracker_.track("second b not pass");
             return;
         }
 		if(lep_is_tight) tracker_.track("b cuts", leptype);
@@ -582,12 +584,16 @@ public:
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
           object_selector_.met(), object_selector_.lepton_charge(),
-          event.rho().value(), lep_is_tight) ) return;
+          lep_is_tight) ) return;
+          //event.rho().value(), lep_is_tight) ) return;
     if(lep_is_tight) tracker_.track("perm preselection");
 				
     //find mc weight for btag
 		double bweight = 1;
-    if(!isData_ && !sync_) bweight *= btag_sf_.scale_factor(clean_jets, shift);
+    if(!isData_ && !sync_){
+        bweight *= btag_sf_.scale_factor(clean_jets, shift);
+        tracker_.track("not data and not sync");
+    }
 		evt_weight_ *= bweight;
     
 		// cout << object_selector_.clean_jets().size() << " --> " << permutator_.capped_jets().size() << endl;
@@ -632,9 +638,9 @@ public:
     if(lep_is_tight) tracker_.track("best perm");
 
 //		cout << "BEST PERM" << endl;
-		if(best_permutation.IsComplete()){
+//		if(best_permutation.IsComplete()){
 //			cout << best_permutation << endl;
-		} 
+//		} 
 //		else cout << "Permutation incomplete!" <<endl;
 //        cout << "wja pt res: " << wja_pt_res << ", sf: " << wja_sf << ", sf down: " << wja_sf_down << ", sf up: " << wja_sf_up << endl;
 
