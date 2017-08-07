@@ -84,7 +84,8 @@ class ttbar_reco_3J : public AnalyzerBase
 		AnalyzerBase("ttbar_reco_3J", output_filename),
                 tracker_(),
                 object_selector_(),
-                genp_selector_(),//TTGenParticleSelector::SelMode::LHE),
+                genp_selector_(TTGenParticleSelector::SelMode::LHE), //for ttJets files
+                //genp_selector_(), // for other files
 		solver_(),
 		evt_weight_(1.),
 		mc_weights_()
@@ -438,13 +439,10 @@ class ttbar_reco_3J : public AnalyzerBase
             permutator_.reset_3J();
             return; // skip to next event if perm is empty
         }
-        cout << "check 1" << endl;
 
         tracker_.track("best perm exists");
 
-cout << "ttbar type: " << ttbar.type << endl;
         hyp::TTbar gen_ttang(ttbar);
-        cout << "gen ttcm" << endl;
 
         auto gen_ttcm = gen_ttang.to_CM();
 
@@ -467,7 +465,7 @@ cout << "ttbar type: " << ttbar.type << endl;
         
         if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
 
-            Logger::log().debug() << "not semilep event " << evt_idx_ << endl;
+            //Logger::log().debug() << "not semilep event " << evt_idx_ << endl;
 
             if( best_perm.Prob() < disc_cut_ ){
             //Reco Plots

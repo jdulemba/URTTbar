@@ -105,8 +105,10 @@ if args.analysis == "Test":
 
 elif args.analysis == "Full":
     for f in os.listdir('../results/%s/ttbar_reco_3J' % jobid):
-        if f.startswith('AtoTT'):
+        if f.startswith('AtoTT') or f.startswith('ttJetsM'):
             AtoTT_files.append(f.replace(".root", ""))
+#        if f.startswith('ttJetsM'):
+#            TTJets_files.append(f.replace(".root", ""))
 
     for fname in AtoTT_files:
         myfile = root_open('../results/%s/ttbar_reco_3J/%s.root' % (jobid, fname), 'read')
