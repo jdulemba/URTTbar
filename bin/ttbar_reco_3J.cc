@@ -196,7 +196,9 @@ class ttbar_reco_3J : public AnalyzerBase
 
             string exp = "Expected_Plots";
 
-            book<TH1F>(exp, "Expected_Event_Categories", "", 5, 0.5, 5.5);
+            book<TH1F>(exp, "Expected_Event_Categories_3J", "", 5, 0.5, 5.5);
+            book<TH1F>(exp, "Expected_Event_Categories_4J", "", 5, 0.5, 5.5);
+            book<TH1F>(exp, "Expected_Event_Categories_5PJ", "", 5, 0.5, 5.5);
 
             //        const char *Objects[3] = {"thad", "tlep", "ttbar"};
             //        const char *kinvars[4] = {"Mass", "Pt", "Eta", "Costh"};
@@ -416,6 +418,7 @@ class ttbar_reco_3J : public AnalyzerBase
 
 
         void best_perm_cats( URStreamer &event ){
+            permutator_.reset_3J();
             // subdirectories
             auto gen_dir = histos_.find("Gen_Plots");
             auto reco_dir = histos_.find("Reco_Plots");
@@ -436,7 +439,6 @@ class ttbar_reco_3J : public AnalyzerBase
             Permutation best_perm = process_3J_evt(event);
             if( best_perm.IsEmpty() ){
                 tracker_.track("best perm doesn't exist");
-                permutator_.reset_3J();
                 return; // skip to next event if perm is empty
             }
 
@@ -461,10 +463,11 @@ class ttbar_reco_3J : public AnalyzerBase
             gen_dir->second["ttbar_Eta"].fill(ttbar.Eta());
             gen_dir->second["ttbar_Costh"].fill(gen_ttbar_cth);
 
-            exp_dir->second["Expected_Event_Categories"].fill(1);// tot expeced events == 1
+            exp_dir->second["Expected_Event_Categories_3J"].fill(1);// tot expected events == 1
 
             if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
 
+                exp_dir->second["Expected_Event_Categories_3J"].fill(5);// expected other events == 5
                 //Logger::log().debug() << "not semilep event " << evt_idx_ << endl;
 
                 if( best_perm.Prob() < disc_cut_ ){
@@ -496,16 +499,15 @@ class ttbar_reco_3J : public AnalyzerBase
 
                 tracker_.track("Not semilep events");
 
-                permutator_.reset_3J();
                 return;
             }
             tracker_.track("semilep");
 
             if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
-                exp_dir->second["Expected_Event_Categories"].fill(3);// expected merged events == 3
+                exp_dir->second["Expected_Event_Categories_3J"].fill(3);// expected merged events == 3
             }
             else{ // gen partons not merged
-                exp_dir->second["Expected_Event_Categories"].fill(5);// expected other events == 5
+                exp_dir->second["Expected_Event_Categories_3J"].fill(5);// expected other events == 5
             }
 
             double gen_thad_cth = gen_ttang.unit3D().Dot(gen_ttcm.thad().unit3D());
@@ -604,7 +606,6 @@ class ttbar_reco_3J : public AnalyzerBase
 
                 tracker_.track("matched perm dne");
 
-                permutator_.reset_3J();
                 return;
             }
 
@@ -882,9 +883,7 @@ class ttbar_reco_3J : public AnalyzerBase
 
             tracker_.track("matched perm unmerged");
 
-            permutator_.reset_3J();
-
-        }
+        } // end of best_perm_cats
 
 
         //This method is called once every file, contains the event loop
@@ -897,6 +896,8 @@ class ttbar_reco_3J : public AnalyzerBase
 
             while(event.next() /*&& evt_idx_ < 30000*/)
             {
+                auto exp_dir = histos_.find("Expected_Plots");
+
                 evt_idx_++;
                 if(evt_idx_ % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
                 //            Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
@@ -925,6 +926,39 @@ class ttbar_reco_3J : public AnalyzerBase
                     best_perm_cats(event);
                 }
 
+                /// 4 jet events
+                else if( njets == 4 ){
+                    tracker_.track("njets = 4");
+                    exp_dir->second["Expected_Event_Categories_4J"].fill(1);// tot expeced events == 1
+                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
+                        exp_dir->second["Expected_Event_Categories_4J"].fill(5);// expected other events == 5
+                        continue;
+                    }
+
+                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+                        exp_dir->second["Expected_Event_Categories_4J"].fill(3);// expected merged events == 3
+                    }
+                    else{ // gen partons not merged
+                        exp_dir->second["Expected_Event_Categories_4J"].fill(5);// expected other events == 5
+                    }
+                }
+
+                /// 5+ jet events
+                else if( njets > 4 ){
+                    tracker_.track("njets = 5+");
+                    exp_dir->second["Expected_Event_Categories_5PJ"].fill(1);// tot expeced events == 1
+                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
+                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(5);// expected other events == 5
+                        continue;
+                    }
+
+                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(3);// expected merged events == 3
+                    }
+                    else{ // gen partons not merged
+                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(5);// expected other events == 5
+                    }
+                }
 
             } // end of event loop
 
