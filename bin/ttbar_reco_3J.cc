@@ -197,8 +197,8 @@ class ttbar_reco_3J : public AnalyzerBase
             string exp = "Expected_Plots";
 
             book<TH1F>(exp, "Expected_Event_Categories_3J", "", 5, 0.5, 5.5);
-            book<TH1F>(exp, "Expected_Event_Categories_4J", "", 5, 0.5, 5.5);
-            book<TH1F>(exp, "Expected_Event_Categories_5PJ", "", 5, 0.5, 5.5);
+//            book<TH1F>(exp, "Expected_Event_Categories_4J", "", 5, 0.5, 5.5);
+//            book<TH1F>(exp, "Expected_Event_Categories_5PJ", "", 5, 0.5, 5.5);
 
             //        const char *Objects[3] = {"thad", "tlep", "ttbar"};
             //        const char *kinvars[4] = {"Mass", "Pt", "Eta", "Costh"};
@@ -896,7 +896,7 @@ class ttbar_reco_3J : public AnalyzerBase
 
             while(event.next() /*&& evt_idx_ < 30000*/)
             {
-                auto exp_dir = histos_.find("Expected_Plots");
+//                auto exp_dir = histos_.find("Expected_Plots");
 
                 evt_idx_++;
                 if(evt_idx_ % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
@@ -926,39 +926,39 @@ class ttbar_reco_3J : public AnalyzerBase
                     best_perm_cats(event);
                 }
 
-                /// 4 jet events
-                else if( njets == 4 ){
-                    tracker_.track("njets = 4");
-                    exp_dir->second["Expected_Event_Categories_4J"].fill(1);// tot expeced events == 1
-                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
-                        exp_dir->second["Expected_Event_Categories_4J"].fill(5);// expected other events == 5
-                        continue;
-                    }
-
-                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
-                        exp_dir->second["Expected_Event_Categories_4J"].fill(3);// expected merged events == 3
-                    }
-                    else{ // gen partons not merged
-                        exp_dir->second["Expected_Event_Categories_4J"].fill(5);// expected other events == 5
-                    }
-                }
-
-                /// 5+ jet events
-                else if( njets > 4 ){
-                    tracker_.track("njets = 5+");
-                    exp_dir->second["Expected_Event_Categories_5PJ"].fill(1);// tot expeced events == 1
-                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
-                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(5);// expected other events == 5
-                        continue;
-                    }
-
-                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
-                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(3);// expected merged events == 3
-                    }
-                    else{ // gen partons not merged
-                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(5);// expected other events == 5
-                    }
-                }
+//                /// 4 jet events
+//                else if( njets == 4 ){
+//                    tracker_.track("njets = 4");
+//                    exp_dir->second["Expected_Event_Categories_4J"].fill(1);// tot expeced events == 1
+//                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
+//                        exp_dir->second["Expected_Event_Categories_4J"].fill(5);// expected other events == 5
+//                        continue;
+//                    }
+//
+//                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+//                        exp_dir->second["Expected_Event_Categories_4J"].fill(3);// expected merged events == 3
+//                    }
+//                    else{ // gen partons not merged
+//                        exp_dir->second["Expected_Event_Categories_4J"].fill(5);// expected other events == 5
+//                    }
+//                }
+//
+//                /// 5+ jet events
+//                else if( njets > 4 ){
+//                    tracker_.track("njets = 5+");
+//                    exp_dir->second["Expected_Event_Categories_5PJ"].fill(1);// tot expeced events == 1
+//                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
+//                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(5);// expected other events == 5
+//                        continue;
+//                    }
+//
+//                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+//                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(3);// expected merged events == 3
+//                    }
+//                    else{ // gen partons not merged
+//                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(5);// expected other events == 5
+//                    }
+//                }
 
             } // end of event loop
 

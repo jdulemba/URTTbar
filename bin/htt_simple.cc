@@ -172,6 +172,8 @@ class htt_simple : public AnalyzerBase
                 if(sync_) tracker_.verbose(true);
                 if(!isData_) mc_weights_.init(sample, has_pdfs_);
 
+                Logger::log().debug() << "  NOSYS: " << values.count("nosys") << endl;
+
                 runsys_ = !(values.count("nosys") || isData_ || isTTShift || sync_);
                 if(!runsys_)
                     systematics_ = {systematics::SysShifts::NOSYS};
@@ -484,6 +486,12 @@ class htt_simple : public AnalyzerBase
                 return;
             }
 
+            //string exp = "Expected_Plots";
+            // added for expected event tables
+            //            book<TH1F>(exp, "Expected_Event_Categories_3J", "", 5, 0.5, 5.5);
+            //book<TH1F>(exp, "Expected_Event_Categories_4PJ", "", 5, 0.5, 5.5);
+            // 
+
             vector<string> leptons = {"electrons", "muons"};		
             vector<string> subs;
             if(isSignal_) subs = {"/positive", "/negative"};
@@ -520,11 +528,56 @@ class htt_simple : public AnalyzerBase
             }
         }
 
+
+        //        // events with 3 jets
+        //        Permutation best_perm_3J(URStreamer &event){
+        //            //initialize perm objects
+        //            //jets
+        //            IDJet* wj1 = 0;
+        //            IDJet* wj2 = 0;
+        //            IDJet* bj1 = 0;
+        //            IDJet* bj2 = 0;
+        //            Permutation empty_perm; // perm.WJa(), WJb(), BHad(), BLep()
+        //
+        //            vector<IDJet*> jets_vector;
+        //            int num_btag = 0;
+        //
+        //            for(vector<IDJet*>::const_iterator jets = object_selector_.clean_jets().begin(); jets != object_selector_.clean_jets().end(); ++jets){
+        //                jets_vector.push_back(*jets);
+        //
+        //                if( (*jets)->BTagId(IDJet::BTag::CSVMEDIUM) ) ++num_btag;
+        //                //if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
+        //            }
+        //
+        //            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
+        //            if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
+        //
+        //            bj1 = jets_vector[0];
+        //            bj2 = jets_vector[1];
+        //            wj1 = jets_vector[2];
+        //
+        //            Permutation best_perm;
+        //            double lowest_Totaldisc_3J = 1e10;
+        //
+        //            for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
+        //                solver_.Solve_3J(test_perm);
+        //
+        //                if( test_perm.Prob() < lowest_Totaldisc_3J ){
+        //                    lowest_Totaldisc_3J = test_perm.Prob();
+        //                    best_perm = test_perm;
+        //                }
+        //            }
+        //            return best_perm;
+        //        } // end of best_perm_3J()
+
+
+
         void process_evt(systematics::SysShifts shift, URStreamer &event){
             tracker_.track("start", "electrons");
             tracker_.track("start", "muons");
             //float weight = 1.;
 
+            //auto exp_dir = histos_.find("Expected_Plots");
             //tracker_.track("before reco");
 
             //select reco objects
@@ -532,6 +585,36 @@ class htt_simple : public AnalyzerBase
             //tracker_.track("b4 jet sel");
 
             int njets = object_selector_.clean_jets().size();		
+
+            //            if( njets == 3 ){
+            //                permutator_.reset_3J();
+            //
+            //                //generator selection
+            //                bool selection = genp_selector_.select(event);
+            //
+            //                Permutation bp = best_perm_3J(event);
+            //                if( !bp.IsEmpty() && selection ){
+            //                    GenTTBar &ttbar = genp_selector_.ttbar_system();
+            //
+            //                    exp_dir->second["Expected_Event_Categories_3J"].fill(1); // total expected events == 1
+            //
+            //                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
+            //                        exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
+            //                        return;
+            //                    }
+            //                    else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+            //                        if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+            //                            exp_dir->second["Expected_Event_Categories_3J"].fill(3); // expected merged events == 3
+            //                        }
+            //                        else{ // gen partons not merged
+            //                            exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //
+            //            if( njets < 4 ) return;
+
             //tracker_.track("b4 leptype");
 
             string leptype = (object_selector_.lepton_type() == -1) ? "electrons" : "muons";
@@ -580,7 +663,7 @@ class htt_simple : public AnalyzerBase
                         object_selector_.clean_jets(), object_selector_.lepton(), 
                         object_selector_.met(), object_selector_.lepton_charge(),
                         //lep_is_tight) ) return;
-                        event.rho().value(), lep_is_tight) ) return;
+                event.rho().value(), lep_is_tight) ) return;
             if(lep_is_tight) tracker_.track("perm preselection");
 
             //find mc weight for btag
@@ -596,6 +679,8 @@ class htt_simple : public AnalyzerBase
             // 	cout << *i << endl;
             // }
             // cout << endl << endl;
+
+            //            if( njets > 3 ){
             //Find best permutation
             Permutation best_permutation;
             int idx = 0;
@@ -664,7 +749,32 @@ class htt_simple : public AnalyzerBase
             //Gen matching (TT events only)
             Permutation matched_perm;
             if(isTTbar_) {
-                if(genp_selector_.ttbar_system().type == GenTTBar::DecayType::SEMILEP) {
+                //generator selection
+                bool selection = genp_selector_.select(event);
+                if( !selection ){
+                    Logger::log().debug() << "event has no gen selection " << endl;
+                    return;
+                }
+                GenTTBar &ttbar = genp_selector_.ttbar_system();
+
+                //exp_dir->second["Expected_Event_Categories_4PJ"].fill(1); // total expected events == 1
+
+                //if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
+                //    exp_dir->second["Expected_Event_Categories_4PJ"].fill(5); // expected other events == 5
+                //    return;
+                //}
+
+
+                if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+                //else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+
+                    //if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+                    //    exp_dir->second["Expected_Event_Categories_4PJ"].fill(3); // expected merged events == 3
+                    //}
+                    //else{ // gen partons not merged
+                    //    exp_dir->second["Expected_Event_Categories_4PJ"].fill(5); // expected other events == 5
+                    //}
+
                     matched_perm = matcher_.match(
                             genp_selector_.ttbar_final_system(),
                             object_selector_.clean_jets(), 
@@ -704,7 +814,9 @@ class htt_simple : public AnalyzerBase
             //fill right category
             fill_selection_plots(evtdir.str(), event, best_permutation, runpdf);
             if(lep_is_tight) tracker_.track("END", leptype);
-        }
+            //           } // end of 4+ jet loop
+
+        } // end of process_evt
 
         //This method is called once every file, contains the event loop
         //run your proper analysis here
@@ -801,7 +913,6 @@ class htt_simple : public AnalyzerBase
 
             parser.addCfgParameter<std::string>("general", "csv_sffile", "");
             parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");
-
         }
         };
 
