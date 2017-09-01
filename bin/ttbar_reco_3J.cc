@@ -503,7 +503,7 @@ class ttbar_reco_3J : public AnalyzerBase
             }
             tracker_.track("semilep");
 
-            if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+            if( ttbar.partial_hadronic_merged(0.4) ){ // gen partons merged
                 exp_dir->second["Expected_Event_Categories_3J"].fill(3);// expected merged events == 3
             }
             else{ // gen partons not merged
@@ -935,7 +935,7 @@ class ttbar_reco_3J : public AnalyzerBase
 //                        continue;
 //                    }
 //
-//                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+//                    if( ttbar.partial_hadronic_merged(0.4) ){ // gen partons merged
 //                        exp_dir->second["Expected_Event_Categories_4J"].fill(3);// expected merged events == 3
 //                    }
 //                    else{ // gen partons not merged
@@ -952,7 +952,7 @@ class ttbar_reco_3J : public AnalyzerBase
 //                        continue;
 //                    }
 //
-//                    if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
+//                    if( ttbar.partial_hadronic_merged(0.4) ){ // gen partons merged
 //                        exp_dir->second["Expected_Event_Categories_5PJ"].fill(3);// expected merged events == 3
 //                    }
 //                    else{ // gen partons not merged

@@ -4,16 +4,20 @@ Gen_Partons Analyzer Plotter macro
 
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
 import URAnalysis.PlotTools.views as urviews
-import os, glob
+import os, glob, sys
 from rootpy.io import root_open
 from rootpy import asrootpy
 from pdb import set_trace
-from rootpy.plotting import views, Graph, Hist
+from rootpy.plotting import views, Graph, Hist, Hist2D
 from argparse import ArgumentParser
 import URAnalysis.Utilities.roottools as urtools
 import ROOT
 from URAnalysis.Utilities.tables import latex_table
 import argparse
+import numpy as np
+from URAnalysis.PlotTools.views.RebinView import RebinView
+import rootpy.io as io
+
 
 parser = argparse.ArgumentParser(description='Create plots using files from gen_partons.')
 
@@ -21,47 +25,67 @@ jobid = jobid = os.environ['jobid']
 
 parser.add_argument('analysis', help='Choose type of analysis (Test or Full).')
 parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000, or Combined).')
-parser.add_argument('plot', help='Choose type of plots to generate (DR, Pt, Eta, Costh, Mass, nJets, Ratios, 3J, 4J, 5PJ, AllJets, 3Partons, Had_Comp_DR).')
+parser.add_argument('plot', help='Choose type of plots to generate (DR, Kin_Vars, System, Merged_Fractions, 3J, 4J, 5PJ, AllJets, 3Partons, Had_Comp_DR).')
 args = parser.parse_args()
 
+if not (args.analysis == "Test" or args.analysis == "Full"):
+    print "You chose %s as your analysis type.\n You must choose Full or Test!" % args.analysis
+    sys.exit()
+
+if not (args.sample == "ttJetsM0" or args.sample == "ttJetsM700" or args.sample == "ttJetsM1000" or args.sample == "Combined"):
+    print "You chose %s as your sample file.\n You must choose ttJetsM0, ttJetsM700, or ttJetsM1000!" % args.sample
+    sys.exit()
+
+if not (args.plot == "3J" or args.plot == "4J" or args.plot == "5PJ" or args.plot == "AllJets" or args.plot == "3Partons"\
+    or args.plot == "Had_Comp_DR" or args.plot == "DR" or args.plot == "Kin_Vars"\
+    or args.plot == "System" or args.plot == "Merged_Fractions"):
+    print "You chose %s as your plot type.\nYou must choose from the help list!"
+    sys.exit() 
+
 if args.analysis == "Test":
-	if args.sample == "ttJetsM0" or args.sample == "ttJetsM700" or args.sample == "ttJetsM1000":
-		print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
-		myfile = root_open('../%s.gen_partons.test.root' % args.sample, 'read')
-		normfile = views.NormalizeView(root_open('../%s.gen_partons.test.root' % args.sample, 'read'))#normalized file
-		plotter = BasePlotter(
-			'plots/gen_partons/%s/%s/%s/%s' % (jobid, args.analysis, args.plot, args.sample),
-			defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}}
-		)
-	elif args.sample == "Combined":
-		print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
-	#	Sample_ttJetsM0 = root_open('../ttJetsM0.gen_partons.test.root', 'read')
-	#	Sample_ttJetsM700 = root_open('../ttJetsM700.gen_partons.test.root', 'read')
-	#	Sample_ttJetsM1000 = root_open('../ttJetsM1000.gen_partons.test.root', 'read')
-		plotter = BasePlotter(
-			'plots/gen_partons/%s/%s/%s/%s' % (jobid, args.analysis, args.plot, args.sample),
-			defaults = {'save' : {'png' : True, 'pdf' : False}}
-		)
+    print( 'Your analysis type and sample file are %s and %s' % (args.analysis, args.sample) )
+
+    if args.sample == "Combined":
+        M0_file = root_open('../ttJetsM0.gen_partons.test.root', 'read')
+        M0_normfile = views.NormalizeView(root_open('../ttJetsM0.gen_partons.test.root', 'read'))#normalized file
+        M700_file = root_open('../ttJetsM700.gen_partons.test.root', 'read')
+        M700_normfile = views.NormalizeView(root_open('../ttJetsM700.gen_partons.test.root', 'read'))#normalized file
+        M1000_file = root_open('../ttJetsM1000.gen_partons.test.root', 'read')
+        M1000_normfile = views.NormalizeView(root_open('../ttJetsM1000.gen_partons.test.root', 'read'))#normalized file
+
+    else:
+        myfile = root_open('../%s.gen_partons.test.root' % args.sample, 'read')
+        normfile = views.NormalizeView(root_open('../%s.gen_partons.test.root' % args.sample, 'read'))#normalized file
+
+    plotter = BasePlotter(
+    	'plots/gen_partons/%s/%s/%s/%s' % (jobid, args.analysis, args.sample, args.plot),
+    	defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}}
+    )
 
 elif args.analysis == "Full":
-	if args.sample == "ttJetsM0" or args.sample == "ttJetsM700" or args.sample == "ttJetsM1000":
-		print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
-		myfile = root_open('../results/%s/gen_partons/%s.root' % (jobid, args.sample), 'read')
-		normfile = views.NormalizeView(root_open('../results/%s/gen_partons/%s.root' % (jobid, args.sample), 'read'))
-		plotter = BasePlotter(
-			'plots/gen_partons/%s/%s/%s/%s' % (jobid, args.analysis, args.plot, args.sample),
-			defaults = {'save' : {'png' : True, 'pdf' : False}}
-		)
-	elif args.sample == "Combined":
-		print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
-	#	Full_ttJetsM0 = root_open('../results/%s/gen_partons/ttJets.root' % jobid, 'read')
-	#	Full_ttJetsM700 = root_open('../results/%s/gen_partons/ttJetsM700.root' % jobid, 'read')
-	#	Full_ttJetsM1000 = root_open('../results/%s/gen_partons/ttJetsM1000.root' % jobid, 'read')
-		plotter = BasePlotter(
-			'plots/gen_partons/%s/%s/%s/%s' % (jobid, args.analysis, args.plot, args.sample),
-			defaults = {'save' : {'png' : True, 'pdf' : False}}
-		)
+    print( 'Your analysis type and sample file are %s and %s' % (args.analysis, args.sample) )
 
+    if args.sample == "Combined":
+        ttJets_files = [
+            glob.glob('../results/%s/gen_partons/ttJetsM0.root' % jobid),
+            glob.glob('../results/%s/gen_partons/ttJetsM700.root' % jobid),
+            glob.glob('../results/%s/gen_partons/ttJetsM1000.root' % jobid)
+        ]
+#        M0_file = root_open('../results/%s/gen_partons/ttJetsM0.root' % jobid, 'read')
+#        M0_normfile = views.NormalizeView(root_open('../results/%s/gen_partons/ttJetsM0.root' % jobid, 'read'))
+#        M700_file = root_open('../results/%s/gen_partons/ttJetsM700.root' % jobid, 'read')
+#        M700_normfile = views.NormalizeView(root_open('../results/%s/gen_partons/ttJetsM700.root' % jobid, 'read'))
+#        M1000_file = root_open('../results/%s/gen_partons/ttJetsM1000.root' % jobid, 'read')
+#        M1000_normfile = views.NormalizeView(root_open('../results/%s/gen_partons/ttJetsM1000.root' % jobid, 'read'))
+
+    else:
+        myfile = root_open('../results/%s/gen_partons/%s.root' % (jobid, args.sample), 'read')
+        normfile = views.NormalizeView(root_open('../results/%s/gen_partons/%s.root' % (jobid, args.sample), 'read'))
+
+    plotter = BasePlotter(
+    	'plots/gen_partons/%s/%s/%s/%s' % (jobid, args.analysis, args.sample, args.plot),
+    	defaults = {'save' : {'png' : True, 'pdf' : False}}
+    )
 
 def stack_plots(lists):
     lists.sort()
@@ -91,15 +115,15 @@ def stack_plots(lists):
 ##### Global Var. Definitions ####
 defcol = 'black' # default color
 defyax = 'a.u.' # yaxis title
-if args.sample == "ttJetsM0":
-	mass_min = 0
-	mass_max = 2000
+if args.sample == "ttJetsM0" or args.sample == "Combined":
+    mass_min = 250.
+    mass_max = 2000.
 if args.sample == "ttJetsM700":
-	mass_min = 700
-	mass_max = 1000
+	mass_min = 700.
+	mass_max = 1000.
 if args.sample == "ttJetsM1000":
-	mass_min = 1000
-	mass_max = 2000
+	mass_min = 1000.
+	mass_max = 2000.
 
 DRvals = {
 		('DRP4', '#Delta R < 0.4', 'red'),
@@ -161,9 +185,9 @@ if args.plot == "DR":
 		('DRmin_thad_vs_mttbar', 'm_{t#bar t} [GeV]', 'min t_{h} #Delta R'),
 		('DRmin_tlep_vs_mttbar', 'm_{t#bar t} [GeV]', 'min t_{l} #Delta R'),
 		('DRmax_thad_vs_mttbar', 'm_{t#bar t} [GeV]', 'max t_{h} #Delta R'),
-		('DRmin_thad_vs_ptthad', 't_{h} p_{t}', 'min t_{h} #Delta R'),
-		('DRmin_tlep_vs_pttlep', 't_{l} p_{t}', 'min t_{l} #Delta R'),
-		('DRmax_thad_vs_ptthad', 't_{h} p_{t}', 'max t_{h} #Delta R')
+		('DRmin_thad_vs_ptthad', 't_{h} p_{T}', 'min t_{h} #Delta R'),
+		('DRmin_tlep_vs_pttlep', 't_{l} p_{T}', 'min t_{l} #Delta R'),
+		('DRmax_thad_vs_ptthad', 't_{h} p_{T}', 'max t_{h} #Delta R')
 	]
 	
 	for var, xaxis,yaxis in Gen_DR_2D:
@@ -180,198 +204,175 @@ if args.plot == "DR":
 		plotter.save(var)
 	
 ########################################################################################
-if args.plot == "Pt":
+if args.plot == "Kin_Vars":
 	# Gen Object Plots
-	Gen_Pt = [
-		('Pt_Lep', 'l p_{t}'),
-		('Pt_BHad', 'b_{h} p_{t}'),
-		('Pt_BLep', 'b_{l} p_{t}'),
-		('Pt_WJa', 'WJa p_{t}'),
-		('Pt_WJb', 'WJb p_{t}'),
-		('Pt_ttbar', 't#bar t p_{t}'),
-		('Pt_thad', 't_{h} p_{t}'),
-		('Pt_tlep', 't_{l} p_{t}')
-	]
-	
-	for var, xaxis in Gen_Pt:
-	      hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
-	      mean = hist.GetMean()
-	      rms = hist.GetRMS()
-	
-	      plotter.set_histo_style(hist, color=defcol)
-	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
-	      box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-	      plotter.save(var)
-	
-	Gen_Pt_2D = [
-		('Pt_Lep_vs_Mtt', 'm_{t#bar t} [GeV]', 'l p_{T}'),
-		('Pt_BHad_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{h} p_{T}'),
-		('Pt_BLep_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{l} p_{T}'),
-		('Pt_WJa_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJa p_{T}'),
-		('Pt_WJb_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJb p_{T}'),
-		('Pt_thad_vs_Mtt', 'm_{t#bar t} [GeV]', 't_{h} p_{T}')
-	]
-	
-	for var, xaxis,yaxis in Gen_Pt_2D:
-		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
-	#	plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=xaxis, ytitle=yaxis)
-		hist.Draw('colz')
-		hist.xaxis.set_title(xaxis)
-		hist.yaxis.set_title(yaxis)
-		plotter.save(var)
-	
-########################################################################################
-if args.plot == "Eta":
-	# Gen Object Plots
-	Gen_Eta = [
-		('Eta_Lep', 'l #eta'),
-		('Eta_BHad', 'b_{h} #eta'),
-		('Eta_BLep', 'b_{l} #eta'),
-		('Eta_WJa', 'WJa #eta'),
-		('Eta_WJb', 'WJb #eta'),
-	]
-	
-	for var, xaxis in Gen_Eta:
-	      hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
-	      mean = hist.GetMean()
-	      rms = hist.GetRMS()
-	
-	      plotter.set_histo_style(hist, color=defcol)
-	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
-	      box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-	      plotter.save(var)
-	
-	Gen_Eta_2D = [
-		('Eta_Lep_vs_Mtt', 'm_{t#bar t} [GeV]', 'l #eta'),
-		('Eta_BHad_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{h} #eta'),
-		('Eta_BLep_vs_Mtt', 'm_{t#bar t} [GeV]', 'b_{l} #eta'),
-		('Eta_WJa_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJa #eta'),
-		('Eta_WJb_vs_Mtt', 'm_{t#bar t} [GeV]', 'WJb #eta')
-	]
-	
-	for var, xaxis, yaxis in Gen_Eta_2D:
-		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
-	#	plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=xaxis, ytitle=yaxis)
-		hist.Draw('colz')
-		hist.xaxis.set_title(xaxis)
-		hist.yaxis.set_title(yaxis)
-		plotter.save(var)
+    Gen_Objs = { 'Lep' : 'l', 'BHad' : 'b_{h}', 'BLep' : 'b_{l}', 'WJa' : 'WJa', 'WJb' : 'WJb', 'THad' : 't_{h}', 'TLep' : 't_{l}' }
 
-	
-	
-########################################################################################
-if args.plot == "Costh":
-	# Gen Object Plots
-	Gen_Costh = [
-		('Costh_Lep', 'l Cos #theta'),
-		('Costh_BLep', 'b_{l} Cos #theta'),
-		('Costh_BHad', 'b_{h} Cos #theta'),
-		('Costh_WJa', 'WJa Cos #theta'),
-		('Costh_WJb', 'WJb Cos #theta'),
-		('Costh_ttbar', 'WJb Cos #theta'),
-	]
-	
-	for var, xaxis in Gen_Costh:
-	      hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
-	      mean = hist.GetMean()
-	      rms = hist.GetRMS()
-	
-	      plotter.set_histo_style(hist, color=defcol)
-	      plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
-	      box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-	      plotter.save(var)
-	
-########################################################################################
-if args.plot == "Mass":
-	# Gen Object Plots
-	MassTTbar = [
-		('Mass_Lep', 'm_{l} [GeV]'),
-		('Mass_BLep', 'm_{b_{l}} [GeV]'),
-		('Mass_BHad', 'm_{b_{h}} [GeV]'),
-		('Mass_WJa', 'm_{WJa}} [GeV]'),
-		('Mass_WJb', 'm_{WJb}} [GeV]'),
-		('Mass_ttbar', 'm_{t#bar t} [GeV]'),
-		('Mass_thad', 'm_{t_{h}} [GeV]'),
-		('Mass_tlep', 'm_{t_{l}} [GeV]')
-	]
-	
-	for var, xaxis in MassTTbar:
-		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
-	#	hist.xaxis.range_user = 150, 700
-		mean = hist.GetMean()
-		rms = hist.GetRMS()
-		plotter.set_histo_style(hist, color=defcol)
-	#	print("RMS = %f" % RMS)
-		plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
-		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(var)
+    for obj in Gen_Objs:
+        label = Gen_Objs[obj]
+
+#        kinvar = {'Mass' : ['m_{%s} [GeV]' % label, 'A.U.', 'Mass_Plots/']}
+        kinvar = {'Mass' : ['m_{%s} [GeV]' % label, 'A.U.', 'Mass_Plots/'], 'Costh' : [' Cos #theta', 'A.U.', 'Costh_Plots/'], 'Eta' : [' #eta', 'A.U.', 'Eta_Plots/'], 'Pt' : [' p_{T} [GeV]', 'A.U.', 'Pt_Plots/']}
+
+        for kvars in kinvar:
+            plotter.set_subdir(kvars)
+            xaxis = kinvar[kvars][0]
+            yaxis = kinvar[kvars][1]
+            kin_dir = kinvar[kvars][2]    
+
+            var = kvars+'_'+obj
+
+            hist = asrootpy(myfile.Get(kin_dir+var)).Clone()
+            mean = hist.GetMean()
+            rms = hist.GetRMS()
+
+            plotter.set_histo_style(hist, color=defcol)
+            if kvars == 'Mass':
+                plotter.plot(hist, xtitle=xaxis, ytitle=defyax, drawstyle='hist')
+            else:
+                plotter.plot(hist, xtitle=label+xaxis, ytitle=defyax, drawstyle='hist')
+            box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+            box.Draw()
+            plotter.save(var)
+
+            if kvars == 'Mass':
+                continue
+            
+            var_2D = var+'_vs_Mtt'
+            #print var_2D
+
+            hist2D = asrootpy(myfile.Get(kin_dir+var_2D)).Clone()
+            plotter.plot(hist2D)
+            hist2D.Draw('colz')
+            hist2D.xaxis.set_title('m_{t#bar t} [GeV]')
+            hist2D.yaxis.set_title(label+xaxis)
+            plotter.save(var_2D)
+
+    
+    print '\ncp -r '+os.getcwd()+'/plots/gen_partons/%s/%s/%s/%s . \n' % (jobid, args.analysis, args.sample, args.plot)
 
 	
 ########################################################################################
-if args.plot == "nJets":
+if args.plot == "System":
 	# Gen Object Plots
-	nJets = [
-		('nJets')
-	]
+    kinvar = {'Mass_ttbar' : ['m_{t#bar t} [GeV]', 'A.U.', 'Mass_Plots/'], 'Costh_ttbar' : ['Cos #theta_{t#bar t}', 'A.U.', 'Costh_Plots/'],\
+            'Eta_ttbar' : ['#eta_{t#bar t}', 'A.U.', 'Eta_Plots/'], 'Pt_ttbar' : [' p_{T_{t#bar t}} [GeV]', 'A.U.', 'Pt_Plots/'], 'nJets' : ['n_{jets}', 'A.U.', 'Sys_Plots/']}
 
-	for var in nJets:
-		efficiencies = []
-		hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
-		mean = hist.GetMean()
-		rms = hist.GetRMS()
-		total= hist.Integral()
-		plotter.set_histo_style(hist, color=defcol)
-		plotter.plot(hist, xtitle=var, ytitle=defyax, drawstyle='hist')
-		box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
-		plotter.save(var)
-		for i in range(0, hist.GetXaxis().GetNbins()):
-			efficiencies.append(format(hist.GetBinContent(i+1)/total, '.4f'))
-		print(var, efficiencies)
+    for kvar in kinvar:
+        xaxis = kinvar[kvar][0]
+        yaxis = kinvar[kvar][1]
+        kin_dir = kinvar[kvar][2]
+
+        hist = asrootpy(myfile.Get(kin_dir+kvar)).Clone()
+        mean = hist.GetMean()
+        rms = hist.GetRMS()
+
+        plotter.set_histo_style(hist, color=defcol)
+        plotter.plot(hist, xtitle=xaxis, ytitle=yaxis, drawstyle='hist')
+        box = plotter.make_text_box('Mean = %f\nRMS = %f' % (mean,rms), position='NE')
+        box.Draw()
+        plotter.save(kvar)
+
+#		efficiencies = []
+#		total= hist.Integral()
+#		for i in range(0, hist.GetXaxis().GetNbins()):
+#			efficiencies.append(format(hist.GetBinContent(i+1)/total, '.4f'))
+#		print(var, efficiencies)
+
+    print '\ncp -r '+os.getcwd()+'/plots/gen_partons/%s/%s/%s/%s . \n' % (jobid, args.analysis, args.sample, args.plot)
 
 ##################################################################################################
-if args.plot == "Ratios":
-	DRmin_ratios = [
-#		('DRmin_thad_lDRP4_vs_mttbar', 'DRmin_thad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_mttbar'),
-#		('DRmin_thad_lDRP4_vs_ptthad', 'DRmin_thad_gDRP4_vs_ptthad', 't_{h} p_{t}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_ptthad'),
-#		('DRmin_tlep_lDRP4_vs_mttbar', 'DRmin_tlep_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_mttbar'),
-#		('DRmin_tlep_lDRP4_vs_pttlep', 'DRmin_tlep_gDRP4_vs_pttlep', 't_{l} p_{t}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_pttlep'),
-		
-		('DR_LepBHad_lDRP4_vs_mttbar', 'DR_LepBHad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, b_{h})', 'DR_LepBHad_lp4_ratio_vs_mttbar'),
-                ('DR_LepBLep_lDRP4_vs_mttbar', 'DR_LepBLep_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, b_{l})', 'DR_LepBLep_lp4_ratio_vs_mttbar'),
-                ('DR_LepWJa_lDRP4_vs_mttbar', 'DR_LepWJa_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, WJa)', 'DR_LepWJa_lp4_ratio_vs_mttbar'),
-                ('DR_LepWJb_lDRP4_vs_mttbar', 'DR_LepWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (l, WJb)', 'DR_LepWJb_lp4_ratio_vs_mttbar'),
-                ('DR_BHadBLep_lDRP4_vs_mttbar', 'DR_BHadBLep_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, b_{l})', 'DR_BHadBLep_lp4_ratio_vs_mttbar'),
-                ('DR_BHadWJa_lDRP4_vs_mttbar', 'DR_BHadWJa_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, WJa)', 'DR_BHadWJa_lp4_ratio_vs_mttbar'),
-                ('DR_BHadWJb_lDRP4_vs_mttbar', 'DR_BHadWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{h}, WJb)', 'DR_BHadWJb_lp4_ratio_vs_mttbar'),
-                ('DR_BLepWJa_lDRP4_vs_mttbar', 'DR_BLepWJa_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{l}, WJa)', 'DR_BLepWJa_lp4_ratio_vs_mttbar'),
-                ('DR_BLepWJb_lDRP4_vs_mttbar', 'DR_BLepWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (b_{l}, WJb)', 'DR_BLepWJb_lp4_ratio_vs_mttbar'),
-                ('DR_WJaWJb_lDRP4_vs_mttbar', 'DR_WJaWJb_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', '#Delta R (WJa, WJb)', 'DR_WJaWJb_lp4_ratio_vs_mttbar'),
-#		('DRmax_thad_lDRP4_vs_mttbar', 'DRmax_thad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_mttbar'),
-#		('DRmax_thad_lDRP4_vs_ptthad', 'DRmax_thad_gDRP4_vs_ptthad', 't_{h} p_{t}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_ptthad')
-	]
+if args.plot == "Merged_Fractions":
+    other_pairs = { 'LepBLep' : ['(l, b_{l})', '#cc0066'], 'LepBHad' : ['(l, b_{h})', 'blue'], 'LepWJa' : ['(l, WJa)', '#ff9900'], 'LepWJb' : ['(l, WJb)', '#00ffff'],\
+                'BHadBLep' : ['(b_{h}, b_{l})', '#ff66ff'], 'BLepWJa' : ['(b_{l}, WJa)', '#00ff00'], 'BLepWJb' : ['(b_{l}, WJb)', 'black']}
+#                'BHadWJa' : ['(b_{h}, WJa)', 'red'], 'BHadWJb' : ['(b_{h}, WJb)', 'blue'], 'WJaWJb' : ['(WJa, WJb)', 'green']}
 
-	for lp4, gp4, xaxis, yaxis, title, name in DRmin_ratios:# < 0.4, > 0.4, xaxis, yaxis, png name
-		efficiencies = []
-		
-		LP4 = asrootpy(myfile.Get('Gen_Plots/'+lp4)).Clone()
-		if LP4.Integral() != 0:
-			GP4 = asrootpy(myfile.Get('Gen_Plots/'+gp4)).Clone()
-			DR_Ratio = LP4/(LP4+GP4)
-			plotter.set_histo_style(DR_Ratio, color=defcol, markerstyle=20)
-			plotter.plot(DR_Ratio)
-			DR_Ratio.Draw("P")
-			DR_Ratio.xaxis.set_title(xaxis)
-			DR_Ratio.yaxis.set_title(yaxis)
-	#		DR_Ratio.yaxis.range_user = 0, 1
-			box = plotter.make_text_box(title, position='NE')
-			plotter.save(name)
-		
-		for i in range(0, DR_Ratio.GetXaxis().GetNbins()):
-			efficiencies.append(format(DR_Ratio.GetBinContent(i+1), '.4f'))
-		#	mass_range.append(Mu_Eff.GetXaxis().GetBinLowEdge(i+1))
-		print(yaxis, efficiencies)
+    had_pairs = {'BHadWJa' : ['(b_{h}, WJa)', 'red'], 'BHadWJb' : ['(b_{h}, WJb)', 'blue'], 'WJaWJb' : ['(WJa, WJb)', 'green']}
+
+    xaxis = 'M_{t#bar t} [GeV]'
+    yaxis = '#Delta R < 0.4 Fraction'
+
+    hp_hist = []
+    for objs in had_pairs:
+        legends = had_pairs[objs][0]
+        cols = had_pairs[objs][1]
+
+        LP4 = asrootpy(myfile.Get('Gen_Plots/DR_'+objs+'_lDRP4_vs_mttbar')).Clone()
+        GP4 = asrootpy(myfile.Get('Gen_Plots/DR_'+objs+'_gDRP4_vs_mttbar')).Clone()
+        if LP4.Integral() == 0:
+            continue
+        Ratio = LP4/(LP4+GP4)
+        plotter.set_histo_style(Ratio, title=legends, color=cols, markerstyle=20, linestyle='solid')
+        hp_hist.append(Ratio)
+
+    plotter.overlay(hp_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle=yaxis)
+    #plotter.overlay(hp_hist, legend_def=LegendDefinition(position='NW'), logy=True, y_range=(10**(-2),10**0), legendstyle='l', xtitle=xaxis, ytitle=yaxis)
+    plotter.save('Merged_Fractions_Had_Partons_DRP4')
+
+    op_hist = []
+    for objs in other_pairs:
+        legends = other_pairs[objs][0]
+        cols = other_pairs[objs][1]
+
+        LP4 = asrootpy(myfile.Get('Gen_Plots/DR_'+objs+'_lDRP4_vs_mttbar')).Clone()
+        GP4 = asrootpy(myfile.Get('Gen_Plots/DR_'+objs+'_gDRP4_vs_mttbar')).Clone()
+        if LP4.Integral() == 0:
+            continue
+        Ratio = LP4/(LP4+GP4)
+        plotter.set_histo_style(Ratio, title=legends, color=cols, markerstyle=20, linestyle='solid')
+        op_hist.append(Ratio)
+
+    plotter.overlay(op_hist, legend_def=LegendDefinition(position='NW'), logy=True, y_range=(10**(-5),10**2), legendstyle='l', xtitle=xaxis, ytitle=yaxis)
+    plotter.save('Merged_Fractions_Other_Partons_DRP4')
+
+#    DRmin_ratios = [
+#    #		('DRmin_thad_lDRP4_vs_mttbar', 'DRmin_thad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_mttbar'),
+#    #		('DRmin_thad_lDRP4_vs_ptthad', 'DRmin_thad_gDRP4_vs_ptthad', 't_{h} p_{T}', '#Delta R < 0.4 Fraction', 't_{h} min #Delta R', 'DRmin_thad_lp4_ratio_vs_ptthad'),
+#    #		('DRmin_tlep_lDRP4_vs_mttbar', 'DRmin_tlep_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_mttbar'),
+#    #		('DRmin_tlep_lDRP4_vs_pttlep', 'DRmin_tlep_gDRP4_vs_pttlep', 't_{l} p_{T}', '#Delta R < 0.4 Fraction', 't_{l} min #Delta R', 'DRmin_tlep_lp4_ratio_vs_pttlep'),
+#    	
+#    	('DR_LepBHad_lDRP4_vs_mttbar', 'DR_LepBHad_gDRP4_vs_mttbar', '#Delta R (l, b_{h})', 'DR_LepBHad_lp4_ratio_vs_mttbar'),
+#        ('DR_LepBLep_lDRP4_vs_mttbar', 'DR_LepBLep_gDRP4_vs_mttbar', '#Delta R (l, b_{l})', 'DR_LepBLep_lp4_ratio_vs_mttbar'),
+#        ('DR_LepWJa_lDRP4_vs_mttbar', 'DR_LepWJa_gDRP4_vs_mttbar', '#Delta R (l, WJa)', 'DR_LepWJa_lp4_ratio_vs_mttbar'),
+#        ('DR_LepWJb_lDRP4_vs_mttbar', 'DR_LepWJb_gDRP4_vs_mttbar', '#Delta R (l, WJb)', 'DR_LepWJb_lp4_ratio_vs_mttbar'),
+#        ('DR_BHadBLep_lDRP4_vs_mttbar', 'DR_BHadBLep_gDRP4_vs_mttbar', '#Delta R (b_{h}, b_{l})', 'DR_BHadBLep_lp4_ratio_vs_mttbar'),
+#        #('DR_BHadWJa_lDRP4_vs_mttbar', 'DR_BHadWJa_gDRP4_vs_mttbar', '#Delta R (b_{h}, WJa)', 'DR_BHadWJa_lp4_ratio_vs_mttbar'),
+#        #('DR_BHadWJb_lDRP4_vs_mttbar', 'DR_BHadWJb_gDRP4_vs_mttbar', '#Delta R (b_{h}, WJb)', 'DR_BHadWJb_lp4_ratio_vs_mttbar'),
+#        ('DR_BLepWJa_lDRP4_vs_mttbar', 'DR_BLepWJa_gDRP4_vs_mttbar', '#Delta R (b_{l}, WJa)', 'DR_BLepWJa_lp4_ratio_vs_mttbar'),
+#        ('DR_BLepWJb_lDRP4_vs_mttbar', 'DR_BLepWJb_gDRP4_vs_mttbar', '#Delta R (b_{l}, WJb)', 'DR_BLepWJb_lp4_ratio_vs_mttbar'),
+#        #('DR_WJaWJb_lDRP4_vs_mttbar', 'DR_WJaWJb_gDRP4_vs_mttbar', '#Delta R (WJa, WJb)', 'DR_WJaWJb_lp4_ratio_vs_mttbar'),
+#    #		('DRmax_thad_lDRP4_vs_mttbar', 'DRmax_thad_gDRP4_vs_mttbar', 'm_{t#bar t}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_mttbar'),
+#    #		('DRmax_thad_lDRP4_vs_ptthad', 'DRmax_thad_gDRP4_vs_ptthad', 't_{h} p_{T}', '#Delta R < 0.4 Fraction', 't_{h} max #Delta R', 'DRmax_thad_lp4_ratio_vs_ptthad')
+#    ]
+#
+#    Had_Side_Ratios = [
+#        ('DR_BHadWJa_lDRP4_vs_mttbar', 'DR_BHadWJa_gDRP4_vs_mttbar', '#Delta R (b_{h}, WJa)', 'DR_BHadWJa_lp4_ratio_vs_mttbar'),
+#        ('DR_BHadWJb_lDRP4_vs_mttbar', 'DR_BHadWJb_gDRP4_vs_mttbar', '#Delta R (b_{h}, WJb)', 'DR_BHadWJb_lp4_ratio_vs_mttbar'),
+#        ('DR_WJaWJb_lDRP4_vs_mttbar', 'DR_WJaWJb_gDRP4_vs_mttbar', '#Delta R (WJa, WJb)', 'DR_WJaWJb_lp4_ratio_vs_mttbar'),
+#    ]
+#
+#    for lp4, gp4, title, name in DRmin_ratios:# < 0.4, > 0.4, xaxis, yaxis, png name
+#    	efficiencies = []
+#    	
+#    	LP4 = asrootpy(myfile.Get('Gen_Plots/'+lp4)).Clone()
+#    	if LP4.Integral() != 0:
+#    		GP4 = asrootpy(myfile.Get('Gen_Plots/'+gp4)).Clone()
+#    		DR_Ratio = LP4/(LP4+GP4)
+#    		plotter.set_histo_style(DR_Ratio, color=defcol, markerstyle=20)
+#    		plotter.plot(DR_Ratio)
+#    		DR_Ratio.Draw("P")
+#    		DR_Ratio.xaxis.set_title(xaxis)
+#    		DR_Ratio.yaxis.set_title(yaxis)
+#    	#		DR_Ratio.yaxis.range_user = 0, 1
+#    		box = plotter.make_text_box(title, position='NE')
+#    		plotter.save(name)
+#    	
+#    	for i in range(0, DR_Ratio.GetXaxis().GetNbins()):
+#    		efficiencies.append(format(DR_Ratio.GetBinContent(i+1), '.4f'))
+#    	#	mass_range.append(Mu_Eff.GetXaxis().GetBinLowEdge(i+1))
+#    	print(yaxis, efficiencies)
+    
+    print '\ncp -r '+os.getcwd()+'/plots/gen_partons/%s/%s/%s/%s . \n' % (jobid, args.analysis, args.sample, args.plot)
 
 
 ##################################################################################################
@@ -462,47 +463,256 @@ if args.plot == "Had_Comp_DR":
                 plotter.save('AllJets_Hadronic_Events_vs_thadpt_stack_Norm_'+name)
 
 #################################################################
+if args.plot == "AllJets" or args.plot == "2LJ" or args.plot == "3J" or args.plot == "4J" or args.plot == "5PJ":
 
-if args.plot == "AllJets":
+#    kinvar = {'THadpt_vs_Mttbar' : ['M_{t #bar{t}} [GeV]', 'Leading top p_{T} [GeV]']}
+    kinvar = {'Mtt' : ['M_{t #bar{t}} [GeV]', 'A.U.'], 'THadpt' : ['t_{h} p_{T} [GeV]', 'A.U.'], 'THadpt_vs_Mttbar' : ['M_{t #bar{t}} [GeV]', 't_{h} p_{T} [GeV]']}
+    event_type = {'Had_Resolved_DRP4' : ['Resolved #Delta R < 0.4', 'blue'], 'Merged_THad_DRP8' : ['All 3 Merged #Delta R < 0.8', 'green'], 'Partially_Merged_DRP8' : ['Partial Merge #Delta R < 0.8', 'black']}
+    jets = {'AllJets' : '', '2LJ' : '_2LJ', '3J': '_3J', '4J': '_4J', '5PJ' : '_5PJ'}
 
-#### All jets
+    xbins = np.linspace(mass_min, mass_max, 21)
+    low_pt = np.linspace(0, 500, 26)
+    med_pt = np.linspace(550, 1000, 10)
+    high_pt = [1200, 1400, 1700, 2000]
+    ybins = np.concatenate((low_pt, med_pt, high_pt), axis=0)
+    
+    zmin, zmax = 0., 1.
+    cmap_levels = np.linspace(zmin, zmax, 100)
+    #log_cmap_levels = np.logspace(-1., 7., num=100)
+    
+    if args.sample == "Combined":
+        for kin in kinvar:
+            plotter.set_subdir(kin)
+      
+            xaxis = kinvar[kin][0]
+            yaxis = kinvar[kin][1]  
+        
+            to_draw = []
+            Pt_vs_M_Hists = []
+        
+            for evt in event_type:
+                legends = event_type[evt][0]
+                col = event_type[evt][1]
+    
+                var = 'Gen_%s_%s' % (evt, kin)
 
-        Hadronic_Events_Comp = [
-                ('Gen_Had_Resolved_DRP4_vs_thadpt', 'Resolved #Delta R < 0.4', 'blue'),
-#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
-#                ('Gen_Merged_WJets_DRP8_vs_thadpt', 'Merged W jets #Delta R < 0.8', 'black'),
-                ('Gen_Merged_THad_DRP8_vs_thadpt', 'All 3 Merged #Delta R < 0.8', 'green'),
-#                ('Gen_Merged_BHadWJet_DRP4_vs_thadpt', 'Merged b_{h} and W jet #Delta R < 0.4', 'cyan'),
-#                ('Gen_Merged_WJets_DRP4_vs_thadpt', 'Merged W jets #Delta R < 0.4', 'yellow')
-#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
-                ('Gen_Partially_Merged_DRP8_vs_thadpt', 'Partial Merge #Delta R < 0.8', 'black')
-        ]
+                comb_hist = 0
+                for fname in ttJets_files:
+                    for name in fname:
+                        tfile = io.root_open(name)
+                        hist = asrootpy(tfile.Get('Had_comp/'+var+jets[args.plot])).Clone()
+                        comb_hist += hist
+                if kin == 'THadpt_vs_Mttbar':
+                    if 'Resolved' in var:
+                        Res = comb_hist
+                        Pt_vs_M_Hists.append(comb_hist)
+                    elif 'Partially' in var:
+                        Part = comb_hist
+                        Pt_vs_M_Hists.append(comb_hist)
+                    else:
+                        Full = comb_hist
+                        Pt_vs_M_Hists.append(comb_hist)
 
-        to_draw = []
+                    if len(Pt_vs_M_Hists) == 3:   
+                        #rebin hists
+                        Res = RebinView.newRebin2D(Res,xbins,ybins)
+                        Full = RebinView.newRebin2D(Full,xbins,ybins)
+                        Part = RebinView.newRebin2D(Part,xbins,ybins)
+                        
+                        tot = Res+Full+Part #combine all merging categories together
+                        #set_trace()
+                        plotter.plot(tot, drawstyle='hist')
+                        tot.Draw('colz')
+                        tot.xaxis.set_title(xaxis)
+                        tot.yaxis.set_title(yaxis)
+                        plotter.pad.SetLogz(True)
+                        #tot.SetContour(len(log_cmap_levels), log_cmap_levels)
+                        plotter.save('%s_Combined_Merge_Categories' % args.plot)
 
-        for var, legends, colors in Hadronic_Events_Comp:
-                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
-                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
-                to_draw.append(hist)
+                        Res_frac = Res/tot # resolved plots
+                        plotter.plot(Res_frac, drawstyle='hist')
+                        Res_frac.Draw('colz')
+                        Res_frac.zaxis.range_user = zmin, zmax
+                        Res_frac.xaxis.set_title(xaxis)
+                        Res_frac.yaxis.set_title(yaxis)
+                        Res_frac.SetContour(len(cmap_levels), cmap_levels)
+                        plotter.save('%s_Had_Resolved_DRP4_Ratio' % args.plot)
+                        
+                        Full_frac = Full/tot #fully merged plots
+                        plotter.plot(Full_frac, drawstyle='hist')
+                        Full_frac.Draw('colz')
+                        Full_frac.zaxis.range_user = zmin, zmax
+                        Full_frac.xaxis.set_title(xaxis)
+                        Full_frac.yaxis.set_title(yaxis)
+                        Full_frac.SetContour(len(cmap_levels), cmap_levels)
+                        plotter.save('%s_Merged_THad_DRP8_Ratio' % args.plot)
+                        
+                        Part_frac = Part/tot #partially merged plots
+                        plotter.plot(Part_frac, drawstyle='hist')
+                        Part_frac.Draw('colz')
+                        Part_frac.zaxis.range_user = zmin, zmax
+                        Part_frac.xaxis.set_title(xaxis)
+                        Part_frac.yaxis.set_title(yaxis)
+                        Part_frac.SetContour(len(cmap_levels), cmap_levels)
+                        plotter.save('%s_Partially_Merged_DRP8_Ratio' % args.plot)
 
-        ### plot log of event occurrences
-#        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
-        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
-        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_log')
+                        Tot_Ratio = tot # total ratio plots
+                        tot_xproj = tot.ProjectionX("",1,tot.GetNbinsY()) # get projection of total hist along x
+                        for binsx in range(len(xbins)-1):
+                            for binsy in range(len(ybins)-1):
+                                #for each mtt bin (x), divide the number of events per pt bin (y)
+                                #by the total number of events in the entire mtt bin
+                                #the sum in each x bin is 1
+                                Tot_Ratio.SetBinContent(binsx+1, binsy+1,tot.GetBinContent(binsx+1,binsy+1)/tot_xproj.GetBinContent(binsx+1))
+
+                        plotter.plot(Tot_Ratio, drawstyle='hist')
+                        Tot_Ratio.Draw('colz')
+                        #Tot_Ratio.zaxis.range_user = zmin, zmax
+                        Tot_Ratio.xaxis.set_title(xaxis)
+                        Tot_Ratio.yaxis.set_title(yaxis)
+                        plotter.save('%s_Combined_Merge_Categories_Ratio' % args.plot)
+                        plotter.plot(Tot_Ratio, drawstyle='hist')
+                        Tot_Ratio.Draw('colz')
+                        Tot_Ratio.xaxis.set_title(xaxis)
+                        Tot_Ratio.yaxis.set_title(yaxis)
+                        plotter.pad.SetLogz(True)
+                        #Tot_Ratio.SetContour(len(cmap_levels), cmap_levels)
+                        plotter.save('%s_Combined_Merge_Categories_Ratio_Log' % args.plot)
+
+                else:
+                    plotter.set_histo_style(comb_hist, title=legends, drawstyle='hist', color=col, linestyle='solid')
+                    to_draw.append(comb_hist)
+    
+                    if len(to_draw) == 3:
+                        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+                        
+                        ### plot event ratios
+                        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle=xaxis, ytitle='Event Fraction', drawstyle='hist')
+                        plotter.save('%s_Hadronic_Events_%s_Comp_ratio' % (args.plot, kin))
+                
+                        ### create stacked hists of ratios
+                        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
+                        plotter.save('%s_Hadronic_Events_%s_Comp_stack' % (args.plot, kin))
+                
+                        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
+                        plotter.save('%s_Hadronic_Events_%s_Comp_stack_Norm' % (args.plot, kin))
+            
+                        for i in to_draw:
+                            i.SetFillStyle(0)
+                        ### plot log of event occurrences
+                        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle=xaxis, ytitle=yaxis, drawstyle='hist')
+                        plotter.save('%s_Hadronic_Events_%s_Comp_log' % (args.plot, kin))
 
 
-        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+    else:
+        for kin in kinvar:
+            plotter.set_subdir(kin)
+      
+            xaxis = kinvar[kin][0]
+            yaxis = kinvar[kin][1]  
+        
+            to_draw = []
+        
+            if kin == 'THadpt_vs_Mttbar':
+                Res = asrootpy(myfile.Get(str('Had_comp/Gen_Had_Resolved_DRP4_%s'+jets[args.plot]) % kin)).Clone()
+                Full = asrootpy(myfile.Get(str('Had_comp/Gen_Merged_THad_DRP8_%s'+jets[args.plot]) % kin)).Clone()
+                Part = asrootpy(myfile.Get(str('Had_comp/Gen_Partially_Merged_DRP8_%s'+jets[args.plot]) % kin)).Clone()
+    
+                #rebin hists
+                Res = RebinView.newRebin2D(Res,xbins,ybins)
+                Full = RebinView.newRebin2D(Full,xbins,ybins)
+                Part = RebinView.newRebin2D(Part,xbins,ybins)
+    
+                tot = Res+Full+Part #combine all merging categories together
+                #set_trace()
+                plotter.plot(tot, drawstyle='hist')
+                tot.Draw('colz')
+                tot.xaxis.set_title(xaxis)
+                tot.yaxis.set_title(yaxis)
+                plotter.pad.SetLogz(True)
+                #tot.SetContour(len(log_cmap_levels), log_cmap_levels)
+                plotter.save('%s_Combined_Merge_Categories' % args.plot)
 
-        ### plot event ratios
-        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
-        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_ratio')
+                Res_frac = Res/tot #fully resolved plots
+                plotter.plot(Res_frac, drawstyle='hist')
+                Res_frac.Draw('colz')
+                Res_frac.zaxis.range_user = zmin, zmax
+                Res_frac.xaxis.set_title(xaxis)
+                Res_frac.yaxis.set_title(yaxis)
+                Res_frac.SetContour(len(cmap_levels), cmap_levels)
+                plotter.save('%s_Had_Resolved_DRP4_Ratio' % args.plot)
+    
+                Full_frac = Full/tot #fully merged plots
+                plotter.plot(Full_frac, drawstyle='hist')
+                Full_frac.Draw('colz')
+                Full_frac.zaxis.range_user = zmin, zmax
+                Full_frac.xaxis.set_title(xaxis)
+                Full_frac.yaxis.set_title(yaxis)
+                Full_frac.SetContour(len(cmap_levels), cmap_levels)
+                plotter.save('%s_Merged_THad_DRP8_Ratio' % args.plot)
+    
+                Part_frac = Part/tot #partially merged plots
+                plotter.plot(Part_frac, drawstyle='hist')
+                Part_frac.Draw('colz')
+                Part_frac.zaxis.range_user = zmin, zmax
+                Part_frac.xaxis.set_title(xaxis)
+                Part_frac.yaxis.set_title(yaxis)
+                Part_frac.SetContour(len(cmap_levels), cmap_levels)
+                plotter.save('%s_Partially_Merged_DRP8_Ratio' % args.plot)
+    
+                Tot_Ratio = tot #total ratio plots
+                tot_xproj = tot.ProjectionX("",1,tot.GetNbinsY()) # get projection of total hist along x
+                for binsx in range(len(xbins)-1):
+                    for binsy in range(len(ybins)-1):
+                        #for each mtt bin (x), divide the number of events per pt bin (y)
+                        #by the total number of events in the entire mtt bin
+                        #the sum in each x bin is 1
+                        Tot_Ratio.SetBinContent(binsx+1, binsy+1,tot.GetBinContent(binsx+1,binsy+1)/tot_xproj.GetBinContent(binsx+1))
 
-        ### create stacked hists of ratios
-        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_stack')
+                plotter.plot(Tot_Ratio, drawstyle='hist')
+                Tot_Ratio.Draw('colz')
+                #Tot_Ratio.zaxis.range_user = zmin, zmax
+                Tot_Ratio.xaxis.set_title(xaxis)
+                Tot_Ratio.yaxis.set_title(yaxis)
+                plotter.save('%s_Combined_Merge_Categories_Ratio' % args.plot)
+                plotter.plot(Tot_Ratio, drawstyle='hist')
+                Tot_Ratio.Draw('colz')
+                Tot_Ratio.xaxis.set_title(xaxis)
+                Tot_Ratio.yaxis.set_title(yaxis)
+                plotter.pad.SetLogz(True)
+                #Tot_Ratio.SetContour(len(cmap_levels), cmap_levels)
+                plotter.save('%s_Combined_Merge_Categories_Ratio_Log' % args.plot)
 
-        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('AllJets_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
+            else:    
+                for evt in event_type:
+                    legends = event_type[evt][0]
+                    col = event_type[evt][1]
+        
+                    var = 'Gen_%s_%s' % (evt, kin)
+                    hist = asrootpy(myfile.Get('Had_comp/'+var+jets[args.plot])).Clone()
+                    plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=col, linestyle='solid')
+                    to_draw.append(hist)
+   
+                stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+    
+                ### plot event ratios
+                plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle=xaxis, ytitle='Event Fraction', drawstyle='hist')
+                plotter.save('%s_Hadronic_Events_%s_Comp_ratio' % (args.plot, kin))
+        
+                ### create stacked hists of ratios
+                plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
+                plotter.save('%s_Hadronic_Events_%s_Comp_stack' % (args.plot, kin))
+        
+                plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
+                plotter.save('%s_Hadronic_Events_%s_Comp_stack_Norm' % (args.plot, kin))
+    
+                for i in to_draw:
+                    i.SetFillStyle(0)
+                ### plot log of event occurrences
+                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle=xaxis, ytitle=yaxis, drawstyle='hist')
+                plotter.save('%s_Hadronic_Events_%s_Comp_log' % (args.plot, kin))
+
+    print '\ncp -r '+os.getcwd()+'/plots/gen_partons/%s/%s/%s/%s . \n' % (jobid, args.analysis, args.sample, args.plot)
 
 #######################################################################
 
@@ -698,125 +908,10 @@ if args.plot == "3Partons":
         plotter.save('Three_Partons_WJb_Missing_Hadronic_Events_Comp_vs_thadpt_stack_Norm')
 
 #####################################################################
-
-if args.plot == "3J":
-
-#### events with 3 jets
-
-        Hadronic_Events_3J = [
-                ('Gen_Had_Resolved_DRP4_vs_thadpt_3J', 'Resolved #Delta R < 0.4', 'blue'),
-#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt_3J', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
-#                ('Gen_Merged_WJets_DRP8_vs_thadpt_3J', 'Merged W jets #Delta R < 0.8', 'black'),
-                ('Gen_Merged_THad_DRP8_vs_thadpt_3J', 'All 3 Merged #Delta R < 0.8', 'green'),
-#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
-                ('Gen_Partially_Merged_DRP8_vs_thadpt', 'Partial Merge #Delta R < 0.8', 'black')
-        ]
-
-        to_draw = []
-
-        for var, legends, colors in Hadronic_Events_3J:
-                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
-                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
-                to_draw.append(hist)
-
-        ### plot log of event occurrences
-        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
-        plotter.save('Hadronic_Events_3J_vs_thadpt_log')
-
-
-        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
-
-        ### plot event ratios
-        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
-        plotter.save('Hadronic_Events_3J_vs_thadpt_ratio')
-
-        ### create stacked hists of ratios
-        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('Hadronic_Events_3J_vs_thadpt_stack')
-
-        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('Hadronic_Events_3J_vs_thadpt_stack_Norm')
-
-##################################################################
-
-if args.plot == "4J":
-
-#### events with 4 jets
-
-        Hadronic_Events_4J = [
-                ('Gen_Had_Resolved_DRP4_vs_thadpt_4J', 'Resolved #Delta R < 0.4', 'blue'),
-#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt_4J', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
-#                ('Gen_Merged_WJets_DRP8_vs_thadpt_4J', 'Merged W jets #Delta R < 0.8', 'black'),
-                ('Gen_Merged_THad_DRP8_vs_thadpt_4J', 'All 3 Merged #Delta R < 0.8', 'green'),
-                ('Gen_Partially_Merged_DRP8_vs_thadpt_4J', 'Partial Merge #Delta R < 0.8', 'black')
-#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
-        ]
-
-        to_draw = []
-
-        for var, legends, colors in Hadronic_Events_4J:
-                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
-                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
-                to_draw.append(hist)
-
-        ### plot log of event occurrences
-        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
-        plotter.save('Hadronic_Events_4J_vs_thadpt_log')
-
-
-        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
-
-        ### plot event ratios
-        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
-        plotter.save('Hadronic_Events_4J_vs_thadpt_ratio')
-
-        ### create stacked hists of ratios
-        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('Hadronic_Events_4J_vs_thadpt_stack')
-
-        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('Hadronic_Events_4J_vs_thadpt_stack_Norm')
-
-#############################################################
-
-if args.plot == "5PJ":
-
-#### events with 5+ jets
-
-        Hadronic_Events_5PJ = [
-                ('Gen_Had_Resolved_DRP4_vs_thadpt_5PJ', 'Resolved #Delta R < 0.4', 'blue'),
-#                ('Gen_Merged_BHadWJet_DRP8_vs_thadpt_5PJ', 'Merged b_{h} and W jet #Delta R < 0.8', 'red'),
-#                ('Gen_Merged_WJets_DRP8_vs_thadpt_5PJ', 'Merged W jets #Delta R < 0.8', 'black'),
-                ('Gen_Merged_THad_DRP8_vs_thadpt_5PJ', 'All 3 Merged #Delta R < 0.8', 'green'),
-                ('Gen_Partially_Merged_DRP8_vs_thadpt_5PJ', 'Partial Merge #Delta R < 0.8', 'black')
-#                ('Gen_Non_Reconstructable_vs_thadpt', 'Non Reconstructable', 'magenta')
-        ]
-
-        to_draw = []
-
-        for var, legends, colors in Hadronic_Events_5PJ:
-                hist = asrootpy(myfile.Get('Had_comp/'+var)).Clone()
-                plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=colors, linestyle='solid')
-                to_draw.append(hist)
-
-        ### plot log of event occurrences
-        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle='t_{h} p_{T} [GeV]', ytitle='A.U.', drawstyle='hist')
-        plotter.save('Hadronic_Events_5PJ_vs_thadpt_log')
-
-
-        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
-
-        ### plot event ratios
-        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
-        plotter.save('Hadronic_Events_5PJ_vs_thadpt_ratio')
-
-        ### create stacked hists of ratios
-        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('Hadronic_Events_5PJ_vs_thadpt_stack')
-
-        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction')
-        plotter.save('Hadronic_Events_5PJ_vs_thadpt_stack_Norm')
-
+#
+#if args.plot == "5PJ":
+#
+##### events with 5+ jets
 
 ##### Jet event ratios
 #
@@ -1101,4 +1196,3 @@ if args.plot == "5PJ":
 
 #############################################################
 
-print('cp ~/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/gen_partons/%s/%s/%s/%s/*.png .' % (jobid, args.analysis, args.plot, args.sample))

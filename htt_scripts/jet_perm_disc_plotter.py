@@ -401,9 +401,9 @@ if args.plot == "Discs":
 
         #### 3J Disc  values
         Likelihood_All_3J = [
-            ('3J_Event_All_', 'All %s Values from Event' % disc_lab, 'black', '-Log(likelihood)', '3J_Event_All_'),
-            ('3J_Event_Lowest_', 'Lowest %s Value from Event' % disc_lab, 'black', '-Log(likelihood)', '3J_Event_Lowest_'),
-            ('3J_Event_Best_Perm_', 'Perm %s Value from Event Best Perm' % disc_lab, 'black', '-Log(likelihood)', '3J_Event_Best_Perm_')
+            ('3J_Event_All_', 'All %s Values from Event' % disc_lab, 'black', '#lambda_{comb} 3 jets', '3J_Event_All_'),
+            ('3J_Event_Lowest_', 'Lowest %s Value from Event' % disc_lab, 'black', '#lambda_{comb} 3 jets', '3J_Event_Lowest_'),
+            ('3J_Event_Best_Perm_', 'Perm %s Value from Event Best Perm' % disc_lab, 'black', '#lambda_{comb} 3 jets', '3J_Event_Best_Perm_')
         ]
        
         for var, legends, colors, xaxis, names in Likelihood_All_3J:
@@ -435,10 +435,10 @@ if args.plot == "Discs":
             ### 3 jets
 
         Matched_Perm_Likelihood_3J = [
-            ('3J_Best_Perm_RIGHT_', 'RIGHT', 'black', '-Log(likelihood)'),
-            ('3J_Best_Perm_MERGE_SWAP_', 'MERGE_SWAP', 'red', '-Log(likelihood)'),
-            ('3J_Best_Perm_MERGE_', 'MERGE', 'green', '-Log(likelihood)'),
-            ('3J_Best_Perm_WRONG_', 'WRONG', 'blue', '-Log(likelihood)')
+            ('3J_Best_Perm_RIGHT_', 'RIGHT', 'black', '#lambda_{comb} 3 jets'),
+            ('3J_Best_Perm_MERGE_SWAP_', 'MERGE_SWAP', 'red', '#lambda_{comb} 3 jets'),
+            ('3J_Best_Perm_MERGE_', 'MERGE', 'green', '#lambda_{comb} 3 jets'),
+            ('3J_Best_Perm_WRONG_', 'WRONG', 'blue', '#lambda_{comb} 3 jets')
         ]
        
         to_draw = [] 
@@ -476,10 +476,10 @@ if args.plot == "Discs":
             
         stack, norm_stack = stack_plots(to_draw)
     
-        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), xtitle=xaxis, legendstyle='l', drawstyle='hist')
         plotter.save('3J_Best_Perm_Categories_Stack_'+disc)
     
-        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), xtitle=xaxis, legendstyle='l', drawstyle='hist')
         plotter.save('3J_Best_Perm_Categories_Stack_Norm_'+disc)
 
 

@@ -33,9 +33,9 @@ elif args.analyzer == "htt":
     analyzer = "htt_simple"
 
 rows = []
-rows.append(("Sample", "Expected Events", "Expected Merged", "Expected Other", "Merged Fraction", "Other Fraction"))
+rows.append(("Sample", "Expected Events 3J (4+J)", "Expected Partial Merge", "Expected Other", "Expected 3J/4+J Gain", "Partial Merge Fraction", "Other Fraction"))
 
-def print_table(lines, separate_head=True):
+def print_table(lines, fname, separate_head=True):
     """Prints a formatted table given a 2 dimensional array"""
     #Count the column width
     widths = []
@@ -54,91 +54,59 @@ def print_table(lines, separate_head=True):
         return
     print_string = print_string[:-3]
 
-    #Print the actual data
-    for i,line in enumerate(lines):
-        print(print_string.format(*line))
-        if (i == 0 and separate_head):
-            print("-"*(sum(widths)+3*(len(widths)-1)))
+    with open(fname, 'w') as f:
+        #Print the actual data
+        for i,line in enumerate(lines):
+            print >> f, print_string.format(*line)
+            if (i == 0 and separate_head):
+                print >> f, "-"*(sum(widths)+3*(len(widths)-1))
+
 
 
 
 AtoTT_files = []
 
-if args.analysis == "Test":
-    for f in os.listdir('..'):
-        if f.startswith('AtoTT'):
-            AtoTT_files.append(f.replace(".root", ""))
-
-#    for fname in AtoTT_files:
-#        myfile = root_open('../%s.ttbar_reco_3J.test.root' % fname, 'read')
-#        lumifile = open('../inputs/%s/%s.lumi' % (jobid, fname), 'read')
-#
-#        lumi = lumifile.readline() #luminosity from lumi file
-#        scale = 50000/float(lumi)
-##        print 'scale: ', scale
-#        
-#        hist = asrootpy(myfile.Get('Expected_Plots/Expected_Event_Categories')).Clone()
-#
-#        print fname
-#        for i in range(10):
-#            print hist.Integral(i,i+1)
-#        tot = hist.Integral(0,1)
-#        Exp_tot = tot*scale
-#        merge = hist.Integral(2,3)
-#        Exp_merge = merge*scale
-#        other = hist.Integral(4,5)
-#        Exp_other = other*scale
-#
-#        rows.append((fname, format(Exp_tot, '.1f'), format(Exp_merge, '.1f'), format(Exp_other, '.1f')))
-
-    fname = 'AtoTT_M750_5pc_Peak'
-    myfile = root_open('../%s.%s.test.root' % (fname, analyzer), 'read')
-    lumifile = open('../inputs/%s/%s.lumi' % (jobid, fname), 'read')
-    
-    lumi = lumifile.readline() #luminosity from lumi file
-    scale = 50000/float(lumi)
-#     print 'scale: ', scale
-    
-    hist = asrootpy(myfile.Get('Expected_Plots/Expected_Event_Categories')).Clone()
-    
-    print fname
-    print hist.Integral(0,1)
-    print hist.Integral(2,3)
-    print hist.Integral(4,5)
-#    for i in range(10):
-#        print hist.Integral(i,i+1)
-
-
-elif args.analysis == "Full":
-    for f in os.listdir('../'):
-    #for f in os.listdir('../results/%s/%s' % (jobid, analyzer)):
+if args.analysis == "Full":
+    #for f in os.listdir('../'):
+    for f in os.listdir('../results/%s/%s' % (jobid, analyzer)):
         if f.startswith('AtoTT') or f.startswith('ttJetsM'):
             AtoTT_files.append(f.replace(".root", ""))
 #        if f.startswith('ttJetsM'):
 #            TTJets_files.append(f.replace(".root", ""))
 
     for fname in AtoTT_files:
-        myfile = root_open('../%s.root' % fname, 'read')
-        #myfile = root_open('../results/%s/%s/%s.root' % (jobid, analyzer, fname), 'read')
-        lumifile = open('../inputs/%s/ttJetsM1000.lumi' % jobid, 'read')
-        #lumifile = open('../inputs/%s/%s.lumi' % (jobid, fname), 'read')
+        #myfile = root_open('../%s.root' % fname, 'read')
+        if 'Int' in fname:
+           continue 
+        myfile = root_open('../results/%s/%s/%s.root' % (jobid, analyzer, fname), 'read')
+        #lumifile = open('../inputs/%s/ttJetsM1000.lumi' % jobid, 'read')
+        lumifile = open('../inputs/%s/%s.lumi' % (jobid, fname), 'read')
 
         lumi = lumifile.readline() #luminosity from lumi file
         scale = 50000/float(lumi)
-#        print 'scale: ', scale
-        
-        hist_3J = asrootpy(myfile.Get('Expected_Plots/Expected_Event_Categories_3J')).Clone()
 
+        # 3J
+        hist_3J = asrootpy(myfile.Get('Expected_Plots/Expected_Event_Categories_3J')).Clone()
         tot_3J = hist_3J.Integral(0,1)
         Exp_tot_3J = tot_3J*scale
         merge_3J = hist_3J.Integral(2,3)
         Exp_merge_3J = merge_3J*scale
         other_3J = hist_3J.Integral(4,5)
         Exp_other_3J = other_3J*scale
+    
+        hist_4PJ = asrootpy(myfile.Get('Expected_Plots/Expected_Event_Categories_4PJ')).Clone()
+        tot_4PJ = hist_4PJ.Integral(0,1)
+        Exp_tot_4PJ = tot_4PJ*scale
+        merge_4PJ = hist_4PJ.Integral(2,3)
+        Exp_merge_4PJ = merge_4PJ*scale
+        other_4PJ = hist_4PJ.Integral(4,5)
+        Exp_other_4PJ = other_4PJ*scale
+    
+        rows.append((fname, format(Exp_tot_3J, '.1f')+' ('+format(Exp_tot_4PJ, '.1f')+')',\
+            format(Exp_merge_3J, '.1f')+' ('+format(Exp_merge_4PJ, '.1f')+')', \
+            format(Exp_other_3J, '.1f')+' ('+format(Exp_other_4PJ, '.1f')+')',\
+            format(Exp_tot_3J/Exp_tot_4PJ, '.3f'),\
+            format(Exp_merge_3J/Exp_tot_3J, '.3f')+' ('+format(Exp_merge_4PJ/Exp_tot_4PJ, '.3f')+')',\
+            format(Exp_other_3J/Exp_tot_3J, '.3f')+' ('+format(Exp_other_4PJ/Exp_tot_4PJ, '.3f')+')'))
 
-        print "merged fraction: ", Exp_merge_3J/Exp_other_3J
-
-        rows.append((fname, format(Exp_tot_3J, '.1f'), format(Exp_merge_3J, '.1f'), format(Exp_other_3J, '.1f'), format(Exp_merge_3J/Exp_tot_3J, '.3f'), format(Exp_other_3J/Exp_tot_3J, '.3f')))
-
-print_table(rows)
-
+print_table(rows, fname='../plots/%s/%s/Expected_Event_Categories.raw_txt' % (jobid, args.analyzer))

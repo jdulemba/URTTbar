@@ -68,6 +68,10 @@ class htt_simple : public AnalyzerBase
         //switches
         bool isTTbar_, isSignal_, isData_, runsys_, has_pdfs_, optim_;
 
+        //
+        bool isTTJetsM1000_, isTTJetsM700_;
+        //
+
         //selectors and helpers
         TTGenParticleSelector genp_selector_;
         TTGenMatcher matcher_;
@@ -152,6 +156,10 @@ class htt_simple : public AnalyzerBase
                 isTTbar_ = boost::starts_with(sample, "ttJets");
                 isData_  = boost::starts_with(sample, "data");
 
+                //
+                isTTJetsM1000_ = boost::starts_with(sample, "ttJetsM1000");
+                isTTJetsM700_ = boost::starts_with(sample, "ttJetsM700");
+                //
                 //set tracker
                 if(!values.count("noweights")) tracker_.use_weight(&evt_weight_);
                 object_selector_.set_tracker(&tracker_);
@@ -486,11 +494,16 @@ class htt_simple : public AnalyzerBase
                 return;
             }
 
-            //string exp = "Expected_Plots";
             // added for expected event tables
-            //            book<TH1F>(exp, "Expected_Event_Categories_3J", "", 5, 0.5, 5.5);
-            //book<TH1F>(exp, "Expected_Event_Categories_4PJ", "", 5, 0.5, 5.5);
-            // 
+            string exp = "Expected_Plots";
+            book<TH1F>(exp, "Expected_Event_Categories_3J", "", 5, 0.5, 5.5);
+            book<TH1F>(exp, "Expected_Event_Categories_4PJ", "", 5, 0.5, 5.5);
+            
+            if( isTTJetsM1000_ || isTTJetsM700_ ){
+                book<TH1F>(exp, "Expected_Event_Categories_3J_massbins", "", 11, 0.5, 11.5); // split into 1k-1200 (700-800),12-15 (800-900),15-2k (900-1k) for M1000 (M700)
+                book<TH1F>(exp, "Expected_Event_Categories_4PJ_massbins", "", 11, 0.5, 11.5);
+            }
+            //
 
             vector<string> leptons = {"electrons", "muons"};		
             vector<string> subs;
@@ -529,46 +542,46 @@ class htt_simple : public AnalyzerBase
         }
 
 
-        //        // events with 3 jets
-        //        Permutation best_perm_3J(URStreamer &event){
-        //            //initialize perm objects
-        //            //jets
-        //            IDJet* wj1 = 0;
-        //            IDJet* wj2 = 0;
-        //            IDJet* bj1 = 0;
-        //            IDJet* bj2 = 0;
-        //            Permutation empty_perm; // perm.WJa(), WJb(), BHad(), BLep()
-        //
-        //            vector<IDJet*> jets_vector;
-        //            int num_btag = 0;
-        //
-        //            for(vector<IDJet*>::const_iterator jets = object_selector_.clean_jets().begin(); jets != object_selector_.clean_jets().end(); ++jets){
-        //                jets_vector.push_back(*jets);
-        //
-        //                if( (*jets)->BTagId(IDJet::BTag::CSVMEDIUM) ) ++num_btag;
-        //                //if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
-        //            }
-        //
-        //            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
-        //            if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
-        //
-        //            bj1 = jets_vector[0];
-        //            bj2 = jets_vector[1];
-        //            wj1 = jets_vector[2];
-        //
-        //            Permutation best_perm;
-        //            double lowest_Totaldisc_3J = 1e10;
-        //
-        //            for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-        //                solver_.Solve_3J(test_perm);
-        //
-        //                if( test_perm.Prob() < lowest_Totaldisc_3J ){
-        //                    lowest_Totaldisc_3J = test_perm.Prob();
-        //                    best_perm = test_perm;
-        //                }
-        //            }
-        //            return best_perm;
-        //        } // end of best_perm_3J()
+        // events with 3 jets
+        Permutation best_perm_3J(URStreamer &event){
+            //initialize perm objects
+            //jets
+            IDJet* wj1 = 0;
+            IDJet* wj2 = 0;
+            IDJet* bj1 = 0;
+            IDJet* bj2 = 0;
+            Permutation empty_perm; // perm.WJa(), WJb(), BHad(), BLep()
+        
+            vector<IDJet*> jets_vector;
+            int num_btag = 0;
+        
+            for(vector<IDJet*>::const_iterator jets = object_selector_.clean_jets().begin(); jets != object_selector_.clean_jets().end(); ++jets){
+                jets_vector.push_back(*jets);
+        
+                if( (*jets)->BTagId(IDJet::BTag::MVAMEDIUM) ) ++num_btag;
+                //if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
+            }
+        
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->CombinedMVA() > B->CombinedMVA() ); });
+            if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
+        
+            bj1 = jets_vector[0];
+            bj2 = jets_vector[1];
+            wj1 = jets_vector[2];
+        
+            Permutation best_perm;
+            double lowest_Totaldisc_3J = 1e10;
+        
+            for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
+                solver_.Solve_3J(test_perm);
+        
+                if( test_perm.Prob() < lowest_Totaldisc_3J ){
+                    lowest_Totaldisc_3J = test_perm.Prob();
+                    best_perm = test_perm;
+                }
+            }
+            return best_perm;
+        } // end of best_perm_3J()
 
 
 
@@ -577,7 +590,7 @@ class htt_simple : public AnalyzerBase
             tracker_.track("start", "muons");
             //float weight = 1.;
 
-            //auto exp_dir = histos_.find("Expected_Plots");
+            auto exp_dir = histos_.find("Expected_Plots");
             //tracker_.track("before reco");
 
             //select reco objects
@@ -585,35 +598,6 @@ class htt_simple : public AnalyzerBase
             //tracker_.track("b4 jet sel");
 
             int njets = object_selector_.clean_jets().size();		
-
-            //            if( njets == 3 ){
-            //                permutator_.reset_3J();
-            //
-            //                //generator selection
-            //                bool selection = genp_selector_.select(event);
-            //
-            //                Permutation bp = best_perm_3J(event);
-            //                if( !bp.IsEmpty() && selection ){
-            //                    GenTTBar &ttbar = genp_selector_.ttbar_system();
-            //
-            //                    exp_dir->second["Expected_Event_Categories_3J"].fill(1); // total expected events == 1
-            //
-            //                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
-            //                        exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
-            //                        return;
-            //                    }
-            //                    else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
-            //                        if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
-            //                            exp_dir->second["Expected_Event_Categories_3J"].fill(3); // expected merged events == 3
-            //                        }
-            //                        else{ // gen partons not merged
-            //                            exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
-            //                        }
-            //                    }
-            //                }
-            //            }
-            //
-            //            if( njets < 4 ) return;
 
             //tracker_.track("b4 leptype");
 
@@ -673,6 +657,77 @@ class htt_simple : public AnalyzerBase
                 //tracker_.track("not data and not sync");
             }
             evt_weight_ *= bweight;
+
+            if( njets == 3 ){
+                if( isTTbar_ || isSignal_){
+                    permutator_.reset_3J();
+                
+                    //generator selection
+                    bool selection = genp_selector_.select(event);
+                
+                    Permutation bp = best_perm_3J(event);
+                    if( !bp.IsEmpty() && selection ){
+                        GenTTBar &ttbar = genp_selector_.ttbar_system();
+                
+                        exp_dir->second["Expected_Event_Categories_3J"].fill(1); // total expected events == 1
+                        if( isTTJetsM1000_ ){
+                            if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(1); // total expected events == 1
+                            else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(5); // total expected events == 5
+                            else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(9); // total expected events == 1
+                        }
+                        if( isTTJetsM700_ ){
+                            if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(1); // total expected events == 1
+                            else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(5); // total expected events == 5
+                            else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(9); // total expected events == 1
+                        }
+                
+                        if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
+                            exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
+                            if( isTTJetsM1000_ ){
+                                if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+                                else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+                                else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+                            }
+                            if( isTTJetsM700_ ){
+                                if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+                                else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+                                else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+                            }
+                            return;
+                        }
+                        else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+                            if( ttbar.partial_hadronic_merged(0.4) ){ // gen partons merged
+                                exp_dir->second["Expected_Event_Categories_3J"].fill(3); // expected merged events == 3
+                                if( isTTJetsM1000_ ){
+                                    if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(2); // expected merged events == 1
+                                    else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(6); // expected merged events == 5
+                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(10); // expected merged events == 1
+                                }
+                                if( isTTJetsM700_ ){
+                                    if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(2); // expected merged events == 1
+                                    else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(6); // expected merged events == 5
+                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(10); // expected merged events == 1
+                                }
+                            }
+                            else{ // gen partons not merged
+                                exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
+                                if( isTTJetsM1000_ ){
+                                    if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+                                    else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+                                }
+                                if( isTTJetsM700_ ){
+                                    if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+                                    else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if( njets < 4 ) return;
 
             // cout << object_selector_.clean_jets().size() << " --> " << permutator_.capped_jets().size() << endl;
             // for(auto i : object_selector_.clean_jets()) {
@@ -750,31 +805,9 @@ class htt_simple : public AnalyzerBase
             Permutation matched_perm;
             if(isTTbar_) {
                 //generator selection
-                bool selection = genp_selector_.select(event);
-                if( !selection ){
-                    Logger::log().debug() << "event has no gen selection " << endl;
-                    return;
-                }
                 GenTTBar &ttbar = genp_selector_.ttbar_system();
 
-                //exp_dir->second["Expected_Event_Categories_4PJ"].fill(1); // total expected events == 1
-
-                //if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
-                //    exp_dir->second["Expected_Event_Categories_4PJ"].fill(5); // expected other events == 5
-                //    return;
-                //}
-
-
                 if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
-                //else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
-
-                    //if( ttbar.merged_bhadw_partons(0.4) || ttbar.merged_w_partons(0.4) ){ // gen partons merged
-                    //    exp_dir->second["Expected_Event_Categories_4PJ"].fill(3); // expected merged events == 3
-                    //}
-                    //else{ // gen partons not merged
-                    //    exp_dir->second["Expected_Event_Categories_4PJ"].fill(5); // expected other events == 5
-                    //}
-
                     matched_perm = matcher_.match(
                             genp_selector_.ttbar_final_system(),
                             object_selector_.clean_jets(), 
@@ -793,6 +826,68 @@ class htt_simple : public AnalyzerBase
                 if(evt_weight_ > 0.) evtdir << "/positive";
                 else evtdir << "/negative";
             }
+
+            if( isTTbar_ || isSignal_ ){
+                GenTTBar &ttbar = genp_selector_.ttbar_system();
+                bool selection = genp_selector_.select(event);
+                if( selection ){
+                    exp_dir->second["Expected_Event_Categories_4PJ"].fill(1); // total expected events == 1
+                    if( isTTJetsM1000_ ){
+                        if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(1); // total expected events == 1
+                        else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(5); // total expected events == 5
+                        else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(9); // total expected events == 1
+                    }
+                    if( isTTJetsM700_ ){
+                        if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(1); // total expected events == 1
+                        else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(5); // total expected events == 5
+                        else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(9); // total expected events == 1
+                    }
+
+                    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
+                        exp_dir->second["Expected_Event_Categories_4PJ"].fill(5); // expected other events == 5
+                        if( isTTJetsM1000_ ){
+                            if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(3); // expected other events == 1
+                            else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(7); // expected other events == 5
+                            else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(11); // expected other events == 1
+                        }
+                        if( isTTJetsM700_ ){
+                            if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(3); // expected other events == 1
+                            else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(7); // expected other events == 5
+                            else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(11); // expected other events == 1
+                        }
+                        //return;
+                    }
+                    else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+                        if( ttbar.partial_hadronic_merged(0.4) ){ // gen partons merged
+                            exp_dir->second["Expected_Event_Categories_4PJ"].fill(3); // expected merged events == 3
+                            if( isTTJetsM1000_ ){
+                                if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(2); // expected merged events == 1
+                                else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(6); // expected merged events == 5
+                                else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(10); // expected merged events == 1
+                            }
+                            if( isTTJetsM700_ ){
+                                if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(2); // expected merged events == 1
+                                else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(6); // expected merged events == 5
+                                else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(10); // expected merged events == 1
+                            }
+                        }
+                        else{ // gen partons not merged
+                            exp_dir->second["Expected_Event_Categories_4PJ"].fill(5); // expected other events == 5
+                            if( isTTJetsM1000_ ){
+                                if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(3); // expected other events == 1
+                                else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(7); // expected other events == 5
+                                else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(11); // expected other events == 1
+                            }
+                            if( isTTJetsM700_ ){
+                                if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(3); // expected other events == 1
+                                else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(7); // expected other events == 5
+                                else exp_dir->second["Expected_Event_Categories_4PJ_massbins"].fill(11); // expected other events == 1
+                            }
+                        }
+                    }
+                }
+            }
+
             if(lep_is_tight) tracker_.track("matched perm");
 
             //check isolation type
@@ -925,5 +1020,8 @@ class htt_simple : public AnalyzerBase
             //Logger::log().debug() << "RUNNING DONE " << std::endl;
             auto files = gROOT->GetListOfFiles(); //make ROOT aware that some files do not exist, because REASONS
             Logger::log().debug() << "Nfiles " << files->GetSize() << std::endl; //need to print out this otherwise ROOT loses its shit in 7.4.X (such I/O, much features)
+            opts::variables_map &values = parser.values();
+            string output_file = values["output"].as<std::string>();
+            Logger::log().debug() << "  Output File: " << output_file << endl;
             return excode;
         }
