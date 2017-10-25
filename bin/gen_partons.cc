@@ -182,17 +182,22 @@ class gen_partons : public AnalyzerBase
                 mass_min_ = 250.;
                 mass_max_ = 2000.;
             }
-            if( sample == "ttJetsM700" ){
+            else if( sample == "ttJetsM700" ){
                 nbins = 10;
                 //                	m_bins[nbins+1] = {700, 800, 900, 1000};
                 mass_min_ = 700.;
                 mass_max_ = 1000.;
             }
-            if( sample == "ttJetsM1000" ){
+            else if( sample == "ttJetsM1000" ){
                 nbins = 10;
                 //                	m_bins[nbins+1] = {1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
                 mass_min_ = 1000.;
                 mass_max_ = 2000.;
+            }
+            else{
+                nbins = 20;
+                mass_min_ = 250.;
+                mass_max_ = 1000.;
             }
 
             string folder = "Gen_Plots";
@@ -664,6 +669,12 @@ class gen_partons : public AnalyzerBase
                     ++i;
                 }
 
+                hyp::TTbar gen_ttang(ttbar);
+                auto gen_ttcm = gen_ttang.to_CM();
+                double gen_thad_cth = gen_ttang.unit3D().Dot(gen_ttcm.thad().unit3D());// thad costheta* value
+                double gen_tlep_cth = gen_ttang.unit3D().Dot(gen_ttcm.tlep().unit3D());
+
+
                     // Gen top hists
                 int j = 0;
                 for( auto& gentop : GenTops ){
@@ -676,8 +687,14 @@ class gen_partons : public AnalyzerBase
                     eta_dir->second[std::string("Eta_")+GenTopNames_[j]].fill(gentop->Eta());
 
                         //Costh
-                    costh_dir->second[std::string("Costh_")+GenTopNames_[j]+"_vs_Mtt"].fill(ttbar.M(), gentop->CosTheta());
-                    costh_dir->second[std::string("Costh_")+GenTopNames_[j]].fill(gentop->CosTheta());
+                    if( strcmp( GenTopNames_[j], "THad" ) == 0 ){
+                        costh_dir->second[std::string("Costh_")+GenTopNames_[j]+"_vs_Mtt"].fill(ttbar.M(), gen_thad_cth);
+                        costh_dir->second[std::string("Costh_")+GenTopNames_[j]].fill(gen_thad_cth);
+                    }
+                    if( strcmp( GenTopNames_[j], "TLep" ) == 0 ){
+                        costh_dir->second[std::string("Costh_")+GenTopNames_[j]+"_vs_Mtt"].fill(ttbar.M(), gen_tlep_cth);
+                        costh_dir->second[std::string("Costh_")+GenTopNames_[j]].fill(gen_tlep_cth);
+                    }
 
                         //Mass
                     mass_dir->second[std::string("Mass_")+GenTopNames_[j]].fill(gentop->M());

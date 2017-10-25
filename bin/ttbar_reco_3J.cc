@@ -74,9 +74,9 @@ class ttbar_reco_3J : public AnalyzerBase
 
         float evt_weight_;
         MCWeightProducer mc_weights_;
-        IDJet::BTag cut_tight_b_ = IDJet::BTag::CSVTIGHT;
-        IDJet::BTag cut_medium_b_ = IDJet::BTag::CSVMEDIUM;
-        IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
+        IDJet::BTag cut_tight_b_ = IDJet::BTag::MVATIGHT;
+        IDJet::BTag cut_medium_b_ = IDJet::BTag::MVAMEDIUM;
+        IDJet::BTag cut_loose_b_ = IDJet::BTag::MVALOOSE;
 
 
     public:
@@ -171,27 +171,27 @@ class ttbar_reco_3J : public AnalyzerBase
 
 
             if( sample == "ttJetsM0" ){
-                nbins = 22;
+                nbins = 180;
                 //			m_bins[nbins+1] = {250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
-                mass_min = 250.;
+                mass_min = 200.;
                 mass_max = 2000.;
             }
             else if( sample == "ttJetsM700" ){
-                nbins = 10;
+                nbins = 30;
                 //			m_bins[nbins+1] = {700, 800, 900, 1000};
                 mass_min = 700.;
                 mass_max = 1000.;
             }
             else if( sample == "ttJetsM1000" ){
-                nbins = 10;
+                nbins = 100;
                 //			m_bins[nbins+1] = {1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
                 mass_min = 1000.;
                 mass_max = 2000.;
             }
             else{
-                nbins = 10;
+                nbins = 80;
                 mass_min = 200.;
-                mass_max = 2000.;
+                mass_max = 1000.;
             }
 
             string exp = "Expected_Plots";
@@ -297,10 +297,10 @@ class ttbar_reco_3J : public AnalyzerBase
             book<TH1F>(test_per, "3J_bj2_Mass", "", 50, 0., 200.);
             book<TH1F>(test_per, "3J_wj1_Mass", "", 50, 0., 200.);
 
-            // CSV
-            book<TH1F>(test_per, "3J_bj1_CSV", "", 50, 0., 1.);
-            book<TH1F>(test_per, "3J_bj2_CSV", "", 50, 0., 1.);
-            book<TH1F>(test_per, "3J_wj1_CSV", "", 50, 0., 1.);
+            // MVA
+            book<TH1F>(test_per, "3J_bj1_MVA", "", 50, -1., 1.);
+            book<TH1F>(test_per, "3J_bj2_MVA", "", 50, -1., 1.);
+            book<TH1F>(test_per, "3J_wj1_MVA", "", 50, -1., 1.);
 
             // CvsL
             book<TH1F>(test_per, "3J_bj1_CvsL", "", 20, -0.5, 1.);
@@ -349,7 +349,7 @@ class ttbar_reco_3J : public AnalyzerBase
 
             test_dir->second["Num_BTag"].fill(num_btag);
 
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->CombinedMVA() > B->CombinedMVA() ); });
 
             tracker_.track("All Num BTag");
 
@@ -370,10 +370,10 @@ class ttbar_reco_3J : public AnalyzerBase
             test_dir->second["3J_bj2_Mass"].fill( bj2->M() );
             test_dir->second["3J_wj1_Mass"].fill( wj1->M() );
 
-            // CSV
-            test_dir->second["3J_bj1_CSV"].fill( bj1->csvIncl() );
-            test_dir->second["3J_bj2_CSV"].fill( bj2->csvIncl() );
-            test_dir->second["3J_wj1_CSV"].fill( wj1->csvIncl() );
+            // MVA
+            test_dir->second["3J_bj1_MVA"].fill( bj1->CombinedMVA() );
+            test_dir->second["3J_bj2_MVA"].fill( bj2->CombinedMVA() );
+            test_dir->second["3J_wj1_MVA"].fill( wj1->CombinedMVA() );
 
             // CvsL
             test_dir->second["3J_bj1_CvsL"].fill( bj1->CvsLtag() );

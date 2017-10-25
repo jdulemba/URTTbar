@@ -137,9 +137,9 @@ class jet_perm_disc : public AnalyzerBase
 
         float evt_weight_;
         MCWeightProducer mc_weights_;
-        IDJet::BTag cut_tight_b_ = IDJet::BTag::CSVTIGHT;
-        IDJet::BTag cut_medium_b_ = IDJet::BTag::CSVMEDIUM;
-        IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
+        IDJet::BTag cut_tight_b_ = IDJet::BTag::MVATIGHT;
+        IDJet::BTag cut_medium_b_ = IDJet::BTag::MVAMEDIUM;
+        IDJet::BTag cut_loose_b_ = IDJet::BTag::MVALOOSE;
 
         //		// 3 jets
         //	    TTree *t1 = 0; // Unmerged_BLep_3J
@@ -617,10 +617,10 @@ class jet_perm_disc : public AnalyzerBase
         book<TH1F>(test_per, "3J_bj2_Mass", "", 50, 0., 200.);
         book<TH1F>(test_per, "3J_wj1_Mass", "", 50, 0., 200.);
 
-        // CSV
-        book<TH1F>(test_per, "3J_bj1_CSV", "", 50, 0., 1.);
-        book<TH1F>(test_per, "3J_bj2_CSV", "", 50, 0., 1.);
-        book<TH1F>(test_per, "3J_wj1_CSV", "", 50, 0., 1.);
+        // MVA
+        book<TH1F>(test_per, "3J_bj1_MVA", "", 50, -1., 1.);
+        book<TH1F>(test_per, "3J_bj2_MVA", "", 50, -1., 1.);
+        book<TH1F>(test_per, "3J_wj1_MVA", "", 50, -1., 1.);
 
         // CvsL
         book<TH1F>(test_per, "3J_bj1_CvsL", "", 20, -0.5, 1.);
@@ -643,10 +643,10 @@ class jet_perm_disc : public AnalyzerBase
         book<TH1F>(partial_merge, "3J_BLep_Mass", "", 50, 0., 200.);
         book<TH1F>(partial_merge, "3J_WJet_Mass", "", 50, 0., 200.);
 
-        // CSV
-        book<TH1F>(partial_merge, "3J_BHad_CSV", "", 50, 0., 1.);
-        book<TH1F>(partial_merge, "3J_BLep_CSV", "", 50, 0., 1.);
-        book<TH1F>(partial_merge, "3J_WJet_CSV", "", 50, 0., 1.);
+        // MVA
+        book<TH1F>(partial_merge, "3J_BHad_MVA", "", 50, -1., 1.);
+        book<TH1F>(partial_merge, "3J_BLep_MVA", "", 50, -1., 1.);
+        book<TH1F>(partial_merge, "3J_WJet_MVA", "", 50, -1., 1.);
 
         // CvsL
         book<TH1F>(partial_merge, "3J_BHad_CvsL", "", 20, -0.5, 1.);
@@ -669,10 +669,10 @@ class jet_perm_disc : public AnalyzerBase
         book<TH1F>(unmerged, "3J_BLep_Mass", "", 50, 0., 200.);
         book<TH1F>(unmerged, "3J_WJet_Mass", "", 50, 0., 200.);
 
-        // CSV
-        book<TH1F>(unmerged, "3J_BHad_CSV", "", 50, 0., 1.);
-        book<TH1F>(unmerged, "3J_BLep_CSV", "", 50, 0., 1.);
-        book<TH1F>(unmerged, "3J_WJet_CSV", "", 50, 0., 1.);
+        // MVA
+        book<TH1F>(unmerged, "3J_BHad_MVA", "", 50, -1., 1.);
+        book<TH1F>(unmerged, "3J_BLep_MVA", "", 50, -1., 1.);
+        book<TH1F>(unmerged, "3J_WJet_MVA", "", 50, -1., 1.);
 
         // CvsL
         book<TH1F>(unmerged, "3J_BHad_CvsL", "", 20, -0.5, 1.);
@@ -709,7 +709,7 @@ class jet_perm_disc : public AnalyzerBase
                 if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
             }
 
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->CombinedMVA() > B->CombinedMVA() ); });
 
             if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
 
@@ -726,10 +726,10 @@ class jet_perm_disc : public AnalyzerBase
             test_dir->second["3J_bj2_Mass"].fill( bj2->M() );
             test_dir->second["3J_wj1_Mass"].fill( wj1->M() );
 
-            // CSV
-            test_dir->second["3J_bj1_CSV"].fill( bj1->csvIncl() );
-            test_dir->second["3J_bj2_CSV"].fill( bj2->csvIncl() );
-            test_dir->second["3J_wj1_CSV"].fill( wj1->csvIncl() );
+            // MVA
+            test_dir->second["3J_bj1_MVA"].fill( bj1->CombinedMVA() );
+            test_dir->second["3J_bj2_MVA"].fill( bj2->CombinedMVA() );
+            test_dir->second["3J_wj1_MVA"].fill( wj1->CombinedMVA() );
 
             // CvsL
             test_dir->second["3J_bj1_CvsL"].fill( bj1->CvsLtag() );
@@ -1679,7 +1679,7 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                merged_dir->second["3J_WJet_CSV"].fill( hyp.WJa()->csvIncl() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
 
@@ -1692,7 +1692,7 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJb()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
-                merged_dir->second["3J_WJet_CSV"].fill( hyp.WJb()->csvIncl() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJb()->CvsLtag() ); // jet CvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->numberOfDaughters() ); // jet mult
 
@@ -1705,7 +1705,7 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                merged_dir->second["3J_WJet_CSV"].fill( hyp.WJa()->csvIncl() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
 
@@ -1718,7 +1718,7 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                merged_dir->second["3J_WJet_CSV"].fill( hyp.WJa()->csvIncl() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
 
@@ -1731,7 +1731,7 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJb()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
-                merged_dir->second["3J_WJet_CSV"].fill( hyp.WJb()->csvIncl() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJb()->CvsLtag() ); // jet CvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->numberOfDaughters() ); // jet mult
 
@@ -1741,13 +1741,13 @@ class jet_perm_disc : public AnalyzerBase
 
             // BHad plots        
             merged_dir->second["3J_BHad_Mass"].fill( hyp.BHad()->M() );
-            merged_dir->second["3J_BHad_CSV"].fill( hyp.BHad()->csvIncl() );
+            merged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->CombinedMVA() );
             merged_dir->second["3J_BHad_CvsL"].fill( hyp.BHad()->CvsLtag() );
             merged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->numberOfDaughters() );
 
             // BLep plots        
             merged_dir->second["3J_BLep_Mass"].fill( hyp.BLep()->M() );
-            merged_dir->second["3J_BLep_CSV"].fill( hyp.BLep()->csvIncl() );
+            merged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->CombinedMVA() );
             merged_dir->second["3J_BLep_CvsL"].fill( hyp.BLep()->CvsLtag() );
             merged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->numberOfDaughters() );
 
@@ -1775,7 +1775,7 @@ class jet_perm_disc : public AnalyzerBase
                 unmerged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 unmerged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                unmerged_dir->second["3J_WJet_CSV"].fill( hyp.WJa()->csvIncl() ); // jet csv
+                unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 unmerged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
                 unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
             }
@@ -1786,20 +1786,20 @@ class jet_perm_disc : public AnalyzerBase
                 unmerged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJb()).M() );
 
                 unmerged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
-                unmerged_dir->second["3J_WJet_CSV"].fill( hyp.WJb()->csvIncl() ); // jet csv
+                unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->CombinedMVA() ); // jet csv
                 unmerged_dir->second["3J_WJet_CvsL"].fill( hyp.WJb()->CvsLtag() ); // jet CvsL
                 unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->numberOfDaughters() ); // jet mult
             }
 
             // BHad plots        
             unmerged_dir->second["3J_BHad_Mass"].fill( hyp.BHad()->M() );
-            unmerged_dir->second["3J_BHad_CSV"].fill( hyp.BHad()->csvIncl() );
+            unmerged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->CombinedMVA() );
             unmerged_dir->second["3J_BHad_CvsL"].fill( hyp.BHad()->CvsLtag() );
             unmerged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->numberOfDaughters() );
 
             // BLep plots        
             unmerged_dir->second["3J_BLep_Mass"].fill( hyp.BLep()->M() );
-            unmerged_dir->second["3J_BLep_CSV"].fill( hyp.BLep()->csvIncl() );
+            unmerged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->CombinedMVA() );
             unmerged_dir->second["3J_BLep_CvsL"].fill( hyp.BLep()->CvsLtag() );
             unmerged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->numberOfDaughters() );
 
@@ -1835,7 +1835,7 @@ class jet_perm_disc : public AnalyzerBase
                 tracker_.track("gen selection");
                 GenTTBar &ttbar = genp_selector_.ttbar_system();
 
-                //            if( ttbar.M() > 700 ) continue;
+                //if( ttbar.M() > 700 ) continue;
                 gen_dir->second["Mttbar"].fill(ttbar.M());
 
                 njets_ = 0;

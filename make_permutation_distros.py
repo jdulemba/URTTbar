@@ -22,19 +22,19 @@ args = parser.parse_args()
 #configuration
 ### Joseph added
 right_permdisc_shapes = [
-   ('3J_mbpjet_vs_maxmjet_correct', 'Max M_{jet} [GeV]', 'M_{b+jet} [GeV]', 'A.U.')
+   ('3J_mbpjet_vs_maxmjet_correct', 'Correct m_{j}^{max} 3 jets [GeV]', 'm_{j_{i}+j_{j}} [GeV]', 'A.U.')
    #('4J_mbpjet_vs_maxmjet_correct', 'Max M_{jet}', 'M_{b+jet}', 'A.U.')
 ]
 right_nschi_shapes = [
-   ('3J_nusolver_chi2_correct', '\chi^2', 'A.U', '')
+   ('3J_nusolver_chi2_correct', 'Correct #chi^{2} 3 jets', 'A.U', '')
 ]   
 
 wrong_permdisc_shapes = [
-  ('3J_mbpjet_vs_maxmjet_wrong', 'Max M_{jet} [GeV]', 'M_{b+jet} [GeV]', 'A.U.')
+  ('3J_mbpjet_vs_maxmjet_wrong', 'Wrong m_{j}^{max} 3 jets [GeV]', 'm_{j_{i}+j_{j}} [GeV]', 'A.U.')
   #('4J_mbpjet_vs_maxmjet_wrong', 'Max M_{jet}', 'M_{b+jet}', 'A.U.') 
 ]
 wrong_nschi_shapes = [
-   ('3J_nusolver_chi2_wrong', '\chi^2', 'A.U', '')
+   ('3J_nusolver_chi2_wrong', 'Wrong #chi^{2} 3 jets', 'A.U', '')
 ]
 
 ####
@@ -92,7 +92,7 @@ plotter.reset()
 # scale ttbar xsec for combining 3 different files
 
 ttJets_files = [ #scales found in lumi files normalized by largest value
-    (glob.glob('results/%s/jet_perm_disc/ttJetsM0.root' % jobid), 180591.247475/527103.981164),
+    (glob.glob('results/%s/jet_perm_disc/ttJetsM0.root' % jobid), 91394.4274791/527103.981164),
     (glob.glob('results/%s/jet_perm_disc/ttJetsM700.root' % jobid), 373640.713257/527103.981164),
     (glob.glob('results/%s/jet_perm_disc/ttJetsM1000.root' % jobid), 527103.981164/527103.981164)
     ]
@@ -220,8 +220,10 @@ with io.root_open(outname, 'w') as out:
         if ztit:
             hright.drawstyle = 'colz'
             ROOT.gStyle.SetPalette(56)
-        plotter.pad.SetLeftMargin(0.15)
-        plotter.pad.SetRightMargin(0.15)
+        plotter.pad.SetLeftMargin(0.17)
+        plotter.pad.SetRightMargin(0.17)
+        #plotter.pad.SetLeftMargin(0.15)
+        #plotter.pad.SetRightMargin(0.15)
         hright.zaxis.SetLabelSize(0.8*hright.zaxis.GetLabelSize())
         hright.Draw()
         plotter.save(shape)
@@ -242,8 +244,8 @@ with io.root_open(outname, 'w') as out:
         if ztit:
             hwrong.drawstyle = 'colz'
             ROOT.gStyle.SetPalette(56)
-        plotter.pad.SetLeftMargin(0.15)
-        plotter.pad.SetRightMargin(0.15)
+        plotter.pad.SetLeftMargin(0.17)
+        plotter.pad.SetRightMargin(0.17)
         hwrong.zaxis.SetLabelSize(0.8*hwrong.zaxis.GetLabelSize())
         hwrong.Draw()
         plotter.save(shape)

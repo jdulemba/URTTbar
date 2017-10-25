@@ -30,7 +30,7 @@ private:
 
         // Joseph added for discriminants
     std::shared_ptr<TH2D> Max_Mjet_3J_right_;
-    std::shared_ptr<TH2D> Max_Mjet_4J_right_;
+    //std::shared_ptr<TH2D> Max_Mjet_4J_right_;
 	std::shared_ptr<TH1F> N_3J_right_; 
         //
 
@@ -96,7 +96,7 @@ public:
 
         // Joseph added for perm discriminant
 	void Solve_3J(Permutation &hyp, bool lazy=true);
-	void Solve_4J(Permutation &hyp, bool lazy=true);
+	//void Solve_4J(Permutation &hyp, bool lazy=true);
         //
 };
 

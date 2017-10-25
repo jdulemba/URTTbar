@@ -4,17 +4,22 @@ ttbar_reco_3J Analyzer Plotter macro
 
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
 import URAnalysis.PlotTools.views as urviews
-import os, glob
+import os, glob, sys
 from rootpy.io import root_open
 from rootpy import asrootpy
 from pdb import set_trace
+import rootpy.plotting as plotting
 from rootpy.plotting import views, Graph, Hist
 from argparse import ArgumentParser
 import URAnalysis.Utilities.roottools as urtools
 import ROOT
 from URAnalysis.Utilities.tables import latex_table
+from URAnalysis.PlotTools.views.RebinView import RebinView
 import argparse
 import matplotlib.pyplot as plt
+
+
+analyzer = 'ttbar_reco_3J'
 
 parser = argparse.ArgumentParser(description='Create plots using files from ttbar_reco_3J.')
 
@@ -25,60 +30,90 @@ parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM
 parser.add_argument('plot', help='Choose type of plots to generate (Gen_Plots, Reco_Plots, Resolution_Plots).')
 args = parser.parse_args()
 
+
+##### check analysis type
+if not (args.analysis == "Test" or args.analysis == "Full"):
+    print "You chose %s as your analysis type.\nYou must choose Full or Test!" % args.analysis
+    sys.exit()
+
+
+##### check sample type
+results_files = []
 if args.analysis == "Test":
-#    if args.sample == "ttJetsM0" or args.sample == "ttJetsM700" or args.sample == "ttJetsM1000":
-    print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
-    myfile = root_open('../%s.ttbar_reco_3J.test.root' % args.sample, 'read')
-    normfile = views.NormalizeView(root_open('../%s.ttbar_reco_3J.test.root' % args.sample, 'read'))#normalized file
+    for f in os.listdir('../'):
+        if not '%s.test.root' % analyzer in f:
+            continue
+        results_files.append(f.replace(".root", ""))
+
+    if not '%s.%s.test' % (args.sample, analyzer) in results_files:
+        print "You chose %s as your sample file.\nYou must choose from the %s files in URTTbar!" % (args.sample, analyzer)
+        sys.exit()
+
+if args.analysis == "Full":
+    for f in os.listdir('../results/%s/%s' % (jobid, analyzer)):
+        if not '.root' in f:
+            continue
+        results_files.append(f.replace(".root", ""))
+
+    if not args.sample in results_files:
+        print "You chose %s as your sample file.\nYou must choose from the files in results/%s/%s!" % (args.sample, jobid, analyzer)
+        sys.exit()
+
+
+if not ( args.plot == "Everything" or args.plot == 'Gen_Plots'\
+        or args.plot == 'Reco_Plots' or args.plot == 'Resolution_Plots'):
+    print "You chose %s as your plot type.\nYou must choose from the help list!" % args.plot
+    sys.exit()
+
+
+print( 'Analysis: %s\nSample: %s\nPlot: %s' % (args.analysis, args.sample, args.plot) )
+
+
+if args.analysis == "Test":
+    myfile = root_open('../%s.%s.test.root' % (args.sample, analyzer), 'read')
+    normfile = views.NormalizeView(root_open('../%s.%s.test.root' % (args.sample, analzyer), 'read'))#normalized file
 #	lumifile = open('../inputs/%s/%s.lumi' % (jobid, args.sample), 'read')
-    plotter = BasePlotter(
-    	'plots/ttbar_reco_3J/%s/%s/%s' % (jobid, args.analysis, args.sample),
-    	defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}}
-    	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
-    )
 
 elif args.analysis == "Full":
-#	if args.sample == "ttJetsM0" or args.sample == "ttJetsM700" or args.sample == "ttJetsM1000":
-    print( 'Your analysis: sample are %s: %s' % (args.analysis, args.sample) )
-    myfile = root_open('../results/%s/ttbar_reco_3J/%s.root' % (jobid, args.sample), 'read')
-    normfile = views.NormalizeView(root_open('../results/%s/ttbar_reco_3J/%s.root' % (jobid, args.sample), 'read'))
+    myfile = root_open('../results/%s/%s/%s.root' % (jobid, analyzer, args.sample), 'read')
+    normfile = views.NormalizeView(root_open('../results/%s/%s/%s.root' % (jobid, analyzer, args.sample), 'read'))
     lumifile = open('../inputs/%s/%s.lumi' % (jobid, args.sample), 'read')
-    plotter = BasePlotter(
-    	'plots/ttbar_reco_3J/%s/%s/%s' % (jobid, args.analysis, args.sample),
-    	defaults = {'save' : {'png' : True, 'pdf' : False}}
-    )
 
+plotter = BasePlotter(
+	'plots/%s/%s/%s/%s' % (analyzer, jobid, args.analysis, args.sample),
+	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}}
+	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
+)
 
 def stack_plots(lists):
-    lists.sort()
+    lists.sort(key=lambda x: x.Integral())
     total = 0
 #    ratio_hists = []
     Stack_hists = []
 
     for i in lists:
         total += i
-
     for i in lists:
 #        ratio_hists.append(i/total)
         i.SetFillStyle(1001)
         Stack_hists.append(i)
 
-    if len(Stack_hists) == 4:
-        stack = plotter.create_stack(Stack_hists[0], Stack_hists[1], Stack_hists[2], Stack_hists[3])
-        norm_stack = plotter.create_stack(Stack_hists[0]/total, Stack_hists[1]/total, Stack_hists[2]/total, Stack_hists[3]/total)
-    elif len(Stack_hists) == 3:
-        stack = plotter.create_stack(Stack_hists[0], Stack_hists[1], Stack_hists[2])
-        norm_stack = plotter.create_stack(Stack_hists[0]/total, Stack_hists[1]/total, Stack_hists[2]/total)
-    elif len(Stack_hists) == 2:
-        stack = plotter.create_stack(Stack_hists[0], Stack_hists[1])
-        norm_stack = plotter.create_stack(Stack_hists[0]/total, Stack_hists[1]/total)
+    stack = plotting.HistStack()
+    norm_stack = plotting.HistStack()
+    for i in Stack_hists:
+        stack.Add(i)
+        norm_stack.Add(i/total)
         
     return stack, norm_stack
     
 
+
+def plot_dir(plot):
+    print '\ncp -r /uscms/home/jdulemba/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/%s/%s/%s/%s/%s .\n' % (analyzer, jobid, args.analysis, args.sample, plot)
+
 ##### Global Var. Definitions ####
 defcol = 'black' # default color
-defyax = 'a.u.' # yaxis title
+defyax = 'A.U.' # yaxis title
 if args.sample == "ttJetsM0":
 	mass_min = 0
 	mass_max = 2000
@@ -90,14 +125,25 @@ if args.sample == "ttJetsM1000":
 	mass_max = 2000
 
 
+if 'ttJets' in args.sample:
+    decay = 'SM t#bar t'
+
+if 'AtoTT' in args.sample:
+    decay = 'A->t#bar t'
+
+if 'HtoTT' in args.sample:
+    decay = 'H->t#bar t'
+
+
 ##############################################################################################
 
-if args.plot == "Gen_Plots":
+def Gen_Plots():
+    plots = 'Gen_Plots'
 
-    kinvar = {'Mass' : ' Mass [GeV]', 'Pt' : ' p_{T}', 'Eta' : ' #eta', 'Costh' : ' Cos(#theta)'}
+    kinvar = {'Mass' : ' Mass [GeV]', 'Pt' : ' p_{T} [GeV]', 'Eta' : ' #eta', 'Costh' : ' cos(#theta^{*})'}
 
     for kin in kinvar:
-        sdir = args.plot+'/'+kin
+        sdir = 'Gen_Plots/'+kin
         plotter.set_subdir(sdir)
 
         xlabel = kinvar[kin]
@@ -109,41 +155,49 @@ if args.plot == "Gen_Plots":
         ]
 
         for var, obj in Var:
-            hist = asrootpy(myfile.Get(args.plot+'/'+var)).Clone()
+            hist = asrootpy(myfile.Get('Gen_Plots/'+var)).Clone()
             if hist.Integral() == 0:
                 print var
                 continue
     
             mean = hist.GetMean()
             rms = hist.GetRMS()
-    
-            plotter.set_histo_style(hist, color=defcol, xtitle='Gen '+obj+xlabel, ytitle=defyax)
+
+            if kin == 'Mass':    
+                plotter.set_histo_style(hist, color=defcol, xtitle='Gen m_{'+obj+'} [GeV]', ytitle=defyax)
+            else:    
+                plotter.set_histo_style(hist, color=defcol, xtitle='Gen '+obj+xlabel, ytitle=defyax)
             plotter.plot(hist, drawstyle='hist')
-            box = plotter.make_text_box('Mean = %.2f\nRMS = %.2f' % (mean,rms), position='NE')
+
+            box = plotter.make_text_box('Mean = %.2f\nRMS = %.2f' % (mean,rms), position='NW')
             box.Draw()
+            box2 = plotter.make_text_box(decay, position='NE')
+            box2.Draw()
+
             plotter.save(var)
-    
-    print '\ncp -r ~/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/ttbar_reco_3J/%s/%s/%s/%s .\n' % (jobid, args.analysis, args.sample, args.plot)
+   
+    plot_dir(plots) 
 
 
 
 ##############################################################################################
 
 
-if args.plot == "Reco_Plots":
+def Reco_Plots():
+    plots = 'Reco_Plots'
 
     lumi = float(lumifile.readline()) #luminosity from lumi file
 
     Categories = ['RIGHT', 'MERGE_SWAP', 'MERGE', 'WRONG']
     Objects = {'THad' : 't_{h}', 'TLep' : 't_{l}', 'TTbar' : 't#bar{t}'}
     CUT = {'LCut' : ['< 2', 'black'], 'GCut' : ['#geq 2', 'red']}
-    kinvar = {'Mass' : ' Mass [GeV]', 'Pt' : ' p_{T}', 'Eta' : ' #eta', 'Costh' : ' Cos(#theta)'}
+    kinvar = {'Mass' : ' Mass [GeV]', 'Pt' : ' p_{T}', 'Eta' : ' #eta', 'Costh' : ' cos(#theta^{*})'}
 
         ### plots for separate categories (RIGHT, ...)
     for obj in Objects:
         for cat in Categories:
             for kin in kinvar:
-                sdir = args.plot+'/'+cat+'/'+kin
+                sdir = 'Reco_Plots/'+cat+'/'+kin
                 plotter.set_subdir(sdir)
        
                 to_draw = [] 
@@ -158,10 +212,17 @@ if args.plot == "Reco_Plots":
                     ]
         
                     for var in Hists:
-                        hist = asrootpy(myfile.Get(args.plot+'/'+var)).Clone()
+                        hist = asrootpy(myfile.Get('Reco_Plots/'+var)).Clone()
                         if hist.Integral() == 0:
 #                            print var
                             continue
+
+                        if 'AtoTT' in args.sample:
+                            mttbins = [200., 291.13924051,382.27848101, 473.41772152, 564.55696203, 655.69620253, 746.83544304, 837.97468354, 929.11392405, 1020.25316456, 2000.]
+                            if kin == 'Mass':
+                                if obj == 'TTbar':
+                                    hist = RebinView.rebin(hist, mttbins)
+                            
     
                         mean = hist.GetMean()
                         rms = hist.GetRMS()
@@ -184,16 +245,19 @@ if args.plot == "Reco_Plots":
                         plotter.plot(hist, drawstyle='hist')
                         to_draw.append(hist)
     
-                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='Reco '+Objects[obj]+xlabel, drawstyle='hist')
-                box = plotter.make_text_box(cat, position='NE')
+                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='Reco '+Objects[obj]+xlabel, ytitle=defyax, drawstyle='hist')
+                box = plotter.make_text_box(decay+'\n'+cat, position='NE')
                 box.Draw()
+                #box2 = plotter.make_text_box(decay, position='NE')
+                #box2.Draw()
+
                 plotter.save(obj+'_'+cat+'_'+kin+'_Combined_Cut')
 
 
         ### plots comparing LCut, GCut
     for obj in Objects:
         for kin in kinvar:
-            sdir = args.plot+'/'+kin
+            sdir = 'Reco_Plots/'+kin
             plotter.set_subdir(sdir)
        
             to_draw = []
@@ -212,13 +276,42 @@ if args.plot == "Reco_Plots":
                     ]
 
                     for var in Hists:
-                        hist = asrootpy(myfile.Get(args.plot+'/'+var)).Clone()
+                        hist = asrootpy(myfile.Get('Reco_Plots/'+var)).Clone()
 
+                        if 'AtoTT' in args.sample:
+                            if cut == 'GCut':
+                                mttbins = [200., 291.13924051,382.27848101, 473.41772152, 564.55696203, 655.69620253, 746.83544304, 837.97468354, 929.11392405, 1020.25316456, 1293.67088608, 1567.08860759, 1840.50632911, 2000.]
+                                mthadbins = [100., 130.3030303, 154.54545455, 178.78787879, 203.03030303, 227.27272727, 250.]
+                                #costhbins = [-1., -0.8989899 , -0.7979798 , -0.6969697 , -0.5959596 , -0.49494949, -0.39393939, -0.29292929, -0.19191919, -0.09090909,\
+                                #            0.01010101, 0.11111111, 0.21212121, 0.31313131, 0.41414141, 0.51515152, 0.61616162, 0.71717172, 0.81818182, 0.91919192, 1.]
+                                costhbins = [-1., -0.7979798 , -0.5959596 , -0.39393939, -0.19191919, 0.01010101, 0.21212121, 0.41414141, 0.61616162, 0.81818182, 1.]
+
+                            else:
+                                mttbins = [200., 382.27848101, 473.41772152, 564.55696203, 610.12658228, 655.69620253, 701.26582278, 746.83544304, 769.62025316, 792.40506329, 837.97468354, 883.5443038, 929.11392405, 1020.25316456]
+                                mthadbins = [100., 124.24242424, 142.42424242, 154.54545455, 166.66666667, 190.90909091, 233.33333333]
+                                #costhbins = [-1., -0.8989899 , -0.7979798 , -0.6969697 , -0.5959596 , -0.49494949, -0.39393939, -0.29292929, -0.19191919, -0.09090909,\
+                                #            0.01010101, 0.11111111, 0.21212121, 0.31313131, 0.41414141, 0.51515152, 0.61616162, 0.71717172, 0.81818182, 0.91919192, 1.]
+                                costhbins = [-1., -0.7979798 , -0.5959596 , -0.39393939, -0.19191919, 0.01010101, 0.21212121, 0.41414141, 0.61616162, 0.81818182, 1.]
+
+                            if kin == 'Mass':
+                                if obj == 'TTbar':
+                                    hist = RebinView.rebin(hist, mttbins)
+                                    hist.xaxis.range_user = 200., 1000.
+                                if obj == 'THad':
+                                    hist = RebinView.rebin(hist, mthadbins)
+
+                            if kin == 'Costh':
+                                if obj == 'THad' or obj == 'TLep':
+                                    hist = RebinView.rebin(hist, costhbins)    
+                            
                         if hist.Integral() == 0:
                             continue
 
                         Cut_hist += hist
                 Tot_hist += Cut_hist
+
+                if Cut_hist == 0:
+                    continue
 
                 mean = Cut_hist.GetMean()
                 rms = Cut_hist.GetRMS()
@@ -241,10 +334,20 @@ if args.plot == "Reco_Plots":
                 plotter.plot(Cut_hist, drawstyle='hist')
                 to_draw.append(Cut_hist)
 
-            plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='Reco '+Objects[obj]+xlabel, drawstyle='hist')
+            if kin == 'Mass':
+                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='Reco m_{'+Objects[obj]+'} [GeV]', ytitle=defyax, drawstyle='hist')
+            else:
+                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='Reco '+Objects[obj]+xlabel, ytitle=defyax, drawstyle='hist')
+
+            box2 = plotter.make_text_box(decay, position='NE')
+            box2.Draw()
+
             plotter.save(obj+'_'+kin+'_Combined_Cut')
 
-            plotter.set_histo_style(Tot_hist*(50000/lumi), color='black', xtitle='Reco '+Objects[obj]+xlabel, drawstyle='hist')
+            if Tot_hist == 0:
+                continue
+
+            plotter.set_histo_style(Tot_hist*(50000/lumi), color='black', xtitle='Reco '+Objects[obj]+xlabel, ytitle=defyax, drawstyle='hist')
             plotter.plot(Tot_hist*(50000/lumi))
 #            plotter.plot(Tot_hist*50, drawstyle='hist')
             if kin == 'Mass':
@@ -253,26 +356,27 @@ if args.plot == "Reco_Plots":
                 sigma = r.Parameter(2)
             plotter.save(obj+'_'+kin+'_Norm')
 
-    print '\ncp -r ~/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/ttbar_reco_3J/%s/%s/%s/%s .\n' % (jobid, args.analysis, args.sample, args.plot)
+    plot_dir(plots) 
     
 
 
 ##############################################################################################
 
 
-if args.plot == "Resolution_Plots":
+def Resolution_Plots():
+    plots = 'Resolution_Plots'
 
     Categories = ['RIGHT', 'MERGE_SWAP', 'MERGE', 'WRONG']
     Objects = {'thad' : 't_{h}', 'tlep' : 't_{l}', 'ttbar' : 't#bar{t}'}
     CUT = {'LCut' : ['< 2', 'black'], 'GCut' : ['#geq 2', 'red']}
 #    kinvar = {'Mass' : ' Mass [GeV]'}
-    kinvar = {'Mass' : ' Mass [GeV]', 'Pt' : ' p_{T}', 'Eta' : ' #eta', 'Costh' : ' Cos(#theta)'}
+    kinvar = {'Mass' : ' Mass [GeV]', 'Pt' : ' p_{T} [GeV]', 'Eta' : ' #eta', 'Costh' : ' cos(#theta^{*})'}
 
         ### plots for separate categories (RIGHT, ...)
     for obj in Objects:
         for cat in Categories:
             for kin in kinvar:
-                sdir = args.plot+'/'+cat+'/'+kin
+                sdir = 'Resolution_Plots/'+cat+'/'+kin
                 plotter.set_subdir(sdir)
        
                 to_draw = [] 
@@ -286,9 +390,8 @@ if args.plot == "Resolution_Plots":
                     ]
         
                     for var in Hists:
-                        hist = asrootpy(myfile.Get(args.plot+'/'+var)).Clone()
+                        hist = asrootpy(myfile.Get('Resolution_Plots/'+var)).Clone()
                         if hist.Integral() == 0:
-                            print var
                             continue
     
                         mean = hist.GetMean()
@@ -313,17 +416,23 @@ if args.plot == "Resolution_Plots":
                         plotter.plot(hist, drawstyle='hist')
                         to_draw.append(hist)
 
-    
-                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=Objects[obj]+' #Delta'+xlabel+' (Gen-Reco)', drawstyle='hist')
-                box = plotter.make_text_box(cat, position='NE')
+                if kin == 'Mass': 
+                    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{'+Objects[obj]+'} Resolution [GeV]', ytitle=defyax, drawstyle='hist')
+
+                else: 
+                    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=Objects[obj]+' '+xlabel+' Resolution', ytitle=defyax, drawstyle='hist')
+                box = plotter.make_text_box(decay+'\n'+cat, position='NE')
                 box.Draw()
+                #box2 = plotter.make_text_box(decay, position='NE')
+                #box2.Draw()
+
                 plotter.save(obj+'_'+cat+'_'+kin+'_Combined_Cut')
     
 
         ### plots comparing LCut, GCut
     for obj in Objects:
         for kin in kinvar:
-            sdir = args.plot+'/'+kin
+            sdir = 'Resolution_Plots/'+kin
             plotter.set_subdir(sdir)
        
             to_draw = []
@@ -341,7 +450,7 @@ if args.plot == "Resolution_Plots":
                     ]
 
                     for var in Hists:
-                        hist = asrootpy(myfile.Get(args.plot+'/'+var)).Clone()
+                        hist = asrootpy(myfile.Get('Resolution_Plots/'+var)).Clone()
                         if hist.Integral() == 0:
                             continue
 
@@ -366,13 +475,43 @@ if args.plot == "Resolution_Plots":
                     plotter.set_histo_style(Cut_hist, color=col, title=legends+' Mean = %.0f, RMS = %.0f' % (mean,rms) )
                 if kin == 'Eta' or kin == 'Costh':
                     plotter.set_histo_style(Cut_hist, color=col, title=legends+' Mean = %.2f, RMS = %.2f' % (mean,rms) )
-                
+
                 plotter.plot(Cut_hist, drawstyle='hist')
                 to_draw.append(Cut_hist)
 
-            plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=Objects[obj]+' #Delta'+xlabel+' (Gen-Reco)', drawstyle='hist')
+            if kin == 'Mass':
+                #print '\n'+'\n'+obj
+                if obj == 'thad':
+                    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), x_range=(-300., 200.), legendstyle='l', xtitle='m_{'+Objects[obj]+'} Resolution [GeV]', ytitle=defyax, drawstyle='hist')
+                elif obj == 'ttbar':
+                    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), x_range=(-500., 1500.), legendstyle='l', xtitle='m_{'+Objects[obj]+'} Resolution [GeV]', ytitle=defyax, drawstyle='hist')
+                else:
+                    plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{'+Objects[obj]+'} Resolution [GeV]', ytitle=defyax, drawstyle='hist')
+            else:
+                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=Objects[obj]+' '+xlabel+' Resolution', ytitle=defyax, drawstyle='hist')
+
+            box2 = plotter.make_text_box(decay, position='NE')
+            box2.Draw()
+                
             plotter.save(obj+'_'+kin+'_Combined_Cut')
 
-    print '\ncp -r ~/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/ttbar_reco_3J/%s/%s/%s/%s .\n' % (jobid, args.analysis, args.sample, args.plot)
+    plot_dir(plots) 
     
+
+#####################################################################################################
+
+
+if args.plot == 'Gen_Plots':
+    Gen_Plots()
+
+if args.plot == 'Reco_Plots':
+    Reco_Plots()
+
+if args.plot == 'Resolution_Plots':
+    Resolution_Plots()
+
+if args.plot == 'Everything':
+    Gen_Plots()
+    Reco_Plots()
+    Resolution_Plots()
 

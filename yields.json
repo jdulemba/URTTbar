@@ -1,0 +1,182 @@
+{
+    "t#bar{t} unmatchable": {
+        "looseNOTTight/MTHigh/lo": [
+            1911.9219036921859,
+            19.334747388445614
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            29153.78186646104,
+            73.19210282457415
+        ]
+    },
+    "t#bar{t} matchable": {
+        "looseNOTTight/MTHigh/lo": [
+            1172.7618434876204,
+            15.233072782027858
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            23581.707671537995,
+            66.20375633704754
+        ]
+    },
+    "QCD": {
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            3659.577380442992,
+            1238.3560037393022
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            14311.446534514427,
+            3136.7216598923847
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ]
+    },
+    "Other t#bar{t}": {
+        "looseNOTTight/MTHigh/lo": [
+            584.7125219288282,
+            10.713657109073926
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            8962.759735399857,
+            40.63859701631662
+        ]
+    },
+    "Observed": {
+        "looseNOTTight/MTHigh/lo": [
+            7932.0,
+            89.06177631284928
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            83993.0,
+            289.8154585249034
+        ]
+    },
+    "t#bar{t} matched": {
+        "looseNOTTight/MTHigh/lo": [
+            811.2560300678015,
+            12.501746183929999
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            18290.768259585035,
+            57.587936446331014
+        ]
+    },
+    "Other": {
+        "looseNOTTight/MTHigh/lo": [
+            2403.4724896049593,
+            811.8258191905652
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            4764.925333769439,
+            347.1170370549774
+        ]
+    },
+    "single top": {
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            10028.654556155205,
+            100.13056034075792
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            492.87101659178734,
+            22.88813759136739
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ]
+    },
+    "t#bar{t}": {
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            248130.86353854835,
+            213.1190529363067
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            12055.05907997489,
+            48.48107057836082
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ]
+    },
+    "EW": {
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            7358.748843689915,
+            659.727236747272
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            265.77878568600863,
+            120.87872818095742
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ]
+    }
+}
