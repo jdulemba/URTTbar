@@ -25,10 +25,9 @@
 <bin file="jet_match.cc"        name="jet_match"/>
 <bin file="jet_perm_disc.cc"        name="jet_perm_disc"/>
 <bin file="gen_partons.cc"        name="gen_partons"/>
-<bin file="new_gen_partons.cc"        name="new_gen_partons"/>
-<bin file="new_jet_perm_disc.cc"        name="new_jet_perm_disc"/>
 <bin file="ttbar_reco_3J.cc"        name="ttbar_reco_3J"/>
 
+<bin file="resolved_matched_jets.cc"        name="resolved_matched_jets"/>
 <!--bin file="permStudy.cc"        name="permStudy"/>
 
 <!--bin file="topspin_reco.cc"       name="topspin_reco"/-->
