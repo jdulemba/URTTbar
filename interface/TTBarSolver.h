@@ -91,7 +91,7 @@ public:
     return ptr;
   }
 
-	void Solve(Permutation &hyp, bool lazy=false);
+	void Solve(Permutation &hyp, bool lazy=true);
 
 
         // Joseph added for perm discriminant

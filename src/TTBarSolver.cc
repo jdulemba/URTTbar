@@ -105,6 +105,11 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
     throw 42;
   }
 
+  if( !hyp.IsComplete() ) {                          
+    Logger::log().fatal() << "The permutation you are trying to solve is not complete!" << std::endl;
+    throw 42;
+  }
+
 	double nschi    = numeric_limits<double>::max();
 	double res      = numeric_limits<double>::max();
 	double nstest   = numeric_limits<double>::max();

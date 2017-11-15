@@ -13,6 +13,7 @@
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
+#include "Analyses/URTTbar/interface/DR_TTGenMatcher.h"
 #include "TRandom3.h"
 #include "Analyses/URTTbar/interface/helper.h"
 #include "URAnalysis/AnalysisFW/interface/RObject.h"
@@ -38,6 +39,7 @@ class permProbComputer : public AnalyzerBase
         vector<string> dir_names_ = {"semilep_visible_right", "semilep_right_thad", "semilep_right_tlep", "semilep_wrong", "other_tt_decay"};
         //histos
         map<systematics::SysShifts, map<TTNaming, map<string, RObject> > > histos_;
+        unordered_map<string, map< string, RObject> > histos2_;
 
 
         //switches
@@ -49,6 +51,8 @@ class permProbComputer : public AnalyzerBase
         TTPermutator permutator_;
         TTGenMatcher matcher_;
         TTBarSolver solver_;
+        DR_TTGenMatcher dr_matcher_;
+
         float evt_weight_;
         TRandom3 randomizer_;// = TRandom3(98765);
         MCWeightProducer mc_weights_;
@@ -57,9 +61,6 @@ class permProbComputer : public AnalyzerBase
 
         //Scale factors
         LeptonSF electron_sf_, muon_sf_;
-
-//        JME::JetResolution pt_jet_res_; // initialize jet energy pt resolution
-//        JME::JetResolutionScaleFactor jet_res_sf_; // initialize jet energy resolution scale factors
 
 
     public:
@@ -77,19 +78,8 @@ class permProbComputer : public AnalyzerBase
 
 
                 URParser &parser = URParser::instance();
-//                parser.addCfgParameter<string>("JERC", "JER_SF","");
-//                parser.addCfgParameter<string>("JERC", "PT_JER","");
                 parser.parseArguments();
 
-//                DataFile jer_sf_fname_(parser.getCfgPar<string>("JERC","JER_SF"));
-//                DataFile pt_jer_fname_(parser.getCfgPar<string>("JERC","PT_JER"));
-//
-//                jet_res_sf_ = JME::JetResolutionScaleFactor(jer_sf_fname_.path());
-//                pt_jet_res_ = JME::JetResolution(pt_jer_fname_.path());
-
-
-
-                //tracker_.verbose(true);    
                 //set tracker
                 tracker_.use_weight(&evt_weight_);
                 object_selector_.set_tracker(&tracker_);
@@ -137,6 +127,21 @@ class permProbComputer : public AnalyzerBase
             }
         }
 
+        TDirectory* getDir(string path){
+            TDirectory* out = (TDirectory*) outFile_.Get(path.c_str());
+            if(out) return out;
+            outFile_.mkdir(path.c_str());
+            return (TDirectory*) outFile_.Get(path.c_str());
+        }
+
+        template <class H, typename ... Args>
+        void book(string folder, string name, Args ... args)
+        {
+            getDir(folder)->cd();
+            histos2_[folder][name] = RObject::book<H>(name.c_str(), args ...);
+        }
+
+
         //This method is called once per job at the beginning of the analysis
         //book here your histograms/tree and run every initialization needed
         virtual void begin() {
@@ -153,20 +158,12 @@ class permProbComputer : public AnalyzerBase
                     histos_[shift][evt_type]["mWhad_vs_mtophad_4J"] = RObject::book<TH2D>("mWhad_vs_mtophad_4J", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
                     histos_[shift][evt_type]["mWhad_vs_mtophad_5J"] = RObject::book<TH2D>("mWhad_vs_mtophad_5J", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
                     histos_[shift][evt_type]["mWhad_vs_mtophad_6PJ"] = RObject::book<TH2D>("mWhad_vs_mtophad_6PJ", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
-                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
-                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
-                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
-                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
                     vector<double> binning;
                     range(binning, 0., 10., 1.);
                     range(binning, 12, 200., 2.);
                     histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", binning.size()-1, &binning[0]);
                     histos_[shift][evt_type]["wjets_cMVA"] = RObject::book<TH2D>("wjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
                     histos_[shift][evt_type]["bjets_cMVA"] = RObject::book<TH2D>("bjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
-                    // histos_[shift][evt_type]["wjets_qgt"] = RObject::book<TH2D>("wjets_qgt", "", 50, -1., 1.1, 50, -1., 1.1);
-                    // histos_[shift][evt_type]["bjets_qgt"] = RObject::book<TH2D>("bjets_qgt", "", 50, -1., 1.1, 50, -1., 1.1);
-                    // histos_[shift][evt_type]["wjets_bqgt"] = RObject::book<TH1D>("wjets_bqgt", "", 50, -1., 1.1); //best
-                    // histos_[shift][evt_type]["wjets_wqgt"] = RObject::book<TH1D>("wjets_wqgt", "", 50, -1., 1.1); //worst
                     histos_[shift][evt_type]["wjets_bcMVA_p11"] = RObject::book<TH1D>("wjets_bcMVA_p11", "", 50, -1., 1.1); //best
                     histos_[shift][evt_type]["wjets_wcMVA_p11"] = RObject::book<TH1D>("wjets_wcMVA_p11", "", 50, -1., 1.1); //worst
                     histos_[shift][evt_type]["wjets_cMVA_WP"] = RObject::book<TH2D>("wjets_cMVA_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
@@ -177,7 +174,22 @@ class permProbComputer : public AnalyzerBase
                     histos_[shift][evt_type]["lb_w2b_ratio"] = RObject::book<TH2D>("lb_w2b_ratio", "", 100, 0., 10., 100, 0., 10.);
                 }
             }
-        }
+
+            // discrimiant distributions for 3 jet events
+            string disc_right = "Correct_Disc_Plots";
+            string disc_wrong = "Wrong_Disc_Plots";
+
+                        // 2D mass disc
+            book<TH2D>(disc_right, "3J_mbpjet_vs_maxmjet_correct", "Correct mbpjet_vs_maxmjet", "M(b+j) [GeV]; max M(jet) [GeV]", 100, 0., 200., 200, 0., 2000.); // hist for m_{b+jet} vs max m_{jet}
+            book<TH2D>(disc_wrong, "3J_mbpjet_vs_maxmjet_wrong", "Wrong mbpjet_vs_maxmjet", "M(b+j) [GeV]; max M(jet) [GeV]", 100, 0., 200., 200, 0., 2000.); // hist for m_{b+jet} vs max m_{jet}
+
+
+            // Neutrino Solver discriminant plots
+            book<TH1F>(disc_right, "3J_nusolver_chi2_correct", "Correct #chi^{2};# Events", 1000, 0., 1000.); // ns chi2 val hist for correct perms
+            book<TH1F>(disc_wrong, "3J_nusolver_chi2_wrong", "Wrong #chi^{2};# Events", 1000, 0., 1000.); // ns chi2 val hist for wrong perms
+
+
+        } // end of begin
 
         int btag_idval(const IDJet* jet) {
             if(jet->BTagId(IDJet::BTag::MVATIGHT)) return 3;
@@ -195,6 +207,7 @@ class permProbComputer : public AnalyzerBase
 
             //select reco objects
             if( !object_selector_.select(event, shift) ) return;
+            if( object_selector_.clean_jets().size() < 4 ) return;
             tracker_.track("obj selection");
 
             //find mc weight
@@ -241,42 +254,15 @@ class permProbComputer : public AnalyzerBase
                 else if(ttbar.type == GenTTBar::DecayType::SEMILEP) perm_status = TTNaming::WRONG;
                 else perm_status = TTNaming::OTHER;
 
-                // get nominal jet scale factors
-//                float WJa_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.WJa()->Eta()}});
-//                float WJb_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.WJb()->Eta()}});
-//                float BHad_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.BHad()->Eta()}});
-
-//                // get jet pt resolutions
-//                float WJa_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.WJa()->Pt()}, {JME::Binning::JetEta, test_perm.WJa()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
-//                float WJb_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.WJb()->Pt()}, {JME::Binning::JetEta, test_perm.WJb()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
-//                float BHad_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.BHad()->Pt()}, {JME::Binning::JetEta, test_perm.BHad()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
-//
-//                // get standard deviations from true masses
-//                float M_j1upj2 = (*test_perm.WJa()*(WJa_pt_res*WJa_sf+1.)+*test_perm.WJb()).M();
-//                float M_j2upj1 = (*test_perm.WJb()*(WJb_pt_res*WJb_sf+1.)+*test_perm.WJa()).M();
-//                float sigma2j = sqrt(pow(M_j1upj2-test_perm.WHad().M(),2)+pow(M_j2upj1-test_perm.WHad().M(),2));
-//
-//                float M_j1upj2j3 = (*test_perm.WJa()*(WJa_pt_res*WJa_sf+1.)+*test_perm.WJb()+*test_perm.BHad()).M();
-//                float M_j2upj1j3 = (*test_perm.WJb()*(WJb_pt_res*WJb_sf+1.)+*test_perm.WJa()+*test_perm.BHad()).M();
-//                float M_j3upj1j2 = (*test_perm.BHad()*(BHad_pt_res*BHad_sf+1.)+*test_perm.WJa()+*test_perm.WJb()).M();
-//                float sigma3j = sqrt(pow(M_j1upj2j3-test_perm.THad().M(),2)+pow(M_j2upj1j3-test_perm.THad().M(),2)+pow(M_j3upj1j2-test_perm.THad().M(),2));
-//
-//                float rel_delt_mw = (test_perm.WHad().M()-80.385)/sigma2j; //value from http://pdglive.lbl.gov/Particle.action?node=S043&init=0
-//                float rel_delt_mt = (test_perm.THad().M()-173.1)/sigma3j; //value from http://pdglive.lbl.gov/Particle.action?node=Q007&init=0
-
                 plots[perm_status]["mWhad_vs_mtophad"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-//                plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 if( object_selector_.clean_jets().size() == 4 ){
                     plots[perm_status]["mWhad_vs_mtophad_4J"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-//                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 }
                 else if( object_selector_.clean_jets().size() == 5 ){
                     plots[perm_status]["mWhad_vs_mtophad_5J"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-//                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 }
                 else if( object_selector_.clean_jets().size() > 5 ){
                     plots[perm_status]["mWhad_vs_mtophad_6PJ"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-//                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 }
 
                 plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
@@ -287,13 +273,6 @@ class permProbComputer : public AnalyzerBase
                 plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
                 plots[perm_status]["wjets_bcMVA_p11"].fill(pow(w_mM.second, 11), evt_weight_);
                 plots[perm_status]["wjets_wcMVA_p11"].fill(pow(w_mM.first,  11), evt_weight_);
-
-                // auto b_mM_qg = Minmax(test_perm.BHad()->qgTag(), test_perm.BLep()->qgTag());
-                // auto w_mM_qg = Minmax(test_perm.WJa() ->qgTag(), test_perm.WJb() ->qgTag());
-                // plots[perm_status]["wjets_qgt"].fill(w_mM_qg.first, w_mM_qg.second, evt_weight_);
-                // plots[perm_status]["bjets_qgt"].fill(b_mM_qg.first, b_mM_qg.second, evt_weight_);
-                // plots[perm_status]["wjets_bqgt"].fill(w_mM_qg.second, evt_weight_);
-                // plots[perm_status]["wjets_wqgt"].fill(pow(w_mM_qg.first, 8),  evt_weight_);
 
                 auto bwp_mM = Minmax(btag_idval(test_perm.BHad()), btag_idval(test_perm.BLep()));
                 auto wwp_mM = Minmax(btag_idval(test_perm.WJa() ), btag_idval(test_perm.WJb() ));
@@ -307,18 +286,109 @@ class permProbComputer : public AnalyzerBase
                 plots[perm_status]["lb_w2b_ratio"].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
             }
             tracker_.track("end");
+
         }// end of process_evt
 
 
 
+        // process 3 jet events
+        void process_3J_evt( URStreamer &event){
+
+            auto disc_wrong_dir = histos2_.find("Wrong_Disc_Plots");
+            auto disc_correct_dir = histos2_.find("Correct_Disc_Plots");
+
+            permutator_.reset_3J();
+            //generator selection
+            bool selection = genp_selector_.select(event);
+            if( !selection ){
+                Logger::log().debug() << "event has no gen selection " << endl;
+                return;
+            }
+            tracker_.track("gen selection");
+            GenTTBar &ttbar = genp_selector_.ttbar_system();
+
+            //select reco objects
+            if( !object_selector_.select(event) ) return;
+            if( !(object_selector_.clean_jets().size() == 3) ) return;
+            tracker_.track("obj selection");
+
+            //Gen matching
+            Permutation mp_3J;
+            if(ttbar.type == GenTTBar::DecayType::SEMILEP) {
+                mp_3J = dr_matcher_.dr_match(
+                        genp_selector_.ttbar_final_system(),
+                        object_selector_.clean_jets(), 
+                        object_selector_.lepton(),
+                        object_selector_.met(),
+                        object_selector_.lepton_charge()
+                        );
+            }
+            if( mp_3J.IsEmpty() ) return;
+            //cout << "nJets: " << object_selector_.clean_jets().size() << endl;
+
+            solver_.Solve_3J(mp_3J);
 
 
-        
+            if( !mp_3J.Merged_Event() ){ // no jets merged
+                if( mp_3J.WJa() ){ // if wja exists
+                    // blep paired with wja
+                    disc_wrong_dir->second["3J_mbpjet_vs_maxmjet_wrong"].fill(mp_3J.BLep()->M() > mp_3J.WJa()->M() ? mp_3J.BLep()->M() : mp_3J.WJa()->M(), (*mp_3J.BLep()+*mp_3J.WJa()).M() );
+                    disc_wrong_dir->second["3J_nusolver_chi2_wrong"].fill(mp_3J.NuChisq());
 
+                    // bhad paired with wja
+                    disc_wrong_dir->second["3J_mbpjet_vs_maxmjet_wrong"].fill( mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M());
+                    disc_wrong_dir->second["3J_nusolver_chi2_wrong"].fill(mp_3J.NuChisq());
+                }
 
+                if( mp_3J.WJb() ){ // if wjb exists
+                    // blep paired with wjb
+                    disc_wrong_dir->second["3J_mbpjet_vs_maxmjet_wrong"].fill( mp_3J.BLep()->M() > mp_3J.WJb()->M() ? mp_3J.BLep()->M() : mp_3J.WJb()->M(), (*mp_3J.BLep()+*mp_3J.WJb()).M());
+                    disc_wrong_dir->second["3J_nusolver_chi2_wrong"].fill(mp_3J.NuChisq());
 
+                    // bhad paired with wjb
+                    disc_wrong_dir->second["3J_mbpjet_vs_maxmjet_wrong"].fill( mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M());
+                    disc_wrong_dir->second["3J_nusolver_chi2_wrong"].fill(mp_3J.NuChisq());
+                }
+            } // end of unmerged events
 
+            // 2 jets merged together
+            //wrong perm
+            if( mp_3J.Merged_BLepWJa() && mp_3J.WJb() ){ // only blep and wja merged and wjb exists
+                disc_wrong_dir->second["3J_mbpjet_vs_maxmjet_wrong"].fill(mp_3J.BLep()->M() > mp_3J.WJb()->M() ? mp_3J.BLep()->M() : mp_3J.WJb()->M(), (*mp_3J.BLep()+*mp_3J.WJb()).M());
+                disc_wrong_dir->second["3J_nusolver_chi2_wrong"].fill(mp_3J.NuChisq());
+            }
 
+            //wrong perm
+            if( mp_3J.Merged_BLepWJb() && mp_3J.WJa() ){ // only blep and wjb merged and wja exists
+                disc_wrong_dir->second["3J_mbpjet_vs_maxmjet_wrong"].fill( mp_3J.BLep()->M() > mp_3J.WJa()->M() ? mp_3J.BLep()->M() : mp_3J.WJa()->M(), (*mp_3J.BLep()+*mp_3J.WJa()).M());
+                disc_wrong_dir->second["3J_nusolver_chi2_wrong"].fill(mp_3J.NuChisq());
+            }
+
+            // correct perm
+            if( mp_3J.Merged_BHadWJa() && mp_3J.WJb() ){ // only bhad and wja merged and wjb exists
+                disc_correct_dir->second["3J_mbpjet_vs_maxmjet_correct"].fill( mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M());
+                disc_correct_dir->second["3J_nusolver_chi2_correct"].fill(mp_3J.NuChisq());
+            }
+
+            // correct perm
+            if( mp_3J.Merged_BHadWJb() && mp_3J.WJa() ){ // only bhad and wjb merged and wja exists
+                disc_correct_dir->second["3J_mbpjet_vs_maxmjet_correct"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M());
+                disc_correct_dir->second["3J_nusolver_chi2_correct"].fill(mp_3J.NuChisq());
+            }
+
+            // merged wjets
+            if( mp_3J.Merged_WJets() ){ // only wjets merged
+                // correct perm
+                disc_correct_dir->second["3J_mbpjet_vs_maxmjet_correct"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M());
+                disc_correct_dir->second["3J_nusolver_chi2_correct"].fill(mp_3J.NuChisq());
+
+                //wrong perm
+                disc_wrong_dir->second["3J_mbpjet_vs_maxmjet_wrong"].fill( mp_3J.BLep()->M() > mp_3J.WJa()->M() ? mp_3J.BLep()->M() : mp_3J.WJa()->M(), (*mp_3J.BLep()+*mp_3J.WJa()).M());
+                disc_wrong_dir->second["3J_nusolver_chi2_wrong"].fill(mp_3J.NuChisq());
+            } // end of merged W jets loop
+
+        }// end of process_3J_evt
+   
 
         //This method is called once every file, contains the event loop
         //run your proper analysis here
@@ -354,6 +424,8 @@ class permProbComputer : public AnalyzerBase
                         continue;
                     }
                 }
+
+                process_3J_evt(event);
 
                 tracker_.deactivate();    
                 for(auto shift : systematics_){
