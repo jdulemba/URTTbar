@@ -53,6 +53,7 @@ class gen_partons : public AnalyzerBase
         const char *DRnames_[2] = {"DRP4", "DRP8"};
         double DR_[2] = {0.4, 0.8};
         const char *GenObjNames_[5] = {"Lep", "BLep", "BHad", "WJa", "WJb"};
+        const char *GenJetNames_[4] = {"BLep", "BHad", "WJa", "WJb"};
         const char *GenTopNames_[2] = {"THad", "TLep"};
         //            const char *DRnames_[4] = {"DRP4", "DRP5", "DRP6", "DRP8"};
         //	    double DR_[4] = {0.4, 0.5, 0.6, 0.8};
@@ -138,15 +139,6 @@ class gen_partons : public AnalyzerBase
         }
         if(!isData_) mc_weights_.init(sample);
 
-        ////Init Solver
-        //string filename = "prob_ttJets.permProbComputer.test.root";
-        //Logger::log().debug() << "solver file: " << filename << endl;
-        //TFile probfile(DataFile(filename).path().c_str());
-        //TDirectory *td = (TDirectory*) probfile.Get(systematics::shift_to_name.at(systematics::SysShifts::NOSYS).c_str());
-        ////			solver_.Init(td, false, true, true, true, true); //probfile, btag, nusolv,massdis,anghad,anglep
-
-        ////			cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("best_permutation.tightb"));
-        ////			cut_loose_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("best_permutation.looseb"));
     };
 
         TDirectory* getDir(string path){
@@ -301,6 +293,13 @@ class gen_partons : public AnalyzerBase
 
                     //Mass
                 book<TH1F>(mass_plots, std::string("Mass_")+genobj, "", mass_bins_, 0, 30);
+            }
+
+            string TwoD_plots = "2D_Plots";
+
+                // Plots for only gen jets (blep,bhad, wja,wjb)
+            for( const auto& genjet : GenJetNames_ ){
+                book<TH2D>(TwoD_plots, std::string("3J_")+genjet+std::string("_Eta_vs_")+genjet+std::string("_Pt"), "", 200, 0., 1000., 100, 0., 5.0);
             }
 
                 // Plots for gen tops (thad, tlep)
@@ -481,6 +480,7 @@ class gen_partons : public AnalyzerBase
                 auto dphi_dir = histos_.find("DeltPhi_Plots");
                 auto sys_dir = histos_.find("Sys_Plots");
                 auto hc_dir = histos_.find("Had_comp");
+                auto twoD_dir = histos_.find("2D_Plots");
 
                 //generator selection
                 bool selection = genp_selector_.select(event);
@@ -500,6 +500,7 @@ class gen_partons : public AnalyzerBase
                 sys_dir->second["nJets"].fill(njets_);
 
                 vector<GenObject*> GenObjs;
+                vector<GenObject*> GenJets;
                 vector<GenTop*> GenTops;
                 //initialize gen partons
                 GenObject* lepton = ttbar.lepton();
@@ -523,6 +524,10 @@ class gen_partons : public AnalyzerBase
                 GenObjs.push_back(BHad);
                 GenObjs.push_back(WJa);
                 GenObjs.push_back(WJb);
+                GenJets.push_back(BLep);
+                GenJets.push_back(BHad);
+                GenJets.push_back(WJa);
+                GenJets.push_back(WJb);
                 GenTops.push_back(THad);
                 GenTops.push_back(TLep);
 
@@ -668,6 +673,18 @@ class gen_partons : public AnalyzerBase
 
                     ++i;
                 }
+
+                    // 2D Gen jet hists
+                if( njets_ == 3 ){
+                    int j = 0;
+                    for( auto& genjet : GenJets ){
+                        twoD_dir->second[std::string("3J_")+GenJetNames_[j]+std::string("_Eta_vs_")+GenJetNames_[j]+std::string("_Pt")].fill(genjet->Pt(), Abs(genjet->Eta()));
+                        //cout << GenJetNames_[j] << " Pt: " << genjet->Pt() << endl;
+                        //cout << GenJetNames_[j] << " Eta: " << Abs(genjet->Eta()) << endl;
+                        ++j;
+                    }
+                }
+
 
                 hyp::TTbar gen_ttang(ttbar);
                 auto gen_ttcm = gen_ttang.to_CM();

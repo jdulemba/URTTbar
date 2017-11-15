@@ -58,8 +58,8 @@ class permProbComputer : public AnalyzerBase
         //Scale factors
         LeptonSF electron_sf_, muon_sf_;
 
-        JME::JetResolution pt_jet_res_; // initialize jet energy pt resolution
-        JME::JetResolutionScaleFactor jet_res_sf_; // initialize jet energy resolution scale factors
+//        JME::JetResolution pt_jet_res_; // initialize jet energy pt resolution
+//        JME::JetResolutionScaleFactor jet_res_sf_; // initialize jet energy resolution scale factors
 
 
     public:
@@ -77,15 +77,15 @@ class permProbComputer : public AnalyzerBase
 
 
                 URParser &parser = URParser::instance();
-                parser.addCfgParameter<string>("JERC", "JER_SF","");
-                parser.addCfgParameter<string>("JERC", "PT_JER","");
+//                parser.addCfgParameter<string>("JERC", "JER_SF","");
+//                parser.addCfgParameter<string>("JERC", "PT_JER","");
                 parser.parseArguments();
 
-                DataFile jer_sf_fname_(parser.getCfgPar<string>("JERC","JER_SF"));
-                DataFile pt_jer_fname_(parser.getCfgPar<string>("JERC","PT_JER"));
-
-                jet_res_sf_ = JME::JetResolutionScaleFactor(jer_sf_fname_.path());
-                pt_jet_res_ = JME::JetResolution(pt_jer_fname_.path());
+//                DataFile jer_sf_fname_(parser.getCfgPar<string>("JERC","JER_SF"));
+//                DataFile pt_jer_fname_(parser.getCfgPar<string>("JERC","PT_JER"));
+//
+//                jet_res_sf_ = JME::JetResolutionScaleFactor(jer_sf_fname_.path());
+//                pt_jet_res_ = JME::JetResolution(pt_jer_fname_.path());
 
 
 
@@ -153,10 +153,10 @@ class permProbComputer : public AnalyzerBase
                     histos_[shift][evt_type]["mWhad_vs_mtophad_4J"] = RObject::book<TH2D>("mWhad_vs_mtophad_4J", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
                     histos_[shift][evt_type]["mWhad_vs_mtophad_5J"] = RObject::book<TH2D>("mWhad_vs_mtophad_5J", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
                     histos_[shift][evt_type]["mWhad_vs_mtophad_6PJ"] = RObject::book<TH2D>("mWhad_vs_mtophad_6PJ", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 500, 0., 500., 500, 0., 500);
-                    histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
-                    histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
-                    histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
-                    histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
+                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
+                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
+                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
+                    //histos_[shift][evt_type]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ"] = RObject::book<TH2D>("Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ", ";#Delta M(W_{had})/#sigma(2J) [GeV];#Delta M(t_{had})/#sigma(3J) [GeV]", 300, -50., 50., 300, -40., 40);
                     vector<double> binning;
                     range(binning, 0., 10., 1.);
                     range(binning, 12, 200., 2.);
@@ -186,6 +186,8 @@ class permProbComputer : public AnalyzerBase
             return 0;
         }
 
+
+        // events with 4+ jets
         void process_evt(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS) {
             //Fill truth of resp matrix
             GenTTBar &ttbar = genp_selector_.ttbar_system();
@@ -240,41 +242,41 @@ class permProbComputer : public AnalyzerBase
                 else perm_status = TTNaming::OTHER;
 
                 // get nominal jet scale factors
-                float WJa_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.WJa()->Eta()}});
-                float WJb_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.WJb()->Eta()}});
-                float BHad_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.BHad()->Eta()}});
+//                float WJa_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.WJa()->Eta()}});
+//                float WJb_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.WJb()->Eta()}});
+//                float BHad_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, test_perm.BHad()->Eta()}});
 
-                // get jet pt resolutions
-                float WJa_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.WJa()->Pt()}, {JME::Binning::JetEta, test_perm.WJa()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
-                float WJb_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.WJb()->Pt()}, {JME::Binning::JetEta, test_perm.WJb()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
-                float BHad_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.BHad()->Pt()}, {JME::Binning::JetEta, test_perm.BHad()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
-
-                // get standard deviations from true masses
-                float M_j1upj2 = (*test_perm.WJa()*(WJa_pt_res*WJa_sf+1.)+*test_perm.WJb()).M();
-                float M_j2upj1 = (*test_perm.WJb()*(WJb_pt_res*WJb_sf+1.)+*test_perm.WJa()).M();
-                float sigma2j = sqrt(pow(M_j1upj2-test_perm.WHad().M(),2)+pow(M_j2upj1-test_perm.WHad().M(),2));
-
-                float M_j1upj2j3 = (*test_perm.WJa()*(WJa_pt_res*WJa_sf+1.)+*test_perm.WJb()+*test_perm.BHad()).M();
-                float M_j2upj1j3 = (*test_perm.WJb()*(WJb_pt_res*WJb_sf+1.)+*test_perm.WJa()+*test_perm.BHad()).M();
-                float M_j3upj1j2 = (*test_perm.BHad()*(BHad_pt_res*BHad_sf+1.)+*test_perm.WJa()+*test_perm.WJb()).M();
-                float sigma3j = sqrt(pow(M_j1upj2j3-test_perm.THad().M(),2)+pow(M_j2upj1j3-test_perm.THad().M(),2)+pow(M_j3upj1j2-test_perm.THad().M(),2));
-
-                float rel_delt_mw = (test_perm.WHad().M()-80.385)/sigma2j; //value from http://pdglive.lbl.gov/Particle.action?node=S043&init=0
-                float rel_delt_mt = (test_perm.THad().M()-173.1)/sigma3j; //value from http://pdglive.lbl.gov/Particle.action?node=Q007&init=0
+//                // get jet pt resolutions
+//                float WJa_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.WJa()->Pt()}, {JME::Binning::JetEta, test_perm.WJa()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
+//                float WJb_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.WJb()->Pt()}, {JME::Binning::JetEta, test_perm.WJb()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
+//                float BHad_pt_res = pt_jet_res_.getResolution({{JME::Binning::JetPt, test_perm.BHad()->Pt()}, {JME::Binning::JetEta, test_perm.BHad()->Eta()}, {JME::Binning::Rho, event.rho().value()}});
+//
+//                // get standard deviations from true masses
+//                float M_j1upj2 = (*test_perm.WJa()*(WJa_pt_res*WJa_sf+1.)+*test_perm.WJb()).M();
+//                float M_j2upj1 = (*test_perm.WJb()*(WJb_pt_res*WJb_sf+1.)+*test_perm.WJa()).M();
+//                float sigma2j = sqrt(pow(M_j1upj2-test_perm.WHad().M(),2)+pow(M_j2upj1-test_perm.WHad().M(),2));
+//
+//                float M_j1upj2j3 = (*test_perm.WJa()*(WJa_pt_res*WJa_sf+1.)+*test_perm.WJb()+*test_perm.BHad()).M();
+//                float M_j2upj1j3 = (*test_perm.WJb()*(WJb_pt_res*WJb_sf+1.)+*test_perm.WJa()+*test_perm.BHad()).M();
+//                float M_j3upj1j2 = (*test_perm.BHad()*(BHad_pt_res*BHad_sf+1.)+*test_perm.WJa()+*test_perm.WJb()).M();
+//                float sigma3j = sqrt(pow(M_j1upj2j3-test_perm.THad().M(),2)+pow(M_j2upj1j3-test_perm.THad().M(),2)+pow(M_j3upj1j2-test_perm.THad().M(),2));
+//
+//                float rel_delt_mw = (test_perm.WHad().M()-80.385)/sigma2j; //value from http://pdglive.lbl.gov/Particle.action?node=S043&init=0
+//                float rel_delt_mt = (test_perm.THad().M()-173.1)/sigma3j; //value from http://pdglive.lbl.gov/Particle.action?node=Q007&init=0
 
                 plots[perm_status]["mWhad_vs_mtophad"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-                plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
+//                plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 if( object_selector_.clean_jets().size() == 4 ){
                     plots[perm_status]["mWhad_vs_mtophad_4J"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
+//                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_4J"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 }
                 else if( object_selector_.clean_jets().size() == 5 ){
                     plots[perm_status]["mWhad_vs_mtophad_5J"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
+//                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_5J"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 }
                 else if( object_selector_.clean_jets().size() > 5 ){
                     plots[perm_status]["mWhad_vs_mtophad_6PJ"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
-                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
+//                    plots[perm_status]["Rel_Delta_mWhad_vs_Rel_Delta_mtophad_6PJ"].fill( rel_delt_mw, rel_delt_mt, evt_weight_);
                 }
 
                 plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
@@ -305,7 +307,18 @@ class permProbComputer : public AnalyzerBase
                 plots[perm_status]["lb_w2b_ratio"].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), wpt_mM.second/test_perm.BHad()->Pt(), evt_weight_);
             }
             tracker_.track("end");
-        }
+        }// end of process_evt
+
+
+
+
+
+        
+
+
+
+
+
 
         //This method is called once every file, contains the event loop
         //run your proper analysis here

@@ -17,6 +17,7 @@ from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import argparse
 import matplotlib.pyplot as plt
+import functions as fncts
 
 
 analyzer = 'ttbar_reco_3J'
@@ -84,28 +85,6 @@ plotter = BasePlotter(
 	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}}
 	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
 )
-
-def stack_plots(lists):
-    lists.sort(key=lambda x: x.Integral())
-    total = 0
-#    ratio_hists = []
-    Stack_hists = []
-
-    for i in lists:
-        total += i
-    for i in lists:
-#        ratio_hists.append(i/total)
-        i.SetFillStyle(1001)
-        Stack_hists.append(i)
-
-    stack = plotting.HistStack()
-    norm_stack = plotting.HistStack()
-    for i in Stack_hists:
-        stack.Add(i)
-        norm_stack.Add(i/total)
-        
-    return stack, norm_stack
-    
 
 
 def plot_dir(plot):

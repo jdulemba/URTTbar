@@ -18,6 +18,8 @@ import argparse
 import numpy as np
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import rootpy.io as io
+import functions as fncts
+
 
 analyzer = 'gen_partons'
 
@@ -27,7 +29,7 @@ jobid = jobid = os.environ['jobid']
 
 parser.add_argument('analysis', help='Choose type of analysis (Test or Full).')
 parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000, Combined, or any valid A/HtoTT file).')
-parser.add_argument('plot', help='Choose type of plots to generate: Everything, Kin_Vars, System, Merged_Fractions, 3J, 4J, 5PJ, AllJets')
+parser.add_argument('plot', help='Choose type of plots to generate: Everything, Kin_Vars, System, Merged_Fractions, 3J, 4J, 5PJ, AllJets, Acceptance')
 #parser.add_argument('plot', help='Choose type of plots to generate (DR, Kin_Vars, System, Merged_Fractions, 3J, 4J, 5PJ, AllJets, 3Partons, Had_Comp_DR).')
 args = parser.parse_args()
 
@@ -64,7 +66,8 @@ if args.analysis == "Full":
 ##### check plot type
 if not ( args.plot == "Everything" or args.plot == "3J" or args.plot == "4J" or args.plot == "5PJ"\
     or args.plot == "AllJets" or args.plot == "3Partons" or args.plot == "Had_Comp_DR"\
-    or args.plot == "DR" or args.plot == "Kin_Vars" or args.plot == "System" or args.plot == "Merged_Fractions"):
+    or args.plot == "DR" or args.plot == "Kin_Vars" or args.plot == "System"\
+    or args.plot == "Merged_Fractions" or args.plot == "Acceptance"):
     print "You chose %s as your plot type.\nYou must choose from the help list!"
     sys.exit() 
 
@@ -102,30 +105,30 @@ plotter = BasePlotter(
 	defaults = {'save' : {'png' : True, 'pdf' : False}}
 )
 
-def stack_plots(lists):
-
-    lists.sort(key=lambda x: x.Integral())
-    total = 0
-    ratio_hists = []
-    Stack_hists = []
- 
-    for i in lists:
-        total += i
-    for i in lists:
-        ratio_hists.append(i/total)
-        i.SetFillStyle(1001)
-        Stack_hists.append(i)
-
-    stack = plotting.HistStack()
-    norm_stack = plotting.HistStack()
-
-#    set_trace()
-    for i in Stack_hists:
-        stack.Add(i)
-        norm_stack.Add(i/total)
-
-
-    return stack, norm_stack, ratio_hists
+#def stack_plots(lists):
+#
+#    lists.sort(key=lambda x: x.Integral())
+#    total = 0
+#    ratio_hists = []
+#    Stack_hists = []
+# 
+#    for i in lists:
+#        total += i
+#    for i in lists:
+#        ratio_hists.append(i/total)
+#        i.SetFillStyle(1001)
+#        Stack_hists.append(i)
+#
+#    stack = plotting.HistStack()
+#    norm_stack = plotting.HistStack()
+#
+##    set_trace()
+#    for i in Stack_hists:
+#        stack.Add(i)
+#        norm_stack.Add(i/total)
+#
+#
+#    return stack, norm_stack, ratio_hists
 
 
 def plot_dir(plot):
@@ -241,6 +244,39 @@ DRvals = {
 #			hist.xaxis.range_user = mass_min, mass_max
 #		plotter.save(var)
 	
+########################################################################################
+
+def Acceptance():
+    plots = 'Acceptance'
+
+    plotter.set_subdir(plots+'/3J')
+    Gen_Jets = { 'BLep' : 'b_{l}', 'BHad' : 'b_{h}', 'WJa' : 'W_{ja}', 'WJb' : 'W_{jb}' }
+
+    for jet in Gen_Jets:
+        label = Gen_Jets[jet]
+
+        var_2D = '3J_'+jet+'_Eta_vs_'+jet+'_Pt'
+
+        hist2D = asrootpy(myfile.Get('2D_Plots/'+var_2D)).Clone()
+        plotter.plot(hist2D)
+        hist2D.Draw('colz')
+        hist2D.xaxis.set_title(label+' p_{T} [GeV]')
+        hist2D.yaxis.set_title(label+' |#eta|')
+
+        box = plotter.make_text_box(decay, position='NE')
+        box.Draw()
+
+        plotter.save(var_2D)
+
+        pt_cut = hist2D.Integral(0,4,0,100) #(int binx1, int binx2, int biny1, int biny1)
+        eta_cut = hist2D.Integral(0,200,48,100) #(int binx1, int binx2, int biny1, int biny1)
+        pt_eta_intersection = hist2D.Integral(0,4,48,100)
+        print 'Failing %s = %i' % (jet, pt_cut+eta_cut-pt_eta_intersection)
+        print 'P('+jet+' out of acceptance) = ', format((pt_cut+eta_cut-pt_eta_intersection)/hist2D.Integral(), '.4f')
+
+    plot_dir(plots)
+
+
 ########################################################################################
 
 def Kin_Vars():
@@ -477,7 +513,7 @@ def Merged_Fractions():
 #                plotter.save('AllJets_Hadronic_Events_vs_mttbar_log_'+name)
 #
 #
-#                stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+#                stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
 #
 #                ### plot event ratios
 #                plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.15), xtitle='m_{t#bar t} [GeV]', ytitle='Event Fraction '+title, drawstyle='hist')
@@ -515,7 +551,7 @@ def Merged_Fractions():
 #                plotter.save('AllJets_Hadronic_Events_vs_thadpt_log_'+name)
 #
 #
-#                stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+#                stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
 #
 #
 #                ### plot event ratios
@@ -655,7 +691,7 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
                     to_draw.append(comb_hist)
     
                     if len(to_draw) == 3:
-                        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+                        stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
                         
                         ### plot event ratios
                         plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle=xaxis, ytitle='Event Fraction', drawstyle='hist')
@@ -779,7 +815,7 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
                     plotter.set_histo_style(hist, title=legends, drawstyle='hist', color=col, linestyle='solid')
                     to_draw.append(hist)
    
-                stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+                stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
     
                 ### plot event ratios
                 plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle=xaxis, ytitle='Event Fraction', drawstyle='hist')
@@ -838,7 +874,7 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
 #        plotter.save('Three_Partons_Hadronic_Events_Comp_vs_thadpt_log')
 #
 #
-#        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+#        stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
 #
 #        ### plot event ratios
 #        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
@@ -874,7 +910,7 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
 #        plotter.save('Three_Partons_BHad_Missing_Hadronic_Events_Comp_vs_thadpt_log')
 #
 #
-#        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+#        stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
 #
 #        ### plot event ratios
 #        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
@@ -912,7 +948,7 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
 #        plotter.save('Three_Partons_BLep_Missing_Hadronic_Events_Comp_vs_thadpt_log')
 #
 #
-#        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+#        stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
 #
 #        ### plot event ratios
 #        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
@@ -951,7 +987,7 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
 #        plotter.save('Three_Partons_WJa_Missing_Hadronic_Events_Comp_vs_thadpt_log')
 #
 #
-#        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+#        stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
 #
 #        ### plot event ratios
 #        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
@@ -989,7 +1025,7 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
 #        plotter.save('Three_Partons_WJb_Missing_Hadronic_Events_Comp_vs_thadpt_log')
 #
 #
-#        stack, norm_stack, Ratio_Hists = stack_plots(to_draw)
+#        stack, norm_stack, Ratio_Hists = fncts.stack_plots(to_draw)
 #
 #        ### plot event ratios
 #        plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle='t_{h} p_{T} [GeV]', ytitle='Event Fraction', drawstyle='hist')
@@ -1029,3 +1065,6 @@ if args.plot == "Everything":
     jets = ["3J", "4J", "5PJ", "AllJets"]
     for jet in jets:
         Jets(jet)
+
+if args.plot == "Acceptance":
+    Acceptance()
