@@ -131,56 +131,73 @@ class Permutation
 		void QGDiscr(  double val) {qgtag_discriminant_= val;} 
 		void JRatioDiscr(double val) {jratio_discriminant_= val;}
 
-    ////// Joseph added for perm discr
-        bool IsEmpty() const
-        {
+    ////// Joseph added for 3 jet events 
+        bool IsEmpty() const{
             if( WJa() == 0 && WJb() == 0 && BHad() == 0 && BLep() == 0 ) {return(true);}
             return(false);
         }
 
-        bool Merged_BHadWJa() const // only BHad and WJa merged
-        {
+        int n_perm_matches() const{ // number of perm objects that have matches
+            int matches = 0;
+            if( BHad() ) matches++;
+            if( BLep() ) matches++;
+            if( WJa() ) matches++;
+            if( WJb() ) matches++;
+            return matches;
+        }
+
+        int unique_matches() const{ // number of perm objects that have unique matches
+            int unique_matches = 0;
+            if( BHad() ) unique_matches++;
+            if( BLep() && ( BLep() != BHad() ) ) unique_matches++;
+            if( WJa() && ( WJa() != BHad() ) && ( WJa() != BLep() ) ) unique_matches++;
+            if( WJb() && ( WJb() != BHad() ) && ( WJb() != BLep() ) && ( WJb() != WJa() ) ) unique_matches++;
+            return unique_matches;
+        }
+
+        // merged event categories
+        bool Merged_BHadBLep() const{ // only BHad and BLep merged
+            if( BHad() && (BHad() == BLep()) && (BHad() != WJa()) && (BHad() != WJb()) && (WJa() != WJb()) ){return(true);}
+            return(false);
+        }
+
+        bool Merged_BHadWJa() const{ // only BHad and WJa merged
             if( BHad() && (BHad() == WJa()) && (BHad() != WJb()) && (BHad() != BLep()) && (BLep() != WJb() ) ) {return(true);}
             return(false);
         }
 
-        bool Merged_BHadWJb() const // only BHad and WJb merged
-        {
+        bool Merged_BHadWJb() const{ // only BHad and WJb merged
             if( BHad() && (BHad() == WJb()) && (BHad() != WJa()) && (BHad() != BLep()) && (BLep() != WJa() ) ) {return(true);}
             return(false);
         }
 
-        bool Merged_BLepWJa() const // only BLep and WJa merged
-        {
+        bool Merged_BLepWJa() const{ // only BLep and WJa merged
             if( BLep() && (BLep() == WJa()) && (BLep() != WJb()) && (BLep() != BHad()) && (BHad() != WJb() ) ) {return(true);}
             return(false);
         }
 
-        bool Merged_BLepWJb() const // only BLep and WJb merged
-        {
+        bool Merged_BLepWJb() const{ // only BLep and WJb merged
             if( BLep() && (BLep() == WJb()) && (BLep() != WJa()) && (BLep() != BHad()) && (BHad() != WJa() ) ) {return(true);}
             return(false);
         }
 
-        bool Merged_WJets() const // only WJa and WJb merged
-        {
+        bool Merged_WJets() const{ // only WJa and WJb merged
             if( WJa() && (WJa() == WJb()) && (WJa() != BHad()) && (WJa() != BLep()) && (BHad() != BLep() ) ) {return(true);}
             return(false);
         }
 
-        bool Merged_Event() const // event has a merged jet present
-        {
-            if( Merged_BHadWJa() || Merged_BHadWJb() || Merged_BLepWJa() || Merged_BLepWJb() || Merged_WJets() ) {return(true);}
+        bool Merged_Event() const{ // event has a merged jet present
+            if( Merged_BHadBLep() || Merged_BHadWJa() || Merged_BHadWJb() || Merged_BLepWJa() || Merged_BLepWJb() || Merged_WJets() ) {return(true);}
             return(false);
         }
+        // end of merged event categories
 
-        bool AreBsFlipped(const Permutation& other) const // bjets have flipped positions
-        {
+        // compare assignments across perms
+        bool AreBsFlipped(const Permutation& other) const{ // bjets have flipped positions
             return( BHad() == other.BLep() && BLep() == other.BHad() );
         }
 
-		bool AreBsSame(const Permutation& other) const //bjets are selected correct and in the right position
-		{
+		bool AreBsSame(const Permutation& other) const{ //bjets are selected correct and in the right position
 			return(IsBHadCorrect(other) && IsBLepCorrect(other));
 //			return( BLep() == other.BLep() && BHad() == other.BHad() );
 		}

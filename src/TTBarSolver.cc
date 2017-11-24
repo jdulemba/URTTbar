@@ -246,10 +246,10 @@ void TTBarSolver::Solve_3J(Permutation &hyp, bool lazy)
     throw 42;
   }
 
-  if( !hyp.BLep() || !hyp.BHad() ){
-    Logger::log().fatal() << "Hadronic and leptonic b's not present!" << std::endl;
-    throw 42;
-  }
+//  if( !hyp.BLep() || !hyp.BHad() ){
+//    Logger::log().fatal() << "Hadronic and leptonic b's not present!" << std::endl;
+//    throw 42;
+//  }
 
     double nschi_3J = numeric_limits<double>::max();
     double nstest_3J = numeric_limits<double>::max();

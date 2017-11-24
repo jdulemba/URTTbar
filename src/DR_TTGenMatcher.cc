@@ -70,11 +70,11 @@ Permutation DR_TTGenMatcher::dr_match(GenTTBar& gen_hyp, std::vector<IDJet*> &je
 //        }       
 //    }
 
-//    if( !(ret.BHad() && ret.BLep() && ret.WJa() && ret.WJb()) ) return empty_perm; // require all objects (some should be merged)
-    if( !(ret.BHad() && ret.BLep()) ) return empty_perm; // require both b's
-    if( !(ret.WJa() || ret.WJb()) ) return empty_perm; // require at least one wjet
-    if( ret.BHad() == ret.BLep() ) return empty_perm; // both b's can't be merged
-    if( (ret.BHad() == ret.WJa() && ret.BHad() == ret.WJb()) || (ret.BLep() == ret.WJa() && ret.BLep() == ret.WJb()) ) return empty_perm; // three jets can't be merged
+////    if( !(ret.BHad() && ret.BLep() && ret.WJa() && ret.WJb()) ) return empty_perm; // require all objects (some should be merged)
+//    if( !(ret.BHad() && ret.BLep()) ) return empty_perm; // require both b's
+//    if( !(ret.WJa() || ret.WJb()) ) return empty_perm; // require at least one wjet
+//    if( ret.BHad() == ret.BLep() ) return empty_perm; // both b's can't be merged
+//    if( (ret.BHad() == ret.WJa() && ret.BHad() == ret.WJb()) || (ret.BLep() == ret.WJa() && ret.BLep() == ret.WJb()) ) return empty_perm; // three jets can't be merged
     return ret;
 
 }
