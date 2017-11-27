@@ -18,9 +18,14 @@ class Permutation
 {
 	private:
 
-    //// Joseph added for perm discriminant
-        double perm_discriminant_ = numeric_limits<double>::max();
-        vector<double> perm_discriminant_vec_;
+    //// Joseph added for 3 jet events (merged and lost)
+        // merged
+        double merged_3J_discriminant_ = numeric_limits<double>::max();
+        vector<double> merged_3J_discriminant_vec_;
+
+        // lost
+        double lost_3J_discriminant_ = numeric_limits<double>::max();
+        vector<double> lost_3J_discriminant_vec_;
     //
 
 
@@ -107,12 +112,13 @@ class Permutation
         TLorentzVector LVect() const {return THad()+TLep();}
 
 
-    //// Joseph added for perm discriminant
-        double PermDiscr() const {return perm_discriminant_;}
-        void PermDiscr(double val) {perm_discriminant_ = val;}
+    //// Joseph added for 3 jet events (merged and lost)
+        // merged
+        double Merged3JDiscr() const {return merged_3J_discriminant_;}
+        void Merged3JDiscr(double val) {merged_3J_discriminant_ = val;}
 
-        vector<double> PermDiscr_Vec() const { return perm_discriminant_vec_;}
-        void PermDiscr_Vec(vector<double> val) {perm_discriminant_vec_ = val;}
+        vector<double> Merged3JDiscr_Vec() const { return merged_3J_discriminant_vec_;}
+        void Merged3JDiscr_Vec(vector<double> val) {merged_3J_discriminant_vec_ = val;}
 
     ////
 

@@ -393,13 +393,13 @@ class ttbar_reco_3J : public AnalyzerBase
             double lowest_Totaldisc_3J = 1e10;
 
             for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                solver_.Solve_3J(test_perm);
+                solver_.Solve_3J_Merged(test_perm);
 
-                test_dir->second["3J_tp_Massdisc"].fill(test_perm.PermDiscr());
+                test_dir->second["3J_tp_Massdisc"].fill(test_perm.Merged3JDiscr());
                 test_dir->second["3J_tp_NSdisc"].fill(test_perm.NuDiscr());
                 test_dir->second["3J_tp_Totaldisc"].fill(test_perm.Prob());
 
-                if( test_perm.PermDiscr() < 10. ) test_dir->second["Massdisc_cat"].fill(1); // 1 if mass disc is in range
+                if( test_perm.Merged3JDiscr() < 10. ) test_dir->second["Massdisc_cat"].fill(1); // 1 if mass disc is in range
                 else test_dir->second["Massdisc_cat"].fill(3); // 3 if mass disc isn't in range
                 if( test_perm.NuDiscr() < 10. && test_perm.NuDiscr() > 0. ) test_dir->second["NSdisc_cat"].fill(1); // 1 if NS disc is in range
                 else test_dir->second["NSdisc_cat"].fill(3); // 3 if NS disc isn't in range

@@ -330,7 +330,7 @@ class jet_perm_disc : public AnalyzerBase
 //            GenTop* thad = ttbar.had_top();
 
 
-            solver_.Solve_3J(matched_perm);
+            solver_.Solve_3J_Merged(matched_perm);
 
 
             if( !matched_perm.Merged_Event() ){ // no jets merged
@@ -512,13 +512,13 @@ class jet_perm_disc : public AnalyzerBase
 //            double lowest_Totaldisc_3J = 1e10;
 //
 //            for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-//                solver_.Solve_3J(test_perm);
+//                solver_.Solve_3J_Merged(test_perm);
 //
-//                if( test_perm.PermDiscr() < lowest_massdisc_3J ){
-//                    lowest_massdisc_3J = test_perm.PermDiscr();
+//                if( test_perm.Merged3JDiscr() < lowest_massdisc_3J ){
+//                    lowest_massdisc_3J = test_perm.Merged3JDiscr();
 //                    //                best_perm = test_perm;
 //                }
-//                like_dir->second["3J_Event_All_Massdisc"].fill(test_perm.PermDiscr()); // all perm disc values
+//                like_dir->second["3J_Event_All_Massdisc"].fill(test_perm.Merged3JDiscr()); // all perm disc values
 //
 //                if( test_perm.NuChisq() < lowest_NSchi_3J && test_perm.NuChisq() > 0. ){
 //                    lowest_NSchi_3J = test_perm.NuChisq();
@@ -550,7 +550,7 @@ class jet_perm_disc : public AnalyzerBase
 //
 //            if( !best_perm.IsEmpty() ){
 //                // values from best perm
-//                like_dir->second["3J_Event_Best_Perm_Massdisc"].fill(best_perm.PermDiscr()); // best perm perm disc value
+//                like_dir->second["3J_Event_Best_Perm_Massdisc"].fill(best_perm.Merged3JDiscr()); // best perm perm disc value
 //                like_dir->second["3J_Event_Best_Perm_NSchi"].fill(best_perm.NuChisq()); // best perm neutrino solver chi2 value
 //                like_dir->second["3J_Event_Best_Perm_NSdisc"].fill(best_perm.NuDiscr()); // best perm neutrino solver disc value
 //                like_dir->second["3J_Event_Best_Perm_Totaldisc"].fill(best_perm.Prob()); // best perm total (perm+NS) disc value

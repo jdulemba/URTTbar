@@ -27,8 +27,9 @@ TTBarSolver::TTBarSolver(bool active) {
   parser.addCfgParameter<bool>("ttsolver", "ptratio" , "", false);
   parser.addCfgParameter<bool>("ttsolver", "qarkgluon" , "", false);
 
-        // Joseph added for perm discriminant
-  parser.addCfgParameter<bool>("ttsolver", "permdisc", "", false);
+        // Joseph added for 3 jet events (merged and lost)
+  parser.addCfgParameter<bool>("ttsolver", "merged_3J", "", false);
+  parser.addCfgParameter<bool>("ttsolver", "lost_3J", "", false);
         //
 //  parser.addCfgParameter<string>("JERC", "JER_SF","");
 //  parser.addCfgParameter<string>("JERC", "PT_JER","");
@@ -44,8 +45,9 @@ TTBarSolver::TTBarSolver(bool active) {
   useptratios_  = parser.getCfgPar<bool>("ttsolver", "ptratio" );
   usewjetqgtag_ = parser.getCfgPar<bool>("ttsolver", "qarkgluon" );
 
-        // Joseph added for perm discriminant
-  USEPERM_ = parser.getCfgPar<bool>("ttsolver", "permdisc");
+        // Joseph added for 3 jet events
+  USE3JMERGED_ = parser.getCfgPar<bool>("ttsolver", "merged_3J");
+  USE3JLOST_ = parser.getCfgPar<bool>("ttsolver", "lost_3J");
         //
 
 //  DataFile jer_sf_fname_(parser.getCfgPar<string>("JERC","JER_SF"));
@@ -64,7 +66,12 @@ TTBarSolver::TTBarSolver(bool active) {
 			//Rel_Delt_WTmass_right_ = preproccess_histo<TH2D>(dir, "Rel_Delta_mWhad_vs_Rel_Delta_mtophad_right", "rel_delt_wt_right");
 		if(USENS_){
 			N_right_ = preproccess_histo<TH1D>(dir, "nusolver_chi2_right", "nu_right");
-			N_3J_right_ = preproccess_histo<TH1F>(dir, "3J_nusolver_chi2_correct", "3J_nu_correct");
+                // merged 3 jet vars
+			NSchi2_3J_merged_right_ = preproccess_histo<TH1F>(dir, "3J_nusolver_chi2_merged_right", "3J_ns_chi2_merged_right");
+			NSdist_3J_merged_right_ = preproccess_histo<TH1F>(dir, "3J_nusolver_dist_merged_right", "3J_ns_dist_merged_right");
+                // lost 3 jet vars
+			NSchi2_3J_lost_right_ = preproccess_histo<TH1F>(dir, "3J_nusolver_chi2_lost_right", "3J_ns_chi2_lost_right");
+			NSdist_3J_lost_right_ = preproccess_histo<TH1F>(dir, "3J_nusolver_dist_lost_right", "3J_ns_dist_lost_right");
         }
 		if(USEBTAG_) {
 			wj1_btag_right_ = preproccess_histo<TH1D>(dir, "wjets_bcMVA_p11_right", "wjets_bcMVA_p11_wrong", "j1btag_right"); //best wjet cMVA^11
@@ -79,12 +86,16 @@ TTBarSolver::TTBarSolver(bool active) {
 			wj2_qgtag_right_ = preproccess_histo<TH1D>(dir, "wjets_wqgt_right", "wjets_wqgt_wrong", "j2qgtag_right");			
 		}
 
-            // Joseph added for discriminants
-        if( USEPERM_ ){
-            Max_Mjet_3J_right_ = preproccess_histo<TH2D>(dir, "3J_mbpjet_vs_maxmjet_correct", "3J_mbpjet_vs_maxmjet_wrong", "");
-            //Max_Mjet_4J_right_ = preproccess_histo<TH2D>(dir, "4J_mbpjet_vs_maxmjet_correct", "4J_mbpjet_vs_maxmjet_wrong", "");
+        // Joseph added for 3 jet events (merged and lost)
+            // merged events
+        if( USE3JMERGED_ ){
+            Max_Mjet_3J_merged_right_ = preproccess_histo<TH2D>(dir, "3J_mbpjet_vs_maxmjet_merged_right", "3J_mbpjet_vs_maxmjet_merged_wrong", "");
         }
-            //
+            // lost events
+        if( USE3JLOST_ ){
+            Mbpjet_3J_lost_right_ = preproccess_histo<TH1F>(dir, "3J_mbpjet_lost_right", "3J_mbpjet_lost_wrong");
+        }
+        //
 
 
   }
@@ -238,9 +249,8 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
 
 
 
-////// Joseph added for permutation discriminant
-void TTBarSolver::Solve_3J(Permutation &hyp, bool lazy)
-{
+////// Joseph added for merged 3 jet events
+void TTBarSolver::Solve_3J_Merged(Permutation &hyp, bool lazy){
   if( !lazy ) {                          
     Logger::log().fatal() << "Lazy requirement not met!" << std::endl;
     throw 42;
@@ -251,10 +261,10 @@ void TTBarSolver::Solve_3J(Permutation &hyp, bool lazy)
 //    throw 42;
 //  }
 
-    double nschi_3J = numeric_limits<double>::max();
-    double nstest_3J = numeric_limits<double>::max();
+    double merged_nschi_3J = numeric_limits<double>::max();
+    double merged_nstest_3J = numeric_limits<double>::max();
 	double res = numeric_limits<double>::max();
-    double permtest_3J = numeric_limits<double>::max();
+    double mergedtest_3J = numeric_limits<double>::max();
 
     double MaxMjet = numeric_limits<double>::max();
     double Mbpjet = numeric_limits<double>::max();
@@ -271,14 +281,14 @@ void TTBarSolver::Solve_3J(Permutation &hyp, bool lazy)
 
     /// Neutrino Solver
     NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
-    hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., nschi_3J)); // ignore MET covariance matrix, take bare distance
+    hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., merged_nschi_3J)); // ignore MET covariance matrix, take bare distance
 
-//    if( nschi_3J == -1 ) cout << "chi_3J: " << nschi_3J << endl;
+//    if( merged_nschi_3J == -1 ) cout << "chi_3J: " << merged_nschi_3J << endl;
 
-    if( N_3J_right_ ){
-        int binx = N_3J_right_->GetXaxis()->FindFixBin(Sqrt(nschi_3J));
-        if( binx <= N_3J_right_->GetNbinsX() ){
-            nstest_3J = -1.*Log(N_3J_right_->GetBinContent(binx));
+    if( NSchi2_3J_merged_right_ ){
+        int binx = NSchi2_3J_merged_right_->GetXaxis()->FindFixBin(Sqrt(merged_nschi_3J));
+        if( binx <= NSchi2_3J_merged_right_->GetNbinsX() ){
+            merged_nstest_3J = -1.*Log(NSchi2_3J_merged_right_->GetBinContent(binx));
 
         }
     }
@@ -295,18 +305,18 @@ void TTBarSolver::Solve_3J(Permutation &hyp, bool lazy)
          MaxMjet = max_min( BHadWJa_pair.first->M(), BHadWJa_pair.second->M() ).first;
          Mbpjet = ( *BHadWJa_pair.first+*BHadWJa_pair.second ).M();
         
-         if( Max_Mjet_3J_right_){
+         if( Max_Mjet_3J_merged_right_){
              int binx = TMath::Max(1,
-                         TMath::Min(Max_Mjet_3J_right_->GetXaxis()->FindFixBin(MaxMjet), Max_Mjet_3J_right_->GetNbinsX())
+                         TMath::Min(Max_Mjet_3J_merged_right_->GetXaxis()->FindFixBin(MaxMjet), Max_Mjet_3J_merged_right_->GetNbinsX())
                  );
              int biny = TMath::Max(1,
-                         TMath::Min(Max_Mjet_3J_right_->GetYaxis()->FindFixBin(Mbpjet), Max_Mjet_3J_right_->GetNbinsY())
+                         TMath::Min(Max_Mjet_3J_merged_right_->GetYaxis()->FindFixBin(Mbpjet), Max_Mjet_3J_merged_right_->GetNbinsY())
                  );
         
-             double permdisval_3J = Max_Mjet_3J_right_->GetBinContent(binx,biny);
+             double merged_discval_3J = Max_Mjet_3J_merged_right_->GetBinContent(binx,biny);
 
-            if( permdisval_3J > 1.0E-10 ){
-                 permtest_3J = -1.*Log(permdisval_3J);
+            if( merged_discval_3J > 1.0E-10 ){
+                 mergedtest_3J = -1.*Log(merged_discval_3J);
              }
 
          }
@@ -314,177 +324,30 @@ void TTBarSolver::Solve_3J(Permutation &hyp, bool lazy)
     }
 
     res = 0.;
-    if(USEPERM_ ) {res += permtest_3J;}
-    if(USENS_ ) {res += nstest_3J;}
+    if(USE3JMERGED_ ) {res += mergedtest_3J;}
+    if(USENS_ ) {res += merged_nstest_3J;}
 
     hyp.Prob(res);
-    hyp.NuChisq(nschi_3J);
-    hyp.NuDiscr(nstest_3J);
-    hyp.PermDiscr(permtest_3J);
+    hyp.NuChisq(merged_nschi_3J);
+    hyp.NuDiscr(merged_nstest_3J);
+    hyp.Merged3JDiscr(mergedtest_3J);
 
 }
 
 
+////// Joseph added for lost 3 jet events
+void TTBarSolver::Solve_3J_Lost(Permutation &hyp, bool lazy){
+  if( !lazy ) {                          
+    Logger::log().fatal() << "Lazy requirement not met!" << std::endl;
+    throw 42;
+  }
 
-//////// Joseph added for permutation discriminant
-//void TTBarSolver::Solve_4J(Permutation &hyp, bool lazy)
-//{
-//  if( !lazy ) {                          
-//    Logger::log().fatal() << "Lazy requirement not met!" << std::endl;
-//    throw 42;
-//  }
-//
-//  if( !hyp.BLep() || !hyp.BHad() ){
-//    Logger::log().fatal() << "Hadronic and leptonic b's not present!" << std::endl;
-//    throw 42;
-//  }
-//
-//  if( !(hyp.WJa() && hyp.WJb() && hyp.BHad() && hyp.BLep()) ){
-//    Logger::log().fatal() << "4 jets not present!" << endl;
-//    throw 42;
-//  }
-//
-//
-//
-//	double res      = numeric_limits<double>::max();
-//    double permtest_4J = numeric_limits<double>::max();
-//
-//    double MaxMjet = numeric_limits<double>::max();
-//    double Mbpjet = numeric_limits<double>::max();
-//
-//    double lowest_like_4J = 1e10;
-//
-//    
-//    auto jet_pair = [] (IDJet* a, IDJet* b) -> pair<IDJet*, IDJet*>{ // template for pairs of jets
-//        return std::make_pair(a,b); };
-//
-//	auto max_min = [] (const double& a, const double& b) -> pair<const double,const double> { // template for max,min values
-//		return (b>a) ? std::make_pair(b, a) : std::make_pair(a, b); };
-//
-//
-//
-////    if( hyp.WJa() && !hyp.WJb() ){ // only WJa exists
-////            // creates pairs of jets
-////        auto BLepWJa_pair = jet_pair(hyp.BLep(),hyp.WJa());
-////        auto BHadWJa_pair = jet_pair(hyp.BHad(),hyp.WJa());
-////
-////            // creates list of valid pairs of jets
-////        list< pair<IDJet*, IDJet*> > pair_list;
-////        if( BLepWJa_pair.first != BLepWJa_pair.second ) pair_list.push_back(BLepWJa_pair);
-////        if( BHadWJa_pair.first != BHadWJa_pair.second ) pair_list.push_back(BHadWJa_pair);
-////
-////            //for each valid pair of jets, find max jet mass within a pair and invariant mass of pair to use for likelihood
-////        for( list< pair<IDJet*, IDJet*> >::iterator it = pair_list.begin(); it != pair_list.end(); ++it ){
-////            MaxMjet = max_min( (*it).first->M(), (*it).second->M() ).first;
-////            Mbpjet = ( *(*it).first+*(*it).second ).M();
-////
-////            if( Max_Mjet_4J_right_){
-////                int binx = TMath::Max(1,
-////                            TMath::Min(Max_Mjet_4J_right_->GetXaxis()->FindFixBin(MaxMjet), Max_Mjet_4J_right_->GetNbinsX())
-////                    );
-////                int biny = TMath::Max(1,
-////                            TMath::Min(Max_Mjet_4J_right_->GetYaxis()->FindFixBin(Mbpjet), Max_Mjet_4J_right_->GetNbinsY())
-////                    );
-////        
-////                double permdisval_4J = Max_Mjet_4J_right_->GetBinContent(binx,biny);
-////                if( permdisval_4J > 1.0E-10 ){ permtest_4J = -1.*Log(permdisval_4J); }
-////            }
-////        
-////        	res = 0.;
-////        	if(USEPERM_) {res += permtest_4J;}
-////        
-////            hyp.PermDiscr(permtest_4J);
-////
-////        }
-////    }
-////
-////    if( !hyp.WJa() && hyp.WJb() ){ // only WJb exists
-////            // creates pairs of jets
-////        auto BLepWJb_pair = jet_pair(hyp.BLep(),hyp.WJb());
-////        auto BHadWJb_pair = jet_pair(hyp.BHad(),hyp.WJb());
-////
-////            // creates list of valid pairs of jets
-////        list< pair<IDJet*, IDJet*> > pair_list;
-////        if( BLepWJb_pair.first != BLepWJb_pair.second ) pair_list.push_back(BLepWJb_pair);
-////        if( BHadWJb_pair.first != BHadWJb_pair.second ) pair_list.push_back(BHadWJb_pair);
-////
-////            //for each valid pair of jets, find max jet mass within a pair and invariant mass of pair to use for likelihood
-////        for( list< pair<IDJet*, IDJet*> >::iterator it = pair_list.begin(); it != pair_list.end(); ++it ){
-////            MaxMjet = max_min( (*it).first->M(), (*it).second->M() ).first;
-////            Mbpjet = ( *(*it).first+*(*it).second ).M();
-////
-////            if( Max_Mjet_4J_right_){
-////                int binx = TMath::Max(1,
-////                            TMath::Min(Max_Mjet_4J_right_->GetXaxis()->FindFixBin(MaxMjet), Max_Mjet_4J_right_->GetNbinsX())
-////                    );
-////                int biny = TMath::Max(1,
-////                            TMath::Min(Max_Mjet_4J_right_->GetYaxis()->FindFixBin(Mbpjet), Max_Mjet_4J_right_->GetNbinsY())
-////                    );
-////        
-////                double permdisval_4J = Max_Mjet_4J_right_->GetBinContent(binx,biny);
-////                if( permdisval_4J > 1.0E-10 ){ permtest_4J = -1.*Log(permdisval_4J); }
-////            }
-////        
-////        	res = 0.;
-////        	if(USEPERM_) {res += permtest_4J;}
-////        
-////            hyp.PermDiscr(permtest_4J);
-////
-////        }
-////    }
-//    if( hyp.WJa() && hyp.WJb() ){ // both W jets exist
-//            // creates pairs of jets
-//        auto BLepWJa_pair = jet_pair(hyp.BLep(),hyp.WJa());
-//        auto BHadWJa_pair = jet_pair(hyp.BHad(),hyp.WJa());
-//        auto BLepWJb_pair = jet_pair(hyp.BLep(),hyp.WJb());
-//        auto BHadWJb_pair = jet_pair(hyp.BHad(),hyp.WJb());
-//        auto BHadBLep_pair = jet_pair(hyp.BHad(),hyp.BLep());
-//        auto WJaWJb_pair = jet_pair(hyp.WJa(),hyp.WJb());
-//
-//            // creates list of valid pairs of jets
-//        list< pair<IDJet*, IDJet*> > pair_list;
-//        if( BLepWJa_pair.first != BLepWJa_pair.second ) pair_list.push_back(BLepWJa_pair);
-//        if( BHadWJa_pair.first != BHadWJa_pair.second ) pair_list.push_back(BHadWJa_pair);
-//        if( BLepWJb_pair.first != BLepWJb_pair.second ) pair_list.push_back(BLepWJb_pair);
-//        if( BHadWJb_pair.first != BHadWJb_pair.second ) pair_list.push_back(BHadWJb_pair);
-//        if( BHadBLep_pair.first != BHadBLep_pair.second ) pair_list.push_back(BHadBLep_pair);
-//        if( WJaWJb_pair.first != WJaWJb_pair.second ) pair_list.push_back(WJaWJb_pair);
-//
-//
-//        vector<double> perm_vec;
-//            //for each valid pair of jets, find max jet mass within a pair and invariant mass of pair to use for likelihood
-//        for( list< pair<IDJet*, IDJet*> >::iterator it = pair_list.begin(); it != pair_list.end(); ++it ){
-//            MaxMjet = max_min( (*it).first->M(), (*it).second->M() ).first;
-//            Mbpjet = ( *(*it).first+*(*it).second ).M();
-//
-//            if( Max_Mjet_4J_right_){
-//                int binx = TMath::Max(1,
-//                            TMath::Min(Max_Mjet_4J_right_->GetXaxis()->FindFixBin(MaxMjet), Max_Mjet_4J_right_->GetNbinsX())
-//                    );
-//                int biny = TMath::Max(1,
-//                            TMath::Min(Max_Mjet_4J_right_->GetYaxis()->FindFixBin(Mbpjet), Max_Mjet_4J_right_->GetNbinsY())
-//                    );
-//        
-//                double permdisval_4J = Max_Mjet_4J_right_->GetBinContent(binx,biny);
-//                if( permdisval_4J > 1.0E-10 ){
-//                    permtest_4J = -1.*Log(permdisval_4J);
-//                    perm_vec.push_back(permtest_4J);
-//                }
-//            }
-//        
-//        	res = 0.;
-//        	if(USEPERM_) {res += permtest_4J;}
-//        }
-//
-//        if( perm_vec.size() > 0 ){
-//            for( vector<double>::iterator low_it = perm_vec.begin(); low_it != perm_vec.end(); ++low_it ){
-//                if( *low_it < lowest_like_4J ){
-//                    lowest_like_4J = *low_it;
-//                }
-//            }
-//            hyp.PermDiscr(lowest_like_4J);
-//        }
-//
-//        hyp.PermDiscr_Vec(perm_vec);
-//    }
-//}
+  if( hyp.unique_matches() < 3 ){
+    Logger::log().fatal() << "Permutation doesn't have correct number of objects!" << std::endl;
+    throw 42;
+  }
+ 
+
+
+}
+

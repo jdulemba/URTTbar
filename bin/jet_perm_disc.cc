@@ -120,7 +120,7 @@ class jet_perm_disc : public AnalyzerBase
 
 
         // Likelihood Discriminant
-        double PermDiscr_3J = -1.;
+        double Merged3JDiscr_3J = -1.;
 
 
         //switches
@@ -151,7 +151,7 @@ class jet_perm_disc : public AnalyzerBase
         //
         //
         //        // Likelihood Discriminant
-        //        TTree *t13 = 0; // PermDiscr_3J
+        //        TTree *t13 = 0; // Merged3JDiscr_3J
 
     public:
         jet_perm_disc(const std::string output_filename):
@@ -236,8 +236,8 @@ class jet_perm_disc : public AnalyzerBase
             //
             //
             //            // Likelihood Discriminant
-            //        t13 = new TTree("PermDiscr_3J", "Tree with likelihood discriminant 3J.");
-            //        t13->Branch("PermDiscr_3J", &PermDiscr_3J, "PermDiscr_3J/D");
+            //        t13 = new TTree("Merged3JDiscr_3J", "Tree with likelihood discriminant 3J.");
+            //        t13->Branch("Merged3JDiscr_3J", &Merged3JDiscr_3J, "Merged3JDiscr_3J/D");
 
 
 
@@ -751,13 +751,13 @@ class jet_perm_disc : public AnalyzerBase
             double lowest_Totaldisc_3J = 1e10;
 
             for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                solver_.Solve_3J(test_perm);
+                solver_.Solve_3J_Merged(test_perm);
 
-                if( test_perm.PermDiscr() < lowest_massdisc_3J ){
-                    lowest_massdisc_3J = test_perm.PermDiscr();
+                if( test_perm.Merged3JDiscr() < lowest_massdisc_3J ){
+                    lowest_massdisc_3J = test_perm.Merged3JDiscr();
                     //                best_perm = test_perm;
                 }
-                like_dir->second["3J_Event_All_Massdisc"].fill(test_perm.PermDiscr()); // all perm disc values
+                like_dir->second["3J_Event_All_Massdisc"].fill(test_perm.Merged3JDiscr()); // all perm disc values
 
                 if( test_perm.NuChisq() < lowest_NSchi_3J && test_perm.NuChisq() > 0. ){
                     lowest_NSchi_3J = test_perm.NuChisq();
@@ -789,7 +789,7 @@ class jet_perm_disc : public AnalyzerBase
 
             if( !best_perm.IsEmpty() ){
                 // values from best perm
-                like_dir->second["3J_Event_Best_Perm_Massdisc"].fill(best_perm.PermDiscr()); // best perm perm disc value
+                like_dir->second["3J_Event_Best_Perm_Massdisc"].fill(best_perm.Merged3JDiscr()); // best perm perm disc value
                 like_dir->second["3J_Event_Best_Perm_NSchi"].fill(best_perm.NuChisq()); // best perm neutrino solver chi2 value
                 like_dir->second["3J_Event_Best_Perm_NSdisc"].fill(best_perm.NuDiscr()); // best perm neutrino solver disc value
                 like_dir->second["3J_Event_Best_Perm_Totaldisc"].fill(best_perm.Prob()); // best perm total (perm+NS) disc value
@@ -822,7 +822,7 @@ class jet_perm_disc : public AnalyzerBase
             }
 
             if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
-                like_dir->second["3J_Best_Perm_WRONG_Massdisc"].fill(best_perm.PermDiscr());
+                like_dir->second["3J_Best_Perm_WRONG_Massdisc"].fill(best_perm.Merged3JDiscr());
                 like_dir->second["3J_Best_Perm_WRONG_NSchi"].fill(best_perm.NuChisq());
                 like_dir->second["3J_Best_Perm_WRONG_NSdisc"].fill(best_perm.NuDiscr());
                 like_dir->second["3J_Best_Perm_WRONG_Totaldisc"].fill(best_perm.Prob());
@@ -912,7 +912,7 @@ class jet_perm_disc : public AnalyzerBase
 
 
             if( matched_perm.IsEmpty() ){ // skip to next event if perm is empty
-                like_dir->second["3J_Best_Perm_WRONG_Massdisc"].fill(best_perm.PermDiscr());
+                like_dir->second["3J_Best_Perm_WRONG_Massdisc"].fill(best_perm.Merged3JDiscr());
                 like_dir->second["3J_Best_Perm_WRONG_NSchi"].fill(best_perm.NuChisq());
                 like_dir->second["3J_Best_Perm_WRONG_NSdisc"].fill(best_perm.NuDiscr());
                 like_dir->second["3J_Best_Perm_WRONG_Totaldisc"].fill(best_perm.Prob());
@@ -1019,7 +1019,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 // objects in best_perm and matched_perm are the same and in same position
                 if( matched_perm.AreBsSame(best_perm) && ( best_perm.WJa() == matched_perm.WJa() || best_perm.WJa() == matched_perm.WJb() ) ){ 
-                    like_dir->second["3J_Best_Perm_RIGHT_Massdisc"].fill(best_perm.PermDiscr());
+                    like_dir->second["3J_Best_Perm_RIGHT_Massdisc"].fill(best_perm.Merged3JDiscr());
                     like_dir->second["3J_Best_Perm_RIGHT_NSchi"].fill(best_perm.NuChisq());
                     like_dir->second["3J_Best_Perm_RIGHT_NSdisc"].fill(best_perm.NuDiscr());
                     like_dir->second["3J_Best_Perm_RIGHT_Totaldisc"].fill(best_perm.Prob());
@@ -1120,7 +1120,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 // objects in best_perm and matched_perm are the same but in differnt orders
                 else if( matched_perm.AreBsFlipped(best_perm) && ( best_perm.WJa() == matched_perm.WJa() || best_perm.WJa() == matched_perm.WJb() ) ){
-                    like_dir->second["3J_Best_Perm_MERGE_SWAP_Massdisc"].fill(best_perm.PermDiscr());
+                    like_dir->second["3J_Best_Perm_MERGE_SWAP_Massdisc"].fill(best_perm.Merged3JDiscr());
                     like_dir->second["3J_Best_Perm_MERGE_SWAP_NSchi"].fill(best_perm.NuChisq());
                     like_dir->second["3J_Best_Perm_MERGE_SWAP_NSdisc"].fill(best_perm.NuDiscr());
                     like_dir->second["3J_Best_Perm_MERGE_SWAP_Totaldisc"].fill(best_perm.Prob());
@@ -1221,7 +1221,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 // objects in best_perm and matched_perm are not all the same
                 else{
-                    like_dir->second["3J_Best_Perm_MERGE_Massdisc"].fill(best_perm.PermDiscr());
+                    like_dir->second["3J_Best_Perm_MERGE_Massdisc"].fill(best_perm.Merged3JDiscr());
                     like_dir->second["3J_Best_Perm_MERGE_NSchi"].fill(best_perm.NuChisq());
                     like_dir->second["3J_Best_Perm_MERGE_NSdisc"].fill(best_perm.NuDiscr());
                     like_dir->second["3J_Best_Perm_MERGE_Totaldisc"].fill(best_perm.Prob());
@@ -1322,7 +1322,7 @@ class jet_perm_disc : public AnalyzerBase
             }
 
             else{ // events not merged
-                like_dir->second["3J_Best_Perm_WRONG_Massdisc"].fill(best_perm.PermDiscr());
+                like_dir->second["3J_Best_Perm_WRONG_Massdisc"].fill(best_perm.Merged3JDiscr());
                 like_dir->second["3J_Best_Perm_WRONG_NSchi"].fill(best_perm.NuChisq());
                 like_dir->second["3J_Best_Perm_WRONG_NSdisc"].fill(best_perm.NuDiscr());
                 like_dir->second["3J_Best_Perm_WRONG_Totaldisc"].fill(best_perm.Prob());
@@ -1445,7 +1445,7 @@ class jet_perm_disc : public AnalyzerBase
             GenTop* thad = ttbar.had_top();
 
 
-            solver_.Solve_3J(matched_perm);
+            solver_.Solve_3J_Merged(matched_perm);
 
 
             if( !matched_perm.Merged_Event() ){ // no jets merged

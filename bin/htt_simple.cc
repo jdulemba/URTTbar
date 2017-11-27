@@ -573,7 +573,7 @@ class htt_simple : public AnalyzerBase
             double lowest_Totaldisc_3J = 1e10;
         
             for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                solver_.Solve_3J(test_perm);
+                solver_.Solve_3J_Merged(test_perm);
         
                 if( test_perm.Prob() < lowest_Totaldisc_3J ){
                     lowest_Totaldisc_3J = test_perm.Prob();

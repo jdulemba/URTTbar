@@ -423,7 +423,7 @@ class permProbComputer : public AnalyzerBase
 
                 // wrong perm
                 if( mp_3J.Merged_BHadBLep() ){ // only bhad and blep merged
-                    solver_.Solve_3J(mp_3J);
+                    solver_.Solve_3J_Merged(mp_3J);
 
                     merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/ wja
                     merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M() );// compare merged w/ wjb
@@ -431,14 +431,10 @@ class permProbComputer : public AnalyzerBase
                     merged_wrong_dir->second["nusolver_dist"].fill( pow(mp_3J.NuChisq(), 0.5) );
                 }
 
-                // wrong perm
-                if( mp_3J.Merged_BLepWJa() ){ // only blep and wja merged
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > mp_3J.WJb()->M() ? mp_3J.BLep()->M() : mp_3J.WJb()->M(), (*mp_3J.BLep()+*mp_3J.WJb()).M() );// compare merged w/ wjb
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > mp_3J.BHad()->M() ? mp_3J.BLep()->M() : mp_3J.BHad()->M(), (*mp_3J.BLep()+*mp_3J.BHad()).M() );// compare merged w/ bhad
-
+                if( mp_3J.Merged_BLepWJa() || mp_3J.Merged_BLepWJb() || mp_3J.Merged_BHadWJa() || mp_3J.Merged_BHadWJb() || mp_3J.Merged_WJets() ){
                     int i = 0;
                     for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J(tp);
+                        solver_.Solve_3J_Merged(tp);
 
                         if( i == 0 ){// correct perm (uses matched perm blep)
                             merged_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
@@ -453,74 +449,26 @@ class permProbComputer : public AnalyzerBase
                     }
                 }
 
-                // wrong perm
-                if( mp_3J.Merged_BLepWJb() ){ // only blep and wjb merged
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > mp_3J.WJa()->M() ? mp_3J.BLep()->M() : mp_3J.WJa()->M(), (*mp_3J.BLep()+*mp_3J.WJa()).M() );// compare merged w/ wja
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > mp_3J.BHad()->M() ? mp_3J.BLep()->M() : mp_3J.BHad()->M(), (*mp_3J.BLep()+*mp_3J.BHad()).M() );// compare merged w/ bhad
+                // only blep merged with wja or wjb
+                if( mp_3J.Merged_BLepWJa() || mp_3J.Merged_BLepWJb() ){
+                    IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BLep() ? mp_3J.WJa() : mp_3J.WJb();
 
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J(tp);
-
-                        if( i == 0 ){// correct perm (uses matched perm blep)
-                            merged_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        if( i == 1 ){// wrong perm
-                            merged_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-
-                        i++;
-                    }
-                }
-
-                if( mp_3J.Merged_BHadWJa() ){ // only bhad and wja merged
                     // correct perm
-                    merged_correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M() );// compared merged w/ wjb
+                    merged_correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared bhad w diff_wjet
 
                     // wrong perm
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.BLep()->M() ? mp_3J.BHad()->M() : mp_3J.BLep()->M(), (*mp_3J.BHad()+*mp_3J.BLep()).M() );// compared merged w/ blep
-
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J(tp);
-
-                        if( i == 0 ){// correct perm (uses matched perm blep)
-                            merged_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        if( i == 1 ){// wrong perm
-                            merged_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-
-                        i++;
-                    }
+                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compare merged blep w/ diff_wjet
                 }
 
-                if( mp_3J.Merged_BHadWJb() ){ // only bhad and wjb merged
+                // only bhad merged with wja or wjb
+                if( mp_3J.Merged_BHadWJa() || mp_3J.Merged_BHadWJb() ){
+                    IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BHad() ? mp_3J.WJa() : mp_3J.WJb();
+
                     // correct perm
-                    merged_correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/ wja
+                    merged_correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared merged w/ diff_wjet
 
                     // wrong perm
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.BLep()->M() ? mp_3J.BHad()->M() : mp_3J.BLep()->M(), (*mp_3J.BHad()+*mp_3J.BLep()).M() );// compared merged w/ blep
-
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J(tp);
-
-                        if( i == 0 ){// correct perm (uses matched perm blep)
-                            merged_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        if( i == 1 ){// wrong perm
-                            merged_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-
-                        i++;
-                    }
+                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compared blep w/ diff_wjet
                 }
 
                 if( mp_3J.Merged_WJets() ){ // only wja and wjb merged
@@ -530,86 +478,37 @@ class permProbComputer : public AnalyzerBase
                     // wrong perm
                     merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.WJa()->M() > mp_3J.BLep()->M() ? mp_3J.WJa()->M() : mp_3J.BLep()->M(), (*mp_3J.WJa()+*mp_3J.BLep()).M() );// compared merged w/ blep
 
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J(tp);
-
-                        if( i == 0 ){// correct perm (uses matched perm blep)
-                            merged_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        if( i == 1 ){// wrong perm
-                            merged_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-
-                        i++;
-                    }
                 }
             }// end of merged events
             
             else{// only three perm objects have matches => lost jet
-                //if( !mp_3J.BLep() ) return; // skip events that don't have blep (for NS) for now
-
-                if( !mp_3J.BLep() ){ // bhad, wja, wjb exist
-                    if( !mp_3J.BHad() || !mp_3J.WJa() || !mp_3J.WJb() ){
+                if( !mp_3J.BLep() || !mp_3J.BHad() ){ // missing bhad or blep
+                    IDJet* bjet = mp_3J.BHad() > 0 ? mp_3J.BHad() : mp_3J.BLep(); // find out which bjet exists
+                    if( !bjet || !mp_3J.WJa() || !mp_3J.WJb() ){
                         Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
                         throw 42;}
 
-                    // wrong perm
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*mp_3J.WJa()).M() );
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*mp_3J.WJb()).M() );
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.WJa()+*mp_3J.WJb()).M() );
-
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        if( i == 1 ){// wrong perm
-                            solver_.Solve_3J(tp);
-
-                            lost_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            lost_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        i++;
+                    if( mp_3J.BHad() ){// correct perm
+                        lost_correct_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJa()).M() );
+                        lost_correct_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJb()).M() );
                     }
-                }
+                    if( mp_3J.BLep() ){// wrong perm
+                        lost_wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJa()).M() );
+                        lost_wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJb()).M() );
+                    }
 
-                if( !mp_3J.BHad() ){ // blep, wja, wjb exist
-                    if( !mp_3J.BLep() || !mp_3J.WJa() || !mp_3J.WJb() ){
-                        Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
-                        throw 42;}
-
-                    solver_.Solve_3J(mp_3J);
-
-                    // wrong perm
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*mp_3J.WJa()).M() );
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*mp_3J.WJb()).M() );
                     lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.WJa()+*mp_3J.WJb()).M() );
-
-                    lost_correct_dir->second["nusolver_chi2"].fill( mp_3J.NuChisq() );
-                    lost_correct_dir->second["nusolver_dist"].fill( pow(mp_3J.NuChisq(), 0.5) );
-                }
-
-                if( !mp_3J.WJa() ){ // blep, bhad, wjb exist
-                    if( !mp_3J.BLep() || !mp_3J.BHad() || !mp_3J.WJb() ){
-                        Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
-                        throw 42;}
-
-                    // wrong perm
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*mp_3J.BHad()).M() );
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*mp_3J.WJb()).M() );
-
-                    // correct perm
-                    lost_correct_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*mp_3J.WJb()).M() );
 
                     int i = 0;
                     for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J(tp);
 
-                        if( i == 0 ){// correct perm
+                        if( i == 0 && mp_3J.BLep() ){// correct perm
+                            solver_.Solve_3J_Merged(tp);
                             lost_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
                             lost_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
                         }
-                        if( i == 1 ){// wrong perm
+                        if( i == 1 && mp_3J.BHad() ){// wrong perm
+                            solver_.Solve_3J_Merged(tp);
                             lost_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
                             lost_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
                         }
@@ -617,21 +516,22 @@ class permProbComputer : public AnalyzerBase
                     }
                 }
 
-                if( !mp_3J.WJb() ){ // blep, bhad, wja exist
-                    if( !mp_3J.BLep() || !mp_3J.BHad() || !mp_3J.WJa() ){
+                if( !mp_3J.WJa() || !mp_3J.WJb() ){ // wja or wjb missing
+                    IDJet* wjet = mp_3J.WJa() > 0 ? mp_3J.WJa() : mp_3J.WJb(); // find out which wjet exists
+                    if( !mp_3J.BLep() || !mp_3J.BHad() || !wjet ){
                         Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
                         throw 42;}
 
                     // wrong perm
                     lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*mp_3J.BHad()).M() );
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*mp_3J.WJa()).M() );
+                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*wjet).M() );
 
                     // correct perm
-                    lost_correct_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*mp_3J.WJa()).M() );
+                    lost_correct_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*wjet).M() );
 
                     int i = 0;
                     for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J(tp);
+                        solver_.Solve_3J_Merged(tp);
 
                         if( i == 0 ){// correct perm
                             lost_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );

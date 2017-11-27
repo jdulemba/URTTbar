@@ -28,12 +28,17 @@ private:
     std::shared_ptr<TH2D> Rel_Delt_WTmass_right_; // replaces WTmass_right_ in mass discriminant
 
 
-        // Joseph added for discriminants
-    std::shared_ptr<TH2D> Max_Mjet_3J_right_;
-    //std::shared_ptr<TH2D> Max_Mjet_4J_right_;
-	std::shared_ptr<TH1F> N_3J_right_; 
-        //
+    // Joseph added 3J distributions (merged and lost) for discriminants
+        // merged events
+    std::shared_ptr<TH2D> Max_Mjet_3J_merged_right_;// mbpjet_vs_maxmjet_merged_right
+	std::shared_ptr<TH1F> NSchi2_3J_merged_right_;// nusolver_chi2_merged_right
+	std::shared_ptr<TH1F> NSdist_3J_merged_right_;// nusolver_dist_merged_right
 
+        // lost events
+    std::shared_ptr<TH1F> Mbpjet_3J_lost_right_;// mbpjet_lost_right
+	std::shared_ptr<TH1F> NSchi2_3J_lost_right_;// nusolver_chi2_lost_right
+	std::shared_ptr<TH1F> NSdist_3J_lost_right_;// nusolver_dist_lost_right
+    //
 
 	std::shared_ptr<TH1D> lep_b_ratio_right_; 
 	std::shared_ptr<TH1D> wj2_b_ratio_right_; 
@@ -49,8 +54,9 @@ private:
 	bool useptratios_	 = false;
 	bool usewjetqgtag_   = false;
 
-        // Joseph added for perm discriminant
-    bool USEPERM_        = false;
+        // Joseph added for 3 jet events (merged and lost)
+    bool USE3JMERGED_        = false;
+    bool USE3JLOST_        = false;
         //
 
         // find jet resolution and scale factors
@@ -93,11 +99,9 @@ public:
 
 	void Solve(Permutation &hyp, bool lazy=true);
 
-
-        // Joseph added for perm discriminant
-	void Solve_3J(Permutation &hyp, bool lazy=true);
-	//void Solve_4J(Permutation &hyp, bool lazy=true);
-        //
+        // Joseph added for 3 jet events (merged and lost) 
+	void Solve_3J_Merged(Permutation &hyp, bool lazy=true);
+	void Solve_3J_Lost(Permutation &hyp, bool lazy=true);
 };
 
 #endif
