@@ -93,7 +93,8 @@ TTBarSolver::TTBarSolver(bool active) {
         }
             // lost events
         if( USE3JLOST_ ){
-            Mbpjet_3J_lost_right_ = preproccess_histo<TH1F>(dir, "3J_mbpjet_lost_right", "3J_mbpjet_lost_wrong");
+            Mbpjet_3J_lost_right_ = preproccess_histo<TH1F>(dir, "3J_mbpjet_lost_right", "");
+            //Mbpjet_3J_lost_right_ = preproccess_histo<TH1F>(dir, "3J_mbpjet_lost_right", "3J_mbpjet_lost_wrong");
         }
         //
 
@@ -256,6 +257,11 @@ void TTBarSolver::Solve_3J_Merged(Permutation &hyp, bool lazy){
     throw 42;
   }
 
+  if( hyp.unique_matches() < 3 ){
+    Logger::log().fatal() << "Permutation doesn't have correct number of objects!" << std::endl;
+    throw 42;
+  }
+ 
 //  if( !hyp.BLep() || !hyp.BHad() ){
 //    Logger::log().fatal() << "Hadronic and leptonic b's not present!" << std::endl;
 //    throw 42;
@@ -264,17 +270,16 @@ void TTBarSolver::Solve_3J_Merged(Permutation &hyp, bool lazy){
     double merged_nschi_3J = numeric_limits<double>::max();
     double merged_nstest_3J = numeric_limits<double>::max();
 	double res = numeric_limits<double>::max();
-    double mergedtest_3J = numeric_limits<double>::max();
+    double merged_masstest_3J = numeric_limits<double>::max();
 
     double MaxMjet = numeric_limits<double>::max();
     double Mbpjet = numeric_limits<double>::max();
 
+	auto max_min = [] (const double& a, const double& b) -> pair<const double,const double> { 
+		return (a>b) ? std::make_pair(a,b) : std::make_pair(b,a); };
 
-    auto jet_pair = [] (IDJet* a, IDJet* b) -> pair<IDJet*, IDJet*>{ // template for pairs of jets
-        return std::make_pair(a,b); };
-
-	auto max_min = [] (const double& a, const double& b) -> pair<const double,const double> { // template for max,min values
-		return (b>a) ? std::make_pair(b, a) : std::make_pair(a, b); };
+//    auto jet_pair = [] (IDJet* a, IDJet* b) -> pair<IDJet*, IDJet*>{ // template for pairs of jets
+//        return std::make_pair(a,b); };
 
 
 /// calculated for best and matched permutations
@@ -282,8 +287,6 @@ void TTBarSolver::Solve_3J_Merged(Permutation &hyp, bool lazy){
     /// Neutrino Solver
     NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
     hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., merged_nschi_3J)); // ignore MET covariance matrix, take bare distance
-
-//    if( merged_nschi_3J == -1 ) cout << "chi_3J: " << merged_nschi_3J << endl;
 
     if( NSchi2_3J_merged_right_ ){
         int binx = NSchi2_3J_merged_right_->GetXaxis()->FindFixBin(Sqrt(merged_nschi_3J));
@@ -293,44 +296,44 @@ void TTBarSolver::Solve_3J_Merged(Permutation &hyp, bool lazy){
         }
     }
 
-/// only calculated for best permutation, not matched
+    // lost wja, merged bhad and wja, or merged blep and wja
+    if( hyp.Lost_WJa() || hyp.Merged_BHadWJa() || hyp.Merged_BLepWJa() ){
+        Mbpjet = ( *hyp.BHad()+*hyp.WJb() ).M();
+        MaxMjet = max_min( hyp.BHad()->M(), hyp.WJb()->M() ).first;
+    }
+    // lost wjb, merged bhad and wjb, merged blep and wjb, or merged wjets
+    if( hyp.Lost_WJb() || hyp.Merged_BHadWJb() || hyp.Merged_BLepWJb() || hyp.Merged_WJets() ){
+        Mbpjet = ( *hyp.BHad()+*hyp.WJa() ).M();
+        MaxMjet = max_min( hyp.BHad()->M(), hyp.WJa()->M() ).first;
+    }
 
-    if( hyp.WJa() && !hyp.WJb() ){ // only WJa (wj1), BHad (bj1), and BLep (bj2) exist
 
-    /// Permutation Discriminant Solver
-            // creates pairs of jets
-        auto BHadWJa_pair = jet_pair(hyp.BHad(),hyp.WJa());
+   // Mass Discriminant
         
-            //for each valid pair of jets, find max jet mass within a pair and invariant mass of pair to use for likelihood
-         MaxMjet = max_min( BHadWJa_pair.first->M(), BHadWJa_pair.second->M() ).first;
-         Mbpjet = ( *BHadWJa_pair.first+*BHadWJa_pair.second ).M();
-        
-         if( Max_Mjet_3J_merged_right_){
-             int binx = TMath::Max(1,
-                         TMath::Min(Max_Mjet_3J_merged_right_->GetXaxis()->FindFixBin(MaxMjet), Max_Mjet_3J_merged_right_->GetNbinsX())
-                 );
-             int biny = TMath::Max(1,
-                         TMath::Min(Max_Mjet_3J_merged_right_->GetYaxis()->FindFixBin(Mbpjet), Max_Mjet_3J_merged_right_->GetNbinsY())
-                 );
-        
-             double merged_discval_3J = Max_Mjet_3J_merged_right_->GetBinContent(binx,biny);
+    if( Max_Mjet_3J_merged_right_){
+        int binx = TMath::Max(1,
+                    TMath::Min(Max_Mjet_3J_merged_right_->GetXaxis()->FindFixBin(MaxMjet), Max_Mjet_3J_merged_right_->GetNbinsX())
+            );
+        int biny = TMath::Max(1,
+                    TMath::Min(Max_Mjet_3J_merged_right_->GetYaxis()->FindFixBin(Mbpjet), Max_Mjet_3J_merged_right_->GetNbinsY())
+            );
+    
+        double merged_discval_3J = Max_Mjet_3J_merged_right_->GetBinContent(binx,biny);
 
-            if( merged_discval_3J > 1.0E-10 ){
-                 mergedtest_3J = -1.*Log(merged_discval_3J);
-             }
-
-         }
+       if( merged_discval_3J > 1.0E-10 ){
+            merged_masstest_3J = -1.*Log(merged_discval_3J);
+        }
 
     }
 
     res = 0.;
-    if(USE3JMERGED_ ) {res += mergedtest_3J;}
+    if(USE3JMERGED_ ) {res += merged_masstest_3J;}
     if(USENS_ ) {res += merged_nstest_3J;}
 
     hyp.Prob(res);
     hyp.NuChisq(merged_nschi_3J);
     hyp.NuDiscr(merged_nstest_3J);
-    hyp.Merged3JDiscr(mergedtest_3J);
+    hyp.Merged3JDiscr(merged_masstest_3J);
 
 }
 
@@ -348,6 +351,67 @@ void TTBarSolver::Solve_3J_Lost(Permutation &hyp, bool lazy){
   }
  
 
+    double lost_nschi_3J = numeric_limits<double>::max();
+    double lost_nstest_3J = numeric_limits<double>::max();
+    double res = numeric_limits<double>::max();
+    double lost_masstest_3J = numeric_limits<double>::max();
+
+    double Mbpjet = numeric_limits<double>::max();
+
+    //auto jet_pair = [] (IDJet* a, IDJet* b) -> pair<IDJet*, IDJet*>{ // template for pairs of jets
+    //    return std::make_pair(a,b); };
+
+/// calculated for best and matched permutations
+
+    /// Neutrino Solver
+    NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
+    hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., lost_nschi_3J)); // ignore MET covariance matrix, take bare distance
+
+    if( NSchi2_3J_lost_right_ ){
+        int binx = NSchi2_3J_lost_right_->GetXaxis()->FindFixBin(Sqrt(lost_nschi_3J));
+        if( binx <= NSchi2_3J_lost_right_->GetNbinsX() ){
+            lost_nstest_3J = -1.*Log(NSchi2_3J_lost_right_->GetBinContent(binx));
+
+        }
+    }
+
+    // lost wja, merged bhad and wja, or merged blep and wja
+    if( hyp.Lost_WJa() || hyp.Merged_BHadWJa() || hyp.Merged_BLepWJa() ){
+        Mbpjet = ( *hyp.BHad()+*hyp.WJb() ).M();
+    }
+    // lost wjb, merged bhad and wjb, merged blep and wjb, or merged wjets
+    if( hyp.Lost_WJb() || hyp.Merged_BHadWJb() || hyp.Merged_BLepWJb() || hyp.Merged_WJets() ){
+        Mbpjet = ( *hyp.BHad()+*hyp.WJa() ).M();
+    }
+
+
+    // Mass Discriminant
+    if( Mbpjet_3J_lost_right_ ){
+        int binx = TMath::Max(1,
+                   TMath::Min(Mbpjet_3J_lost_right_->GetXaxis()->FindFixBin(Mbpjet), Mbpjet_3J_lost_right_->GetNbinsX())
+                   );
+
+        double lost_discval_3J = 10.*Mbpjet_3J_lost_right_->GetBinContent(binx);
+        if( lost_discval_3J > 1.0E-10 ){
+            lost_masstest_3J = -1.*Log(lost_discval_3J);
+        }
+
+        //cout << "hist int: " << Mbpjet_3J_lost_right_->Integral() << endl;
+        //cout << "mbpjet: " << Mbpjet << endl;
+        //cout << "nbins: " << Mbpjet_3J_lost_right_->GetNbinsX() << endl;
+        //cout << "binx: " << binx << endl;
+        //cout << "Lost discval: " << lost_discval_3J << endl;
+        //cout << "Lost masstest: " << lost_masstest_3J << endl;
+    }
+
+    res = 0.;
+    if( USE3JLOST_ ){res += lost_masstest_3J;}
+    if( USENS_ ){res += lost_nstest_3J;}
+
+    hyp.Prob(res);
+    hyp.NuChisq(lost_nschi_3J);
+    hyp.NuDiscr(lost_nstest_3J);
+    hyp.Lost3JDiscr(lost_masstest_3J);
 
 }
 

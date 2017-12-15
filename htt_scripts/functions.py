@@ -12,7 +12,7 @@ def stack_plots(lists):
         total += i
     for i in lists:
         ratio_hists.append(i/total)
-        i.SetFillStyle(1001)
+        #i.SetFillStyle(1001)
         Stack_hists.append(i)
 
     stack = plotting.HistStack()

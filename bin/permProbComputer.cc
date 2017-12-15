@@ -503,12 +503,14 @@ class permProbComputer : public AnalyzerBase
                     for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
 
                         if( i == 0 && mp_3J.BLep() ){// correct perm
-                            solver_.Solve_3J_Merged(tp);
+                            solver_.Solve_3J_Lost(tp);
+
                             lost_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
                             lost_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
                         }
                         if( i == 1 && mp_3J.BHad() ){// wrong perm
-                            solver_.Solve_3J_Merged(tp);
+                            solver_.Solve_3J_Lost(tp);
+
                             lost_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
                             lost_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
                         }
@@ -531,7 +533,7 @@ class permProbComputer : public AnalyzerBase
 
                     int i = 0;
                     for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J_Merged(tp);
+                        solver_.Solve_3J_Lost(tp);
 
                         if( i == 0 ){// correct perm
                             lost_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );

@@ -26,7 +26,8 @@ parser = argparse.ArgumentParser(description='Create plots using files from perm
 
 jobid = jobid = os.environ['jobid']
 
-prob_file = 'prob_ttJets_3J.root' #inputs/2017Aug24/INPUT/prob_ttJets_3J.root
+prob_file = 'prob_prob_test.root' #inputs/2017Aug24/INPUT/prob_ttJets_3J.root
+#prob_file = 'prob_ttJets_3J.root' #inputs/2017Aug24/INPUT/prob_ttJets_3J.root
 
 ##### check if correct prob_file is present
 dir_f_list = []
@@ -75,8 +76,16 @@ for var, obj in plot_types:
 #            print var+'_%s_%s' % (evt, cat)
 #            set_trace()
             hist = asrootpy(normfile.Get('nosys/'+var+'_%s_%s' % (evt, cat))).Clone()
+
             if hist.Integral() == 0:
                 continue
+
+            if var == '3J_mbpjet' and evt == 'lost' and cat == 'right':
+                print var+'_%s_%s' % (evt, cat)
+                for bins in range(hist.nbins()):
+                    print 'bin %i' % bins, 'content: ', hist.Integral(bins, bins)
+                #set_trace()
+
             if hist.DIM > 1:
                 plotter.plot(hist)
                 hist.Draw('colz')
@@ -93,5 +102,6 @@ for var, obj in plot_types:
             box.Draw()
         
             plotter.save(var+'_%s' % evt)
+
 
 plot_dir()

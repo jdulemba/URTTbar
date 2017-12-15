@@ -99,6 +99,7 @@ yarray_bins = np.array([400., 800., 1200., 1600., 2000.])
 ybins = np.concatenate((mbpjet_bins,yarray_bins), axis=0)
 #print ybins
 
+bins_mbpjet = np.concatenate((np.linspace(0., 250., 26), np.array([400., 600.])), axis=0)
 #######
 
 
@@ -127,6 +128,9 @@ with io.root_open(outname, 'w') as out:
             out.cd('nosys')
 
             #format hright hists
+            if shape == 'mbpjet' and evt_type == 'lost':
+                #print shape, bins_mbpjet
+                hright = RebinView.rebin(hright, bins_mbpjet)
             if ztit:
                hright = RebinView.newRebin2D(hright, xbins, ybins)
                hright.drawstyle = 'colz'
@@ -145,6 +149,9 @@ with io.root_open(outname, 'w') as out:
             hright.Write()
     
             #format hwrong hists
+            if shape == 'mbpjet' and evt_type == 'lost':
+                #print shape, bins_mbpjet
+                hwrong = RebinView.rebin(hwrong, bins_mbpjet)
             if ztit:
                hwrong = RebinView.newRebin2D(hwrong, xbins, ybins)
                hwrong.drawstyle = 'colz'

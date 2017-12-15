@@ -27,7 +27,7 @@
 <bin file="gen_partons.cc"        name="gen_partons"/>
 <bin file="ttbar_reco_3J.cc"        name="ttbar_reco_3J"/>
 
-<bin file="resolved_matched_jets.cc"        name="resolved_matched_jets"/>
+<!--bin file="resolved_matched_jets.cc"        name="resolved_matched_jets"/>
 <!--bin file="permStudy.cc"        name="permStudy"/>
 
 <!--bin file="topspin_reco.cc"       name="topspin_reco"/-->

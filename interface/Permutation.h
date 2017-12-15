@@ -25,7 +25,7 @@ class Permutation
 
         // lost
         double lost_3J_discriminant_ = numeric_limits<double>::max();
-        vector<double> lost_3J_discriminant_vec_;
+        //vector<double> lost_3J_discriminant_vec_;
     //
 
 
@@ -116,9 +116,12 @@ class Permutation
         // merged
         double Merged3JDiscr() const {return merged_3J_discriminant_;}
         void Merged3JDiscr(double val) {merged_3J_discriminant_ = val;}
-
         vector<double> Merged3JDiscr_Vec() const { return merged_3J_discriminant_vec_;}
         void Merged3JDiscr_Vec(vector<double> val) {merged_3J_discriminant_vec_ = val;}
+
+        // lost
+        double Lost3JDiscr() const {return lost_3J_discriminant_;}
+        void Lost3JDiscr(double val) {lost_3J_discriminant_ = val;}
 
     ////
 
@@ -197,6 +200,28 @@ class Permutation
             return(false);
         }
         // end of merged event categories
+
+        // lost event categories
+        bool Lost_BHad() const{ // only BHad is lost and others are resolved
+            if( !BHad() && BLep() && WJa() && WJb() && BLep() != WJa() && BLep() != WJb() && WJa() != WJb() ) {return(true);}
+            return(false);
+        }
+        bool Lost_BLep() const{ // only BLep is lost and others are resolved
+            if( BHad() && !BLep() && WJa() && WJb() && BHad() != WJa() && BHad() != WJb() && WJa() != WJb() ) {return(true);}
+            return(false);
+        }
+        bool Lost_WJa() const{ // only WJa is lost and others are resolved
+            if( BHad() && BLep() && !WJa() && WJb() && BHad() != BLep() && BHad() != WJb() && BLep() != WJb() ) {return(true);}
+            return(false);
+        }
+        bool Lost_WJb() const{ // only WJb is lost and others are resolved
+            if( BHad() && BLep() && WJa() && !WJb() && BHad() != BLep() && BHad() != WJa() && BLep() != WJa() ) {return(true);}
+            return(false);
+        }
+        bool Lost_Event() const{ // event has only one lost jet and others resolved
+            if( Lost_BHad() || Lost_BLep() || Lost_WJa() || Lost_WJb() ) {return(true);}
+            return(false);
+        }
 
         // compare assignments across perms
         bool AreBsFlipped(const Permutation& other) const{ // bjets have flipped positions
