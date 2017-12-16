@@ -87,7 +87,7 @@ public:
 			cout << "Trigger: " << endl;
 			cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << endl; 
 			cout << "  HLT_IsoMu24: " << event.trigger().HLT_IsoMu24() << endl; 
-			cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
+			//cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
 			cout << endl;
 
 			cout << "Event Filters: " << endl;
