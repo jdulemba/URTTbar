@@ -56,6 +56,7 @@ class ttbar_reco_3J : public AnalyzerBase
         //	    double njets_ = 0;
 
         double disc_cut_ = 2.;
+        double M_TM_THad_Pt = -1e10;
 
         //histograms
         map< string, map < string, map< string, map< string, map< string, RObject > > > > > histos_merged_;
@@ -83,6 +84,12 @@ class ttbar_reco_3J : public AnalyzerBase
         IDJet::BTag cut_medium_b_ = IDJet::BTag::CSVMEDIUM;
         IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
 
+
+        // TTrees for multidim analysis
+        TTree *Merged_TreatMerged = 0;
+//        TTree *Merged_TreatLost = 0;
+//        TTree *Lost_TreatMerged = 0;
+//        TTree *Lost_TreatLost = 0;
 
     public:
         ttbar_reco_3J(const std::string output_filename):
@@ -354,6 +361,12 @@ class ttbar_reco_3J : public AnalyzerBase
             book<TH1F>(lost_disc_tp, "NSdisc_cat", "", 3, 0.5, 3.5);
             book<TH1F>(lost_disc_tp, "Totaldisc_cat", "", 3, 0.5, 3.5);
 
+
+            // TTrees for Lost and Merged events
+            Merged_TreatMerged = new TTree("Merged_TreatMerged", "Tree with merged events using merged discr.");
+            Merged_TreatMerged->Branch("M_TM_THad_Pt", &M_TM_THad_Pt, "M_TM_THad_Pt/D");
+
+
             Logger::log().debug() << "End of begin() " << evt_idx_ << endl;
         }
 
@@ -474,6 +487,8 @@ class ttbar_reco_3J : public AnalyzerBase
             if( mp.Merged_Event() ) event_perm_type = "Merged";
             if( mp.Lost_Event() ) event_perm_type = "Lost";
 
+            M_TM_THad_Pt = -1e10;
+
                 // merged perm
             Permutation merged_bp;
             double merged_lowest_Totaldisc_3J = 1e10;
@@ -527,6 +542,12 @@ class ttbar_reco_3J : public AnalyzerBase
             mp_dir[event_perm_type]["TreatLost"]["3J_Massdisc"].fill(lost_bp.Lost3JDiscr());
             mp_dir[event_perm_type]["TreatLost"]["3J_NSdisc"].fill(lost_bp.NuDiscr());
             mp_dir[event_perm_type]["TreatLost"]["3J_Totaldisc"].fill(lost_bp.Prob());
+
+            if( mp.Merged_Event() ){
+                M_TM_THad_Pt = merged_bp_THad.Pt();
+                //cout << "Merged treat merged thad pt: " << M_TM_THad_Pt << endl;
+                if( M_TM_THad_Pt > 0 ) Merged_TreatMerged->Fill();
+            }
 
         }// end of matched_perm_info()
 
@@ -828,7 +849,7 @@ class ttbar_reco_3J : public AnalyzerBase
                 GenTTBar &ttbar = genp_selector_.ttbar_system();
 
                 sys_dir["TTbar_Mass"].fill( ttbar.M() );
-                //            if( ttbar.M() > 700 ) continue;
+                //if( ttbar.M() > 700 ) continue;
 
                 int njets = 0;
                 if( object_selector_.select(event) ) njets = object_selector_.clean_jets().size();
@@ -844,6 +865,7 @@ class ttbar_reco_3J : public AnalyzerBase
                     matched_perm_info(event);
                 }
 
+                //Merged_TreatMerged->Fill();
 
             } // end of event loop
 
@@ -854,6 +876,7 @@ class ttbar_reco_3J : public AnalyzerBase
         //every histogram/tree produced, override it if you need something more
         virtual void end()
         {
+            //Merged_TreatMerged->Write();
             outFile_.Write();
             tracker_.writeTo(outFile_);
             Logger::log().debug() << "End of end() " << evt_idx_ << endl;
