@@ -20,8 +20,8 @@ public:
 		NONE, 
 		CSVLOOSE, CSVMEDIUM, CSVTIGHT, 
 		DEEPCSVLOOSE, DEEPCSVMEDIUM, DEEPCSVTIGHT, 
-		DEEPCSVCvsLLOOSE, DEEPCSVCvsLMEDIUM, DEEPCSVCvsLTIGHT, 
-		DEEPCSVCvsBLOOSE, DEEPCSVCvsBMEDIUM, DEEPCSVCvsBTIGHT, 
+		//DEEPCSVCvsLLOOSE, DEEPCSVCvsLMEDIUM, DEEPCSVCvsLTIGHT, 
+		//DEEPCSVCvsBLOOSE, DEEPCSVCvsBMEDIUM, DEEPCSVCvsBTIGHT, 
 		DEEPCTAGLOOSE, DEEPCTAGMEDIUM, DEEPCTAGTIGHT,   
 		CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   
 		MVALOOSE, MVAMEDIUM, MVATIGHT
@@ -59,6 +59,8 @@ public:
   static std::string id_string(BTag id);
   static BTagEntry::OperatingPoint tag_tightness(BTag id);
 
+  inline float DeepCSVCvsLtag() const;
+  inline float DeepCSVCvsBtag() const;
 	bool BTagId(BTag wp) const;
 	bool CTagId(BTag wp) const;
   bool TagId(BTag wp) const;
