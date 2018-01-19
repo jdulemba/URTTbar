@@ -63,12 +63,12 @@ class CTagPlotter(Plotter):
 		self.tt_to_use = 'ttJets'
 		self.flavour_info = 'hadronflav'
 		self.tt_shifted = {
-			'mtop_up' : 'ttJets_mtopup',
-			'mtop_down' : 'ttJets_mtopdown',
-			'isr_up'   : 'ttJets_isrup',
-			'isr_down' : 'ttJets_isrdown',
-			'fsr_up'   : 'ttJets_fsrup',
-			'fsr_down' : 'ttJets_fsrdown',
+			#'mtop_up' : 'ttJets_mtopup',
+			#'mtop_down' : 'ttJets_mtopdown',
+			#'isr_up'   : 'ttJets_isrup',
+			#'isr_down' : 'ttJets_isrdown',
+			#'fsr_up'   : 'ttJets_fsrup',
+			#'fsr_down' : 'ttJets_fsrdown',
 			}
 		jobid = os.environ['jobid']
 		files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
@@ -116,7 +116,7 @@ class CTagPlotter(Plotter):
 
 		self.views['VJets'] = {
 			'view' : views.SumView(
-				self.get_view('W[1-5]Jets'),
+				#self.get_view('W[1-5]Jets'),
 				self.get_view('ZJets'),
 				)
 			}
@@ -129,7 +129,7 @@ class CTagPlotter(Plotter):
     ##  }
 
 		self.mc_samples = [
-			'QCD*',
+			#'QCD*',
 			#'tt[WZ]*',
 			'VJets',
 			#'WJets',
@@ -142,7 +142,8 @@ class CTagPlotter(Plotter):
 
 		self.card_names = {
 			#'qcd' : ['QCD*'],
-			'vjets'		: ['ZJets', 'W[1-5]Jets'],
+			#'vjets'		: ['ZJets', 'W[1-5]Jets'],
+			'vjets'		: ['ZJets'],
 			'right_whad' : ['ttJets_sig'],
 			'wrong_whad' : ['ttJets_bkg'],
 			'nonsemi_tt' : ['ttJets_other'],
@@ -216,38 +217,38 @@ class CTagPlotter(Plotter):
 				'constants' : ('jer_down', 'jer_up'),
 				'value' : 1.00,				
 				},
-			'MTOP' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'mtop_up'),
-				'-' : lambda x: x.replace('nosys', 'mtop_down'),
-				'value' : 1.00,				
-				},
-			'ISR' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'isr_up'),
-				'-' : lambda x: x.replace('nosys', 'isr_down'),
-				'constants' : (
-					'isr_down', 
-					'isr_up'
-					),
-				'value' : 1.00,				
-				},
-			'FSR' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'fsr_up'),
-				'-' : lambda x: x.replace('nosys', 'fsr_down'),
-				'constants' : (
-					'fsr_down', 
-					'fsr_up'
-					),
-				'value' : 1.00,				
-				},
+			#'MTOP' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			#	'categories' : ['.*'],
+			#	'type' : 'shape',
+			#	'+' : lambda x: x.replace('nosys', 'mtop_up'),
+			#	'-' : lambda x: x.replace('nosys', 'mtop_down'),
+			#	'value' : 1.00,				
+			#	},
+			#'ISR' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			#	'categories' : ['.*'],
+			#	'type' : 'shape',
+			#	'+' : lambda x: x.replace('nosys', 'isr_up'),
+			#	'-' : lambda x: x.replace('nosys', 'isr_down'),
+			#	'constants' : (
+			#		'isr_down', 
+			#		'isr_up'
+			#		),
+			#	'value' : 1.00,				
+			#	},
+			#'FSR' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			#	'categories' : ['.*'],
+			#	'type' : 'shape',
+			#	'+' : lambda x: x.replace('nosys', 'fsr_up'),
+			#	'-' : lambda x: x.replace('nosys', 'fsr_down'),
+			#	'constants' : (
+			#		'fsr_down', 
+			#		'fsr_up'
+			#		),
+			#	'value' : 1.00,				
+			#	},
 			'JES' : {
 				'samples' : ['.*_whad', 'nonsemi_tt', 'single_top'],
 				'categories' : ['.*'],
@@ -265,7 +266,7 @@ class CTagPlotter(Plotter):
 				'-' : lambda x: x.replace('nosys', 'btag_down'),
 				},
 			'CTAGB' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'single_top', 'vjets', 'qcd'],
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'vjets', 'single_top', 'qcd'],
 				'categories' : ['.*'],
 				'type' : 'lnN',
 				'+' : lambda x: x.replace('nosys', 'btagb_up'),
@@ -279,7 +280,7 @@ class CTagPlotter(Plotter):
 				'-' : lambda x: x.replace('nosys', 'btagl_down'),
 				},
 			'CTAGC' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'single_top', 'qcd', 'vjets'],#, 'right_whad'],
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'vjets', 'single_top', 'qcd'],#, 'right_whad'],
 				'categories' : ['.*'],
 				'type' : 'lnN',
 				'+' : lambda x: x.replace('nosys', 'btagc_up'),
@@ -546,7 +547,7 @@ class CTagPlotter(Plotter):
 			histo = sum(view.Get(path) for path in paths)
 			integral = histo.Integral()
 			if name == self.signal:
-				histo.Scale(1./integral)
+				#histo.Scale(1./integral)
 				self.signal_yields[category_name] = integral
 			elif name == 'data_obs' and data_is_fake:
 				int_int = float(int(integral))
@@ -618,9 +619,9 @@ class CTagPlotter(Plotter):
 
 					#shapes only: store shape in root file					
 					if info['type'] == 'shape':
-						if name == self.signal:
-							hup.Scale(1./integral)
-							hdw.Scale(1./integral)
+						#if name == self.signal:
+						#	hup.Scale(1./integral)
+						#	hdw.Scale(1./integral)
 						if hup.Integral() == 0.:
 							rootpy.log["/"].warning('%s Up for %s/%s has normalization == 0, forcing it to 10**-6' %(sys_name, category_name, name))
 							mbin = category[name].GetMaximumBin()
@@ -667,6 +668,9 @@ class CTagPlotter(Plotter):
 			return info['charm']/info['total']
 			
 		def eff_val(n_passing, n_total):
+			#print 'passing nominal: ', n_passing.nominal_value
+			#print 'total nominal: ', n_total.nominal_value
+			#print 'sq err: ', n_passing.nominal_value * (1 - n_passing.nominal_value / n_total.nominal_value)
 			val = n_passing.nominal_value / n_total.nominal_value
 			err = math.sqrt(n_passing.nominal_value * (1 - n_passing.nominal_value / n_total.nominal_value)) / n_total.nominal_value			
 			return ufloat(val, err)
@@ -878,7 +882,8 @@ class CTagPlotter(Plotter):
 			systematics = kwargs['sys_effs']
 			del kwargs['sys_effs']
 		mc_default = self.mc_samples
-		self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
+		#self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
+		self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
 		self.plot_mc_vs_data(*args, **kwargs)
 		if systematics is not None:
 			data = [i for i in self.keep if isinstance(i, ROOT.TH1)][0]
@@ -1008,7 +1013,8 @@ class CTagPlotter(Plotter):
 	def draw_cvsl_shapes(self, dirname, basename, disc, leftleg, preselection):
 		if preselection:
 			mc_default = self.mc_samples
-			self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
+			#self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
+			self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
 		mc_views = plotter.mc_views(folder=dirname)	
 		if preselection: self.mc_samples = mc_default
 
@@ -1103,9 +1109,12 @@ vars2D = [
 variables = [
   ("njets"	 , "# of selected jets", range(13), None, False),
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
-  ("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
-  ("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
-	("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
+  ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
+  ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
+  #("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
+  #("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
+  ("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
+  #("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
   ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
   ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
   ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
@@ -1117,6 +1126,8 @@ variables = [
 	("Wjets_DeepCSVc" , "DeepCSVc Discriminator", 1, None, False),
 	("Wjets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
 	("Wjets_DeepCSVbD", "DeepCSV Discriminator", 1, None, False),
+	("Wjets_DeepCSVCvsBD", "DeepCSV CvsB Discriminator", 1, None, False),
+	("Wjets_DeepCSVCvsLD", "DeepCSV CvsL Discriminator", 1, None, False),
   #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None, False),
   #("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
   #("Whad_pt"  , "p_{T}(W_{had}) (GeV)", 10, None, False),
@@ -1142,12 +1153,14 @@ preselection = [
 	("jets_DeepCSVc" , "DeepCSVc Discriminator" , 1, None, False),
 	("jets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
 	("jets_DeepCSVbD", "DeepCSVbD Discriminator", 1, None, False),
+	("jets_DeepCSVCvsBD", "DeepCSV CvsB Discriminator", 1, None, False),
+	("jets_DeepCSVCvsLD", "DeepCSV CvsL Discriminator", 1, None, False),
   ("jets_eta", "#eta(jet)", 10, None, False),
   ("jets_pt", "p_{T}(jet)", 10, None, False),
   ("lep_eta", "#eta(l)", 10, None, False),
   ("lep_pt", "p_{T}(l)", 10, None, False),
-  ("nvtx", "# of reconstructed vertices", range(41), None, False),
-  ("rho", "#rho", range(40), None, False),
+#  ("nvtx", "# of reconstructed vertices", range(41), None, False),
+#  ("rho", "#rho", range(40), None, False),
 ]
 
 permutation_presel = [
@@ -1233,9 +1246,10 @@ if args.mceffs:
 		out.write(prettyjson.dumps(json))
 
 if args.plots:
-	#cut flow
-	## flow = plotter.cut_flow()
-	## plotter.save('cut_flow')
+	##cut flow
+	#flow = plotter.cut_flow()
+	#plotter.save('cut_flow')
+	#exit()
 
 	plotter.set_subdir('preselection')
 	for var, axis, rebin, x_range, leftside in preselection:

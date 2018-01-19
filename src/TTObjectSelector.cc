@@ -182,7 +182,7 @@ bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shi
 	filter_answer &= (filters.Flag_EcalDeadCellTriggerPrimitiveFilter() == 1);
 	filter_answer &= (filters.Flag_goodVertices() == 1);
 	filter_answer &= (filters.Flag_eeBadScFilter() == 1);
-	filter_answer &= (filters.Flag_globalTightHalo2016Filter() == 1);
+	//filter_answer &= (filters.Flag_globalTightHalo2016Filter() == 1);
 	filter_answer &= (filters.Flag_BadPFMuon() == 1);
 	filter_answer &= (filters.Flag_BadChargedCandidate() == 1);	
 	return filter_answer;

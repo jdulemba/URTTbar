@@ -21,8 +21,10 @@ project = os.environ['URA_PROJECT']
 input_file = '%s/results/%s/btag_topology_effs/ttJets.root' % (project, jobid)
 tfile = io.root_open(input_file)
 
-pt_bins  = [0., 40, 80, 120, 1000]
-eta_bins = [-2.4, -1.2, 0.0, 1.2, 2.4]
+#pt_bins  = [0., 40, 80, 120, 1000] #original bins
+#eta_bins = [-2.4, -1.2, 0.0, 1.2, 2.4] #original bins
+pt_bins  = [0., 80, 1000]
+eta_bins = [-2.4, 0.0, 2.4]
 hview = urviews.RebinView(tfile, [pt_bins, eta_bins])
 
 alljet_cut_types = list(set([i.name.split('_')[1] for i in tfile.nosys.alljets.keys()]))

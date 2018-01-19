@@ -322,6 +322,8 @@ public:
 		book<TH1F>(folder, "jets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_cMVA" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVCvsLD" , "", 55,  -1., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVCvsBD" , "", 55,  -1., 1.1);
 		book<TH1F>(folder, "jets_DeepCSVb" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_DeepCSVl" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_DeepCSVbb", "", 55,  0., 1.1);
@@ -350,6 +352,9 @@ public:
       dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
       dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
 			dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
+
+			dir->second["jets_DeepCSVCvsLD" ].fill(jet->DeepCSVProbC()/(jet->DeepCSVProbC()+jet->DeepCSVProbUDSG()), evt_weight_);
+			dir->second["jets_DeepCSVCvsBD" ].fill(jet->DeepCSVProbC()/(jet->DeepCSVProbC()+jet->DeepCSVProbB()+jet->DeepCSVProbBB()), evt_weight_);
 
 			dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
 			dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
@@ -416,6 +421,8 @@ public:
 		book<TH1F>(folder, "Bjets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "WjetCSV"   , "", 40, -20., 20.);
 		book<TH1F>(folder, "Wjets_CMVA" , "", 55, -1., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVCvsLD" , "", 55,  -1., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVCvsBD" , "", 55,  -1., 1.1);
 		book<TH1F>(folder, "Wjets_DeepCSVb" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "Wjets_DeepCSVl" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "Wjets_DeepCSVbb", "", 55,  0., 1.1);
@@ -487,12 +494,18 @@ public:
 		dir->second["Bjets_CvsB"].fill(hyp.BLep()->CvsBtag(), evt_weight_);
 		dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
 		dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
+
+		dir->second["Wjets_DeepCSVCvsLD" ].fill(hyp.WJa()->DeepCSVProbC()/(hyp.WJa()->DeepCSVProbC()+hyp.WJa()->DeepCSVProbUDSG()), evt_weight_);
+		dir->second["Wjets_DeepCSVCvsBD" ].fill(hyp.WJa()->DeepCSVProbC()/(hyp.WJa()->DeepCSVProbC()+hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB()), evt_weight_);
 		dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
 		dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
 		dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
 		dir->second["Wjets_DeepCSVc" ].fill(hyp.WJa()->DeepCSVProbC(), evt_weight_);
 		dir->second["Wjets_DeepCSVcc"].fill(hyp.WJa()->DeepCSVProbCC(), evt_weight_);
 		dir->second["Wjets_DeepCSVbD"].fill(hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB(), evt_weight_);
+
+		dir->second["Wjets_DeepCSVCvsLD" ].fill(hyp.WJb()->DeepCSVProbC()/(hyp.WJb()->DeepCSVProbC()+hyp.WJb()->DeepCSVProbUDSG()), evt_weight_);
+		dir->second["Wjets_DeepCSVCvsBD" ].fill(hyp.WJb()->DeepCSVProbC()/(hyp.WJb()->DeepCSVProbC()+hyp.WJb()->DeepCSVProbB()+hyp.WJb()->DeepCSVProbBB()), evt_weight_);
 		dir->second["Wjets_DeepCSVb" ].fill(hyp.WJb()->DeepCSVProbB(), evt_weight_);
 		dir->second["Wjets_DeepCSVl" ].fill(hyp.WJb()->DeepCSVProbUDSG(), evt_weight_);
 		dir->second["Wjets_DeepCSVbb"].fill(hyp.WJb()->DeepCSVProbBB(), evt_weight_);
