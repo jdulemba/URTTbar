@@ -26,7 +26,7 @@ def make_csv_entry(value, wpoint, flav, shift='central'):
    return entry
 
 parser = ArgumentParser()
-parser.add_argument('algo', help='algo to dump (CSV, CTAG etc..)')
+parser.add_argument('algo', help='algo to dump (csv, ctag, cmva, DeepCsv, etc..)')
 ## parser.add_argument('--wps', default='*',
 ##                     help='choose the working points to use')
 args = parser.parse_args()

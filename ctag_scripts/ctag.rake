@@ -270,6 +270,10 @@ task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
+task :make_csv, [:wp] do |t, args|
+  sh "python ctag_scripts/write_csv.py #{args.wp}"
+end
+
 $wroking_points = ['csvLoose', 
                    'csvMedium', 'csvTight', 
                    'ctagLoose', 'ctagMedium', 'ctagTight', 
@@ -280,6 +284,8 @@ task :ctag_fitall do |t|
   $wroking_points.each do |wp|
     Rake::Task["ctag_postfit"].invoke(wp)
     Rake::Task["ctag_postfit"].reenable
+    Rake::Task["make_csv"].invoke(wp)
+    Rake::Task["make_csv"].reenable
   end
 end
 
@@ -301,6 +307,7 @@ task :ctag_toy_diagnostics, [:wp ] do |t, args|
 end
 
 task :ctag_shapes do |t|
+  puts "\n\n   --- Making plots for all Eras ---\n\n"
   sh 'python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation'
   sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Loose"  --noLightFit --noPOIpropagation '
   sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Medium" --noPOIpropagation --noLightFit'

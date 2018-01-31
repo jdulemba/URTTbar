@@ -13,7 +13,7 @@ public:
 	typedef systematics::SysShifts Sys;
   LeptonSF(std::string parname, bool ptx=true);
   ~LeptonSF() {
-		Logger::log().debug() << "LeptonSF" << std::endl;
+		Logger::log().debug() << "LeptonSF Destructor" << std::endl;
 	}
   double get_sf(double pt, double eta, Sys shift = Sys::NOSYS) const;
 private:

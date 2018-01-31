@@ -97,6 +97,8 @@ private:
   IDJet::BTag cut_tight_b_=IDJet::BTag::NONE;
   IDJet::BTag cut_loose_b_=IDJet::BTag::NONE;
 
+ 
+
   unsigned long evt_idx_ = 0;
 	vector<float> pt_binning_ = {25.,35.,50.,70.,200.};
 	
@@ -141,7 +143,8 @@ public:
     muon_sf_("muon_sf"),
 		randomizer_(),
     btag_sf_("best_permutation.tightb", "best_permutation.looseb", 0.5, -1, -1),
-    pdf_uncs_(254)
+    //pdf_uncs_(254)
+    pdf_uncs_(1080)
 	{
     btag_sf_.ignore_partial_shifts();
     cut_tight_b_ = btag_sf_.tight_cut();
@@ -322,8 +325,8 @@ public:
 		book<TH1F>(folder, "jets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_cMVA" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "jets_DeepCSVCvsLD" , "", 55,  -1., 1.1);
-		book<TH1F>(folder, "jets_DeepCSVCvsBD" , "", 55,  -1., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVCvsL" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "jets_DeepCSVCvsB" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_DeepCSVb" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_DeepCSVl" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "jets_DeepCSVbb", "", 55,  0., 1.1);
@@ -353,8 +356,9 @@ public:
       dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
 			dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
 
-			dir->second["jets_DeepCSVCvsLD" ].fill(jet->DeepCSVProbC()/(jet->DeepCSVProbC()+jet->DeepCSVProbUDSG()), evt_weight_);
-			dir->second["jets_DeepCSVCvsBD" ].fill(jet->DeepCSVProbC()/(jet->DeepCSVProbC()+jet->DeepCSVProbB()+jet->DeepCSVProbBB()), evt_weight_);
+
+			dir->second["jets_DeepCSVCvsL" ].fill(jet->DeepCSVCvsLtag(), evt_weight_);
+			dir->second["jets_DeepCSVCvsB" ].fill(jet->DeepCSVCvsBtag(), evt_weight_);
 
 			dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
 			dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
@@ -389,13 +393,26 @@ public:
 		book<TH2F>(folder, "subB_subW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
 
     //info by flavor    
-		// book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 42, -1., 1.1);
-		// book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 42, -1., 1.1);
-		// book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 42, -1., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 55, -1., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 55, -1., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 55, -1., 1.1);
 
-		// book<TH1F>(folder, "Wjets_hflav_CvsB_B" , "", 42, -1., 1.1);
-		// book<TH1F>(folder, "Wjets_hflav_CvsB_C" , "", 42, -1., 1.1);
-		// book<TH1F>(folder, "Wjets_hflav_CvsB_L" , "", 42, -1., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_CvsB_B" , "", 55, -1., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_CvsB_C" , "", 55, -1., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_CvsB_L" , "", 55, -1., 1.1);
+
+            //DeepCSV Disc values
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVCvsL_B" , "", 55, 0., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVCvsL_C" , "", 55, 0., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVCvsL_L" , "", 55, 0., 1.1);
+
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVCvsB_B" , "", 55, 0., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVCvsB_C" , "", 55, 0., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVCvsB_L" , "", 55, 0., 1.1);
+
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVbD_B" , "", 55, 0., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVbD_C" , "", 55, 0., 1.1);
+		 book<TH1F>(folder, "Wjets_hflav_DeepCSVbD_L" , "", 55, 0., 1.1);
 
 		book<TH1F>(folder, "Wjets_hflav_jpt_C" , "", 100, 0., 500.);    
 		book<TH1F>(folder, "Wjets_hflav_jpt_L" , "", 100, 0., 500.);    
@@ -421,8 +438,8 @@ public:
 		book<TH1F>(folder, "Bjets_CvsB" , "", 55, -1., 1.1);
 		book<TH1F>(folder, "WjetCSV"   , "", 40, -20., 20.);
 		book<TH1F>(folder, "Wjets_CMVA" , "", 55, -1., 1.1);
-		book<TH1F>(folder, "Wjets_DeepCSVCvsLD" , "", 55,  -1., 1.1);
-		book<TH1F>(folder, "Wjets_DeepCSVCvsBD" , "", 55,  -1., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVCvsL" , "", 55,  0., 1.1);
+		book<TH1F>(folder, "Wjets_DeepCSVCvsB" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "Wjets_DeepCSVb" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "Wjets_DeepCSVl" , "", 55,  0., 1.1);
 		book<TH1F>(folder, "Wjets_DeepCSVbb", "", 55,  0., 1.1);
@@ -476,8 +493,13 @@ public:
         // dir->second["Wjets_hflav_jpt_jeta_L"].fill(jet->Pt(), jet->Eta(), evt_weight_);
       }
 
-      // dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
-      // dir->second["Wjets_hflav_CvsB_"+hstr].fill(jet->CvsBtag(), evt_weight_);
+       dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+       dir->second["Wjets_hflav_CvsB_"+hstr].fill(jet->CvsBtag(), evt_weight_);
+
+            // DeepCSV Discriminant values for each wjet flavor
+       dir->second["Wjets_hflav_DeepCSVCvsL_"+hstr].fill(jet->DeepCSVCvsLtag(), evt_weight_);
+       dir->second["Wjets_hflav_DeepCSVCvsB_"+hstr].fill(jet->DeepCSVCvsBtag(), evt_weight_);
+       dir->second["Wjets_hflav_DeepCSVbD_"+hstr].fill(jet->DeepCSVProbB()+jet->DeepCSVProbBB(), evt_weight_);
       // dir->second[wj+"_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
     }
 
@@ -495,8 +517,8 @@ public:
 		dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
 		dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
 
-		dir->second["Wjets_DeepCSVCvsLD" ].fill(hyp.WJa()->DeepCSVProbC()/(hyp.WJa()->DeepCSVProbC()+hyp.WJa()->DeepCSVProbUDSG()), evt_weight_);
-		dir->second["Wjets_DeepCSVCvsBD" ].fill(hyp.WJa()->DeepCSVProbC()/(hyp.WJa()->DeepCSVProbC()+hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB()), evt_weight_);
+		dir->second["Wjets_DeepCSVCvsL" ].fill(hyp.WJa()->DeepCSVCvsLtag(), evt_weight_);
+		dir->second["Wjets_DeepCSVCvsB" ].fill(hyp.WJa()->DeepCSVCvsBtag(), evt_weight_);
 		dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
 		dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
 		dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
@@ -504,8 +526,8 @@ public:
 		dir->second["Wjets_DeepCSVcc"].fill(hyp.WJa()->DeepCSVProbCC(), evt_weight_);
 		dir->second["Wjets_DeepCSVbD"].fill(hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB(), evt_weight_);
 
-		dir->second["Wjets_DeepCSVCvsLD" ].fill(hyp.WJb()->DeepCSVProbC()/(hyp.WJb()->DeepCSVProbC()+hyp.WJb()->DeepCSVProbUDSG()), evt_weight_);
-		dir->second["Wjets_DeepCSVCvsBD" ].fill(hyp.WJb()->DeepCSVProbC()/(hyp.WJb()->DeepCSVProbC()+hyp.WJb()->DeepCSVProbB()+hyp.WJb()->DeepCSVProbBB()), evt_weight_);
+		dir->second["Wjets_DeepCSVCvsL" ].fill(hyp.WJb()->DeepCSVCvsLtag(), evt_weight_);
+		dir->second["Wjets_DeepCSVCvsB" ].fill(hyp.WJb()->DeepCSVCvsBtag(), evt_weight_);
 		dir->second["Wjets_DeepCSVb" ].fill(hyp.WJb()->DeepCSVProbB(), evt_weight_);
 		dir->second["Wjets_DeepCSVl" ].fill(hyp.WJb()->DeepCSVProbUDSG(), evt_weight_);
 		dir->second["Wjets_DeepCSVbb"].fill(hyp.WJb()->DeepCSVProbBB(), evt_weight_);
@@ -772,6 +794,8 @@ public:
 		tracker_.deactivate();
     while(event.next())
     {
+        //if( event.run > 304671 ) continue; // for combining C to E data runs
+        //if( event.run <= 304671 ) continue; // for combining E to F data runs
 			// if(evt_idx_ % 1000 == 0) Logger::log().warning() << "Beginning event: " <<
       //                           evt_idx_ << endl;
 			if(limit > 0 && evt_idx_ > limit) {

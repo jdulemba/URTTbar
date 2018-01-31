@@ -50,7 +50,7 @@ IDJet::IDType IDJet::id_type(BTag id) {
   case CTAGTIGHT: return IDType::CTAG;
   case DEEPCTAGLOOSE: 
   case DEEPCTAGMEDIUM: 
-  case DEEPCTAGTIGHT: return IDType::CTAG;
+  case DEEPCTAGTIGHT: return IDType::DEEPCTAG;
 	case DEEPCSVLOOSE:
 	case DEEPCSVMEDIUM:
 	case DEEPCSVTIGHT: return IDType::DEEPFLAVOUR;
@@ -72,7 +72,7 @@ std::string IDJet::id_string(BTag id) {
   case CTAGTIGHT: return "ctag";
   case DEEPCTAGLOOSE: 
   case DEEPCTAGMEDIUM: 
-  case DEEPCTAGTIGHT: return "ctag";
+  case DEEPCTAGTIGHT: return "deepctag";
 	case DEEPCSVLOOSE:
 	case DEEPCSVMEDIUM:
 	case DEEPCSVTIGHT: return "deepcsv";
@@ -106,6 +106,7 @@ BTagEntry::OperatingPoint IDJet::tag_tightness(BTag id) {
 
 
 bool IDJet::BTagId(BTag wp) const {
+  //  cout << "working point: " << wp << endl;
   if(wp == BTag::NONE) return true;
   else if(wp == BTag::CSVLOOSE)  return csvIncl() > 0.5426;
   else if(wp == BTag::CSVMEDIUM) return csvIncl() > 0.8484;
@@ -123,11 +124,19 @@ bool IDJet::BTagId(BTag wp) const {
 }
 
 
-inline float IDJet::DeepCSVCvsLtag() const {
+//inline float IDJet::DeepCSVCvsLtag() const {
+//    return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbUDSG()) : -1 );
+//}
+//
+//inline float IDJet::DeepCSVCvsBtag() const {
+//    return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbB() + DeepCSVProbBB()) : -1 );
+//}
+
+float IDJet::DeepCSVCvsLtag() const {
     return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbUDSG()) : -1 );
 }
 
-inline float IDJet::DeepCSVCvsBtag() const {
+float IDJet::DeepCSVCvsBtag() const {
     return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbB() + DeepCSVProbBB()) : -1 );
 }
 
@@ -137,9 +146,9 @@ bool IDJet::CTagId(BTag wp) const	{
   //cout << "Deep: " << DeepCSVCvsBtag() << endl;
   //cout << "DeepCSV CvsL disc: " << (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbB() + DeepCSVProbBB()) << endl;
   if(wp == BTag::NONE) return true;
-  else if(wp == BTag::CTAGLOOSE)  {cvsl_thr = -0.337; cvsb_thr = -0.356; return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);}
-  else if(wp == BTag::CTAGMEDIUM) {cvsl_thr = -0.073; cvsb_thr = -0.302; return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);}
-  else if(wp == BTag::CTAGTIGHT)  {cvsl_thr = 0.294; cvsb_thr = -0.682; return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);}
+  else if(wp == BTag::CTAGLOOSE)  {cvsl_thr = -0.53; cvsb_thr = -0.26; return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);}
+  else if(wp == BTag::CTAGMEDIUM) {cvsl_thr = 0.07; cvsb_thr = -0.10; return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);}
+  else if(wp == BTag::CTAGTIGHT)  {cvsl_thr = 0.87; cvsb_thr = -0.30; return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);}
   else if(wp == BTag::DEEPCTAGLOOSE)  {cvsl_thr = 0.05; cvsb_thr = 0.33; return (DeepCSVCvsLtag() > cvsl_thr && DeepCSVCvsBtag() > cvsb_thr);}
   else if(wp == BTag::DEEPCTAGMEDIUM) {cvsl_thr = 0.15; cvsb_thr = 0.28; return (DeepCSVCvsLtag() > cvsl_thr && DeepCSVCvsBtag() > cvsb_thr);}
   else if(wp == BTag::DEEPCTAGTIGHT)  {cvsl_thr = 0.80; cvsb_thr = 0.10; return (DeepCSVCvsLtag() > cvsl_thr && DeepCSVCvsBtag() > cvsb_thr);}
@@ -155,6 +164,7 @@ bool IDJet::TagId(BTag wp) const {
 	case MVA:
   case CSV: return BTagId(wp);
   case CTAG: return CTagId(wp);
+  case DEEPCTAG: return CTagId(wp);
   default: return false;
   }
 }
