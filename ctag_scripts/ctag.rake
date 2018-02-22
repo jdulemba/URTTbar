@@ -7,7 +7,7 @@ $no_batch_submit = ENV.fetch('no_batch_submit', "0")
 tools = "#{$fwk_dir}/rake/tools.rb"
 require tools
 
-require 'json'
+#require 'json'
 
 def psub(target, sub)
   ret = proc {|name| 
@@ -200,8 +200,8 @@ rule /MaxLikeFitStatOnly\.root$/ => psub(/MaxLikeFitStatOnly/, 'MultiDimFit') do
   end
 end
 
-task :sys_breakdown, [:wp] do |t, args|
-  wpdir = "plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}"
+task :sys_breakdown, [:runs, :wp] do |t, args|
+  wpdir = "plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}"
   Rake::Task["#{wpdir}/MultiDimFit.root"].invoke()
   Rake::Task["#{wpdir}/MaxLikeFitStatOnly.root"].invoke()
   sh "mkdir -p #{wpdir}/sys_breakdown/"  
@@ -248,51 +248,113 @@ task :sys_breakdown, [:wp] do |t, args|
     sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
     sh "mv mlfit.root for_cmb/other.root"
   end
-  sh "python ctag_scripts/make_sys_table.py #{args.wp}"
+  sh "python ctag_scripts/make_sys_table.py #{args.wp} --eras=#{$runs_dict[args.runs]}"
 end
 
 #tasks
-task :ctag_fit, [:wp] do |t, args|
-  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+task :ctag_fit, [:runs, :wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
 end
 
-task :ctag_postfit, [:wp] do |t, args|
-  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
-  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} both"
+task :ctag_postfit, [:runs, :wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} both --eras=#{args.runs}"
 end
 
-task :ctag_prefit, [:wp] do |t, args|
-  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
-  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} prefit"
+task :ctag_prefit, [:runs, :wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} prefit --eras=#{args.runs}"
 end
 
 task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
-task :make_csv, [:wp] do |t, args|
-  sh "python ctag_scripts/write_csv.py #{args.wp}"
+task :make_csv, [:runs, :wp] do |t, args|
+ sh "python ctag_scripts/write_csv.py #{args.wp} --eras=#{args.runs}"
 end
-
-$wroking_points = ['csvLoose', 
-                   'csvMedium', 'csvTight', 
-                   'ctagLoose', 'ctagMedium', 'ctagTight', 
-                   'cmvaLoose', 'cmvaMedium', 'cmvaTight',
-                   'DeepCsvLoose', 'DeepCsvMedium', 'DeepCsvTight'
-                  ]
-task :ctag_fitall do |t|
-  $wroking_points.each do |wp|
-    Rake::Task["ctag_postfit"].invoke(wp)
-    Rake::Task["ctag_postfit"].reenable
-    Rake::Task["make_csv"].invoke(wp)
+task :make_allcsvwps, [:runs] do |t, args|
+  $algorithms.each do |algo|
+    puts "\n   --- Making csv files for #{algo} algorithm for run #{args.runs}. ---\n\n"
+    Rake::Task["make_csv"].invoke(args.runs, algo)
     Rake::Task["make_csv"].reenable
   end
 end
 
-task :breakdown_all do |t|
+task :make_csvallruns do |t|
+  $runs_dict.each_key do |run|
+    Rake::Task['make_allcsvwps'].invoke(run)
+    Rake::Task['make_allcsvwps'].reenable
+  end
+end
+
+
+$wroking_points = ['csvLoose', 'csvMedium', 'csvTight', 
+                   'ctagLoose', 'ctagMedium', 'ctagTight', 
+                   #'cmvaLoose', 'cmvaMedium', 'cmvaTight',
+                   'DeepCsvLoose', 'DeepCsvMedium', 'DeepCsvTight'
+                  ]
+
+$algorithms = ['csv', 'ctag', 'cmva', 'DeepCsv']
+
+$runs = ['All', 'B', 'CtoE', 'EtoF'] #2018 run splitting into eras
+$run_dirs = ['All_Runs', 'Run_B', 'Run_CtoE', 'Run_EtoF'] #2018 run splitting into eras
+$runs_dict = {'All' => "All_Runs", 'B' => "Run_B", 'CtoE' => "Run_CtoE", 'EtoF' => "Run_EtoF"}
+
+task :test_run, [:runs] do |t, args|
+  validity = $runs_dict.has_key?(args.runs)
+  puts "#{validity}"
+  if validity == false
+    puts "#{args.runs} isn't a valid run to choose from. Your options are"
+  #puts $runs_dict[args.runs]
+  #sh "ls plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}"
+    $runs_dict.each_key do |keys|
+      puts "   #{keys}"
+    end
+  end
+end
+
+
+task :make_datacard_plots, [:run] do |t,args|
   $wroking_points.each do |wp|
-    Rake::Task['sys_breakdown'].invoke(wp)
+    puts "\n  --- Making #{wp} datacard plots for #{args.run} ---\n"
+    sh "python ctag_scripts/datacard_stack.py --wp=#{wp} --eras=#{args.run}"
+  end
+end
+
+task :all_datacard_plots do |t|
+  $runs.each do |run|
+    Rake::Task["make_datacard_plots"].invoke(run)
+    Rake::Task["make_datacard_plots"].reenable
+  end
+end
+
+task :ctag_fitallwps, [:runs] do |t,args|
+  $wroking_points.each do |wp|
+    puts "\n   --- Running fits for #{wp} for runs #{args.runs}. ---\n\n"
+    Rake::Task["ctag_postfit"].invoke(args.runs, wp)
+    Rake::Task["ctag_postfit"].reenable
+  end
+end
+
+task :ctag_fitallruns do |t|
+  $runs_dict.each_key do |run|
+    Rake::Task['ctag_fitallwps'].invoke(run)
+    Rake::Task['ctag_fitallwps'].reenable
+  end
+end
+
+task :breakdown_allwps, [:runs] do |t, args|
+  $wroking_points.each do |wp|
+    Rake::Task['sys_breakdown'].invoke(args.runs, wp)
     Rake::Task["sys_breakdown"].reenable
+  end
+end
+
+task :breakdown_allruns do |t|
+  $runs_dict.each_key do |run|
+    Rake::Task['breakdown_allwps'].invoke(run)
+    Rake::Task['breakdown_allwps'].reenable
   end
 end
 
@@ -306,20 +368,61 @@ task :ctag_toy_diagnostics, [:wp ] do |t, args|
   sh "python toy_diagnostics.py '' '' #{toy_dir}/MaxLikeFitToy.root -o #{toy_dir}/toys/ --use-prefit --noshapes --filter-out-pars='.*_bin_\d+$'"
 end
 
-task :ctag_shapes do |t|
-  puts "\n\n   --- Making plots for all Eras ---\n\n"
-  sh 'python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation'
-  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Loose"  --noLightFit --noPOIpropagation '
-  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Medium" --noPOIpropagation --noLightFit'
-  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Tight" --noPOIpropagation --noLightFit'
+task :ctag_shapes, [:run] do |t, args|
+  sh "python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps=notag --noPOIpropagation --eras=#{args.run}"
+  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='*Loose'  --noLightFit --noPOIpropagation --eras=#{args.run}"
+  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='*Medium' --noPOIpropagation --noLightFit --eras=#{args.run}"
+  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='*Tight' --noPOIpropagation --noLightFit --eras=#{args.run}"
 end
 
-task :ctag_plotfit do |t|
-  Rake::Task['ctag_shapes'].invoke()
-  Rake::Task['ctag_fitall'].invoke()
-  Rake::Task['breakdown_all'].invoke()
-  #Rake::Task['breakdown_all'].invoke()
-  sh 'python ctag_scripts/make_ctag_tables.py'
-  sh "ctag_scripts/write_csv.py ctag"
-  #sh "mv ctag.csv plots/#{jobid}/ctageff/."
+
+task :ctag_shapes_allruns do |t|
+  $runs_dict.each_key do |run|
+    puts " \n  --- Making shapes for Run #{run} -- \n"
+    Rake::Task['ctag_shapes'].invoke(run)
+    Rake::Task['ctag_shapes'].reenable
+  end
 end
+
+task :make_ctag_tables, [:runs] do |t, args|
+  sh "python ctag_scripts/make_ctag_tables.py --eras=#{args.runs}"
+end
+
+
+task :ctag_plotfit_singlerun, [:runs] do |t, args|
+  validity = $runs_dict.has_key?(args.runs)
+  if validity == false
+    puts "#{args.runs} isn't a valid run to choose from. Your options are"
+    $runs_dict.each_key do |keys|
+      puts "   #{keys}"
+    end
+    exit
+  end
+  Rake::Task['ctag_shapes'].invoke(args.runs)
+  Rake::Task['ctag_fitallwps'].invoke(args.runs)
+  Rake::Task['breakdown_allwps'].invoke(args.runs)
+  Rake::Task['make_ctag_tables'].invoke(args.runs)
+  Rake::Task['make_allcsvwps'].invoke(args.runs)
+  sh "python ctag_scripts/plot_results.py --eras=#{args.runs}"
+end
+
+task :ctag_plotfit_allrun do |t|
+  $runs_dict.each_key do |run|
+    puts "\n --- Running entire workflow for Run #{run} ---\n"
+    Rake::Task['ctag_plotfit_singlerun'].invoke(run)
+    Rake::Task['ctag_plotfit_singlerun'].reenable
+  end
+end
+#task :ctag_plotfit do |t|
+#  Rake::Task['ctag_shapes'].invoke()
+#  Rake::Task['ctag_fitall'].invoke()
+#  Rake::Task['breakdown_all'].invoke()
+#  sh 'python ctag_scripts/make_ctag_tables.py'
+#  $algorithms.each do |algo|
+#    puts "\n   --- Making csv files for #{algo} algorithm. ---\n\n"
+#    Rake::Task["make_csv"].invoke(algo)
+#    Rake::Task["make_csv"].reenable
+#  end
+#  #sh "ctag_scripts/write_csv.py ctag"
+#  #sh "mv ctag.csv plots/#{jobid}/ctageff/."
+#end

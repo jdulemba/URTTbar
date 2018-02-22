@@ -97,8 +97,9 @@ public:
 			cout << "  Flag_goodVertices: " << 												event.filter().Flag_goodVertices() << endl;												 
 			cout << "  Flag_eeBadScFilter: " << 											event.filter().Flag_eeBadScFilter() << endl;											 
 			cout << "  Flag_globalTightHalo2016Filter: " << 					event.filter().Flag_globalTightHalo2016Filter() << endl;					 
-			cout << "  Flag_BadPFMuon: " << 													event.filter().Flag_BadPFMuon() << endl;													 
-			cout << "  Flag_BadChargedCandidate: " << 	              event.filter().Flag_BadChargedCandidate() << endl;	                
+			cout << "  Flag_BadPFMuonFilter: " << 													event.filter().Flag_BadPFMuonFilter() << endl;													 
+			cout << "  Flag_ecalBadCalibFilter: " << 													event.filter().Flag_ecalBadCalibFilter() << endl;													 
+			cout << "  Flag_BadChargedCandidateFilter: " << 	              event.filter().Flag_BadChargedCandidateFilter() << endl;	                
 			cout << endl;
 			
 

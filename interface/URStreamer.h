@@ -240,7 +240,7 @@ private:
 class Filter{
 friend class URStreamer;
 public:
-//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_globalTightHalo2016Filter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_duplicateMuons_,const Int_t &i_Flag_badMuons_,const Int_t &i_Flag_BadPFMuon_,const Int_t &i_Flag_BadChargedCandidate_):
+//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_globalTightHalo2016Filter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_duplicateMuons_,const Int_t &i_Flag_badMuons_,const Int_t &i_Flag_BadPFMuonFilter_,const Int_t &i_Flag_BadChargedCandidateFilter_, const Int_t &i_Flag_ecalBadCalibFilter_):
 //    
 //  {}
   Filter():
@@ -260,8 +260,9 @@ public:
     Flag_hcalLaserEventFilter_(0),
     Flag_duplicateMuons_(0),
     Flag_badMuons_(0),
-    Flag_BadPFMuon_(0),
-    Flag_BadChargedCandidate_(0)
+    Flag_BadPFMuonFilter_(0),
+    Flag_ecalBadCalibFilter_(0),
+    Flag_BadChargedCandidateFilter_(0)
   {}
   Int_t Flag_goodVertices() const {return Flag_goodVertices_;}
   Int_t Flag_CSCTightHaloFilter() const {return Flag_CSCTightHaloFilter_;}
@@ -279,8 +280,9 @@ public:
   Int_t Flag_hcalLaserEventFilter() const {return Flag_hcalLaserEventFilter_;}
   Int_t Flag_duplicateMuons() const {return Flag_duplicateMuons_;}
   Int_t Flag_badMuons() const {return Flag_badMuons_;}
-  Int_t Flag_BadPFMuon() const {return Flag_BadPFMuon_;}
-  Int_t Flag_BadChargedCandidate() const {return Flag_BadChargedCandidate_;}
+  Int_t Flag_BadPFMuonFilter() const {return Flag_BadPFMuonFilter_;}
+  Int_t Flag_ecalBadCalibFilter() const {return Flag_ecalBadCalibFilter_;}
+  Int_t Flag_BadChargedCandidateFilter() const {return Flag_BadChargedCandidateFilter_;}
 private:
   Int_t Flag_goodVertices_;
   Int_t Flag_CSCTightHaloFilter_;
@@ -298,8 +300,9 @@ private:
   Int_t Flag_hcalLaserEventFilter_;
   Int_t Flag_duplicateMuons_;
   Int_t Flag_badMuons_;
-  Int_t Flag_BadPFMuon_;
-  Int_t Flag_BadChargedCandidate_;
+  Int_t Flag_BadPFMuonFilter_;
+  Int_t Flag_ecalBadCalibFilter_;
+  Int_t Flag_BadChargedCandidateFilter_;
   void setFlag_goodVertices(const Int_t value) {Flag_goodVertices_ = value;}
   void setFlag_CSCTightHaloFilter(const Int_t value) {Flag_CSCTightHaloFilter_ = value;}
   void setFlag_trkPOGFilters(const Int_t value) {Flag_trkPOGFilters_ = value;}
@@ -316,8 +319,9 @@ private:
   void setFlag_hcalLaserEventFilter(const Int_t value) {Flag_hcalLaserEventFilter_ = value;}
   void setFlag_duplicateMuons(const Int_t value) {Flag_duplicateMuons_ = value;}
   void setFlag_badMuons(const Int_t value) {Flag_badMuons_ = value;}
-  void setFlag_BadPFMuon(const Int_t value) {Flag_BadPFMuon_ = value;}
-  void setFlag_BadChargedCandidate(const Int_t value) {Flag_BadChargedCandidate_ = value;}
+  void setFlag_BadPFMuonFilter(const Int_t value) {Flag_BadPFMuonFilter_ = value;}
+  void setFlag_ecalBadCalibFilter(const Int_t value) {Flag_ecalBadCalibFilter_ = value;}
+  void setFlag_BadChargedCandidateFilter(const Int_t value) {Flag_BadChargedCandidateFilter_ = value;}
 };
 
 class Lheinfo{
@@ -1314,8 +1318,9 @@ public:
     filter_Flag_hcalLaserEventFilter_(0),
     filter_Flag_duplicateMuons_(0),
     filter_Flag_badMuons_(0),
-    filter_Flag_BadPFMuon_(0),
-    filter_Flag_BadChargedCandidate_(0),
+    filter_Flag_BadPFMuonFilter_(0),
+    filter_Flag_ecalBadCalibFilter_(0),
+    filter_Flag_BadChargedCandidateFilter_(0),
     rho_value_(0),
     muons_pt_(0),
     muons_eta_(0),
@@ -1721,8 +1726,9 @@ public:
       tree_->SetBranchStatus("filter.Flag_hcalLaserEventFilter", 1); tree_->SetBranchAddress("filter.Flag_hcalLaserEventFilter", &filter_Flag_hcalLaserEventFilter_);
       tree_->SetBranchStatus("filter.Flag_duplicateMuons", 1); tree_->SetBranchAddress("filter.Flag_duplicateMuons", &filter_Flag_duplicateMuons_);
       tree_->SetBranchStatus("filter.Flag_badMuons", 1); tree_->SetBranchAddress("filter.Flag_badMuons", &filter_Flag_badMuons_);
-      tree_->SetBranchStatus("filter.Flag_BadPFMuon", 1); tree_->SetBranchAddress("filter.Flag_BadPFMuon", &filter_Flag_BadPFMuon_);
-      tree_->SetBranchStatus("filter.Flag_BadChargedCandidate", 1); tree_->SetBranchAddress("filter.Flag_BadChargedCandidate", &filter_Flag_BadChargedCandidate_);
+      tree_->SetBranchStatus("filter.Flag_BadPFMuonFilter", 1); tree_->SetBranchAddress("filter.Flag_BadPFMuonFilter", &filter_Flag_BadPFMuonFilter_);
+      tree_->SetBranchStatus("filter.Flag_ecalBadCalibFilter", 1); tree_->SetBranchAddress("filter.Flag_ecalBadCalibFilter", &filter_Flag_ecalBadCalibFilter_);
+      tree_->SetBranchStatus("filter.Flag_BadChargedCandidateFilter", 1); tree_->SetBranchAddress("filter.Flag_BadChargedCandidateFilter", &filter_Flag_BadChargedCandidateFilter_);
       are_filter_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -2225,8 +2231,9 @@ public:
     obj.setFlag_hcalLaserEventFilter(filter_Flag_hcalLaserEventFilter_);
     obj.setFlag_duplicateMuons(filter_Flag_duplicateMuons_);
     obj.setFlag_badMuons(filter_Flag_badMuons_);
-    obj.setFlag_BadPFMuon(filter_Flag_BadPFMuon_);
-    obj.setFlag_BadChargedCandidate(filter_Flag_BadChargedCandidate_);
+    obj.setFlag_BadPFMuonFilter(filter_Flag_BadPFMuonFilter_);
+    obj.setFlag_ecalBadCalibFilter(filter_Flag_ecalBadCalibFilter_);
+    obj.setFlag_BadChargedCandidateFilter(filter_Flag_BadChargedCandidateFilter_);
   
     return obj;
   }
@@ -2992,8 +2999,9 @@ private:
   Int_t filter_Flag_hcalLaserEventFilter_;
   Int_t filter_Flag_duplicateMuons_;
   Int_t filter_Flag_badMuons_;
-  Int_t filter_Flag_BadPFMuon_;
-  Int_t filter_Flag_BadChargedCandidate_;
+  Int_t filter_Flag_BadPFMuonFilter_;
+  Int_t filter_Flag_ecalBadCalibFilter_;
+  Int_t filter_Flag_BadChargedCandidateFilter_;
   Double_t rho_value_;
   vector<float> *muons_pt_;
   vector<float> *muons_eta_;

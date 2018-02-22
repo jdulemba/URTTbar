@@ -1,4 +1,4 @@
-import os
+import os, sys
 from rootpy.io import root_open
 from glob import glob
 from argparse import ArgumentParser
@@ -8,7 +8,13 @@ from pdb import set_trace
 
 parser = ArgumentParser()
 parser.add_argument('wp')
+parser.add_argument('--eras', default='All')
 args = parser.parse_args()
+
+if not (args.eras == 'All_Runs' or args.eras == 'Run_B' or args.eras == "Run_CtoE" or args.eras == "Run_EtoF"):
+    logging.error('Not a valid era to choose from.')
+    sys.exit()
+
 
 def get_unc(fname):
 	tf = root_open(fname)
@@ -18,7 +24,7 @@ def get_unc(fname):
 
 jobid = os.environ['jobid']
 project = os.environ['URA_PROJECT']
-indir = '%s/plots/%s/ctageff/mass_discriminant/%s/' % (project, jobid, args.wp)
+indir = '%s/plots/%s/ctageff/%s/mass_discriminant/%s/' % (project, jobid, args.eras, args.wp)
 
 total = get_unc('%s/MaxLikeFit.root' % indir)
 stat = get_unc('%s/MaxLikeFitStatOnly.root' % indir)

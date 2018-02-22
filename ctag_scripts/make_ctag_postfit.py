@@ -6,7 +6,7 @@ log = rootpy.log["/make_postfit_plots"]
 log.setLevel(rootpy.log.INFO)
 from rootpy.plotting import Hist
 from argparse import ArgumentParser
-import os
+import os, sys
 import re
 import ROOT
 from URAnalysis.PlotTools.BasePlotter import BasePlotter, LegendDefinition
@@ -17,6 +17,7 @@ from pdb import set_trace
 from labels import set_pretty_label
 from URAnalysis.Utilities.tables import Table
 from argparse import ArgumentParser
+import numpy as np
 
 def foo():
 	pass
@@ -25,12 +26,30 @@ parser = ArgumentParser()
 parser.add_argument('working_point')
 parser.add_argument('plots', choices=['prefit', 'postfit', 'both'],
                     help='what to plot')
+parser.add_argument('--eras', default='All')
+
 args = parser.parse_args()
 plots_to_do = []
 if args.plots == 'prefit' or args.plots == 'both':
 	plots_to_do.append(('prefit', 'shapes_prefit'))
 if args.plots == 'postfit' or args.plots == 'both':
 	plots_to_do.append(('postfit', 'shapes_fit_s'))
+
+if args.eras == 'All':
+	run_dir = 'All_Runs'
+
+elif args.eras == 'B':
+	run_dir = 'Run_B'
+
+elif args.eras == 'CtoE':
+	run_dir = 'Run_CtoE'
+
+elif args.eras == 'EtoF':
+	run_dir = 'Run_EtoF'
+
+else:
+    logging.error('Not a valid era to choose from.')
+    sys.exit()
 
 def fix_binning(postfit, correct_bin):
 	ret = correct_bin.Clone()
@@ -44,7 +63,7 @@ def fix_binning(postfit, correct_bin):
 	ret.xaxis.title = '#lambda_{M}'
 	return ret
 
-input_dir = 'plots/%s/ctageff/mass_discriminant/%s' % (os.environ['jobid'], args.working_point)
+input_dir = 'plots/%s/ctageff/%s/mass_discriminant/%s' % (os.environ['jobid'], run_dir, args.working_point)
 
 mlfit_file = io.root_open(
 	'%s/MaxLikeFit.root' % input_dir
@@ -61,28 +80,98 @@ def ordering(histo):
 		multiplier = 100.
 	return multiplier*histo.Integral()
 
-plotter = BasePlotter(
-	'%s/postfit' % input_dir,
-	defaults = {'save' : {'png' : True, 'pdf' : True}},
-	styles = {
-        'right_whad *' : styles['right_whad *'],
-		'qcd *' : styles['QCD*'],
-		'single_top *' : styles['single*'],
-        'wrong_whad *' : styles['wrong_whad *'],
-        'nonsemi_tt *' : styles['nonsemi_tt *'],
-		'vjets *' : styles['[WZ]Jets*'],
-		'data_obs' : styles['data*'],
-		'Total signal+background *' : {
-			'legendstyle' : 'f',
-			'drawstyle' : 'PE2',
-			'linewidth' : 0,
-			'title' : "uncertainty",
-			'markersize' : 0,
-			'fillcolor' : 1,
-			'fillstyle' : 3013
-			}
-		}
-)
+if args.eras == 'All':
+    plotter = BasePlotter(
+    	'%s/postfit' % input_dir,
+    	defaults = {'save' : {'png' : True, 'pdf' : True}},
+    	styles = {
+            'right_whad *' : styles['right_whad *'],
+    		'qcd *' : styles['QCD*'],
+    		'single_top *' : styles['single*'],
+            'wrong_whad *' : styles['wrong_whad *'],
+            'nonsemi_tt *' : styles['nonsemi_tt *'],
+    		'vjets *' : styles['[WZ]Jets*'],
+    		'data_obs' : styles['data*'],
+    		'Total signal+background *' : {
+    			'legendstyle' : 'f',
+    			'drawstyle' : 'PE2',
+    			'linewidth' : 0,
+    			'title' : "uncertainty",
+    			'markersize' : 0,
+    			'fillcolor' : 1,
+    			'fillstyle' : 3013
+    			}
+    		}
+    )
+elif args.eras == 'B':
+    plotter = BasePlotter(
+    	'%s/postfit' % input_dir,
+    	defaults = {'save' : {'png' : True, 'pdf' : True}},
+    	styles = {
+            'right_whad *' : styles['right_whad *'],
+    		'qcd *' : styles['QCD*'],
+    		'single_top *' : styles['single*'],
+            'wrong_whad *' : styles['wrong_whad *'],
+            'nonsemi_tt *' : styles['nonsemi_tt *'],
+    		'vjets *' : styles['[WZ]Jets*'],
+    		'data_obs' : styles['data*B*'],
+    		'Total signal+background *' : {
+    			'legendstyle' : 'f',
+    			'drawstyle' : 'PE2',
+    			'linewidth' : 0,
+    			'title' : "uncertainty",
+    			'markersize' : 0,
+    			'fillcolor' : 1,
+    			'fillstyle' : 3013
+    			}
+    		}
+    )
+elif args.eras == 'CtoE':
+    plotter = BasePlotter(
+    	'%s/postfit' % input_dir,
+    	defaults = {'save' : {'png' : True, 'pdf' : True}},
+    	styles = {
+            'right_whad *' : styles['right_whad *'],
+    		'qcd *' : styles['QCD*'],
+    		'single_top *' : styles['single*'],
+            'wrong_whad *' : styles['wrong_whad *'],
+            'nonsemi_tt *' : styles['nonsemi_tt *'],
+    		'vjets *' : styles['[WZ]Jets*'],
+    		'data_obs' : styles['data*CtoE*'],
+    		'Total signal+background *' : {
+    			'legendstyle' : 'f',
+    			'drawstyle' : 'PE2',
+    			'linewidth' : 0,
+    			'title' : "uncertainty",
+    			'markersize' : 0,
+    			'fillcolor' : 1,
+    			'fillstyle' : 3013
+    			}
+    		}
+    )
+elif args.eras == 'EtoF':
+    plotter = BasePlotter(
+    	'%s/postfit' % input_dir,
+    	defaults = {'save' : {'png' : True, 'pdf' : True}},
+    	styles = {
+            'right_whad *' : styles['right_whad *'],
+    		'qcd *' : styles['QCD*'],
+    		'single_top *' : styles['single*'],
+            'wrong_whad *' : styles['wrong_whad *'],
+            'nonsemi_tt *' : styles['nonsemi_tt *'],
+    		'vjets *' : styles['[WZ]Jets*'],
+    		'data_obs' : styles['data*EtoF*'],
+    		'Total signal+background *' : {
+    			'legendstyle' : 'f',
+    			'drawstyle' : 'PE2',
+    			'linewidth' : 0,
+    			'title' : "uncertainty",
+    			'markersize' : 0,
+    			'fillcolor' : 1,
+    			'fillstyle' : 3013
+    			}
+    		}
+    )
 
 def print_var_line(varname, result):
 	var  = result[varname]
@@ -129,13 +218,16 @@ for pfit, tdir in plots_to_do:
 		stack = plotter.create_stack(*samples, sort=False)
 		legend = LegendDefinition(position='NE')
 		plotter.overlay_and_compare( 
+			#set_trace(),
 			[stack, hsum], data,
-			writeTo=cat_name,
 			legend_def = legend,
-		  xtitle='#lambda_{M}',
-		  ytitle='Events'
-		  ,method='datamc'
+			lower_y_range=0.5,
+            method='datamc',
+		    xtitle='%s #lambda_{M}' % cat_name,
+		    ytitle='Events',
+			writeTo=cat_name,
 			)
+		#set_trace()
 	table.add_separator()
 	with open('%s/yields.raw_txt' % out_dir,'w') as tab:
 		tab.write('%s\n' % table)

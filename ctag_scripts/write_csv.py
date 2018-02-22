@@ -4,7 +4,7 @@ from rootpy.io import root_open as ropen
 from rootpy import asrootpy as rpy
 import ROOT
 from argparse import ArgumentParser
-import os
+import os, sys
 from glob import glob
 from math import sqrt
 from pdb import set_trace
@@ -29,7 +29,18 @@ parser = ArgumentParser()
 parser.add_argument('algo', help='algo to dump (csv, ctag, cmva, DeepCsv, etc..)')
 ## parser.add_argument('--wps', default='*',
 ##                     help='choose the working points to use')
+parser.add_argument('--eras', default='All')
+
+
 args = parser.parse_args()
+if args.eras == 'All':
+    dir_name = 'All_Runs'
+elif args.eras == 'B' or args.eras == 'CtoE' or args.eras == 'EtoF':
+    dir_name = 'Run_%s' % args.eras
+else:
+    logging.error('Not a valid era to choose from.')
+    sys.exit()
+
 jobid = os.environ['jobid']
 
 calibration = ROOT.BTagCalibration(args.algo)
@@ -59,7 +70,7 @@ class CorrelationMatrix(object):
       idx2 = self.ymapping[v2]
       return self.matrix[idx1,idx2].value
 
-wps = glob('plots/%s/ctageff/mass_discriminant/%s*' % (jobid, args.algo))
+wps = glob('plots/%s/ctageff/%s/mass_discriminant/%s*' % (jobid, dir_name, args.algo))
 wp_mapping = { i:j for j, i in enumerate(['Loose', 'Medium', 'Tight'])}
 sfs = ['bottomSF', 'charmSF', 'lightSF']
 
@@ -104,6 +115,6 @@ for wp in wps:
                sf_idx, 'down%s' % shift_name)               
       first = False
 
-with open('%s.csv' % args.algo, 'w') as f:
+with open('plots/%s/ctageff/%s/%s.csv' % (jobid, dir_name, args.algo), 'w') as f:
    f.write(calibration.makeCSV())
 

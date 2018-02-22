@@ -84,6 +84,7 @@ styles = {
       #'markersize'  : 2,
       'name' : "Runs E-F",
     },
+   #'data*BtoF*' : {
    'data*' : {
       'legendstyle' : 'p',
       'drawstyle' : 'E0 X0',

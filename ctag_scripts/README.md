@@ -31,6 +31,7 @@ bash data_pileup.sh
 # creates data.meta.pu(_up/_down).root files for all data
 # replaces compute_lumi_...sh lines in getting lumi
 # 1. check pileup_latest.txt file in data_pileup.sh for correctness
+#    and make sure it's actually the latest version (from /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PileUp/)
 ```
 
 Another option is to directly copy the inputs/$jobid directory from someone who already did it.
@@ -74,6 +75,12 @@ Takes a **long** time
 rake 'analyze_batch[bin/ctag_eff.cc, *, ctag_scripts/ctag_eff.cfg]'
 ```
 
+## Runing Everything
+```
+rake ctag_plotfit  ## will make plots and run all of the fits/systematics that are below
+```
+
+
 ## Making plots
 
 General control plots
@@ -110,3 +117,5 @@ python ctag_scripts/make_ctag_tables.py #this makes a latex file with SF values 
 python ctag_scripts/make_ctag_postfit.py #postfit plots
 python ctag_scripts/write_csv.py ctag|CSV|cMVA #this makes the CSV file to be given to POG
 ```
+
+

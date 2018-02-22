@@ -46,9 +46,9 @@ static map<string, IDJet::BTag> available_bjet_id = {
 	{"ctagLoose" , IDJet::BTag::CTAGLOOSE},
 	{"ctagTight" , IDJet::BTag::CTAGTIGHT},
 
-	{"mvaMedium", IDJet::BTag::MVAMEDIUM},
-	{"mvaLoose" , IDJet::BTag::MVALOOSE},
-	{"mvaTight" , IDJet::BTag::MVATIGHT},
+	//{"mvaMedium", IDJet::BTag::MVAMEDIUM},
+	//{"mvaLoose" , IDJet::BTag::MVALOOSE},
+	//{"mvaTight" , IDJet::BTag::MVATIGHT},
 };	
 
 static map<string, std::function<bool(const Permutation &, const Permutation &)> > available_ordering = {
@@ -143,8 +143,8 @@ public:
     muon_sf_("muon_sf"),
 		randomizer_(),
     btag_sf_("best_permutation.tightb", "best_permutation.looseb", 0.5, -1, -1),
-    //pdf_uncs_(254)
-    pdf_uncs_(1080)
+    pdf_uncs_(108)
+    //pdf_uncs_(1080)
 	{
     btag_sf_.ignore_partial_shifts();
     cut_tight_b_ = btag_sf_.tight_cut();
@@ -195,9 +195,9 @@ public:
 		working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
 		working_points_["ctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGTIGHT);};
 		working_points_["ctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGMEDIUM);};
-		working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
-		working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
-		working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
+		//working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
+		//working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
+		//working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
 		working_points_["DeepCsvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVLOOSE);};
 		working_points_["DeepCsvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM);};
 		working_points_["DeepCsvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
@@ -207,7 +207,7 @@ public:
     DataFile csv_sfs(parser.getCfgPar<string>("general.csv_sffile"));
     DataFile deepcsv_sfs(parser.getCfgPar<string>("general.deepcsv_sffile"));
     DataFile ctag_sfs(parser.getCfgPar<string>("general.ctag_sffile"));
-    DataFile cmva_sfs(parser.getCfgPar<string>("general.cmva_sffile"));
+    //DataFile cmva_sfs(parser.getCfgPar<string>("general.cmva_sffile"));
 
     wp_SFs_["csvLoose" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
     wp_SFs_["csvTight" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
@@ -215,9 +215,9 @@ public:
     wp_SFs_["DeepCsvLoose" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
     wp_SFs_["DeepCsvTight" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["DeepCsvMedium"] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["cmvaLoose" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["cmvaTight" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["cmvaMedium"] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+    //wp_SFs_["cmvaLoose" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
+    //wp_SFs_["cmvaTight" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
+    //wp_SFs_["cmvaMedium"] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["ctagLoose" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 0.5); 
     wp_SFs_["ctagTight" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 0.5); 
     wp_SFs_["ctagMedium"] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 0.5); 
@@ -228,9 +228,9 @@ public:
     wp_SFs_["ctagLoose" ]->ignore_general_shifts(); 
     wp_SFs_["ctagTight" ]->ignore_general_shifts(); 
     wp_SFs_["ctagMedium"]->ignore_general_shifts(); 
-    wp_SFs_["cmvaLoose" ]->ignore_general_shifts(); 
-    wp_SFs_["cmvaTight" ]->ignore_general_shifts(); 
-    wp_SFs_["cmvaMedium"]->ignore_general_shifts(); 
+    //wp_SFs_["cmvaLoose" ]->ignore_general_shifts(); 
+    //wp_SFs_["cmvaTight" ]->ignore_general_shifts(); 
+    //wp_SFs_["cmvaMedium"]->ignore_general_shifts(); 
     wp_SFs_["DeepCsvLoose" ]->ignore_general_shifts();
     wp_SFs_["DeepCsvTight" ]->ignore_general_shifts(); 
     wp_SFs_["DeepCsvMedium"]->ignore_general_shifts(); 
@@ -275,15 +275,15 @@ public:
     
 		book<TH2F>(folder, "flav_map", ";leading;subleading", 3, 0., 3., 3, 0., 3.);
 
-		book<TH1F>(folder, "tmasshad", "", 50, 0., 500);			
-		book<TH1F>(folder, "Wmasshad", "", 50, 0., 500);			
-    book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
+		//book<TH1F>(folder, "tmasshad", "", 50, 0., 500);			
+		//book<TH1F>(folder, "Wmasshad", "", 50, 0., 500);			
+        //book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
 	}
 
 	void fill_combo_plots(string folder, const Permutation &hyp){
 		auto dir = histos_.find(folder);
 		dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
-    dir->second["evt_weight"].fill(evt_weight_);
+    //dir->second["evt_weight"].fill(evt_weight_);
     float lflav = -1;
     switch(hyp.WJa()->hadronFlavour()) {
     case 5: lflav = 2.5; break;
@@ -298,10 +298,10 @@ public:
     }
 		dir->second["flav_map"].fill(lflav, sflav, evt_weight_);
 
-		double whad_mass = hyp.WHad().M();
-		double thad_mass = hyp.THad().M();
-		dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
-		dir->second["tmasshad"].fill(thad_mass, evt_weight_);
+		//double whad_mass = hyp.WHad().M();
+		//double thad_mass = hyp.THad().M();
+		//dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
+		//dir->second["tmasshad"].fill(thad_mass, evt_weight_);
 	}
 
   void book_pdf_plots(string folder) {
@@ -379,6 +379,7 @@ public:
   }
 
 	void book_notag_plots(string folder){
+        book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
 		book<TH1F>(folder, "lep_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
 		book<TH1F>(folder, "had_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
@@ -450,6 +451,7 @@ public:
 
   void fill_notag_plots(string folder, Permutation &hyp){
     auto dir = histos_.find(folder);
+        dir->second["evt_weight"].fill(evt_weight_);
 		dir->second["njets"    ].fill(object_selector_.clean_jets().size(), evt_weight_);
 		dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt(), evt_weight_);
 		dir->second["had_b_pt" ].fill(hyp.BHad()->Pt(), evt_weight_);
@@ -617,9 +619,12 @@ public:
 							string current = folder + "/" + w_folder;
 							book_jet_plots(current, notag);
 						}
-						if(notag) {
+						if(notag && sys == systematics::SysShifts::NOSYS) {
 							book_notag_plots(folder);
-						} //if(working_point == "notag")
+						} //if(working_point == "notag" and sytematic==NOSYS)
+						//if(notag) {
+						//	book_notag_plots(folder);
+						//} //if(working_point == "notag")
 					}//for(auto& tag : tagging)
 				}//for(auto& wp_item : working_points_)
 			}//for(auto& sys : systematics){
@@ -698,7 +703,7 @@ public:
         evt_weight_ *= muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
       if(object_selector_.tight_electrons().size() == 1)
         evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
-		}
+	}
 
     string sys_name = systematics::shift_to_name.at(shift);
     string presel_dir = sys_name;
@@ -771,8 +776,9 @@ public:
       //fill_other_jet_plots(folder, best_permutation, wpoint.second, evt_weight_);
       folder += jet_category;
       //Logger::log().debug() << "filling: " << folder << endl;
-			bool notag = (wpoint.first == "notag");
-      if(notag) fill_notag_plots(folder, best_permutation);
+      bool notag = (wpoint.first == "notag");
+      if(notag && shift == systematics::SysShifts::NOSYS) fill_notag_plots(folder, best_permutation); //fill notag plots only for NOSYS
+      //if(notag) fill_notag_plots(folder, best_permutation);
       fill(folder, best_permutation, notag);
       if(pdfs_ && shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
     }
@@ -791,11 +797,19 @@ public:
     Logger::log().debug() << "ctag_eff::analyze" << endl;
     URStreamer event(tree_);
 
+    string output_file = values["output"].as<std::string>();
+    string sample = systematics::get_sample(output_file);
+    if( boost::starts_with(sample, "data") && sample.find("E") != std::string::npos ) Logger::log().debug() << endl << endl << "You're running on " << sample << ". MAKE SURE YOU ARE USING THE RIGHT RUN SELECTION!!" << endl << endl;
+
 		tracker_.deactivate();
     while(event.next())
     {
-        //if( event.run > 304671 ) continue; // for combining C to E data runs
-        //if( event.run <= 304671 ) continue; // for combining E to F data runs
+
+        //if( boost::starts_with(sample, "data") && sample.find("E") != std::string::npos ){
+        //    //cout << "Run number: " << event.run << endl;
+        //    //if( event.run > 304671 ) continue; // for combining C to E data runs
+        //    //if( event.run <= 304671 ) continue; // for combining E to F data runs
+        //}
 			// if(evt_idx_ % 1000 == 0) Logger::log().warning() << "Beginning event: " <<
       //                           evt_idx_ << endl;
 			if(limit > 0 && evt_idx_ > limit) {
@@ -813,7 +827,10 @@ public:
 			}
 
 			for(auto shift : systematics_){
+
         evt_weight_ = (isData_) ? 1. : mc_weights_.evt_weight(event, shift);
+
+        //cout << "Ev weight: " << evt_weight_ << endl;
 				if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
 				//Logger::log().debug() << "processing: " << shift << endl;
 				process_evt(shift, event);
@@ -846,7 +863,7 @@ public:
       ("report", opts::value<int>()->default_value(10000), "report every");
 
 		parser.addCfgParameter<std::string>("general", "ctag_sffile", "");
-		parser.addCfgParameter<std::string>("general", "cmva_sffile", "");
+		//parser.addCfgParameter<std::string>("general", "cmva_sffile", "");
     parser.addCfgParameter<std::string>("general", "csv_sffile", "");
 		parser.addCfgParameter<std::string>("general", "deepcsv_sffile", "");
     parser.addCfgParameter<std::string>("general", "wjets_efficiencies", "");

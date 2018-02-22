@@ -54,12 +54,14 @@ def graph2hist(graph):
 		_, y = xy
 		ret[i+1].value = y
 
-trig = root_open('TriggerSF_v1.root')
-lepid = root_open('ideff.root')
-iso = root_open('tracking_eff.root') #tracking eff as iso given is a 2D plot
+#trig = root_open('TriggerSF_v1.root')
+trig = root_open('EfficienciesAndSF_RunBtoF_Nov17Nov2017.root')
+#lepid = root_open('ideff.root')
+#iso = root_open('tracking_eff.root') #tracking eff as iso given is a 2D plot
 #trk = root_open('ratios.root')
 
-trg = transpose(trig.Ele32_eta2p1_WPTight_Gsf__EffData)
+#trg = transpose(trig.Ele32_eta2p1_WPTight_Gsf__EffData)
+trg = transpose(trig.IsoMu27_PtEtaBins.abseta_pt_ratio)
 # trg1 = trig.IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093.efficienciesDATA.abseta_pt_DATA 
 # trg2 = trig.IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097.efficienciesDATA.abseta_pt_DATA
 # trg = trg1*0.0482 + trg2*0.9517
@@ -77,8 +79,8 @@ info[3].value = 0 #Iso SF in |eta| (1) of full eta (0)
 info[4].value = 0 #tracking SF in |eta| (1) of full eta (0)
 with root_open('output.root', 'w') as out:
 	out.WriteTObject(trg, 'trg')
-	out.WriteTObject(fill_oflow(lepid.EGamma_SF2D.Clone()), 'id')
-	out.WriteTObject(fill_oflow(iso.EGamma_SF2D.Clone()), 'iso')
+	#out.WriteTObject(fill_oflow(lepid.EGamma_SF2D.Clone()), 'id')
+	#out.WriteTObject(fill_oflow(iso.EGamma_SF2D.Clone()), 'iso')
 	# out.WriteTObject(htrk, 'trk')
 	out.WriteTObject(info, 'info')
 	out.WriteTObject(code, 'code')
