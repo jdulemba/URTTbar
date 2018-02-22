@@ -108,9 +108,9 @@ BTagEntry::OperatingPoint IDJet::tag_tightness(BTag id) {
 bool IDJet::BTagId(BTag wp) const {
   //  cout << "working point: " << wp << endl;
   if(wp == BTag::NONE) return true;
-  else if(wp == BTag::CSVLOOSE)  return csvIncl() > 0.5426;
-  else if(wp == BTag::CSVMEDIUM) return csvIncl() > 0.8484;
-  else if(wp == BTag::CSVTIGHT)  return csvIncl() > 0.9535;
+  else if(wp == BTag::CSVLOOSE)  return csvIncl() > 0.5803;
+  else if(wp == BTag::CSVMEDIUM) return csvIncl() > 0.8838;
+  else if(wp == BTag::CSVTIGHT)  return csvIncl() > 0.9693;
   else if(wp == BTag::MVALOOSE)  return CombinedMVA() > -0.5884;
   else if(wp == BTag::MVAMEDIUM) return CombinedMVA() > 0.4432;
   else if(wp == BTag::MVATIGHT)  return CombinedMVA() > 0.9432;
