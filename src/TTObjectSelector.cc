@@ -165,7 +165,8 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
 	}
 	el_trg_ = (event.trigger().HLT_Ele27_WPTight_Gsf() == 1);
 	//mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
-	mu_trg_ = (event.trigger().HLT_IsoMu24() == 1);	
+	mu_trg_ = (event.trigger().HLT_IsoMu27() == 1);	
+	//mu_trg_ = (event.trigger().HLT_IsoMu24() == 1);	
 
 	// cout << event.trigger().HLT_Ele27_WPLoose_Gsf() << " " <<  event.trigger().HLT_IsoMu22() << " " << event.trigger().HLT_IsoTkMu22() << endl;
 	// cout << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << " " << event.trigger().HLT_IsoMu24() << " " << event.trigger().HLT_IsoTkMu22() << endl;
@@ -181,7 +182,7 @@ bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shi
 	filter_answer &= (filters.Flag_HBHENoiseIsoFilter() == 1); 
 	filter_answer &= (filters.Flag_EcalDeadCellTriggerPrimitiveFilter() == 1);
 	filter_answer &= (filters.Flag_goodVertices() == 1);
-	filter_answer &= (filters.Flag_eeBadScFilter() == 0);
+	filter_answer &= (filters.Flag_eeBadScFilter() == 1);
 	filter_answer &= (filters.Flag_ecalBadCalibFilter() == 1);
 	filter_answer &= (filters.Flag_globalTightHalo2016Filter() == 1);
 	filter_answer &= (filters.Flag_BadPFMuonFilter() == 1);

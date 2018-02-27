@@ -80,7 +80,7 @@ results.write(tex.tabline(['working point', 'charm SF', 'stat only unc.'], conve
 results.write('\\hline \n')
 
 rows = []
-rows.append(("Working Point", "SF Mean", "SF Upper Error", "SF Lower Error", "Stat Upper Error", "Stat Lower Error"))
+rows.append(("Working Point", "SF Mean", "SF Upper Error", "SF Lower Error"))#, "Stat Upper Error", "Stat Lower Error"))
 
 scale_factors = {}
 
@@ -109,7 +109,7 @@ for wp, wpname in wps:
 
 	rows.append((wpname, format(pars['charmSF'].value, '.3f'),\
                 format(pars['charmSF'].error[0], '.3f'),\
-                format(pars['charmSF'].error[1], '.3f'),\
+                format(pars['charmSF'].error[1], '.3f')))#,\
                 format(stat_pars['charmSF'].error[0], '.3f'),\
                 format(stat_pars['charmSF'].error[1], '.3f')))
 
@@ -117,7 +117,7 @@ for wp, wpname in wps:
 		wpname : {
 			'mean' : pars['charmSF'].value,
 			'sf_upper' : pars['charmSF'].error[0],
-			'sf_lower' : pars['charmSF'].error[1],
+			'sf_lower' : pars['charmSF'].error[1]
 			'stat_upper' : stat_pars['charmSF'].error[0],
 			'stat_lower' : stat_pars['charmSF'].error[1],
             }

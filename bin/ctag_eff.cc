@@ -46,6 +46,14 @@ static map<string, IDJet::BTag> available_bjet_id = {
 	{"ctagLoose" , IDJet::BTag::CTAGLOOSE},
 	{"ctagTight" , IDJet::BTag::CTAGTIGHT},
 
+	{"DeepCSVMedium", IDJet::BTag::DEEPCSVMEDIUM},
+	{"DeepCSVLoose" , IDJet::BTag::DEEPCSVLOOSE},
+	{"DeepCSVTight" , IDJet::BTag::DEEPCSVTIGHT},
+
+	{"DeepctagMedium", IDJet::BTag::DEEPCTAGMEDIUM},
+	{"DeepctagLoose" , IDJet::BTag::DEEPCTAGLOOSE},
+	{"DeepctagTight" , IDJet::BTag::DEEPCTAGTIGHT},
+
 	//{"mvaMedium", IDJet::BTag::MVAMEDIUM},
 	//{"mvaLoose" , IDJet::BTag::MVALOOSE},
 	//{"mvaTight" , IDJet::BTag::MVATIGHT},
@@ -189,18 +197,21 @@ public:
 		ordering_fcn_ = available_ordering[cut_ordering_];
 
 		working_points_["notag"]     = [](const IDJet* jet) {return false;};
-		working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);}; 
-		working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
-		working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
-		working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
-		working_points_["ctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGTIGHT);};
-		working_points_["ctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGMEDIUM);};
-		//working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
-		//working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
-		//working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
-		working_points_["DeepCsvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVLOOSE);};
-		working_points_["DeepCsvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM);};
-		working_points_["DeepCsvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
+		//working_points_["csvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVLOOSE);}; 
+		//working_points_["csvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVTIGHT);};
+		//working_points_["csvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::CSVMEDIUM);};
+		//working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
+		//working_points_["ctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGTIGHT);};
+		//working_points_["ctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGMEDIUM);};
+		////working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
+		////working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
+		////working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
+		//working_points_["DeepCSVLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVLOOSE);};
+		//working_points_["DeepCSVMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM);};
+		//working_points_["DeepCSVTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
+		working_points_["DeepctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGLOOSE);};
+		working_points_["DeepctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGTIGHT);};
+		working_points_["DeepctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGMEDIUM);};
 
     //Get appropriate SFs for the probe working points
     DataFile wjet_efficiency(parser.getCfgPar<string>("general.wjets_efficiencies"));
@@ -212,28 +223,42 @@ public:
     wp_SFs_["csvLoose" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
     wp_SFs_["csvTight" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
     wp_SFs_["csvMedium"] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["DeepCsvLoose" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
-    wp_SFs_["DeepCsvTight" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
-    wp_SFs_["DeepCsvMedium"] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+
+    wp_SFs_["DeepCSVLoose" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
+    wp_SFs_["DeepCSVTight" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
+    wp_SFs_["DeepCSVMedium"] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+
     //wp_SFs_["cmvaLoose" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
     //wp_SFs_["cmvaTight" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
     //wp_SFs_["cmvaMedium"] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+
     wp_SFs_["ctagLoose" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 0.5); 
     wp_SFs_["ctagTight" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 0.5); 
     wp_SFs_["ctagMedium"] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 0.5); 
 
+    wp_SFs_["DeepctagLoose" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 1); 
+    wp_SFs_["DeepctagTight" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 1); 
+    wp_SFs_["DeepctagMedium"] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 1); 
+
     wp_SFs_["csvLoose" ]->ignore_general_shifts();
     wp_SFs_["csvTight" ]->ignore_general_shifts();
     wp_SFs_["csvMedium"]->ignore_general_shifts();
+
     wp_SFs_["ctagLoose" ]->ignore_general_shifts(); 
     wp_SFs_["ctagTight" ]->ignore_general_shifts(); 
     wp_SFs_["ctagMedium"]->ignore_general_shifts(); 
+
     //wp_SFs_["cmvaLoose" ]->ignore_general_shifts(); 
     //wp_SFs_["cmvaTight" ]->ignore_general_shifts(); 
     //wp_SFs_["cmvaMedium"]->ignore_general_shifts(); 
-    wp_SFs_["DeepCsvLoose" ]->ignore_general_shifts();
-    wp_SFs_["DeepCsvTight" ]->ignore_general_shifts(); 
-    wp_SFs_["DeepCsvMedium"]->ignore_general_shifts(); 
+
+    wp_SFs_["DeepCSVLoose" ]->ignore_general_shifts();
+    wp_SFs_["DeepCSVTight" ]->ignore_general_shifts(); 
+    wp_SFs_["DeepCSVMedium"]->ignore_general_shifts(); 
+
+    wp_SFs_["DeepctagLoose" ]->ignore_general_shifts(); 
+    wp_SFs_["DeepctagTight" ]->ignore_general_shifts(); 
+    wp_SFs_["DeepctagMedium"]->ignore_general_shifts(); 
     // working_points_[] = [](const Jet* jet) {};
 
 		naming_[TTNaming::RIGHT ] = "semilep_visible_right";
@@ -380,6 +405,7 @@ public:
 
 	void book_notag_plots(string folder){
         book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
+        book<TH1F>(folder, "btag_sf", "", 50, 0.75, 1.75);
 		book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
 		book<TH1F>(folder, "lep_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
 		book<TH1F>(folder, "had_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
@@ -449,9 +475,10 @@ public:
 		book<TH1F>(folder, "Wjets_DeepCSVbD", "", 55,  0., 1.1);
 	}
 
-  void fill_notag_plots(string folder, Permutation &hyp){
+  void fill_notag_plots(string folder, Permutation &hyp, systematics::SysShifts shift){
     auto dir = histos_.find(folder);
         dir->second["evt_weight"].fill(evt_weight_);
+        dir->second["btag_sf"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift));
 		dir->second["njets"    ].fill(object_selector_.clean_jets().size(), evt_weight_);
 		dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt(), evt_weight_);
 		dir->second["had_b_pt" ].fill(hyp.BHad()->Pt(), evt_weight_);
@@ -705,12 +732,15 @@ public:
         evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
 	}
 
+    //tracker_.track("after lepton sf applied");
+
     string sys_name = systematics::shift_to_name.at(shift);
     string presel_dir = sys_name;
     if(isTTbar_){
       presel_dir = naming_.at(TTNaming::RIGHT) + "/" + sys_name;
     }
     fill_presel_plots(presel_dir+"/preselection", event);
+    //tracker_.track("after presel plots");
 
     if( !permutator_.preselection(
           object_selector_.clean_jets(), object_selector_.lepton(), 
@@ -742,6 +772,8 @@ public:
 
     //find mc weight for btag
     if(!isData_) evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift);
+    //cout << "Btag sf: " << btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift) << endl;
+    //cout << "evt_weight: " << evt_weight_ << endl;
 
     //Gen matching
     Permutation matched_perm;
@@ -777,7 +809,7 @@ public:
       folder += jet_category;
       //Logger::log().debug() << "filling: " << folder << endl;
       bool notag = (wpoint.first == "notag");
-      if(notag && shift == systematics::SysShifts::NOSYS) fill_notag_plots(folder, best_permutation); //fill notag plots only for NOSYS
+      if(notag && shift == systematics::SysShifts::NOSYS) fill_notag_plots(folder, best_permutation, shift); //fill notag plots only for NOSYS
       //if(notag) fill_notag_plots(folder, best_permutation);
       fill(folder, best_permutation, notag);
       if(pdfs_ && shift == systematics::SysShifts::NOSYS) fill_pdf_plots(folder, best_permutation, event);
@@ -799,7 +831,7 @@ public:
 
     string output_file = values["output"].as<std::string>();
     string sample = systematics::get_sample(output_file);
-    if( boost::starts_with(sample, "data") && sample.find("E") != std::string::npos ) Logger::log().debug() << endl << endl << "You're running on " << sample << ". MAKE SURE YOU ARE USING THE RIGHT RUN SELECTION!!" << endl << endl;
+    //if( boost::starts_with(sample, "data") && sample.find("E") != std::string::npos ) Logger::log().debug() << endl << endl << "You're running on " << sample << ". MAKE SURE YOU ARE USING THE RIGHT RUN SELECTION!!" << endl << endl;
 
 		tracker_.deactivate();
     while(event.next())
@@ -856,7 +888,7 @@ public:
 		URParser &parser = URParser::instance();
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
 		opts.add_options()
-      ("nosys", opts::value<int>()->default_value(0), "do not run systematics")
+      ("nosys", opts::value<int>()->default_value(1), "do not run systematics")
       ("nopdf", opts::value<int>()->default_value(0), "do not run pdf uncertainties")
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")

@@ -295,7 +295,10 @@ $wroking_points = ['csvLoose', 'csvMedium', 'csvTight',
                    'DeepCsvLoose', 'DeepCsvMedium', 'DeepCsvTight'
                   ]
 
-$algorithms = ['csv', 'ctag', 'cmva', 'DeepCsv']
+$algorithms = ['csv',
+               'ctag',
+               #'cmva',
+               'DeepCsv']
 
 $runs = ['All', 'B', 'CtoE', 'EtoF'] #2018 run splitting into eras
 $run_dirs = ['All_Runs', 'Run_B', 'Run_CtoE', 'Run_EtoF'] #2018 run splitting into eras

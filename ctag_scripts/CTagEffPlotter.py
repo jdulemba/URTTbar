@@ -283,96 +283,96 @@ class CTagPlotter(Plotter):
 				'categories' : ['.*'],
 				'value' : 1.20,
 				},			
-			'pu' : {
-				'samples' : ['.*'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'pu_up'),
-				'-' : lambda x: x.replace('nosys', 'pu_down'),
-				},
-			'JER' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad', 'single_top'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'jer_up'),
-				'-' : lambda x: x.replace('nosys', 'jer_down'),
-				'constants' : ('jer_down', 'jer_up'),
-				'value' : 1.00,				
-				},
-			#'MTOP' : {
-			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			#'pu' : {
+			#	'samples' : ['.*'],
+			#	'categories' : ['.*'],
+			#	'type' : 'lnN',
+			#	'+' : lambda x: x.replace('nosys', 'pu_up'),
+			#	'-' : lambda x: x.replace('nosys', 'pu_down'),
+			#	},
+			#'JER' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad', 'single_top'],
 			#	'categories' : ['.*'],
 			#	'type' : 'shape',
-			#	'+' : lambda x: x.replace('nosys', 'mtop_up'),
-			#	'-' : lambda x: x.replace('nosys', 'mtop_down'),
+			#	'+' : lambda x: x.replace('nosys', 'jer_up'),
+			#	'-' : lambda x: x.replace('nosys', 'jer_down'),
+			#	'constants' : ('jer_down', 'jer_up'),
 			#	'value' : 1.00,				
 			#	},
-			#'ISR' : {
-			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			##'MTOP' : {
+			##	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			##	'categories' : ['.*'],
+			##	'type' : 'shape',
+			##	'+' : lambda x: x.replace('nosys', 'mtop_up'),
+			##	'-' : lambda x: x.replace('nosys', 'mtop_down'),
+			##	'value' : 1.00,				
+			##	},
+			##'ISR' : {
+			##	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			##	'categories' : ['.*'],
+			##	'type' : 'shape',
+			##	'+' : lambda x: x.replace('nosys', 'isr_up'),
+			##	'-' : lambda x: x.replace('nosys', 'isr_down'),
+			##	'constants' : (
+			##		'isr_down', 
+			##		'isr_up'
+			##		),
+			##	'value' : 1.00,				
+			##	},
+			##'FSR' : {
+			##	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			##	'categories' : ['.*'],
+			##	'type' : 'shape',
+			##	'+' : lambda x: x.replace('nosys', 'fsr_up'),
+			##	'-' : lambda x: x.replace('nosys', 'fsr_down'),
+			##	'constants' : (
+			##		'fsr_down', 
+			##		'fsr_up'
+			##		),
+			##	'value' : 1.00,				
+			##	},
+			#'JES' : {
+			#	'samples' : ['.*_whad', 'nonsemi_tt', 'single_top'],
 			#	'categories' : ['.*'],
 			#	'type' : 'shape',
-			#	'+' : lambda x: x.replace('nosys', 'isr_up'),
-			#	'-' : lambda x: x.replace('nosys', 'isr_down'),
-			#	'constants' : (
-			#		'isr_down', 
-			#		'isr_up'
-			#		),
-			#	'value' : 1.00,				
+			#	'+' : lambda x: x.replace('nosys', 'jes_up'),
+			#	'-' : lambda x: x.replace('nosys', 'jes_down'),
+			#	'constants' : ('jes_down', 'jes_up'),
+			#	'value' : 1.00,
 			#	},
-			#'FSR' : {
+			#'BTAG' : {
+			#	'samples' : ['.*'],
+			#	'categories' : ['.*'],
+			#	'type' : 'lnN',
+			#	'+' : lambda x: x.replace('nosys', 'btag_up'),
+			#	'-' : lambda x: x.replace('nosys', 'btag_down'),
+			#	},
+			#'CTAGB' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'vjets', 'single_top', 'qcd'],
+			#	'categories' : ['.*'],
+			#	'type' : 'lnN',
+			#	'+' : lambda x: x.replace('nosys', 'btagb_up'),
+			#	'-' : lambda x: x.replace('nosys', 'btagb_down'),
+			#	},
+			#'CTAGL' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'single_top', 'qcd', 'vjets'],#, 'right_whad'],
+			#	'categories' : ['.*'],
+			#	'type' : 'lnN',
+			#	'+' : lambda x: x.replace('nosys', 'btagl_up'),
+			#	'-' : lambda x: x.replace('nosys', 'btagl_down'),
+			#	},
+			#'CTAGC' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'vjets', 'single_top', 'qcd'],#, 'right_whad'],
+			#	'categories' : ['.*'],
+			#	'type' : 'lnN',
+			#	'+' : lambda x: x.replace('nosys', 'btagc_up'),
+			#	'-' : lambda x: x.replace('nosys', 'btagc_down'),
+			#	},
+			#'PDF' : {
 			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
 			#	'categories' : ['.*'],
-			#	'type' : 'shape',
-			#	'+' : lambda x: x.replace('nosys', 'fsr_up'),
-			#	'-' : lambda x: x.replace('nosys', 'fsr_down'),
-			#	'constants' : (
-			#		'fsr_down', 
-			#		'fsr_up'
-			#		),
-			#	'value' : 1.00,				
+			#	'type' : 'pdf',
 			#	},
-			'JES' : {
-				'samples' : ['.*_whad', 'nonsemi_tt', 'single_top'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'jes_up'),
-				'-' : lambda x: x.replace('nosys', 'jes_down'),
-				'constants' : ('jes_down', 'jes_up'),
-				'value' : 1.00,
-				},
-			'BTAG' : {
-				'samples' : ['.*'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btag_up'),
-				'-' : lambda x: x.replace('nosys', 'btag_down'),
-				},
-			'CTAGB' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'vjets', 'single_top', 'qcd'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btagb_up'),
-				'-' : lambda x: x.replace('nosys', 'btagb_down'),
-				},
-			'CTAGL' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'single_top', 'qcd', 'vjets'],#, 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btagl_up'),
-				'-' : lambda x: x.replace('nosys', 'btagl_down'),
-				},
-			'CTAGC' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'vjets', 'single_top', 'qcd'],#, 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'lnN',
-				'+' : lambda x: x.replace('nosys', 'btagc_up'),
-				'-' : lambda x: x.replace('nosys', 'btagc_down'),
-				},
-			'PDF' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'pdf',
-				},
 			}
 		self.card = None
 		self.binning = {
@@ -415,19 +415,19 @@ class CTagPlotter(Plotter):
 			#	'subtag'  : [6, 8, 10, 12, 20],
 			#	'ditag' 	: [6, 12, 20],
 			#	},			
-			'DeepCsvLoose' : {
+			'DeepCSVLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
 				'ditag' 	: [6, 8, 10, 12, 20],	
 				},
-			'DeepCsvMedium' : {
+			'DeepCSVMedium' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
 				'ditag' 	: [6, 8, 10, 12, 20],
 				},
-			'DeepCsvTight' : {
+			'DeepCSVTight' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
@@ -446,6 +446,24 @@ class CTagPlotter(Plotter):
 				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'ctagTight' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepctagLoose' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepctagMedium' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepctagTight' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
@@ -513,6 +531,7 @@ class CTagPlotter(Plotter):
 		qcd_samples = [i for i in self.views if 'QCD' in i]
 		samples = []
 
+		set_trace()
 		for vtf in views_to_flow:
 			histo = self.get_view(vtf).Get('cut_flow')
 			print vtf, len(histo)
@@ -1234,6 +1253,7 @@ vars2D = [
 
 variables = [
   ("njets"	 , "# of selected jets", range(13), None, False),
+  ("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
   ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
   ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
@@ -1309,9 +1329,12 @@ available_wps = [
 	#"cmvaMedium",
 	#"cmvaLoose" ,
 	#"cmvaTight" ,
-	"DeepCsvLoose" ,
-	"DeepCsvTight" ,
-	"DeepCsvMedium",
+	"DeepCSVLoose" ,
+	"DeepCSVTight" ,
+	"DeepCSVMedium",
+	"DeepctagLoose",
+	"DeepctagMedium",
+	"DeepctagTight",
 ]
 working_points = [i for i in available_wps if fnmatch(i, args.wps)]
 

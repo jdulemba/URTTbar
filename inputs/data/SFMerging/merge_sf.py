@@ -72,11 +72,11 @@ trg = transpose(trig.IsoMu27_PtEtaBins.abseta_pt_ratio)
 code = TObjString(open('merge_sf.py').read())
 
 info = Hist(3, 0, 3, type='I')
-info[0].value = 0 #0 pt as Y, 1 pt as X
-info[1].value = 0 #trig SF in |eta| (1) of full eta (0)
-info[2].value = 0 #ID SF in |eta| (1) of full eta (0)
-info[3].value = 0 #Iso SF in |eta| (1) of full eta (0)
-info[4].value = 0 #tracking SF in |eta| (1) of full eta (0)
+info[0].value = 1 #0 pt as Y, 1 pt as X
+info[1].value = 1 #trig SF in |eta| (1) of full eta (0)
+info[2].value = 1 #ID SF in |eta| (1) of full eta (0)
+info[3].value = 1 #Iso SF in |eta| (1) of full eta (0)
+info[4].value = 1 #tracking SF in |eta| (1) of full eta (0)
 with root_open('output.root', 'w') as out:
 	out.WriteTObject(trg, 'trg')
 	#out.WriteTObject(fill_oflow(lepid.EGamma_SF2D.Clone()), 'id')

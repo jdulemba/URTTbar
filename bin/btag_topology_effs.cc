@@ -147,7 +147,7 @@ public:
     if(object_selector_.tight_electrons().size() == 1)
       evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
     tracker_.track("MC weights");
- 
+
     auto &plots = histos_.find(shift)->second;
 
     //keeping only the n leading jets. 
