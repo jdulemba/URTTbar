@@ -183,6 +183,7 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
   double mc_prob=1;
   double data_like_prob=1; //it's called data, but is on MC!
 
+  Logger::log().debug() << "BTagSFProducer: njets " << jets.size() << endl;
   for(auto jet : jets) {
     BTagEntry::JetFlavor jet_flav;
     double jpt = jet->Pt();
@@ -272,13 +273,17 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
 
 		if(debug) {
 			Logger::log().debug() << "BTagSFProducer: jpt: " << jet->Pt() << ", jeta: " << jet->Eta()
-														<< ", ID: " << jet->TagId(tight_) << ", eff_tight: " << eff_tight 
-														<< ", tight_sf: " << tight_sf << endl;
+														<< ", Tight ID: " << jet->TagId(tight_) << ", eff_tight: " << eff_tight 
+														<< ", tight_sf: " << tight_sf
+                                                        << ", Loose ID: " << jet->TagId(loose_) << ", eff_loose: " << eff_loose
+                                                        << ", loose_sf: " << loose_sf << endl;
 		}
 
+    Logger::log().debug() << "jpt: " << jpt << endl;
     if(jet->TagId(tight_)) {
       mc_prob *= eff_tight;
       data_like_prob *= eff_tight*tight_sf;
+      Logger::log().debug() << "BTagSFProducer: jet->TagId(tight_), " << (eff_tight*tight_sf)/eff_tight << endl;
     }
     else if(loose_ != IDJet::BTag::NONE && jet->TagId(loose_)) {
       mc_prob *= (eff_loose - eff_tight);
@@ -286,10 +291,12 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
         eff_loose*loose_sf - 
         eff_tight*tight_sf
         );
+      Logger::log().debug() << "BTagSFProducer: loose_ != IDJet::BTag::NONE && jet->TagId(loose_), " << (eff_loose*loose_sf - eff_tight*tight_sf)/(eff_loose - eff_tight) << endl;
     }
     else {
       mc_prob *= (1-eff_loose);
       data_like_prob *= (1 - eff_loose*loose_sf);
+      Logger::log().debug() << "BTagSFProducer: else, " << (1 - eff_loose*loose_sf)/(1-eff_loose) << endl;
     }
   } //for(auto jet : permutator.capped_jets())
   

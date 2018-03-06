@@ -209,9 +209,9 @@ public:
 		//working_points_["DeepCSVLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVLOOSE);};
 		//working_points_["DeepCSVMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM);};
 		//working_points_["DeepCSVTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
-		working_points_["DeepctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGLOOSE);};
-		working_points_["DeepctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGTIGHT);};
-		working_points_["DeepctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGMEDIUM);};
+		//working_points_["DeepctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGLOOSE);};
+		//working_points_["DeepctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGTIGHT);};
+		//working_points_["DeepctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::DEEPCTAGMEDIUM);};
 
     //Get appropriate SFs for the probe working points
     DataFile wjet_efficiency(parser.getCfgPar<string>("general.wjets_efficiencies"));
@@ -771,8 +771,10 @@ public:
     best_permutation.permutating_jets(capped_jets_size);
 
     //find mc weight for btag
-    if(!isData_) evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift);
-    //cout << "Btag sf: " << btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift) << endl;
+    if(!isData_) evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift, true);
+    if( !isData_ ) cout << "----------------------Btag sf: " << btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift) << endl;
+    cout << "njets: " << object_selector_.clean_jets().size() << endl;
+    for( auto jet : object_selector_.clean_jets() ){ cout << "jet pt: " << jet->Pt() << endl;}
     //cout << "evt_weight: " << evt_weight_ << endl;
 
     //Gen matching
