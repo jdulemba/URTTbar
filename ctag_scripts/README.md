@@ -13,7 +13,7 @@ To get the info:
 echo export jobid=SOME_JOBID_TAG > jobid.sh
 rake getfiles[USER]  ** user argument is only needed if you're getting files from someone else**
 #depending on the number of files, might take a couple of hours
-rake meta_batch
+rake meta_batch    OR rake meta_batch[sample]     for individual samples (can only be used for one at a time)
 #depending on the number of files, could take a very long time
 rake getlumi  **make sure symlink to json is correct**
 ```

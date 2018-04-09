@@ -13,16 +13,17 @@ styles = {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
       'fillcolor' : '#FFD700',
-      #'fillcolor' : '#FFCC66',
+      #'fillcolor' : '#FFD700',
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "V + jets",
       'fillstyle': 'solid',
       },
-   'W[1-5]Jets*' : {
+   #'W[1-5]Jets*' : {
+   'W[1-4]Jets*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : '#FFCC66',
+      'fillcolor' : '#FFD700',
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "V + jets",
@@ -40,15 +41,15 @@ styles = {
    ##'WJets*' : {
    ##   'legendstyle' : 'f',
    ##   'drawstyle' : 'hist',
-   ##   'fillcolor' : '#FFCC66',
-   ##   'linecolor' : '#FFCC66',
+   ##   'fillcolor' : '#FFD700',
+   ##   'linecolor' : '#FFD700',
    ##   'name' : "W + jets",
    ##   'fillstyle': 'solid',
    ##   },
    'ZJets*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : '#FFCC66',
+      'fillcolor' : '#FFD700',
       'linecolor' : 'black',
       'name' : "V + jets",
       'fillstyle': 'solid',
@@ -96,11 +97,11 @@ styles = {
    'tt*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : 'b',
+      'fillcolor' : 'r',
       #'fillcolor' : '#9999CC',
       'linecolor' : 'black',
 			'linewidth' : 1,
-      'name' : "ttbar",
+      'name' : "t#bar{t}",
       'fillstyle': 'solid',
       },
    'tt[WZ]*' : {
@@ -115,7 +116,8 @@ styles = {
    'QCD*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : '#0055ff',
+      'fillcolor' : 'c',
+      #'fillcolor' : '#0055ff',
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "QCD",
@@ -124,7 +126,7 @@ styles = {
    'wrong_whad *' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : 'b',
+      'fillcolor' : 'darkblue',
       #'fillcolor' : '#ab5555',
       'linecolor' : 'black',
 			'linewidth' : 1,

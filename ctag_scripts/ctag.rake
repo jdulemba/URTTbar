@@ -289,16 +289,19 @@ task :make_csvallruns do |t|
 end
 
 
-$wroking_points = ['csvLoose', 'csvMedium', 'csvTight', 
+$working_points = ['csvLoose', 'csvMedium', 'csvTight', 
                    'ctagLoose', 'ctagMedium', 'ctagTight', 
                    #'cmvaLoose', 'cmvaMedium', 'cmvaTight',
-                   'DeepCsvLoose', 'DeepCsvMedium', 'DeepCsvTight'
+                   'DeepctagLoose', 'DeepctagMedium', 'DeepctagTight', 
+                   'DeepCSVLoose', 'DeepCSVMedium', 'DeepCSVTight'
                   ]
 
 $algorithms = ['csv',
                'ctag',
                #'cmva',
-               'DeepCsv']
+               'DeepCSV',
+                'Deepctag'
+              ]
 
 $runs = ['All', 'B', 'CtoE', 'EtoF'] #2018 run splitting into eras
 $run_dirs = ['All_Runs', 'Run_B', 'Run_CtoE', 'Run_EtoF'] #2018 run splitting into eras
@@ -319,7 +322,7 @@ end
 
 
 task :make_datacard_plots, [:run] do |t,args|
-  $wroking_points.each do |wp|
+  $working_points.each do |wp|
     puts "\n  --- Making #{wp} datacard plots for #{args.run} ---\n"
     sh "python ctag_scripts/datacard_stack.py --wp=#{wp} --eras=#{args.run}"
   end
@@ -333,7 +336,7 @@ task :all_datacard_plots do |t|
 end
 
 task :ctag_fitallwps, [:runs] do |t,args|
-  $wroking_points.each do |wp|
+  $working_points.each do |wp|
     puts "\n   --- Running fits for #{wp} for runs #{args.runs}. ---\n\n"
     Rake::Task["ctag_postfit"].invoke(args.runs, wp)
     Rake::Task["ctag_postfit"].reenable
@@ -348,7 +351,7 @@ task :ctag_fitallruns do |t|
 end
 
 task :breakdown_allwps, [:runs] do |t, args|
-  $wroking_points.each do |wp|
+  $working_points.each do |wp|
     Rake::Task['sys_breakdown'].invoke(args.runs, wp)
     Rake::Task["sys_breakdown"].reenable
   end
@@ -403,6 +406,7 @@ task :ctag_plotfit_singlerun, [:runs] do |t, args|
   end
   Rake::Task['ctag_shapes'].invoke(args.runs)
   Rake::Task['ctag_fitallwps'].invoke(args.runs)
+#  Rake::Task['make_datacard_plots'].invoke(args.runs)
   Rake::Task['breakdown_allwps'].invoke(args.runs)
   Rake::Task['make_ctag_tables'].invoke(args.runs)
   Rake::Task['make_allcsvwps'].invoke(args.runs)

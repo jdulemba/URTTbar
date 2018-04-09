@@ -38,9 +38,12 @@ wps = [
 	('ctagLoose' , 'c-tagger L'),
 	('ctagMedium', 'c-tagger M'),
 	('ctagTight' , 'c-tagger T'),
-	('DeepCsvLoose' , 'DeepCSV L'), 
-	('DeepCsvMedium',	'DeepCSV M'),
-	('DeepCsvTight' ,	'DeepCSV T'), 
+	('DeepCSVLoose' , 'DeepCSV L'), 
+	('DeepCSVMedium',	'DeepCSV M'),
+	('DeepCSVTight' ,	'DeepCSV T'), 
+	('DeepctagLoose' , 'DeepCSV c-tagger L'),
+	('DeepctagMedium', 'DeepCSV c-tagger M'),
+	('DeepctagTight' , 'DeepCSV c-tagger T'),
 	#('cmvaLoose' , 'cMVAv2 L' ),
 	#('cmvaMedium', 'cMVAv2 M'),
 	#('cmvaTight' , 'cMVAv2 T' ),
@@ -80,7 +83,7 @@ results.write(tex.tabline(['working point', 'charm SF', 'stat only unc.'], conve
 results.write('\\hline \n')
 
 rows = []
-rows.append(("Working Point", "SF Mean", "SF Upper Error", "SF Lower Error"))#, "Stat Upper Error", "Stat Lower Error"))
+rows.append(("Working Point", "SF Mean", "SF Upper Error", "SF Lower Error", "Stat Upper Error", "Stat Lower Error"))
 
 scale_factors = {}
 
@@ -106,22 +109,40 @@ for wp, wpname in wps:
 				], convert=False
 			)
 		)
+	#set_trace()
 
-	rows.append((wpname, format(pars['charmSF'].value, '.3f'),\
-                format(pars['charmSF'].error[0], '.3f'),\
-                format(pars['charmSF'].error[1], '.3f')))#,\
-                format(stat_pars['charmSF'].error[0], '.3f'),\
-                format(stat_pars['charmSF'].error[1], '.3f')))
+	if type(pars['charmSF'].error)==float:
+	    rows.append((wpname, format(pars['charmSF'].value, '.3f'),\
+                    format(pars['charmSF'].error, '.3f'),\
+                    format(pars['charmSF'].error, '.3f'),\
+                    format(stat_pars['charmSF'].error[0], '.3f'),\
+                    format(stat_pars['charmSF'].error[1], '.3f')))
 
-	scale_factor = {
-		wpname : {
-			'mean' : pars['charmSF'].value,
-			'sf_upper' : pars['charmSF'].error[0],
-			'sf_lower' : pars['charmSF'].error[1]
-			'stat_upper' : stat_pars['charmSF'].error[0],
-			'stat_lower' : stat_pars['charmSF'].error[1],
+	    scale_factor = {
+	    	wpname : {
+	    		'mean' : pars['charmSF'].value,
+	    		'sf_upper' : pars['charmSF'].error,
+	    		'sf_lower' : pars['charmSF'].error,
+	    		'stat_upper' : stat_pars['charmSF'].error[0],
+	    		'stat_lower' : stat_pars['charmSF'].error[1],
+                }
             }
-        }
+	else:
+	    rows.append((wpname, format(pars['charmSF'].value, '.3f'),\
+                    format(pars['charmSF'].error[0], '.3f'),\
+                    format(pars['charmSF'].error[1], '.3f'),\
+                    format(stat_pars['charmSF'].error[0], '.3f'),\
+                    format(stat_pars['charmSF'].error[1], '.3f')))
+
+	    scale_factor = {
+	    	wpname : {
+	    		'mean' : pars['charmSF'].value,
+	    		'sf_upper' : pars['charmSF'].error[0],
+	    		'sf_lower' : pars['charmSF'].error[1],
+	    		'stat_upper' : stat_pars['charmSF'].error[0],
+	    		'stat_lower' : stat_pars['charmSF'].error[1],
+                }
+            }
 	scale_factors[wp] = scale_factor
 	#set_trace()
 	

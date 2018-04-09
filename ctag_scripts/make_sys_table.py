@@ -19,8 +19,11 @@ if not (args.eras == 'All_Runs' or args.eras == 'Run_B' or args.eras == "Run_Cto
 def get_unc(fname):
 	tf = root_open(fname)
 	sf = asrootpy(tf.fit_s.floatParsFinal())['charmSF']
-	#set_trace()
-	unc = max(abs(i) for i in sf.error)
+#	set_trace()
+	if type(sf.error) == float:
+		unc = abs(sf.error)
+	else:
+		unc = max(abs(i) for i in sf.error)
 	return unc
 
 jobid = os.environ['jobid']

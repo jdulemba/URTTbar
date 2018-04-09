@@ -52,10 +52,12 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
 	capped_jets_.resize(reducedsize);
 	copy(jets_.begin(), jets_.begin()+reducedsize, capped_jets_.begin());
   //check b-tagging conditions
-	if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV)
+	if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
 		sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
-	else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA)
+    }
+	else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
 		sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
+    }
 	else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
 		Logger::log().error() << "Don't knoe how to sort bjets in Permutations!" << endl;
 		throw 42;

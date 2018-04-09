@@ -51,9 +51,9 @@ IDJet::IDType IDJet::id_type(BTag id) {
   case DEEPCTAGLOOSE: 
   case DEEPCTAGMEDIUM: 
   case DEEPCTAGTIGHT: return IDType::DEEPCTAG;
-	case DEEPCSVLOOSE:
-	case DEEPCSVMEDIUM:
-	case DEEPCSVTIGHT: return IDType::DEEPFLAVOUR;
+  case DEEPCSVLOOSE:
+  case DEEPCSVMEDIUM:
+  case DEEPCSVTIGHT: return IDType::DEEPCSV;
   default: return IDType::NOTSET;
   }
   return IDType::NOTSET;
@@ -73,9 +73,9 @@ std::string IDJet::id_string(BTag id) {
   case DEEPCTAGLOOSE: 
   case DEEPCTAGMEDIUM: 
   case DEEPCTAGTIGHT: return "deepctag";
-	case DEEPCSVLOOSE:
-	case DEEPCSVMEDIUM:
-	case DEEPCSVTIGHT: return "deepcsv";
+  case DEEPCSVLOOSE:
+  case DEEPCSVMEDIUM:
+  case DEEPCSVTIGHT: return "deepcsv";
   default: return "";
   }
   return "";
@@ -96,7 +96,7 @@ BTagEntry::OperatingPoint IDJet::tag_tightness(BTag id) {
   case BTag::DEEPCTAGLOOSE:  val = BTagEntry::OperatingPoint::OP_LOOSE;  break;
   case BTag::DEEPCTAGMEDIUM: val = BTagEntry::OperatingPoint::OP_MEDIUM; break;
   case BTag::DEEPCTAGTIGHT:  val = BTagEntry::OperatingPoint::OP_TIGHT;  break;
-	case BTag::DEEPCSVLOOSE : val = BTagEntry::OperatingPoint::OP_LOOSE;  break;
+  case BTag::DEEPCSVLOOSE : val = BTagEntry::OperatingPoint::OP_LOOSE;  break;
   case BTag::DEEPCSVMEDIUM: val = BTagEntry::OperatingPoint::OP_MEDIUM; break;
   case BTag::DEEPCSVTIGHT : val = BTagEntry::OperatingPoint::OP_TIGHT;  break;
   default:  val = BTagEntry::OperatingPoint::OP_NOTSET; break;
@@ -123,14 +123,6 @@ bool IDJet::BTagId(BTag wp) const {
   }
 }
 
-
-//inline float IDJet::DeepCSVCvsLtag() const {
-//    return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbUDSG()) : -1 );
-//}
-//
-//inline float IDJet::DeepCSVCvsBtag() const {
-//    return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbB() + DeepCSVProbBB()) : -1 );
-//}
 
 float IDJet::DeepCSVCvsLtag() const {
     return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbUDSG()) : -1 );
@@ -161,8 +153,9 @@ bool IDJet::CTagId(BTag wp) const	{
 
 bool IDJet::TagId(BTag wp) const {
   switch(id_type(wp)) {
-	case MVA:
+  case MVA: return BTagId(wp);
   case CSV: return BTagId(wp);
+  case DEEPCSV: return BTagId(wp);
   case CTAG: return CTagId(wp);
   case DEEPCTAG: return CTagId(wp);
   default: return false;
