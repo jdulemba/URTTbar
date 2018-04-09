@@ -19,13 +19,19 @@ class Permutation
 	private:
 
     //// Joseph added for 3 jet events (merged and lost)
-        // merged
-        double merged_3J_discriminant_ = numeric_limits<double>::max();
-        vector<double> merged_3J_discriminant_vec_;
+        //// merged
+        //double merged_3J_mass_discriminant_ = numeric_limits<double>::max();
+        //double merged_3J_NS_discriminant_ = numeric_limits<double>::max();
+        //double merged_3J_nu_chisq_ = numeric_limits<double>::max();
+        //double merged_3J_prob_ = numeric_limits<double>::max();
+        ////vector<double> merged_3J_discriminant_vec_;
 
-        // lost
-        double lost_3J_discriminant_ = numeric_limits<double>::max();
-        //vector<double> lost_3J_discriminant_vec_;
+        //// lost
+        //double lost_3J_mass_discriminant_ = numeric_limits<double>::max();
+        //double lost_3J_NS_discriminant_ = numeric_limits<double>::max();
+        //double lost_3J_nu_chisq_ = numeric_limits<double>::max();
+        //double lost_3J_prob_ = numeric_limits<double>::max();
+        ////vector<double> lost_3J_discriminant_vec_;
     //
 
 
@@ -99,12 +105,39 @@ class Permutation
 		}
 		const TLorentzVector* NuPtr() const {return(&nu_);}
 		TLorentzVector WHad() const {
-			if(!WJa()) {
-				stringstream err;
-				err << "WJa is not defined in the permutation: " << *this;
-				throw std::runtime_error(err.str());
-			}
-			return (WJb()) ? (*WJa() + *WJb()) : *WJa();
+            if( Merged_BHadWJa() || Merged_BLepWJa() || Merged_WJets() || Lost_WJa() ){
+                return *WJb();
+            }
+            else if( Merged_BHadWJb() || Merged_BLepWJb() || Lost_WJb() ){
+                return *WJa();
+            }
+            else{
+                return (*WJa() + *WJb());
+            }
+            //if( Lost_WJa() ) cout << "lost wja" << endl;
+			//if(!WJa()) {
+			//	stringstream err;
+			//	err << "WJa is not defined in the permutation: " << *this;
+			//	throw std::runtime_error(err.str());
+			//}
+
+            ////if( !WJa() ){
+            ////    cout << "no WJa" << endl;
+            ////    return *WJb();
+            ////}
+            ////else if( !WJb() ){
+            ////    cout << "no WJb" << endl;
+            ////    return *WJa();
+            ////}
+            ////else if( WJa() == WJb() ){
+            ////    cout << "Merged W" << endl;
+            ////    return *WJa();
+            ////}
+            ////else{
+            ////    cout << "WJa and WJb" << endl;
+            ////    return (*WJa() + *WJb());
+            ////}
+			//return (WJb()) ? (*WJa() + *WJb()) : *WJa();
 		}
 		TLorentzVector WLep() const {return((*L() + Nu()));}
 		TLorentzVector THad() const {return((WHad() + *BHad()));}
@@ -113,16 +146,31 @@ class Permutation
 
 
     //// Joseph added for 3 jet events (merged and lost)
-        // merged
-        double Merged3JDiscr() const {return merged_3J_discriminant_;}
-        void Merged3JDiscr(double val) {merged_3J_discriminant_ = val;}
-        vector<double> Merged3JDiscr_Vec() const { return merged_3J_discriminant_vec_;}
-        void Merged3JDiscr_Vec(vector<double> val) {merged_3J_discriminant_vec_ = val;}
+        //// merged 
+        //double Merged3JMassDiscr() const {return merged_3J_mass_discriminant_;}
+        //void Merged3JMassDiscr(double val) {merged_3J_mass_discriminant_ = val;}
 
-        // lost
-        double Lost3JDiscr() const {return lost_3J_discriminant_;}
-        void Lost3JDiscr(double val) {lost_3J_discriminant_ = val;}
+        //double Merged3JNuDiscr() const {return merged_3J_NS_discriminant_;}
+        //void Merged3JNuDiscr(double val) {merged_3J_NS_discriminant_ = val;}
+		//double Merged3JNuChisq() 	 const {return merged_3J_nu_chisq_         ;}
+		//void Merged3JNuChisq(  double val) {merged_3J_nu_chisq_          = val;}
 
+        ////vector<double> Merged3JDiscr_Vec() const { return merged_3J_discriminant_vec_;}
+        ////void Merged3JDiscr_Vec(vector<double> val) {merged_3J_discriminant_vec_ = val;}
+		//double Merged3JProb()      const {return merged_3J_prob_             ;}
+		//void Merged3JProb(     double val) {merged_3J_prob_              = val;}
+
+        //// lost
+        //double Lost3JMassDiscr() const {return lost_3J_mass_discriminant_;}
+        //void Lost3JMassDiscr(double val) {lost_3J_mass_discriminant_ = val;}
+
+        //double Lost3JNuDiscr() const {return lost_3J_NS_discriminant_;}
+        //void Lost3JNuDiscr(double val) {lost_3J_NS_discriminant_ = val;}
+		//double Lost3JNuChisq() 	 const {return lost_3J_nu_chisq_         ;}
+		//void Lost3JNuChisq(  double val) {lost_3J_nu_chisq_          = val;}
+
+		//double Lost3JProb()      const {return lost_3J_prob_             ;}
+		//void Lost3JProb(     double val) {lost_3J_prob_              = val;}
     ////
 
 		double Prob()      const {return prob_             ;}

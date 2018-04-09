@@ -57,71 +57,93 @@ namespace hyp {
 
     thad().b(*p.BHad());
 
-    //if gen matching exists and makes sense
-    if( p.WJa() && p.WJb() ){
-        if( p.WJa()->match() && p.WJb()->match() && 
-            std::abs(p.WJa()->match()->pdgId()+p.WJb()->match()->pdgId()) % 2 == 1 ) { //check that one is up and one is down
-            if(p.WJa()->match()->pdgId() % 2 == 0 ){
-                thad().W().up(*p.WJa());
-                thad().W().down(*p.WJb());
-            }
-            else{
-                thad().W().up(*p.WJb());
-                thad().W().down(*p.WJa());
-            }
+    if( p.Merged_Event() ){
+        if( p.Merged_BHadWJa() || p.Merged_WJets() || p.Merged_BLepWJa() ){
+            TLorentzVector WJa;
+            thad().W().up(*p.WJb());
+            thad().W().down(WJa);
+    
+            thad().W().setv(*p.WJb()+WJa);
         }
+        else if( p.Merged_BHadWJb() || p.Merged_BLepWJb() ){
+            TLorentzVector WJb;
+            thad().W().up(*p.WJa());
+            thad().W().down(WJb);
+    
+            thad().W().setv(*p.WJa()+WJb);
+        }
+        else{
+            Logger::log().fatal() << "Permutation should have different b's and at least one wjet!" << endl;
+            throw 42;
+        }
+    }
 
+    else{//if gen matching exists and makes sense
+        if( p.WJa() && p.WJb() ){
+            if( p.WJa()->match() && p.WJb()->match() && 
+                std::abs(p.WJa()->match()->pdgId()+p.WJb()->match()->pdgId()) % 2 == 1 ) { //check that one is up and one is down
+                if(p.WJa()->match()->pdgId() % 2 == 0 ){
+                    thad().W().up(*p.WJa());
+                    thad().W().down(*p.WJb());
+                }
+                else{
+                    thad().W().up(*p.WJb());
+                    thad().W().down(*p.WJa());
+                }
+            }
+    
+            else {
+            	thad().W().up(*p.WJa()); //Assumes WJa is up one!
+            	thad().W().down(*p.WJb());
+            }
+    
+            thad().W().setv(*p.WJa()+*p.WJb());
+        }
+    
+        else if( p.WJa() && !p.WJb() ){
+            TLorentzVector WJb;
+            thad().W().up(*p.WJa());
+            thad().W().down(WJb);
+    
+            thad().W().setv(*p.WJa()+WJb);
+        }
+    
+        else if( !p.WJa() && p.WJb() ){
+            TLorentzVector WJa;
+            thad().W().up(*p.WJb());
+            thad().W().down(WJa);
+    
+            thad().W().setv(*p.WJb()+WJa);
+        }
+    
         else {
-        	thad().W().up(*p.WJa()); //Assumes WJa is up one!
-        	thad().W().down(*p.WJb());
+            TLorentzVector WJa;
+            TLorentzVector WJb;
+        	thad().W().up(WJa); //Assumes WJa is up one!
+            thad().W().down(WJb);
+    
+            thad().W().setv(WJa+WJb);
         }
-
-        thad().W().setv(*p.WJa()+*p.WJb());
+    
+    //    if(p.WJa()->match() && p.WJb()->match() &&
+    //    	 std::abs(p.WJa()->match()->pdgId()+p.WJb()->match()->pdgId()) % 2 == 1) { //check that one is up and one is down
+    //    	if(p.WJa()->match()->pdgId() % 2 == 0) {
+    //    		thad().W().up(*p.WJa());
+    //    		thad().W().down(*p.WJb());				
+    //    	}
+    //    	else {
+    //    		thad().W().up(*p.WJb());
+    //    		thad().W().down(*p.WJa());				
+    //    	}
+    //    } 
+    
+    //    else {
+    //    	thad().W().up(*p.WJa()); //Assumes WJa is up one!
+    //    	thad().W().down(*p.WJb());
+    //    }
+    
+    //    thad().W().setv(*p.WJa()+*p.WJb());
     }
-
-    else if( p.WJa() && !p.WJb() ){
-        TLorentzVector WJb;
-        thad().W().up(*p.WJa());
-        thad().W().down(WJb);
-
-        thad().W().setv(*p.WJa()+WJb);
-    }
-
-    else if( !p.WJa() && p.WJb() ){
-        TLorentzVector WJa;
-        thad().W().up(*p.WJb());
-        thad().W().down(WJa);
-
-        thad().W().setv(*p.WJb()+WJa);
-    }
-
-    else {
-        TLorentzVector WJa;
-        TLorentzVector WJb;
-    	thad().W().up(WJa); //Assumes WJa is up one!
-        thad().W().down(WJb);
-
-        thad().W().setv(WJa+WJb);
-    }
-
-//    if(p.WJa()->match() && p.WJb()->match() &&
-//    	 std::abs(p.WJa()->match()->pdgId()+p.WJb()->match()->pdgId()) % 2 == 1) { //check that one is up and one is down
-//    	if(p.WJa()->match()->pdgId() % 2 == 0) {
-//    		thad().W().up(*p.WJa());
-//    		thad().W().down(*p.WJb());				
-//    	}
-//    	else {
-//    		thad().W().up(*p.WJb());
-//    		thad().W().down(*p.WJa());				
-//    	}
-//    } 
-
-//    else {
-//    	thad().W().up(*p.WJa()); //Assumes WJa is up one!
-//    	thad().W().down(*p.WJb());
-//    }
-
-//    thad().W().setv(*p.WJa()+*p.WJb());
     thad().setv(thad().W()+*p.BHad());
     setv(thad()+tlep());
   }

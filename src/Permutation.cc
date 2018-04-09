@@ -21,11 +21,17 @@ void Permutation::Reset()
 {
 
     //// Joseph added for 3 jet events (merged and lost) discriminant
-        // merged
-    merged_3J_discriminant_ = numeric_limits<double>::max();
+    //    // merged
+    //merged_3J_mass_discriminant_ = numeric_limits<double>::max();
+    //merged_3J_NS_discriminant_ = numeric_limits<double>::max();
+    //merged_3J_nu_chisq_ = numeric_limits<double>::max();
+    //merged_3J_prob_ = numeric_limits<double>::max();
 
-        // lost
-    lost_3J_discriminant_ = numeric_limits<double>::max();
+    //    // lost
+    //lost_3J_mass_discriminant_ = numeric_limits<double>::max();
+    //lost_3J_NS_discriminant_ = numeric_limits<double>::max();
+    //lost_3J_nu_chisq_ = numeric_limits<double>::max();
+    //lost_3J_prob_ = numeric_limits<double>::max();
     //
 
 	prob_ = numeric_limits<double>::max();
@@ -62,5 +68,5 @@ std::ostream & operator<<(std::ostream &os, const Permutation& p) {
   return os << "l: " << p.lep_ << ", b_l: " << p.bjl_ << ", b_h: " << p.bjh_ << ", j1: " << p.wja_ << ", j2: " << p.wjb_ << std::endl
 						<< "l: " << *p.lep_ << ", b_l: " << *p.bjl_ << ", b_h: " << *p.bjh_ << ", j1: " << *p.wja_ << ", j2: " << *p.wjb_ << std::endl
             << "M(thad): " << p.THad().M() << ", M(whad): " << p.WHad().M() << ", full discr: " << p.prob_ << ", mass disc: " << p.mass_discriminant_ << ", nu chi2: " << p.nu_chisq_ 
-						<< ", nu disc: " << p.nu_discriminant_ << ", merged 3J discr: " << p.merged_3J_discriminant_;
+						<< ", nu disc: " << p.nu_discriminant_ ;
 }

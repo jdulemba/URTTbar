@@ -170,6 +170,11 @@ class GenTTBar: public TLorentzVector {
             return(false);
         }
 
+        bool all_partons_in_acceptance(double pt, double eta){ // check if bhad, blep, wja, and wjb in pt and eta acceptance
+            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+            return(false);
+        }
+
             // check mergings between two partons
         bool merged_lepblep_partons(double dr_){ // lepton and blep merged
             if( lepton()->DeltaR(*lep_b()) < dr_ ) return true;

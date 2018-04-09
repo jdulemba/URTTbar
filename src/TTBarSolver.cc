@@ -333,7 +333,7 @@ void TTBarSolver::Solve_3J_Merged(Permutation &hyp, bool lazy){
     hyp.Prob(res);
     hyp.NuChisq(merged_nschi_3J);
     hyp.NuDiscr(merged_nstest_3J);
-    hyp.Merged3JDiscr(merged_masstest_3J);
+    hyp.MassDiscr(merged_masstest_3J);
 
 }
 
@@ -411,7 +411,7 @@ void TTBarSolver::Solve_3J_Lost(Permutation &hyp, bool lazy){
     hyp.Prob(res);
     hyp.NuChisq(lost_nschi_3J);
     hyp.NuDiscr(lost_nstest_3J);
-    hyp.Lost3JDiscr(lost_masstest_3J);
+    hyp.MassDiscr(lost_masstest_3J);
 
 }
 
