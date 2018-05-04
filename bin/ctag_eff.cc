@@ -303,6 +303,7 @@ class ctag_eff : public AnalyzerBase
 
             book<TH1F>(folder, "tmasshad", "", 50, 0., 500);			
             book<TH1F>(folder, "Wmasshad", "", 50, 0., 500);			
+            book<TH1F>(folder, "tpthad", "", 50, 0., 500);			
             //book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
         }
 
@@ -328,6 +329,7 @@ class ctag_eff : public AnalyzerBase
             double thad_mass = hyp.THad().M();
             dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
             dir->second["tmasshad"].fill(thad_mass, evt_weight_);
+            dir->second["tpthad"].fill(hyp.THad().Pt(), evt_weight_);
         }
 
         void book_pdf_plots(string folder) {
@@ -419,6 +421,7 @@ class ctag_eff : public AnalyzerBase
             book<TH1F>(folder, "Whad_DR"  , ";m_{W}(had) (GeV)", 100, 0., 10.);
             book<TH1F>(folder, "Whad_pt"  , ";m_{W}(had) (GeV)", 100, 0., 500.);
             book<TH1F>(folder, "thad_mass", ";m_{t}(had) (GeV)", 60, 100., 400.);
+            book<TH1F>(folder, "thad_pt", ";p_{T}(t_{had}) (GeV)", 100, 0., 500.);
             book<TH2F>(folder, "Whad_jet_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
             book<TH2F>(folder, "BJet_jet_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
             book<TH2F>(folder, "leadB_leadW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
@@ -491,6 +494,7 @@ class ctag_eff : public AnalyzerBase
             dir->second["Whad_mass"].fill(hyp.WHad().M(), evt_weight_);
             dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()), evt_weight_);
             dir->second["thad_mass"].fill(hyp.THad().M() , evt_weight_);
+            dir->second["thad_pt"].fill(hyp.THad().Pt() , evt_weight_);
             dir->second["WjetCSV"  ].fill(hyp.WJa()->csvIncl(), evt_weight_);
             dir->second["WjetCSV"  ].fill(hyp.WJb()->csvIncl(), evt_weight_);
 
@@ -721,6 +725,27 @@ class ctag_eff : public AnalyzerBase
             }
 
 
+            // top pT reweighting formula based on section 5.5 of AN-16-272
+            double top_pt_reweighting( string sys_var ){
+                double top_pt1, top_pt2;
+
+                if( sys_var == "nominal" ){top_pt1 = 0.; top_pt2 = 0.;}
+                else if( sys_var == "up_nom" ){top_pt1 = 1.; top_pt2 = 0.;}
+                else if( sys_var == "down_nom" ){top_pt1 = -1.; top_pt2 = 0.;}
+                else if( sys_var == "nom_up" ){top_pt1 = 0.; top_pt2 = 1.;}
+                else if( sys_var == "nom_down" ){top_pt1 = 0.; top_pt2 = -1.;}
+                else{
+                    Logger::log().error() << sys_var << " isn't a valid option for the top pt reweighting!" << endl;
+                    throw 40;
+                }
+
+                double p0 =  6.15025*pow(10., -2.) + 3.243*pow(10., -2.)*top_pt1 - 4.353*pow(10., -7.)*top_pt2;
+                double p1 = -5.17833*pow(10., -4.) - 1.404*pow(10., -4.)*top_pt1 - 1.005*pow(10., -4.)*top_pt2;
+
+                double weight = exp(p0+p1*( (genp_selector_.top()->Pt()+genp_selector_.tbar()->Pt())/2 ));
+                return weight;
+            }
+
             void process_evt(systematics::SysShifts shift, URStreamer &event){
                 tracker_.track("start");
                 //float weight = 1.;
@@ -776,10 +801,15 @@ class ctag_eff : public AnalyzerBase
                 best_permutation.permutating_jets(capped_jets_size);
 
                 //find mc weight for btag
-                if(!isData_) evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift);
-                //if(!isData_) evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift, true);
-                //if( !isData_ ) cout << "----------------------Btag sf: " << btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift) << endl;
-                //cout << "evt_weight: " << evt_weight_ << endl;
+                if(!isData_){
+                    evt_weight_ *= btag_sf_.scale_factor({best_permutation.BHad(), best_permutation.BLep()}, shift);
+                }
+                //find mc weight for top pt for ttbar events
+                if( isTTbar_ ){
+                    double top_pt_weight = top_pt_reweighting("nominal");
+                    evt_weight_ *= top_pt_weight;
+                    cout << "evt weight: " << evt_weight_ << endl;
+                }
 
                 //Gen matching
                 Permutation matched_perm;
@@ -796,7 +826,7 @@ class ctag_eff : public AnalyzerBase
                 tracker_.track("matched perm");
 
                 string sys_dir = sys_name;
-                //Logger::log().debug() << "\n\nShift: " << shift << " name: " << root_dir << endl;
+
                 double weight = evt_weight_;
                 string ttsubdir = "";
                 if(isTTbar_) { 			

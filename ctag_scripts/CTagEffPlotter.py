@@ -64,8 +64,8 @@ class CTagPlotter(Plotter):
 		#self.tt_to_use = 'ttJets' #original
 		self.flavour_info = 'hadronflav'
 		self.tt_shifted = {
-			#'mtop_up' : 'ttJets_mtopup',
-			#'mtop_down' : 'ttJets_mtopdown',
+			'mtop_up' : 'ttJetsSL_mtopup',
+			'mtop_down' : 'ttJetsSL_mtopdown',
 			#'isr_up'   : 'ttJets_isrup',
 			#'isr_down' : 'ttJets_isrdown',
 			#'fsr_up'   : 'ttJets_fsrup',
@@ -114,6 +114,8 @@ class CTagPlotter(Plotter):
 
 		self.views['ttJetsAll'] = {
 			'view' : views.SumView(
+				#self.get_view('ttJetsSL_mtopdown'),
+				#self.get_view('ttJetsSL_mtopup'),
 				self.get_view('ttJetsSL'),
 				self.get_view('ttJetsDiLep'),
 				self.get_view('ttJetsHad'),
@@ -265,14 +267,14 @@ class CTagPlotter(Plotter):
 				'constants' : ('jer_down', 'jer_up'),
 				'value' : 1.00,				
 				},
-			#'MTOP' : {
-			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-			#	'categories' : ['.*'],
-			#	'type' : 'shape',
-			#	'+' : lambda x: x.replace('nosys', 'mtop_up'),
-			#	'-' : lambda x: x.replace('nosys', 'mtop_down'),
-			#	'value' : 1.00,				
-			#	},
+			'MTOP' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'mtop_up'),
+				'-' : lambda x: x.replace('nosys', 'mtop_down'),
+				'value' : 1.00,				
+				},
 			#'ISR' : {
 			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
 			#	'categories' : ['.*'],
@@ -358,6 +360,10 @@ class CTagPlotter(Plotter):
 				'ditag'	  : [6, 8, 10, 12, 20],
 				},
 			'csvTight' : {
+				#'notag'  	: [6, 20],
+				#'leadtag' : [6, 20],
+				#'subtag'  : [6, 20],
+				#'ditag'  : [6, 20],
 				'notag'  	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
@@ -395,6 +401,10 @@ class CTagPlotter(Plotter):
 				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'DeepCSVTight' : {
+				#'notag' 	: [6, 20],
+				#'leadtag' : [6, 20],
+				#'subtag'  : [6, 20],
+				#'ditag'  : [6, 20],
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
@@ -591,6 +601,7 @@ class CTagPlotter(Plotter):
 		'''
 		should use get_shape above in some memoized form in the future
 		'''
+		#set_trace()
 		if not self.card: self.card = DataCard(self.signal)
 		self.card.add_category(category_name)
 		category = self.card[category_name]
@@ -1229,6 +1240,7 @@ variables = [
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
   ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
   ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
+  ("thad_pt", "p_{T}(t_{h}) (GeV)", 1, None, False),
   #("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
   #("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
   ("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
@@ -1285,6 +1297,7 @@ permutation_presel = [
 	("mass_discriminant", "#lambda_{M}", 1, None, False),
 	("Wmasshad", "M(W_{h})", 2, None, False),
 	("tmasshad", "M(t_{h})", 2, None, False),
+	("tpthad", "p_{T}(t_{h})", 2, None, False),
 ]
 
 

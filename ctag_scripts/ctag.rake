@@ -406,7 +406,7 @@ task :ctag_plotfit_singlerun, [:runs] do |t, args|
   end
   Rake::Task['ctag_shapes'].invoke(args.runs)
   Rake::Task['ctag_fitallwps'].invoke(args.runs)
-#  Rake::Task['make_datacard_plots'].invoke(args.runs)
+  Rake::Task['make_datacard_plots'].invoke(args.runs)
   Rake::Task['breakdown_allwps'].invoke(args.runs)
   Rake::Task['make_ctag_tables'].invoke(args.runs)
   Rake::Task['make_allcsvwps'].invoke(args.runs)
