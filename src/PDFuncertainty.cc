@@ -65,10 +65,10 @@ void PDFuncertainty::fill_replicas(string dirname, string name, double val, doub
 
 	const vector<Mcweight>& ws =  streamer.MCWeights();
         // added to keep only last 108 pdf uncertainties from Fall17 MC
-    vector<double> resize_ws;
-    for( size_t h = 0 ; h < 108 ; ++h){
-       resize_ws.push_back(ws[h+972].weights()); 
-    }
+//    vector<double> resize_ws;
+//    for( size_t h = 0 ; h < 108 ; ++h){
+//       resize_ws.push_back(ws[h+972].weights()); 
+//    }
         //
 
 	if(hists_.find(dirname) == hists_.end()) {
@@ -79,22 +79,24 @@ void PDFuncertainty::fill_replicas(string dirname, string name, double val, doub
         Logger::log().fatal() << "You are asking to store PDFs replicas for the plot " << name << " which does not exist" << endl; 
         throw 42;		
 	}
-	if(hists_[dirname][name].size() != resize_ws.size()) {
-        Logger::log().fatal() << "I got " << resize_ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << endl; 
+    //    // added to keep only last 108 pdf uncertainties from Fall17 MC
+	//if(hists_[dirname][name].size() != resize_ws.size()) {
+    //    Logger::log().fatal() << "I got " << resize_ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << endl; 
+    //    throw 42;
+	//}
+
+	//for(size_t h = 0 ; h < resize_ws.size() ; ++h) {
+	//	hists_[dirname][name][h].fill(val, weight*resize_ws[h]/ws[0].weights());
+	//}
+    //    //
+	if(hists_[dirname][name].size() != ws.size()) {
+        Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << endl; 
         throw 42;
 	}
 
-	for(size_t h = 0 ; h < resize_ws.size() ; ++h) {
-		hists_[dirname][name][h].fill(val, weight*resize_ws[h]/ws[0].weights());
+	for(size_t h = 0 ; h < ws.size() ; ++h) {
+		hists_[dirname][name][h].fill(val, weight*ws[h].weights()/ws[0].weights());
 	}
-	//if(hists_[dirname][name].size() != ws.size()) {
-    //Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << endl; 
-    //throw 42;
-	//}
-
-	//for(size_t h = 0 ; h < ws.size() ; ++h) {
-	//	hists_[dirname][name][h].fill(val, weight*ws[h].weights()/ws[0].weights());
-	//}
 }
 
 

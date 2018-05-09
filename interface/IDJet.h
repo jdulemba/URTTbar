@@ -20,11 +20,12 @@ public:
 		NONE, 
 		CSVLOOSE, CSVMEDIUM, CSVTIGHT, 
 		DEEPCSVLOOSE, DEEPCSVMEDIUM, DEEPCSVTIGHT, 
-		DEEPCTAGLOOSE, DEEPCTAGMEDIUM, DEEPCTAGTIGHT,   
+		//DEEPCTAGLOOSE, DEEPCTAGMEDIUM, DEEPCTAGTIGHT,   
 		CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   
 		MVALOOSE, MVAMEDIUM, MVATIGHT
 	};
-	enum IDType {NOTSET, CSV, CTAG, MVA, DEEPCSV, DEEPCTAG};
+	enum IDType {NOTSET, CSV, CTAG, MVA, DEEPCSV};
+	//enum IDType {NOTSET, CSV, CTAG, MVA, DEEPCSV, DEEPCTAG};
   
   static const std::unordered_map<std::string, IDJet::BTag> tag_names;
   static IDJet::BTag tag(std::string label);
@@ -57,8 +58,8 @@ public:
   static std::string id_string(BTag id);
   static BTagEntry::OperatingPoint tag_tightness(BTag id);
 
-  float DeepCSVCvsLtag() const;
-  float DeepCSVCvsBtag() const;
+  //float DeepCSVCvsLtag() const;
+  //float DeepCSVCvsBtag() const;
 	bool BTagId(BTag wp) const;
 	bool CTagId(BTag wp) const;
   bool TagId(BTag wp) const;

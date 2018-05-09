@@ -214,7 +214,7 @@ plt.errorbar(xaxis, tag_means, yerr=[tag_sf_lower, tag_sf_upper], color='k', fmt
 plt.legend(numpoints=1)
 plt.xlim(min(xaxis)-1, max(xaxis)+2)
 plt.xticks(xaxis, tagger_names, rotation=90)
-plt.ylim(0, 1.2)
+#plt.ylim(0, 1.2)
 plt.grid()
 plt.tight_layout()
 fname5 = '%s%s_SF_both_uncs_indiv_results' % (out_dir, dir_name)

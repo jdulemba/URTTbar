@@ -87,7 +87,7 @@ public:
 			cout << "Trigger: " << endl;
 			cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << endl; 
 			cout << "  HLT_IsoMu24: " << event.trigger().HLT_IsoMu24() << endl; 
-			//cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
+			cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
 			cout << endl;
 
 			cout << "Event Filters: " << endl;
@@ -97,9 +97,11 @@ public:
 			cout << "  Flag_goodVertices: " << 												event.filter().Flag_goodVertices() << endl;												 
 			cout << "  Flag_eeBadScFilter: " << 											event.filter().Flag_eeBadScFilter() << endl;											 
 			cout << "  Flag_globalTightHalo2016Filter: " << 					event.filter().Flag_globalTightHalo2016Filter() << endl;					 
-			cout << "  Flag_BadPFMuonFilter: " << 													event.filter().Flag_BadPFMuonFilter() << endl;													 
-			cout << "  Flag_ecalBadCalibFilter: " << 													event.filter().Flag_ecalBadCalibFilter() << endl;													 
-			cout << "  Flag_BadChargedCandidateFilter: " << 	              event.filter().Flag_BadChargedCandidateFilter() << endl;	                
+			cout << "  Flag_BadPFMuon: " << 													event.filter().Flag_BadPFMuon() << endl;													 
+			//cout << "  Flag_BadPFMuonFilter: " << 													event.filter().Flag_BadPFMuonFilter() << endl;													 
+			//cout << "  Flag_ecalBadCalibFilter: " << 													event.filter().Flag_ecalBadCalibFilter() << endl;													 
+			cout << "  Flag_BadChargedCandidate: " << 	              event.filter().Flag_BadChargedCandidate() << endl;	                
+			//cout << "  Flag_BadChargedCandidateFilter: " << 	              event.filter().Flag_BadChargedCandidateFilter() << endl;	                
 			cout << endl;
 			
 

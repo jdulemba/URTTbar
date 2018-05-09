@@ -292,15 +292,15 @@ end
 $working_points = ['csvLoose', 'csvMedium', 'csvTight', 
                    'ctagLoose', 'ctagMedium', 'ctagTight', 
                    #'cmvaLoose', 'cmvaMedium', 'cmvaTight',
-                   'DeepctagLoose', 'DeepctagMedium', 'DeepctagTight', 
+                   #'DeepctagLoose', 'DeepctagMedium', 'DeepctagTight', 
                    'DeepCSVLoose', 'DeepCSVMedium', 'DeepCSVTight'
                   ]
 
 $algorithms = ['csv',
                'ctag',
                #'cmva',
-               'DeepCSV',
-                'Deepctag'
+               'DeepCSV'
+                #'Deepctag'
               ]
 
 $runs = ['All', 'B', 'CtoE', 'EtoF'] #2018 run splitting into eras
@@ -406,7 +406,7 @@ task :ctag_plotfit_singlerun, [:runs] do |t, args|
   end
   Rake::Task['ctag_shapes'].invoke(args.runs)
   Rake::Task['ctag_fitallwps'].invoke(args.runs)
-  Rake::Task['make_datacard_plots'].invoke(args.runs)
+  #Rake::Task['make_datacard_plots'].invoke(args.runs)
   Rake::Task['breakdown_allwps'].invoke(args.runs)
   Rake::Task['make_ctag_tables'].invoke(args.runs)
   Rake::Task['make_allcsvwps'].invoke(args.runs)

@@ -91,7 +91,7 @@ styles = {
       'drawstyle' : 'E0 X0',
       'markerstyle' : 20,
       #'markersize'  : 2,
-      'name' : "All 2017 (B-F)",
+      'name' : "All 2016",
       #'name' : "Observed",
     },
    'tt*' : {
