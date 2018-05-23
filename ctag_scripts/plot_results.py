@@ -4,6 +4,7 @@ import URAnalysis.Utilities.prettyjson as prettyjson
 from pdb import set_trace
 import logging
 import matplotlib.pyplot as plt
+from styles import styles
 #import doubleErrorBar as dEB
 
 parser = ArgumentParser()
@@ -24,18 +25,19 @@ if dir_name == 'Exit':
 input_dir = '%s/plots/%s/ctageff/%s/mass_discriminant/' % (os.environ['URA_PROJECT'],os.environ['jobid'], dir_name)
 out_dir = '%s/plots/%s/ctageff/%s/' % (os.environ['URA_PROJECT'],os.environ['jobid'], dir_name)
 
-
-if args.eras == 'All':
-    plot_title = 'All 2017 (B-F)'
-elif args.eras == 'B':
-    plot_title = 'Run B'
-elif args.eras == 'CtoE':
-    plot_title = 'Runs C-E'
-elif args.eras == 'EtoF':
-    plot_title = 'Runs E-F'
-else:
-    logging.error('Not a valid era to choose from.')
-    sys.exit()
+#set_trace()
+plot_title = styles['data*']['name']
+#if args.eras == 'All':
+#    plot_title = 'All 2017 (B-F)'
+#elif args.eras == 'B':
+#    plot_title = 'Run B'
+#elif args.eras == 'CtoE':
+#    plot_title = 'Runs C-E'
+#elif args.eras == 'EtoF':
+#    plot_title = 'Runs E-F'
+#else:
+#    logging.error('Not a valid era to choose from.')
+#    sys.exit()
 
 results = prettyjson.loads(open('%s/results.json' % input_dir).read())
 
