@@ -87,17 +87,23 @@ class CTagPlotter(Plotter):
 		    era_name = 'Run_EtoF'
 		    era_title = 'Runs E-F'
 		elif args.eras == 'All':
-		    #data_files = filter(lambda x: 'CtoE' in x or 'Bv1' in x or 'EtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
 		    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		    #data_files = filter(lambda x: 'BtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
 		    era_name = 'All_Runs'
 		    era_title = 'All 2017 (B-F)'
+		#if args.eras == 'All':
+		##    #data_files = filter(lambda x: 'CtoE' in x or 'Bv1' in x or 'EtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
+		##    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
+		##    #data_files = filter(lambda x: 'BtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
+		#    era_name = 'All_Runs'
+		#    era_title = 'All 2016'
 		else:
 		    logging.error('Not a valid era to choose from.')
 		    sys.exit()
 
 		files = MCfiles+data_files
 		#set_trace() #files = MCfiles+data_files
+
+		#files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) # original 2016
 
 		logging.debug('files found %s' % files.__repr__())
 		lumis = glob.glob('inputs/%s/*.lumi' % jobid)
@@ -114,8 +120,6 @@ class CTagPlotter(Plotter):
 
 		self.views['ttJetsAll'] = {
 			'view' : views.SumView(
-				#self.get_view('ttJetsSL_mtopdown'),
-				#self.get_view('ttJetsSL_mtopup'),
 				self.get_view('ttJetsSL'),
 				self.get_view('ttJetsDiLep'),
 				self.get_view('ttJetsHad'),
@@ -157,11 +161,9 @@ class CTagPlotter(Plotter):
 
 		self.views['VJets'] = {
 			'view' : views.SumView(
-				#self.get_view('W[1-5]Jets'),
 				self.get_view('W[1-4]Jets'),
-				#self.get_view('WJets'),
+				#self.get_view('W[1-5]Jets'),
 				self.get_view('ZJets'),
-				#self.get_view('Z[1-3]Jets'),
 				)
 			}
 		##self.views['SingleTOP'] = {
@@ -408,8 +410,8 @@ class CTagPlotter(Plotter):
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag'  : [6, 8, 10, 12, 20],
-				#'ditag' 	: [6, 12, 20],
+				#'ditag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 12, 20],
 				},			
 			'ctagLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
@@ -1111,6 +1113,68 @@ class CTagPlotter(Plotter):
 		self.add_legend([h_nnpdf, h_ct10, h_mmht], False)
 
 
+	def draw_flavor_shapes(self, dirname, basename, leftleg, preselection):
+		if preselection:
+			mc_default = self.mc_samples
+			self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
+			#self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
+			#self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
+			##self.mc_samples = ['[WZ]Jets*', 'Z[1-3]Jets', 'single*', 'ttJets_preselection']
+		mc_views = plotter.mc_views(folder=dirname)	
+		if preselection: self.mc_samples = mc_default
+
+		b_hists = [i.Get('%s_B' % basename) for i in mc_views]
+		c_hists = [i.Get('%s_C' % basename) for i in mc_views]
+		l_hists = [i.Get('%s_L' % basename) for i in mc_views]
+		
+		hb = sum(b_hists)
+		hl = sum(l_hists)
+		hc = sum(c_hists)
+		
+		if not hasattr(self, 'flav_styles'):
+			self.flav_styles = {
+				#'b' : {'fillcolor' : '#0055ff', 'linecolor' : '#0055ff'},
+				'b' : {'fillcolor' : 'r', 'linecolor' : 'k', 'markercolor' : 'k'},
+				#'c' : {'fillcolor' : '#9999CC', 'linecolor' : '#9999CC'},
+				'c' : {'fillcolor' : '#008900', 'linecolor' : 'k', 'markercolor' : 'k'},
+				#'l' : {'fillcolor' : '#ab5555', 'linecolor' : '#ab5555'},
+				'l' : {'fillcolor' : 'b', 'linecolor' : 'k', 'markercolor' : 'k'},
+				#'s' : {'fillcolor' : '#FFCC66', 'linecolor' : '#FFCC66'}
+				's' : {'fillcolor' : '#FFCC66', 'linecolor' : 'k', 'markercolor' : 'k'}
+				}
+		hb.decorate(**self.flav_styles['b']) 
+		hb.title = 'b-jets'
+		hl.decorate(**self.flav_styles['l'])
+		hl.title = 'l-jets'
+		hc.decorate(**self.flav_styles['c'])
+		hc.title = 'c-jets'
+		stack = plotter.create_stack(hb, hl, hc, sort=False)
+		#data = plotter.get_view('data').Get(dirname+'%s_' % basename)
+		data = sum([ plotter.get_view('data').Get(dirname+'%s_%s' % (basename, quark)) for quark in ['B', 'C', 'L'] ])
+		plotter.overlay_and_compare(
+            [stack], data, 
+            method='datamc',
+            ignore_style=False,
+            lower_y_range=0.5,
+            xtitle='b-tag SF',
+            ytitle='events',
+            #ytitle='data/MC',
+            )
+		self.canvas.Update()
+		self.pad.cd()
+		plotter.add_legend([stack, data], leftleg, 5)
+		plotter.save('%s_flavours' % basename)
+		
+		#hb.Scale(1/hb.Integral() if hb.Integral() else 0.)
+		#hl.Scale(1/hl.Integral() if hl.Integral() else 0.)
+		#hc.Scale(1/hc.Integral() if hc.Integral() else 0.)
+		#plotter.overlay([hb,hl,hc], fillstyle='hollow', linewidth=3, linecolor=fillcolor, xtitle='b-tag SF', ytitle='Events')
+		##plotter.overlay([hb,hl,hc], fillstyle='hollow', linewidth=3, xtitle='b-tag SF', ytitle='Events')
+		#plotter.add_legend([hb,hl,hc], leftleg, 4)
+		#plotter.save('%s_norm' % basename)
+		#set_trace()
+
+
 	def draw_cvsl_shapes(self, dirname, basename, disc, leftleg, preselection):
 		if preselection:
 			mc_default = self.mc_samples
@@ -1237,6 +1301,7 @@ vars2D = [
 variables = [
   ("njets"	 , "# of selected jets", range(13), None, False),
   ("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
+  ("muon_sf"	 , "SF applied to muon", 1, None, False),
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
   ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
   ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
@@ -1289,7 +1354,7 @@ preselection = [
   ("jets_pt", "p_{T}(jet)", 10, None, False),
   ("lep_eta", "#eta(l)", 10, None, False),
   ("lep_pt", "p_{T}(l)", 10, None, False),
-#  ("nvtx", "# of reconstructed vertices", range(41), None, False),
+  ("nvtx", "# of reconstructed vertices", range(41), None, False),
   ("rho", "#rho", range(40), None, False),
 ]
 
@@ -1414,6 +1479,7 @@ if args.plots:
 	##
 	## Special plot
 	##
+	plotter.draw_flavor_shapes('nosys/mass_discriminant/notag/both_untagged/', 'btag_sf', False, False) 
 	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsL', False, False) 
 	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsB', False, False) 
 	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVCvsL', False, False) 
@@ -1422,6 +1488,36 @@ if args.plots:
 	##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wja', 'hflav_CvsL', False, False) 
 	##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjb', 'hflav_CvsL', False, False) 
 	##plotter.draw_cvsl_shapes('nosys/preselection/', 'jets', 'hflav_CvsL', False, True) 
+
+	#
+	#btag SFs
+	#
+	flavors = ['B', 'C', 'L']
+	for flavor in flavors:
+	    btag_hists = [i.Get('btag_sf_vs_pt_%s' % flavor) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
+	    sum_btag_hist = sum(btag_hists)
+	    #plotter.plot(sum_btag_hist)
+	    sum_btag_hist.drawstyle='colz'
+	    sum_btag_hist.Draw()
+	    sum_btag_hist.SetXTitle('p_{T}(%s quarks) (GeV)' % flavor)
+	    sum_btag_hist.SetYTitle('b-tag SF')
+	    plotter.save('btag_sf_vs_pt_%s' % flavor)
+	    #set_trace()
+
+	#muon SFs
+	#
+	kinvars = {'pt' : 'p_{T}(#mu) (GeV)', 'eta' : '#eta(#mu)'}
+	for kvar in kinvars.keys():
+	    musf_hists = [i.Get('muon_sf_vs_mu_%s' % kvar) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
+	    sum_musf_hist = sum(musf_hists)
+	    #plotter.plot(sum_musf_hist)
+	    sum_musf_hist.drawstyle='colz'
+	    sum_musf_hist.Draw()
+	    sum_musf_hist.SetXTitle(kinvars[kvar])
+	    sum_musf_hist.SetYTitle('#mu SF')
+	    plotter.save('muon_sf_vs_mu_%s' % kvar)
+	#set_trace()
+
 
 	#
 	#Flavour maps
@@ -1499,7 +1595,8 @@ if args.plots:
 				 folder, var, rebin,
 				 xaxis=axis, leftside=leftside,
 				 xrange=x_range, show_ratio=True, 
-				 ratio_range=0.5)
+				 ratio_range=1.0)
+				 #ratio_range=0.5)
 			 plotter.save(var)
 
 #

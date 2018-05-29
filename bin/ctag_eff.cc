@@ -412,7 +412,16 @@ class ctag_eff : public AnalyzerBase
 
         void book_notag_plots(string folder){
             book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
-            book<TH1F>(folder, "btag_sf", "", 50, 0.75, 1.75);
+            book<TH1F>(folder, "btag_sf", "", 50, 0.8, 1.4);
+            book<TH1F>(folder, "btag_sf_B", "", 50, 0.8, 1.4);
+            book<TH1F>(folder, "btag_sf_C", "", 50, 0.8, 1.4);
+            book<TH1F>(folder, "btag_sf_L", "", 50, 0.8, 1.4);
+            book<TH2F>(folder, "btag_sf_vs_pt_B", ";p_{T}(b) (GeV)", 100, 0., 500., 50, 0.8, 1.4);
+            book<TH2F>(folder, "btag_sf_vs_pt_C", ";p_{T}(c) (GeV)", 100, 0., 500., 50, 0.8, 1.4);
+            book<TH2F>(folder, "btag_sf_vs_pt_L", ";p_{T}(l) (GeV)", 100, 0., 500., 50, 0.8, 1.4);
+            book<TH1F>(folder, "muon_sf", "", 50, 0.9, 1.1);
+            book<TH2F>(folder, "muon_sf_vs_mu_pt", ";p_{T}(#mu) (GeV)", 500, 0., 500., 50, 0.9, 1.1);
+            book<TH2F>(folder, "muon_sf_vs_mu_eta", ";#eta(#mu) (GeV)", 300, -3., 3., 50, 0.9, 1.1);
             book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
             book<TH1F>(folder, "lep_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
             book<TH1F>(folder, "had_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
@@ -486,7 +495,10 @@ class ctag_eff : public AnalyzerBase
         void fill_notag_plots(string folder, Permutation &hyp, systematics::SysShifts shift){
             auto dir = histos_.find(folder);
             dir->second["evt_weight"].fill(evt_weight_);
-            dir->second["btag_sf"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift));
+            dir->second["btag_sf"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+            dir->second["muon_sf"].fill( muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
+            dir->second["muon_sf_vs_mu_pt"].fill( object_selector_.muon()->Pt(), muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
+            dir->second["muon_sf_vs_mu_eta"].fill( object_selector_.muon()->Eta(), muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
             dir->second["njets"    ].fill(object_selector_.clean_jets().size(), evt_weight_);
             dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt(), evt_weight_);
             dir->second["had_b_pt" ].fill(hyp.BHad()->Pt(), evt_weight_);
@@ -530,6 +542,9 @@ class ctag_eff : public AnalyzerBase
                     // dir->second["Wjets_hflavJP_jpt_L"].fill(jet->Pt(), evt_weight_);
                     // dir->second["Wjets_hflav_jpt_jeta_L"].fill(jet->Pt(), jet->Eta(), evt_weight_);
                 }
+
+                dir->second["btag_sf_"+hstr].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+                dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
 
                 dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
                 dir->second["Wjets_hflav_CvsB_"+hstr].fill(jet->CvsBtag(), evt_weight_);
@@ -808,7 +823,7 @@ class ctag_eff : public AnalyzerBase
                 if( isTTbar_ ){
                     double top_pt_weight = top_pt_reweighting("nominal");
                     evt_weight_ *= top_pt_weight;
-                    cout << "evt weight: " << evt_weight_ << endl;
+                    //cout << "evt weight: " << evt_weight_ << endl;
                 }
 
                 //Gen matching
