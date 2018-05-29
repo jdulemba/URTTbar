@@ -26,6 +26,9 @@
 <bin file="jet_perm_disc.cc"        name="jet_perm_disc"/>
 <bin file="gen_partons.cc"        name="gen_partons"/>
 <bin file="ttbar_reco_3J.cc"        name="ttbar_reco_3J"/>
+<bin file="ttbar_matched_perms.cc"        name="ttbar_matched_perms"/>
+<bin file="ttbar_bestperm_solutions.cc"        name="ttbar_bestperm_solutions"/>
+<bin file="ttbar_final_reco_3J.cc"        name="ttbar_final_reco_3J"/>
 
 <!--bin file="resolved_matched_jets.cc"        name="resolved_matched_jets"/>
 <!--bin file="permStudy.cc"        name="permStudy"/>

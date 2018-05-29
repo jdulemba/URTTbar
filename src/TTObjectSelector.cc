@@ -39,6 +39,7 @@ TTObjectSelector::TTObjectSelector(int objsel):
     parser.addCfgParameter<int>  ("jets", "applyJER", "");
     parser.addCfgParameter<float>("jets", "ptmin", "minimum pt");
     parser.addCfgParameter<float>("jets", "etamax", "maximum eta");
+    parser.addCfgParameter<float>("jets", "lead_ptmin", "minimum leading jet pt");
     
     parser.parseArguments();
 		use_trg_     = (parser.getCfgPar<int>("event", "use_trig"   ) == 1);
@@ -53,6 +54,7 @@ TTObjectSelector::TTObjectSelector(int objsel):
     Logger::log().debug() << "Running JER: " << apply_jer_ << std::endl;
     cut_jet_ptmin_ = parser.getCfgPar<float>("jets", "ptmin" );
     cut_jet_etamax_ = parser.getCfgPar<float>("jets", "etamax");  
+    cut_leadjet_ptmin_ = parser.getCfgPar<float>("jets", "lead_ptmin" );
 }
 
 void TTObjectSelector::reset() {
@@ -127,6 +129,19 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 		sel_jets_.push_back(jet);
 		clean_jets_.push_back(&(sel_jets_.back()));
 	}
+
+    //// added for cut on leading jet pt
+    if( clean_jets_.size() != 0 ){
+        vector<IDJet*> jets_vector;
+        for( auto jet : clean_jets_ ){
+            jets_vector.push_back(jet);
+        }
+        sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->Pt() > B->Pt() ); });
+
+        if( jets_vector[0]->Pt() < cut_leadjet_ptmin_ ) clean_jets_.clear();
+    }
+    ////
+
   if( clean_jets_.size() ==0) return false;
 
 	//SET MET

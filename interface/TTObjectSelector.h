@@ -134,7 +134,7 @@ private:
   int objsel_=0;
 	int pass_lepton_ = 0;
 
-  float cut_jet_ptmin_, cut_jet_etamax_;
+  float cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_;
   size_t cut_nminjets_;
 	int cut_nmaxjets_;
 	float cut_mt_;

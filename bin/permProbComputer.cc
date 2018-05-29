@@ -45,7 +45,7 @@ class permProbComputer : public AnalyzerBase
         map<systematics::SysShifts, map<TTNaming, map<string, RObject> > > histos_;
         //map<string, map<TTNaming_3J, map<string, RObject> > > histos_3J_;
         unordered_map<string, map< string, RObject> > histos2_;
-
+        //map<string, map< string, RObject> > histos_3J_;
 
         //switches
         bool isTTbar_, skew_tt_distro_=false;
@@ -144,6 +144,148 @@ class permProbComputer : public AnalyzerBase
         {
             getDir(folder)->cd();
             histos2_[folder][name] = RObject::book<H>(name.c_str(), args ...);
+            //histos_3J_[folder][name] = RObject::book<H>(name.c_str(), args ...);
+        }
+
+
+
+        //// book and fill merged/lost event plots
+        void book_3J_event_plots( string folder ){
+            book<TH2D>(folder , "mbpjet_vs_maxmjet", "M(b+j) [GeV]; max M(jet) [GeV]", 100, 0., 200., 200, 0., 2000.); // hist for m_{b+jet} vs max m_{jet}
+            book<TH1F>(folder, "mbpjet", "# Events; M(b+j) [GeV]", 300, 0., 600.); // hist for m_{b+jet} vs max m_{jet}
+            book<TH1F>(folder, "nusolver_chi2", "# Events; #chi^{2}", 1000, 0., 1000.); // ns chi2 val hist 
+            book<TH1F>(folder, "nusolver_dist", "# Events; D_{#nu}", 140, 0., 140.); // ns distance val hist
+        }
+        void fill_merged_3J_event_plots( string folder, Permutation &mp_3J ){
+            auto correct_dir = histos2_.find(folder+"/Correct_Plots");
+            auto wrong_dir = histos2_.find(folder+"/Wrong_Plots");
+
+            
+            // wrong perm
+            if( mp_3J.Merged_BHadBLep() ){ // only bhad and blep merged
+                solver_.Solve_3J_Merged(mp_3J);
+
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/ wja
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M() );// compare merged w/ wjb
+                wrong_dir->second["nusolver_chi2"].fill(mp_3J.NuChisq());
+                wrong_dir->second["nusolver_dist"].fill( pow(mp_3J.NuChisq(), 0.5) );
+            }
+
+            // only blep merged with wja or wjb -WRONG PERM
+            if( mp_3J.Merged_BLepWJa() || mp_3J.Merged_BLepWJb() ){
+                IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BLep() ? mp_3J.WJa() : mp_3J.WJb();
+
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared bhad w diff_wjet
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compare merged blep w/ diff_wjet
+
+                for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), mp_3J.L(), mp_3J.MET(), mp_3J.LepCharge()) ){
+                    solver_.Solve_3J_Merged(tp);
+
+                    wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
+                    wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                }
+            }
+
+            /// fill Nu Solver plots for events that have one correct and one wrong perm combination
+            if( mp_3J.Merged_BHadWJa() || mp_3J.Merged_BHadWJb() || mp_3J.Merged_WJets() ){
+                int i = 0;
+                for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), mp_3J.L(), mp_3J.MET(), mp_3J.LepCharge()) ){
+                    solver_.Solve_3J_Merged(tp);
+
+                    if( i == 0 ){// correct perm (uses matched perm blep)
+                        correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
+                        correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                    }
+                    if( i == 1 ){// wrong perm
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                    }
+
+                    i++;
+                }
+            }
+
+            // only bhad merged with wja or wjb
+            if( mp_3J.Merged_BHadWJa() || mp_3J.Merged_BHadWJb() ){
+                IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BHad() ? mp_3J.WJa() : mp_3J.WJb();
+
+                // correct perm
+                correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared merged w/ diff_wjet
+
+                // wrong perm
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compared blep w/ diff_wjet
+            }
+
+            if( mp_3J.Merged_WJets() ){ // only wja and wjb merged
+                // correct perm
+                correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/bhad 
+
+                // wrong perm
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.WJa()->M() > mp_3J.BLep()->M() ? mp_3J.WJa()->M() : mp_3J.BLep()->M(), (*mp_3J.WJa()+*mp_3J.BLep()).M() );// compared merged w/ blep
+
+            }
+        }// end of merged events
+
+
+        void fill_lost_3J_event_plots( string folder, Permutation &mp_3J ){
+            auto correct_dir = histos2_.find(folder+"/Correct_Plots");
+            auto wrong_dir = histos2_.find(folder+"/Wrong_Plots");
+
+            if( !mp_3J.BLep() || !mp_3J.BHad() ){ // missing bhad or blep
+                IDJet* bjet = mp_3J.BHad() > 0 ? mp_3J.BHad() : mp_3J.BLep(); // find out which bjet exists
+                if( !bjet || !mp_3J.WJa() || !mp_3J.WJb() ){
+                    Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
+                    throw 42;}
+
+                wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJa()).M() );
+                wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJb()).M() );
+
+                int i = 0;
+                for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), mp_3J.L(), mp_3J.MET(), mp_3J.LepCharge()) ){
+
+                    if( i == 0 && mp_3J.BLep() ){
+                        solver_.Solve_3J_Lost(tp);
+
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                    }
+                    if( i == 1 && mp_3J.BHad() ){// wrong perm
+                        solver_.Solve_3J_Lost(tp);
+
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                    }
+                    i++;
+                }
+            }
+
+            if( !mp_3J.WJa() || !mp_3J.WJb() ){ // wja or wjb missing
+                IDJet* wjet = mp_3J.WJa() > 0 ? mp_3J.WJa() : mp_3J.WJb(); // find out which wjet exists
+                if( !mp_3J.BLep() || !mp_3J.BHad() || !wjet ){
+                    Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
+                    throw 42;}
+
+                // wrong perm
+                wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*wjet).M() );
+
+                // correct perm
+                correct_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*wjet).M() );
+
+                int i = 0;
+                for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), mp_3J.L(), mp_3J.MET(), mp_3J.LepCharge()) ){
+                    solver_.Solve_3J_Lost(tp);
+
+                    if( i == 0 ){// correct perm
+                        correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
+                        correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                    }
+                    if( i == 1 ){// wrong perm
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                    }
+                    i++;
+                }
+            }
         }
 
 
@@ -182,21 +324,6 @@ class permProbComputer : public AnalyzerBase
                 }
             }
 
-            //// hists for 3 jet events
-            //vector<TTNaming_3J> evt_types_3J = {Correct, Wrong};
-            //for( auto evt_type_3J : evt_types_3J ){
-            //    TDirectory* dir_type_3J = outFile_.mkdir(dir_names_3J_[evt_type_3J].c_str());
-            //    dir_type_3J->cd();
-
-            //    for( auto top_3J : topologies_3J_ ){
-            //        TDirectory* dir_top_3J = dir_type_3J->mkdir(top_3J.c_str());
-            //        dir_top_3J->cd();
-
-            //        histos_3J_[top_3J][evt_type_3J]["3J_nusolver_chi2"] = RObject::book<TH1F>("3J_nusolver_chi2", "", 1000, 0., 1000.); // ns chi2 val hist for correct perms
-            //        //histos_3J_[top_3J][evt_type_3J]["3J_nusolver_chi2_correct"] = RObject::book<TH1D>("3J_nusolver_chi2_correct", "Correct #chi^{2};# Events", 1000, 0., 1000.); // ns chi2 val hist for correct perms
-            //    }           
-            //}
-            
 
             opts::variables_map &values = URParser::instance().values();
             string output_file = values["output"].as<std::string>();
@@ -228,44 +355,18 @@ class permProbComputer : public AnalyzerBase
 
 
             // discrimiant distributions for 3 jet events
-            string all_3J = "3J";
-            book<TH1F>(all_3J, "Mttbar", "", nbins, mass_min, mass_max);
+            string dirname = "3J";
+            vector<string> evt_types_3J = {"MERGED", "LOST"};
+            vector<string> evt_classes_3J = {"Correct_Plots", "Wrong_Plots"};
+            for( auto evt_type_3J : evt_types_3J ){
+                for( auto evt_class : evt_classes_3J ){
+                    book_3J_event_plots(dirname+"/"+evt_type_3J+"/"+evt_class);
+                    //cout << "Test_3J/" << evt_type_3J << "/" << evt_class << endl;
+                }           
+            }
+            
+            book<TH1F>(dirname, "Mttbar", "", nbins, mass_min, mass_max);
 
-                // MERGED jet events
-            string merge_3J_right = "3J/MERGED/Correct_Plots";
-            string merge_3J_wrong = "3J/MERGED/Wrong_Plots";
-
-                        // mass dists
-            book<TH2D>(merge_3J_right, "mbpjet_vs_maxmjet", "M(b+j) [GeV]; Correct max M(jet) [GeV]", 100, 0., 200., 200, 0., 2000.); // hist for m_{b+jet} vs max m_{jet}
-            book<TH2D>(merge_3J_wrong, "mbpjet_vs_maxmjet", "M(b+j) [GeV]; Wrong max M(jet) [GeV]", 100, 0., 200., 200, 0., 2000.); // hist for m_{b+jet} vs max m_{jet}
-                //not filled, just present for making likelihood dists
-            book<TH1F>(merge_3J_right, "mbpjet", "# Events; Correct  M(b+j) [GeV]", 300, 0., 600.); // hist for m_{b+jet} vs max m_{jet}
-            book<TH1F>(merge_3J_wrong, "mbpjet", "# Events; Wrong M(b+j) [GeV]", 300, 0., 600.); // hist for m_{b+jet} vs max m_{jet}
-
-                        // Neutrino Solver distributions
-            book<TH1F>(merge_3J_right, "nusolver_chi2", "# Events; Correct #chi^{2}", 1000, 0., 1000.); // ns chi2 val hist for correct perms
-            book<TH1F>(merge_3J_wrong, "nusolver_chi2", "# Events; Wrong #chi^{2}", 1000, 0., 1000.); // ns chi2 val hist for wrong perms
-
-            book<TH1F>(merge_3J_right, "nusolver_dist", "# Events; Correct D_{#nu}", 140, 0., 140.); // ns distance val hist for correct perms
-            book<TH1F>(merge_3J_wrong, "nusolver_dist", "# Events; Wrong D_{#nu}", 140, 0., 140.); // ns distance val hist for wrong perms
-
-                // LOST jet events
-            string lost_3J_right = "3J/LOST/Correct_Plots";
-            string lost_3J_wrong = "3J/LOST/Wrong_Plots";
-
-                        // mass dists
-            book<TH1F>(lost_3J_right, "mbpjet", "# Events; Correct  M(b+j) [GeV]", 300, 0., 600.); // hist for m_{b+jet} vs max m_{jet}
-            book<TH1F>(lost_3J_wrong, "mbpjet", "# Events; Wrong M(b+j) [GeV]", 300, 0., 600.); // hist for m_{b+jet} vs max m_{jet}
-                //not filled, just present for making likelihood dists
-            book<TH2D>(lost_3J_right, "mbpjet_vs_maxmjet", "M(b+j) [GeV]; Correct max M(jet) [GeV]", 100, 0., 200., 200, 0., 2000.); // hist for m_{b+jet} vs max m_{jet}
-            book<TH2D>(lost_3J_wrong, "mbpjet_vs_maxmjet", "M(b+j) [GeV]; Wrong max M(jet) [GeV]", 100, 0., 200., 200, 0., 2000.); // hist for m_{b+jet} vs max m_{jet}
-
-            // Neutrino Solver distributions
-            book<TH1F>(lost_3J_right, "nusolver_chi2", "# Events; Correct #chi^{2}", 1000, 0., 1000.); // ns chi2 val hist for correct perms
-            book<TH1F>(lost_3J_wrong, "nusolver_chi2", "# Events; Wrong #chi^{2}", 1000, 0., 1000.); // ns chi2 val hist for wrong perms
-
-            book<TH1F>(lost_3J_right, "nusolver_dist", "# Events; Correct D_{#nu}", 140, 0., 140.); // ns distance val hist for correct perms
-            book<TH1F>(lost_3J_wrong, "nusolver_dist", "# Events; Wrong D_{#nu}", 140, 0., 140.); // ns distance val hist for wrong perms
 
         } // end of begin
 
@@ -372,11 +473,7 @@ class permProbComputer : public AnalyzerBase
         // process 3 jet events
         void process_3J_evt( URStreamer &event){
 
-            auto merged_correct_dir = histos2_.find("3J/MERGED/Correct_Plots");
-            auto merged_wrong_dir = histos2_.find("3J/MERGED/Wrong_Plots");
-            auto lost_correct_dir = histos2_.find("3J/LOST/Correct_Plots");
-            auto lost_wrong_dir = histos2_.find("3J/LOST/Wrong_Plots");
-            auto all_3J_dir = histos2_.find("3J");
+            auto dir_3J = histos2_.find("3J");
 
             permutator_.reset_3J();
             //generator selection
@@ -389,7 +486,7 @@ class permProbComputer : public AnalyzerBase
             GenTTBar &ttbar = genp_selector_.ttbar_system();
 
             //if( ttbar.M() > 700 ) return;
-            all_3J_dir->second["Mttbar"].fill(ttbar.M());
+            dir_3J->second["Mttbar"].fill(ttbar.M());
 
             //select reco objects
             if( !object_selector_.select(event) ) return;
@@ -400,6 +497,7 @@ class permProbComputer : public AnalyzerBase
             vector<IDJet*> jets_vector;
             for( auto jet : object_selector_.clean_jets() ){
                 jets_vector.push_back(jet);
+                //cout << "jet pT: " << jet->Pt() << endl;
             }
             sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
             if( !jets_vector[1]->BTagId(IDJet::BTag::CSVMEDIUM) ) return; // require at least 2 jets that pass btag
@@ -420,132 +518,11 @@ class permProbComputer : public AnalyzerBase
             if( mp_3J.unique_matches() < 3 ) return;
 
             if( mp_3J.Merged_Event() ){ // 2 partons matched to same jet => merged event (4 perm objects have matches)
-
-                // wrong perm
-                if( mp_3J.Merged_BHadBLep() ){ // only bhad and blep merged
-                    solver_.Solve_3J_Merged(mp_3J);
-
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/ wja
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M() );// compare merged w/ wjb
-                    merged_wrong_dir->second["nusolver_chi2"].fill(mp_3J.NuChisq());
-                    merged_wrong_dir->second["nusolver_dist"].fill( pow(mp_3J.NuChisq(), 0.5) );
-                }
-
-                if( mp_3J.Merged_BLepWJa() || mp_3J.Merged_BLepWJb() || mp_3J.Merged_BHadWJa() || mp_3J.Merged_BHadWJb() || mp_3J.Merged_WJets() ){
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J_Merged(tp);
-
-                        if( i == 0 ){// correct perm (uses matched perm blep)
-                            merged_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        if( i == 1 ){// wrong perm
-                            merged_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            merged_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-
-                        i++;
-                    }
-                }
-
-                // only blep merged with wja or wjb
-                if( mp_3J.Merged_BLepWJa() || mp_3J.Merged_BLepWJb() ){
-                    IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BLep() ? mp_3J.WJa() : mp_3J.WJb();
-
-                    // correct perm
-                    merged_correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared bhad w diff_wjet
-
-                    // wrong perm
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compare merged blep w/ diff_wjet
-                }
-
-                // only bhad merged with wja or wjb
-                if( mp_3J.Merged_BHadWJa() || mp_3J.Merged_BHadWJb() ){
-                    IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BHad() ? mp_3J.WJa() : mp_3J.WJb();
-
-                    // correct perm
-                    merged_correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared merged w/ diff_wjet
-
-                    // wrong perm
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compared blep w/ diff_wjet
-                }
-
-                if( mp_3J.Merged_WJets() ){ // only wja and wjb merged
-                    // correct perm
-                    merged_correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/bhad 
-
-                    // wrong perm
-                    merged_wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.WJa()->M() > mp_3J.BLep()->M() ? mp_3J.WJa()->M() : mp_3J.BLep()->M(), (*mp_3J.WJa()+*mp_3J.BLep()).M() );// compared merged w/ blep
-
-                }
+                fill_merged_3J_event_plots( "3J/MERGED", mp_3J );
             }// end of merged events
             
             else{// only three perm objects have matches => lost jet
-                if( !mp_3J.BLep() || !mp_3J.BHad() ){ // missing bhad or blep
-                    IDJet* bjet = mp_3J.BHad() > 0 ? mp_3J.BHad() : mp_3J.BLep(); // find out which bjet exists
-                    if( !bjet || !mp_3J.WJa() || !mp_3J.WJb() ){
-                        Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
-                        throw 42;}
-
-                    if( mp_3J.BHad() ){// correct perm
-                        lost_correct_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJa()).M() );
-                        lost_correct_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJb()).M() );
-                    }
-                    if( mp_3J.BLep() ){// wrong perm
-                        lost_wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJa()).M() );
-                        lost_wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJb()).M() );
-                    }
-
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.WJa()+*mp_3J.WJb()).M() );
-
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-
-                        if( i == 0 && mp_3J.BLep() ){// correct perm
-                            solver_.Solve_3J_Lost(tp);
-
-                            lost_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            lost_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        if( i == 1 && mp_3J.BHad() ){// wrong perm
-                            solver_.Solve_3J_Lost(tp);
-
-                            lost_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            lost_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        i++;
-                    }
-                }
-
-                if( !mp_3J.WJa() || !mp_3J.WJb() ){ // wja or wjb missing
-                    IDJet* wjet = mp_3J.WJa() > 0 ? mp_3J.WJa() : mp_3J.WJb(); // find out which wjet exists
-                    if( !mp_3J.BLep() || !mp_3J.BHad() || !wjet ){
-                        Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
-                        throw 42;}
-
-                    // wrong perm
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*mp_3J.BHad()).M() );
-                    lost_wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*wjet).M() );
-
-                    // correct perm
-                    lost_correct_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*wjet).M() );
-
-                    int i = 0;
-                    for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                        solver_.Solve_3J_Lost(tp);
-
-                        if( i == 0 ){// correct perm
-                            lost_correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            lost_correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        if( i == 1 ){// wrong perm
-                            lost_wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                            lost_wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
-                        }
-                        i++;
-                    }
-                }
+                fill_lost_3J_event_plots( "3J/LOST", mp_3J );
             }// end of lost jet events
         }// end of process_3J_evt
    
@@ -563,7 +540,7 @@ class permProbComputer : public AnalyzerBase
             int skip  = values["skip"].as<int>();
             int report = values["report"].as<int>();
             Logger::log().debug() << "-- DONE -- reporting every -- " << report << endl;
-            while(event.next()) {
+            while(event.next() /*&& evt_idx < 50000*/ ) {
                 if(limit > 0 && evt_idx > limit) {
                     return;
                 }

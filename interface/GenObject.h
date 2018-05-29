@@ -162,6 +162,16 @@ class GenTTBar: public TLorentzVector {
             return(true);
         }
 
+        bool two_partons_in_acceptance(double pt, double eta) { // check if only 2 partons fall w/in pt and eta acceptance
+            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+            return(false);
+        }
+
         bool three_partons_in_acceptance(double pt, double eta) { // check if only 3 partons fall w/in pt and eta acceptance
             if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
             if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
