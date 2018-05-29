@@ -1108,67 +1108,66 @@ class CTagPlotter(Plotter):
 		self.add_legend([h_nnpdf, h_ct10, h_mmht], False)
 
 
-	#def draw_flavor_shapes(self, dirname, basename, leftleg, preselection):
-	#	set_trace()
-	#	if preselection:
-	#		mc_default = self.mc_samples
-	#		#self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
-	#		self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
-	#		#self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
-	#		##self.mc_samples = ['[WZ]Jets*', 'Z[1-3]Jets', 'single*', 'ttJets_preselection']
-	#	mc_views = plotter.mc_views(folder=dirname)	
-	#	if preselection: self.mc_samples = mc_default
+	def draw_flavor_shapes(self, dirname, basename, leftleg, preselection):
+		if preselection:
+			mc_default = self.mc_samples
+			#self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
+			self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
+			#self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
+			##self.mc_samples = ['[WZ]Jets*', 'Z[1-3]Jets', 'single*', 'ttJets_preselection']
+		mc_views = plotter.mc_views(folder=dirname)	
+		if preselection: self.mc_samples = mc_default
 
-	#	b_hists = [i.Get('%s_B' % basename) for i in mc_views]
-	#	c_hists = [i.Get('%s_C' % basename) for i in mc_views]
-	#	l_hists = [i.Get('%s_L' % basename) for i in mc_views]
-	#	
-	#	hb = sum(b_hists)
-	#	hl = sum(l_hists)
-	#	hc = sum(c_hists)
-	#	
-	#	if not hasattr(self, 'flav_styles'):
-	#		self.flav_styles = {
-	#			#'b' : {'fillcolor' : '#0055ff', 'linecolor' : '#0055ff'},
-	#			'b' : {'fillcolor' : 'r', 'linecolor' : 'k', 'markercolor' : 'k'},
-	#			#'c' : {'fillcolor' : '#9999CC', 'linecolor' : '#9999CC'},
-	#			'c' : {'fillcolor' : '#008900', 'linecolor' : 'k', 'markercolor' : 'k'},
-	#			#'l' : {'fillcolor' : '#ab5555', 'linecolor' : '#ab5555'},
-	#			'l' : {'fillcolor' : 'b', 'linecolor' : 'k', 'markercolor' : 'k'},
-	#			#'s' : {'fillcolor' : '#FFCC66', 'linecolor' : '#FFCC66'}
-	#			's' : {'fillcolor' : '#FFCC66', 'linecolor' : 'k', 'markercolor' : 'k'}
-	#			}
-	#	hb.decorate(**self.flav_styles['b']) 
-	#	hb.title = 'b-jets'
-	#	hl.decorate(**self.flav_styles['l'])
-	#	hl.title = 'l-jets'
-	#	hc.decorate(**self.flav_styles['c'])
-	#	hc.title = 'c-jets'
-	#	stack = plotter.create_stack(hb, hl, hc, sort=False)
-	#	#print dirname+'%s_%s' % (basename, disc.replace('hflav_','').replace('pflav_',''))
-	#	data = plotter.get_view('data').Get(dirname+'%s_%s' % (basename, disc.replace('hflav_','').replace('pflav_','')))
-	#	#set_trace()
-	#	##plotter.overlay([stack, data], xtitle=disc.replace('hflav_','')+ ' (%s)' % basename, ytitle='events')
-	#	plotter.overlay_and_compare(
-    #        [stack], data, 
-    #        method='datamc',
-    #        ignore_style=False,
-    #        lower_y_range=0.5,
-    #        xtitle=disc.replace('hflav_','')+ ' (%s)' % basename,
-    #        ytitle='events',
-    #        #ytitle='data/MC',
-    #        )
-	#	self.canvas.Update()
-	#	self.pad.cd()
-	#	plotter.add_legend([stack, data], leftleg, 5)
-	#	plotter.save('%s_%s_flavour' % (basename, disc))
-	#	
-	#	hb.Scale(1/hb.Integral() if hb.Integral() else 0.)
-	#	hl.Scale(1/hl.Integral() if hl.Integral() else 0.)
-	#	hc.Scale(1/hc.Integral() if hc.Integral() else 0.)
-	#	plotter.overlay([hb,hl,hc], fillstyle='hollow', linewidth=3, xtitle=disc.replace('hflav_','')+ ' (%s)' % basename, ytitle='Events')
-	#	plotter.add_legend([hb,hl,hc], leftleg, 4)
-	#	plotter.save('%s_%s_norm' % (basename, disc))
+		b_hists = [i.Get('%s_B' % basename) for i in mc_views]
+		c_hists = [i.Get('%s_C' % basename) for i in mc_views]
+		l_hists = [i.Get('%s_L' % basename) for i in mc_views]
+		
+		hb = sum(b_hists)
+		hl = sum(l_hists)
+		hc = sum(c_hists)
+		
+		if not hasattr(self, 'flav_styles'):
+			self.flav_styles = {
+				#'b' : {'fillcolor' : '#0055ff', 'linecolor' : '#0055ff'},
+				'b' : {'fillcolor' : 'r', 'linecolor' : 'k', 'markercolor' : 'k'},
+				#'c' : {'fillcolor' : '#9999CC', 'linecolor' : '#9999CC'},
+				'c' : {'fillcolor' : '#008900', 'linecolor' : 'k', 'markercolor' : 'k'},
+				#'l' : {'fillcolor' : '#ab5555', 'linecolor' : '#ab5555'},
+				'l' : {'fillcolor' : 'b', 'linecolor' : 'k', 'markercolor' : 'k'},
+				#'s' : {'fillcolor' : '#FFCC66', 'linecolor' : '#FFCC66'}
+				's' : {'fillcolor' : '#FFCC66', 'linecolor' : 'k', 'markercolor' : 'k'}
+				}
+		hb.decorate(**self.flav_styles['b']) 
+		hb.title = 'b-jets'
+		hl.decorate(**self.flav_styles['l'])
+		hl.title = 'l-jets'
+		hc.decorate(**self.flav_styles['c'])
+		hc.title = 'c-jets'
+		stack = plotter.create_stack(hb, hl, hc, sort=False)
+		#data = plotter.get_view('data').Get(dirname+'%s_' % basename)
+		data = sum([ plotter.get_view('data').Get(dirname+'%s_%s' % (basename, quark)) for quark in ['B', 'C', 'L'] ])
+		plotter.overlay_and_compare(
+            [stack], data, 
+            method='datamc',
+            ignore_style=False,
+            lower_y_range=0.5,
+            xtitle='b-tag SF',
+            ytitle='events',
+            #ytitle='data/MC',
+            )
+		self.canvas.Update()
+		self.pad.cd()
+		plotter.add_legend([stack, data], leftleg, 5)
+		plotter.save('%s_flavours' % basename)
+		
+		#hb.Scale(1/hb.Integral() if hb.Integral() else 0.)
+		#hl.Scale(1/hl.Integral() if hl.Integral() else 0.)
+		#hc.Scale(1/hc.Integral() if hc.Integral() else 0.)
+		#plotter.overlay([hb,hl,hc], fillstyle='hollow', linewidth=3, linecolor=fillcolor, xtitle='b-tag SF', ytitle='Events')
+		##plotter.overlay([hb,hl,hc], fillstyle='hollow', linewidth=3, xtitle='b-tag SF', ytitle='Events')
+		#plotter.add_legend([hb,hl,hc], leftleg, 4)
+		#plotter.save('%s_norm' % basename)
+		#set_trace()
 
 
 	def draw_cvsl_shapes(self, dirname, basename, disc, leftleg, preselection):
@@ -1475,7 +1474,7 @@ if args.plots:
 	##
 	## Special plot
 	##
-	#plotter.draw_flavor_shapes('nosys/mass_discriminant/notag/both_untagged/', 'btag_sf_vs_pt', False, False) 
+	plotter.draw_flavor_shapes('nosys/mass_discriminant/notag/both_untagged/', 'btag_sf', False, False) 
 	#plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsL', False, False) 
 	#plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsB', False, False) 
 	##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVCvsL', False, False) 
