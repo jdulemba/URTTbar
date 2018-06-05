@@ -412,16 +412,41 @@ class ctag_eff : public AnalyzerBase
 
         void book_notag_plots(string folder){
             book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
-            book<TH1F>(folder, "btag_sf", "", 50, 0.8, 1.4);
-            book<TH1F>(folder, "btag_sf_B", "", 50, 0.8, 1.4);
-            book<TH1F>(folder, "btag_sf_C", "", 50, 0.8, 1.4);
-            book<TH1F>(folder, "btag_sf_L", "", 50, 0.8, 1.4);
-            book<TH2F>(folder, "btag_sf_vs_pt_B", ";p_{T}(b) (GeV)", 100, 0., 500., 50, 0.8, 1.4);
-            book<TH2F>(folder, "btag_sf_vs_pt_C", ";p_{T}(c) (GeV)", 100, 0., 500., 50, 0.8, 1.4);
-            book<TH2F>(folder, "btag_sf_vs_pt_L", ";p_{T}(l) (GeV)", 100, 0., 500., 50, 0.8, 1.4);
+
+                // btag sf
+            book<TH1F>(folder, "btag_sf", "", 50, 0.6, 1.2);
+            book<TH1F>(folder, "btag_sf_B", "", 50, 0.6, 1.2);
+            book<TH1F>(folder, "btag_sf_C", "", 50, 0.6, 1.2);
+            book<TH1F>(folder, "btag_sf_L", "", 50, 0.6, 1.2);
+            book<TH2F>(folder, "btag_sf_vs_pt_B", ";p_{T}(b) (GeV)", 100, 0., 500., 50, 0.6, 1.2);
+            book<TH2F>(folder, "btag_sf_vs_pt_C", ";p_{T}(c) (GeV)", 100, 0., 500., 50, 0.6, 1.2);
+            book<TH2F>(folder, "btag_sf_vs_pt_L", ";p_{T}(l) (GeV)", 100, 0., 500., 50, 0.6, 1.2);
+                // btag sf up
+            book<TH1F>(folder, "btag_sf_up", "", 50, 0.6, 1.4);
+            book<TH1F>(folder, "btag_sf_B_up", "", 50, 0.6, 1.4);
+            book<TH1F>(folder, "btag_sf_C_up", "", 50, 0.6, 1.4);
+            book<TH1F>(folder, "btag_sf_L_up", "", 50, 0.6, 1.4);
+            book<TH2F>(folder, "btag_sf_vs_pt_B_up", ";p_{T}(b) (GeV)", 100, 0., 500., 50, 0.6, 1.4);
+            book<TH2F>(folder, "btag_sf_vs_pt_C_up", ";p_{T}(c) (GeV)", 100, 0., 500., 50, 0.6, 1.4);
+            book<TH2F>(folder, "btag_sf_vs_pt_L_up", ";p_{T}(l) (GeV)", 100, 0., 500., 50, 0.6, 1.4);
+                // btag sf dw
+            book<TH1F>(folder, "btag_sf_dw", "", 50, 0.6, 1.2);
+            book<TH1F>(folder, "btag_sf_B_dw", "", 50, 0.6, 1.2);
+            book<TH1F>(folder, "btag_sf_C_dw", "", 50, 0.6, 1.2);
+            book<TH1F>(folder, "btag_sf_L_dw", "", 50, 0.6, 1.2);
+            book<TH2F>(folder, "btag_sf_vs_pt_B_dw", ";p_{T}(b) (GeV)", 100, 0., 500., 50, 0.6, 1.2);
+            book<TH2F>(folder, "btag_sf_vs_pt_C_dw", ";p_{T}(c) (GeV)", 100, 0., 500., 50, 0.6, 1.2);
+            book<TH2F>(folder, "btag_sf_vs_pt_L_dw", ";p_{T}(l) (GeV)", 100, 0., 500., 50, 0.6, 1.2);
+
+                // muon sf
             book<TH1F>(folder, "muon_sf", "", 50, 0.9, 1.1);
             book<TH2F>(folder, "muon_sf_vs_mu_pt", ";p_{T}(#mu) (GeV)", 500, 0., 500., 50, 0.9, 1.1);
+            book<TH2F>(folder, "muon_sf_vs_mu_pt_etaL0p9", ";p_{T}(#mu) (GeV)", 500, 0., 500., 50, 0.9, 1.1);
+            book<TH2F>(folder, "muon_sf_vs_mu_pt_0p9eta1p2", ";p_{T}(#mu) (GeV)", 500, 0., 500., 50, 0.9, 1.1);
+            book<TH2F>(folder, "muon_sf_vs_mu_pt_1p2eta2p1", ";p_{T}(#mu) (GeV)", 500, 0., 500., 50, 0.9, 1.1);
+            book<TH2F>(folder, "muon_sf_vs_mu_pt_etaG2p1", ";p_{T}(#mu) (GeV)", 500, 0., 500., 50, 0.9, 1.1);
             book<TH2F>(folder, "muon_sf_vs_mu_eta", ";#eta(#mu) (GeV)", 300, -3., 3., 50, 0.9, 1.1);
+
             book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
             book<TH1F>(folder, "lep_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
             book<TH1F>(folder, "had_b_pt" , ";p_{T}(b) (GeV)", 100, 0., 500.);
@@ -495,10 +520,53 @@ class ctag_eff : public AnalyzerBase
         void fill_notag_plots(string folder, Permutation &hyp, systematics::SysShifts shift){
             auto dir = histos_.find(folder);
             dir->second["evt_weight"].fill(evt_weight_);
-            dir->second["btag_sf"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+                // muon sf
             dir->second["muon_sf"].fill( muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
             dir->second["muon_sf_vs_mu_pt"].fill( object_selector_.muon()->Pt(), muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
             dir->second["muon_sf_vs_mu_eta"].fill( object_selector_.muon()->Eta(), muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
+
+            string mueta_range;
+            if( abs(object_selector_.muon()->Eta()) < 0.9 ){
+                mueta_range = "etaL0p9";
+            }
+            else if( abs(object_selector_.muon()->Eta()) >= 0.9 && abs(object_selector_.muon()->Eta()) < 1.2 ){
+                mueta_range = "0p9eta1p2";
+            }
+            else if( abs(object_selector_.muon()->Eta()) >= 1.2 && abs(object_selector_.muon()->Eta()) < 2.1 ){
+                mueta_range = "1p2eta2p1";
+            }
+            else{
+                mueta_range = "etaG2p1";
+            }
+            dir->second["muon_sf_vs_mu_pt_"+mueta_range].fill( object_selector_.muon()->Pt(), muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
+
+                // btag sf
+            dir->second["btag_sf"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+            dir->second["btag_sf_up"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
+            dir->second["btag_sf_dw"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
+            for(IDJet* jet : {hyp.BHad(), hyp.BLep(), hyp.WJa(), hyp.WJb()}){
+                int hflav = fabs(jet->hadronFlavour());
+                //int pflav = fabs(jet->partonFlavour());
+                string hstr;
+                if(hflav == 5) hstr="B";
+                else if(hflav == 4) {
+                    hstr="C";
+                }
+                else {
+                    hstr="L"; 
+                }
+                dir->second["btag_sf_"+hstr].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+                dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+
+                dir->second["btag_sf_"+hstr+"_up"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
+                dir->second["btag_sf_vs_pt_"+hstr+"_up"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
+
+                dir->second["btag_sf_"+hstr+"_dw"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
+                dir->second["btag_sf_vs_pt_"+hstr+"_dw"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
+
+            }
+
+
             dir->second["njets"    ].fill(object_selector_.clean_jets().size(), evt_weight_);
             dir->second["lep_b_pt" ].fill(hyp.BLep()->Pt(), evt_weight_);
             dir->second["had_b_pt" ].fill(hyp.BHad()->Pt(), evt_weight_);
