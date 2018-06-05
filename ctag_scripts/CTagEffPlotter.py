@@ -1489,34 +1489,66 @@ if args.plots:
 	##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjb', 'hflav_CvsL', False, False) 
 	##plotter.draw_cvsl_shapes('nosys/preselection/', 'jets', 'hflav_CvsL', False, True) 
 
-	#
-	#btag SFs
-	#
-	flavors = ['B', 'C', 'L']
-	for flavor in flavors:
-	    btag_hists = [i.Get('btag_sf_vs_pt_%s' % flavor) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
-	    sum_btag_hist = sum(btag_hists)
-	    #plotter.plot(sum_btag_hist)
-	    sum_btag_hist.drawstyle='colz'
-	    sum_btag_hist.Draw()
-	    sum_btag_hist.SetXTitle('p_{T}(%s quarks) (GeV)' % flavor)
-	    sum_btag_hist.SetYTitle('b-tag SF')
-	    plotter.save('btag_sf_vs_pt_%s' % flavor)
-	    #set_trace()
 
-	#muon SFs
-	#
-	kinvars = {'pt' : 'p_{T}(#mu) (GeV)', 'eta' : '#eta(#mu)'}
-	for kvar in kinvars.keys():
-	    musf_hists = [i.Get('muon_sf_vs_mu_%s' % kvar) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
-	    sum_musf_hist = sum(musf_hists)
-	    #plotter.plot(sum_musf_hist)
-	    sum_musf_hist.drawstyle='colz'
-	    sum_musf_hist.Draw()
-	    sum_musf_hist.SetXTitle(kinvars[kvar])
-	    sum_musf_hist.SetYTitle('#mu SF')
-	    plotter.save('muon_sf_vs_mu_%s' % kvar)
-	#set_trace()
+	def write_btag_muon_sf_hists():
+		comparison_hists = []
+        #
+        #btag SFs
+        #
+		flavors = ['B','B_dw', 'B_up', 'C', 'C_dw', 'C_up', 'L', 'L_dw', 'L_up']
+		for flavor in flavors:
+			btag_hists = [i.Get('btag_sf_vs_pt_%s' % flavor) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
+			#set_trace()
+			sum_btag_hist = sum(btag_hists)
+			sum_btag_hist.drawstyle='colz'
+			sum_btag_hist.Draw()
+			sum_btag_hist.SetXTitle('p_{T}(%s quarks) (GeV)' % flavor)
+			sum_btag_hist.SetYTitle('b-tag SF')
+			sum_btag_hist.name = 'btag_sf_vs_pt_%s' % flavor
+			plotter.save('btag_sf_vs_pt_%s' % flavor)
+			comparison_hists.append(sum_btag_hist)
+			
+		for flavor in flavors:
+			btag_hists = [i.Get('btag_sf_%s' % flavor) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
+			sum_btag_hist = sum(btag_hists)
+			sum_btag_hist.Draw()
+			sum_btag_hist.SetXTitle('b-tag SF (%s quarks)' % flavor)
+			sum_btag_hist.SetYTitle('Events')
+			sum_btag_hist.name = 'btag_sf_%s' % flavor
+			plotter.save('btag_sf_%s' % flavor)
+			comparison_hists.append(sum_btag_hist)
+
+		systs = ['_dw', '_up', '']
+		for sys in systs:
+			btag_hists = [i.Get('btag_sf%s' % sys) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
+			sum_btag_hist = sum(btag_hists)
+			sum_btag_hist.Draw()
+			sum_btag_hist.SetXTitle('b-tag SF (%s)' % sys)
+			sum_btag_hist.SetYTitle('Events')
+			sum_btag_hist.name = 'btag_sf%s' % sys
+			plotter.save('btag_sf%s' % sys)
+			comparison_hists.append(sum_btag_hist)
+
+
+        #muon SFs
+        #
+		kinvars = {'pt' : 'p_{T}(#mu) (GeV)', 'eta' : '#eta(#mu)', 'pt_etaL0p9': 'p_{T}(#mu) (GeV)', 'pt_0p9eta1p2': 'p_{T}(#mu) (GeV)', 'pt_1p2eta2p1': 'p_{T}(#mu) (GeV)'}
+		for kvar in kinvars.keys():
+			musf_hists = [i.Get('muon_sf_vs_mu_%s' % kvar) for i in plotter.mc_views(1, None, 'nosys/mass_discriminant/notag/both_untagged/')]
+			sum_musf_hist = sum(musf_hists)
+			sum_musf_hist.drawstyle='colz'
+			sum_musf_hist.Draw()
+			sum_musf_hist.SetXTitle(kinvars[kvar])
+			sum_musf_hist.SetYTitle('#mu SF')
+			sum_musf_hist.name = 'muon_sf_vs_mu_%s' % kvar
+			plotter.save('muon_sf_vs_mu_%s' % kvar)
+			comparison_hists.append(sum_musf_hist)
+			
+        #set_trace()
+		with io.root_open('%s/sf_comparison.root' % plotter.outputdir, 'w') as out:
+			for i in comparison_hists:
+				i.Write()
+
 
 
 	#
@@ -1579,6 +1611,9 @@ if args.plots:
 			 plotter.bake_pie(folder)
 
 		 plotter.set_subdir(os.path.join(order, wpoint, cat_name))
+
+		 write_btag_muon_sf_hists()
+
 		 for var, xaxis, yaxis, rebin in vars2D:
 			 ROOT.gStyle.SetPalette(56)
 			 path = os.path.join('nosys', base, var)
