@@ -213,7 +213,7 @@ def stack_nom_MC(MC_hists, data_hist, tdir): # (array of MC hists for each topol
         )
 
     #set_trace()
-    data_mc_ratios[tdir]['Nosys'] = data_hist.Integral()/stack.Integral()
+    data_mc_ratios[tdir]['Nosys'] = [data_hist.Integral(bins+1,bins+1)/stack.Integral(bins+1,bins+1) for bins in range(data_hist.GetNbinsX())]
     #plt.plot(12., data_mc_ratios[tdir]['Nosys'], label='Nominal', marker='.', color='black')
 
 
@@ -237,7 +237,9 @@ def stack_systematic_MC(mc_hist, data_hist, tdir, title): # (array of MC hists f
         )
     
     #plt.plot(mc_xbins, np.ones(100)*data_hist.Integral()/mc_stack.Integral(), label=title, linestyle=sys_styles[title]['linestyle'], color=sys_styles[title]['color'])
-    data_mc_ratios[tdir][title] = data_hist.Integral()/mc_stack.Integral()
+    #set_trace()
+    data_mc_ratios[tdir][title] = [data_hist.Integral(bins+1,bins+1)/mc_stack.Integral(bins+1,bins+1) for bins in range(data_hist.GetNbinsX())]
+    #data_mc_ratios[tdir][title] = data_hist.Integral()/mc_stack.Integral()
 
 def get_sys_hists(categories, sys):
     sys_samples = [cat for cat in categories if sys in cat]
@@ -370,13 +372,33 @@ for tdir in tdirs:
     stack_nom_MC(nom_MC_hists, data, tdir)
     #set_trace()
 
-    fig = plt.figure()
-
     ## create stack plots for all systematics
     for sys in sys_styles.keys():
         sys_hists = get_sys_hists(categories, sys)
         stack_systematic_MC(sys_hists, data, tdir, sys) 
         #set_trace()
+
+
+    fig = plt.figure()
+
+    for sys in data_mc_ratios[tdir].keys():
+        #set_trace()
+        if sys == 'Nosys':
+            xvals = [data.GetXaxis().GetBinCenter(bins+1) for bins in range(data.GetXaxis().GetNbins())]
+            yvals = data_mc_ratios[tdir][sys]
+            plt.plot(xvals, yvals, label=sys, linestyle='None', marker='.', color='black')
+        else:
+            xvals = np.linspace(nom_MC_hists[0].GetXaxis().GetXmin(), nom_MC_hists[0].GetXaxis().GetXmax(), 100)
+                ## get number of points within each bin
+            ybin_ranges = [len([i for (i,j) in enumerate(xvals) if xvals[i] <= nom_MC_hists[0].GetXaxis().GetBinUpEdge(bins+1) and xvals[i] >= nom_MC_hists[0].GetXaxis().GetBinLowEdge(bins+1)]) for bins in range(nom_MC_hists[0].GetXaxis().GetNbins())]
+            ybin_values = [np.ones(ybin_ranges[bins])*data_mc_ratios[tdir][sys][bins] for bins in range(len(ybin_ranges))]
+            yvals = np.concatenate(ybin_values).ravel()
+            plt.plot(xvals, yvals, label=sys, linestyle=sys_styles[sys]['linestyle'], color=sys_styles[sys]['color'])
+
+    ##set_trace()
+    #xvals = [data.GetXaxis().GetBinCenter(bins+1) for bins in range(data.GetXaxis().GetNbins())]
+    #yvals = data_mc_ratios[tdir]['Nosys']
+    #plt.plot(xvals, yvals, label='Nosys', linestyle='None', marker='.', color='black')
 
     plt.xlabel('%s $\lambda_{M}$' % tdir)
     plt.ylabel('data/MC')
