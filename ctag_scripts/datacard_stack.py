@@ -395,10 +395,6 @@ for tdir in tdirs:
             yvals = np.concatenate(ybin_values).ravel()
             plt.plot(xvals, yvals, label=sys, linestyle=sys_styles[sys]['linestyle'], color=sys_styles[sys]['color'])
 
-    ##set_trace()
-    #xvals = [data.GetXaxis().GetBinCenter(bins+1) for bins in range(data.GetXaxis().GetNbins())]
-    #yvals = data_mc_ratios[tdir]['Nosys']
-    #plt.plot(xvals, yvals, label='Nosys', linestyle='None', marker='.', color='black')
 
     plt.xlabel('%s $\lambda_{M}$' % tdir)
     plt.ylabel('data/MC')
