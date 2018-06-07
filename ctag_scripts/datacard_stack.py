@@ -243,7 +243,7 @@ def get_sys_hists(categories, sys):
     sys_samples = [cat for cat in categories if sys in cat]
 
     ## lists of non-ttjets MC sammples
-    qcd_vjets_samples = [cat for cat in categories if 'qcd' in cat or 'vjets' in cat] #qcd and v+jets
+    qcd_vjets_samples = [cat for cat in categories if cat=='qcd' or cat=='vjets'] #qcd and v+jets
     singlet_samples = [cat for cat in categories if cat=='single_top'] #single top
 
     ## get hists for systematics samples (systematics+MC samples they don't include)
@@ -302,10 +302,12 @@ for sys in sys_styles.keys()+['Nosys']:
         all_indiv_data_hists.append(data)
         #set_trace()
 
+    #set_trace()
+    ### combine hists from different tags into one MC hist
     for i in range(len(all_indiv_MC_hists[0])):
+        #set_trace()
         inclusive_MC_hists.append(sum([all_indiv_MC_hists[j][i]  for j in range(len(all_indiv_MC_hists))]))
         inclusive_MC_hists[i].name = inclusive_MC_hists[i].title
-        #set_trace()
 
     inclusive_data = sum(all_indiv_data_hists)
     inclusive_data.name = inclusive_data.title

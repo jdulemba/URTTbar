@@ -728,6 +728,7 @@ class CTagPlotter(Plotter):
 							rootpy.log["/"].warning('%s Down for %s/%s has normalization == 0, forcing it to 10**-6' %(sys_name, category_name, name))
 							mbin = category[name].GetMaximumBin()
 							hdw[mbin].value = 10**-6
+						#set_trace()
 						category['%s_%sUp'	% (name, sys_name)] = hup
 						category['%s_%sDown' % (name, sys_name)] = hdw					
 					
