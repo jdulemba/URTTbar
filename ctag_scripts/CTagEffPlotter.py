@@ -1295,6 +1295,7 @@ vars2D = [
 
 variables = [
   ("njets"	 , "# of selected jets", range(13), None, False),
+  ("evt_weight"	 , "event weights", range(20), None, False),
   ("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
   ("muon_sf"	 , "SF applied to muon", 1, None, False),
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
@@ -1350,6 +1351,7 @@ preselection = [
   ("lep_eta", "#eta(l)", 10, None, False),
   ("lep_pt", "p_{T}(l)", 10, None, False),
   ("nvtx", "# of reconstructed vertices", range(41), None, False),
+  ("weight", "event weight", range(41), None, False),
   ("rho", "#rho", range(40), None, False),
 ]
 

@@ -520,6 +520,7 @@ class ctag_eff : public AnalyzerBase
         void fill_notag_plots(string folder, Permutation &hyp, systematics::SysShifts shift){
             auto dir = histos_.find(folder);
             dir->second["evt_weight"].fill(evt_weight_);
+
                 // muon sf
             dir->second["muon_sf"].fill( muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
             dir->second["muon_sf_vs_mu_pt"].fill( object_selector_.muon()->Pt(), muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
