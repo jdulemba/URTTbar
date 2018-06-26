@@ -29,6 +29,7 @@
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
+#include "Analyses/URTTbar/interface/DR_TTGenMatcher.h"
 #include "Analyses/URTTbar/interface/MCWeightProducer.h"
 #include "Analyses/URTTbar/interface/BTagSFProducer.h"
 #include "Analyses/URTTbar/interface/LeptonSF.h"
@@ -75,6 +76,7 @@ class htt_simple : public AnalyzerBase
         //selectors and helpers
         TTGenParticleSelector genp_selector_;
         TTGenMatcher matcher_;
+        DR_TTGenMatcher dr_matcher_;
         TTPermutator permutator_;
         TTObjectSelector object_selector_;
         float evt_weight_;
@@ -110,7 +112,8 @@ class htt_simple : public AnalyzerBase
         htt_simple(const std::string output_filename):
             AnalyzerBase("htt_simple", output_filename), 
             tracker_(),
-            genp_selector_(),
+            genp_selector_(TTGenParticleSelector::SelMode::LHE),
+            //genp_selector_(),
             matcher_(),
             permutator_(),
             object_selector_(),
@@ -130,7 +133,7 @@ class htt_simple : public AnalyzerBase
                 Logger::log().debug() << "htt_simple ctor" << endl;
                 cut_tight_b_ = btag_sf_.tight_cut();
                 cut_loose_b_ = btag_sf_.loose_cut();
-                //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << 
+                //cout << "bcuts " << cut_tight_b_ << " " << cut_loose_b_ << endl;
                 //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
 
                 URParser &parser = URParser::instance();
@@ -222,6 +225,232 @@ class htt_simple : public AnalyzerBase
                 getDir(folder)->cd();
                 histos_[folder][name] = RObject::book<H>(name.c_str(), args ...);
             }
+
+
+    ////////////////////// book and fill 3 jet plots
+            // reco
+        void book_3J_reco_plots( string folder ){
+            book<TH1F>(folder+"/Mass", "TTbar", "", 180, 200., 2000.);
+            book<TH1F>(folder+"/Mass", "THad", "", 500, 0., 500.);
+            book<TH1F>(folder+"/Costh", "THad", "", 200, -1., 1.);
+            book<TH1F>(folder+"/Costh", "TLep", "", 200, -1., 1.);
+            book<TH1F>(folder+"/Pt", "THad", "", 100, 0., 1000.);
+            book<TH1F>(folder+"/Pt", "TLep", "", 100, 0., 1000.);
+            book<TH1F>(folder+"/Pt", "TTbar", "",100, 0., 1000.);
+            book<TH1F>(folder+"/Eta", "THad", "", 100, -2.5, 2.5);
+            book<TH1F>(folder+"/Eta", "TLep", "", 100, -2.5, 2.5);
+        }
+        void fill_3J_pre_alpha_reco_plots( string folder, Permutation &perm ){
+            auto mass_dir = histos_.find(folder+"/Mass");
+            auto costh_dir = histos_.find(folder+"/Costh");
+            auto pt_dir = histos_.find(folder+"/Pt");
+            auto eta_dir = histos_.find(folder+"/Eta");
+
+            mass_dir->second["TTbar"].fill(perm.LVect().M(), evt_weight_);
+            pt_dir->second["TTbar"].fill(perm.LVect().Pt(), evt_weight_);
+
+            std::pair< double, double > reco_cosths = reco_costh_tops(perm); // < reco thad, tlep costh >
+
+            mass_dir->second["THad"].fill(perm.THad().M(), evt_weight_);
+            pt_dir->second["THad"].fill(perm.THad().Pt(), evt_weight_);
+            eta_dir->second["THad"].fill(perm.THad().Eta(), evt_weight_);
+            costh_dir->second["THad"].fill(reco_cosths.first, evt_weight_);
+            pt_dir->second["TLep"].fill(perm.TLep().Pt(), evt_weight_);
+            eta_dir->second["TLep"].fill(perm.TLep().Eta(), evt_weight_);
+            costh_dir->second["TLep"].fill(reco_cosths.second, evt_weight_);
+        }
+        void fill_3J_post_alpha_reco_plots( string folder, Permutation &perm ){
+            auto mass_dir = histos_.find(folder+"/Mass");
+            auto costh_dir = histos_.find(folder+"/Costh");
+            auto pt_dir = histos_.find(folder+"/Pt");
+            auto eta_dir = histos_.find(folder+"/Eta");
+
+                // costh
+            std::pair< double, double > reco_cosths = reco_costh_tops(perm); // < reco thad, tlep costh >
+
+                // corrected thad
+            std::pair< TLorentzVector, double > corrected_thad = alpha_thad(perm); // corrected thad tvec, costh* value
+
+            mass_dir->second["THad"].fill( corrected_thad.first.M(), evt_weight_ );
+            mass_dir->second["TTbar"].fill( (corrected_thad.first + perm.TLep()).M(), evt_weight_ );
+
+            costh_dir->second["THad"].fill( corrected_thad.second, evt_weight_ );
+            costh_dir->second["TLep"].fill(reco_cosths.second, evt_weight_);
+
+            pt_dir->second["THad"].fill( corrected_thad.first.Pt(), evt_weight_ );
+            pt_dir->second["TLep"].fill(perm.TLep().Pt(), evt_weight_);
+            pt_dir->second["TTbar"].fill( (corrected_thad.first + perm.TLep()).Pt(), evt_weight_ );
+
+            eta_dir->second["THad"].fill( corrected_thad.first.Eta(), evt_weight_ );
+            eta_dir->second["TLep"].fill(perm.TLep().Eta(), evt_weight_);
+        }
+
+            // resolution
+        void book_3J_reso_plots( string folder ){
+            book<TH1F>(folder+"/Mass", "TTbar", "", 500, -1000., 1000.);
+            book<TH1F>(folder+"/Mass", "THad", "", 500, -1000., 500.);
+            book<TH1F>(folder+"/Costh", "THad", "", 200, -2., 2.);
+            book<TH1F>(folder+"/Costh", "TLep", "", 200, -2., 2.);
+            book<TH1F>(folder+"/Pt", "THad", "", 200, -500., 500.);
+            book<TH1F>(folder+"/Pt", "TLep", "", 200, -500., 500.);
+            book<TH1F>(folder+"/Pt", "TTbar", "",200, -500., 500.);
+            book<TH1F>(folder+"/Eta", "THad", "", 200, -5., 5.);
+            book<TH1F>(folder+"/Eta", "TLep", "", 200, -5., 5.);
+        }
+        void fill_3J_pre_alpha_reso_plots( string folder, Permutation &perm, GenTTBar &ttbar ){
+            auto mass_dir = histos_.find(folder+"/Mass");
+            auto costh_dir = histos_.find(folder+"/Costh");
+            auto pt_dir = histos_.find(folder+"/Pt");
+            auto eta_dir = histos_.find(folder+"/Eta");
+
+            mass_dir->second["TTbar"].fill(ttbar.M() - perm.LVect().M(), evt_weight_);
+            pt_dir->second["TTbar"].fill(ttbar.Pt() - perm.LVect().Pt(), evt_weight_);
+
+            std::pair< double, double > gen_cosths = gen_costh_tops(ttbar); // < gen thad, tlep costh >
+            std::pair< double, double > reco_cosths = reco_costh_tops(perm); // < reco thad, tlep costh >
+
+            mass_dir->second["THad"].fill(ttbar.had_top()->M() - perm.THad().M(), evt_weight_);
+            pt_dir->second["THad"].fill(ttbar.had_top()->Pt() - perm.THad().Pt(), evt_weight_);
+            eta_dir->second["THad"].fill(ttbar.had_top()->Eta() - perm.THad().Eta(), evt_weight_);
+            costh_dir->second["THad"].fill(gen_cosths.first - reco_cosths.first, evt_weight_);
+            pt_dir->second["TLep"].fill(ttbar.lep_top()->Pt() - perm.TLep().Pt(), evt_weight_);
+            eta_dir->second["TLep"].fill(ttbar.lep_top()->Eta() - perm.TLep().Eta(), evt_weight_);
+            costh_dir->second["TLep"].fill(gen_cosths.second - reco_cosths.second, evt_weight_);
+        }
+        void fill_3J_post_alpha_reso_plots( string folder, Permutation &perm, GenTTBar &ttbar ){
+            auto mass_dir = histos_.find(folder+"/Mass");
+            auto costh_dir = histos_.find(folder+"/Costh");
+            auto pt_dir = histos_.find(folder+"/Pt");
+            auto eta_dir = histos_.find(folder+"/Eta");
+
+                // costh
+            std::pair< double, double > gen_cosths = gen_costh_tops(ttbar); // < gen thad, tlep costh >
+            std::pair< double, double > reco_cosths = reco_costh_tops(perm); // < reco thad, tlep costh >
+
+                // corrected thad
+            std::pair< TLorentzVector, double > corrected_thad = alpha_thad(perm); // corrected thad tvec, costh* value
+
+
+            mass_dir->second["TTbar"].fill( ttbar.M() - (corrected_thad.first + perm.TLep()).M(), evt_weight_ );
+            pt_dir->second["TTbar"].fill( ttbar.Pt() - (corrected_thad.first + perm.TLep()).Pt(), evt_weight_ );
+
+            mass_dir->second["THad"].fill( ttbar.had_top()->M() - corrected_thad.first.M(), evt_weight_ );
+            pt_dir->second["THad"].fill( ttbar.had_top()->Pt() - corrected_thad.first.Pt(), evt_weight_ );
+            eta_dir->second["THad"].fill( ttbar.had_top()->Eta() - corrected_thad.first.Eta(), evt_weight_ );
+            costh_dir->second["THad"].fill( gen_cosths.first - corrected_thad.second, evt_weight_ );
+            pt_dir->second["TLep"].fill( ttbar.lep_top()->Pt() - perm.TLep().Pt(), evt_weight_ );
+            eta_dir->second["TLep"].fill( ttbar.lep_top()->Eta() - perm.TLep().Eta(), evt_weight_ );
+            costh_dir->second["TLep"].fill( gen_cosths.second - reco_cosths.second, evt_weight_ );
+        }
+
+
+        //// selection plots
+
+        void fill_3J_combo_plots(string folder, Permutation &hyp){
+            if(optim_) return;
+            auto dir = histos_.find(folder);
+            dir->second["mass_discriminant"].fill(hyp.MassDiscr(), evt_weight_);
+            dir->second["nu_discriminant"  ].fill(hyp.NuDiscr(), evt_weight_);
+            dir->second["full_discriminant"].fill(hyp.Prob(), evt_weight_);
+
+                // corrected thad
+            std::pair< TLorentzVector, double > corrected_thad = alpha_thad(hyp); // corrected thad tvec, costh* value
+
+            //double whad_mass = hyp.WHad().M();
+            double thad_mass = corrected_thad.first.M();
+            //dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
+            dir->second["tmasshad"].fill(thad_mass, evt_weight_);
+            dir->second["lbratio" ].fill(hyp.L()->Pt()/hyp.BLep()->Pt(), evt_weight_);
+            //double minpt = ((hyp.WJa()->Pt() > hyp.WJb()->Pt()) ? hyp.WJb() : hyp.WJa())->Pt();
+            double minpt = hyp.WJa()->Pt();
+            dir->second["j2bratio"].fill(minpt/hyp.BHad()->Pt(), evt_weight_);
+            dir->second["bjets_pt"].fill(hyp.BHad()->Pt(), evt_weight_);
+            dir->second["bjets_pt"].fill(hyp.BLep()->Pt(), evt_weight_);
+            dir->second["wjets_pt"].fill(hyp.WJa()->Pt(), evt_weight_);		
+            //dir->second["wjets_pt"].fill(hyp.WJb()->Pt(), evt_weight_);		
+        }
+
+
+        void fill_3J_selection_plots(string folder, URStreamer &event, Permutation &hyp, bool pdf){
+            fill_presel_plots(folder, event);
+            fill_3J_combo_plots(folder, hyp);
+            auto dir = histos_.find(folder);
+
+            /// get tlep costh, corrected thad tvec and costh
+                // costh
+            std::pair< double, double > reco_cosths = reco_costh_tops(hyp); // < reco thad, tlep costh >
+
+                // corrected thad
+            std::pair< TLorentzVector, double > corrected_thad = alpha_thad(hyp); // corrected thad tvec, costh* value
+            ///
+
+            //PDF uncertainties
+            //if(has_pdfs_) {
+            //	const vector<Mcweight>& ws =  event.MCWeights();
+            //	for(size_t h = 0 ; h < ws.size() ; ++h) {
+            //		dir->second["PDFYields"].fill(h, evt_weight_*ws[h].weights()/ws[0].weights());
+            //	}
+            //}
+
+            dir->second["pt_thad" ].fill( corrected_thad.first.Pt() , evt_weight_ );
+            dir->second["eta_thad"].fill( corrected_thad.first.Eta(), evt_weight_ );
+            dir->second["pt_tlep" ].fill( hyp.TLep().Pt() , evt_weight_ );
+            dir->second["eta_tlep"].fill( hyp.TLep().Eta(), evt_weight_ );
+            dir->second["pt_tt"   ].fill( (corrected_thad.first + hyp.TLep()).Pt() , evt_weight_ );
+            dir->second["eta_tt"  ].fill( (corrected_thad.first + hyp.TLep()).Eta(), evt_weight_ );
+            dir->second["m_tt"].fill( (corrected_thad.first + hyp.TLep()).M(), evt_weight_ );
+            if(pdf) pdf_uncs_.fill_replicas(folder, "m_tt", (corrected_thad.first + hyp.TLep()).M(), evt_weight_, event);
+
+            if(object_selector_.clean_jets().size() == 3)
+                dir->second["full_discriminant_3j" ].fill(hyp.Prob(), evt_weight_);
+            else if(object_selector_.clean_jets().size() == 4)
+                dir->second["full_discriminant_4j" ].fill(hyp.Prob(), evt_weight_);
+            else if(object_selector_.clean_jets().size() == 5)
+                dir->second["full_discriminant_5j" ].fill(hyp.Prob(), evt_weight_);
+            else
+                dir->second["full_discriminant_6Pj"].fill(hyp.Prob(), evt_weight_);
+
+            ////choose up/down
+            //TLorentzVector whad(hyp.WHad());
+            //TLorentzVector j1(*hyp.WJa());
+            //TLorentzVector j2(*hyp.WJb());
+            //j1.Boost(whad.BoostVector()*-1);
+            //j2.Boost(whad.BoostVector()*-1);
+            //if(j2.E() > j1.E()) hyp.SwapWJets();
+
+            ////Angular variables
+            //hyp::TTbar ttang(hyp);
+            //auto ttcm = ttang.to_CM(); 
+            //auto tlepcm = ttang.tlep().to_CM();
+            //auto thadcm = ttang.thad().to_CM();
+
+            ////top angles
+            double tlep_ctstar = min(fabs(reco_cosths.second), 0.99999);
+            double thad_ctstar = min(fabs(corrected_thad.second), 0.99999);
+            dir->second["tlep_ctstar"].fill(tlep_ctstar, evt_weight_);
+            dir->second["thad_ctstar"].fill(thad_ctstar, evt_weight_);
+            dir->second["mtt_tlep_ctstar"].fill( (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar, evt_weight_ );
+
+            //if(pdf) pdf_uncs_.fill_replicas2D(
+            //        folder, "mtt_tlep_ctstar", 
+            //        hyp.LVect().M(), tlep_ctstar,
+            //        //hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
+            //        evt_weight_, event
+            //        );
+
+            //dir->second["cdelta_ld"].fill(tlepcm.W().l().unit3D().Dot(thadcm.W().down().unit3D()), evt_weight_);
+
+            ////helicity frame
+            //dir->second["hframe_ctheta_d"].fill(
+            //        thadcm.W().down().unit3D().Dot(ttcm.thad().unit3D()), 
+            //        evt_weight_
+            //        );
+        } // fill_3J_selection_plots
+    ////////////////////// book and fill 3 jet plots
+
+
+
+
 
         void book_combo_plots(string folder){
             if(optim_) return;
@@ -375,6 +604,7 @@ class htt_simple : public AnalyzerBase
             book<TH1F>(folder, "pt_tt" , "", 200, 0., 2000);			
             book<TH1F>(folder, "eta_tt", "", 200, -10., 10);			
 
+            book<TH1F>(folder, "full_discriminant_3j", "" , 640, 0., 80.);
             book<TH1F>(folder, "full_discriminant_4j", "" , 640, 0., 80.);
             book<TH1F>(folder, "full_discriminant_5j", "" , 640, 0., 80.);
             book<TH1F>(folder, "full_discriminant_6Pj", "", 640, 0., 80.);
@@ -418,6 +648,7 @@ class htt_simple : public AnalyzerBase
             //		dir->second["PDFYields"].fill(h, evt_weight_*ws[h].weights()/ws[0].weights());
             //	}
             //}
+//cout << "fill selection folder: " << folder << endl;
 
             dir->second["pt_thad" ].fill(hyp.THad().Pt() , evt_weight_);
             dir->second["eta_thad"].fill(hyp.THad().Eta(), evt_weight_);
@@ -503,7 +734,22 @@ class htt_simple : public AnalyzerBase
                 book<TH1F>(exp, "Expected_Event_Categories_3J_massbins", "", 11, 0.5, 11.5); // split into 1k-1200 (700-800),12-15 (800-900),15-2k (900-1k) for M1000 (M700)
                 book<TH1F>(exp, "Expected_Event_Categories_4PJ_massbins", "", 11, 0.5, 11.5);
             }
-            //
+
+        ////////////// book 3 jet plots
+
+            string evt_3J = "3J_Events";
+            book_3J_reco_plots(evt_3J+"/Pre_Alpha/Reconstruction");
+            book_3J_reso_plots(evt_3J+"/Pre_Alpha/Resolution");
+            book_3J_reco_plots(evt_3J+"/Post_Alpha/Reconstruction");
+            book_3J_reso_plots(evt_3J+"/Post_Alpha/Resolution");
+            //book_presel_plots(evt_3J+"/Preselection");		// not needed, 3 jet events already included
+            //book_selection_plots(evt_3J+"/selection", false);
+
+            ////if( isTTbar_ || isSignal_ ){
+            //book<TH1F>(evt_3J, "njets", "", 10, 2., 12.);
+            ////}
+
+        ////////////// book 3 jet plots
 
             vector<string> leptons = {"electrons", "muons"};		
             vector<string> subs;
@@ -517,8 +763,15 @@ class htt_simple : public AnalyzerBase
                     string sys_name = systematics::shift_to_name.at(sys);
                     string dname = lepton+"/"+sys_name+"/preselection";
                     //Logger::log().debug() << "Booking histos in: " << dname << endl;
+                        // 3 and 4+ jet plots
                     book_presel_plots(dname);				
                     book_combo_plots(dname);
+                        // 4+ jet plots
+                    book_presel_plots("4PJ/selection/"+dname);				
+                    book_combo_plots( "4PJ/selection/"+dname);
+                        // 3 jet plots
+                    book_presel_plots(evt_3J+"/selection/"+dname);				
+                    book_combo_plots( evt_3J+"/selection/"+dname);
                     for(auto& subsample : subs) {
                         string sub = (isTTbar_ || isSignal_) ? subsample : "";
                         for(auto& lepid : lepIDs) {
@@ -532,7 +785,12 @@ class htt_simple : public AnalyzerBase
 
                                 //Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
                                 bool runpdf = (runsys_ && isTTbar_ && sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
+                                    // 3 and 4+ jet plots
                                 book_selection_plots(dstream.str(), runpdf);
+                                    // 4+ jet plots
+                                book_selection_plots("4PJ/selection/"+dstream.str(), runpdf);
+                                    // 3 jet plots
+                                book_selection_plots(evt_3J+"/selection/"+dstream.str(), false);
                             }
                         }
                         if(!(isTTbar_ || isSignal_)) break;
@@ -542,46 +800,310 @@ class htt_simple : public AnalyzerBase
         }
 
 
-        // events with 3 jets
-        Permutation best_perm_3J(URStreamer &event){
-            //initialize perm objects
-            //jets
-            IDJet* wj1 = 0;
-            IDJet* wj2 = 0;
-            IDJet* bj1 = 0;
-            IDJet* bj2 = 0;
-            Permutation empty_perm; // perm.WJa(), WJb(), BHad(), BLep()
-        
-            vector<IDJet*> jets_vector;
-            int num_btag = 0;
-        
-            for(vector<IDJet*>::const_iterator jets = object_selector_.clean_jets().begin(); jets != object_selector_.clean_jets().end(); ++jets){
-                jets_vector.push_back(*jets);
-        
-                if( (*jets)->BTagId(IDJet::BTag::MVAMEDIUM) ) ++num_btag;
-                //if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
+    ////// functions for events with 3 jets
+        // find costheta values for thad and tlep
+            //reco
+        std::pair< double, double > reco_costh_tops( Permutation &perm ){
+
+            hyp::TTbar reco_ttang(perm); // doesn't work because not all wjets defined
+            auto reco_ttcm = reco_ttang.to_CM();
+            double reco_thad_cth = reco_ttang.unit3D().Dot(reco_ttcm.thad().unit3D());
+            double reco_tlep_cth = reco_ttang.unit3D().Dot(reco_ttcm.tlep().unit3D());
+
+            return std::make_pair(reco_thad_cth, reco_tlep_cth);
+        }
+
+            //gen
+        std::pair< double, double > gen_costh_tops( GenTTBar &ttbar ){
+
+            hyp::TTbar gen_ttang(ttbar);
+            auto gen_ttcm = gen_ttang.to_CM();
+            double gen_thad_cth = gen_ttang.unit3D().Dot(gen_ttcm.thad().unit3D());
+            double gen_tlep_cth = gen_ttang.unit3D().Dot(gen_ttcm.tlep().unit3D());
+
+            return std::make_pair(gen_thad_cth, gen_tlep_cth);
+        }
+
+            // apply alpha correction
+        std::pair< TLorentzVector, double > alpha_thad( Permutation &perm ){
+                //alphas found by fitting Alpha_THad_P/E hists
+                    //values taken from 1degree vals ttp://home.fnal.gov/~jdulemba/Plots/ttbar_final_reco_3J/2018/Compare_Lost_Merged_Jets/Full/ttJetsM0/3J_Event_Plots/Final_Reco/Clear_and_MassCut_Classes/Class_Lost/Alpha_Correction/fit_parameters.json
+            // y = mx +b -> m is first element in json, b is second
+
+            double alpha_E = 0.4019*( 173.1/perm.THad().M() ) + 0.5834; // only alpha_E used because it's more consistent over mtt spectrum 
+            //double alpha_P = 0.1544*( 173.1/perm.THad().M() ) + 0.8599;
+            TLorentzVector Alpha_THad(alpha_E*perm.THad().Px(), alpha_E*perm.THad().Py(), alpha_E*perm.THad().Pz(), alpha_E*perm.THad().E());
+
+                // corrected thad
+            TLorentzVector reco_corr_ttang = Alpha_THad+perm.TLep();
+            TLorentzVector reco_ttcm_corr_thad = Alpha_THad;
+            reco_ttcm_corr_thad.Boost(-1*reco_corr_ttang.BoostVector());
+            double reco_corr_thad_cth = reco_corr_ttang.Vect().Unit().Dot(reco_ttcm_corr_thad.Vect().Unit());
+
+            return std::make_pair( Alpha_THad, reco_corr_thad_cth ); // corrected thad tvec, costh* val
+        }
+
+
+
+        // top pT reweighting formula based on section 5.5 of AN-16-272
+        double top_pt_reweighting( string sys_var ){
+            double top_pt1, top_pt2;
+
+            if( sys_var == "nominal" ){top_pt1 = 0.; top_pt2 = 0.;}
+            else if( sys_var == "up_nom" ){top_pt1 = 1.; top_pt2 = 0.;}
+            else if( sys_var == "down_nom" ){top_pt1 = -1.; top_pt2 = 0.;}
+            else if( sys_var == "nom_up" ){top_pt1 = 0.; top_pt2 = 1.;}
+            else if( sys_var == "nom_down" ){top_pt1 = 0.; top_pt2 = -1.;}
+            else{
+                Logger::log().error() << sys_var << " isn't a valid option for the top pt reweighting!" << endl;
+                throw 40;
             }
-        
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->CombinedMVA() > B->CombinedMVA() ); });
-            if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
-        
-            bj1 = jets_vector[0];
-            bj2 = jets_vector[1];
-            wj1 = jets_vector[2];
-        
-            Permutation best_perm;
-            double lowest_Totaldisc_3J = 1e10;
-        
-            for( auto test_perm : permutator_.permutations_3J(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge()) ){
-                solver_.Solve_3J_Merged(test_perm);
-        
-                if( test_perm.Prob() < lowest_Totaldisc_3J ){
-                    lowest_Totaldisc_3J = test_perm.Prob();
-                    best_perm = test_perm;
+
+            double p0 =  6.15025*pow(10., -2.) + 3.243*pow(10., -2.)*top_pt1 - 4.353*pow(10., -7.)*top_pt2;
+            double p1 = -5.17833*pow(10., -4.) - 1.404*pow(10., -4.)*top_pt1 - 1.005*pow(10., -4.)*top_pt2;
+
+            double weight = exp(p0+p1*( (genp_selector_.top()->Pt()+genp_selector_.tbar()->Pt())/2 ));
+            return weight;
+        }
+
+
+
+        // find best perm assuming it's lost 
+        Permutation lost_best_perm( Permutation &perm, string disc_type, string presel_dir, bool lep_is_tight ){
+
+            Permutation lost_bp;
+            double lost_lowest_discval = 1e10;
+
+            for( auto test_perm : permutator_.permutations_3J(perm.WJa(), perm.WJb(), perm.BHad(), perm.BLep(), perm.L(), perm.MET(), perm.LepCharge()) ){
+                solver_.Solve_3J_Lost(test_perm);
+
+                if(!sync_ && lep_is_tight){
+                    fill_3J_combo_plots("3J_Events/selection/"+presel_dir, test_perm);
+                    fill_3J_combo_plots(presel_dir, test_perm);
+                }
+                double tp_discval = 3e10;
+
+                if( disc_type == "Total" ){ tp_discval = test_perm.Prob(); }
+                else if( disc_type == "NS" ){ tp_discval = test_perm.NuDiscr(); }
+                else if( disc_type == "Mass" ){ tp_discval = test_perm.MassDiscr(); }
+                else{
+                    Logger::log().debug() << "Not a valid discriminant type" << endl;
+                    throw 42;
+                }
+
+                if( tp_discval < lost_lowest_discval ){
+                    lost_lowest_discval = tp_discval;
+                    lost_bp = test_perm;
                 }
             }
-            return best_perm;
-        } // end of best_perm_3J()
+
+            return lost_bp;
+        }
+
+
+
+        //Permutation best_perm_3J(URStreamer &event){
+        //    //initialize perm objects
+        //    //jets
+        //    IDJet* wj1 = 0;
+        //    IDJet* wj2 = 0;
+        //    IDJet* bj1 = 0;
+        //    IDJet* bj2 = 0;
+        //    Permutation empty_perm; // perm.WJa(), WJb(), BHad(), BLep()
+        //
+        //    vector<IDJet*> jets_vector;
+        //    for( auto jet : object_selector_.clean_jets() ){
+        //        jets_vector.push_back(jet);
+        //    }
+        //    sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
+
+        //    //tracker_.track("All Num BTag");
+
+        //    //if( !jets_vector[1]->BTagId(IDJet::BTag::CSVMEDIUM) ) return std::make_pair(empty_perm, empty_perm); // require at least 2 jets that pass btag
+        //    if( !jets_vector[1]->BTagId(IDJet::BTag::CSVMEDIUM) ) return empty_perm; // require at least 2 jets that pass btag
+
+        //    //tracker_.track("Num BTag >= 2");
+
+        //    bj1 = jets_vector[0];
+        //    bj2 = jets_vector[1];
+        //    wj1 = jets_vector[2];
+
+        //    //cout << "bj1 pT: " << bj1->Pt() << endl;
+        //    //cout << "bj2 pT: " << bj2->Pt() << endl;
+        //    //cout << "wj1 pT: " << wj1->Pt() << endl;
+
+        //    // create perm from the event and find best perms from merged/lost TTBarSolver
+        //    Permutation event_perm(wj1, wj2, bj1, bj2, object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge());//wjat, wjb, bhad, blep
+        //    //Permutation merged_bp = merged_best_perm( event_perm );
+        //    Permutation lost_bp = lost_best_perm( event_perm, "NS" );
+
+        //    return lost_bp;
+        //    //return std::make_pair(merged_bp, lost_bp);
+        //} // end of best_perm_3J()
+
+
+        //void lost_bp_cats( GenTTBar &ttbar, Permutation &lost_bp, string bp_solution, URStreamer &event ){
+
+        //    //auto evt_dir = histos_.find("3J_Events");
+        //    string lost_perm_status;
+
+        //    if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
+        //        tracker_.track("Not semilep events");
+        //        return;
+        //    }
+        //    tracker_.track("semilep");
+
+        //    // get matched perm from event
+        //    Permutation mp = dr_matcher_.dr_match(
+        //            genp_selector_.ttbar_final_system(),
+        //            object_selector_.clean_jets(),
+        //            object_selector_.lepton(),
+        //            object_selector_.met(),
+        //            object_selector_.lepton_charge());
+
+
+        //    //if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) || !mp.Lost_Event() ) lost_perm_status = "WRONG";
+        //    //if( mp.Lost_Event() ){
+        //    //    if( mp.AreBsSame(lost_bp) && ( lost_bp.WJa() == mp.WJa() || lost_bp.WJa() == mp.WJb() ) ) lost_perm_status = "RIGHT";
+        //    //    else if( mp.AreBsFlipped(lost_bp) && ( lost_bp.WJa() == mp.WJa() || lost_bp.WJa() == mp.WJb() ) ) lost_perm_status = "LOST_SWAP";
+        //    //    else lost_perm_status = "LOST";
+        //    //}
+        //    //else lost_perm_status = "WRONG";
+
+        //    if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) ) lost_perm_status = "OTHER"; // check if mp exists, has bhad and blep and at least one wjet
+        //        // check if mp and lost_bp misidentified b's
+        //    else if( mp.AreBsSame(lost_bp)  ) lost_perm_status = "CORRECT_B";
+        //    else if( mp.AreBsFlipped(lost_bp) ) lost_perm_status = "WRONG_B";
+        //    else lost_perm_status = "OTHER";
+
+        //    string gen_match_status;
+        //    if( lost_bp.BHad()->match() == ttbar.had_b() && lost_bp.BLep()->match() != ttbar.lep_b() ) gen_match_status = "CORRECT_BHAD"; // only perm bhad match is same as gen bhad
+        //    else if( lost_bp.BHad()->match() != ttbar.had_b() && lost_bp.BLep()->match() == ttbar.lep_b() ) gen_match_status = "CORRECT_BLEP"; // only perm blep match is same as gen blep
+        //    else if( lost_bp.BHad()->match() == ttbar.had_b() && lost_bp.BLep()->match() == ttbar.lep_b() ) gen_match_status = "CORRECT_Bs"; // both perm b matches same as gen bs
+        //    else if( lost_bp.BHad()->match() == ttbar.lep_b() && lost_bp.BLep()->match() == ttbar.had_b() ) gen_match_status = "SWAPPED_Bs"; // perm bhad match same as gen blep, perm blep match same as gen bhad
+        //    else gen_match_status = "OTHER_MATCH";
+
+        //    //evt_dir->second["njets"].fill(object_selector_.clean_jets().size());
+
+        //    fill_3J_pre_alpha_reco_plots("3J_Events/Pre_Alpha/Reconstruction", lost_bp);
+        //    fill_3J_pre_alpha_reso_plots("3J_Events/Pre_Alpha/Resolution", lost_bp, ttbar);
+
+        //    fill_3J_post_alpha_reco_plots("3J_Events/Post_Alpha/Reconstruction", lost_bp);
+        //    fill_3J_post_alpha_reso_plots("3J_Events/Post_Alpha/Resolution", lost_bp, ttbar);
+
+        //    //fill_presel_plots("3J_Events/Preselection", event);
+        //    fill_3J_selection_plots("3J_Events/selection", event, lost_bp, false);
+
+        //} // end of lost_bp_cats
+
+        //void process_3J_evt( systematics::SysShifts shift, URStreamer &event, vector<IDJet*> &clean_jets ){
+
+        //    IDJet* wj2 = 0;
+        //    Permutation event_perm(clean_jets[2], wj2, clean_jets[0], clean_jets[1], object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge());//wjat, wjb, bhad, blep
+        //    Permutation best_permutation = lost_best_perm( event_perm, "Total" );
+        //   
+        //    bool reco_success = !best_permutation.IsEmpty() && best_permutation.Prob() < 1e9;
+        //    if( !reco_success ){
+        //    //if(!sync_ && !reco_success){
+        //        //tracker_.track("not sync and not reco success");
+        //        return;
+        //    }
+        //    //if(lep_is_tight) tracker_.track("best perm");
+
+        //    //if(sync_) {
+        //    //    if(lep_is_tight) {
+        //    //        sync_info_.Run  = event.run;
+        //    //        sync_info_.LumiSection = event.lumi;
+        //    //        sync_info_.Event= event.evt;
+        //    //        sync_info_.hasMuon = (object_selector_.lepton_type() == -1) ? 0 : 1;
+        //    //        sync_info_.RecoSuccess = reco_success;
+        //    //        if(reco_success)
+        //    //            sync_info_.MassTT = best_permutation.LVect().M();
+        //    //        else
+        //    //            sync_info_.MassTT = -1;
+        //    //        sync_tree_->Fill();
+        //    //        tracker_.track("SYNC END", leptype);
+        //    //    }
+        //    //    return;
+        //    //}
+
+
+        //    //if( isTTbar_ || isSignal_){
+        //    //    permutator_.reset_3J();
+        //    //
+        //    //    //generator selection
+        //    //    bool selection = genp_selector_.select(event);
+        //    //    if( !selection ){
+        //    //        Logger::log().debug() << "event has no gen selection " << endl;
+        //    //        return;
+        //    //    }
+        //    //    GenTTBar &ttbar = genp_selector_.ttbar_system();
+        //
+        //    //    //Permutation bp = best_perm_3J(event);
+        //
+        //    //    if( !bp.IsEmpty() ){
+        //    //        lost_bp_cats( ttbar, bp, "3J_Events", event );
+        //
+        ////  //          //GenTTBar &ttbar = genp_selector_.ttbar_system();
+        ////  //  
+        ////  //          exp_dir->second["Expected_Event_Categories_3J"].fill(1); // total expected events == 1
+        ////  //          if( isTTJetsM1000_ ){
+        ////  //              if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(1); // total expected events == 1
+        ////  //              else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(5); // total expected events == 5
+        ////  //              else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(9); // total expected events == 1
+        ////  //          }
+        ////  //          if( isTTJetsM700_ ){
+        ////  //              if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(1); // total expected events == 1
+        ////  //              else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(5); // total expected events == 5
+        ////  //              else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(9); // total expected events == 1
+        ////  //          }
+        ////  //  
+        ////  //          if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
+        ////  //              exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
+        ////  //              if( isTTJetsM1000_ ){
+        ////  //                  if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+        ////  //                  else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+        ////  //                  else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+        ////  //              }
+        ////  //              if( isTTJetsM700_ ){
+        ////  //                  if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+        ////  //                  else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+        ////  //                  else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+        ////  //              }
+        ////  //              return;
+        ////  //          }
+        ////  //          else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+        ////  //              if( ttbar.partial_hadronic_merged(0.4) ){ // gen partons merged
+        ////  //                  exp_dir->second["Expected_Event_Categories_3J"].fill(3); // expected merged events == 3
+        ////  //                  if( isTTJetsM1000_ ){
+        ////  //                      if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(2); // expected merged events == 1
+        ////  //                      else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(6); // expected merged events == 5
+        ////  //                      else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(10); // expected merged events == 1
+        ////  //                  }
+        ////  //                  if( isTTJetsM700_ ){
+        ////  //                      if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(2); // expected merged events == 1
+        ////  //                      else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(6); // expected merged events == 5
+        ////  //                      else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(10); // expected merged events == 1
+        ////  //                  }
+        ////  //              }
+        ////  //              else{ // gen partons not merged
+        ////  //                  exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
+        ////  //                  if( isTTJetsM1000_ ){
+        ////  //                      if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+        ////  //                      else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+        ////  //                      else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+        ////  //                  }
+        ////  //                  if( isTTJetsM700_ ){
+        ////  //                      if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
+        ////  //                      else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
+        ////  //                      else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
+        ////  //                  }
+        ////  //              }
+        ////  //          }
+        //    //    }
+        //    //} // isTTbar or isSignal
+        //} // process_3J_evt 
+
 
 
 
@@ -598,6 +1120,7 @@ class htt_simple : public AnalyzerBase
             //tracker_.track("b4 jet sel");
 
             int njets = object_selector_.clean_jets().size();		
+
 
             //tracker_.track("b4 leptype");
 
@@ -632,15 +1155,26 @@ class htt_simple : public AnalyzerBase
             if(!sync_ && lep_is_tight){
                 fill_presel_plots(presel_dir.str(), event);
                 //tracker_.track("not sync and tight lep");
+                if( njets == 3 ) fill_presel_plots("3J_Events/selection/"+presel_dir.str(), event);
+                else fill_presel_plots("4PJ/selection/"+presel_dir.str(), event);
             }
+
 
             //cut on btag
             auto &clean_jets = object_selector_.clean_jets();
+                // original b cuts
             sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
             if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
             //tracker_.track("first b pass");
             if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
             //tracker_.track("second b pass");
+                //
+
+            //sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
+            //if( !clean_jets[0]->BTagId(IDJet::BTag::CSVMEDIUM) ) return; // require at least 2 jets that pass btag
+            //if( !clean_jets[1]->BTagId(IDJet::BTag::CSVMEDIUM) ) return; // require at least 2 jets that pass btag
+
+
             if(lep_is_tight) tracker_.track("b cuts", leptype);
 
             if( !permutator_.preselection(
@@ -658,76 +1192,125 @@ class htt_simple : public AnalyzerBase
             }
             evt_weight_ *= bweight;
 
-            if( njets == 3 ){
-                if( isTTbar_ || isSignal_){
-                    permutator_.reset_3J();
-                
-                    //generator selection
-                    bool selection = genp_selector_.select(event);
-                
-                    Permutation bp = best_perm_3J(event);
-                    if( !bp.IsEmpty() && selection ){
-                        GenTTBar &ttbar = genp_selector_.ttbar_system();
-                
-                        exp_dir->second["Expected_Event_Categories_3J"].fill(1); // total expected events == 1
-                        if( isTTJetsM1000_ ){
-                            if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(1); // total expected events == 1
-                            else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(5); // total expected events == 5
-                            else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(9); // total expected events == 1
-                        }
-                        if( isTTJetsM700_ ){
-                            if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(1); // total expected events == 1
-                            else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(5); // total expected events == 5
-                            else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(9); // total expected events == 1
-                        }
-                
-                        if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){
-                            exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
-                            if( isTTJetsM1000_ ){
-                                if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
-                                else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
-                                else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
-                            }
-                            if( isTTJetsM700_ ){
-                                if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
-                                else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
-                                else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
-                            }
-                            return;
-                        }
-                        else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
-                            if( ttbar.partial_hadronic_merged(0.4) ){ // gen partons merged
-                                exp_dir->second["Expected_Event_Categories_3J"].fill(3); // expected merged events == 3
-                                if( isTTJetsM1000_ ){
-                                    if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(2); // expected merged events == 1
-                                    else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(6); // expected merged events == 5
-                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(10); // expected merged events == 1
-                                }
-                                if( isTTJetsM700_ ){
-                                    if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(2); // expected merged events == 1
-                                    else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(6); // expected merged events == 5
-                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(10); // expected merged events == 1
-                                }
-                            }
-                            else{ // gen partons not merged
-                                exp_dir->second["Expected_Event_Categories_3J"].fill(5); // expected other events == 5
-                                if( isTTJetsM1000_ ){
-                                    if( ttbar.M() < 1200 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
-                                    else if( ttbar.M() >= 1200 && ttbar.M() < 1500 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
-                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
-                                }
-                                if( isTTJetsM700_ ){
-                                    if( ttbar.M() < 800 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(3); // expected other events == 1
-                                    else if( ttbar.M() >= 800 && ttbar.M() < 900 ) exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(7); // expected other events == 5
-                                    else exp_dir->second["Expected_Event_Categories_3J_massbins"].fill(11); // expected other events == 1
-                                }
-                            }
-                        }
-                    }
-                }
+            //find mc weight for top pt for ttbar events
+            if( isTTbar_ ){
+                double top_pt_weight = top_pt_reweighting("nominal");
+                evt_weight_ *= top_pt_weight;
+                //cout << "evt weight: " << evt_weight_ << endl;
             }
-            
-            if( njets < 4 ) return;
+
+            if( njets == 3 ){
+
+                /// Find best permutation
+                permutator_.reset_3J();
+                IDJet* wj2 = 0;
+                Permutation event_perm(clean_jets[2], wj2, clean_jets[0], clean_jets[1], object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge());//wjat, wjb, bhad, blep
+                Permutation best_perm = lost_best_perm( event_perm, "Total", presel_dir.str(), lep_is_tight );
+           
+                bool reco_success_3J = !best_perm.IsEmpty() && best_perm.Prob() < 1e9;
+                if(!sync_ && !reco_success_3J){
+                    //tracker_.track("not sync and not reco success");
+                    return;
+                }
+                if(lep_is_tight) tracker_.track("best perm");
+
+                //if(sync_) {
+                //    if(lep_is_tight) {
+                //        sync_info_.Run  = event.run;
+                //        sync_info_.LumiSection = event.lumi;
+                //        sync_info_.Event= event.evt;
+                //        sync_info_.hasMuon = (object_selector_.lepton_type() == -1) ? 0 : 1;
+                //        sync_info_.RecoSuccess = reco_success;
+                //        if(reco_success)
+                //            sync_info_.MassTT = best_permutation.LVect().M();
+                //        else
+                //            sync_info_.MassTT = -1;
+                //        sync_tree_->Fill();
+                //        tracker_.track("SYNC END", leptype);
+                //    }
+                //    return;
+                //}
+
+
+                //create event dir (contains the dir path to be filled)
+                stringstream evtdir;		
+                evtdir << leptype;
+
+                //Gen matching (TT events only)
+                Permutation mp_3J;
+                if(isTTbar_) {
+                    //generator selection
+                    GenTTBar &ttbar = genp_selector_.ttbar_system();
+
+                    if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+                        mp_3J = dr_matcher_.dr_match(
+                            genp_selector_.ttbar_final_system(),
+                            object_selector_.clean_jets(),
+                            object_selector_.lepton(),
+                            object_selector_.met(),
+                            object_selector_.lepton_charge());
+                        mp_3J.SetMET(object_selector_.met());
+
+                        if( best_perm.AreBsSame(mp_3J) && ( best_perm.WJa() == mp_3J.WJa() || best_perm.WJa() == mp_3J.WJb() ) ) evtdir << "/right";
+                        else if( mp_3J.IsTLepComplete() && mp_3J.BHad() && ( mp_3J.WJa() || mp_3J.WJb() ) ) evtdir << "/matchable";
+                        else evtdir << "/unmatchable";
+                    }
+                    else evtdir << "/noslep";
+                } 
+                else if (isSignal_) {
+                    if(evt_weight_ > 0.) evtdir << "/positive";
+                    else evtdir << "/negative";
+                }
+
+                if(lep_is_tight) tracker_.track("matched perm");
+
+                //cout << "category: " << evtdir.str() << endl;
+
+                //check isolation type
+                bool runpdf = (runsys_ && isTTbar_ && shift == systematics::SysShifts::NOSYS);
+                evtdir << "/" << sys_name << "/";
+                bool tight;
+                switch(object_selector_.event_type()) {
+                    case TTObjectSelector::EvtType::TIGHTMU: 
+                    case TTObjectSelector::EvtType::TIGHTEL: evtdir << "tight"; runpdf &= true; tight=true; break;
+                    case TTObjectSelector::EvtType::LOOSEMU: 
+                    case TTObjectSelector::EvtType::LOOSEEL: evtdir << "looseNOTTight"; runpdf &= false; tight=false; break;
+                    default: throw 42; break;
+                }
+                if(!tight && shift != Sys::NOSYS) return;
+
+                //MT category (fixed, now)
+                evtdir << "/MTHigh";
+
+                //cout << "category: " << evtdir.str() << endl;
+                //if( evtdir.str().find("right") ) cout << "category: " << evtdir.str() << endl;
+                //fill right category
+                fill_3J_selection_plots("3J_Events/selection/"+evtdir.str(), event, best_perm, false);
+                fill_3J_selection_plots(evtdir.str(), event, best_perm, runpdf);
+                if(lep_is_tight) tracker_.track("END", leptype);
+
+
+                if( shift == systematics::SysShifts::NOSYS ){
+                    if(isTTbar_) {
+                        //generator selection
+                        GenTTBar &ttbar = genp_selector_.ttbar_system();
+
+                        if( ttbar.type == GenTTBar::DecayType::SEMILEP ) {
+                            fill_3J_pre_alpha_reso_plots("3J_Events/Pre_Alpha/Resolution", best_perm, ttbar);
+                            fill_3J_post_alpha_reso_plots("3J_Events/Post_Alpha/Resolution", best_perm, ttbar);
+                        }
+                    } 
+                    fill_3J_pre_alpha_reco_plots("3J_Events/Pre_Alpha/Reconstruction", best_perm);
+                    fill_3J_post_alpha_reco_plots("3J_Events/Post_Alpha/Reconstruction", best_perm);
+                }
+
+
+                return;
+            } // njets == 3 requirement
+
+
+
+    //// events with 4+ jets
 
             // cout << object_selector_.clean_jets().size() << " --> " << permutator_.capped_jets().size() << endl;
             // for(auto i : object_selector_.clean_jets()) {
@@ -735,10 +1318,9 @@ class htt_simple : public AnalyzerBase
             // }
             // cout << endl << endl;
 
-            //            if( njets > 3 ){
             //Find best permutation
             Permutation best_permutation;
-            int idx = 0;
+            //int idx = 0;
             for(auto& test_perm : permutator_.permutations()) {
                 solver_.Solve(test_perm);
 
@@ -753,7 +1335,10 @@ class htt_simple : public AnalyzerBase
                 // 			 << test_perm.BHad() << ", j1: " << test_perm.WJa() << ", j2: " 
                 // 			 << test_perm.WJb() << endl;
                 // }
-                if(!sync_ && lep_is_tight) fill_combo_plots(presel_dir.str(), test_perm);
+                if(!sync_ && lep_is_tight){
+                    fill_combo_plots(presel_dir.str(), test_perm);
+                    fill_combo_plots("4PJ/selection/"+presel_dir.str(), test_perm);
+                }
                 if(test_perm.Prob()  < best_permutation.Prob()) {
                     best_permutation = test_perm;
                     // cout << "This is the best so far!" << endl; 
@@ -908,6 +1493,7 @@ class htt_simple : public AnalyzerBase
 
             //fill right category
             fill_selection_plots(evtdir.str(), event, best_permutation, runpdf);
+            fill_selection_plots("4PJ/selection/"+evtdir.str(), event, best_permutation, runpdf);
             if(lep_is_tight) tracker_.track("END", leptype);
             //           } // end of 4+ jet loop
 
@@ -917,6 +1503,7 @@ class htt_simple : public AnalyzerBase
         //run your proper analysis here
         virtual void analyze(){
             opts::variables_map &values = URParser::instance().values();
+            //int limit = 1000;
             int limit = values["limit"].as<int>();
             int report = values["report"].as<int>();
             int skip  = values["skip"].as<int>();
@@ -933,8 +1520,8 @@ class htt_simple : public AnalyzerBase
             Logger::log().debug() << tree_ << " " << tree_->GetEntries() << endl;
             URStreamer event(tree_);
 
-            while(event.next()) {
-                // if(evt_idx_ % 1000 == 0) Logger::log().warning() << "Beginning event: " << evt_idx_ << endl;
+            while( event.next() )
+            {
 
                 if(picker.active()){
                     if(picker.contains(event.run, event.lumi, event.evt)) {
@@ -942,19 +1529,19 @@ class htt_simple : public AnalyzerBase
                     }
                     else continue;
                 }
-                if(limit > 0 && evt_idx_ > limit) {
-                    return;
-                }
                 evt_idx_++;
                 if(skip > 0 && evt_idx_ < skip) {
                     continue;
                 }
                 evt_idx_--;
                 if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+                if(limit > 0 && evt_idx_ > limit) {
+                    return;
+                }
                 evt_idx_++;
 
                 if(isTTbar_){
-                    genp_selector_.select(event);			
+                    genp_selector_.select(event);           
                 }
 
                 for(auto shift : systematics_){
@@ -966,9 +1553,10 @@ class htt_simple : public AnalyzerBase
                     tracker_.group("");
                     if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
                 }
-                //cout << "evt_idx: " << evt_idx_ << endl;
             } //while(event.next())
-        }
+
+            Logger::log().debug() << "End of analyze() " << evt_idx_ << endl;
+        } // end of analyze()
 
         //this method is called at the end of the job, by default saves
         //every histogram/tree produced, override it if you need something more

@@ -55,7 +55,8 @@ styles = {
    'single*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : ROOT.kMagenta,
+      'fillcolor' : '#008900',
+      #'fillcolor' : ROOT.kMagenta,
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "single top",
@@ -71,10 +72,11 @@ styles = {
    'tt*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : ROOT.kOrange + 1,
+      'fillcolor' : 'r',
+      #'fillcolor' : ROOT.kOrange + 1,
       'linecolor' : 'black',
 			'linewidth' : 1,
-      'name' : "ttbar",
+      'name' : "t#bar{t}",
       'fillstyle': 'solid',
       },
    'tt[WZ]*' : {
@@ -111,7 +113,7 @@ styles = {
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "b's Swapped",
-      'fillstyle': '0',
+      'fillstyle': '1001',
       },
    '*OTHER' : {
       'legendstyle' : 'l',

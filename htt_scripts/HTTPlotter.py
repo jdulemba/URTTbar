@@ -43,6 +43,7 @@ parser.add_argument('--btag', action='store_true', help='')
 parser.add_argument('--card', action='store_true', help='')
 parser.add_argument('--sysplots', action='store_true', help='dumps systematics plots, valid only if --card')
 parser.add_argument('--smoothsys', default='', help='')
+parser.add_argument('--njets', default='', help='choose 3, 4+')
 #parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 args = parser.parse_args()
 
@@ -60,8 +61,10 @@ class HTTPlotter(Plotter):
 	def __init__(self, mode, lumi=None):
 		'Inits the plotter, mode is either "electrons" or "muons" and identifies what will be plotted'
 		lumi = lumi if lumi > 0 else None
-		filtering = lambda x: not os.path.basename(x).startswith('data') or \
-			 (os.path.basename(x).startswith('data') and mode[:-1] in os.path.basename(x).lower())
+		filtering = lambda x: 'HtoTT' not in x or not os.path.basename(x).startswith('data') or \
+			 (os.path.basename(x).startswith('data') and mode[:-1] in os.path.basename(x).lower())# or \
+			 #'HtoTT' not in x
+
 		self.tt_to_use = 'ttJets'
 		self.tt_shifted = {
 			'mtop_up'   : 'ttJets_mtopup',
@@ -72,12 +75,21 @@ class HTTPlotter(Plotter):
 			'fsr_down' : 'ttJets_fsrdown',
 			}
 		jobid = os.environ['jobid']
+
 		files = glob.glob('results/%s/htt_simple/*.root' % jobid)
-		files = filter(filtering, files)
-		logging.debug('files found %s' % files.__repr__())
+		data_files = [ fname for fname in files if (os.path.basename(fname).startswith('data') and mode[:-1] in os.path.basename(fname).lower() ) ]
+		MC_files = [ fname for fname in files if not ('data' in fname or 'HtoTT' in fname) ]
+		#files = filter(filtering, files)
+		files = data_files+MC_files
+		#logging.debug('files found %s' % files.__repr__())
+
 		lumis = glob.glob('inputs/%s/*.lumi' % jobid)
-		lumis = filter(filtering, lumis)
-		logging.debug('lumi files found %s' % lumis.__repr__())
+		data_lumis = [ fname for fname in lumis if (os.path.basename(fname).startswith('data') and mode[:-1] in os.path.basename(fname).lower() ) ]
+		MC_lumis = [ fname for fname in lumis if not ('data' in fname or 'HtoTT' in fname) ]
+		#lumis = filter(filtering, lumis)
+		lumis = data_lumis+MC_lumis
+		#logging.debug('lumi files found %s' % lumis.__repr__())
+
 		self.tt_lhe_weights = prettyjson.loads(
 			open('inputs/%s/ttJets.weights.json' % jobid).read()
 			)
@@ -88,17 +100,29 @@ class HTTPlotter(Plotter):
 			#defaults = {'save' : {'png' : True, 'pdf' : False}}
 			)
 
+		#set_trace()
 		#select only mode subdir
 		for info in self.views.itervalues():
-			info['view'] = views.SubdirectoryView(info['view'], mode)
-			info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
+			if args.njets == '3':
+				info['view'] = views.SubdirectoryView(info['view'], '3J_Events/selection/'+mode)
+				info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '3J_Events/selection/'+mode)
+			elif args.njets == '4+':
+				info['view'] = views.SubdirectoryView(info['view'], '4PJ/selection/'+mode)
+				info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '4PJ/selection/'+mode)
+			else:
+				info['view'] = views.SubdirectoryView(info['view'], mode)
+				info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
+
+			#info['view'] = views.SubdirectoryView(info['view'], mode)
+			#info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
 		self.views['data']['view'] = urviews.BlindView(
 			self.views['data']['view'], 
 			'\w+/tight/MTHigh/(:?(:?m_tt)|(:?.+_ctstar)|(:?cdelta_ld)|(:?hframe_ctheta_d))'
 			)
 
 		self.defaults = {
-			'blurb' : [13, self.views['data']['intlumi']]
+			'blurb' : [13, self.views['data']['intlumi']],
+			'save' : {'png' : True, 'pdf' : False}
 			}
 		self.jobid = jobid
 
@@ -146,7 +170,8 @@ class HTTPlotter(Plotter):
 						self.views['ttJets_matchable'  ]['view'],
 						self.views['ttJets_right'      ]['view'],						
 						),
-					fillcolor = ROOT.kOrange + 1
+					fillcolor = 'r'
+					#fillcolor = ROOT.kOrange + 1
 					),
 				't#bar{t}'
 				)
@@ -156,7 +181,8 @@ class HTTPlotter(Plotter):
 			'view' : views.TitleView(
 				views.StyleView(
 					views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', '[WZ]Jets', 'tt[WZ]*']]),
-					fillcolor = ROOT.kGreen + 1
+					fillcolor = '#008900'
+					#fillcolor = ROOT.kGreen + 1
 					),
 					'EW'
 				)
@@ -180,6 +206,7 @@ class HTTPlotter(Plotter):
 		## signal sub-samples
 		## 
 		added_samples = []
+		#set_trace()
 		for sample in self.views.keys():
 			if sample.startswith('HtoTT_'): 
 				raise ValueError("I did not implement it yet remember to swap the H and A")
@@ -686,11 +713,13 @@ class HTTPlotter(Plotter):
 			'single*',			
 			'ttJets_preselection'
 			]
+		#set_trace()
 		self.plot_mc_vs_data(*args, **kwargs)
 		if systematics is not None:
 			data = [i for i in self.keep if isinstance(i, ROOT.TH1)][0]
 			mc_stack = [i for i in self.keep if isinstance(i, ROOT.THStack)][0]
 			stack_sum = sum(mc_stack.hists)
+			set_trace()
 			self.reset()
 			dirname = args[0].split('/')[0]
 			path = args[0]
@@ -840,13 +869,14 @@ variables = [
   (False, "eta_tlep"	, "#eta_{T}(t_{lep}) (GeV)", 5, None, False),		
   (False, "pt_tt"	, "p_{T}(tt) (GeV)", 5, (0, 1000), False),		
   (False, "eta_tt"	, "#eta_{T}(tt) (GeV)", 2, None, False),		
+  (False, "full_discriminant_3j"	, "#lambda_{comb} 3 jets",   2, (0, 25), False),		
   (False, "full_discriminant_4j"	, "#lambda_{comb} 4 jets",   2, (5, 30), False),		
   (False, "full_discriminant_5j"	, "#lambda_{comb} 5 jets",   2, (5, 30), False),		
-  (False, "full_discriminant_6Pj"	, "#lambda_{comb} > 6 jets", 2, (5, 30), False),		
+  (False, "full_discriminant_6Pj"	, "#lambda_{comb} #geq 6 jets", 2, (5, 30), False),		
 ]
 
 preselection = [
-	(False, "MT" , "MT",  10, (0, 300), False),
+	(False, "MT" , "M_{T}",  10, (0, 300), False),
     (False, "njets"	 , "# of selected jets", range(13), None, False),
     (False, "jets_eta", "#eta(jet)", 5, None, False),
     (False, "jets_pt", "p_{T}(jet)", 10, (0, 300), False),
@@ -865,7 +895,7 @@ preselection = [
 permutations = [
 	(False, "bjets_pt", "p_{T} (b-jets)", 10, (0, 300), False),
 	(False, "wjets_pt", "p_{T} (W-jets)", 10, (0, 200), False),
-	(False, "full_discriminant", "#lambda_{C}", 1, (8, 30), False),
+	(False, "full_discriminant", "#lambda_{C}", 1, (0, 30), False),
 	(False, "nu_discriminant", "#chi^{2}_{#nu}", 1, None, False),
 	(False, "mass_discriminant", "#lambda_{M}", 1, None, False),
 	(False, "Wmasshad", "M(W_{h})", 2, (0,400), False),
@@ -877,12 +907,18 @@ permutations = [
 jet_categories = ["3jets", "4jets", "5Pjets"]
 
 #cut flow
-if args.flow or args.all:
-	flow = plotter.cut_flow()
-	plotter.save('cut_flow')
+#if args.flow or args.all:
+#	flow = plotter.cut_flow()
+#	plotter.save('cut_flow')
+
 
 if args.preselection or args.all:
-	plotter.set_subdir('preselection')
+	if args.njets == '3':
+		plotter.set_subdir('3Jets/preselection')
+	elif args.njets == '4+':
+		plotter.set_subdir('4PJets/preselection')
+	else:
+		plotter.set_subdir('preselection')
 	for logy, var, axis, rebin, x_range, leftside in preselection + permutations:
 		plotter.make_preselection_plot(
 			'nosys/preselection', var, sort=True,
@@ -894,7 +930,13 @@ if args.plots or args.all:
 	vals = []
 	for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh']):
 		tdir = '%s/%s' % dirid
-		plotter.set_subdir(tdir)
+		if args.njets == '3':
+			plotter.set_subdir('3Jets/'+tdir)
+		elif args.njets == '4+':
+			plotter.set_subdir('4PJets/'+tdir)
+		else:
+			plotter.set_subdir(tdir)
+		#plotter.set_subdir(tdir)
 		first = True
 		for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
 			if 'discriminant' in var:
@@ -911,17 +953,22 @@ if args.plots or args.all:
 				vals.append(
 					(tdir, plotter.get_yields(50))
 					)	
-			if '4j' in var:
+			if '3j' in var:
+			    plotter.make_sample_table(threshold=50, fname='Discriminant_3J_yields.raw_txt')
+			    vals.append(
+			    	(tdir, plotter.get_yields(50))
+			    	)	
+			elif '4j' in var:
 			    plotter.make_sample_table(threshold=50, fname='Discriminant_4J_yields.raw_txt')
 			    vals.append(
 			    	(tdir, plotter.get_yields(50))
 			    	)	
-			if '5j' in var:
+			elif '5j' in var:
 			    plotter.make_sample_table(threshold=50, fname='Discriminant_5J_yields.raw_txt')
 			    vals.append(
 			    	(tdir, plotter.get_yields(50))
 			    	)	
-			if '6Pj' in var:
+			elif '6Pj' in var:
 			    plotter.make_sample_table(threshold=50, fname='Discriminant_6PJ_yields.raw_txt')
 			    vals.append(
 			    	(tdir, plotter.get_yields(50))

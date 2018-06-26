@@ -83,11 +83,11 @@ class htt_flav_effs : public AnalyzerBase
 
                 mc_weights_.init(sample);
 
-                parser.addCfgParameter<float>("event", "MT", "");
+                parser.addCfgParameter<float>("event", "MTCut", "");
                 parser.addCfgParameter<string>("permutations", "tightb", "");
                 parser.addCfgParameter<string>("permutations", "looseb", "");
                 parser.parseArguments();
-                cut_MT_ = parser.getCfgPar<float>("event", "MT");
+                cut_MT_ = parser.getCfgPar<float>("event", "MTCut");
 
                 cut_tight_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("permutations", "tightb"));
                 cut_loose_b_ = IDJet::tag(URParser::instance().getCfgPar<string>("permutations", "looseb"));

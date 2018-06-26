@@ -204,149 +204,145 @@ def post_alpha_corrections(directory, subdir, topology):
     }
 
 
-    #for kvar in reco_hists.keys():
-    #    plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Reconstruction', kvar]))
+    for kvar in reco_hists.keys():
+        plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Reconstruction', kvar]))
    
-    #    print '\n\n%s\n' % kvar
- 
-    #    for obj in reco_hists[kvar].keys():
+        for obj in reco_hists[kvar].keys():
 
-    #        if var_types[kvar].has_key(obj):
-    #            xlabel = 'Reco %s' % var_types[kvar][obj]
-    #        elif obj == 'THad_Labframe':
-    #            xlabel = 'Reco cos(#theta)(t_{h}) LF'
-    #        else:
-    #            xlabel = ''
+            if var_types[kvar].has_key(obj):
+                xlabel = 'Reco %s' % var_types[kvar][obj]
+            elif obj == 'THad_Labframe':
+                xlabel = 'Reco cos(#theta)(t_{h}) LF'
+            else:
+                xlabel = ''
 
-    #        to_draw = []
-    #        for corr_type in reco_hists[kvar][obj].keys():
-    #            hvar_extension = reco_hists[kvar][obj][corr_type][0]
-    #            hname = '/'.join([directory, 'Post_Alpha_Correction', 'Reconstruction', kvar, obj+hvar_extension])
+            to_draw = []
+            for corr_type in reco_hists[kvar][obj].keys():
+                hvar_extension = reco_hists[kvar][obj][corr_type][0]
+                hname = '/'.join([directory, 'Post_Alpha_Correction', 'Reconstruction', kvar, obj+hvar_extension])
 
-    #            hist = asrootpy(myfile.Get(hname)).Clone()
+                hist = asrootpy(myfile.Get(hname)).Clone()
 
-    #            if hist.Integral() == 0:
-    #                continue
+                if hist.Integral() == 0:
+                    continue
   
-    #            if hist.DIM == 2:
-    #                plotter.plot(hist)
-    #                hist.Draw('colz')
-    #                hist.set_x_title(reco_hists[kvar][obj][corr_type][1])
-    #                hist.set_y_title(reco_hists[kvar][obj][corr_type][2])
+                if hist.DIM == 2:
+                    plotter.plot(hist)
+                    hist.Draw('colz')
+                    hist.set_x_title(reco_hists[kvar][obj][corr_type][1])
+                    hist.set_y_title(reco_hists[kvar][obj][corr_type][2])
 
-    #                plotter.save('%s_%s_%s' % (obj, kvar, corr_type))
-    #                set_trace()
-    #                continue
-
-
-    #                ## set hist range, get hist mean and rms 
-    #            hvar_xmin = reco_hists[kvar][obj][corr_type][1]
-    #            hvar_xmax = reco_hists[kvar][obj][corr_type][2]
-    #            hvar_col = reco_hists[kvar][obj][corr_type][3]
-
-    #            hist.xaxis.range_user = hvar_xmin, hvar_xmax
-    #            hmean = hist.GetMean()
-    #            hrms = hist.GetRMS()
-
-    #                ## set hist style, plot, and save
-    #            plotter.set_histo_style(hist, xtitle='%s %s' % (corr_type, xlabel), ytitle=defyax)
-    #            plotter.plot(hist, drawstyle='hist')
-    #            box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
-    #            box1.Draw()
-    #            plotter.save('Reco_%s_%s_%s' % (kvar, obj, corr_type))
-
-    #                ## set hist style to be compared with other type
-    #            plotter.set_histo_style(hist, color=hvar_col, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, hmean, hrms) )
-    #            to_draw.append(hist)
+                    plotter.save('%s_%s_%s' % (obj, kvar, corr_type))
+                    #set_trace()
+                    continue
 
 
-    #            ## compare uncorreced/corrected hists
-    #        if not to_draw:
-    #            continue
-    #        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-    #        plotter.save('Reco_%s_%s_Comparison' % (kvar, obj) )
-    #        set_trace()
+                    ## set hist range, get hist mean and rms 
+                hvar_xmin = reco_hists[kvar][obj][corr_type][1]
+                hvar_xmax = reco_hists[kvar][obj][corr_type][2]
+                hvar_col = reco_hists[kvar][obj][corr_type][3]
+
+                hist.xaxis.range_user = hvar_xmin, hvar_xmax
+                hmean = hist.GetMean()
+                hrms = hist.GetRMS()
+
+                    ## set hist style, plot, and save
+                plotter.set_histo_style(hist, xtitle='%s %s' % (corr_type, xlabel), ytitle=defyax)
+                plotter.plot(hist, drawstyle='hist')
+                box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+                box1.Draw()
+                plotter.save('Reco_%s_%s_%s' % (kvar, obj, corr_type))
+
+                    ## set hist style to be compared with other type
+                plotter.set_histo_style(hist, color=hvar_col, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, hmean, hrms) )
+                to_draw.append(hist)
+
+
+                ## compare uncorreced/corrected hists
+            if not to_draw:
+                continue
+            plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            plotter.save('Reco_%s_%s_Comparison' % (kvar, obj) )
+            #set_trace()
 
 
 
-###### plots for resolution
+##### plots for resolution
 
-    #reso_hists = {
-    #    'Mass' : {
-    #                'THad' : { 'Uncorrected' : ('', -200., 200., 'b'), 'Corrected' : ('_Corrected', -100., 100., 'r') },
-    #                'TTbar' : { 'Uncorrected' : ('', -400., 500., 'b'), 'Corrected' : ('_Corrected', -400., 400., 'r') },
-    #                'Frac_THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -0.5, 0.5, 'r') },
-    #                'Frac_TTbar' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') },
-    #                'Reso_MTTbar_vs_Gen_MTTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Uncorrected M(t#bar{t}) Resolution [GeV]') },
-    #                'Reso_MTTbar_Corrected_vs_Gen_MTTbar' : { 'Corrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Corrected Reco M(t#bar{t}) Resolution [GeV]') }
-    #     },
-    #    'Costh' : {
-    #                'THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') }
-    #    }
-    #}
+    reso_hists = {
+        'Mass' : {
+                    'THad' : { 'Uncorrected' : ('', -200., 200., 'b'), 'Corrected' : ('_Corrected', -100., 100., 'r') },
+                    'TTbar' : { 'Uncorrected' : ('', -400., 500., 'b'), 'Corrected' : ('_Corrected', -400., 400., 'r') },
+                    'Frac_THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -0.5, 0.5, 'r') },
+                    'Frac_TTbar' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') },
+                    'Reso_MTTbar_vs_Gen_MTTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Uncorrected M(t#bar{t}) Resolution [GeV]') },
+                    'Reso_MTTbar_Corrected_vs_Gen_MTTbar' : { 'Corrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Corrected Reco M(t#bar{t}) Resolution [GeV]') }
+         },
+        'Costh' : {
+                    'THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') }
+        }
+    }
 
-    #for kvar in reso_hists.keys():
-    #    plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar]))
+    for kvar in reso_hists.keys():
+        plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar]))
    
-    #    print '\n\n%s\n' % kvar
- 
-    #    for obj in reso_hists[kvar].keys():
+        for obj in reso_hists[kvar].keys():
 
-    #        if var_types[kvar].has_key(obj):
-    #            xlabel = '%s Resolution' % var_types[kvar][obj]
-    #        elif obj == 'Frac_THad':
-    #            xlabel = 'M(t_{h}) Fractional Resolution (G-R/G)'
-    #        elif obj == 'Frac_TTbar':
-    #            xlabel = 'M(t#bar{t}) Fractional Resolution (G-R/G)'
-    #        else:
-    #            xlabel = ''
+            if var_types[kvar].has_key(obj):
+                xlabel = '%s Resolution' % var_types[kvar][obj]
+            elif obj == 'Frac_THad':
+                xlabel = 'M(t_{h}) Fractional Resolution (G-R/G)'
+            elif obj == 'Frac_TTbar':
+                xlabel = 'M(t#bar{t}) Fractional Resolution (G-R/G)'
+            else:
+                xlabel = ''
 
-    #        to_draw = []
-    #        for corr_type in reso_hists[kvar][obj].keys():
-    #            hvar_extension = reso_hists[kvar][obj][corr_type][0]
-    #            hname = '/'.join([directory, 'Post_Alpha_Correction', 'Resolution', kvar, obj+hvar_extension])
+            to_draw = []
+            for corr_type in reso_hists[kvar][obj].keys():
+                hvar_extension = reso_hists[kvar][obj][corr_type][0]
+                hname = '/'.join([directory, 'Post_Alpha_Correction', 'Resolution', kvar, obj+hvar_extension])
 
-    #            hist = asrootpy(myfile.Get(hname)).Clone()
+                hist = asrootpy(myfile.Get(hname)).Clone()
 
-    #            if hist.Integral() == 0:
-    #                continue
+                if hist.Integral() == 0:
+                    continue
   
-    #            if hist.DIM == 2:
-    #                plotter.plot(hist)
-    #                hist.Draw('colz')
-    #                hist.set_x_title(reso_hists[kvar][obj][corr_type][1])
-    #                hist.set_y_title(reso_hists[kvar][obj][corr_type][2])
+                if hist.DIM == 2:
+                    plotter.plot(hist)
+                    hist.Draw('colz')
+                    hist.set_x_title(reso_hists[kvar][obj][corr_type][1])
+                    hist.set_y_title(reso_hists[kvar][obj][corr_type][2])
 
-    #                plotter.save('%s_%s_%s' % (obj, kvar, corr_type))
-    #                continue
-
-
-    #                ## set hist range, get hist mean and rms 
-    #            hvar_xmin = reso_hists[kvar][obj][corr_type][1]
-    #            hvar_xmax = reso_hists[kvar][obj][corr_type][2]
-    #            hvar_col = reso_hists[kvar][obj][corr_type][3]
-
-    #            hist.xaxis.range_user = hvar_xmin, hvar_xmax
-    #            hmean = hist.GetMean()
-    #            hrms = hist.GetRMS()
-
-    #                ## set hist style, plot, and save
-    #            plotter.set_histo_style(hist, xtitle='%s %s' % (corr_type, xlabel), ytitle=defyax)
-    #            plotter.plot(hist, drawstyle='hist')
-    #            box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
-    #            box1.Draw()
-    #            plotter.save('Reso_%s_%s_%s' % (kvar, obj, corr_type))
-
-    #                ## set hist style to be compared with other type
-    #            plotter.set_histo_style(hist, color=hvar_col, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, hmean, hrms) )
-    #            to_draw.append(hist)
+                    plotter.save('%s_%s_%s' % (obj, kvar, corr_type))
+                    continue
 
 
-    #            ## compare uncorreced/corrected hists
-    #        if not to_draw:
-    #            continue
-    #        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-    #        plotter.save('Reso_%s_%s_Comparison' % (kvar, obj) )
+                    ## set hist range, get hist mean and rms 
+                hvar_xmin = reso_hists[kvar][obj][corr_type][1]
+                hvar_xmax = reso_hists[kvar][obj][corr_type][2]
+                hvar_col = reso_hists[kvar][obj][corr_type][3]
+
+                hist.xaxis.range_user = hvar_xmin, hvar_xmax
+                hmean = hist.GetMean()
+                hrms = hist.GetRMS()
+
+                    ## set hist style, plot, and save
+                plotter.set_histo_style(hist, xtitle='%s %s' % (corr_type, xlabel), ytitle=defyax)
+                plotter.plot(hist, drawstyle='hist')
+                box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+                box1.Draw()
+                plotter.save('Reso_%s_%s_%s' % (kvar, obj, corr_type))
+
+                    ## set hist style to be compared with other type
+                plotter.set_histo_style(hist, color=hvar_col, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, hmean, hrms) )
+                to_draw.append(hist)
+
+
+                ## compare uncorreced/corrected hists
+            if not to_draw:
+                continue
+            plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            plotter.save('Reso_%s_%s_Comparison' % (kvar, obj) )
 
 
     parton_acceptances = {
@@ -423,8 +419,6 @@ def post_alpha_corrections(directory, subdir, topology):
             plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts]))
         #plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts]))
    
-        print '\n\n%s\n' % nparts
-
         for ndim in parton_acceptances[nparts].keys():
 
             if ndim == '1D':
@@ -491,64 +485,85 @@ def post_alpha_corrections(directory, subdir, topology):
 
                     plotter.save( varname )
 
-                #    #### split 2D plots into bins of gen M(ttbar), overlaying uncorrected/corrected hists
-                #plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'yproj']))
-                #uncorr_varname = parton_acceptances[nparts][ndim]['hists']['Uncorrected']
-                #corr_varname = parton_acceptances[nparts][ndim]['hists']['Corrected']
+                        #### split 2D plots into bins of gen M(ttbar), overlaying uncorrected/corrected hists
+                    plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'yproj', corr_type]))
+                    #uncorr_varname = parton_acceptances[nparts][ndim]['hists']['Uncorrected']
+                    #corr_varname = parton_acceptances[nparts][ndim]['hists']['Corrected']
 
-                #if nparts == 'All':
-                #    continue
+                    #if nparts == 'All':
+                    #    continue
 
-                #uncorr_hname = '/'.join([directory, 'Post_Alpha_Correction', 'Resolution', 'Parton_Acceptance', uncorr_varname])
-                #corr_hname = '/'.join([directory, 'Post_Alpha_Correction', 'Resolution', 'Parton_Acceptance', corr_varname])
+                    #uncorr_hname = '/'.join([directory, 'Post_Alpha_Correction', 'Resolution', 'Parton_Acceptance', uncorr_varname])
+                    #corr_hname = '/'.join([directory, 'Post_Alpha_Correction', 'Resolution', 'Parton_Acceptance', corr_varname])
 
-                #uncorr_hist = asrootpy(myfile.Get(uncorr_hname)).Clone()
-                #corr_hist = asrootpy(myfile.Get(corr_hname)).Clone()
+                    #uncorr_hist = asrootpy(myfile.Get(uncorr_hname)).Clone()
+                    #corr_hist = asrootpy(myfile.Get(corr_hname)).Clone()
 
-                #if uncorr_hist.Integral() == 0 or corr_hist.Integral() == 0:
-                #    print 'One of the hists is empty!'
-                #    sys.exit()
+                    #if uncorr_hist.Integral() == 0 or corr_hist.Integral() == 0:
+                    #    print 'One of the hists is empty!'
+                    #    sys.exit()
 
-                #xbins = np.linspace(uncorr_hist.GetXaxis().GetBinLowEdge(1), uncorr_hist.GetXaxis().GetBinUpEdge(uncorr_hist.GetXaxis().GetNbins()), uncorr_hist.GetNbinsX()/2+1) # combine 2 xbins
-                #ybins = np.linspace(uncorr_hist.GetYaxis().GetBinLowEdge(1), uncorr_hist.GetYaxis().GetBinUpEdge(uncorr_hist.GetYaxis().GetNbins()), uncorr_hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
+                    #xbins = np.linspace(hist.GetXaxis().GetBinLowEdge(1), hist.GetXaxis().GetBinUpEdge(hist.GetXaxis().GetNbins()), hist.GetNbinsX()/10+1) # combine 10 xbins
+                    #ybins = np.linspace(hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
 
-                #uncorr_hist = RebinView.newRebin2D(uncorr_hist, xbins, ybins)
-                #corr_hist = RebinView.newRebin2D(corr_hist, xbins, ybins)
-                #for xbin in range(uncorr_hist.GetNbinsX() + 1):
-                #    uncorr_hist_yproj = uncorr_hist.ProjectionY("", xbin, xbin)
-                #    corr_hist_yproj = corr_hist.ProjectionY("", xbin, xbin)
 
-                #    if uncorr_hist_yproj.Integral() == 0 and corr_hist_yproj.Integral() == 0:
-                #        continue
+                        ## make list of cumulative integrals for each bin
+                    starting_min_binval = 100 # minimum number of allowed events for bins
+                    min_binval = 100 # minimum number of allowed events for bins
+                    binval = 0
+                    bins = []
 
-                #    set_trace()
-                #    uncorr_hist_yproj.Draw('hist')
-                #    uncorr_hist_yproj.SetXTitle('Uncorrected')
-                #    uncorr_hist_yproj.SetYTitle(defyax)
-                #    #uncorr_hist_yproj.SetLineColor('b')
-                #    #plotter.set_histo_style(uncorr_hist_yproj, xtitle='Uncorrected', ytitle=defyax)
-                #    #plotter.plot(hist, drawstyle='hist')
+                    bin_cum_ints = [ hist.Integral(1, xbin, 1, hist.GetNbinsY()) for xbin in range(1, hist.GetNbinsX()+1) ]
+                    first_nonzero_indx = [ n for n,i in enumerate(bin_cum_ints) if i > 0 ][0]+1
+                    last_nonzero_indx = [ n for n,i in enumerate(bin_cum_ints) if i == hist.Integral() ][0]+2
 
-                #    corr_hist_yproj.Draw('hist same')
-                #    corr_hist_yproj.SetXTitle('Corrected')
-                #    corr_hist_yproj.SetYTitle(defyax)
-                #    #corr_hist_yproj.SetLineColor('r')
+                    bins.append(first_nonzero_indx)
 
-                #    #mean = hist_yproj.GetMean()
-                #    #stddev= hist_yproj.GetStdDev()
-                #    genmttbar_range = '%.1f #leq Gen M(t#bar{t}) #leq %.1f' % (uncorr_hist.GetXaxis().GetBinLowEdge(xbin), uncorr_hist.GetXaxis().GetBinUpEdge(xbin))
+                        ### start loop
+                    while round(hist.Integral()-binval, -2) > starting_min_binval:
+                        Bin = [ n for n,i in enumerate(bin_cum_ints) if i > min_binval ][0]
+                        bins.append(Bin)
+                        binval = bin_cum_ints[Bin] #find integral up to that bin
+                        min_binval = starting_min_binval + binval # update minimum integral needed
 
-                #    box1 = plotter.make_text_box('%s' % genmttbar_range, position='NE')
-                #    box1.Draw()
+                    bins.append(last_nonzero_indx)
 
-                #    #plotter.overlay([uncorr_hist_yproj, corr_hist_yproj], legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist')
+
+                    #set_trace()
+                    xbins = np.array( [hist.GetXaxis().GetBinLowEdge(i) for i in bins ] )
+                    ybins = np.linspace(hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
+
+
+                    hist = RebinView.newRebin2D(hist, xbins, ybins)
+                    for xbin in range(hist.GetNbinsX() + 1):
+                        hist_yproj = hist.ProjectionY("", xbin, xbin)
+
+                        if hist_yproj.Integral() == 0:
+                            continue
+
+                        hist_yproj.Draw('hist')
+                        hist_yproj.SetXTitle(corr_type)
+                        hist_yproj.SetYTitle(defyax)
+                        #hist_yproj.SetLineColor('b')
+                        #plotter.set_histo_style(hist_yproj, xtitle='Uncorrected', ytitle=defyax)
+                        #plotter.plot(hist, drawstyle='hist')
+
+
+                        mean_proj = hist_yproj.GetMean()
+                        rms_proj = hist_yproj.GetRMS()
+                        genmttbar_range = '%.0f #leq Gen M(t#bar{t}) #leq %.0f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin))
+
+                        box1 = plotter.make_text_box('%s\nMean=%.2f\nRMS=%.2f' % (genmttbar_range, mean_proj, rms_proj), position='NE')
+                        box1.Draw()
+
+                        #set_trace()
+                        plotter.save('%s_%s' % (varname, hist.GetXaxis().GetBinLowEdge(xbin)) )
+                    set_trace()
                     
     #            box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
     #            box1.Draw()
     #        plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
 
-                    #plotter.save('%s_%s' % (varname, hist.GetXaxis().GetBinLowEdge(xbin)) )
-                    #set_trace()
 
 
 
