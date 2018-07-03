@@ -343,7 +343,7 @@ class ctag_eff : public AnalyzerBase
             book<TH1F>(folder, "nvtx_noweight", "", 100, 0., 100.);
             book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
             book<TH1F>(folder, "rho", "", 100, 0., 100.);
-            book<TH1F>(folder, "weight", "", 100, 0., 20.);
+            book<TH1F>(folder, "weight", "", 100, -10., 10.);
             book<TH1F>(folder, "lep_pt"   , ";p_{T}(l) (GeV)", 500, 0., 500.);
             book<TH1F>(folder, "lep_eta"  , ";#eta(l) (GeV)", 300, -3, 3);
             book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
@@ -411,7 +411,7 @@ class ctag_eff : public AnalyzerBase
         }
 
         void book_notag_plots(string folder){
-            book<TH1F>(folder, "evt_weight", "", 100, 0., 50.);
+            book<TH1F>(folder, "evt_weight", "", 100, -10.,10.);
                 // btag sf
             book<TH1F>(folder, "btag_sf", "", 50, 0.6, 1.2);
             book<TH1F>(folder, "btag_sf_B", "", 50, 0.6, 1.2);
@@ -517,6 +517,7 @@ class ctag_eff : public AnalyzerBase
 
         void fill_notag_plots(string folder, Permutation &hyp, systematics::SysShifts shift){
             auto dir = histos_.find(folder);
+
             dir->second["evt_weight"].fill(evt_weight_);
             dir->second["muon_sf"].fill( muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
             dir->second["muon_sf_vs_mu_pt"].fill( object_selector_.muon()->Pt(), muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta()), evt_weight_ );
@@ -524,8 +525,35 @@ class ctag_eff : public AnalyzerBase
             dir->second["btag_sf"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
             dir->second["btag_sf_up"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
             dir->second["btag_sf_dw"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
-            for(IDJet* jet : {hyp.BHad(), hyp.BLep(), hyp.WJa(), hyp.WJb()}){
-                int hflav = fabs(jet->hadronFlavour());
+            for(IDJet* jet : {hyp.BHad()} ){//, hyp.BLep(), hyp.WJa(), hyp.WJb()}){
+                //int hflav = fabs(jet->hadronFlavour());
+                int hflav = fabs(jet->partonFlavour());
+                //int pflav = fabs(jet->partonFlavour());
+                string hstr;
+                if(hflav == 5){
+                    hstr="B";
+                //dir->second["btag_sf_"+hstr].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+                //dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+                dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({jet}, shift, true), evt_weight_);
+
+                //dir->second["btag_sf_"+hstr+"_up"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
+                //dir->second["btag_sf_vs_pt_"+hstr+"_up"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
+
+                //dir->second["btag_sf_"+hstr+"_dw"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
+                //dir->second["btag_sf_vs_pt_"+hstr+"_dw"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
+                }
+
+                else if(hflav == 4) {
+                    hstr="C";
+                }
+                else {
+                    hstr="L"; 
+                }
+            }
+
+            for(IDJet* jet : {hyp.WJa()} ){//, hyp.BLep(), hyp.WJa(), hyp.WJb()}){
+                //int hflav = fabs(jet->hadronFlavour());
+                int hflav = fabs(jet->partonFlavour());
                 //int pflav = fabs(jet->partonFlavour());
                 string hstr;
                 if(hflav == 5) hstr="B";
@@ -534,22 +562,43 @@ class ctag_eff : public AnalyzerBase
                 }
                 else {
                     hstr="L"; 
+                
+                //dir->second["btag_sf_"+hstr].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+                dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({jet}, shift), evt_weight_);
+                //dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
+
+                //dir->second["btag_sf_"+hstr+"_up"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
+                //dir->second["btag_sf_vs_pt_"+hstr+"_up"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
+
+                //dir->second["btag_sf_"+hstr+"_dw"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
+                //dir->second["btag_sf_vs_pt_"+hstr+"_dw"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
                 }
-                dir->second["btag_sf_"+hstr].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
-                dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
-
-                dir->second["btag_sf_"+hstr+"_up"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
-                dir->second["btag_sf_vs_pt_"+hstr+"_up"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
-
-                dir->second["btag_sf_"+hstr+"_dw"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
-                dir->second["btag_sf_vs_pt_"+hstr+"_dw"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW), evt_weight_);
-
-//cout << "btag nom: " << btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift) << endl;
-//cout << "btag nosys: " << btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::NOSYS) << endl;
-//cout << "btag up: " << btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP) << endl;
-//cout << "btag dw: " << btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_DW) << endl;
 
             }
+    //cout << "bhad, blep sf: " << btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift) << endl;
+    //cout << "bhad sf: " << btag_sf_.scale_factor({hyp.BHad()}, shift) << endl;
+            //TLorentzVector test_vec(20,0,0,0);
+            //cout << "test vec pt: " << test_vec.Pt() << endl;
+            //cout << "test vec: " << test_vec << endl;
+            //IDJet* test_jet(hyp.BHad()){
+            //IDJet* test_jet(test_vec);
+            //IDJet* tmp = 0;
+            //IDJet* test_jet = 0;
+            //tmp = hyp.BHad();
+            //test_jet = hyp.BHad();
+        
+            //cout << "test : " << *test_jet << endl;
+            //test_jet->scale(20./tmp->Pt());
+            //test_jet(test_jet->Pt()=20);
+            //    test_jet->partonFlavour() = 5;
+            //    return test_jet;
+            ////test_jet->Pt() == 20;
+            //}
+            //cout << "jet flavour, pt: " << test_jet->partonFlavour() << ", " << test_jet->Pt() << endl;
+            //cout << "BHad flavour, pt: " << hyp.BHad()->partonFlavour() << ", " << hyp.BHad()->Pt() << endl;
+            //cout << "test : " << *test_jet << endl;
+            //cout << "BHad : " << *hyp.BHad() << endl;
+
 
             string mueta_range;
             if( abs(object_selector_.muon()->Eta()) < 0.9 ){

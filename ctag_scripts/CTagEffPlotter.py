@@ -1301,6 +1301,7 @@ vars2D = [
 
 variables = [
   ("njets"	 , "# of selected jets", range(13), None, False),
+  ("evt_weight", "event weight", range(-3,4), None, False),
   ("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
   ("muon_sf"	 , "SF applied to muon", 1, None, False),
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
@@ -1356,6 +1357,7 @@ preselection = [
   ("lep_eta", "#eta(l)", 10, None, False),
   ("lep_pt", "p_{T}(l)", 10, None, False),
   ("nvtx", "# of reconstructed vertices", range(41), None, False),
+  ("weight", "event weight", range(-3,4), None, False),
   ("rho", "#rho", range(40), None, False),
 ]
 
@@ -1627,12 +1629,26 @@ if args.plots:
 		 for var, axis, rebin, x_range, leftside in variables:
 			 if var == 'mass_discriminant': rebin = plotter.binning[wpoint][cat_name]
 			 folder = os.path.join('nosys', base)
-			 plotter.plot_mc_vs_data(
+			 if var == 'evt_weight':
+				plotter.plot_mc_vs_data(
+				 folder, var, rebin,
+				 xaxis=axis, leftside=leftside,
+				 xrange=x_range, show_ratio=True, 
+				 logy=True, ratio_range=1.0)
+				 #ratio_range=0.5)
+			 else:
+				plotter.plot_mc_vs_data(
 				 folder, var, rebin,
 				 xaxis=axis, leftside=leftside,
 				 xrange=x_range, show_ratio=True, 
 				 ratio_range=1.0)
 				 #ratio_range=0.5)
+			# plotter.plot_mc_vs_data(
+			#	 folder, var, rebin,
+			#	 xaxis=axis, leftside=leftside,
+			#	 xrange=x_range, show_ratio=True, 
+			#	 ratio_range=1.0)
+			#	 #ratio_range=0.5)
 			 plotter.save(var)
 
 #
