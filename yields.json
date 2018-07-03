@@ -1,10 +1,22 @@
 {
     "t#bar{t} unmatchable": {
-        "looseNOTTight/MTHigh/lo": [
-            1819.2476879805326,
-            18.767297591132063
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
         ],
-        "tight/MTHigh/hi": [
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTLow/lo": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTLow/lo": [
             0.0,
             0.0
         ],
@@ -12,17 +24,33 @@
             0.0,
             0.0
         ],
-        "tight/MTHigh/lo": [
-            27263.317421087995,
-            70.35433776664259
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
         ]
     },
     "t#bar{t} matchable": {
-        "looseNOTTight/MTHigh/lo": [
-            1073.8222388029099,
-            14.46445663913176
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
         ],
-        "tight/MTHigh/hi": [
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTLow/lo": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTLow/lo": [
             0.0,
             0.0
         ],
@@ -30,35 +58,67 @@
             0.0,
             0.0
         ],
-        "tight/MTHigh/lo": [
-            21531.312616571784,
-            62.60285284498105
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
         ]
     },
     "QCD": {
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
         "looseNOTTight/MTHigh/lo": [
             0.0,
             0.0
         ],
-        "tight/MTHigh/hi": [
-            6892.453788312152,
-            4656.658281331423
-        ],
-        "looseNOTTight/MTHigh/hi": [
-            11374.798171281815,
-            2833.9665938528315
-        ],
         "tight/MTHigh/lo": [
             0.0,
             0.0
+        ],
+        "tight/MTLow/lo": [
+            1162.5734947249293,
+            633.5188164575527
+        ],
+        "looseNOTTight/MTLow/lo": [
+            34.99037551879883,
+            34.99037474366609
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            2394.283447265625,
+            2394.283357927682
+        ],
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            3188.8507199287415,
+            2374.718634021862
         ]
     },
     "Other t#bar{t}": {
-        "looseNOTTight/MTHigh/lo": [
-            372.4407828003168,
-            8.478128267431535
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
         ],
-        "tight/MTHigh/hi": [
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTLow/lo": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTLow/lo": [
             0.0,
             0.0
         ],
@@ -66,17 +126,33 @@
             0.0,
             0.0
         ],
-        "tight/MTHigh/lo": [
-            5965.411409843713,
-            32.788338674487434
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
         ]
     },
     "Observed": {
-        "looseNOTTight/MTHigh/lo": [
-            7050.0,
-            83.96427811873333
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
         ],
-        "tight/MTHigh/hi": [
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTLow/lo": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTLow/lo": [
             0.0,
             0.0
         ],
@@ -84,17 +160,33 @@
             0.0,
             0.0
         ],
-        "tight/MTHigh/lo": [
-            77561.0,
-            278.4977558257876
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
         ]
     },
     "t#bar{t} matched": {
-        "looseNOTTight/MTHigh/lo": [
-            681.9737888430245,
-            11.345647086248768
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
         ],
-        "tight/MTHigh/hi": [
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTLow/lo": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTLow/lo": [
             0.0,
             0.0
         ],
@@ -102,17 +194,33 @@
             0.0,
             0.0
         ],
-        "tight/MTHigh/lo": [
-            15432.4328589855,
-            52.23716068485735
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
         ]
     },
     "Other": {
-        "looseNOTTight/MTHigh/lo": [
-            1960.771424989216,
-            735.5992166143905
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
         ],
-        "tight/MTHigh/hi": [
+        "looseNOTTight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/lo": [
+            0.0,
+            0.0
+        ],
+        "tight/MTLow/lo": [
+            0.0,
+            0.0
+        ],
+        "looseNOTTight/MTLow/lo": [
             0.0,
             0.0
         ],
@@ -120,63 +228,115 @@
             0.0,
             0.0
         ],
-        "tight/MTHigh/lo": [
-            3982.0045912459027,
-            285.0295920886584
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            0.0,
+            0.0
         ]
     },
     "single top": {
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
         "looseNOTTight/MTHigh/lo": [
             0.0,
             0.0
         ],
-        "tight/MTHigh/hi": [
-            9601.216006051749,
-            96.74746378535168
-        ],
-        "looseNOTTight/MTHigh/hi": [
-            451.94320127367973,
-            21.416781227877543
-        ],
         "tight/MTHigh/lo": [
             0.0,
             0.0
+        ],
+        "tight/MTLow/lo": [
+            12.11682391166687,
+            6.207163021818287
+        ],
+        "looseNOTTight/MTLow/lo": [
+            2.0677709579467773,
+            2.067770846683569
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            21.575672179460526,
+            7.610808138257602
         ]
     },
     "t#bar{t}": {
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
         "looseNOTTight/MTHigh/lo": [
             0.0,
             0.0
         ],
-        "tight/MTHigh/hi": [
-            222004.49406421185,
-            200.64951561187902
-        ],
-        "looseNOTTight/MTHigh/hi": [
-            10862.116879984736,
-            45.91943648728989
-        ],
         "tight/MTHigh/lo": [
             0.0,
             0.0
+        ],
+        "tight/MTLow/lo": [
+            41091.85888671875,
+            88.5484569230365
+        ],
+        "looseNOTTight/MTLow/lo": [
+            1318.297607421875,
+            16.173525890664585
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            3125.6388376951218,
+            24.963540023277936
+        ],
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            92908.41151952744,
+            133.32265646499292
         ]
     },
     "EW": {
+        "looseNOTTight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
         "looseNOTTight/MTHigh/lo": [
             0.0,
             0.0
         ],
-        "tight/MTHigh/hi": [
-            6479.000709623797,
-            615.1806155094292
-        ],
-        "looseNOTTight/MTHigh/hi": [
-            254.7264440068975,
-            124.86898852012034
-        ],
         "tight/MTHigh/lo": [
             0.0,
             0.0
+        ],
+        "tight/MTLow/lo": [
+            967.3098526000977,
+            278.167925573419
+        ],
+        "looseNOTTight/MTLow/lo": [
+            2.8053895123302937,
+            2.1820915800862113
+        ],
+        "looseNOTTight/MTHigh/hi": [
+            143.34982681274414,
+            132.7909051492482
+        ],
+        "tight/MTLow/hi": [
+            0.0,
+            0.0
+        ],
+        "tight/MTHigh/hi": [
+            2959.635013836436,
+            535.9646319880987
         ]
     }
 }

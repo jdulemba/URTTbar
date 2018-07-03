@@ -181,7 +181,7 @@ class HTTPlotter(Plotter):
 			'view' : views.TitleView(
 				views.StyleView(
 					views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', '[WZ]Jets', 'tt[WZ]*']]),
-					fillcolor = '#008900'
+					fillcolor = '#FFD700'
 					#fillcolor = ROOT.kGreen + 1
 					),
 					'EW'
@@ -886,8 +886,8 @@ preselection = [
     (False, "rho", "#rho", range(40), None, False),
 	(False, "lep_iso", 'l rel Iso', 1, [0,1], False),
 	(False, "lep_wp" , "electron wp", 1, None, False),
-	(True	, "cMVA"    , "cMVA",  1, None, False),
-	(True	, "cMVA_p11", "cMVA^{11}", 1, None, False),
+	(True	, "csv"    , "csv",  1, None, False),
+	(True	, "csv_p11", "csv^{11}", 1, None, False),
 	(False, "METPhi", "MET #varphi", 4, None, False),
 	(False, "MET"   , "MET E_{T}"  , 1, [0, 400], False),
 ]
@@ -918,7 +918,7 @@ if args.preselection or args.all:
 	elif args.njets == '4+':
 		plotter.set_subdir('4PJets/preselection')
 	else:
-		plotter.set_subdir('preselection')
+		plotter.set_subdir('Incl/preselection')
 	for logy, var, axis, rebin, x_range, leftside in preselection + permutations:
 		plotter.make_preselection_plot(
 			'nosys/preselection', var, sort=True,
@@ -928,14 +928,15 @@ if args.preselection or args.all:
 
 if args.plots or args.all:
 	vals = []
-	for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh']):
+	#for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh']):
+	for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh', 'MTLow']):
 		tdir = '%s/%s' % dirid
 		if args.njets == '3':
 			plotter.set_subdir('3Jets/'+tdir)
 		elif args.njets == '4+':
 			plotter.set_subdir('4PJets/'+tdir)
 		else:
-			plotter.set_subdir(tdir)
+			plotter.set_subdir('Incl/'+tdir)
 		#plotter.set_subdir(tdir)
 		first = True
 		for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
@@ -1016,7 +1017,7 @@ if args.btag:
 		'[WZ][WZ]', 'QCD*', '[WZ]Jets', 
 		'single*', 'ttJets_preselection'
 		]
-	hists = [i.Get('jets_cMVA_WP') for i in plotter.mc_views(1, None, 'nosys/preselection')]
+	hists = [i.Get('jets_csv_WP') for i in plotter.mc_views(1, None, 'nosys/preselection')]
 	plotter.mc_samples = mc_default
 	ttb = hists[-1]
 	bkg = sum(hists[:-1])

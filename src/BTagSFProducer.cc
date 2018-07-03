@@ -183,6 +183,8 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
   double mc_prob=1;
   double data_like_prob=1; //it's called data, but is on MC!
 
+  if( debug ) cout << "njets: " << jets.size() << endl;
+
   for(auto jet : jets) {
     BTagEntry::JetFlavor jet_flav;
     double jpt = jet->Pt();
@@ -245,10 +247,14 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
     if(float_value < 0) { //use provided SF
       try { 
         tight_sf = reader_tight_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
-				if(no_loose_cut_)
+				if(no_loose_cut_){
+                    //cout << "no loose cut tight sf: " << tight_sf << endl;
 					loose_sf = tight_sf;
-				else
+                }
+				else{
+                    //cout << "loose_cut" << endl;
 					loose_sf = reader_loose_->eval_auto_bounds(systematic, jet_flav, jet->Eta(), jet->Pt());
+                }
       } catch(std::out_of_range e) {
         Logger::log().fatal() << "Problem accessing BTV SF for jet: " << jet_flav <<
           ", " << jet->Eta() << ", " << jet->Pt() << std::endl;
@@ -270,11 +276,14 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
       }
     }
 
-		if(debug) {
-			Logger::log().debug() << "BTagSFProducer: jpt: " << jet->Pt() << ", jeta: " << jet->Eta()
-														<< ", ID: " << jet->TagId(tight_) << ", eff_tight: " << eff_tight 
-														<< ", tight_sf: " << tight_sf << endl;
-		}
+	if(debug) {
+		Logger::log().debug() << "BTagSFProducer: jpt: " << jet->Pt() << ", jeta: " << jet->Eta() << ", jflav: " << jet_flav
+											<< ", tight ID: " << jet->TagId(tight_) << ", loose ID: " << jet->TagId(loose_)
+                                            << ", eff_tight: " << eff_tight 
+											<< ", tight_sf: " << tight_sf << ", loose_sf: " << loose_sf
+                                            << ", eff_loose: " << eff_loose << ", idx: " << idx 
+                                            << ", tight tag: " << tight_ << ", loose tag: " << loose_ << endl;
+	}
 
     if(jet->TagId(tight_)) {
       mc_prob *= eff_tight;
@@ -291,6 +300,9 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
       mc_prob *= (1-eff_loose);
       data_like_prob *= (1 - eff_loose*loose_sf);
     }
+
+    //cout << "mc_prob: " << mc_prob << ", data_like_prob: " << data_like_prob << endl;
+
   } //for(auto jet : permutator.capped_jets())
   
   if(mc_prob == 0) {

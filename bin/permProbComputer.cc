@@ -58,6 +58,7 @@ class permProbComputer : public AnalyzerBase
         TTBarSolver solver_;
         DR_TTGenMatcher dr_matcher_;
 
+
         float evt_weight_;
         TRandom3 randomizer_;// = TRandom3(98765);
         MCWeightProducer mc_weights_;
@@ -66,7 +67,6 @@ class permProbComputer : public AnalyzerBase
 
         //Scale factors
         LeptonSF electron_sf_, muon_sf_;
-
 
     public:
         permProbComputer(const std::string output_filename):
@@ -80,7 +80,6 @@ class permProbComputer : public AnalyzerBase
             mc_weights_(),
             electron_sf_("electron_sf", false),
             muon_sf_("muon_sf"){
-
 
                 URParser &parser = URParser::instance();
                 parser.parseArguments();
@@ -114,6 +113,7 @@ class permProbComputer : public AnalyzerBase
                 else genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::PSEUDOTOP);
 
                 mc_weights_.init(sample);
+
             };
 
         ~permProbComputer() {
@@ -484,6 +484,7 @@ class permProbComputer : public AnalyzerBase
             }
             tracker_.track("gen selection");
             GenTTBar &ttbar = genp_selector_.ttbar_system();
+            if(skew_tt_distro_) evt_weight_ *= 1.+0.05*(ttbar.top.Pt()-200.)/1000.;
 
             //if( ttbar.M() > 700 ) return;
             dir_3J->second["Mttbar"].fill(ttbar.M());
@@ -493,14 +494,19 @@ class permProbComputer : public AnalyzerBase
             if( !(object_selector_.clean_jets().size() == 3) ) return;
             tracker_.track("obj selection");
 
-            // create vector of jets from event to sort based on btag value
-            vector<IDJet*> jets_vector;
-            for( auto jet : object_selector_.clean_jets() ){
-                jets_vector.push_back(jet);
-                //cout << "jet pT: " << jet->Pt() << endl;
-            }
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
-            if( !jets_vector[1]->BTagId(IDJet::BTag::CSVMEDIUM) ) return; // require at least 2 jets that pass btag
+            //find mc weight
+            if(object_selector_.tight_muons().size() == 1)
+                evt_weight_ *= muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
+            if(object_selector_.tight_electrons().size() == 1)
+                evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
+            tracker_.track("MC weights");
+
+            bool preselection_pass = permutator_.preselection(
+                    object_selector_.clean_jets(), object_selector_.lepton(), object_selector_.met()
+                    );
+            tracker_.track("permutation pre-selection done (not applied)");
+            if( !preselection_pass ) return;
+            tracker_.track("perm preselection");
 
 
             //Gen matching

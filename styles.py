@@ -91,7 +91,8 @@ styles = {
    'QCD*' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
-      'fillcolor' : ROOT.kGray,
+      'fillcolor' : 'c',
+      #'fillcolor' : ROOT.kGray,
       'linecolor' : 'black',
 			'linewidth' : 1,
       'name' : "QCD",
