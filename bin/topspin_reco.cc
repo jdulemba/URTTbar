@@ -316,7 +316,7 @@ public:
 		bool lazy_solving = (njets == 3);
 		auto ordering = (njets > 3) ? [](const Permutation &one, const Permutation &two) {return one.Prob() < two.Prob();} : \
 		    [](const Permutation &one, const Permutation &two) {return one.NuDiscr() < two.NuDiscr();};
-		for(auto test_perm : permutator_.pemutations()) {
+		for(auto test_perm : permutator_.permutations()) {
 			ncycles++;
 			solver_.Solve(test_perm, lazy_solving);
 			fill_combo_plots(presel_dir.str(), test_perm);

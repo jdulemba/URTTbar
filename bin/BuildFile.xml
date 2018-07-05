@@ -9,6 +9,7 @@
 <use   name="rootrflx"/>
 <use   name="rootminuit"/>
 <use name="Analyses/URTTbar"/>
+<use name="JetMETCorrections/Modules"/>
 <flags CXXFLAGS="-Wno-error=reorder -Wno-error=sign-compare -Wno-error=unused-variable -g"/>  
 <bin file="btag_topology_effs.cc" name="btag_topology_effs"/>
 <bin file="ctag_eff.cc"           name="ctag_eff"/>          
