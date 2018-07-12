@@ -18,7 +18,7 @@
 <bin file="topspin_gen.cc"        name="topspin_gen"/>       
 <bin file="topspin_reco.cc"        name="topspin_reco"/>       
 <bin file="ntupleDumper.cc"       name="ntupleDumper"/>
-<bin file="TESTCRASH.cc"        name="TESTCRASH"/>
+<!--bin file="TESTCRASH.cc"        name="TESTCRASH"/-->
 <bin file="htt_simple.cc"        name="htt_simple"/>
 <bin file="htt_flav_effs.cc"        name="htt_flav_effs"/>
 <bin file="permStudy.cc"        name="permStudy"/>

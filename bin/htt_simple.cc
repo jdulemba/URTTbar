@@ -124,7 +124,7 @@ class htt_simple : public AnalyzerBase
             randomizer_(),    
             btag_sf_("permutations.tightb", "permutations.looseb"),
             solver_(true),
-            pdf_uncs_(254),
+            pdf_uncs_(108),
             systematics_(),
             sync_(false),
             sync_tree_(0),
@@ -1293,19 +1293,7 @@ class htt_simple : public AnalyzerBase
                 }
                 if(!tight && shift != Sys::NOSYS) return;
 
-                ////MT category (not fixed, now)
-                ////double mt = MT(best_perm.L(), best_perm.MET());
-                //if( shift == Sys::NOSYS ){
-                //    if( mt < 50. ){
-                //        evtdir << "/MTLow";
-                //        runpdf=false;
-                //    }
-                //    else evtdir << "/MTHigh";
-                //}
-                //else{
-                //    if( mt < 50. ) return;
-                //    evtdir << "/MTHigh";
-                //}
+                //MT category
                 if( shift == Sys::NOSYS ){
                     if( !mt_high ){
                         evtdir << "/MTLow";
@@ -1527,19 +1515,7 @@ class htt_simple : public AnalyzerBase
             }
             if(!tight && shift != Sys::NOSYS) return;
 
-            ////MT category (fixed, now)
-            ////double mt = MT(best_permutation.L(), best_permutation.MET());
-            //if( shift == Sys::NOSYS ){
-            //    if( mt < 50. ){
-            //        evtdir << "/MTLow";
-            //        runpdf=false;
-            //    }
-            //    else evtdir << "/MTHigh";
-            //}
-            //else{
-            //    if( mt < 50. ) return;
-            //    evtdir << "/MTHigh";
-            //}
+            //MT category
             if( shift == Sys::NOSYS ){
                 if( !mt_high ){
                     evtdir << "/MTLow";

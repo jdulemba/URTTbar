@@ -23,7 +23,7 @@
 #include "Analyses/URTTbar/interface/Hypotheses.h"
 #include "TROOT.h"
 #include <algorithm>
-//#include "JetMETCorrections/Modules/interface/JetResolution.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 //#include <map>
 
@@ -49,6 +49,7 @@ class permProbComputer : public AnalyzerBase
 
         //switches
         bool isTTbar_, skew_tt_distro_=false;
+        bool isTTJets_, isTTJetsM0_;
 
         //selectors and helpers
         TTGenParticleSelector genp_selector_;
@@ -108,9 +109,13 @@ class permProbComputer : public AnalyzerBase
                     throw 49;
                 }
 
-                //Do not init the solver, as we do not have the files! 
-                if(values["general.pseudotop"].as<int>() == 0) genp_selector_ = TTGenParticleSelector(); //TTGenParticleSelector::SelMode::LHE); //FIXME allow for herwig setting
-                else genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::PSEUDOTOP);
+                ////Do not init the solver, as we do not have the files! 
+                //if(values["general.pseudotop"].as<int>() == 0) genp_selector_ = TTGenParticleSelector(); //TTGenParticleSelector::SelMode::LHE); //FIXME allow for herwig setting
+                //else genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::PSEUDOTOP);
+
+                bool isTTJets_ = boost::starts_with(sample, "ttJets");
+                if( isTTJets_ ) genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::LHE);
+                else genp_selector_ = TTGenParticleSelector();
 
                 mc_weights_.init(sample);
 
@@ -160,29 +165,28 @@ class permProbComputer : public AnalyzerBase
             auto correct_dir = histos2_.find(folder+"/Correct_Plots");
             auto wrong_dir = histos2_.find(folder+"/Wrong_Plots");
 
-
             // wrong perm
             if( mp_3J.Merged_BHadBLep() ){ // only bhad and blep merged
                 solver_.Solve_3J_Merged(mp_3J);
 
-                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/ wja
-                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M() );// compare merged w/ wjb
-                wrong_dir->second["nusolver_chi2"].fill(mp_3J.NuChisq());
-                wrong_dir->second["nusolver_dist"].fill( pow(mp_3J.NuChisq(), 0.5) );
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M(), evt_weight_ );// compared merged w/ wja
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJb()->M() ? mp_3J.BHad()->M() : mp_3J.WJb()->M(), (*mp_3J.BHad()+*mp_3J.WJb()).M(), evt_weight_ );// compare merged w/ wjb
+                wrong_dir->second["nusolver_chi2"].fill( mp_3J.NuChisq(), evt_weight_ );
+                wrong_dir->second["nusolver_dist"].fill( pow(mp_3J.NuChisq(), 0.5), evt_weight_ );
             }
 
             // only blep merged with wja or wjb -WRONG PERM
             if( mp_3J.Merged_BLepWJa() || mp_3J.Merged_BLepWJb() ){
                 IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BLep() ? mp_3J.WJa() : mp_3J.WJb();
 
-                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared bhad w diff_wjet
-                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compare merged blep w/ diff_wjet
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M(), evt_weight_ );// compared bhad w diff_wjet
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M(), evt_weight_ );// compare merged blep w/ diff_wjet
 
                 for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), mp_3J.L(), mp_3J.MET(), mp_3J.LepCharge()) ){
                     solver_.Solve_3J_Merged(tp);
 
-                    wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                    wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                    wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq(), evt_weight_ );
+                    wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5), evt_weight_ );
                 }
             }
 
@@ -193,12 +197,12 @@ class permProbComputer : public AnalyzerBase
                     solver_.Solve_3J_Merged(tp);
 
                     if( i == 0 ){// correct perm (uses matched perm blep)
-                        correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                        correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                        correct_dir->second["nusolver_chi2"].fill( tp.NuChisq(), evt_weight_ );
+                        correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5), evt_weight_ );
                     }
                     if( i == 1 ){// wrong perm
-                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq(), evt_weight_ );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5), evt_weight_ );
                     }
 
                     i++;
@@ -210,18 +214,18 @@ class permProbComputer : public AnalyzerBase
                 IDJet* diff_wjet = mp_3J.WJa() != mp_3J.BHad() ? mp_3J.WJa() : mp_3J.WJb();
 
                 // correct perm
-                correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M() );// compared merged w/ diff_wjet
+                correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > diff_wjet->M() ? mp_3J.BHad()->M() : diff_wjet->M(), (*mp_3J.BHad()+*diff_wjet).M(), evt_weight_ );// compared merged w/ diff_wjet
 
                 // wrong perm
-                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M() );// compared blep w/ diff_wjet
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BLep()->M() > diff_wjet->M() ? mp_3J.BLep()->M() : diff_wjet->M(), (*mp_3J.BLep()+*diff_wjet).M(), evt_weight_ );// compared blep w/ diff_wjet
             }
 
             if( mp_3J.Merged_WJets() ){ // only wja and wjb merged
                 // correct perm
-                correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M() );// compared merged w/bhad 
+                correct_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.BHad()->M() > mp_3J.WJa()->M() ? mp_3J.BHad()->M() : mp_3J.WJa()->M(), (*mp_3J.BHad()+*mp_3J.WJa()).M(), evt_weight_ );// compared merged w/bhad 
 
                 // wrong perm
-                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.WJa()->M() > mp_3J.BLep()->M() ? mp_3J.WJa()->M() : mp_3J.BLep()->M(), (*mp_3J.WJa()+*mp_3J.BLep()).M() );// compared merged w/ blep
+                wrong_dir->second["mbpjet_vs_maxmjet"].fill(mp_3J.WJa()->M() > mp_3J.BLep()->M() ? mp_3J.WJa()->M() : mp_3J.BLep()->M(), (*mp_3J.WJa()+*mp_3J.BLep()).M(), evt_weight_ );// compared merged w/ blep
 
             }
         }// end of merged events
@@ -237,8 +241,8 @@ class permProbComputer : public AnalyzerBase
                     Logger::log().error() << "Permutation object doesn't exist when it should." << endl;
                     throw 42;}
 
-                wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJa()).M() );
-                wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJb()).M() );
+                wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJa()).M(), evt_weight_ );
+                wrong_dir->second["mbpjet"].fill( (*bjet+*mp_3J.WJb()).M(), evt_weight_ );
 
                 int i = 0;
                 for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), mp_3J.L(), mp_3J.MET(), mp_3J.LepCharge()) ){
@@ -246,14 +250,14 @@ class permProbComputer : public AnalyzerBase
                     if( i == 0 && mp_3J.BLep() ){
                         solver_.Solve_3J_Lost(tp);
 
-                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq(), evt_weight_ );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5), evt_weight_ );
                     }
                     if( i == 1 && mp_3J.BHad() ){// wrong perm
                         solver_.Solve_3J_Lost(tp);
 
-                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq(), evt_weight_ );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5), evt_weight_ );
                     }
                     i++;
                 }
@@ -266,22 +270,22 @@ class permProbComputer : public AnalyzerBase
                     throw 42;}
 
                 // wrong perm
-                wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*wjet).M() );
+                wrong_dir->second["mbpjet"].fill( (*mp_3J.BLep()+*wjet).M(), evt_weight_ );
 
                 // correct perm
-                correct_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*wjet).M() );
+                correct_dir->second["mbpjet"].fill( (*mp_3J.BHad()+*wjet).M(), evt_weight_ );
 
                 int i = 0;
                 for( auto tp : permutator_.permutations_3J(mp_3J.WJa(), mp_3J.WJb(), mp_3J.BHad(), mp_3J.BLep(), mp_3J.L(), mp_3J.MET(), mp_3J.LepCharge()) ){
                     solver_.Solve_3J_Lost(tp);
 
                     if( i == 0 ){// correct perm
-                        correct_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                        correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                        correct_dir->second["nusolver_chi2"].fill( tp.NuChisq(), evt_weight_ );
+                        correct_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5), evt_weight_ );
                     }
                     if( i == 1 ){// wrong perm
-                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq() );
-                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5) );
+                        wrong_dir->second["nusolver_chi2"].fill( tp.NuChisq(), evt_weight_ );
+                        wrong_dir->second["nusolver_dist"].fill( pow(tp.NuChisq(), 0.5), evt_weight_ );
                     }
                     i++;
                 }
@@ -379,33 +383,10 @@ class permProbComputer : public AnalyzerBase
 
 
         // events with 4+ jets
-        void process_evt(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS) {
-            //Fill truth of resp matrix
-            GenTTBar &ttbar = genp_selector_.ttbar_system();
-            if(skew_tt_distro_) evt_weight_ *= 1.+0.05*(ttbar.top.Pt()-200.)/1000.;
-
-            //select reco objects
-            if( !object_selector_.select(event, shift) ) return;
-            if( object_selector_.clean_jets().size() < 4 ) return;
-            tracker_.track("obj selection");
-
-            //find mc weight
-            if(object_selector_.tight_muons().size() == 1)
-                evt_weight_ *= muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
-            if(object_selector_.tight_electrons().size() == 1)
-                evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
-            tracker_.track("MC weights");
-
-            bool preselection_pass = permutator_.preselection(
-                    object_selector_.clean_jets(), object_selector_.lepton(), object_selector_.met()
-                    );
-            tracker_.track("permutation pre-selection done (not applied)");
+        void process_evt( URStreamer &event, GenTTBar &ttbar, systematics::SysShifts shift=systematics::SysShifts::NOSYS ) {
 
             //get needed histo map
             auto plots = histos_.find(shift)->second;    
-
-            if( !preselection_pass ) return;
-            tracker_.track("perm preselection");
 
             //Gen matching
             Permutation matched_perm;
@@ -471,43 +452,13 @@ class permProbComputer : public AnalyzerBase
 
 
         // process 3 jet events
-        void process_3J_evt( URStreamer &event){
+        void process_3J_evt( URStreamer &event, GenTTBar &ttbar){
 
             auto dir_3J = histos2_.find("3J");
 
             permutator_.reset_3J();
-            //generator selection
-            bool selection = genp_selector_.select(event);
-            if( !selection ){
-                Logger::log().debug() << "event has no gen selection " << endl;
-                return;
-            }
-            tracker_.track("gen selection");
-            GenTTBar &ttbar = genp_selector_.ttbar_system();
-            if(skew_tt_distro_) evt_weight_ *= 1.+0.05*(ttbar.top.Pt()-200.)/1000.;
 
-            //if( ttbar.M() > 700 ) return;
             dir_3J->second["Mttbar"].fill(ttbar.M());
-
-            //select reco objects
-            if( !object_selector_.select(event) ) return;
-            if( !(object_selector_.clean_jets().size() == 3) ) return;
-            tracker_.track("obj selection");
-
-            //find mc weight
-            if(object_selector_.tight_muons().size() == 1)
-                evt_weight_ *= muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
-            if(object_selector_.tight_electrons().size() == 1)
-                evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
-            tracker_.track("MC weights");
-
-            bool preselection_pass = permutator_.preselection(
-                    object_selector_.clean_jets(), object_selector_.lepton(), object_selector_.met()
-                    );
-            tracker_.track("permutation pre-selection done (not applied)");
-            if( !preselection_pass ) return;
-            tracker_.track("perm preselection");
-
 
             //Gen matching
             Permutation mp_3J;
@@ -537,15 +488,22 @@ class permProbComputer : public AnalyzerBase
         //run your proper analysis here
         virtual void analyze()
         {
+            Logger::log().debug() << "permProbComputer::analyze" << endl;
+
+            opts::variables_map &values = URParser::instance().values();
+            string output_file = values["output"].as<std::string>();
+            string sample = systematics::get_sample(output_file);
+            bool isTTJetsM0_ = boost::starts_with(sample, "ttJetsM0");
+
             unsigned long evt_idx = 0;
             URStreamer event(tree_);
 
             Logger::log().debug() << "--retrieving running conditions--" << endl;
-            opts::variables_map &values = URParser::instance().values();
             int limit = values["limit"].as<int>();
             int skip  = values["skip"].as<int>();
             int report = values["report"].as<int>();
-            Logger::log().debug() << "-- DONE -- reporting every -- " << report << endl;
+            Logger::log().debug() << "-- DONE -- reporting every -- " << report << " out of " << tree_->GetEntries() << endl;
+
             while(event.next() /*&& evt_idx < 50000*/ ) {
                 if(limit > 0 && evt_idx > limit) {
                     return;
@@ -568,14 +526,45 @@ class permProbComputer : public AnalyzerBase
                     }
                 }
 
-                process_3J_evt(event);
-
                 tracker_.deactivate();    
                 for(auto shift : systematics_){
-                    evt_weight_ = mc_weights_.evt_weight(event, shift);
+                    evt_weight_ = mc_weights_.evt_weight(event, shift); // resets evt_weight and calculates based on pu
                     if(shift == systematics::SysShifts::NOSYS) tracker_.activate();
                     //Logger::log().debug() << "processing: " << shift << endl;
-                    process_evt(event, shift);
+
+
+                    //Fill truth of resp matrix
+                    GenTTBar &ttbar = genp_selector_.ttbar_system();
+                    if(skew_tt_distro_) evt_weight_ *= 1.+0.05*(ttbar.top.Pt()-200.)/1000.;
+
+                    //select reco objects
+                    if( !object_selector_.select(event, shift) ) continue;
+                    if( object_selector_.clean_jets().size() < 3 ) continue;
+                    tracker_.track("obj selection");
+
+                    if( isTTJetsM0_ ){
+                        if( ttbar.M() > 700 ) continue;
+                    }
+
+                    //find mc weight
+                    if(object_selector_.tight_muons().size() == 1)
+                        evt_weight_ *= muon_sf_.get_sf(object_selector_.muon()->Pt(), object_selector_.muon()->Eta());
+                    if(object_selector_.tight_electrons().size() == 1)
+                        evt_weight_ *= electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
+                    tracker_.track("MC weights");
+
+                    bool preselection_pass = permutator_.preselection(
+                            object_selector_.clean_jets(), object_selector_.lepton(), object_selector_.met()
+                            );
+                    tracker_.track("permutation pre-selection done (not applied)");
+
+                    if( !preselection_pass ) continue;
+                    tracker_.track("perm preselection");
+
+
+                    if( object_selector_.clean_jets().size() == 3 ) process_3J_evt(event, ttbar);
+                    if( object_selector_.clean_jets().size() > 3 ) process_evt(event, ttbar, shift);
+
                     if(shift == systematics::SysShifts::NOSYS) tracker_.deactivate();
                 }
 
@@ -616,5 +605,10 @@ int main(int argc, char *argv[])
     //Logger::log().debug() << "RUNNING DONE " << std::endl;
     auto files = gROOT->GetListOfFiles(); //make ROOT aware that some files do not exist, because REASONS
     Logger::log().debug() << "Nfiles " << files->GetSize() << std::endl; //need to print out this otherwise ROOT loses its shit in 7.4.X (such I/O, much features)
+
+    opts::variables_map &values = parser.values();
+    string output_file = values["output"].as<std::string>();
+    Logger::log().debug() << "  Output File: " << output_file << endl;
+
     return excode;
 }
