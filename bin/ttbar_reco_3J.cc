@@ -137,6 +137,8 @@ class ttbar_reco_3J : public AnalyzerBase
         IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
 
 
+        float cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_;
+
         // TTrees for multidim analysis
         TTree *Merged_TreatMerged = 0;
         TTree *Merged_TreatLost = 0;
@@ -171,6 +173,19 @@ class ttbar_reco_3J : public AnalyzerBase
             else object_selector_.lepton_type(1);
         }
         if(!isData_) mc_weights_.init(sample);
+
+        // get parameters from cfg file
+        URParser& parser = URParser::instance();
+
+        parser.addCfgParameter<float>("gen_jets", "ptmin", "minimum pt");
+        parser.addCfgParameter<float>("gen_jets", "etamax", "maximum eta");
+        parser.addCfgParameter<float>("gen_jets", "lead_ptmin", "minimum leading jet pt");
+        parser.parseArguments();
+
+        cut_jet_ptmin_ = parser.getCfgPar<float>("gen_jets", "ptmin" );
+        cut_jet_etamax_ = parser.getCfgPar<float>("gen_jets", "etamax");
+        cut_leadjet_ptmin_ = parser.getCfgPar<float>("gen_jets", "lead_ptmin" );
+
     };
 
         TDirectory* getDir(string path){
@@ -459,7 +474,7 @@ class ttbar_reco_3J : public AnalyzerBase
             book<TH2D>(folder, "Alpha_THad_E", "", 32, 0.9, 2.5, 500, 0., 50.);
 
             // gen vs reco plots for bins of 173.1/reco M(thad)
-                // Energy
+            // Energy
             book<TH2D>(folder, "Gen_vs_Reco_THadE_0.9to1.1", "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
             book<TH2D>(folder, "Gen_vs_Reco_THadE_1.1to1.3", "", 75, 0., 1500., 100, 0., 2000.); // 1.1 < 173.1/reco M(thad) < 1.3
             book<TH2D>(folder, "Gen_vs_Reco_THadE_1.3to1.5", "", 75, 0., 1500., 100, 0., 2000.); // 1.3 < 173.1/reco M(thad) < 1.5
@@ -468,7 +483,7 @@ class ttbar_reco_3J : public AnalyzerBase
             book<TH2D>(folder, "Gen_vs_Reco_THadE_1.9to2.1", "", 75, 0., 1500., 100, 0., 2000.); // 1.9 < 173.1/reco M(thad) < 2.1
             book<TH2D>(folder, "Gen_vs_Reco_THadE_2.1to2.3", "", 75, 0., 1500., 100, 0., 2000.); // 2.1 < 173.1/reco M(thad) < 2.3
             book<TH2D>(folder, "Gen_vs_Reco_THadE_2.3to2.5", "", 75, 0., 1500., 100, 0., 2000.); // 2.3 < 173.1/reco M(thad) < 2.5
-               // Momentum
+            // Momentum
             book<TH2D>(folder, "Gen_vs_Reco_THadP_0.9to1.1", "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
             book<TH2D>(folder, "Gen_vs_Reco_THadP_1.1to1.3", "", 75, 0., 1500., 100, 0., 2000.); // 1.1 < 173.1/reco M(thad) < 1.3
             book<TH2D>(folder, "Gen_vs_Reco_THadP_1.3to1.5", "", 75, 0., 1500., 100, 0., 2000.); // 1.3 < 173.1/reco M(thad) < 1.5
@@ -521,7 +536,7 @@ class ttbar_reco_3J : public AnalyzerBase
             book<TH1F>(folder, "Reso_THad_Costh", "", costh_bins_, -2., 2.);
             book<TH1F>(folder, "Reso_THad_Costh_Corrected", "", costh_bins_, -2., 2.);
 
-            
+
             book<TH2D>(folder, "Reso_MTTbar_Corrected_LCut_THadPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
             book<TH2D>(folder, "Reso_MTTbar_Corrected_GCut_THadPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
             book<TH2D>(folder, "Reso_MTTbar_Corrected_LCut_THadMass_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
@@ -575,8 +590,8 @@ class ttbar_reco_3J : public AnalyzerBase
             }
 
 
-                //alphas found by fitting Alpha_THad_P/E hists
-                    //values taken from 1degree vals ttp://home.fnal.gov/~jdulemba/Plots/ttbar_reco_3J/2018/Compare_Lost_Merged_Jets/Full/ttJetsM0/3J_Event_Plots/Final_Reco/Clear_and_MassCut_Classes/Class_Lost/Alpha_Correction/fit_parameters.json
+            //alphas found by fitting Alpha_THad_P/E hists
+            //values taken from 1degree vals ttp://home.fnal.gov/~jdulemba/Plots/ttbar_reco_3J/2018/Compare_Lost_Merged_Jets/Full/ttJetsM0/3J_Event_Plots/Final_Reco/Clear_and_MassCut_Classes/Class_Lost/Alpha_Correction/fit_parameters.json
             double alpha_E = 0.6356*( 173.1/perm.THad().M() ) + 0.2862; // only alpha_E used because it's more consistent over mtt spectrum 
             //double alpha_P = 0.3853*( 173.1/perm.THad().M() ) + 0.5502;
 
@@ -586,14 +601,14 @@ class ttbar_reco_3J : public AnalyzerBase
 
             // costheta variables
             std::pair< double, double > gen_cosths = gen_costh_tops(ttbar); // < gen thad, tlep costh >
-                // perm thad
+            // perm thad
             hyp::TTbar reco_ttang(perm); // doesn't work because not all wjets defined
             auto reco_ttcm = reco_ttang.to_CM();
             double reco_thad_cth = reco_ttang.unit3D().Dot(reco_ttcm.thad().unit3D());
             double reco_thad_labframe_cth = reco_ttang.unit3D().Dot(perm.THad().Vect().Unit());
             //cout << "reco LF cth: " << reco_thad_labframe_cth << endl;
 
-                // corrected thad
+            // corrected thad
             TLorentzVector reco_corr_ttang = Alpha_THad+perm.TLep();
             TLorentzVector reco_ttcm_corr_thad = Alpha_THad;
             reco_ttcm_corr_thad.Boost(-1*reco_corr_ttang.BoostVector());
@@ -601,7 +616,7 @@ class ttbar_reco_3J : public AnalyzerBase
             double reco_corr_labframe_thad_cth = reco_corr_ttang.Vect().Unit().Dot(Alpha_THad.Vect().Unit());
             //cout << "LF corr cth: " << reco_corr_labframe_cth << endl;
 
-                // reco plots
+            // reco plots
             dir->second["Reco_MTHad"].fill( perm.THad().M() );
             dir->second["Reco_MTHad_Corrected"].fill( Alpha_THad.M() );
 
@@ -617,7 +632,7 @@ class ttbar_reco_3J : public AnalyzerBase
             dir->second["Reco_THad_Costh_Corrected"].fill( reco_corr_thad_cth );
             dir->second["Reco_vs Gen_Corrected_THad_Costh"].fill( gen_cosths.first, reco_corr_thad_cth );
             dir->second["Reco_vs Gen_THad_Costh"].fill(gen_cosths.first, reco_thad_cth);
-                // reso plots
+            // reso plots
             dir->second["Reso_MTHad"].fill( ttbar.had_top()->M() - perm.THad().M() );
             dir->second["Reso_MTHad_Corrected"].fill( ttbar.had_top()->M() - Alpha_THad.M() );
 
@@ -627,21 +642,21 @@ class ttbar_reco_3J : public AnalyzerBase
             dir->second["Reso_MTTbar_Corrected"].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M() );
             dir->second["Reso_MTTbar_Corrected_vs_Gen_MTTbar"].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M() );
 
-            if( ttbar.two_partons_in_acceptance(20., 2.4) ){
+            if( ttbar.two_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 dir->second["Reso_MTTbar_2Partons"].fill( ttbar.M() - perm.LVect().M() );
                 dir->second["Reso_MTTbar_vs_Gen_MTTbar_2Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M() );
 
                 dir->second["Reso_MTTbar_Corrected_2Partons"].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M() );
                 dir->second["Reso_MTTbar_Corrected_vs_Gen_MTTbar_2Partons"].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M() );
             }
-            if( ttbar.three_partons_in_acceptance(20., 2.4) ){
+            if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 dir->second["Reso_MTTbar_3Partons"].fill( ttbar.M() - perm.LVect().M() );
                 dir->second["Reso_MTTbar_vs_Gen_MTTbar_3Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M() );
 
                 dir->second["Reso_MTTbar_Corrected_3Partons"].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M() );
                 dir->second["Reso_MTTbar_Corrected_vs_Gen_MTTbar_3Partons"].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M() );
             }
-            if( ttbar.all_partons_in_acceptance(20., 2.4) ){
+            if( ttbar.all_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 dir->second["Reso_MTTbar_4Partons"].fill( ttbar.M() - perm.LVect().M() );
                 dir->second["Reso_MTTbar_vs_Gen_MTTbar_4Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M() );
 
@@ -765,16 +780,16 @@ class ttbar_reco_3J : public AnalyzerBase
             vector<string> disc_cats = {"LCut", "GCut"};
             vector<string> objects = {"BHad", "BLep", "WJa", "WJb"};
 
-                // plots for each jet in event
+            // plots for each jet in event
             vector<string> jets = {"j1", "j2", "j3"};
 
-                // cut flow categories
+            // cut flow categories
             vector<string> cut_flows = {"Before_Matching", "Bs_and_WJet", "3_Unique", "Merged_or_Lost", "Merged_Bs", "After_Matching", "After_Matching_merged_bp"};
 
-                // classify events based on btagging
+            // classify events based on btagging
             vector<string> btag_cats = {"BTag_LCut", "BTag_GCut"};
 
-                // classify events based on gen-level
+            // classify events based on gen-level
             vector<string> gen_acceptances = {"In_Acceptance", "Not_In_Acceptance"};
             vector<string> partial_hadtop_merges = {"THad_Partial_Merge", "THad_Not_Partial_Merge"};
 
@@ -853,14 +868,14 @@ class ttbar_reco_3J : public AnalyzerBase
             }
 
 
-        //// plots for 3-jet events using event jets as perm
+            //// plots for 3-jet events using event jets as perm
             vector<string> merged_evt_type_categories = {"RIGHT", "MERGED_SWAP", "MERGED", "WRONG"};
             vector<string> merged_best_perm_solutions = {"Clear_Classification/Class_Merged", "Final_Classification/Class_Merged",
-                                                         "Only_Merged", "Merged_BP", "Both_BP/Merged_BP/Class_Merged",
-                                                         "Both_BP/Merged_BP/Class_Lost", "Both_BP/Class_Merged",
-                                                         "Both_BP/Opposite_Class/Merged_BP/Class_Merged",
-                                                         "Both_BP/Opposite_Class/Merged_BP/Class_Lost"
-                                                        };
+                "Only_Merged", "Merged_BP", "Both_BP/Merged_BP/Class_Merged",
+                "Both_BP/Merged_BP/Class_Lost", "Both_BP/Class_Merged",
+                "Both_BP/Opposite_Class/Merged_BP/Class_Merged",
+                "Both_BP/Opposite_Class/Merged_BP/Class_Lost"
+            };
 
             //// reco/resolution plots for events that have clear classifications
             //book_reco_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Reconstruction" );
@@ -871,24 +886,24 @@ class ttbar_reco_3J : public AnalyzerBase
             //book_reso_plots("3J_Event_Plots/Final_Classification/Class_Lost/Resolution" );
 
 
-                // MERGED 3-jet events
+            // MERGED 3-jet events
             for( auto merged_bp_solution : merged_best_perm_solutions ){
 
-                    // plots for merged_bp from 3-jet events
+                // plots for merged_bp from 3-jet events
                 book_disc_plots("3J_Event_Plots/"+merged_bp_solution+"/Discr" );
                 book_gen_plots( "3J_Event_Plots/"+merged_bp_solution+"/Gen" );
                 book_reco_plots("3J_Event_Plots/"+merged_bp_solution+"/Reconstruction" );
                 book_reso_plots("3J_Event_Plots/"+merged_bp_solution+"/Resolution" );
 
                 for( auto merged_evt_type_cat : merged_evt_type_categories ){
-                        // plots for merged_bp from 3-jet events
+                    // plots for merged_bp from 3-jet events
                     book_disc_plots("3J_Event_Plots/"+merged_bp_solution+"/Discr/"+merged_evt_type_cat );
                     book_gen_plots( "3J_Event_Plots/"+merged_bp_solution+"/Gen/"+merged_evt_type_cat );
                     book_reco_plots("3J_Event_Plots/"+merged_bp_solution+"/Reconstruction/"+merged_evt_type_cat );
                     book_reso_plots("3J_Event_Plots/"+merged_bp_solution+"/Resolution/"+merged_evt_type_cat );
 
                     for( auto disc_cat : disc_cats ){
-                            // plots for merged_bp from 3-jet events
+                        // plots for merged_bp from 3-jet events
                         book_disc_plots("3J_Event_Plots/"+merged_bp_solution+"/Discr/"+merged_evt_type_cat+"/"+disc_cat );
                         book_gen_plots( "3J_Event_Plots/"+merged_bp_solution+"/Gen/"+merged_evt_type_cat+"/"+disc_cat );
                         book_reco_plots("3J_Event_Plots/"+merged_bp_solution+"/Reconstruction/"+merged_evt_type_cat+"/"+disc_cat );
@@ -906,7 +921,7 @@ class ttbar_reco_3J : public AnalyzerBase
                     }
                 }
                 for( auto disc_cat : disc_cats ){
-                        // plots for merged_bp from 3-jet events
+                    // plots for merged_bp from 3-jet events
                     book_gen_plots( "3J_Event_Plots/"+merged_bp_solution+"/Gen/"+disc_cat );
                     book_reco_plots("3J_Event_Plots/"+merged_bp_solution+"/Reconstruction/"+disc_cat );
                     book_reso_plots("3J_Event_Plots/"+merged_bp_solution+"/Resolution/"+disc_cat );
@@ -923,18 +938,18 @@ class ttbar_reco_3J : public AnalyzerBase
             }
 
 
-                // LOST 3-jet events
+            // LOST 3-jet events
             vector<string> lost_evt_type_categories = {"RIGHT", "LOST_SWAP", "LOST", "WRONG"};
             vector<string> lost_best_perm_solutions = { "Clear_Classification/Class_Lost", "Final_Classification/Class_Lost",
-                                                        "Only_Lost", "Lost_BP", "Both_BP/Lost_BP/Class_Merged",
-                                                        "Both_BP/Lost_BP/Class_Lost", "Both_BP/Class_Lost",
-                                                        "Both_BP/Opposite_Class/Lost_BP/Class_Merged",
-                                                        "Both_BP/Opposite_Class/Lost_BP/Class_Lost"
-                                                      };
+                "Only_Lost", "Lost_BP", "Both_BP/Lost_BP/Class_Merged",
+                "Both_BP/Lost_BP/Class_Lost", "Both_BP/Class_Lost",
+                "Both_BP/Opposite_Class/Lost_BP/Class_Merged",
+                "Both_BP/Opposite_Class/Lost_BP/Class_Lost"
+            };
 
             for( auto lost_bp_solution : lost_best_perm_solutions ){
 
-                    // plots for lost_bp from 3-jet events
+                // plots for lost_bp from 3-jet events
                 book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr" );
                 book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen" );
                 book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction" );
@@ -942,7 +957,7 @@ class ttbar_reco_3J : public AnalyzerBase
                 book_alpha_correction_plots("3J_Event_Plots/"+lost_bp_solution+"/Alpha_Correction" );
 
                 for( auto lost_evt_type_cat : lost_evt_type_categories ){
-                        // plots for lost_bp from 3-jet events
+                    // plots for lost_bp from 3-jet events
                     book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr/"+lost_evt_type_cat );
                     book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen/"+lost_evt_type_cat );
                     book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction/"+lost_evt_type_cat );
@@ -950,11 +965,11 @@ class ttbar_reco_3J : public AnalyzerBase
                     book_alpha_correction_plots("3J_Event_Plots/"+lost_bp_solution+"/Alpha_Correction/"+lost_evt_type_cat );
 
                     for( auto disc_cat : disc_cats ){
-                    //        // plots for lost_bp from 3-jet events
-                    //    book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr/"+lost_evt_type_cat+"/"+disc_cat );
-                    //    book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen/"+lost_evt_type_cat+"/"+disc_cat );
-                    //    book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction/"+lost_evt_type_cat+"/"+disc_cat );
-                    //    book_reso_plots("3J_Event_Plots/"+lost_bp_solution+"/Resolution/"+lost_evt_type_cat+"/"+disc_cat );
+                        //        // plots for lost_bp from 3-jet events
+                        //    book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr/"+lost_evt_type_cat+"/"+disc_cat );
+                        //    book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen/"+lost_evt_type_cat+"/"+disc_cat );
+                        //    book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction/"+lost_evt_type_cat+"/"+disc_cat );
+                        //    book_reso_plots("3J_Event_Plots/"+lost_bp_solution+"/Resolution/"+lost_evt_type_cat+"/"+disc_cat );
 
                         if( lost_bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged" || lost_bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost" ){
                             book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr/THad_Mass/"+disc_cat+"/"+lost_evt_type_cat );
@@ -968,10 +983,10 @@ class ttbar_reco_3J : public AnalyzerBase
                     }
                 }
                 for( auto disc_cat : disc_cats ){
-                //        // plots for lost_bp from 3-jet events
-                //    book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen/"+disc_cat );
-                //    book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction/"+disc_cat );
-                //    book_reso_plots("3J_Event_Plots/"+lost_bp_solution+"/Resolution/"+disc_cat );
+                    //        // plots for lost_bp from 3-jet events
+                    //    book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen/"+disc_cat );
+                    //    book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction/"+disc_cat );
+                    //    book_reso_plots("3J_Event_Plots/"+lost_bp_solution+"/Resolution/"+disc_cat );
 
                     if( lost_bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged" || lost_bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost" ){
                         book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr/THad_Mass/"+disc_cat );
@@ -1164,12 +1179,12 @@ class ttbar_reco_3J : public AnalyzerBase
             if( mp.Lost_Event() ) event_perm_type = "Lost";
 
 
-                /// classify based on gen-level info
-            if( ttbar.all_partons_in_acceptance(20, 2.4) ) acceptance = "In_Acceptance";
+            /// classify based on gen-level info
+            if( ttbar.all_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ) acceptance = "In_Acceptance";
             else acceptance = "Not_In_Acceptance";
             if(ttbar.partial_hadronic_merged(0.4) ) partial_merge = "THad_Partial_Merge";
             else partial_merge = "THad_Not_Partial_Merge";
-                        
+
             ///
 
 
@@ -1306,7 +1321,7 @@ class ttbar_reco_3J : public AnalyzerBase
                 fill_reco_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatMerged/Reconstruction", merged_bp);
                 fill_reso_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatMerged/Resolution", merged_bp, ttbar);
 
-                    //fill plots based on Prob value
+                //fill plots based on Prob value
                 if( merged_bp.Prob() < 2 ) disc_cut = "LCut";
                 else disc_cut = "GCut";
                 fill_gen_plots( "Matched_Perm_Plots/"+event_perm_type+"/TreatMerged/Gen/"+disc_cut, ttbar);
@@ -1337,7 +1352,7 @@ class ttbar_reco_3J : public AnalyzerBase
                 //fill_reco_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatMerged/"+btag_cat+"/Reconstruction/"+disc_cut, merged_bp);
                 //fill_reso_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatMerged/"+btag_cat+"/Resolution/"+disc_cut, merged_bp, ttbar);
                 /////
-                
+
                 ///// classify based on gen-level info
                 //fill_perm_btag( "Matched_Perm_Plots/"+event_perm_type+"/TreatMerged/Gen_Reqs/"+acceptance+"/"+partial_merge+"/BTag", merged_bp);
 
@@ -1366,7 +1381,7 @@ class ttbar_reco_3J : public AnalyzerBase
                 fill_reco_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatLost/Reconstruction", lost_bp);
                 fill_reso_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatLost/Resolution", lost_bp, ttbar);
 
-                    //fill plots based on Prob value
+                //fill plots based on Prob value
                 if( lost_bp.Prob() < 2 ) disc_cut = "LCut";
                 else disc_cut = "GCut";
                 fill_gen_plots( "Matched_Perm_Plots/"+event_perm_type+"/TreatLost/Gen/"+disc_cut, ttbar);
@@ -1397,7 +1412,7 @@ class ttbar_reco_3J : public AnalyzerBase
                 //fill_reco_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatLost/"+btag_cat+"/Reconstruction/"+disc_cut, lost_bp);
                 //fill_reso_plots("Matched_Perm_Plots/"+event_perm_type+"/TreatLost/"+btag_cat+"/Resolution/"+disc_cut, lost_bp, ttbar);
                 /////
-                
+
                 ///// classify based on gen-level info
                 //fill_perm_btag( "Matched_Perm_Plots/"+event_perm_type+"/TreatLost/Gen_Reqs/"+acceptance+"/"+partial_merge+"/BTag", lost_bp);
 
@@ -1433,14 +1448,14 @@ class ttbar_reco_3J : public AnalyzerBase
             tracker_.track("Gen_Cats/SEMILEP");
 
 
-                /// classify based on gen-level info
+            /// classify based on gen-level info
             string acceptance;
             string partial_merge;
-            if( ttbar.all_partons_in_acceptance(20, 2.4) ) acceptance = "In_Acceptance";
+            if( ttbar.all_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ) acceptance = "In_Acceptance";
             else acceptance = "Not_In_Acceptance";
             if(ttbar.partial_hadronic_merged(0.4) ) partial_merge = "THad_Partial_Merge";
             else partial_merge = "THad_Not_Partial_Merge";
-                
+
             tracker_.track("Gen_Cats/"+acceptance+"/"+partial_merge);        
             fill_gen_plots( "Gen_Cat_Plots/"+acceptance+"/"+partial_merge+"/Gen", ttbar);
 
@@ -1460,14 +1475,14 @@ class ttbar_reco_3J : public AnalyzerBase
             //cout << "number of genjets: " << genjets.size() << endl;
             //int i = 1;
             for( auto jet : object_selector_.clean_jets() ){
-            //    cout << "jet " << i << endl;
-            //    for( auto genjet : genjets ){
-            //        double dr = jet->DeltaR(genjet);
-            //        cout << "   DR(jet, genjet): " << dr << endl;
-            //        if( dr < 0.4 ) cout << "jet pt: " << jet->Pt() << ", genjet pt: " << genjet.Pt() << endl;
-            //    }
+                //    cout << "jet " << i << endl;
+                //    for( auto genjet : genjets ){
+                //        double dr = jet->DeltaR(genjet);
+                //        cout << "   DR(jet, genjet): " << dr << endl;
+                //        if( dr < 0.4 ) cout << "jet pt: " << jet->Pt() << ", genjet pt: " << genjet.Pt() << endl;
+                //    }
                 jets_vector.push_back(jet);
-            //    ++i;
+                //    ++i;
             }
             sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->Pt() > B->Pt() ); });
             IDJet* j1 = jets_vector[0];
@@ -1518,7 +1533,7 @@ class ttbar_reco_3J : public AnalyzerBase
             fill_jet_kin_plots("Gen_Cat_Plots/"+acceptance+"/"+partial_merge+"/Jet_Kin/After_Matching/"+gen_costh_cat+"/j3", j3);
 
             //// Find best permutations based on Merged and Lost solvers
-                // merged perm
+            // merged perm
             Permutation merged_bp = merged_best_perm(mp);
             if( !merged_bp.IsEmpty() ){
                 fill_gen_plots( "Gen_Cat_Plots/"+acceptance+"/"+partial_merge+"/TreatMerged/Gen", ttbar);
@@ -1677,35 +1692,35 @@ class ttbar_reco_3J : public AnalyzerBase
 
             // merged_bp plots
 
-                // filling reco and reso plots in cases where the classification is obvious
+            // filling reco and reso plots in cases where the classification is obvious
             if( bp_solution == "Both_BP/Class_Merged" ){// || bp_solution == "Only_Merged" ){
                 fill_disc_plots("3J_Event_Plots/Clear_Classification/Class_Merged/Discr", merged_bp );
                 fill_gen_plots( "3J_Event_Plots/Clear_Classification/Class_Merged/Gen", ttbar );
                 fill_reco_plots("3J_Event_Plots/Clear_Classification/Class_Merged/Reconstruction", merged_bp );
                 fill_reso_plots("3J_Event_Plots/Clear_Classification/Class_Merged/Resolution", merged_bp, ttbar );
 
-                    //break up by event categories
+                //break up by event categories
                 fill_disc_plots("3J_Event_Plots/Clear_Classification/Class_Merged/Discr/"+merged_perm_status, merged_bp );
                 fill_gen_plots( "3J_Event_Plots/Clear_Classification/Class_Merged/Gen/"+merged_perm_status, ttbar );
                 fill_reco_plots("3J_Event_Plots/Clear_Classification/Class_Merged/Reconstruction/"+merged_perm_status, merged_bp );
                 fill_reso_plots("3J_Event_Plots/Clear_Classification/Class_Merged/Resolution/"+merged_perm_status, merged_bp, ttbar );
             }
 
-                // filling reco and reso plots in for final classifications
+            // filling reco and reso plots in for final classifications
             if( bp_solution == "Both_BP/Class_Merged" || bp_solution == "Both_BP/Opposite_Class/Merged_BP/Class_Merged/THad_Mass/GCut" || bp_solution == "Both_BP/Opposite_Class/Merged_BP/Class_Lost/THad_Mass/GCut" ){
                 fill_disc_plots("3J_Event_Plots/Final_Classification/Class_Merged/Discr", merged_bp );
                 fill_gen_plots( "3J_Event_Plots/Final_Classification/Class_Merged/Gen", ttbar );
                 fill_reco_plots("3J_Event_Plots/Final_Classification/Class_Merged/Reconstruction", merged_bp );
                 fill_reso_plots("3J_Event_Plots/Final_Classification/Class_Merged/Resolution", merged_bp, ttbar );
 
-                    //break up by event categories
+                //break up by event categories
                 fill_disc_plots("3J_Event_Plots/Final_Classification/Class_Merged/Discr/"+merged_perm_status, merged_bp );
                 fill_gen_plots( "3J_Event_Plots/Final_Classification/Class_Merged/Gen/"+merged_perm_status, ttbar );
                 fill_reco_plots("3J_Event_Plots/Final_Classification/Class_Merged/Reconstruction/"+merged_perm_status, merged_bp );
                 fill_reso_plots("3J_Event_Plots/Final_Classification/Class_Merged/Resolution/"+merged_perm_status, merged_bp, ttbar );
             }
 
-                // fill plots for opposite classification cases
+            // fill plots for opposite classification cases
             if( bp_solution == "Both_BP/Opposite_Class/Merged_BP/Class_Lost/THad_Mass/LCut" ){
                 fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Merged_BP/Class_Lost/Reconstruction/THad_Mass/LCut/"+merged_perm_status, merged_bp );
                 fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Merged_BP/Class_Lost/Resolution/THad_Mass/LCut/"+merged_perm_status, merged_bp, ttbar );
@@ -1732,244 +1747,244 @@ class ttbar_reco_3J : public AnalyzerBase
             }
 
             else{
-                    // not breaking up by perm comparison
+                // not breaking up by perm comparison
                 fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr", merged_bp );
                 fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen", ttbar );
                 fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction", merged_bp );
                 fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution", merged_bp, ttbar );
 
-                    // not breaking up by disc val
+                // not breaking up by disc val
                 fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+merged_perm_status, merged_bp );
                 fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+merged_perm_status, ttbar );
                 fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+merged_perm_status, merged_bp );
                 fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+merged_perm_status, merged_bp, ttbar );
 
-                    // splitting up based on disc val
+                // splitting up based on disc val
                 fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+merged_perm_disc_cut_status, ttbar );
                 fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+merged_perm_disc_cut_status, merged_bp );
                 fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+merged_perm_disc_cut_status, merged_bp, ttbar );
 
-                    // splitting up based on perm comp and disc val
+                // splitting up based on perm comp and disc val
                 fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+merged_perm_status+"/"+merged_perm_disc_cut_status, merged_bp );
                 fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+merged_perm_status+"/"+merged_perm_disc_cut_status, ttbar );
                 fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+merged_perm_status+"/"+merged_perm_disc_cut_status, merged_bp );
                 fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+merged_perm_status+"/"+merged_perm_disc_cut_status, merged_bp, ttbar );
             }
 
-        } // end of merged_bp_cats
+            } // end of merged_bp_cats
 
 
-        void lost_bp_cats( GenTTBar &ttbar, Permutation &lost_bp, string bp_solution ){
+            void lost_bp_cats( GenTTBar &ttbar, Permutation &lost_bp, string bp_solution ){
 
-            string lost_perm_status;
-            //string lost_perm_disc_cut_status;
-            //if( lost_bp.Prob() < disc_cut_ ){
-            //    lost_perm_disc_cut_status = "LCut";
-            //}
-            //else{
-            //    lost_perm_disc_cut_status = "GCut";
-            //}
-
-
-            if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
-                tracker_.track("Not semilep events");
-                return;
-            }
-            tracker_.track("semilep");
-
-            // get matched perm from event
-            Permutation mp = dr_matcher_.dr_match(
-                    genp_selector_.ttbar_final_system(),
-                    object_selector_.clean_jets(),
-                    object_selector_.lepton(),
-                    object_selector_.met(),
-                    object_selector_.lepton_charge());
+                string lost_perm_status;
+                //string lost_perm_disc_cut_status;
+                //if( lost_bp.Prob() < disc_cut_ ){
+                //    lost_perm_disc_cut_status = "LCut";
+                //}
+                //else{
+                //    lost_perm_disc_cut_status = "GCut";
+                //}
 
 
-            if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) || !mp.Lost_Event() ) lost_perm_status = "WRONG";
-            if( mp.Lost_Event() ){
-                if( mp.AreBsSame(lost_bp) && ( lost_bp.WJa() == mp.WJa() || lost_bp.WJa() == mp.WJb() ) ) lost_perm_status = "RIGHT";
-                else if( mp.AreBsFlipped(lost_bp) && ( lost_bp.WJa() == mp.WJa() || lost_bp.WJa() == mp.WJb() ) ) lost_perm_status = "LOST_SWAP";
-                else lost_perm_status = "LOST";
-            }
-            else lost_perm_status = "WRONG";
+                if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
+                    tracker_.track("Not semilep events");
+                    return;
+                }
+                tracker_.track("semilep");
 
-            // lost_bp plots
+                // get matched perm from event
+                Permutation mp = dr_matcher_.dr_match(
+                        genp_selector_.ttbar_final_system(),
+                        object_selector_.clean_jets(),
+                        object_selector_.lepton(),
+                        object_selector_.met(),
+                        object_selector_.lepton_charge());
+
+
+                if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) || !mp.Lost_Event() ) lost_perm_status = "WRONG";
+                if( mp.Lost_Event() ){
+                    if( mp.AreBsSame(lost_bp) && ( lost_bp.WJa() == mp.WJa() || lost_bp.WJa() == mp.WJb() ) ) lost_perm_status = "RIGHT";
+                    else if( mp.AreBsFlipped(lost_bp) && ( lost_bp.WJa() == mp.WJa() || lost_bp.WJa() == mp.WJb() ) ) lost_perm_status = "LOST_SWAP";
+                    else lost_perm_status = "LOST";
+                }
+                else lost_perm_status = "WRONG";
+
+                // lost_bp plots
 
                 // filling reco and reso plots in cases where the classification is obvious
-            if( bp_solution == "Both_BP/Class_Lost" ){// || bp_solution == "Only_Lost" ){
-                fill_disc_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Discr", lost_bp );
-                fill_gen_plots( "3J_Event_Plots/Clear_Classification/Class_Lost/Gen", ttbar );
-                fill_reco_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Reconstruction", lost_bp );
-                fill_reso_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Resolution", lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Alpha_Correction", ttbar, lost_bp);
+                if( bp_solution == "Both_BP/Class_Lost" ){// || bp_solution == "Only_Lost" ){
+                    fill_disc_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Discr", lost_bp );
+                    fill_gen_plots( "3J_Event_Plots/Clear_Classification/Class_Lost/Gen", ttbar );
+                    fill_reco_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Reconstruction", lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Resolution", lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Alpha_Correction", ttbar, lost_bp);
 
                     //break up by event categories
-                fill_disc_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Discr/"+lost_perm_status, lost_bp );
-                fill_gen_plots( "3J_Event_Plots/Clear_Classification/Class_Lost/Gen/"+lost_perm_status, ttbar );
-                fill_reco_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Reconstruction/"+lost_perm_status, lost_bp );
-                fill_reso_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Resolution/"+lost_perm_status, lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp);
-            }
+                    fill_disc_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Discr/"+lost_perm_status, lost_bp );
+                    fill_gen_plots( "3J_Event_Plots/Clear_Classification/Class_Lost/Gen/"+lost_perm_status, ttbar );
+                    fill_reco_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Reconstruction/"+lost_perm_status, lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Resolution/"+lost_perm_status, lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Clear_Classification/Class_Lost/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp);
+                }
 
                 // filling reco and reso plots in for final classifications
-            if( bp_solution == "Both_BP/Class_Lost" || bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost/THad_Mass/LCut" || bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged/THad_Mass/LCut" ){
-                fill_disc_plots("3J_Event_Plots/Final_Classification/Class_Lost/Discr", lost_bp );
-                fill_gen_plots( "3J_Event_Plots/Final_Classification/Class_Lost/Gen", ttbar );
-                fill_reco_plots("3J_Event_Plots/Final_Classification/Class_Lost/Reconstruction", lost_bp );
-                fill_reso_plots("3J_Event_Plots/Final_Classification/Class_Lost/Resolution", lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Final_Classification/Class_Lost/Alpha_Correction", ttbar, lost_bp );
+                if( bp_solution == "Both_BP/Class_Lost" || bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost/THad_Mass/LCut" || bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged/THad_Mass/LCut" ){
+                    fill_disc_plots("3J_Event_Plots/Final_Classification/Class_Lost/Discr", lost_bp );
+                    fill_gen_plots( "3J_Event_Plots/Final_Classification/Class_Lost/Gen", ttbar );
+                    fill_reco_plots("3J_Event_Plots/Final_Classification/Class_Lost/Reconstruction", lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Final_Classification/Class_Lost/Resolution", lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Final_Classification/Class_Lost/Alpha_Correction", ttbar, lost_bp );
 
                     //break up by event categories
-                fill_disc_plots("3J_Event_Plots/Final_Classification/Class_Lost/Discr/"+lost_perm_status, lost_bp );
-                fill_gen_plots( "3J_Event_Plots/Final_Classification/Class_Lost/Gen/"+lost_perm_status, ttbar );
-                fill_reco_plots("3J_Event_Plots/Final_Classification/Class_Lost/Reconstruction/"+lost_perm_status, lost_bp );
-                fill_reso_plots("3J_Event_Plots/Final_Classification/Class_Lost/Resolution/"+lost_perm_status, lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Final_Classification/Class_Lost/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp );
-            }
+                    fill_disc_plots("3J_Event_Plots/Final_Classification/Class_Lost/Discr/"+lost_perm_status, lost_bp );
+                    fill_gen_plots( "3J_Event_Plots/Final_Classification/Class_Lost/Gen/"+lost_perm_status, ttbar );
+                    fill_reco_plots("3J_Event_Plots/Final_Classification/Class_Lost/Reconstruction/"+lost_perm_status, lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Final_Classification/Class_Lost/Resolution/"+lost_perm_status, lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Final_Classification/Class_Lost/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp );
+                }
 
                 // fill plots for opposite classification cases
-            if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged/THad_Mass/LCut" ){
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/LCut/"+lost_perm_status, lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/LCut/"+lost_perm_status, lost_bp, ttbar );
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/LCut", lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/LCut", lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Alpha_Correction/THad_Mass/LCut", ttbar, lost_bp );
-            }
-            else if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged/THad_Mass/GCut" ){
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/GCut/"+lost_perm_status, lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/GCut/"+lost_perm_status, lost_bp, ttbar );
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/GCut", lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/GCut", lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Alpha_Correction/THad_Mass/GCut", ttbar, lost_bp );
-            }
-            else if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost/THad_Mass/LCut" ){
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/LCut/"+lost_perm_status, lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/LCut/"+lost_perm_status, lost_bp, ttbar );
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/LCut", lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/LCut", lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Alpha_Correction/THad_Mass/LCut", ttbar, lost_bp );
-            }
-            else if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost/THad_Mass/GCut" ){
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/GCut/"+lost_perm_status, lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/GCut/"+lost_perm_status, lost_bp, ttbar );
-                fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/GCut", lost_bp );
-                fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/GCut", lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Alpha_Correction/THad_Mass/GCut", ttbar, lost_bp );
-            }
+                if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged/THad_Mass/LCut" ){
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/LCut/"+lost_perm_status, lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/LCut/"+lost_perm_status, lost_bp, ttbar );
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/LCut", lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/LCut", lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Alpha_Correction/THad_Mass/LCut", ttbar, lost_bp );
+                }
+                else if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Merged/THad_Mass/GCut" ){
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/GCut/"+lost_perm_status, lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/GCut/"+lost_perm_status, lost_bp, ttbar );
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Reconstruction/THad_Mass/GCut", lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Resolution/THad_Mass/GCut", lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Merged/Alpha_Correction/THad_Mass/GCut", ttbar, lost_bp );
+                }
+                else if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost/THad_Mass/LCut" ){
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/LCut/"+lost_perm_status, lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/LCut/"+lost_perm_status, lost_bp, ttbar );
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/LCut", lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/LCut", lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Alpha_Correction/THad_Mass/LCut", ttbar, lost_bp );
+                }
+                else if( bp_solution == "Both_BP/Opposite_Class/Lost_BP/Class_Lost/THad_Mass/GCut" ){
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/GCut/"+lost_perm_status, lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/GCut/"+lost_perm_status, lost_bp, ttbar );
+                    fill_reco_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Reconstruction/THad_Mass/GCut", lost_bp );
+                    fill_reso_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Resolution/THad_Mass/GCut", lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/Both_BP/Opposite_Class/Lost_BP/Class_Lost/Alpha_Correction/THad_Mass/GCut", ttbar, lost_bp );
+                }
 
-            else{
+                else{
                     // not breaking up by comparison
-                fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr", lost_bp );
-                fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen", ttbar );
-                fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction", lost_bp );
-                fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution", lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/"+bp_solution+"/Alpha_Correction", ttbar, lost_bp);
+                    fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr", lost_bp );
+                    fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen", ttbar );
+                    fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction", lost_bp );
+                    fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution", lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/"+bp_solution+"/Alpha_Correction", ttbar, lost_bp);
 
 
                     // breaking up by perm comp
-                fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+lost_perm_status, lost_bp );
-                fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+lost_perm_status, ttbar );
-                fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+lost_perm_status, lost_bp );
-                fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+lost_perm_status, lost_bp, ttbar );
-                fill_alpha_correction_plots("3J_Event_Plots/"+bp_solution+"/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp );
+                    fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+lost_perm_status, lost_bp );
+                    fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+lost_perm_status, ttbar );
+                    fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+lost_perm_status, lost_bp );
+                    fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+lost_perm_status, lost_bp, ttbar );
+                    fill_alpha_correction_plots("3J_Event_Plots/"+bp_solution+"/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp );
 
-                //    // splitting up based on disc val
-                //fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+lost_perm_status+"/"+lost_perm_disc_cut_status, lost_bp );
-                //fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+lost_perm_status+"/"+lost_perm_disc_cut_status, ttbar );
-                //fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+lost_perm_status+"/"+lost_perm_disc_cut_status, lost_bp );
-                //fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+lost_perm_status+"/"+lost_perm_disc_cut_status, lost_bp, ttbar );
-            }
+                    //    // splitting up based on disc val
+                    //fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+lost_perm_status+"/"+lost_perm_disc_cut_status, lost_bp );
+                    //fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+lost_perm_status+"/"+lost_perm_disc_cut_status, ttbar );
+                    //fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+lost_perm_status+"/"+lost_perm_disc_cut_status, lost_bp );
+                    //fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+lost_perm_status+"/"+lost_perm_disc_cut_status, lost_bp, ttbar );
+                }
 
-        } // end of lost_bp_cats
+                } // end of lost_bp_cats
 
 
-        //This method is called once every file, contains the event loop
-        ///run your proper analysis here
-        virtual void analyze()
-        {
-            Logger::log().debug() << "Beginning of analyze() " << evt_idx_ << endl;
+                //This method is called once every file, contains the event loop
+                ///run your proper analysis here
+                virtual void analyze()
+                {
+                    Logger::log().debug() << "Beginning of analyze() " << evt_idx_ << endl;
 
-            URStreamer event(tree_);
+                    URStreamer event(tree_);
 
-            while(event.next() /*&& evt_idx_ < 30000*/)
+                    while(event.next() /*&& evt_idx_ < 30000*/)
+                    {
+                        evt_idx_++;
+                        if(evt_idx_ % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
+                        //            Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
+                        tracker_.track("All Events");
+
+
+                        //generator selection
+                        bool selection = genp_selector_.select(event);
+                        if( !selection ){
+                            Logger::log().debug() << "event has no gen selection " << endl;
+                            continue;
+                        }
+                        tracker_.track("gen selection");
+                        GenTTBar &ttbar = genp_selector_.ttbar_system();
+
+                        string gen_folder;
+                        if( ttbar.type == GenTTBar::DecayType::FULLHAD ) gen_folder = "FULLHAD";
+                        else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) gen_folder = "SEMILEP";
+                        else if( ttbar.type == GenTTBar::DecayType::FULLLEP ) gen_folder = "FULLLEP";
+                        else gen_folder = "";
+                        //fill_gen_plots("Gen_Plots/"+gen_folder, ttbar);
+                        //if( ttbar.had_top() ) cout << "gen thad M: " << ttbar.had_top()->M() << endl;
+                        //if( ttbar.M() > 700 ) continue;
+
+                        int njets = 0;
+                        if( object_selector_.select(event) ) njets = object_selector_.clean_jets().size();
+                        if( njets < 3 ) continue;
+                        //            Logger::log().debug() << "Beginning event " << evt_idx_ << ", njets = " << njets << endl;
+                        tracker_.track("njet cuts");
+
+                        /// 3 jet events
+                        if( njets == 3 ){ 
+                            tracker_.track("njets = 3");
+                            matched_perm_info(event);
+                            best_perm_categories(event);
+                            //merged_bp_cats(event);
+                            //lost_bp_cats(event);
+                            //gen_cats(event);
+                        }
+
+                    } // end of event loop
+
+                    Logger::log().debug() << "End of analyze() " << evt_idx_ << endl;
+                } // end of analyze()
+
+                //this method is called at the end of the job, by default saves
+                //every histogram/tree produced, override it if you need something more
+                virtual void end()
+                {
+                    outFile_.Write();
+                    tracker_.writeTo(outFile_);
+                    Logger::log().debug() << "End of end() " << evt_idx_ << endl;
+                }
+
+                //do you need command-line or cfg options? If so implement this
+                //method to book the options you need. CLI parsing is provided
+                //by AnalysisFW/interface/URParser.h and uses boost::program_options
+                //look here for a quickstart tutorial:
+                //http://www.boost.org/doc/libs/1_51_0/doc/html/program_options/tutorial.html
+
+                static void setOptions()
+                {
+                    URParser &parser = URParser::instance();
+                    opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
+                    opts.add_options()
+                        ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+                        ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+                        ("report,s", opts::value<int>()->default_value(1), "report every");
+                }
+            };
+
+            //make it executable
+            int main(int argc, char *argv[])
             {
-                evt_idx_++;
-                if(evt_idx_ % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
-                //            Logger::log().debug() << "Beginning event " << evt_idx_ << endl;
-                tracker_.track("All Events");
-
-
-                //generator selection
-                bool selection = genp_selector_.select(event);
-                if( !selection ){
-                    Logger::log().debug() << "event has no gen selection " << endl;
-                    continue;
-                }
-                tracker_.track("gen selection");
-                GenTTBar &ttbar = genp_selector_.ttbar_system();
-
-                string gen_folder;
-                if( ttbar.type == GenTTBar::DecayType::FULLHAD ) gen_folder = "FULLHAD";
-                else if( ttbar.type == GenTTBar::DecayType::SEMILEP ) gen_folder = "SEMILEP";
-                else if( ttbar.type == GenTTBar::DecayType::FULLLEP ) gen_folder = "FULLLEP";
-                else gen_folder = "";
-                //fill_gen_plots("Gen_Plots/"+gen_folder, ttbar);
-                //if( ttbar.had_top() ) cout << "gen thad M: " << ttbar.had_top()->M() << endl;
-                //if( ttbar.M() > 700 ) continue;
-
-                int njets = 0;
-                if( object_selector_.select(event) ) njets = object_selector_.clean_jets().size();
-                if( njets < 3 ) continue;
-                //            Logger::log().debug() << "Beginning event " << evt_idx_ << ", njets = " << njets << endl;
-                tracker_.track("njet cuts");
-
-                /// 3 jet events
-                if( njets == 3 ){ 
-                    tracker_.track("njets = 3");
-                    matched_perm_info(event);
-                    best_perm_categories(event);
-                    //merged_bp_cats(event);
-                    //lost_bp_cats(event);
-                    //gen_cats(event);
-                }
-
-            } // end of event loop
-
-            Logger::log().debug() << "End of analyze() " << evt_idx_ << endl;
-        } // end of analyze()
-
-        //this method is called at the end of the job, by default saves
-        //every histogram/tree produced, override it if you need something more
-        virtual void end()
-        {
-            outFile_.Write();
-            tracker_.writeTo(outFile_);
-            Logger::log().debug() << "End of end() " << evt_idx_ << endl;
-        }
-
-        //do you need command-line or cfg options? If so implement this
-        //method to book the options you need. CLI parsing is provided
-        //by AnalysisFW/interface/URParser.h and uses boost::program_options
-        //look here for a quickstart tutorial:
-        //http://www.boost.org/doc/libs/1_51_0/doc/html/program_options/tutorial.html
-
-        static void setOptions()
-        {
-            URParser &parser = URParser::instance();
-            opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
-            opts.add_options()
-                ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
-                ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
-                ("report,s", opts::value<int>()->default_value(1), "report every");
-        }
-};
-
-//make it executable
-int main(int argc, char *argv[])
-{
-    URParser &parser = URParser::instance(argc, argv);
-    URDriver<ttbar_reco_3J> test;
-    int thing = test.run();
-    return thing;
-}
+                URParser &parser = URParser::instance(argc, argv);
+                URDriver<ttbar_reco_3J> test;
+                int thing = test.run();
+                return thing;
+            }

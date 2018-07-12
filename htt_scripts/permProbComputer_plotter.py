@@ -25,12 +25,16 @@ views = plotting.views
 analyzer = 'permProbComputer'
 
 parser = argparse.ArgumentParser(description='Create plots using files from permProbComputer.')
+parser.add_argument('--fname', help='Choose file to use')
+args = parser.parse_args()
+
 
 jobid = jobid = os.environ['jobid']
 project = os.environ['URA_PROJECT']
 
+prob_file = args.fname
 #prob_file = 'prob_prob_test.root' #inputs/2017Aug24/INPUT/prob_ttJets_3J.root
-prob_file = 'prob_htt_perm_baseline_j20_ttJetsAll.root'
+#prob_file = 'prob_htt_perm_baseline_j20_ttJetsAll.root'
 #prob_file = 'prob_ttJets_3J.root' #inputs/2017Aug24/INPUT/prob_ttJets_3J.root
 
 ##### check if correct prob_file is present
@@ -54,7 +58,7 @@ plotter = BasePlotter(
 
 #def plot_dir():
 #    print '\ncp -r /uscms/home/jdulemba/nobackup/CMSSW_7_4_7/src/Analyses/URTTbar/htt_scripts/plots/%s/%s/ .\n' % (analyzer, jobid)
-
+print "File %s chosen for likelihood distributions." % args.fname
 
 ##############################################################################################
 

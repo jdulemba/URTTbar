@@ -19,13 +19,14 @@ import numpy as np
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import rootpy.io as io
 import functions as fncts
-
+from styles import styles
 
 analyzer = 'gen_partons'
 
 parser = argparse.ArgumentParser(description='Create plots using files from gen_partons.')
 
 jobid = jobid = os.environ['jobid']
+project = os.environ['URA_PROJECT']
 
 parser.add_argument('analysis', help='Choose type of analysis (Test or Full).')
 parser.add_argument('sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000, Combined, or any valid A/HtoTT file).')
@@ -43,7 +44,7 @@ if not (args.analysis == "Test" or args.analysis == "Full"):
 ##### check sample type
 results_files = []
 if args.analysis == "Test":
-    for f in os.listdir('../'):
+    for f in os.listdir(project):
         if not '%s.test.root' % analyzer in f:
             continue
         results_files.append(f.replace(".root", ""))
@@ -53,7 +54,7 @@ if args.analysis == "Test":
         sys.exit()
 
 if args.analysis == "Full":
-    for f in os.listdir('../results/%s/%s' % (jobid, analyzer)):
+    for f in os.listdir('%s/results/%s/%s' % (project, jobid, analyzer)):
         if not '.root' in f:
             continue
         results_files.append(f.replace(".root", ""))
@@ -85,8 +86,8 @@ if args.analysis == "Test":
         M1000_normfile = views.NormalizeView(root_open('../ttJetsM1000.%s.test.root' % analyzer, 'read'))#normalized file
 
     else:
-        myfile = root_open('../%s.%s.test.root' % (args.sample, analyzer), 'read')
-        normfile = views.NormalizeView(root_open('../%s.%s.test.root' % (args.sample, analyzer), 'read'))#normalized file
+        myfile = root_open('%s/%s.%s.test.root' % (project, args.sample, analyzer), 'read')
+        normfile = views.NormalizeView(root_open('%s/%s.%s.test.root' % (project, args.sample, analyzer), 'read'))#normalized file
 
 elif args.analysis == "Full":
     if args.sample == "Combined":
@@ -97,12 +98,23 @@ elif args.analysis == "Full":
         ]
 
     else:
-        myfile = root_open('../results/%s/%s/%s.root' % (jobid, analyzer, args.sample), 'read')
-        normfile = views.NormalizeView(root_open('../results/%s/%s/%s.root' % (jobid, analyzer, args.sample), 'read'))
+        myfile = root_open('%s/results/%s/%s/%s.root' % (project, jobid, analyzer, args.sample), 'read')
+        normfile = views.NormalizeView(root_open('%s/results/%s/%s/%s.root' % (project, jobid, analyzer, args.sample), 'read'))
 
 plotter = BasePlotter(
 	'plots/%s/%s/%s/%s' % (analyzer, jobid, args.analysis, args.sample),
-	defaults = {'save' : {'png' : True, 'pdf' : False}}
+	defaults = {'save' : {'png' : True, 'pdf' : False}},
+    styles = {
+        #'RIGHT' : styles['*RIGHT'],
+        #'MERGED_SWAP' : styles['*SWAP'],
+        #'MERGED' : styles['*OTHER'],
+        #'WRONG' : styles['*WRONG'],
+        #'LOST_SWAP' : styles['*SWAP'],
+        #'LOST' : styles['*OTHER'],
+        'sample' : styles[args.sample]
+    }
+
+
 )
 
 #def stack_plots(lists):
@@ -153,18 +165,21 @@ else:
     mass_max = 1000.
 
 
-if 'ttJetsM' in args.sample:
-    decay = 'SM t#bar t'
+#if 'ttJetsM' in args.sample:
+#    decay = 'SM t#bar t'
+#
+#elif 'AtoTT' in args.sample:
+#    decay = 'A->t#bar t'
+#
+#elif 'HtoTT' in args.sample:
+#    decay = 'H->t#bar t'
+#
+#else:
+#    decay = ''
 
-elif 'AtoTT' in args.sample:
-    decay = 'A->t#bar t'
-
-elif 'HtoTT' in args.sample:
-    decay = 'H->t#bar t'
-
-else:
-    decay = ''
-
+m_range = plotter.styles['sample']['name']
+decay = plotter.styles['sample']['decay']
+plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
 
 DRvals = {
 		('DRP4', '#Delta R < 0.4', 'red'),
@@ -248,6 +263,7 @@ DRvals = {
 
 def Acceptance():
     plots = 'Acceptance'
+    plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
 
     plotter.set_subdir(plots+'/3J')
     Gen_Jets = { 'BLep' : 'b_{l}', 'BHad' : 'b_{h}', 'WJa' : 'W_{ja}', 'WJb' : 'W_{jb}' }
@@ -263,8 +279,8 @@ def Acceptance():
         hist2D.xaxis.set_title(label+' p_{T} [GeV]')
         hist2D.yaxis.set_title(label+' |#eta|')
 
-        box = plotter.make_text_box(decay, position='NE')
-        box.Draw()
+        #box = plotter.make_text_box(decay, position='NE')
+        #box.Draw()
 
         plotter.save(var_2D)
 
@@ -377,6 +393,7 @@ def System():
 
 def Merged_Fractions():
     plots = 'Merged_Fraction'
+    plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
 
     other_pairs = { 'LepBLep' : ['(l, b_{l})', 'red'], 'LepBHad' : ['(l, b_{h})', 'blue'], 'LepWJa' : ['(l, W_{ja})', '#ff9900'], 'LepWJb' : ['(l, W_{jb})', '#00ffff'],\
                 'BHadBLep' : ['(b_{h}, b_{l})', '#ff66ff'], 'BLepWJa' : ['(b_{l}, W_{ja})', '#00ff00'], 'BLepWJb' : ['(b_{l}, W_{jb})', 'black']}
@@ -403,8 +420,8 @@ def Merged_Fractions():
         hp_hist.append(Ratio)
 
     plotter.overlay(hp_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle=yaxis)
-    box2 = plotter.make_text_box(decay, position='NE')
-    box2.Draw()
+    #box2 = plotter.make_text_box(decay, position='NE')
+    #box2.Draw()
 
     #plotter.overlay(hp_hist, legend_def=LegendDefinition(position='NW'), logy=True, y_range=(10**(-2),10**0), legendstyle='l', xtitle=xaxis, ytitle=yaxis)
     plotter.save('Merged_Fractions_Had_Partons_DRP4')
@@ -423,8 +440,8 @@ def Merged_Fractions():
         op_hist.append(Ratio)
 
     plotter.overlay(op_hist, legend_def=LegendDefinition(position='NW'), logy=True, y_range=(10**(-5),10**2), legendstyle='l', xtitle=xaxis, ytitle=yaxis)
-    box2 = plotter.make_text_box(decay, position='NE')
-    box2.Draw()
+    #box2 = plotter.make_text_box(decay, position='NE')
+    #box2.Draw()
 
     plotter.save('Merged_Fractions_Other_Partons_DRP4')
 
@@ -695,22 +712,22 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
                         
                         ### plot event ratios
                         plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle=xaxis, ytitle='Event Fraction', drawstyle='hist')
-                        box2 = plotter.make_text_box(decay, position='NE')
-                        box2.Draw()
+                        #box2 = plotter.make_text_box(decay, position='NE')
+                        #box2.Draw()
 
                         plotter.save('%s_Hadronic_Events_%s_Comp_ratio' % (string, kin))
                 
                         ### create stacked hists of ratios
                         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
-                        box2 = plotter.make_text_box(decay, position='NE')
-                        box2.Draw()
+                        #box2 = plotter.make_text_box(decay, position='NE')
+                        #box2.Draw()
 
                         plotter.save('%s_Hadronic_Events_%s_Comp_stack' % (string, kin))
 
                 
                         plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
-                        box2 = plotter.make_text_box(decay, position='NE')
-                        box2.Draw()
+                        #box2 = plotter.make_text_box(decay, position='NE')
+                        #box2.Draw()
 
                         plotter.save('%s_Hadronic_Events_%s_Comp_stack_Norm' % (string, kin))
             
@@ -718,8 +735,8 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
                             i.SetFillStyle(0)
                         ### plot log of event occurrences
                         plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle=xaxis, ytitle=yaxis, drawstyle='hist')
-                        box2 = plotter.make_text_box(decay, position='NE')
-                        box2.Draw()
+                        #box2 = plotter.make_text_box(decay, position='NE')
+                        #box2.Draw()
 
                         plotter.save('%s_Hadronic_Events_%s_Comp_log' % (string, kin))
 
@@ -819,21 +836,21 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
     
                 ### plot event ratios
                 plotter.overlay(Ratio_Hists, legend_def=LegendDefinition(position='NW'), legendstyle='l', y_range=(0,1.4), xtitle=xaxis, ytitle='Event Fraction', drawstyle='hist')
-                box2 = plotter.make_text_box(decay, position='NE')
-                box2.Draw()
+                #box2 = plotter.make_text_box(decay, position='NE')
+                #box2.Draw()
 
                 plotter.save('%s_Hadronic_Events_%s_Comp_ratio' % (string, kin))
         
                 ### create stacked hists of ratios
                 plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
-                box2 = plotter.make_text_box(decay, position='NE')
-                box2.Draw()
+                #box2 = plotter.make_text_box(decay, position='NE')
+                #box2.Draw()
 
                 plotter.save('%s_Hadronic_Events_%s_Comp_stack' % (string, kin))
         
                 plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle='Event Fraction')
-                box2 = plotter.make_text_box(decay, position='NE')
-                box2.Draw()
+                #box2 = plotter.make_text_box(decay, position='NE')
+                #box2.Draw()
 
                 plotter.save('%s_Hadronic_Events_%s_Comp_stack_Norm' % (string, kin))
     
@@ -841,8 +858,8 @@ def Jets(string): # only "3J", "4J", "5PJ", or "AllJets" is allowed as input to 
                     i.SetFillStyle(0)
                 ### plot log of event occurrences
                 plotter.overlay(to_draw, legend_def=LegendDefinition(position='NE'), legendstyle='l', logy=True, y_range=(10**(0),10**7), xtitle=xaxis, ytitle=yaxis, drawstyle='hist')
-                box2 = plotter.make_text_box(decay, position='NE')
-                box2.Draw()
+                #box2 = plotter.make_text_box(decay, position='NE')
+                #box2.Draw()
 
                 plotter.save('%s_Hadronic_Events_%s_Comp_log' % (string, kin))
     
@@ -1061,6 +1078,7 @@ if args.plot == "Everything":
     Kin_Vars()
     System()
     Merged_Fractions()
+    Acceptance()
 
     jets = ["3J", "4J", "5PJ", "AllJets"]
     for jet in jets:

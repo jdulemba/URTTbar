@@ -113,6 +113,7 @@ class ttbar_final_reco_3J : public AnalyzerBase
         IDJet::BTag cut_medium_b_ = IDJet::BTag::CSVMEDIUM;
         IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
 
+        float cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_;
 
 
     public:
@@ -143,6 +144,19 @@ class ttbar_final_reco_3J : public AnalyzerBase
             else object_selector_.lepton_type(1);
         }
         if(!isData_) mc_weights_.init(sample);
+
+        // get parameters from cfg file
+        URParser& parser = URParser::instance();
+
+        parser.addCfgParameter<float>("gen_jets", "ptmin", "minimum pt");
+        parser.addCfgParameter<float>("gen_jets", "etamax", "maximum eta");
+        parser.addCfgParameter<float>("gen_jets", "lead_ptmin", "minimum leading jet pt");
+        parser.parseArguments();
+
+        cut_jet_ptmin_ = parser.getCfgPar<float>("gen_jets", "ptmin" );
+        cut_jet_etamax_ = parser.getCfgPar<float>("gen_jets", "etamax");
+        cut_leadjet_ptmin_ = parser.getCfgPar<float>("gen_jets", "lead_ptmin" );
+
     };
 
         TDirectory* getDir(string path){
@@ -530,21 +544,21 @@ class ttbar_final_reco_3J : public AnalyzerBase
             reso_mass_dir->second["Frac_TTbar_Corrected"].fill( (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M() );
 
 
-            if( ttbar.two_partons_in_acceptance(30., 2.4) ){
+            if( ttbar.two_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 reso_part_dir->second["Reso_MTTbar_2Partons"].fill( ttbar.M() - perm.LVect().M() );
                 reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_2Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M() );
 
                 reso_part_dir->second["Reso_MTTbar_Corrected_2Partons"].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M() );
                 reso_part_dir->second["Reso_MTTbar_Corrected_vs_Gen_MTTbar_2Partons"].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M() );
             }
-            if( ttbar.three_partons_in_acceptance(30., 2.4) ){
+            if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 reso_part_dir->second["Reso_MTTbar_3Partons"].fill( ttbar.M() - perm.LVect().M() );
                 reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_3Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M() );
 
                 reso_part_dir->second["Reso_MTTbar_Corrected_3Partons"].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M() );
                 reso_part_dir->second["Reso_MTTbar_Corrected_vs_Gen_MTTbar_3Partons"].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M() );
             }
-            if( ttbar.all_partons_in_acceptance(30., 2.4) ){
+            if( ttbar.all_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 reso_part_dir->second["Reso_MTTbar_4Partons"].fill( ttbar.M() - perm.LVect().M() );
                 reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_4Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M() );
 

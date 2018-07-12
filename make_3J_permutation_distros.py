@@ -87,8 +87,8 @@ plotter.reset()
     
 
 #################### scale ttbar xsec for combining 3 different files
-#ttJets_fnames = ['ttJetsM0', 'ttJetsM700', 'ttJetsM1000']
-ttJets_fnames = ['ttJets']
+ttJets_fnames = ['ttJetsM0', 'ttJetsM700', 'ttJetsM1000']
+#ttJets_fnames = ['ttJets']
 lumis = []
 for fname in ttJets_fnames:
     lumis.append(float(open('inputs/%s/%s.lumi' % (jobid, fname), 'read').readline()))
@@ -98,8 +98,8 @@ lumis[:] = [x/max_lumi for x in lumis]
 #set_trace()
 ttJets_files = [ #scales found in lumi files normalized by largest value
     (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[0])), lumis[0]),
-    #(glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[1])), lumis[1]),
-    #(glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[2])), lumis[2])
+    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[1])), lumis[1]),
+    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[2])), lumis[2])
 ]
 
 # rebin x and y axex

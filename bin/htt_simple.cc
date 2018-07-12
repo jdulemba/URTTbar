@@ -104,6 +104,9 @@ class htt_simple : public AnalyzerBase
         TTree *sync_tree_;
         SyncInfo sync_info_;
 
+        float alpha_correction_slope_, alpha_correction_yint_;
+
+
     public:
         inline double MT(TLorentzVector *l, TLorentzVector *met) {
             return sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
@@ -112,7 +115,7 @@ class htt_simple : public AnalyzerBase
         htt_simple(const std::string output_filename):
             AnalyzerBase("htt_simple", output_filename), 
             tracker_(),
-            genp_selector_(TTGenParticleSelector::SelMode::LHE),
+            //genp_selector_(TTGenParticleSelector::SelMode::LHE),
             //genp_selector_(),
             matcher_(),
             permutator_(),
@@ -137,6 +140,13 @@ class htt_simple : public AnalyzerBase
                 //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
 
                 URParser &parser = URParser::instance();
+
+                parser.addCfgParameter<float>("alpha_correction", "slope", "slope to be used in alpha correction");
+                parser.addCfgParameter<float>("alpha_correction", "yint", "y-int to be used in alpha correction");
+                parser.parseArguments();
+
+                alpha_correction_slope_ = parser.getCfgPar<float>("alpha_correction", "slope" );
+                alpha_correction_yint_ = parser.getCfgPar<float>("alpha_correction", "yint" );
 
                 //    parser.addCfgParameter<string>("JERC", "JER_SF","");
                 //    parser.addCfgParameter<string>("JERC", "PT_JER","");
@@ -163,6 +173,12 @@ class htt_simple : public AnalyzerBase
                 isTTJetsM1000_ = boost::starts_with(sample, "ttJetsM1000");
                 isTTJetsM700_ = boost::starts_with(sample, "ttJetsM700");
                 //
+
+                if( isTTbar_ ) genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::LHE);
+                else genp_selector_ = TTGenParticleSelector();
+
+
+
                 //set tracker
                 if(!values.count("noweights")) tracker_.use_weight(&evt_weight_);
                 object_selector_.set_tracker(&tracker_);
@@ -833,10 +849,10 @@ class htt_simple : public AnalyzerBase
             // apply alpha correction
         std::pair< TLorentzVector, double > alpha_thad( Permutation &perm ){
                 //alphas found by fitting Alpha_THad_P/E hists
-                    //values taken from 1degree vals ttp://home.fnal.gov/~jdulemba/Plots/ttbar_final_reco_3J/2018/Compare_Lost_Merged_Jets/Full/ttJetsM0/3J_Event_Plots/Final_Reco/Clear_and_MassCut_Classes/Class_Lost/Alpha_Correction/fit_parameters.json
+                    //values taken from 1degree vals http://home.fnal.gov/~jdulemba/Plots/ttbar_reco_3J/2018/JetpTcut30/Only_Alpha_Correction/Full/ttJetsM0/3J_Event_Plots/Lost_BP/Alpha_Correction/fit_parameters.json
             // y = mx +b -> m is first element in json, b is second
 
-            double alpha_E = 0.4019*( 173.1/perm.THad().M() ) + 0.5834; // only alpha_E used because it's more consistent over mtt spectrum 
+            double alpha_E = alpha_correction_slope_*( 173.1/perm.THad().M() ) + alpha_correction_yint_; // only alpha_E used because it's more consistent over mtt spectrum 
             //double alpha_P = 0.1544*( 173.1/perm.THad().M() ) + 0.8599;
             TLorentzVector Alpha_THad(alpha_E*perm.THad().Px(), alpha_E*perm.THad().Py(), alpha_E*perm.THad().Pz(), alpha_E*perm.THad().E());
 
@@ -1214,7 +1230,7 @@ class htt_simple : public AnalyzerBase
                 /// Find best permutation
                 permutator_.reset_3J();
                 IDJet* wj2 = 0;
-                Permutation event_perm(clean_jets[2], wj2, clean_jets[0], clean_jets[1], object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge());//wjat, wjb, bhad, blep
+                Permutation event_perm(clean_jets[2], wj2, clean_jets[0], clean_jets[1], object_selector_.lepton(), object_selector_.met(), object_selector_.lepton_charge());//wja, wjb, bhad, blep
                 Permutation best_perm = lost_best_perm( event_perm, "Total", presel_dir.str(), lep_is_tight );
            
                 bool reco_success_3J = !best_perm.IsEmpty() && best_perm.Prob() < 1e9;
@@ -1582,6 +1598,7 @@ class htt_simple : public AnalyzerBase
             Logger::log().debug() << tree_ << " " << tree_->GetEntries() << endl;
             URStreamer event(tree_);
 
+            cout << "Alpha correction slope: " << alpha_correction_slope_ << ", yint: " << alpha_correction_yint_ << endl; 
             while( event.next() )
             {
 

@@ -142,50 +142,55 @@ class GenTTBar: public TLorentzVector {
         }
 
         //// Joseph added
-        bool is_bhad_in_acceptance(double pt, double eta) { // check if bhad parton falls w/in pt and eta acceptance
-            if( had_b()->Pt() < pt || Abs(had_b()->Eta()) > eta ) {return(false);}
+        bool leadjet_ptmin_in_acceptance(double lead_pt) { // check if any parton has pt > min leading jet pT
+            if( had_b()->Pt() > lead_pt || lep_b()->Pt() > lead_pt ||
+                had_W()->first->Pt() > lead_pt || had_W()->second->Pt() > lead_pt ) {return(true);}
+            return(false);
+        }
+        bool is_bhad_in_acceptance(double pt, double eta, double lead_pt) { // check if bhad parton falls w/in pt and eta acceptance
+            if( had_b()->Pt() < pt || Abs(had_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool is_blep_in_acceptance(double pt, double eta) { // check if blep parton falls w/in pt and eta acceptance
-            if( lep_b()->Pt() < pt || Abs(lep_b()->Eta()) > eta ) {return(false);}
+        bool is_blep_in_acceptance(double pt, double eta, double lead_pt) { // check if blep parton falls w/in pt and eta acceptance
+            if( lep_b()->Pt() < pt || Abs(lep_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool is_wja_in_acceptance(double pt, double eta) { // check if wja parton falls w/in pt and eta acceptance
-            if( had_W()->first->Pt() < pt || Abs(had_W()->first->Eta()) > eta ) {return(false);}
+        bool is_wja_in_acceptance(double pt, double eta, double lead_pt) { // check if wja parton falls w/in pt and eta acceptance
+            if( had_W()->first->Pt() < pt || Abs(had_W()->first->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool is_wjb_in_acceptance(double pt, double eta) { // check if wjb parton falls w/in pt and eta acceptance
-            if( had_W()->second->Pt() < pt || Abs(had_W()->second->Eta()) > eta ) {return(false);}
+        bool is_wjb_in_acceptance(double pt, double eta, double lead_pt) { // check if wjb parton falls w/in pt and eta acceptance
+            if( had_W()->second->Pt() < pt || Abs(had_W()->second->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool two_partons_in_acceptance(double pt, double eta) { // check if only 2 partons fall w/in pt and eta acceptance
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( !is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+        bool two_partons_in_acceptance(double pt, double eta, double lead_pt) { // check if only 2 partons fall w/in pt and eta acceptance
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
             return(false);
         }
 
-        bool three_partons_in_acceptance(double pt, double eta) { // check if only 3 partons fall w/in pt and eta acceptance
-            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
+        bool three_partons_in_acceptance(double pt, double eta, double lead_pt) { // check if only 3 partons fall w/in pt and eta acceptance
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
             return(false);
         }
 
-        bool all_partons_in_acceptance(double pt, double eta){ // check if bhad, blep, wja, and wjb in pt and eta acceptance
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+        bool all_partons_in_acceptance(double pt, double eta, double lead_pt){ // check if bhad, blep, wja, and wjb in pt and eta acceptance
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
             return(false);
         }
 
-            // check mergings between two partons
+        // check mergings between two partons
         bool merged_lepblep_partons(double dr_){ // lepton and blep merged
             if( lepton()->DeltaR(*lep_b()) < dr_ ) return true;
             return false;
@@ -235,92 +240,92 @@ class GenTTBar: public TLorentzVector {
             if( had_W()->first->DeltaR(*had_W()->second) < dr_ ) return true;
             return false;
         }
-            //
-            // only two partons merged
+        //
+        // only two partons merged
         bool only_merged_lepblep(double dr_){ // only lep and blep merged
             if( merged_lepblep_partons(dr_) && !(merged_lepbhad_partons(dr_) || merged_lepwja_partons(dr_) || 
-                merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
-                merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
+                        merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_lepbhad(double dr_){ // only lep and bhad merged
             if( merged_lepbhad_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepwja_partons(dr_) || 
-                merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
-                merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
+                        merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_lepwja(double dr_){ // only lep and wja merged
             if( merged_lepwja_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
-                merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
+                        merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_lepwjb(double dr_){ // only lep and wjb merged
             if( merged_lepwjb_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwja_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
-                merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwja_partons(dr_) || merged_blepbhad_partons(dr_) || merged_blepwja_partons(dr_) ||
+                        merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_blepbhad(double dr_){ // only blep and bhad merged
             if( merged_blepbhad_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepwja_partons(dr_) ||
-                merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepwja_partons(dr_) ||
+                        merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_blepwja(double dr_){ // only blep and wja merged
             if( merged_blepwja_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
-                merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
+                        merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_blepwjb(double dr_){ // only blep and wjb merged
             if( merged_blepwjb_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
-                merged_blepwja_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
+                        merged_blepwja_partons(dr_) || merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_bhadwja(double dr_){ // only bhad and wja merged
             if( merged_bhadwja_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
-                merged_blepwja_partons(dr_) || merged_blepwjb_partons(dr_) || merged_bhadwjb_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
+                        merged_blepwja_partons(dr_) || merged_blepwjb_partons(dr_) || merged_bhadwjb_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_bhadwjb(double dr_){ // only bhad and wjb merged
             if( merged_bhadwjb_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
-                merged_blepwja_partons(dr_) || merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) ||
-                merged_wjawjb_partons(dr_)) ) return true; 
+                        merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
+                        merged_blepwja_partons(dr_) || merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) ||
+                        merged_wjawjb_partons(dr_)) ) return true; 
             return false;
         }
 
         bool only_merged_wjawjb(double dr_){ // only wja and wjb merged
             if( merged_wjawjb_partons(dr_) && !(merged_lepblep_partons(dr_) || merged_lepbhad_partons(dr_) || 
-                merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
-                merged_blepwja_partons(dr_) || merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) ||
-                merged_bhadwjb_partons(dr_)) ) return true; 
+                        merged_lepwja_partons(dr_) || merged_lepwjb_partons(dr_) || merged_blepbhad_partons(dr_) ||
+                        merged_blepwja_partons(dr_) || merged_blepwjb_partons(dr_) || merged_bhadwja_partons(dr_) ||
+                        merged_bhadwjb_partons(dr_)) ) return true; 
             return false;
         }
-            //
+        //
 
 
 
-            // check categories of mergings
+        // check categories of mergings
         bool resolved_had_partons(double dr_){ // hadronic partons resolved at DR = dr_
             if( !(merged_bhadwja_partons(dr_) || merged_bhadwjb_partons(dr_) || merged_wjawjb_partons(dr_)) ) return true;
             return false;

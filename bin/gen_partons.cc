@@ -111,6 +111,9 @@ class gen_partons : public AnalyzerBase
         IDJet::BTag cut_loose_b_ = IDJet::BTag::CSVLOOSE;
 
 
+        float cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_;
+
+
     public:
         gen_partons(const std::string output_filename):
             AnalyzerBase("gen_partons", output_filename),
@@ -138,6 +141,18 @@ class gen_partons : public AnalyzerBase
             else object_selector_.lepton_type(1);
         }
         if(!isData_) mc_weights_.init(sample);
+
+        // get parameters from cfg file
+        URParser& parser = URParser::instance();
+
+        parser.addCfgParameter<float>("gen_jets", "ptmin", "minimum pt");
+        parser.addCfgParameter<float>("gen_jets", "etamax", "maximum eta");
+        parser.addCfgParameter<float>("gen_jets", "lead_ptmin", "minimum leading jet pt");
+        parser.parseArguments();
+        
+        cut_jet_ptmin_ = parser.getCfgPar<float>("gen_jets", "ptmin" );
+        cut_jet_etamax_ = parser.getCfgPar<float>("gen_jets", "etamax");
+        cut_leadjet_ptmin_ = parser.getCfgPar<float>("gen_jets", "lead_ptmin" );
 
     };
 
@@ -464,6 +479,7 @@ class gen_partons : public AnalyzerBase
         virtual void analyze()
         {
             Logger::log().debug() << "Beginning of analyze() " << evt_idx_ << endl;
+        cout << "jet pt min: " << cut_jet_ptmin_ << ", max eta: " << cut_jet_etamax_ << ", lead jet pt: " << cut_leadjet_ptmin_ << endl;
 
             URStreamer event(tree_);
 
@@ -532,7 +548,7 @@ class gen_partons : public AnalyzerBase
                 GenTops.push_back(TLep);
 
                 if( !genp_selector_.is_in_acceptance(GenTTBar::DecayType::SEMILEP) ){ // not all partons in acceptance
-                    if( ttbar.three_partons_in_acceptance(30, 2.4) ){ // one parton falls outside the acceptance (pt=30, eta=2.4)
+                    if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){ // one parton falls outside the acceptance (pt=cut_jet_ptmin_, eta=cut_jet_etamax_)
                         /// any of the partons can fall outside
                         if( ttbar.resolved_had_partons(0.4) ){ // hadronic patons resolved at DR=0.4
                             hc_dir->second["Three_Parton_Gen_Had_Resolved_DRP4_THadpt"].fill(THad->Pt());
@@ -556,7 +572,7 @@ class gen_partons : public AnalyzerBase
                         }
                     }
 
-                    if( ttbar.three_partons_in_acceptance(30, 2.4) && !ttbar.is_bhad_in_acceptance(30, 2.4) ){ // only bhad parton falls outside the acceptance (pt=30, eta=2.4)
+                    if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) && !ttbar.is_bhad_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){ // only bhad parton falls outside the acceptance (pt=cut_jet_ptmin_, eta=cut_jet_etamax_)
                         if( ttbar.resolved_had_partons(0.4) ){ // hadronic partons resolved at DR = 0.4
                             hc_dir->second["Three_Parton_BHad_Missing_Gen_Had_Resolved_DRP4_THadpt"].fill(THad->Pt());
                         }
@@ -578,7 +594,7 @@ class gen_partons : public AnalyzerBase
                         }
                     }
 
-                    if( ttbar.three_partons_in_acceptance(30, 2.4) && !ttbar.is_blep_in_acceptance(30, 2.4) ){ // only blep parton falls outside the acceptance (pt=30, eta=2.4)
+                    if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) && !ttbar.is_blep_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){ // only blep parton falls outside the acceptance (pt=cut_jet_ptmin_, eta=cut_jet_etamax_)
                         if( ttbar.resolved_had_partons(0.4) ){ // hadronic partons resolved at DR = 0.4
                             hc_dir->second["Three_Parton_BLep_Missing_Gen_Had_Resolved_DRP4_THadpt"].fill(THad->Pt());
                         }
@@ -600,7 +616,7 @@ class gen_partons : public AnalyzerBase
                         }
                     }
 
-                    if( ttbar.three_partons_in_acceptance(30, 2.4) && !ttbar.is_wja_in_acceptance(30, 2.4) ){ // only wja parton falls outside the acceptance (pt=30, eta=2.4)
+                    if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) && !ttbar.is_wja_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){ // only wja parton falls outside the acceptance (pt=cut_jet_ptmin_, eta=cut_jet_etamax_)
                         if( ttbar.resolved_had_partons(0.4) ){ // hadronic partons resolved at DR = 0.4
                             hc_dir->second["Three_Parton_WJa_Missing_Gen_Had_Resolved_DRP4_THadpt"].fill(THad->Pt());
                         }
@@ -622,7 +638,7 @@ class gen_partons : public AnalyzerBase
                         }
                     }
 
-                    if( ttbar.three_partons_in_acceptance(30, 2.4) && !ttbar.is_wjb_in_acceptance(30, 2.4) ){ // only wjb parton falls outside the acceptance (pt=30, eta=2.4)
+                    if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) && !ttbar.is_wjb_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){ // only wjb parton falls outside the acceptance (pt=cut_jet_ptmin_, eta=cut_jet_etamax_)
                         if( ttbar.resolved_had_partons(0.4) ){ // hadronic partons resolved at DR = 0.4
                             hc_dir->second["Three_Parton_WJb_Missing_Gen_Had_Resolved_DRP4_THadpt"].fill(THad->Pt());
                         }
