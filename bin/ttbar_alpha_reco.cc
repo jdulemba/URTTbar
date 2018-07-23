@@ -451,8 +451,6 @@ class ttbar_alpha_reco : public AnalyzerBase
             }
 
         }
-        /// book and fill plots for hadronic top mass corrections for lost-jet events
-
 
 
         virtual void begin()
@@ -492,6 +490,10 @@ class ttbar_alpha_reco : public AnalyzerBase
                     book_alpha_correction_plots("3J_Event_Plots/"+lost_bp_solution+"/Alpha_Correction/"+lost_evt_type_cat );
                 }
             }
+
+
+           
+
 
             Logger::log().debug() << "End of begin() " << evt_idx_ << endl;
         }
@@ -616,6 +618,7 @@ class ttbar_alpha_reco : public AnalyzerBase
                     object_selector_.met(),
                     object_selector_.lepton_charge());
 
+
             if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) ) lost_perm_status = "OTHER"; // check if mp exists, has bhad and blep and at least one wjet
             // check if mp and lost_bp misidentified b's
             else if( mp.AreBsSame(lost_bp)  ) lost_perm_status = "CORRECT_B";
@@ -668,6 +671,9 @@ class ttbar_alpha_reco : public AnalyzerBase
             if( object_selector_.clean_jets().size() != 3 ) return;
             tracker_.track("3 jets selection");
 
+           bool lep_is_tight = (object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTMU ||
+                    object_selector_.event_type() == TTObjectSelector::EvtType::TIGHTEL);
+
             //MC Weight for lepton selection
             float lep_weight=1;
             if(!isData_) {
@@ -691,7 +697,7 @@ class ttbar_alpha_reco : public AnalyzerBase
             bool preselection_pass = permutator_.preselection(
                     object_selector_.clean_jets(), object_selector_.lepton(),
                     object_selector_.met(), object_selector_.lepton_charge(),
-                    event.rho().value()
+                    event.rho().value(), lep_is_tight
                     );
             tracker_.track("permutation pre-selection done (not applied)");
 

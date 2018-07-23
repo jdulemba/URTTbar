@@ -100,7 +100,7 @@ class HTTPlotter(Plotter):
             #defaults = {'save' : {'png' : True, 'pdf' : False}}
             )
 
-        #set_trace()
+        set_trace()
         #select only mode subdir
         for info in self.views.itervalues():
             if args.njets == '3':
@@ -126,6 +126,7 @@ class HTTPlotter(Plotter):
             }
         self.jobid = jobid
 
+        set_trace()
         self.views['ttJets_preselection'] = self.views['ttJets']
 
         self.views['ttJets_right'] = {

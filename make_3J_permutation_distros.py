@@ -89,17 +89,16 @@ plotter.reset()
 #################### scale ttbar xsec for combining 3 different files
 ttJets_fnames = ['ttJetsM0', 'ttJetsM700', 'ttJetsM1000']
 #ttJets_fnames = ['ttJets']
-lumis = []
-for fname in ttJets_fnames:
-    lumis.append(float(open('inputs/%s/%s.lumi' % (jobid, fname), 'read').readline()))
-max_lumi = max(lumis)
-lumis[:] = [x/max_lumi for x in lumis]
+lumis = [ float(open('inputs/%s/%s.lumi' % (jobid, fname), 'read').readline()) for fname in ttJets_fnames ]
+#max_lumi = max(lumis)
+#lumis[:] = [x/max_lumi for x in lumis]
+lumi_ratios = [ x/sum(lumis) for x in lumis ]
 
 #set_trace()
 ttJets_files = [ #scales found in lumi files normalized by largest value
-    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[0])), lumis[0]),
-    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[1])), lumis[1]),
-    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[2])), lumis[2])
+    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[0])), lumi_ratios[0]),
+    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[1])), lumi_ratios[1]),
+    (glob.glob('results/%s/permProbComputer/%s.root' % (jobid, ttJets_fnames[2])), lumi_ratios[2])
 ]
 
 # rebin x and y axex
@@ -120,7 +119,8 @@ yarray_bins = np.array([400., 800., 1200., 1600., 2000.])
 ybins = np.concatenate((mbpjet_bins,yarray_bins), axis=0)
 #print ybins
 
-bins_mbpjet = np.concatenate((np.linspace(0., 250., 26), np.array([400., 600.])), axis=0)
+#bins_mbpjet = np.concatenate((np.linspace(0., 250., 26), np.array([400., 600.])), axis=0)
+bins_mbpjet = np.linspace(0., 600., 61)
 #######
 
 
@@ -172,9 +172,9 @@ with io.root_open(outname, 'w') as out:
             hright.Write()
     
             #format hwrong hists
-            #if shape == 'mbpjet' and evt_type == 'lost':
-            #    #print shape, bins_mbpjet
-            #    hwrong = RebinView.rebin(hwrong, bins_mbpjet)
+            if shape == 'mbpjet' and evt_type == 'lost':
+                #print shape, bins_mbpjet
+                hwrong = RebinView.rebin(hwrong, bins_mbpjet)
             if ztit:
                hwrong = RebinView.newRebin2D(hwrong, xbins, ybins)
                hwrong.drawstyle = 'colz'

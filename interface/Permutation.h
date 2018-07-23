@@ -176,6 +176,22 @@ class Permutation
             if( Merged_BHadBLep() || Merged_BHadWJa() || Merged_BHadWJb() || Merged_BLepWJa() || Merged_BLepWJb() || Merged_WJets() ) {return(true);}
             return(false);
         }
+        bool Merged_BHadBLepWJa() const{ // BHad, BLep and WJa merged
+            if( BHad() && (BHad() == BLep()) && (BHad() == WJa()) && (BHad() != WJb()) ){return(true);}
+            return(false);
+        }
+        bool Merged_BHadBLepWJb() const{ // BHad, BLep and WJb merged
+            if( BHad() && (BHad() == BLep()) && (BHad() == WJb()) && (BHad() != WJa()) ){return(true);}
+            return(false);
+        }
+        bool Merged_BHadWJaWJb() const{ // BHad, WJa and WJb merged
+            if( BHad() && (BHad() == WJa()) && (BHad() == WJb()) && (BHad() != BLep()) ){return(true);}
+            return(false);
+        }
+        bool Merged_BLepWJaWJb() const{ // BLep, WJa and WJb merged
+            if( BLep() && (BLep() == WJa()) && (BLep() == WJb()) && (BLep() != BLep()) ){return(true);}
+            return(false);
+        }
         // end of merged event categories
 
         // lost event categories

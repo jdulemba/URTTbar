@@ -105,7 +105,7 @@ class htt_simple : public AnalyzerBase
         SyncInfo sync_info_;
 
         float alpha_correction_slope_, alpha_correction_yint_;
-
+        float MTCut_;
 
     public:
         inline double MT(TLorentzVector *l, TLorentzVector *met) {
@@ -143,10 +143,18 @@ class htt_simple : public AnalyzerBase
 
                 parser.addCfgParameter<float>("alpha_correction", "slope", "slope to be used in alpha correction");
                 parser.addCfgParameter<float>("alpha_correction", "yint", "y-int to be used in alpha correction");
+                parser.addCfgParameter<string>("event", "MTCut","");
                 parser.parseArguments();
 
                 alpha_correction_slope_ = parser.getCfgPar<float>("alpha_correction", "slope" );
                 alpha_correction_yint_ = parser.getCfgPar<float>("alpha_correction", "yint" );
+                MTCut_ = parser.getCfgPar<float>("event", "MTCut" );
+
+                if( MTCut_ != 0 ){
+                    Logger::log().error() << "MTCut is " << MTCut_ << " but should be 0 in cfg file!" << endl;
+                    throw 42;
+                }
+
 
                 //    parser.addCfgParameter<string>("JERC", "JER_SF","");
                 //    parser.addCfgParameter<string>("JERC", "PT_JER","");
@@ -442,16 +450,27 @@ class htt_simple : public AnalyzerBase
             //auto thadcm = ttang.thad().to_CM();
 
             ////top angles
-            double tlep_ctstar = min(fabs(reco_cosths.second), 0.99999);
-            double thad_ctstar = min(fabs(corrected_thad.second), 0.99999);
+            double tlep_ctstar_abs = min(fabs(reco_cosths.second), 0.99999);
+            double thad_ctstar_abs = min(fabs(corrected_thad.second), 0.99999);
+            double tlep_ctstar = reco_cosths.second;
+            double thad_ctstar = corrected_thad.second;
             dir->second["tlep_ctstar"].fill(tlep_ctstar, evt_weight_);
             dir->second["thad_ctstar"].fill(thad_ctstar, evt_weight_);
+            dir->second["tlep_ctstar_abs"].fill(tlep_ctstar_abs, evt_weight_);
+            dir->second["thad_ctstar_abs"].fill(thad_ctstar_abs, evt_weight_);
             dir->second["mtt_tlep_ctstar"].fill( (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar, evt_weight_ );
+            dir->second["mtt_tlep_ctstar_abs"].fill( (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar_abs, evt_weight_ );
 
             if(pdf){
                     pdf_uncs_.fill_replicas2D(
                     folder, "mtt_tlep_ctstar", 
                     (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar,
+                    //hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
+                    evt_weight_, event
+                    );
+                    pdf_uncs_.fill_replicas2D(
+                    folder, "mtt_tlep_ctstar_abs", 
+                    (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar_abs,
                     //hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
                     evt_weight_, event
                     );
@@ -548,7 +567,7 @@ class htt_simple : public AnalyzerBase
             auto dir = histos_.find(folder);
             if(dir == histos_.end()) {
                 Logger::log().error() << "could not find: " << folder << endl;
-                throw 42;
+                throw 40;
             }
 
             dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
@@ -633,6 +652,8 @@ class htt_simple : public AnalyzerBase
             //top angles
             book<TH1F>(folder, "tlep_ctstar", "", 200, -1.0001, 1.0001);
             book<TH1F>(folder, "thad_ctstar", "", 200, -1.0001, 1.0001);
+            book<TH1F>(folder, "tlep_ctstar_abs", "", 200, -0.0001, 1.0001);
+            book<TH1F>(folder, "thad_ctstar_abs", "", 200, -0.0001, 1.0001);
 
             //delta
             book<TH1F>(folder, "cdelta_ld", "", 200, -1.0001, 1.0001);
@@ -642,6 +663,7 @@ class htt_simple : public AnalyzerBase
 
             //2D plots
             book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 20, 0., 1.0001);
+            book<TH2F>(folder, "mtt_tlep_ctstar_abs", "", 19, &mbinning[0], 20, 0., 1.0001);
             //book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 5, 0., 1.0001);
 
             //PDF uncertainties
@@ -653,6 +675,7 @@ class htt_simple : public AnalyzerBase
                 }
                 pdf_uncs_.book_replicas(folder, "m_tt", dir->second["m_tt"]);
                 pdf_uncs_.book_replicas(folder, "mtt_tlep_ctstar", dir->second["mtt_tlep_ctstar"]);
+                pdf_uncs_.book_replicas(folder, "mtt_tlep_ctstar_abs", dir->second["mtt_tlep_ctstar_abs"]);
             }
         }
 
@@ -701,14 +724,23 @@ class htt_simple : public AnalyzerBase
             auto thadcm = ttang.thad().to_CM();
 
             //top angles
-            double tlep_ctstar = min(fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 0.99999);
-            double thad_ctstar = min(fabs(ttang.unit3D().Dot(ttcm.thad().unit3D())), 0.99999);
+            double tlep_ctstar_abs = min(fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 0.99999);
+            double thad_ctstar_abs = min(fabs(ttang.unit3D().Dot(ttcm.thad().unit3D())), 0.99999);
+            double tlep_ctstar = ttang.unit3D().Dot(ttcm.tlep().unit3D());
+            double thad_ctstar = ttang.unit3D().Dot(ttcm.thad().unit3D());
             dir->second["tlep_ctstar"].fill(tlep_ctstar, evt_weight_);
             dir->second["thad_ctstar"].fill(thad_ctstar, evt_weight_);
+            dir->second["tlep_ctstar_abs"].fill(tlep_ctstar_abs, evt_weight_);
+            dir->second["thad_ctstar_abs"].fill(thad_ctstar_abs, evt_weight_);
             //dir->second["tlep_ctstar"].fill(ttang.unit3D().Dot(ttcm.tlep().unit3D()), evt_weight_);
             //dir->second["thad_ctstar"].fill(ttang.unit3D().Dot(ttcm.thad().unit3D()), evt_weight_);
             dir->second["mtt_tlep_ctstar"].fill(
                     hyp.LVect().M(), tlep_ctstar, evt_weight_ 
+                    //fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
+                    //evt_weight_
+                    );
+            dir->second["mtt_tlep_ctstar_abs"].fill(
+                    hyp.LVect().M(), tlep_ctstar_abs, evt_weight_ 
                     //fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())), 
                     //evt_weight_
                     );
@@ -1598,7 +1630,7 @@ class htt_simple : public AnalyzerBase
             Logger::log().debug() << tree_ << " " << tree_->GetEntries() << endl;
             URStreamer event(tree_);
 
-            cout << "Alpha correction slope: " << alpha_correction_slope_ << ", yint: " << alpha_correction_yint_ << endl; 
+            //cout << "Alpha correction slope: " << alpha_correction_slope_ << ", yint: " << alpha_correction_yint_ << endl; 
             while( event.next() )
             {
 

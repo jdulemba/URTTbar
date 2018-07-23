@@ -48,7 +48,7 @@ myfile = root_open('%s/inputs/%s/INPUT/%s' % (project, jobid, prob_file), 'read'
 normfile = views.NormalizeView(root_open('%s/inputs/%s/INPUT/%s' % (project, jobid, prob_file), 'read'))
 
 lumis = glob.glob('inputs/%s/*.lumi' % jobid)
-intlumi = (sum([float(open(lumi, 'read').readline()) for lumi in lumis if 'data' in lumi])/2)/1000 #integrated lumi for 2016 in fb-1
+intlumi = (sum([float(open(lumi, 'read').readline()) for lumi in lumis if 'data_Single' in lumi])/2)/1000 #integrated lumi for 2016 in fb-1
 
 plotter = BasePlotter(
     '%s/plots/%s/permutations/Comparisons' % (project, jobid),

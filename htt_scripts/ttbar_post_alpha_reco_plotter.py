@@ -32,6 +32,7 @@ project = os.environ['URA_PROJECT']
 
 parser.add_argument('--analysis', help='Choose type of analysis (Test or Full).')
 parser.add_argument('--sample', help='Choose a file (ttJetsM0, ttJetsM700, ttJetsM1000, AtoTT_M...).')
+parser.add_argument('--perm', help='Choose type of perm to take information from (Event->best perm, Matched->matched perm).')
 parser.add_argument('--plot', help='Choose type of plots to generate (Reconstruction, Resolution, Partons_Acceptances, All).')
 parser.add_argument('--everything', default=False, help='Run Gen, Reco, Resolution, and Discr plots for matched and event perms.')
 args = parser.parse_args()
@@ -40,6 +41,11 @@ args = parser.parse_args()
 ##### check analysis type
 if not (args.analysis == "Test" or args.analysis == "Full"):
     print "You chose %s as your analysis type.\nYou must choose Full or Test!" % args.analysis
+    sys.exit()
+
+##### check perm type
+if not (args.perm == "Event" or args.perm == "Matched"):
+    print "You chose %s as your permutation type.\nYou must choose Event or Matched!" % args.perm
     sys.exit()
 
 
@@ -220,8 +226,7 @@ var_types = {'Costh' : {'THad' : 't_{h} cos(#theta^{*})', 'TLep' : 't_{l} cos(#t
 This is the function made to create the alpha(mthad) plots for lost-jet events
 so a correction can be made to the reconstructed ttbar objects for these events.
 '''
-#def post_alpha_corrections(directory, subdir, topology):
-def Reconstruction_Plots(directory, subdir, topology):
+def Reconstruction_Plots(directory, subdir):
 
 #    plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
 
@@ -303,7 +308,7 @@ def Reconstruction_Plots(directory, subdir, topology):
 
 
 
-def Reso_Plots(directory, subdir, topology):
+def Reso_Plots(directory, subdir):
 ##### plots for resolution
 
     reso_hists = {
@@ -336,13 +341,18 @@ def Reso_Plots(directory, subdir, topology):
                 xlabel = ''
 
             to_draw_normal = []
+            ## for comparing perm types
+            correct_b_to_draw = []
+            wrong_b_to_draw = []
+            other_to_draw = []
+
             for corr_type in reso_hists[kvar][obj].keys():
 
                     ### create hists based on perm category (Correct b, wrong b, etc...)
                 #print 'kvar = %s\nobj = %s\ncorr_type= %s ' % (kvar, obj, corr_type)
                 if (kvar == 'Costh' and obj == 'THad') or (kvar == 'Mass' and obj == 'THad') or (kvar == 'Mass' and obj == 'TTbar'):
                     to_draw = []
-                    for cat in Perm_Categories:#[topology]:
+                    for cat in Perm_Categories:
                         plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories', corr_type]))
                         evt_col=hist_styles[cat]['fillcolor']
                         evt_type = hist_styles[cat]['name']
@@ -371,7 +381,19 @@ def Reso_Plots(directory, subdir, topology):
                         box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
                         box.Draw()
                         plotter.save('Reso_%s_%s_%s_%s' % (obj, kvar, corr_type, cat))
-     
+    
+                        #set_trace() 
+                        perm_cat_hist = cat_hist.Clone()
+                        perm_cat_hist.set_name(corr_type)
+                        plotter.set_histo_style(perm_cat_hist, color=hvar_col, fillstyle=0, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, cat_hist_mean, cat_hist_rms), xtitle='%s, %s' % (xlabel, evt_type) )
+                        if cat == 'CORRECT_B':
+                            correct_b_to_draw.append(perm_cat_hist)
+                        elif cat == 'WRONG_B':
+                            wrong_b_to_draw.append(perm_cat_hist)
+                        elif cat == 'OTHER':
+                            other_to_draw.append(perm_cat_hist)
+
+
                     if not to_draw:
                         continue
                     
@@ -445,7 +467,23 @@ def Reso_Plots(directory, subdir, topology):
             plotter.save('Reso_%s_%s_Comparison' % (kvar, obj) )
 
 
-def Parton_Acceptances_Plots(directory, subdir, topology):
+                ## compare perm categories
+            if not correct_b_to_draw:
+                continue
+
+            plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories']))
+            plotter.overlay(correct_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
+            plotter.save('Reso_%s_%s_CorrectBs_Comparison' % (kvar, obj) )
+
+            plotter.overlay(wrong_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
+            plotter.save('Reso_%s_%s_WrongBs_Comparison' % (kvar, obj) )
+
+            plotter.overlay(other_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
+            plotter.save('Reso_%s_%s_Other_Comparison' % (kvar, obj) )
+            #set_trace()   
+
+
+def Parton_Acceptances_Plots(directory, subdir):
     #npartons = {
     #                    '2Partons' : ', 2 partons',
     #                    '3Partons' : ', 3 partons',
@@ -636,7 +674,7 @@ def Parton_Acceptances_Plots(directory, subdir, topology):
 
                         ### create hists based on perm category (Correct b, wrong b, etc...)
                     to_draw = []
-                    for cat in Perm_Categories:#[topology]:
+                    for cat in Perm_Categories:
                         plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'Perm_Categories', corr_type]))
                         evt_col=hist_styles[cat]['fillcolor']
                         evt_type = hist_styles[cat]['name']
@@ -681,7 +719,7 @@ def Parton_Acceptances_Plots(directory, subdir, topology):
 
                     ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
                     to_draw = []
-                    for cat in Gen_Categories:#[topology]:
+                    for cat in Gen_Categories:
                         plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'Gen_Categories', corr_type]))
                         evt_col=hist_styles[cat]['fillcolor']
                         evt_type = hist_styles[cat]['name']
@@ -929,16 +967,23 @@ both_sols_dict- classifications for events in which both discriminants have solu
 
 
 def Post_Alpha_Plots( plot ):
-    directory = '3J_Event_Plots'
 
-    reco_dir = '3J_Event_Plots/Lost_BP'
-    reco_subdir = '3J_Event_Plots/Lost_BP'
-    classes = 'LOST'
+    reco_dir, reco_subdir = '', ''
+
+
+    if args.perm == 'Event':
+        reco_dir = '3J_Event_Plots/Lost_BP'
+        reco_subdir = '3J_Event_Plots/Lost_BP'
+
+    elif args.perm == 'Matched':
+        reco_dir = '3J_Event_Plots/Matched_Perm'
+        reco_subdir = '3J_Event_Plots/Matched_Perm'
+
 
     if plot == 'Reconstruction':
-        Reconstruction_Plots( reco_dir , reco_subdir, classes )
+        Reconstruction_Plots( reco_dir , reco_subdir )
     elif plot == 'Resolution':
-        Reso_Plots( reco_dir , reco_subdir, classes )
+        Reso_Plots( reco_dir , reco_subdir )
 
 #    if plot == 'Post_Alpha':
 #        ### create post alpha correction plots for lost-jet events
@@ -947,279 +992,7 @@ def Post_Alpha_Plots( plot ):
         #set_trace()
     
 
-    #plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
-    #gen_rebin_hist = {'Costh' : {'THad' : (-1., 1., 26), 'TLep' : (-1., 1., 26)},\
-    #              'Eta' : {'TTbar' : (-2.5, 2.5, 26), 'THad' : (-2.5, 2.5, 26), 'TLep' : (-2.5, 2.5, 26)},\
-    #              'Mass' : {'TTbar' : (200., 2000., 46), 'THad' : (100., 250., 46)},\
-    #              'Pt' : {'TTbar' : (0., 1000., 51), 'THad' : (0., 1000., 51), 'TLep' : (0., 1000., 51)}}
-    #reco_rebin_hist = {'Costh' : {'THad' : (-1., 1., 26), 'TLep' : (-1., 1., 26)},\
-    #              'Eta' : {'TTbar' : (-2.5, 2.5, 26), 'THad' : (-2.5, 2.5, 26), 'TLep' : (-2.5, 2.5, 26)},\
-    #              'Mass' : {'TTbar' : (200., 2000., 46), 'THad' : (50., 250., 46)},\
-    #              'Pt' : {'TTbar' : (0., 1000., 51), 'THad' : (0., 1000., 51), 'TLep' : (0., 1000., 51)}}
-    #reso_rebin_hist = {'Costh' : {'TTbar' : (-2., 2., 26), 'THad' : (-2., 2., 26), 'TLep' : (-2., 2., 26)},\
-    #              'Eta' : {'TTbar' : (-5.0, 50, 26), 'THad' : (-5.0, 5.0, 26), 'TLep' : (-5.0, 5.0, 26)},\
-    #              'Mass' : {'TTbar' : (-1000., 2000., 46), 'THad' : (-1000., 500., 46), 'TLep' : (-500., 500., 46)},\
-    #              'Pt' : {'TTbar' : (-1000., 500., 51), 'THad' : (-500., 500., 51), 'TLep' : (-1000., 1000., 51)}}
 
-    #    ### Reco and Res plots for thad, tlep, and ttbar objects looking at kinvar dists (mass, costh, ...)
-    #for plot_type in plot_types.keys():
-    #    for kvar in var_types.keys():
-    #        for obj in var_types[kvar].keys():
-    #            if plot_type == 'Reconstruction' or plot_type == 'Gen':
-    #                xlabel = '%s %s' % (plot_types[plot_type], var_types[kvar][obj])
-    #            elif plot_type == 'Resolution':
-    #                xlabel = '%s %s' % (var_types[kvar][obj], plot_types[plot_type])
-    #    
-    #            for classes in classifications:
-    #                plotter.set_subdir('/'.join([directory, 'Final_Reco/Comparison', classes, plot_type, kvar]))
-    #    
-    #                to_draw = []
-    #    
-    #                for reco in reco_dirs.keys():
-    #                    evt_col=reco_dirs[reco][0]
-    #            #        evt_type = hist_styles[cat]['name']
-    #                    hname = '/'.join([directory, reco, classes, plot_type, kvar, obj])
-    #                    hist = asrootpy(myfile.Get(hname)).Clone()
-
-    #                    if plot_type == 'Gen':    
-    #                        new_bins = np.linspace(gen_rebin_hist[kvar][obj][0], gen_rebin_hist[kvar][obj][1], hist.nbins()/2+1)
-    #                    if plot_type == 'Reconstruction':    
-    #                        new_bins = np.linspace(reco_rebin_hist[kvar][obj][0], reco_rebin_hist[kvar][obj][1], hist.nbins()/2+1)
-    #                    if plot_type == 'Resolution':    
-    #                        new_bins = np.linspace(reso_rebin_hist[kvar][obj][0], reso_rebin_hist[kvar][obj][1], hist.nbins()/2+1)
-    #                    hist = RebinView.rebin(hist, new_bins)
-    #                    if hist.Integral() == 0:
-    #                        continue
-    #                    mean = hist.GetMean()
-    #                    rms = hist.GetRMS()
-    #    
-    #                    plotter.set_histo_style(hist, color=evt_col, title=reco_dirs[reco][1]+' Mean = %.2f, RMS = %.2f' % (mean,rms) )
-    #                    to_draw.append(hist)
-    #    
-    #                if not to_draw:
-    #                    continue
-    #                plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-    #    
-    #                plotter.save('Final_Reco_%s_%s_%s_Comparison' % (classes, obj, kvar) )
-
-##############################################################################################
-
-def Reco_Plots(directory, subdir):#, topology):
-
-    plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
-    rebin_hist = {'Costh' : {'THad' : (-1., 1., 26), 'TLep' : (-1., 1., 26)},\
-                  'Eta' : {'TTbar' : (-2.5, 2.5, 26), 'THad' : (-2.5, 2.5, 26), 'TLep' : (-2.5, 2.5, 26)},\
-                  'Mass' : {'TTbar' : (200., 2000., 46), 'THad' : (50., 250., 46)},\
-                  'Pt' : {'TTbar' : (0., 1000., 51), 'THad' : (0., 1000., 51), 'TLep' : (0., 1000., 51)}}
-
-        ### Reco plots for thad, tlep, and ttbar objects looking at kinvar dists (mass, costh, ...) based on likelihood value
-    for kvar in var_types.keys():
-
-        #plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar]))
-        for obj in var_types[kvar].keys():
-            plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar]))
-            xlabel = 'Reco %s' % var_types[kvar][obj]
-            hname = '/'.join([directory, 'Reconstruction', kvar, obj])
-
-            hist = asrootpy(myfile.Get(hname)).Clone()
-
-            if hist.Integral() == 0:
-                continue
-
-            #if kvar == 'Mass':
-            #    pre_rebin = [hist.Integral(i+1,i+1) for i in range(hist.nbins())]
-            #    #new_bins = np.linspace(rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1], rebin_hist[kvar][obj][2])
-            #    post_rebin = [hist.Integral(i+1,i+1) for i in range(hist.nbins())]
-            #set_trace()
-            new_bins = np.linspace(rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1], hist.nbins()/2+1)
-            hist = RebinView.rebin(hist, new_bins)
-            #hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-
-            hist_mean = hist.GetMean()
-            hist_rms = hist.GetRMS()
-
-            plotter.set_histo_style(hist, xtitle=xlabel, ytitle=defyax)
-            plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-            box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hist_mean, hist_rms), position='NE')
-            box1.Draw()
-            plotter.save('Reco_%s_%s' % (obj, kvar))
-
-
-                ### create hists based on perm category (Correct b, wrong b, etc...)
-            to_draw = []
-            for cat in Perm_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Perm_Categories']))
-                #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
-                cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
-                cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-    
-                cat_hist = RebinView.rebin(cat_hist, new_bins)
-                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-    
-                if cat_hist.Integral() == 0:
-                    continue
-    
-                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
-                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                to_draw.append(cat_hist)
-    
-            if not to_draw:
-                continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
-            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
-    
-            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
-
-
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
-            to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Gen_Categories']))
-                #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
-                cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
-                cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-    
-                cat_hist = RebinView.rebin(cat_hist, new_bins)
-                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-    
-                if cat_hist.Integral() == 0:
-                    continue
-    
-                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
-                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                to_draw.append(cat_hist)
-    
-            if not to_draw:
-                continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
-            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
-    
-            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
-
-
-
-
-##############################################################################################
-
-
-def Resolution_Plots(directory, subdir):#, topology):
-
-    plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
-    rebin_hist = {'Costh' : {'TTbar' : (-2., 2., 26), 'THad' : (-2., 2., 26), 'TLep' : (-2., 2., 26)},\
-                  'Eta' : {'TTbar' : (-5.0, 50, 26), 'THad' : (-5.0, 5.0, 26), 'TLep' : (-5.0, 5.0, 26)},\
-                  'Mass' : {'TTbar' : (-1000., 2000., 46), 'THad' : (-1000., 500., 46), 'TLep' : (-500., 500., 46)},\
-                  'Pt' : {'TTbar' : (-1000., 500., 51), 'THad' : (-500., 500., 51), 'TLep' : (-1000., 1000., 51)}}
-
-        ### Resolution plots for thad, tlep, and ttbar objects looking at kinvar dists (mass, costh, ...) based on likelihood value
-    for kvar in var_types.keys():
-        #plotter.set_subdir('/'.join([directory, 'Resolution', kvar]))
-        for obj in var_types[kvar].keys():
-            plotter.set_subdir('/'.join([subdir, 'Resolution', kvar]))
-            xlabel = '%s Resolution (Gen-Reco)' % var_types[kvar][obj]
-            hname = '/'.join([directory, 'Resolution', kvar, obj])
-
-            hist = asrootpy(myfile.Get(hname)).Clone()
-
-            if hist.Integral() == 0:
-                continue
-
-            #new_bins = np.linspace(rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1], rebin_hist[kvar][obj][2])
-            new_bins = np.linspace(rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1], hist.nbins()/2+1)
-            hist = RebinView.rebin(hist, new_bins)
-            #hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-
-            hist_mean = hist.GetMean()
-            hist_rms = hist.GetRMS()
-
-            plotter.set_histo_style(hist, xtitle=xlabel, ytitle=defyax)
-            plotter.plot(hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-            box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hist_mean, hist_rms), position='NE')
-            box1.Draw()
-            plotter.save('Reso_%s_%s' % (obj, kvar))
-
-
-
-                ### create hists based on perm category (Correct b, wrong b, etc...)
-            to_draw = []
-            for cat in Perm_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Perm_Categories']))
-                #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
-                cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
-                cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-    
-                cat_hist = RebinView.rebin(cat_hist, new_bins)
-                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-    
-                if cat_hist.Integral() == 0:
-                    continue
-    
-                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
-                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                to_draw.append(cat_hist)
-    
-            if not to_draw:
-                continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
-            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
-    
-            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
-
-
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
-            to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Gen_Categories']))
-                #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
-                cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
-                cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-    
-                cat_hist = RebinView.rebin(cat_hist, new_bins)
-                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-    
-                if cat_hist.Integral() == 0:
-                    continue
-    
-                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
-                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                to_draw.append(cat_hist)
-    
-            if not to_draw:
-                continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
-            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
-    
-            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
-            plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
-
-
-    
 #####################################################################################################
 
 if args.plot == 'All':
