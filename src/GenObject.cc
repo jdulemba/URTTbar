@@ -17,16 +17,24 @@ std::ostream & operator<<(std::ostream &os, const GenW& w) {
 }
 
 std::ostream & operator<<(std::ostream &os, const GenTop& t) {
-  if(t.b) os << "--> b: " << *t.b  << std::endl;
-  else    os << "--> b: (NULL)" << std::endl;
-  return os << "--> W: " << t.W;
+//  os << " (px, py, pz, E): (" << *t.Px() << ", " << *t.Py() << ", " << *t.Pz() << ", "
+//  << *t.E() << ")" << std::endl
+  if(t.b) os << "   --> b: " << *t.b  << std::endl;
+  else    os << "   --> b: (NULL)" << std::endl;
+  return  os << "   --> W: " << t.W;
 }
 std::ostream & operator<<(std::ostream &os, const GenTTBar& tt) {
   return os << "tt type: " << tt.type << ", (px, py, pz, E): ("
             << tt.Px() << ", " << tt.Py() << ", " << tt.Pz() << ", " 
             << tt.E() << ")" << std::endl
-            << "top  " << tt.top << std::endl 
-            << "tbar " << tt.tbar;
+            << "top (px, py, pz, E): ("
+            << tt.top.Px() << ", " << tt.top.Py() << ", " << tt.top.Pz() << ", " 
+            << tt.top.E() << ")" << std::endl
+            << tt.top << std::endl
+            << "tbar (px, py, pz, E): ("
+            << tt.tbar.Px() << ", " << tt.tbar.Py() << ", " << tt.tbar.Pz() << ", " 
+            << tt.tbar.E() << ")" << std::endl
+            << tt.tbar;
 }
 
 GenTTBar GenTTBar::from_collections( vector<GenObject*>& wpartons, vector<GenObject*>& charged_leps,

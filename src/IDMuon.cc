@@ -122,7 +122,8 @@ bool IDMuon::ID(IDS idtyp)
 		return isLoose() && (PFIsoDb()/Pt()) < 0.25;
 	}
 	else if(idtyp == IDMuon::IDS::ANTILOOSE_15Db) {
-		return isLoose() && (PFIsoDb()/Pt()) > 0.25 && (PFIsoDb()/Pt()) < 1.0;
+		return isTight() && 0.15 <= (PFIsoDb()/Pt()) && (PFIsoDb()/Pt()) < 0.43;
+		//return isLoose() && (PFIsoDb()/Pt()) > 0.25 && (PFIsoDb()/Pt()) < 1.0; // original def
 	}
 	return(false);
 }

@@ -22,6 +22,8 @@
 <bin file="htt_simple.cc"        name="htt_simple"/>
 <bin file="htt_flav_effs.cc"        name="htt_flav_effs"/>
 <bin file="permStudy.cc"        name="permStudy"/>
+<bin file="ttbar_alpha_reco.cc"        name="ttbar_alpha_reco"/>
+<bin file="ttbar_post_alpha_reco.cc"        name="ttbar_post_alpha_reco"/>
 <!--bin file="Test_ctag.cc"        name="Test_ctag"/-->
 <!--bin file="jet_effs.cc"        name="jet_effs"/-->
 

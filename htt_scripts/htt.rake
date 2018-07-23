@@ -1,6 +1,77 @@
 $jobid = ENV['jobid']
 $project_dir = ENV['URA_PROJECT']
 
+# This is a test task to get a feel for ruby.
+task :output do |t|
+    sh "ls #{$project_dir}/bin"
+end
+
+task :btag_effs do |t|
+    py_path = "#{$project_dir}/htt_scripts"
+    sh "python #{py_path}/make_btag_effs.py baselinJ20"
+#    command = `python make_btag_effs.py baselineJ20`
+#    sh "#{command}"
+end
+
+$leptons = ['muons']#, 'electrons']
+$njet_opts = ['3', '4+', '']
+task :htt_plots, [:lep, :njets] do |t, args|
+    lep_validity = $leptons.include?(args.lep)
+    if lep_validity == false
+      puts "#{args.lep} isn't a valid lepton choice. Your options are"
+      $leptons.each do |lep|
+        puts "   #{lep}"
+      end
+    end
+    njet_validity = $njet_opts.include?(args.njets)
+    if njet_validity == false
+      puts "#{args.njets} isn't a valid jet choice. Your options are"
+      $njet_opts.each do |njets|
+        puts "   #{njets}"
+      end
+    end
+    if args.njets == '3' or args.njets == '4+'
+        sh "python htt_scripts/HTTPlotter.py #{args.lep} --plots --njets=#{args.njets}"
+    else
+        sh "python htt_scripts/HTTPlotter.py #{args.lep} --plots"
+    end
+
+end
+
+task :htt_presel, [:lep, :njets] do |t, args|
+    lep_validity = $leptons.include?(args.lep)
+    if lep_validity == false
+      puts "#{args.lep} isn't a valid lepton choice. Your options are"
+      $leptons.each do |lep|
+        puts "   #{lep}"
+      end
+    end
+    njet_validity = $njet_opts.include?(args.njets)
+    if njet_validity == false
+      puts "#{args.njets} isn't a valid jet choice. Your options are"
+      $njet_opts.each do |njets|
+        puts "   #{njets}"
+      end
+    end
+    if args.njets == '3' or args.njets == '4+'
+        sh "python htt_scripts/HTTPlotter.py #{args.lep} --preselection --njets=#{args.njets}"
+    else
+        sh "python htt_scripts/HTTPlotter.py #{args.lep} --preselection"
+    end
+
+end
+task :all_htt_plots_presel do |t|
+    $leptons.each do |lep|
+        $njet_opts.each do |njets|
+            Rake::Task["htt_presel"].invoke(lep, njets)
+            Rake::Task["htt_presel"].reenable
+            Rake::Task["htt_plots"].invoke(lep, njets)
+            Rake::Task["htt_plots"].reenable
+        end
+    end
+end
+
+
 task :publish_htt do |t|
   link = `ls -ld plots/#{$jobid}/htt`.scan(/-> (.+)/).flatten.last
   if not link

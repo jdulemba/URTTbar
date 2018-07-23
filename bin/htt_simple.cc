@@ -92,7 +92,6 @@ class htt_simple : public AnalyzerBase
         //    JME::JetResolution pt_jet_res_; // initialize jet energy pt resolution
         //    JME::JetResolutionScaleFactor jet_res_sf_; // initialize jet energy resolution scale factors
 
-
         unsigned long evt_idx_ = 0;
         vector<systematics::SysShifts> systematics_;
 
@@ -104,6 +103,11 @@ class htt_simple : public AnalyzerBase
         TTree *sync_tree_;
         SyncInfo sync_info_;
 
+        float alpha_correction_slope_, alpha_correction_yint_;
+
+        float MTCut_;
+
+
     public:
         inline double MT(TLorentzVector *l, TLorentzVector *met) {
             return sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
@@ -112,7 +116,7 @@ class htt_simple : public AnalyzerBase
         htt_simple(const std::string output_filename):
             AnalyzerBase("htt_simple", output_filename), 
             tracker_(),
-            genp_selector_(TTGenParticleSelector::SelMode::LHE),
+            //genp_selector_(TTGenParticleSelector::SelMode::LHE),
             //genp_selector_(),
             matcher_(),
             permutator_(),
@@ -137,6 +141,20 @@ class htt_simple : public AnalyzerBase
                 //  " Perm: " << permutator_.tight_bID_cut() << " " << permutator_.loose_bID_cut() << endl;
 
                 URParser &parser = URParser::instance();
+
+                parser.addCfgParameter<float>("alpha_correction", "slope", "slope to be used in alpha correction");
+                parser.addCfgParameter<float>("alpha_correction", "yint", "y-int to be used in alpha correction");
+                parser.addCfgParameter<string>("event", "MTCut","");
+                parser.parseArguments();
+
+                alpha_correction_slope_ = parser.getCfgPar<float>("alpha_correction", "slope" );
+                alpha_correction_yint_ = parser.getCfgPar<float>("alpha_correction", "yint" );
+                MTCut_ = parser.getCfgPar<float>("event", "MTCut" );
+
+                if( MTCut_ != 0 ){
+                    Logger::log().error() << "MTCut is " << MTCut_ << " but it should be 0 in the cfg!" << endl;
+                    throw 42;
+                }
 
                 //    parser.addCfgParameter<string>("JERC", "JER_SF","");
                 //    parser.addCfgParameter<string>("JERC", "PT_JER","");
@@ -163,6 +181,11 @@ class htt_simple : public AnalyzerBase
                 isTTJetsM1000_ = boost::starts_with(sample, "ttJetsM1000");
                 isTTJetsM700_ = boost::starts_with(sample, "ttJetsM700");
                 //
+
+                if( isTTbar_ ) genp_selector_ = TTGenParticleSelector(TTGenParticleSelector::SelMode::LHE);
+                else genp_selector_ = TTGenParticleSelector();
+
+
                 //set tracker
                 if(!values.count("noweights")) tracker_.use_weight(&evt_weight_);
                 object_selector_.set_tracker(&tracker_);
@@ -835,8 +858,7 @@ class htt_simple : public AnalyzerBase
                 //alphas found by fitting Alpha_THad_P/E hists
                     //values taken from 1degree vals http://home.fnal.gov/~jdulemba/Plots/ttbar_reco_3J/2018/JetpTcut30/Only_Alpha_Correction/Full/ttJetsM0/3J_Event_Plots/Lost_BP/Alpha_Correction/fit_parameters.json
             // y = mx +b -> m is first element in json, b is second
-
-            double alpha_E = 0.4019*( 173.1/perm.THad().M() ) + 0.5834; // only alpha_E used because it's more consistent over mtt spectrum 
+            double alpha_E = alpha_correction_slope_*( 173.1/perm.THad().M() ) + alpha_correction_yint_; // only alpha_E used because it's more consistent over mtt spectrum 
             //double alpha_P = 0.1544*( 173.1/perm.THad().M() ) + 0.8599;
             TLorentzVector Alpha_THad(alpha_E*perm.THad().Px(), alpha_E*perm.THad().Py(), alpha_E*perm.THad().Pz(), alpha_E*perm.THad().E());
 
@@ -1176,7 +1198,7 @@ class htt_simple : public AnalyzerBase
             auto &clean_jets = object_selector_.clean_jets();
                 // original b cuts
             //sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
-            sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
+            sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){ return( (A->DeepCSVProbB() + A->DeepCSVProbBB()) > (B->DeepCSVProbB() + B->DeepCSVProbBB()) ); });
             if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
             //tracker_.track("first b pass");
             if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
@@ -1211,6 +1233,7 @@ class htt_simple : public AnalyzerBase
 
             if( njets == 3 ){
 
+                tracker_.track("3J", leptype);
                 /// Find best permutation
                 permutator_.reset_3J();
                 IDJet* wj2 = 0;
@@ -1222,7 +1245,7 @@ class htt_simple : public AnalyzerBase
                     //tracker_.track("not sync and not reco success");
                     return;
                 }
-                if(lep_is_tight) tracker_.track("best perm");
+                if(lep_is_tight) tracker_.track("3J/best perm", leptype);
 
                 if(sync_) {
                     if(lep_is_tight) {
@@ -1276,7 +1299,7 @@ class htt_simple : public AnalyzerBase
                     else evtdir << "/negative";
                 }
 
-                if(lep_is_tight) tracker_.track("matched perm");
+                if(lep_is_tight) tracker_.track("3J/matched perm", leptype);
 
                 //cout << "category: " << evtdir.str() << endl;
 
@@ -1298,9 +1321,13 @@ class htt_simple : public AnalyzerBase
                     if( !mt_high ){
                         evtdir << "/MTLow";
                         runpdf=false;
+                        tracker_.track("3J/MTLow", leptype);
                         //cout << "MTLow: " << mt_high << endl;
                     }
-                    else evtdir << "/MTHigh";
+                    else{
+                        evtdir << "/MTHigh";
+                        tracker_.track("3J/MTHigh", leptype);
+                    }
                 }
                 else{
                     if( !mt_high ) return;
@@ -1314,7 +1341,7 @@ class htt_simple : public AnalyzerBase
                 //fill right category
                 fill_3J_selection_plots("3J_Events/selection/"+evtdir.str(), event, best_perm, runpdf);
                 fill_3J_selection_plots(evtdir.str(), event, best_perm, runpdf);
-                if(lep_is_tight) tracker_.track("END", leptype);
+                if(lep_is_tight) tracker_.track("3J/END", leptype);
 
 
                 if( shift == systematics::SysShifts::NOSYS ){
@@ -1338,6 +1365,7 @@ class htt_simple : public AnalyzerBase
 
 
     //// events with 4+ jets
+            tracker_.track("4PJ", leptype);
 
             // cout << object_selector_.clean_jets().size() << " --> " << permutator_.capped_jets().size() << endl;
             // for(auto i : object_selector_.clean_jets()) {
@@ -1382,7 +1410,7 @@ class htt_simple : public AnalyzerBase
                 //tracker_.track("not sync and not reco success");
                 return;
             }
-            if(lep_is_tight) tracker_.track("best perm");
+            if(lep_is_tight) tracker_.track("4PJ/best perm", leptype);
 
             //	    	cout << "BEST PERM" << endl;
             //	    	if(best_permutation.IsComplete()){
@@ -1500,7 +1528,7 @@ class htt_simple : public AnalyzerBase
                 }
             }
 
-            if(lep_is_tight) tracker_.track("matched perm");
+            if(lep_is_tight) tracker_.track("4PJ/matched perm", leptype);
 
             //check isolation type
             bool runpdf = (runsys_ && isTTbar_ && shift == systematics::SysShifts::NOSYS);
@@ -1520,8 +1548,12 @@ class htt_simple : public AnalyzerBase
                 if( !mt_high ){
                     evtdir << "/MTLow";
                     runpdf=false;
+                    tracker_.track("4PJ/MTLow", leptype);
                 }
-                else evtdir << "/MTHigh";
+                else{
+                    evtdir << "/MTHigh";
+                    tracker_.track("4PJ/MTHigh", leptype);
+                }
             }
             else{
                 if( !mt_high ) return;
@@ -1532,7 +1564,7 @@ class htt_simple : public AnalyzerBase
             //fill right category
             fill_selection_plots(evtdir.str(), event, best_permutation, runpdf);
             fill_selection_plots("4PJ/selection/"+evtdir.str(), event, best_permutation, runpdf);
-            if(lep_is_tight) tracker_.track("END", leptype);
+            if(lep_is_tight) tracker_.track("4PJ/END", leptype);
             //           } // end of 4+ jet loop
 
         } // end of process_evt

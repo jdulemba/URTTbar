@@ -142,46 +142,51 @@ class GenTTBar: public TLorentzVector {
         }
 
         //// Joseph added
-        bool is_bhad_in_acceptance(double pt, double eta) { // check if bhad parton falls w/in pt and eta acceptance
-            if( had_b()->Pt() < pt || Abs(had_b()->Eta()) > eta ) {return(false);}
+        bool leadjet_ptmin_in_acceptance(double lead_pt) { // check if any parton has pt > min leading jet pT
+            if( had_b()->Pt() > lead_pt || lep_b()->Pt() > lead_pt ||
+                had_W()->first->Pt() > lead_pt || had_W()->second->Pt() > lead_pt ) {return(true);}
+            return(false);
+        }
+        bool is_bhad_in_acceptance(double pt, double eta, double lead_pt) { // check if bhad parton falls w/in pt and eta acceptance
+            if( had_b()->Pt() < pt || Abs(had_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool is_blep_in_acceptance(double pt, double eta) { // check if blep parton falls w/in pt and eta acceptance
-            if( lep_b()->Pt() < pt || Abs(lep_b()->Eta()) > eta ) {return(false);}
+        bool is_blep_in_acceptance(double pt, double eta, double lead_pt) { // check if blep parton falls w/in pt and eta acceptance
+            if( lep_b()->Pt() < pt || Abs(lep_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool is_wja_in_acceptance(double pt, double eta) { // check if wja parton falls w/in pt and eta acceptance
-            if( had_W()->first->Pt() < pt || Abs(had_W()->first->Eta()) > eta ) {return(false);}
+        bool is_wja_in_acceptance(double pt, double eta, double lead_pt) { // check if wja parton falls w/in pt and eta acceptance
+            if( had_W()->first->Pt() < pt || Abs(had_W()->first->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool is_wjb_in_acceptance(double pt, double eta) { // check if wjb parton falls w/in pt and eta acceptance
-            if( had_W()->second->Pt() < pt || Abs(had_W()->second->Eta()) > eta ) {return(false);}
+        bool is_wjb_in_acceptance(double pt, double eta, double lead_pt) { // check if wjb parton falls w/in pt and eta acceptance
+            if( had_W()->second->Pt() < pt || Abs(had_W()->second->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
-        bool two_partons_in_acceptance(double pt, double eta) { // check if only 2 partons fall w/in pt and eta acceptance
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( !is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+        bool two_partons_in_acceptance(double pt, double eta, double lead_pt) { // check if only 2 partons fall w/in pt and eta acceptance
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
             return(false);
         }
 
-        bool three_partons_in_acceptance(double pt, double eta) { // check if only 3 partons fall w/in pt and eta acceptance
-            if( !is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && !is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && !is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && !is_wjb_in_acceptance(pt, eta) ) {return(true);}
+        bool three_partons_in_acceptance(double pt, double eta, double lead_pt) { // check if only 3 partons fall w/in pt and eta acceptance
+            if( !is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && !is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && !is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && !is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
             return(false);
         }
 
-        bool all_partons_in_acceptance(double pt, double eta){ // check if bhad, blep, wja, and wjb in pt and eta acceptance
-            if( is_bhad_in_acceptance(pt, eta) && is_blep_in_acceptance(pt, eta) && is_wja_in_acceptance(pt, eta) && is_wjb_in_acceptance(pt, eta) ) {return(true);}
+        bool all_partons_in_acceptance(double pt, double eta, double lead_pt){ // check if bhad, blep, wja, and wjb in pt and eta acceptance
+            if( is_bhad_in_acceptance(pt, eta, lead_pt) && is_blep_in_acceptance(pt, eta, lead_pt) && is_wja_in_acceptance(pt, eta, lead_pt) && is_wjb_in_acceptance(pt, eta, lead_pt) ) {return(true);}
             return(false);
         }
 
