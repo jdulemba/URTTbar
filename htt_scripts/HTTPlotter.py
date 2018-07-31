@@ -37,6 +37,7 @@ parser.add_argument('mode', choices=['electrons', 'muons'], help='choose leptoni
 parser.add_argument('--preselection', action='store_true', help='')
 parser.add_argument('--plots', action='store_true', help='')
 parser.add_argument('--flow', action='store_true', help='')
+parser.add_argument('--combinedflow', action='store_true', help='Full cut_flow with mu/e info')
 parser.add_argument('--shapes', action='store_true', help='')
 parser.add_argument('--all', action='store_true', help='')
 parser.add_argument('--btag', action='store_true', help='')
@@ -101,14 +102,20 @@ class HTTPlotter(Plotter):
         #select only mode subdir
         for info in self.views.itervalues():
             if args.njets == '3':
-                info['view'] = views.SubdirectoryView(info['view'], '3J_Events/selection/'+mode)
-                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '3J_Events/selection/'+mode)
+                info['view'] = views.SubdirectoryView(info['view'], mode+'/3Jets')
+                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode+'/3Jets')
             elif args.njets == '4+':
-                info['view'] = views.SubdirectoryView(info['view'], '4PJ/selection/'+mode)
-                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '4PJ/selection/'+mode)
+                info['view'] = views.SubdirectoryView(info['view'], mode+'/4PJets')
+                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode+'/4PJets')
             else:
-                info['view'] = views.SubdirectoryView(info['view'], mode)
-                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
+                if args.flow and args.combinedflow:
+                    info['view'] = views.SubdirectoryView(info['view'], '')
+                    info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '')
+                else:
+                    info['view'] = views.SubdirectoryView(info['view'], mode)
+                    info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
+                #info['view'] = views.SubdirectoryView(info['view'], mode)
+                #info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
 
         #set_trace()
             #info['view'] = views.SubdirectoryView(info['view'], mode)
@@ -181,7 +188,8 @@ class HTTPlotter(Plotter):
         self.views['EWK'] = {
             'view' : views.TitleView(
                 views.StyleView(
-                    views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', '[WZ]Jets', 'tt[WZ]*']]),
+                    views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', 'ZJets', 'WJets', 'tt[WZ]*']]),
+                    #views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', 'ZJets', 'W[1-4]Jets', 'tt[WZ]*']]),
                     fillcolor = '#FFD700'
                     #fillcolor = ROOT.kGreen + 1
                     ),
@@ -644,15 +652,35 @@ class HTTPlotter(Plotter):
         lab_f1, _ = self.dual_pad_format()
         self.label_factor = lab_f1
         views_to_flow = filter(lambda x: 'ttJets' not in x and 'QCD' not in x, self.mc_samples)
-        views_to_flow.append(self.tt_to_use)
+        #views_to_flow.append(self.tt_to_use)
+        ttJets_samples = ['ttJetsSL', 'ttJetsHad', 'ttJetsDiLep']
         qcd_samples = [i for i in self.views if 'QCD' in i]
+
         samples = []
 
         for vtf in views_to_flow:
+            #set_trace()
             histo = self.get_view(vtf).Get('cut_flow')
             print vtf, len(histo)
             self.keep.append(histo)
             samples.append(histo)
+
+        #set_trace()
+        #ttJets files may not have all the bins filled, needs special care
+        ttJets_histo = histo.Clone()           
+        ttJets_histo.Reset()
+        for sample in ttJets_samples:
+            ttJets_flow = self.get_view(sample).Get('cut_flow')
+            ttJets_histo = ttJets_histo.decorate(
+                **ttJets_flow.decorators
+                )
+            ttJets_histo.title = ttJets_flow.title
+            for sbin, qbin in zip(ttJets_histo, ttJets_flow):
+                if sbin.overflow: continue
+                sbin.value = qbin.value+sbin.value
+                sbin.error = quad.quad(sbin.error, qbin.error)
+        samples.append(ttJets_histo)
+        self.keep.append(ttJets_histo)
 
         #QCD may not have all the bins filled, needs special care
         qcd_histo = histo.Clone()           
@@ -688,21 +716,42 @@ class HTTPlotter(Plotter):
 
         histo.Draw() #set the proper axis labels
         histo.yaxis.title = 'Events'
-        data = self.get_view('data').Get('cut_flow')
-        for idx in range(1,len(samples[0])):
-            cflow[idx][data.title] = data[idx].value
-        smin = min(stack.min(), data.min(), 1.2)
-        smax = max(stack.max(), data.max())
-        histo.yaxis.range_user = smin*0.8, smax*1.2
-        stack.Draw('same')
-        data.Draw('same')
-        self.keep.append(data)
-        self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
-        self.pad.SetLogy()
-        self.add_ratio_plot(data, stack, ratio_range=0.4)
-        self.lower_pad.SetLogy(False)
+        #set_trace()
+        if args.combinedflow:
+            data = self.get_view('data').Get('cut_flow')
+            for idx in range(1,len(data)):
+                cflow[idx][data.title] = data[idx].value
+            smin = min(stack.min(), data.min(), 1.2)
+            smax = max(stack.max(), data.max())
+            histo.yaxis.range_user = smin*0.8, smax*1.2
+            xbin_min = [ binx for binx in range(1, histo.GetNbinsX()+1) if 'trigger' in histo.GetXaxis().GetBinLabel(binx)][0]
+            xbin_max = [ binx for binx in range(1, histo.GetNbinsX()+1) if '%s/object selection' %  args.mode in histo.GetXaxis().GetBinLabel(binx)][0]
+            histo.xaxis.range_user = xbin_min-1, xbin_max
+            stack.Draw('same')
+            data.Draw('same')
+            self.keep.append(data)
+            self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
+            self.pad.SetLogy()
+            self.add_ratio_plot(data, stack, x_range=(xbin_min-1, xbin_max), ratio_range=0.4)
+            self.lower_pad.SetLogy(False)
+            #set_trace()
+
+        if not args.combinedflow:
+            data = self.get_view('data').Get('cut_flow')
+            for idx in range(1,len(samples[0])):
+                cflow[idx][data.title] = data[idx].value
+            smin = min(stack.min(), data.min(), 1.2)
+            smax = max(stack.max(), data.max())
+            histo.yaxis.range_user = smin*0.8, smax*1.2
+            stack.Draw('same')
+            data.Draw('same')
+            self.keep.append(data)
+            self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
+            self.pad.SetLogy()
+            self.add_ratio_plot(data, stack, ratio_range=0.4)
+            self.lower_pad.SetLogy(False)
         return cflow
-        #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
+            #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
 
     def make_preselection_plot(self, *args, **kwargs):
         systematics = None
@@ -992,8 +1041,8 @@ preselection = [
     (False, "rho", "#rho", range(40), None, False),
     (False, "lep_iso", 'l rel Iso', 1, [0,1], False),
     (False, "lep_wp" , "electron wp", 1, None, False),
-    (True   , "csv"    , "csv",  1, None, False),
-    (True   , "csv_p11", "csv^{11}", 1, None, False),
+    (True   , "deepcsv"    , "deepcsv",  1, None, False),
+    (True   , "deepcsv_p11", "deepcsv^{11}", 1, None, False),
     (False, "METPhi", "MET #varphi", 4, None, False),
     (False, "MET"   , "MET E_{T}"  , 1, [0, 400], False),
 ]
@@ -1016,6 +1065,8 @@ jet_categories = ["3jets", "4jets", "5Pjets"]
 #cut flow
 if args.flow or args.all:
    flow = plotter.cut_flow()
+   if args.combinedflow:
+      plotter.set_outdir('plots/%s/htt' % plotter.jobid)
    plotter.save('cut_flow')
 
 
@@ -1025,7 +1076,8 @@ if args.preselection or args.all:
     elif args.njets == '4+':
         plotter.set_subdir('4PJets/preselection')
     else:
-        plotter.set_subdir('Incl/preselection')
+        raise RuntimeError('Your choice for --njets is invalid!')
+        #plotter.set_subdir('Incl/preselection')
     for logy, var, axis, rebin, x_range, leftside in preselection + permutations:
         #set_trace()
         plotter.make_preselection_plot(
@@ -1036,7 +1088,10 @@ if args.preselection or args.all:
 
 if args.plots or args.all:
 
-    abcd_scale = plotter.get_abcd_scale('njets')
+    qcd_renorm = False
+    qcd_scale = 1.
+    if qcd_renorm:
+        qcd_scale = plotter.get_abcd_scale('njets')
 
     #set_trace()
     #    ## create file to save mtt hists for abcd method
@@ -1056,14 +1111,13 @@ if args.plots or args.all:
         elif args.njets == '4+':
             plotter.set_subdir('4PJets/'+tdir)
         else:
-            plotter.set_subdir('Incl/'+tdir)
+            raise RuntimeError('Your choice for --njets is invalid!')
+            #plotter.set_subdir('Incl/'+tdir)
         #plotter.set_subdir(tdir)
         #set_trace()
         first = True
-        qcd_renorm = False
-        #qcd_renorm = True
-        for logy, var, axis, rebin, x_range, leftside in permutations:
-        #for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
+        #for logy, var, axis, rebin, x_range, leftside in permutations:
+        for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
             if 'discriminant' in var:
                 plotter.mc_samples = plotter.split_mcs
                 if 'mass' in var: rebin = [6, 8, 10, 12, 20]
@@ -1071,8 +1125,7 @@ if args.plots or args.all:
                 'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
-                #logy=logy, qcd_renorm=qcd_renorm, qcd_scale=abcd_scale)
-                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=1.)
+                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=qcd_scale)
             #set_trace()
             if first:
                 first = False
@@ -1102,7 +1155,7 @@ if args.plots or args.all:
                 vals.append(
                     (tdir, plotter.get_yields(50))
                     )   
-            print var
+            #print var
             #set_trace()
             plotter.save(var)
             if 'discriminant'in var:
@@ -1146,7 +1199,7 @@ if args.btag:
         '[WZ][WZ]', 'QCD*', '[WZ]Jets', 
         'single*', 'ttJets_preselection'
         ]
-    hists = [i.Get('jets_csv_WP') for i in plotter.mc_views(1, None, 'nosys/preselection')]
+    hists = [i.Get('jets_deepcsv_WP') for i in plotter.mc_views(1, None, 'nosys/preselection')]
     plotter.mc_samples = mc_default
     ttb = hists[-1]
     bkg = sum(hists[:-1])
