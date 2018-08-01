@@ -534,7 +534,7 @@ class ctag_eff : public AnalyzerBase
                     hstr="B";
                 //dir->second["btag_sf_"+hstr].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
                 //dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, shift), evt_weight_);
-                dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({jet}, shift, true), evt_weight_);
+                dir->second["btag_sf_vs_pt_"+hstr].fill(jet->Pt(), btag_sf_.scale_factor({jet}, shift, false), evt_weight_);
 
                 //dir->second["btag_sf_"+hstr+"_up"].fill(btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);
                 //dir->second["btag_sf_vs_pt_"+hstr+"_up"].fill(jet->Pt(), btag_sf_.scale_factor({hyp.BHad(), hyp.BLep()}, systematics::SysShifts::BTAG_UP), evt_weight_);

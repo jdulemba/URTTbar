@@ -56,8 +56,8 @@ def graph2hist(graph):
 
 #trig = root_open('TriggerSF_v1.root')
 trig = root_open('EfficienciesAndSF_RunBtoF_Nov17Nov2017.root')
-#lepid = root_open('ideff.root')
-#iso = root_open('tracking_eff.root') #tracking eff as iso given is a 2D plot
+lepid = root_open('RunBCDEF_17Nov2017_SF_ID.root')
+iso = root_open('RunBCDEF_17Nov2017_SF_ISO.root') #tracking eff as iso given is a 2D plot
 #trk = root_open('ratios.root')
 
 #trg = transpose(trig.Ele32_eta2p1_WPTight_Gsf__EffData)
@@ -76,11 +76,11 @@ info[0].value = 1 #0 pt as Y, 1 pt as X
 info[1].value = 1 #trig SF in |eta| (1) of full eta (0)
 info[2].value = 1 #ID SF in |eta| (1) of full eta (0)
 info[3].value = 1 #Iso SF in |eta| (1) of full eta (0)
-info[4].value = 1 #tracking SF in |eta| (1) of full eta (0)
+#info[4].value = 1 #tracking SF in |eta| (1) of full eta (0)
 with root_open('output.root', 'w') as out:
 	out.WriteTObject(trg, 'trg')
-	#out.WriteTObject(fill_oflow(lepid.EGamma_SF2D.Clone()), 'id')
-	#out.WriteTObject(fill_oflow(iso.EGamma_SF2D.Clone()), 'iso')
+	out.WriteTObject(fill_oflow(lepid.NUM_TightID_DEN_genTracks_pt_abseta.Clone()), 'id')
+	out.WriteTObject(fill_oflow(iso.NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta.Clone()), 'iso')
 	# out.WriteTObject(htrk, 'trk')
 	out.WriteTObject(info, 'info')
 	out.WriteTObject(code, 'code')
