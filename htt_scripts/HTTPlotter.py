@@ -90,7 +90,8 @@ class HTTPlotter(Plotter):
         #self.tt_lhe_weights = prettyjson.loads(
         #    open('inputs/%s/ttJets.weights.json' % jobid).read()
         #    )
-        outdir= 'plots/%s/htt/%s' % (jobid, mode)
+        njets = '3Jets' if args.njets == '3' else '4PJets'
+        outdir= 'plots/%s/htt/%s/%s' % (jobid, mode, njets)
 
         #set_trace()
         super(HTTPlotter, self).__init__(
@@ -1071,13 +1072,7 @@ if args.flow or args.all:
 
 
 if args.preselection or args.all:
-    if args.njets == '3':
-        plotter.set_subdir('3Jets/preselection')
-    elif args.njets == '4+':
-        plotter.set_subdir('4PJets/preselection')
-    else:
-        raise RuntimeError('Your choice for --njets is invalid!')
-        #plotter.set_subdir('Incl/preselection')
+    plotter.set_subdir('preselection')
     for logy, var, axis, rebin, x_range, leftside in preselection + permutations:
         #set_trace()
         plotter.make_preselection_plot(
@@ -1106,21 +1101,14 @@ if args.plots or args.all:
     #for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh']):
     for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh', 'MTLow']):
         tdir = '%s/%s' % dirid
-        if args.njets == '3':
-            plotter.set_subdir('3Jets/'+tdir)
-        elif args.njets == '4+':
-            plotter.set_subdir('4PJets/'+tdir)
-        else:
-            raise RuntimeError('Your choice for --njets is invalid!')
-            #plotter.set_subdir('Incl/'+tdir)
-        #plotter.set_subdir(tdir)
+        plotter.set_subdir(tdir)
         #set_trace()
         first = True
         #for logy, var, axis, rebin, x_range, leftside in permutations:
         for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
             if 'discriminant' in var:
                 plotter.mc_samples = plotter.split_mcs
-                if 'mass' in var: rebin = [6, 8, 10, 12, 20]
+                if 'mass' in var: rebin = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
             plotter.plot_mc_vs_data(
                 'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
