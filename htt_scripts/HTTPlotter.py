@@ -31,18 +31,20 @@ from URAnalysis.Utilities.roottools import Envelope
 import re
 import itertools
 import rootpy.stats as stats
+import functions as fncts
 
 parser = ArgumentParser()
 parser.add_argument('mode', choices=['electrons', 'muons'], help='choose leptonic decay type')
 parser.add_argument('--preselection', action='store_true', help='')
 parser.add_argument('--plots', action='store_true', help='')
 parser.add_argument('--flow', action='store_true', help='')
+parser.add_argument('--combinedflow', action='store_true', help='Full cut_flow with mu/e info')
 parser.add_argument('--shapes', action='store_true', help='')
 parser.add_argument('--all', action='store_true', help='')
 parser.add_argument('--btag', action='store_true', help='')
 parser.add_argument('--card', action='store_true', help='')
 parser.add_argument('--sysplots', action='store_true', help='dumps systematics plots, valid only if --card')
-parser.add_argument('--smoothsys', default='', help='')
+parser.add_argument('--smoothsys', action='store_true', help='')
 parser.add_argument('--njets', default='', help='choose 3, 4+')
 #parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 args = parser.parse_args()
@@ -61,9 +63,9 @@ class HTTPlotter(Plotter):
     def __init__(self, mode, lumi=None):
         'Inits the plotter, mode is either "electrons" or "muons" and identifies what will be plotted'
         lumi = lumi if lumi > 0 else None
-        filtering = lambda x: 'HtoTT' not in x or not os.path.basename(x).startswith('data') or \
-             (os.path.basename(x).startswith('data') and mode[:-1] in os.path.basename(x).lower())# or \
-             #'HtoTT' not in x
+        #filtering = lambda x: 'HtoTT' not in x or not os.path.basename(x).startswith('data') or \
+        #     (os.path.basename(x).startswith('data') and mode[:-1] in os.path.basename(x).lower())# or \
+        #     #'HtoTT' not in x
 
         self.tt_to_use = 'ttJets'
         self.tt_shifted = {
@@ -78,14 +80,16 @@ class HTTPlotter(Plotter):
 
         files = glob.glob('results/%s/htt_simple/*.root' % jobid)
         data_files = [ fname for fname in files if (os.path.basename(fname).startswith('data') and mode[:-1] in os.path.basename(fname).lower() ) ]
-        MC_files = [ fname for fname in files if not ('data' in fname or 'HtoTT' in fname) ]
+        MC_files = [ fname for fname in files if not ('data' in fname ) ]
+        #MC_files = [ fname for fname in files if not ('data' in fname or 'HtoTT' in fname) ]
         #files = filter(filtering, files)
         files = data_files+MC_files
         #logging.debug('files found %s' % files.__repr__())
 
         lumis = glob.glob('inputs/%s/*.lumi' % jobid)
         data_lumis = [ fname for fname in lumis if (os.path.basename(fname).startswith('data') and mode[:-1] in os.path.basename(fname).lower() ) ]
-        MC_lumis = [ fname for fname in lumis if not ('data' in fname or 'HtoTT' in fname) ]
+        MC_lumis = [ fname for fname in lumis if not ('data' in fname) ]
+        #MC_lumis = [ fname for fname in lumis if not ('data' in fname or 'HtoTT' in fname) ]
         #lumis = filter(filtering, lumis)
         lumis = data_lumis+MC_lumis
         #logging.debug('lumi files found %s' % lumis.__repr__())
@@ -100,24 +104,28 @@ class HTTPlotter(Plotter):
             #defaults = {'save' : {'png' : True, 'pdf' : False}}
             )
 
-        set_trace()
+        #set_trace()
         #select only mode subdir
         for info in self.views.itervalues():
             if args.njets == '3':
-                info['view'] = views.SubdirectoryView(info['view'], '3J_Events/selection/'+mode)
-                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '3J_Events/selection/'+mode)
+                info['view'] = views.SubdirectoryView(info['view'], mode+'/3Jets')
+                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode+'/3Jets')
             elif args.njets == '4+':
-                info['view'] = views.SubdirectoryView(info['view'], '4PJ/selection/'+mode)
-                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '4PJ/selection/'+mode)
+                info['view'] = views.SubdirectoryView(info['view'], mode+'/4PJets')
+                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode+'/4PJ')
             else:
-                info['view'] = views.SubdirectoryView(info['view'], mode)
-                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
+                if args.flow and args.combinedflow:
+                    info['view'] = views.SubdirectoryView(info['view'], '')
+                    info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], '')
+                else:
+                    info['view'] = views.SubdirectoryView(info['view'], mode)
+                    info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
 
             #info['view'] = views.SubdirectoryView(info['view'], mode)
             #info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
         self.views['data']['view'] = urviews.BlindView(
             self.views['data']['view'], 
-            '\w+/tight/MTHigh/(:?(:?m_tt)|(:?.+_ctstar)|(:?cdelta_ld)|(:?hframe_ctheta_d))'
+            '\w+/tight/MTHigh/(:?(:?m_tt)|(:?.+_ctstar)|(:?.+_ctstar_abs)|(:?cdelta_ld)|(:?hframe_ctheta_d))'
             )
 
         self.defaults = {
@@ -126,7 +134,7 @@ class HTTPlotter(Plotter):
             }
         self.jobid = jobid
 
-        set_trace()
+        #set_trace()
         self.views['ttJets_preselection'] = self.views['ttJets']
 
         self.views['ttJets_right'] = {
@@ -182,6 +190,7 @@ class HTTPlotter(Plotter):
             'view' : views.TitleView(
                 views.StyleView(
                     views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', '[WZ]Jets', 'tt[WZ]*']]),
+                    #views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', 'ZJets', 'W[1-4]Jets', 'tt[WZ]*']]),
                     fillcolor = '#FFD700'
                     #fillcolor = ROOT.kGreen + 1
                     ),
@@ -209,13 +218,15 @@ class HTTPlotter(Plotter):
         added_samples = []
         #set_trace()
         for sample in self.views.keys():
-            if sample.startswith('HtoTT_'): 
-                raise ValueError("I did not implement it yet remember to swap the H and A")
-            if sample.startswith('AtoTT_'):# or sample.startswith('AtoTT_'):
+            #if sample.startswith('HtoTT_'): 
+            #    raise ValueError("I did not implement it yet remember to swap the H and A")
+            if sample.startswith('AtoTT_') or sample.startswith('HtoTT_'):
                 _, mass, width, pI = tuple(sample.split('_'))               
                 samtype = 'int' if pI == 'Int' else 'sgn'
+                bostype = 'ggA' if _ == 'AtoTT' else 'ggH'
+                #set_trace()
                 if pI == 'Int':
-                    sub_name = 'ggA_neg-%s-%s-%s' % (samtype, width, mass)
+                    sub_name = '%s_neg-%s-%s-%s' % (bostype, samtype, width, mass)
                     self.views[sub_name] = {
                         'view' : views.ScaleView(
                             self.create_subsample(sample, ['negative'], '%s negative' % sample, color='#9999CC'),
@@ -223,11 +234,12 @@ class HTTPlotter(Plotter):
                             )
                         }
                     added_samples.append(sub_name)
-                sub_name = 'ggA_pos-%s-%s-%s' % (samtype, width, mass)
-                self.views[sub_name] = {
-                    'view' : self.create_subsample(sample, ['positive'], '%s positive' % sample, color='#9999CC')
-                    }
-                added_samples.append(sub_name)
+                else:
+                    sub_name = '%s_pos-%s-%s-%s' % (bostype, samtype, width, mass)
+                    self.views[sub_name] = {
+                        'view' : self.create_subsample(sample, ['positive'], '%s positive' % sample, color='#9999CC')
+                        }
+                    added_samples.append(sub_name)
 
         self.generic_mcs = [
             'QCD*',
@@ -335,14 +347,14 @@ class HTTPlotter(Plotter):
                 'value' : 1.00,
                 'scales' : (1./self.tt_lhe_weights['4'], 1./self.tt_lhe_weights['8']),
                 },
-            'QCDscalePS_TT' : {
-                'samples' : ['TT$'],
-                'categories' : ['.*'],
-                'type' : 'shape',
-                '+' : lambda x: x.replace('nosys', 'scale_up'),
-                '-' : lambda x: x.replace('nosys', 'scale_down'),
-                'value' : 1.00,
-                },
+            #'QCDscalePS_TT' : {
+            #    'samples' : ['TT$'],
+            #    'categories' : ['.*'],
+            #    'type' : 'shape',
+            #    '+' : lambda x: x.replace('nosys', 'scale_up'),
+            #    '-' : lambda x: x.replace('nosys', 'scale_down'),
+            #    'value' : 1.00,
+            #    },
             'Hdamp_TT' : {
                 'samples' : ['TT$'],
                 'categories' : ['.*'],
@@ -376,12 +388,12 @@ class HTTPlotter(Plotter):
                 '+' : lambda x: x.replace('nosys', 'met_up'),
                 '-' : lambda x: x.replace('nosys', 'met_down'),
                 },
-            'pdf' : {
-                'samples' : ['TT$'],
-                'categories' : ['.*'],
-                'type' : 'pdf',
-                'pdftype' : 'nnpdf'
-                },
+            #'pdf' : {
+            #    'samples' : ['TT$'],
+            #    'categories' : ['.*'],
+            #    'type' : 'pdf',
+            #    'pdftype' : 'nnpdf'
+            #    },
 
             }
         self.card = None
@@ -504,7 +516,7 @@ class HTTPlotter(Plotter):
     def write_shapes(self, category_name, folder, variable,
                                      rebin=1, preprocess=None):
         '''
-        should use get_shape above in some memoized form in the future
+        should use get_shape above in some memorized form in the future
         '''
         if not self.card: self.card = DataCard('TT')
         self.card.add_category(category_name)
@@ -686,21 +698,44 @@ class HTTPlotter(Plotter):
 
         histo.Draw() #set the proper axis labels
         histo.yaxis.title = 'Events'
-        data = self.get_view('data').Get('cut_flow')
-        for idx in range(1,len(samples[0])):
-            cflow[idx][data.title] = data[idx].value
-        smin = min(stack.min(), data.min(), 1.2)
-        smax = max(stack.max(), data.max())
-        histo.yaxis.range_user = smin*0.8, smax*1.2
-        stack.Draw('same')
-        data.Draw('same')
-        self.keep.append(data)
-        self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
-        self.pad.SetLogy()
-        self.add_ratio_plot(data, stack, ratio_range=0.4)
-        self.lower_pad.SetLogy(False)
+
+        if args.combinedflow:
+            data = self.get_view('data').Get('cut_flow')
+            for idx in range(1,len(data)):
+                cflow[idx][data.title] = data[idx].value
+            smin = min(stack.min(), data.min(), 1.2)
+            smax = max(stack.max(), data.max())
+            histo.yaxis.range_user = smin*0.8, smax*1.2
+            xbin_min = [ binx for binx in range(1, histo.GetNbinsX()+1) if 'trigger' in histo.GetXaxis().GetBinLabel(binx)][0]
+            xbin_max = [ binx for binx in range(1, histo.GetNbinsX()+1) if '%s/object selection' %  args.mode in histo.GetXaxis().GetBinLabel(binx)][0]
+            histo.xaxis.range_user = xbin_min-1, xbin_max
+            stack.Draw('same')
+            data.Draw('same')
+            self.keep.append(data)
+            self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
+            self.pad.SetLogy()
+            self.add_ratio_plot(data, stack, x_range=(xbin_min-1, xbin_max), ratio_range=0.4)
+            self.lower_pad.SetLogy(False)
+
+        if not args.combinedflow:
+            data = self.get_view('data').Get('cut_flow')
+            for idx in range(1,len(samples[0])):
+                cflow[idx][data.title] = data[idx].value
+            smin = min(stack.min(), data.min(), 1.2)
+            smax = max(stack.max(), data.max())
+            histo.yaxis.range_user = smin*0.8, smax*1.2
+            stack.Draw('same')
+            data.Draw('same')
+            self.keep.append(data)
+            self.add_legend([stack, data], False, entries=len(views_to_flow)+1)
+            self.pad.SetLogy()
+            self.add_ratio_plot(data, stack, ratio_range=0.4)
+            self.lower_pad.SetLogy(False)
+
+        set_trace()
+
         return cflow
-        #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
+            #cut_flow.GetYaxis().SetRangeUser(1, 10**7)
 
     def make_preselection_plot(self, *args, **kwargs):
         systematics = None
@@ -963,6 +998,8 @@ variables = [
   (False, "m_tt"    , "m(t#bar{t}) (GeV)", 1, None, False),       
   (False, "tlep_ctstar" , "cos #theta^{*}(t_{lep})", 2, None, False),      
   (False, "thad_ctstar" , "cos #theta^{*}(t_{had})", 2, None, False),      
+  (False, "tlep_ctstar_abs" , "|cos #theta^{*}(t_{lep})|", 2, None, False),      
+  (False, "thad_ctstar_abs" , "|cos #theta^{*}(t_{had})|", 2, None, False),      
   (False, "cdelta_ld", "cos #delta(ld)", 2, None, False),       
   (False, "hframe_ctheta_d", "cos #theta(d-jet)", 2, None, False),      
   (False, "lead_jet_pt" , 'leading jet p_{T}', 10, (0, 300), False),
@@ -990,8 +1027,8 @@ preselection = [
     (False, "rho", "#rho", range(40), None, False),
     (False, "lep_iso", 'l rel Iso', 1, [0,1], False),
     (False, "lep_wp" , "electron wp", 1, None, False),
-    (True   , "csv"    , "csv",  1, None, False),
-    (True   , "csv_p11", "csv^{11}", 1, None, False),
+    (True   , "csvv2"    , "csv",  1, None, False),
+    (True   , "csvv2_p11", "csv^{11}", 1, None, False),
     (False, "METPhi", "MET #varphi", 4, None, False),
     (False, "MET"   , "MET E_{T}"  , 1, [0, 400], False),
 ]
@@ -1011,9 +1048,13 @@ permutations = [
 jet_categories = ["3jets", "4jets", "5Pjets"]
 
 #cut flow
-#if args.flow or args.all:
-#   flow = plotter.cut_flow()
-#   plotter.save('cut_flow')
+
+if args.flow or args.all:
+   flow = plotter.cut_flow()
+   if args.combinedflow:
+      plotter.set_outdir('plots/%s/htt' % plotter.jobid)
+   plotter.save('cut_flow')
+   rootpy.log["/"].warning('Be careful interpreting these plots, bins may not be in the same order!!')
 
 
 if args.preselection or args.all:
@@ -1022,7 +1063,8 @@ if args.preselection or args.all:
     elif args.njets == '4+':
         plotter.set_subdir('4PJets/preselection')
     else:
-        plotter.set_subdir('Incl/preselection')
+        raise RuntimeError('Your choice for --njets is invalid!')
+        #plotter.set_subdir('Incl/preselection')
     for logy, var, axis, rebin, x_range, leftside in preselection + permutations:
         plotter.make_preselection_plot(
             'nosys/preselection', var, sort=True,
@@ -1032,7 +1074,10 @@ if args.preselection or args.all:
 
 if args.plots or args.all:
 
-    abcd_scale = plotter.get_abcd_scale('njets')
+    qcd_renorm = False
+    qcd_scale = 1.
+    if qcd_renorm:
+        qcdd_scale = plotter.get_abcd_scale('njets')
     #set_trace()
     #    ## create file to save mtt hists for abcd method
     #if args.njets == '3':
@@ -1051,21 +1096,21 @@ if args.plots or args.all:
         elif args.njets == '4+':
             plotter.set_subdir('4PJets/'+tdir)
         else:
-            plotter.set_subdir('Incl/'+tdir)
+            raise RuntimeError('Your choice for --njets is invalid!')
+            #plotter.set_subdir('Incl/'+tdir)
         #plotter.set_subdir(tdir)
         #set_trace()
         first = True
-        qcd_renorm = True
         #for logy, var, axis, rebin, x_range, leftside in variables:
         for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
             if 'discriminant' in var:
                 plotter.mc_samples = plotter.split_mcs
+                if 'mass' in var: rebin = [0, 5, 10, 15, 20]
             plotter.plot_mc_vs_data(
                 'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
-                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=abcd_scale)
-                #logy=logy, qcd_renorm=qcd_renorm, qcd_scale=1.)
+                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=qcd_scale)
             #set_trace()
             if first:
                 first = False
@@ -1114,24 +1159,32 @@ if args.plots or args.all:
 
 if args.shapes or args.all:
     for peak, dname in [('*', 'shapes'), ('Peak', 'shapes_peak'), ('Int', 'shapes_interference')]:
-        plotter.set_subdir(dname)
-        for mass in [400, 500, 600, 750]:
-            histos = []
-            for width, color in zip([5, 10, 25, 50], ['#f9a505', '#2aa198', '#0055ff', '#6666b3']):
-                htt_view = plotter.get_view('HtoTT_M%d_%dpc_%s' % (mass, width, peak))
-                histos.append(
-                    sum(
-                        htt_view.Get('%s/nosys/tight/MTHigh/m_tt' % i) \
-                            for i in ['right', 'matchable', 'unmatchable', 'noslep']
+        if args.njets == '3':
+            plotter.set_subdir('3Jets/'+dname)
+        elif args.njets == '4+':
+            plotter.set_subdir('4PJets/'+dname)
+        else:
+            raise RuntimeError('Your choice for --njets is invalid!')
+        #plotter.set_subdir(dname)
+        for boson in ['AtoTT', 'HtoTT']:
+            for mass in [400, 500, 600, 750]:
+                histos = []
+                for width, color in zip([5, 10, 25, 50], ['#f9a505', '#2aa198', '#0055ff', '#6666b3']):
+                    htt_view = plotter.get_view('%s_M%d_%dpc_%s' % (boson, mass, width, peak))
+                    histos.append(
+                        sum(
+                            htt_view.Get('%s/nosys/tight/MTHigh/m_tt' % i) \
+                                for i in ['positive', 'negative']
+                                #for i in ['right', 'matchable', 'unmatchable', 'noslep']
+                            )
                         )
-                    )
-                histos[-1].Rebin(2)
-                histos[-1].linecolor = color
-                if histos[-1].Integral():
-                    histos[-1].Scale(1/abs(histos[-1].Integral()))
-            plotter.overlay(histos, xtitle='m(tt) (GeV)', ytitle='a.u.', x_range=(0, 1300))
-            plotter.add_legend(histos)
-            plotter.save('M%s' % mass)
+                    histos[-1].Rebin(2)
+                    histos[-1].linecolor = color
+                    if histos[-1].Integral():
+                        histos[-1].Scale(1/abs(histos[-1].Integral()))
+                plotter.overlay(histos, xtitle='m(tt) (GeV)', ytitle='a.u.', x_range=(0, 1300))
+                plotter.add_legend(histos)
+                plotter.save('%s_M%s' % (boson, mass) )
 
 if args.btag:
     mc_default = plotter.mc_samples
@@ -1139,7 +1192,7 @@ if args.btag:
         '[WZ][WZ]', 'QCD*', '[WZ]Jets', 
         'single*', 'ttJets_preselection'
         ]
-    hists = [i.Get('jets_csv_WP') for i in plotter.mc_views(1, None, 'nosys/preselection')]
+    hists = [i.Get('jets_csvv2_WP') for i in plotter.mc_views(1, None, 'nosys/preselection')]
     plotter.mc_samples = mc_default
     ttb = hists[-1]
     bkg = sum(hists[:-1])
@@ -1150,6 +1203,8 @@ if args.btag:
     qcd_part = bkg.Clone()
     ttfrac = bkg.Clone()
     labels = [None, 'None', 'Loose', 'Medium', 'Tight']
+    rows = []
+    rows.append(("WP", "WP", "QCD", "Other MC", "QCD Frac"))
     for xstrt, ystrt in itertools.product(range(1,5), range(1,5)):
         s, b = 0, 0
         q, e = 0, 0
@@ -1166,12 +1221,18 @@ if args.btag:
             q += qcd[x,y].value
             e += rest[x,y].value
         print labels[xstrt], labels[ystrt], q, e, q / (q+e)
+        rows.append( (labels[xstrt], labels[ystrt], format(q), format(e), format(q / (q+e)) ) )
         sig_sqrt_bkg[xstrt, ystrt].value = s/math.sqrt(b)
         sig_sqrt_sb[ xstrt, ystrt].value = s/math.sqrt(s+b)
         ttfrac[xstrt, ystrt].value = s
         qcd_part[xstrt, ystrt].value = q / (q+e)
     ttfrac.Scale(1/ttb.Integral())
-    plotter.set_subdir('preselection')
+    if args.njets == '3':
+        plotter.set_subdir('3Jets/preselection/btag')
+    elif args.njets == '4+':
+        plotter.set_subdir('4PJets/preselection/btag')
+    else:
+        raise RuntimeError('Your choice for --njets is invalid!')
     plotter.plot(sig_sqrt_bkg, drawstyle='colz')
     plotter.save('sig_sqrt_bkg')
     plotter.plot(sig_sqrt_sb, drawstyle='colz')
@@ -1180,6 +1241,7 @@ if args.btag:
     plotter.save('qcd_contamination')
     plotter.plot(ttfrac, drawstyle='colz')
     plotter.save('fraction_tt')
+    fncts.print_table(rows, filename='%s/WP_Fracs.raw_txt' % plotter.outputdir )
 
 binnind2D = (
     [250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 680.0, 730.0, 800.0, 920.0, 1200.0], #~3k events each mtt bin
@@ -1188,8 +1250,11 @@ binnind2D = (
 if args.card:
     correction_factors = {}
     category = 'mujets' if args.mode == 'muons' else 'ejets'
+    njets = '3Jets' if args.njets == '3' else '4PJets'
     if args.smoothsys:
-        systematics = args.smoothsys.split(',')
+        #systematics = args.smoothsys.split(',')
+        systematics = plotter.systematics.keys()
+        set_trace()
         for shift in systematics:
             if not shift in plotter.systematics:
                 raise KeyError(
@@ -1222,14 +1287,14 @@ if args.card:
                 out.WriteTObject(newd, 'down')
                 out.WriteTObject(up, 'up')
             
-            plotter.set_subdir('shapes/%s' % category)
+            plotter.set_subdir('%s/shapes/%s' % (njets, category) )
             plotter.overlay(
                 [up, down], linecolor=['blue', 'red'], y_range=(0.8,1.2),
                 markercolor=['blue', 'red'], title=['up', 'down'],
                 legendstyle='p', markerstyle=20, fillstyle='hollow',
                 drawstyle='E0', markersize=0.5)
             plotter.save('%s_unsmoothed' % shift)
-            print "Simmetry test:"
+            print "Symmetry test:"
             for idx in range(ufcn.GetNpar()):
                 delta = abs(ufcn[idx].value+dfcn[idx].value)/quad.quad(ufcn[idx].error,dfcn[idx].error)
                 print '  %d: %.2f' % (idx, delta)
@@ -1247,10 +1312,11 @@ if args.card:
             plotter.systematics[shift]['mass_sfs'] = {
                 '+' : upsf, '-' : downsf
                 }
+    set_trace()
     raise ValueError()
     plotter.write_shapes(       
         category,
-        'nosys/tight/MTHigh', 'mtt_tlep_ctstar',
+        'nosys/tight/MTHigh', 'mtt_tlep_ctstar_abs',
         rebin=binnind2D, preprocess=urviews.LinearizeView)  
     ## plotter.write_shapes(        
     ##  'mujets' if args.mode == 'muons' else 'ejets',

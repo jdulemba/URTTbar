@@ -169,11 +169,19 @@ styles = {
 
 from itertools import product
 for bundle in product([400, 500, 600, 750], [5, 10, 25, 50]):
-	styles['HtoTT_M%d_%dpc_*' % bundle] = {
+	styles['AtoTT_M%d_%dpc_*' % bundle] = {
 		'legendstyle' : 'l',
 		'drawstyle' : 'hist',
 		'linecolor' : '#2fd00a',
 		'linewidth' : 3,
 		'name' : "A #rightarrow tt M%d width: %d%%" % bundle,
+		'fillstyle': 'hollow',
+		}
+	styles['HtoTT_M%d_%dpc_*' % bundle] = {
+		'legendstyle' : 'l',
+		'drawstyle' : 'hist',
+		'linecolor' : '#2fd00a',
+		'linewidth' : 3,
+		'name' : "H #rightarrow tt M%d width: %d%%" % bundle,
 		'fillstyle': 'hollow',
 		}

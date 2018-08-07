@@ -43,6 +43,8 @@
 
 using namespace TMath;
 using namespace std;
+using namespace systematics;
+typedef SysShifts Sys;
 
 class ttbar_alpha_reco : public AnalyzerBase
 {
@@ -92,7 +94,7 @@ class ttbar_alpha_reco : public AnalyzerBase
         CutFlowTracker tracker_; //tracks how many events pass cuts
 
         //switches
-        bool isData_, isTTbar_, isSignal_;
+        bool isData_, isTTbar_, isSignal_, runsys_;
 
         //selectors and helpers
         TTGenParticleSelector genp_selector_; //selects generator level objects
@@ -178,7 +180,6 @@ class ttbar_alpha_reco : public AnalyzerBase
         object_selector_.set_tracker(&tracker_);
 
         //choose systematics to run based on sample
-        systematics_ = {systematics::SysShifts::NOSYS};
         if( !(isTTbar_ || isSignal_) ) {
             Logger::log().error() << "This analyzer is only supposed to run on ttbar samples!" << endl;
             throw 49;
@@ -192,6 +193,33 @@ class ttbar_alpha_reco : public AnalyzerBase
 
         if(!isData_) mc_weights_.init(sample);
 
+        Logger::log().debug() << "NOSYS: " << values.count("nosys") << endl;
+
+        runsys_ = !( values.count("nosys") || isData_ );
+        if( !runsys_ )
+            systematics_ = {systematics::SysShifts::NOSYS};
+        else{
+            systematics_ = {
+                Sys::NOSYS,
+                Sys::JES_UP,  Sys::JES_DW,
+                Sys::JER_UP,  Sys::JER_DW,
+                Sys::MET_UP,  Sys::MET_DW,
+                Sys::PU_UP,   Sys::PU_DW,
+                Sys::BEFF_UP, Sys::BEFF_DW,
+                Sys::BFAKE_UP, Sys::BFAKE_DW,
+                Sys::LEPEFF_UP, Sys::LEPEFF_DW,
+            };
+            if(isTTbar_) {
+                systematics_.push_back(Sys::HDAMP_UP);
+                systematics_.push_back(Sys::HDAMP_DW);
+                systematics_.push_back(Sys::RENORM_UP);
+                systematics_.push_back(Sys::RENORM_DW);
+                systematics_.push_back(Sys::FACTOR_UP);
+                systematics_.push_back(Sys::FACTOR_DW);
+                systematics_.push_back(Sys::RENFACTOR_UP);
+                systematics_.push_back(Sys::RENFACTOR_DW);
+            }
+        }
     };
 
         TDirectory* getDir(string path){
@@ -385,6 +413,8 @@ class ttbar_alpha_reco : public AnalyzerBase
             book<TH2D>(folder+"/THad_P", "Alpha_THad_P", "", 32, 0.9, 2.5, 500, 0., 10.);
             book<TH2D>(folder+"/THad_E", "Alpha_THad_E", "", 32, 0.9, 2.5, 500, 0., 10.);
 
+            if( !boost::contains(folder, "nosys") ) return;
+
             // gen vs reco plots for bins of 173.1/reco M(thad)
             // Energy
             book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_0.9to1.1", "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
@@ -416,6 +446,8 @@ class ttbar_alpha_reco : public AnalyzerBase
 
             thad_P_dir->second["Alpha_THad_P"].fill( 173.1/perm.THad().M(), ttbar.had_top()->P()/perm.THad().P(), evt_weight_ );//mthad taken from pdg
             thad_E_dir->second["Alpha_THad_E"].fill( 173.1/perm.THad().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ );
+
+            if( !boost::contains(folder, "nosys") ) return;
 
             if( 0.9 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.1 ){
                 thad_E_dir->second["Gen_vs_Reco_THadE_0.9to1.1"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
@@ -468,32 +500,28 @@ class ttbar_alpha_reco : public AnalyzerBase
             vector<string> lost_evt_type_categories = {"CORRECT_B", "WRONG_B", "OTHER", // categories for best perm and matched perm
                 "CORRECT_BHAD", "CORRECT_BLEP", "CORRECT_Bs", "SWAPPED_Bs", "OTHER_MATCH" // categories for perm object matches and gen objects
             };
-            vector<string> lost_best_perm_solutions = {
-                "Lost_BP",
-            };
 
-            for( auto lost_bp_solution : lost_best_perm_solutions ){
+            for( auto& sys : systematics_ ){
+                string sys_name = systematics::shift_to_name.at(sys);
+                string dname = "3J/"+sys_name;
+                book_alpha_correction_plots(dname+"/Alpha_Correction" );
 
-                // plots for lost_bp from 3-jet events
-                book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr" );
-                book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen" );
-                book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction" );
-                book_reso_plots("3J_Event_Plots/"+lost_bp_solution+"/Resolution" );
-                book_alpha_correction_plots("3J_Event_Plots/"+lost_bp_solution+"/Alpha_Correction" );
+                if( sys != Sys::NOSYS ) continue;
+
+                book_disc_plots(dname+"/Discr" );
+                book_gen_plots( dname+"/Gen" );
+                book_reco_plots(dname+"/Reconstruction" );
+                book_reso_plots(dname+"/Resolution" );
 
                 for( auto lost_evt_type_cat : lost_evt_type_categories ){
                     // plots for lost_bp from 3-jet events
-                    book_disc_plots("3J_Event_Plots/"+lost_bp_solution+"/Discr/"+lost_evt_type_cat );
-                    book_gen_plots( "3J_Event_Plots/"+lost_bp_solution+"/Gen/"+lost_evt_type_cat );
-                    book_reco_plots("3J_Event_Plots/"+lost_bp_solution+"/Reconstruction/"+lost_evt_type_cat );
-                    book_reso_plots("3J_Event_Plots/"+lost_bp_solution+"/Resolution/"+lost_evt_type_cat );
-                    book_alpha_correction_plots("3J_Event_Plots/"+lost_bp_solution+"/Alpha_Correction/"+lost_evt_type_cat );
+                    book_disc_plots(dname+"/Discr/"+lost_evt_type_cat );
+                    book_gen_plots( dname+"/Gen/"+lost_evt_type_cat );
+                    book_reco_plots(dname+"/Reconstruction/"+lost_evt_type_cat );
+                    book_reso_plots(dname+"/Resolution/"+lost_evt_type_cat );
+                    book_alpha_correction_plots(dname+"/Alpha_Correction/"+lost_evt_type_cat );
                 }
             }
-
-
-           
-
 
             Logger::log().debug() << "End of begin() " << evt_idx_ << endl;
         }
@@ -600,7 +628,7 @@ class ttbar_alpha_reco : public AnalyzerBase
         }
 
 
-        void lost_bp_cats( GenTTBar &ttbar, Permutation &lost_bp, string bp_solution ){
+        void lost_bp_cats( GenTTBar &ttbar, Permutation &lost_bp, string dname ){
 
             string lost_perm_status;
 
@@ -635,26 +663,28 @@ class ttbar_alpha_reco : public AnalyzerBase
 
 
             // lost_bp plots
+            fill_alpha_correction_plots(dname+"/Alpha_Correction", ttbar, lost_bp); // only fill alpha correction plots for systematics
 
-            fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr", lost_bp );
-            fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen", ttbar );
-            fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction", lost_bp );
-            fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution", lost_bp, ttbar );
-            fill_alpha_correction_plots("3J_Event_Plots/"+bp_solution+"/Alpha_Correction", ttbar, lost_bp);
+            if( !boost::contains(dname, "nosys") ) return;
+
+            fill_disc_plots(dname+"/Discr", lost_bp );
+            fill_gen_plots( dname+"/Gen", ttbar );
+            fill_reco_plots(dname+"/Reconstruction", lost_bp );
+            fill_reso_plots(dname+"/Resolution", lost_bp, ttbar );
 
             // break dists up by classification comparing best_perm and matched_perm
-            fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+lost_perm_status, lost_bp );
-            fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+lost_perm_status, ttbar );
-            fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+lost_perm_status, lost_bp );
-            fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+lost_perm_status, lost_bp, ttbar );
-            fill_alpha_correction_plots("3J_Event_Plots/"+bp_solution+"/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp);
+            fill_disc_plots(dname+"/Discr/"+lost_perm_status, lost_bp );
+            fill_gen_plots( dname+"/Gen/"+lost_perm_status, ttbar );
+            fill_reco_plots(dname+"/Reconstruction/"+lost_perm_status, lost_bp );
+            fill_reso_plots(dname+"/Resolution/"+lost_perm_status, lost_bp, ttbar );
+            fill_alpha_correction_plots(dname+"/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp);
 
             // break dists up by classification comparing best_perm matches and gen objects
-            fill_disc_plots("3J_Event_Plots/"+bp_solution+"/Discr/"+gen_match_status, lost_bp );
-            fill_gen_plots( "3J_Event_Plots/"+bp_solution+"/Gen/"+gen_match_status, ttbar );
-            fill_reco_plots("3J_Event_Plots/"+bp_solution+"/Reconstruction/"+gen_match_status, lost_bp );
-            fill_reso_plots("3J_Event_Plots/"+bp_solution+"/Resolution/"+gen_match_status, lost_bp, ttbar );
-            fill_alpha_correction_plots("3J_Event_Plots/"+bp_solution+"/Alpha_Correction/"+gen_match_status, ttbar, lost_bp);
+            fill_disc_plots(dname+"/Discr/"+gen_match_status, lost_bp );
+            fill_gen_plots( dname+"/Gen/"+gen_match_status, ttbar );
+            fill_reco_plots(dname+"/Reconstruction/"+gen_match_status, lost_bp );
+            fill_reso_plots(dname+"/Resolution/"+gen_match_status, lost_bp, ttbar );
+            fill_alpha_correction_plots(dname+"/Alpha_Correction/"+gen_match_status, ttbar, lost_bp);
 
         } // end of lost_bp_cats
 
@@ -724,7 +754,9 @@ class ttbar_alpha_reco : public AnalyzerBase
 
             bool reco_3J_success = !best_perm.IsEmpty() && best_perm.Prob() < 1e9;
             if( !reco_3J_success ) return;
-            lost_bp_cats( ttbar, best_perm, "Lost_BP" );
+
+            string dname = "3J/"+systematics::shift_to_name.at(shift);
+            lost_bp_cats( ttbar, best_perm, dname );
 
         }// end of process_evt
 
@@ -808,6 +840,7 @@ class ttbar_alpha_reco : public AnalyzerBase
             opts.add_options()
                 ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
                 ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+                ("nosys", "do not run systematics")
                 ("report", opts::value<int>()->default_value(10000), "report every in debug mode");
         }
 };

@@ -14,7 +14,7 @@ task :btag_effs do |t|
 end
 
 $leptons = ['muons', 'electrons']
-$njet_opts = ['3', '4+', '']
+$njet_opts = ['3', '4+']
 task :htt_plots, [:lep, :njets] do |t, args|
     lep_validity = $leptons.include?(args.lep)
     if lep_validity == false
@@ -30,11 +30,8 @@ task :htt_plots, [:lep, :njets] do |t, args|
         puts "   #{njets}"
       end
     end
-    if args.njets == '3' or args.njets == '4+'
-        sh "python htt_scripts/HTTPlotter.py #{args.lep} --plots --njets=#{args.njets}"
-    else
-        sh "python htt_scripts/HTTPlotter.py #{args.lep} --plots"
-    end
+
+    sh "python htt_scripts/HTTPlotter.py #{args.lep} --plots --njets=#{args.njets}"
 
 end
 
@@ -53,11 +50,8 @@ task :htt_presel, [:lep, :njets] do |t, args|
         puts "   #{njets}"
       end
     end
-    if args.njets == '3' or args.njets == '4+'
-        sh "python htt_scripts/HTTPlotter.py #{args.lep} --preselection --njets=#{args.njets}"
-    else
-        sh "python htt_scripts/HTTPlotter.py #{args.lep} --preselection"
-    end
+
+    sh "python htt_scripts/HTTPlotter.py #{args.lep} --preselection --njets=#{args.njets}"
 
 end
 task :all_htt_plots_presel do |t|
