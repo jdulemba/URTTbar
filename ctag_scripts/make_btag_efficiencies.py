@@ -20,7 +20,8 @@ class BTAGEffPlotter(Plotter):
 
         ## get files, lumis
         ttJetsfiles = glob.glob('results/%s/btag_topology_effs/*.root' % jobid )
-        data_files =  glob.glob('results/%s/ctag_eff/*.root' % jobid )
+        data_files =  glob.glob('results/deepctag_AllRuns/ctag_eff/*.root' )
+        #data_files =  glob.glob('results/%s/ctag_eff/*.root' % jobid )
         data_files = [ fname for fname in data_files if (os.path.basename(fname).startswith('data') ) ]
         files = ttJetsfiles+data_files
 

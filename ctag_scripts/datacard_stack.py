@@ -146,14 +146,14 @@ if not 'right_whad_yields' in right_whad_yields_file.keys():
 
 ## things for plotting data/mc ratios
 sys_styles = {
-            'MTOPUp' : {
-                'linestyle' : '-',
-                'color' : 'red',
-                },
-            'MTOPDown' : {
-                'linestyle' : '-.',
-                'color' : 'red',
-                },
+            #'MTOPUp' : {
+            #    'linestyle' : '-',
+            #    'color' : 'red',
+            #    },
+            #'MTOPDown' : {
+            #    'linestyle' : '-.',
+            #    'color' : 'red',
+            #    },
             'JERUp' : {
                 'linestyle' : '-',
                 'color' : 'blue',

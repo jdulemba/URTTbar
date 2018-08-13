@@ -64,8 +64,8 @@ class CTagPlotter(Plotter):
 		#self.tt_to_use = 'ttJets' #original
 		self.flavour_info = 'hadronflav'
 		self.tt_shifted = {
-			'mtop_up' : 'ttJetsSL_mtopup',
-			'mtop_down' : 'ttJetsSL_mtopdown',
+			#'mtop_up' : 'ttJetsSL_mtopup',
+			#'mtop_down' : 'ttJetsSL_mtopdown',
 			#'isr_up'   : 'ttJets_isrup',
 			#'isr_down' : 'ttJets_isrdown',
 			#'fsr_up'   : 'ttJets_fsrup',
@@ -118,13 +118,6 @@ class CTagPlotter(Plotter):
 			}
 		self.jobid = jobid
 
-		self.views['ttJetsAll'] = {
-			'view' : views.SumView(
-				self.get_view('ttJetsSL'),
-				self.get_view('ttJetsDiLep'),
-				self.get_view('ttJetsHad'),
-				)
-			}
 		self.tt_to_use = 'ttJetsAll'
 		self.views['ttJets_preselection'] = {
 			'view' : self.create_tt_subsample(
@@ -269,14 +262,14 @@ class CTagPlotter(Plotter):
 				'constants' : ('jer_down', 'jer_up'),
 				'value' : 1.00,				
 				},
-			'MTOP' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'mtop_up'),
-				'-' : lambda x: x.replace('nosys', 'mtop_down'),
-				'value' : 1.00,				
-				},
+			#'MTOP' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			#	'categories' : ['.*'],
+			#	'type' : 'shape',
+			#	'+' : lambda x: x.replace('nosys', 'mtop_up'),
+			#	'-' : lambda x: x.replace('nosys', 'mtop_down'),
+			#	'value' : 1.00,				
+			#	},
 			#'ISR' : {
 			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
 			#	'categories' : ['.*'],
@@ -410,8 +403,8 @@ class CTagPlotter(Plotter):
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
-				#'ditag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 12, 20],
+				'ditag'  : [6, 8, 10, 12, 20],
+				#'ditag' 	: [6, 12, 20],
 				},			
 			'ctagLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
@@ -603,7 +596,6 @@ class CTagPlotter(Plotter):
 		'''
 		should use get_shape above in some memoized form in the future
 		'''
-		#set_trace()
 		if not self.card: self.card = DataCard(self.signal)
 		self.card.add_category(category_name)
 		category = self.card[category_name]
@@ -654,6 +646,7 @@ class CTagPlotter(Plotter):
 			
 			if name == 'right_whad':
 				self.right_whad_yields[category_name] = integral
+				#set_trace()
 			#
 			# shape and dynamically assigned systematics
 			#
@@ -714,6 +707,7 @@ class CTagPlotter(Plotter):
 							sys_name, info['type'],
 							category_name, name, value
 						)
+						#if name == self.signal: set_trace()
 
 					#shapes only: store shape in root file					
 					if info['type'] == 'shape':
@@ -1310,8 +1304,8 @@ variables = [
   ("thad_pt", "p_{T}(t_{h}) (GeV)", 1, None, False),
   #("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
   #("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
-  ("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
-  #("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
+  #("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
+  ("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
   ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
   ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
   ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
@@ -1786,6 +1780,7 @@ if args.shapes:
 				rebin=plotter.binning[wpoint][category]
 				)
 
+		#set_trace()
 		#
 		# yield formulas
 		#
@@ -1942,4 +1937,3 @@ if args.shapes:
 			f.write(prettyjson.dumps(category_constants))
 
 		plotter.save_card('datacard')
-
