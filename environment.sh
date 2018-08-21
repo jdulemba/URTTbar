@@ -20,3 +20,7 @@ export URA_PROJECT=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P)
 #source URA env
 ura_dir=`dirname $(dirname $URA_PROJECT)`
 source $ura_dir/URAnalysis/environment.sh
+
+urttbar_dir=$( basename "$URA_PROJECT" )
+branch=$( git symbolic-ref --short HEAD )
+echo "On branch '$branch' of $urttbar_dir"
