@@ -24,7 +24,7 @@
 #include "TUUID.h"   
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
-
+#include "Analyses/URTTbar/interface/Alpha_Corrections.h"
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
@@ -70,6 +70,7 @@ class htt_simple : public AnalyzerBase
         TTGenParticleSelector genp_selector_;
         TTGenMatcher matcher_;
         DR_TTGenMatcher dr_matcher_;
+        Alpha_Corrections alpha_corr_;
         TTPermutator permutator_;
         TTObjectSelector object_selector_;
         float evt_weight_;
@@ -98,7 +99,7 @@ class htt_simple : public AnalyzerBase
         TTree *sync_tree_;
         SyncInfo sync_info_;
 
-        float alpha_correction_slope_, alpha_correction_yint_;
+        //float alpha_correction_slope_, alpha_correction_yint_;
         float MTCut_;
 
     public:
@@ -136,13 +137,13 @@ class htt_simple : public AnalyzerBase
 
                 URParser &parser = URParser::instance();
 
-                parser.addCfgParameter<float>("alpha_correction", "slope", "slope to be used in alpha correction");
-                parser.addCfgParameter<float>("alpha_correction", "yint", "y-int to be used in alpha correction");
+                //parser.addCfgParameter<float>("alpha_correction", "slope", "slope to be used in alpha correction");
+                //parser.addCfgParameter<float>("alpha_correction", "yint", "y-int to be used in alpha correction");
                 parser.addCfgParameter<string>("event", "MTCut","");
                 parser.parseArguments();
 
-                alpha_correction_slope_ = parser.getCfgPar<float>("alpha_correction", "slope" );
-                alpha_correction_yint_ = parser.getCfgPar<float>("alpha_correction", "yint" );
+                //alpha_correction_slope_ = parser.getCfgPar<float>("alpha_correction", "slope" );
+                //alpha_correction_yint_ = parser.getCfgPar<float>("alpha_correction", "yint" );
                 MTCut_ = parser.getCfgPar<float>("event", "MTCut" );
 
                 if( MTCut_ != 0 ){
@@ -249,10 +250,10 @@ class htt_simple : public AnalyzerBase
             dir->second["full_discriminant"].fill(hyp.Prob(), evt_weight_);
 
                 // corrected thad
-            std::pair< TLorentzVector, double > corrected_thad = alpha_thad(hyp); // corrected thad tvec, costh* value
+            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "E", "Mtt");
 
             //double whad_mass = hyp.WHad().M();
-            double thad_mass = corrected_thad.first.M();
+            double thad_mass = corrected_thad.M();
             //dir->second["Wmasshad"].fill(whad_mass, evt_weight_);
             dir->second["tmasshad"].fill(thad_mass, evt_weight_);
             dir->second["lbratio" ].fill(hyp.L()->Pt()/hyp.BLep()->Pt(), evt_weight_);
@@ -277,8 +278,7 @@ class htt_simple : public AnalyzerBase
             std::pair< double, double > reco_cosths = reco_costh_tops(hyp); // < reco thad, tlep costh >
 
                 // corrected thad
-            std::pair< TLorentzVector, double > corrected_thad = alpha_thad(hyp); // corrected thad tvec, costh* value
-            ///
+            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "E", "Mtt");
 
             ////PDF uncertainties
             //if(has_pdfs_) {
@@ -288,14 +288,14 @@ class htt_simple : public AnalyzerBase
             //	}
             //}
 
-            dir->second["pt_thad" ].fill( corrected_thad.first.Pt() , evt_weight_ );
-            dir->second["eta_thad"].fill( corrected_thad.first.Eta(), evt_weight_ );
+            dir->second["pt_thad" ].fill( corrected_thad.Pt() , evt_weight_ );
+            dir->second["eta_thad"].fill( corrected_thad.Eta(), evt_weight_ );
             dir->second["pt_tlep" ].fill( hyp.TLep().Pt() , evt_weight_ );
             dir->second["eta_tlep"].fill( hyp.TLep().Eta(), evt_weight_ );
-            dir->second["pt_tt"   ].fill( (corrected_thad.first + hyp.TLep()).Pt() , evt_weight_ );
-            dir->second["eta_tt"  ].fill( (corrected_thad.first + hyp.TLep()).Eta(), evt_weight_ );
-            dir->second["m_tt"].fill( (corrected_thad.first + hyp.TLep()).M(), evt_weight_ );
-            if(pdf) pdf_uncs_.fill_replicas(folder, "m_tt", (corrected_thad.first + hyp.TLep()).M(), evt_weight_, event);
+            dir->second["pt_tt"   ].fill( (corrected_thad + hyp.TLep()).Pt() , evt_weight_ );
+            dir->second["eta_tt"  ].fill( (corrected_thad + hyp.TLep()).Eta(), evt_weight_ );
+            dir->second["m_tt"].fill( (corrected_thad + hyp.TLep()).M(), evt_weight_ );
+            if(pdf) pdf_uncs_.fill_replicas(folder, "m_tt", (corrected_thad + hyp.TLep()).M(), evt_weight_, event);
 
             if(object_selector_.clean_jets().size() == 3)
                 dir->second["full_discriminant_3j" ].fill(hyp.Prob(), evt_weight_);
@@ -321,27 +321,28 @@ class htt_simple : public AnalyzerBase
             //auto thadcm = ttang.thad().to_CM();
 
             ////top angles
-            double tlep_ctstar_abs = min(fabs(reco_cosths.second), 0.99999);
-            double thad_ctstar_abs = min(fabs(corrected_thad.second), 0.99999);
             double tlep_ctstar = reco_cosths.second;
-            double thad_ctstar = corrected_thad.second;
+            double thad_ctstar = alpha_corr_.alpha_thad_cthstar(hyp, "1D", "E", "Mtt");
+            double tlep_ctstar_abs = min(fabs(reco_cosths.second), 0.99999);
+            double thad_ctstar_abs = min(fabs(thad_ctstar), 0.99999);
+            //double thad_ctstar = corrected_thad.second;
             dir->second["tlep_ctstar"].fill(tlep_ctstar, evt_weight_);
             dir->second["thad_ctstar"].fill(thad_ctstar, evt_weight_);
             dir->second["tlep_ctstar_abs"].fill(tlep_ctstar_abs, evt_weight_);
             dir->second["thad_ctstar_abs"].fill(thad_ctstar_abs, evt_weight_);
-            dir->second["mtt_tlep_ctstar"].fill( (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar, evt_weight_ );
-            dir->second["mtt_tlep_ctstar_abs"].fill( (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar_abs, evt_weight_ );
+            dir->second["mtt_tlep_ctstar"].fill( (corrected_thad + hyp.TLep()).M(), tlep_ctstar, evt_weight_ );
+            dir->second["mtt_tlep_ctstar_abs"].fill( (corrected_thad + hyp.TLep()).M(), tlep_ctstar_abs, evt_weight_ );
 
             if(pdf){
                     pdf_uncs_.fill_replicas2D(
                     folder, "mtt_tlep_ctstar", 
-                    (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar,
+                    (corrected_thad + hyp.TLep()).M(), tlep_ctstar,
                     //hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
                     evt_weight_, event
                     );
                     pdf_uncs_.fill_replicas2D(
                     folder, "mtt_tlep_ctstar_abs", 
-                    (corrected_thad.first + hyp.TLep()).M(), tlep_ctstar_abs,
+                    (corrected_thad + hyp.TLep()).M(), tlep_ctstar_abs,
                     //hyp.LVect().M(), fabs(ttang.unit3D().Dot(ttcm.tlep().unit3D())),
                     evt_weight_, event
                     );
@@ -740,26 +741,6 @@ class htt_simple : public AnalyzerBase
             return std::make_pair(gen_thad_cth, gen_tlep_cth);
         }
 
-            // apply alpha correction
-        std::pair< TLorentzVector, double > alpha_thad( Permutation &perm ){
-                //alphas found by fitting Alpha_THad_P/E hists
-                    //values taken from 1degree vals http://home.fnal.gov/~jdulemba/Plots/ttbar_reco_3J/2018/JetpTcut30/Only_Alpha_Correction/Full/ttJetsM0/3J_Event_Plots/Lost_BP/Alpha_Correction/fit_parameters.json
-            // y = mx +b -> m is first element in json, b is second
-
-            double alpha_E = alpha_correction_slope_*( 173.1/perm.THad().M() ) + alpha_correction_yint_; // only alpha_E used because it's more consistent over mtt spectrum 
-            //double alpha_P = 0.1544*( 173.1/perm.THad().M() ) + 0.8599;
-            TLorentzVector Alpha_THad(alpha_E*perm.THad().Px(), alpha_E*perm.THad().Py(), alpha_E*perm.THad().Pz(), alpha_E*perm.THad().E());
-
-                // corrected thad
-            TLorentzVector reco_corr_ttang = Alpha_THad+perm.TLep();
-            TLorentzVector reco_ttcm_corr_thad = Alpha_THad;
-            reco_ttcm_corr_thad.Boost(-1*reco_corr_ttang.BoostVector());
-            double reco_corr_thad_cth = reco_corr_ttang.Vect().Unit().Dot(reco_ttcm_corr_thad.Vect().Unit());
-
-            return std::make_pair( Alpha_THad, reco_corr_thad_cth ); // corrected thad tvec, costh* val
-        }
-
-
 
         // top pT reweighting formula based on section 5.5 of AN-16-272
         double top_pt_reweighting( string sys_var ){
@@ -936,8 +917,8 @@ class htt_simple : public AnalyzerBase
                         sync_info_.RecoSuccess = reco_success_3J;
                         if(reco_success_3J){
                                 // corrected thad
-                            std::pair< TLorentzVector, double > corrected_thad = alpha_thad(best_perm); // corrected thad tvec, costh* value
-                            sync_info_.MassTT = (corrected_thad.first + best_perm.TLep()).M();
+                            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(best_perm, "1D", "E", "Mtt");
+                            sync_info_.MassTT = (corrected_thad + best_perm.TLep()).M();
                         }
                         else{
                             sync_info_.MassTT = -1;
