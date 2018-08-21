@@ -410,30 +410,27 @@ class ttbar_alpha_reco : public AnalyzerBase
 
         /// book and fill plots for hadronic top mass corrections for lost-jet events
         void book_alpha_correction_plots( string folder ){
+
+                // entire mass spectrum
             book<TH2D>(folder+"/THad_P", "Alpha_THad_P", "", 32, 0.9, 2.5, 500, 0., 10.);
             book<TH2D>(folder+"/THad_E", "Alpha_THad_E", "", 32, 0.9, 2.5, 500, 0., 10.);
 
+                // parts of mass spectrum
+            vector<string> mttbar_ranges = { "200to350", "350to400", "400to500", "500to700", "700to1000", "1000toInf"};
+            for( auto m_range : mttbar_ranges ){
+                book<TH2D>(folder+"/THad_P", "Alpha_THad_P_Mttbar"+m_range, "", 32, 0.9, 2.5, 500, 0., 10.);
+                book<TH2D>(folder+"/THad_E", "Alpha_THad_E_Mttbar"+m_range, "", 32, 0.9, 2.5, 500, 0., 10.);
+            }
+
             if( !boost::contains(folder, "nosys") ) return;
 
+            vector<string> mthad_ranges = { "0.9to1.1", "1.1to1.3", "1.3to1.5", "1.5to1.7", "1.7to1.9", "1.9to2.1", "2.1to2.3", "2.3to2.5"};
+
             // gen vs reco plots for bins of 173.1/reco M(thad)
-            // Energy
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_0.9to1.1", "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_1.1to1.3", "", 75, 0., 1500., 100, 0., 2000.); // 1.1 < 173.1/reco M(thad) < 1.3
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_1.3to1.5", "", 75, 0., 1500., 100, 0., 2000.); // 1.3 < 173.1/reco M(thad) < 1.5
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_1.5to1.7", "", 75, 0., 1500., 100, 0., 2000.); // 1.5 < 173.1/reco M(thad) < 1.7
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_1.7to1.9", "", 75, 0., 1500., 100, 0., 2000.); // 1.7 < 173.1/reco M(thad) < 1.9
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_1.9to2.1", "", 75, 0., 1500., 100, 0., 2000.); // 1.9 < 173.1/reco M(thad) < 2.1
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_2.1to2.3", "", 75, 0., 1500., 100, 0., 2000.); // 2.1 < 173.1/reco M(thad) < 2.3
-            book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_2.3to2.5", "", 75, 0., 1500., 100, 0., 2000.); // 2.3 < 173.1/reco M(thad) < 2.5
-            // Momentum
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_0.9to1.1", "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_1.1to1.3", "", 75, 0., 1500., 100, 0., 2000.); // 1.1 < 173.1/reco M(thad) < 1.3
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_1.3to1.5", "", 75, 0., 1500., 100, 0., 2000.); // 1.3 < 173.1/reco M(thad) < 1.5
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_1.5to1.7", "", 75, 0., 1500., 100, 0., 2000.); // 1.5 < 173.1/reco M(thad) < 1.7
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_1.7to1.9", "", 75, 0., 1500., 100, 0., 2000.); // 1.7 < 173.1/reco M(thad) < 1.9
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_1.9to2.1", "", 75, 0., 1500., 100, 0., 2000.); // 1.9 < 173.1/reco M(thad) < 2.1
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_2.1to2.3", "", 75, 0., 1500., 100, 0., 2000.); // 2.1 < 173.1/reco M(thad) < 2.3
-            book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_2.3to2.5", "", 75, 0., 1500., 100, 0., 2000.); // 2.3 < 173.1/reco M(thad) < 2.5
+            for( auto m_range : mthad_ranges ){
+                book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_"+m_range, "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
+                book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_"+m_range, "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
+            }
 
         }
 
@@ -447,40 +444,36 @@ class ttbar_alpha_reco : public AnalyzerBase
             thad_P_dir->second["Alpha_THad_P"].fill( 173.1/perm.THad().M(), ttbar.had_top()->P()/perm.THad().P(), evt_weight_ );//mthad taken from pdg
             thad_E_dir->second["Alpha_THad_E"].fill( 173.1/perm.THad().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ );
 
+            string mtt_range;
+            if( 200. <= perm.LVect().M() && perm.LVect().M() < 350. ) mtt_range = "200to350";
+            else if( 350. <= perm.LVect().M() && perm.LVect().M() < 400. ) mtt_range = "350to400";
+            else if( 400. <= perm.LVect().M() && perm.LVect().M() < 500. ) mtt_range = "400to500";
+            else if( 500. <= perm.LVect().M() && perm.LVect().M() < 700. ) mtt_range = "500to700";
+            else if( 700. <= perm.LVect().M() && perm.LVect().M() < 1000. ) mtt_range = "700to1000";
+            else if( perm.LVect().M() >= 1000. ) mtt_range = "1000toInf";
+
+            if( perm.LVect().M() >= 200. ){
+                thad_P_dir->second["Alpha_THad_P_Mttbar"+mtt_range].fill( 173.1/perm.THad().M(), ttbar.had_top()->P()/perm.THad().P(), evt_weight_ );
+                thad_E_dir->second["Alpha_THad_E_Mttbar"+mtt_range].fill( 173.1/perm.THad().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ );
+            }
+
             if( !boost::contains(folder, "nosys") ) return;
 
-            if( 0.9 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.1 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_0.9to1.1"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_0.9to1.1"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
+            string mthad_range;
+            if( 0.9 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.1 ) mthad_range = "0.9to1.1";
+            if( 1.1 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.3 ) mthad_range = "1.1to1.3";
+            if( 1.3 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.5 ) mthad_range = "1.3to1.5"; 
+            if( 1.5 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.7 ) mthad_range = "1.5to1.7"; 
+            if( 1.7 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.9 ) mthad_range = "1.7to1.9"; 
+            if( 1.9 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.1 ) mthad_range = "1.9to2.1"; 
+            if( 2.1 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.3 ) mthad_range = "2.1to2.3"; 
+            if( 2.3 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.5 ) mthad_range = "2.3to2.5"; 
+
+            if( 0.9 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.5 ){
+                thad_E_dir->second["Gen_vs_Reco_THadE_"+mthad_range].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
+                thad_P_dir->second["Gen_vs_Reco_THadP_"+mthad_range].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
             }
-            if( 1.1 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.3 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_1.1to1.3"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_1.1to1.3"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
-            }
-            if( 1.3 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.5 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_1.3to1.5"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_1.3to1.5"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
-            }
-            if( 1.5 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.7 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_1.5to1.7"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_1.5to1.7"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
-            }
-            if( 1.7 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 1.9 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_1.7to1.9"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_1.7to1.9"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
-            }
-            if( 1.9 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.1 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_1.9to2.1"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_1.9to2.1"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
-            }
-            if( 2.1 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.3 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_2.1to2.3"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_2.1to2.3"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
-            }
-            if( 2.3 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.5 ){
-                thad_E_dir->second["Gen_vs_Reco_THadE_2.3to2.5"].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
-                thad_P_dir->second["Gen_vs_Reco_THadP_2.3to2.5"].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
-            }
+            
 
         }
 
@@ -497,8 +490,9 @@ class ttbar_alpha_reco : public AnalyzerBase
             Logger::log().debug() << "		" << sample << endl;
 
             // LOST 3-jet events
-            vector<string> lost_evt_type_categories = {"CORRECT_B", "WRONG_B", "OTHER", // categories for best perm and matched perm
-                "CORRECT_BHAD", "CORRECT_BLEP", "CORRECT_Bs", "SWAPPED_Bs", "OTHER_MATCH" // categories for perm object matches and gen objects
+            vector<string> lost_evt_type_categories = {"NO_MP", // categories for best perm
+                "CORRECT_WJET_CORRECT_Bs", "CORRECT_WJET_SWAPPED_Bs", "CORRECT_WJET_CORRECT_BHAD", "CORRECT_WJET_CORRECT_BLEP", "CORRECT_WJET_WRONG_Bs",
+                "WRONG_WJET_CORRECT_Bs", "WRONG_WJET_SWAPPED_Bs", "WRONG_WJET_CORRECT_BHAD", "WRONG_WJET_CORRECT_BLEP", "WRONG_WJET_WRONG_Bs"
             };
 
             for( auto& sys : systematics_ ){
@@ -630,8 +624,6 @@ class ttbar_alpha_reco : public AnalyzerBase
 
         void lost_bp_cats( GenTTBar &ttbar, Permutation &lost_bp, string dname ){
 
-            string lost_perm_status;
-
             if( !(ttbar.type == GenTTBar::DecayType::SEMILEP) ){ // skip to next event if perm is empty
                 tracker_.track("Not semilep events");
                 return;
@@ -647,19 +639,24 @@ class ttbar_alpha_reco : public AnalyzerBase
                     object_selector_.lepton_charge());
 
 
-            if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) ) lost_perm_status = "OTHER"; // check if mp exists, has bhad and blep and at least one wjet
-            // check if mp and lost_bp misidentified b's
-            else if( mp.AreBsSame(lost_bp)  ) lost_perm_status = "CORRECT_B";
-            else if( mp.AreBsFlipped(lost_bp) ) lost_perm_status = "WRONG_B";
-            else lost_perm_status = "OTHER";
-
-
-            string gen_match_status;
-            if( lost_bp.BHad()->match() == ttbar.had_b() && lost_bp.BLep()->match() != ttbar.lep_b() ) gen_match_status = "CORRECT_BHAD"; // only perm bhad match is same as gen bhad
-            else if( lost_bp.BHad()->match() != ttbar.had_b() && lost_bp.BLep()->match() == ttbar.lep_b() ) gen_match_status = "CORRECT_BLEP"; // only perm blep match is same as gen blep
-            else if( lost_bp.BHad()->match() == ttbar.had_b() && lost_bp.BLep()->match() == ttbar.lep_b() ) gen_match_status = "CORRECT_Bs"; // both perm b matches same as gen bs
-            else if( lost_bp.BHad()->match() == ttbar.lep_b() && lost_bp.BLep()->match() == ttbar.had_b() ) gen_match_status = "SWAPPED_Bs"; // perm bhad match same as gen blep, perm blep match same as gen bhad
-            else gen_match_status = "OTHER_MATCH";
+            string lost_perm_status;
+            if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) ) lost_perm_status = "NO_MP"; // check if mp exists, has bhad and blep and at least one wjet
+            if( lost_bp.WJa() == mp.WJa() || lost_bp.WJa() == mp.WJb() ){ // lost_bp wjet matched to at least one of the mp wjets
+                // check if mp and lost_bp misidentified b's
+                if( mp.AreBsSame(lost_bp)  ) lost_perm_status = "CORRECT_WJET_CORRECT_Bs";
+                else if( mp.AreBsFlipped(lost_bp) ) lost_perm_status = "CORRECT_WJET_SWAPPED_Bs";
+                else if( mp.IsBHadCorrect(lost_bp) && !mp.IsBLepCorrect(lost_bp) ) lost_perm_status = "CORRECT_WJET_CORRECT_BHAD";
+                else if( !mp.IsBHadCorrect(lost_bp) && mp.IsBLepCorrect(lost_bp) ) lost_perm_status = "CORRECT_WJET_CORRECT_BLEP";
+                else lost_perm_status = "CORRECT_WJET_WRONG_Bs";
+            }
+            else{ // lost_bp wjet not matched to at least one of the mp wjets
+                // check if mp and lost_bp misidentified b's
+                if( mp.AreBsSame(lost_bp)  ) lost_perm_status = "WRONG_WJET_CORRECT_Bs";
+                else if( mp.AreBsFlipped(lost_bp) ) lost_perm_status = "WRONG_WJET_SWAPPED_Bs";
+                else if( mp.IsBHadCorrect(lost_bp) && !mp.IsBLepCorrect(lost_bp) ) lost_perm_status = "WRONG_WJET_CORRECT_BHAD";
+                else if( !mp.IsBHadCorrect(lost_bp) && mp.IsBLepCorrect(lost_bp) ) lost_perm_status = "WRONG_WJET_CORRECT_BLEP";
+                else lost_perm_status = "WRONG_WJET_WRONG_Bs";
+            }
 
 
             // lost_bp plots
@@ -678,13 +675,6 @@ class ttbar_alpha_reco : public AnalyzerBase
             fill_reco_plots(dname+"/Reconstruction/"+lost_perm_status, lost_bp );
             fill_reso_plots(dname+"/Resolution/"+lost_perm_status, lost_bp, ttbar );
             fill_alpha_correction_plots(dname+"/Alpha_Correction/"+lost_perm_status, ttbar, lost_bp);
-
-            // break dists up by classification comparing best_perm matches and gen objects
-            fill_disc_plots(dname+"/Discr/"+gen_match_status, lost_bp );
-            fill_gen_plots( dname+"/Gen/"+gen_match_status, ttbar );
-            fill_reco_plots(dname+"/Reconstruction/"+gen_match_status, lost_bp );
-            fill_reso_plots(dname+"/Resolution/"+gen_match_status, lost_bp, ttbar );
-            fill_alpha_correction_plots(dname+"/Alpha_Correction/"+gen_match_status, ttbar, lost_bp);
 
         } // end of lost_bp_cats
 
@@ -840,7 +830,7 @@ class ttbar_alpha_reco : public AnalyzerBase
             opts.add_options()
                 ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
                 ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
-                ("nosys", "do not run systematics")
+                ("nosys", opts::value<int>()->default_value(1), "do not run systematics")
                 ("report", opts::value<int>()->default_value(10000), "report every in debug mode");
         }
 };

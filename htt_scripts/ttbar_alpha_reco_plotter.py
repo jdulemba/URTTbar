@@ -21,7 +21,7 @@ import functions as fncts
 import numpy as np
 from styles import styles
 import URAnalysis.Utilities.prettyjson as prettyjson
-
+import ROOT
 
 out_analyzer = 'ttbar_alpha_reco'
 
@@ -44,59 +44,6 @@ if not (args.analysis == "Test" or args.analysis == "Full"):
 
 analyzer = 'ttbar_alpha_reco'
 
-hist_styles = {
-            'CORRECT_B': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'red',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b's",
-                'fillstyle': '3345',
-            },
-            'WRONG_B': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'blue',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Wrong b's",
-                'fillstyle': '3354',
-            },
-            'OTHER' : styles['*OTHER'],
-
-            'CORRECT_BHAD': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'blue',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b_{h} match",
-                'fillstyle': '3345',
-            },
-            'CORRECT_BLEP': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'red',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b_{l} match",
-                'fillstyle': '3354',
-            },
-            'CORRECT_Bs': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'black',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b's",
-                'fillstyle': '0',
-            },
-            'SWAPPED_Bs': styles['*SWAP'],
-            'OTHER_MATCH' : styles['*OTHER'],
-}
-
-
 
 ##### check sample type
 results_files = []
@@ -110,12 +57,6 @@ if args.analysis == "Test":
     	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
     	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
         styles = {
-            'RIGHT' : styles['*RIGHT'],
-            'MERGED_SWAP' : styles['*SWAP'],
-            'MERGED' : styles['*OTHER'],
-            'WRONG' : styles['*WRONG'],
-            'LOST_SWAP' : styles['*SWAP'],
-            'LOST' : styles['*OTHER'],
             'sample' : styles[args.sample]
         }
     )
@@ -130,14 +71,7 @@ if args.analysis == "Full":
     	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
     	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
         styles = {
-            'RIGHT' : styles['*RIGHT'],
-            'MERGED_SWAP' : styles['*SWAP'],
-            'MERGED' : styles['*OTHER'],
-            'WRONG' : styles['*WRONG'],
-            'LOST_SWAP' : styles['*SWAP'],
-            'LOST' : styles['*OTHER'],
-            'sample' : styles['ttJetsM0']
-            #'sample' : styles[args.sample]
+            'sample' : styles[args.sample]
         }
     )
 
@@ -190,8 +124,11 @@ This section creates dictionaries used for making plots based on different class
 6. var_types- the objects used for each kinematic variable and their axis labels
 '''
 
-Perm_Categories = ['CORRECT_B', 'WRONG_B', 'OTHER']
-Gen_Categories = ['CORRECT_BHAD', 'CORRECT_BLEP', 'CORRECT_Bs', 'SWAPPED_Bs', 'OTHER_MATCH']
+#Perm_Categories = ['NO_MP', 'CORRECT_WJET_CORRECT_Bs', 'CORRECT_WJET_SWAPPED_Bs', 'CORRECT_WJET_CORRECT_BHAD', 'CORRECT_WJET_CORRECT_BLEP', 'CORRECT_WJET_WRONG_Bs',
+#                    'WRONG_WJET_CORRECT_Bs', 'WRONG_WJET_SWAPPED_Bs', 'WRONG_WJET_CORRECT_BHAD', 'WRONG_WJET_CORRECT_BLEP', 'WRONG_WJET_WRONG_Bs'
+#                ]
+Correct_WJet_Categories = ['CORRECT_WJET_CORRECT_Bs', 'CORRECT_WJET_SWAPPED_Bs', 'CORRECT_WJET_CORRECT_BHAD', 'CORRECT_WJET_CORRECT_BLEP', 'CORRECT_WJET_WRONG_Bs']
+Wrong_WJet_Categories = ['WRONG_WJET_CORRECT_Bs', 'WRONG_WJET_SWAPPED_Bs', 'WRONG_WJET_CORRECT_BHAD', 'WRONG_WJET_CORRECT_BLEP', 'WRONG_WJET_WRONG_Bs']
 
 
 #Categories = {'MERGED' : ['RIGHT', 'MERGED_SWAP', 'MERGED', 'WRONG'],\
@@ -225,26 +162,38 @@ def alpha_corrections(directory, subdir):
     plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
 
 
-    hvars = [ # variables for hists
-        ('THad_E/Alpha_THad_E', '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', ''),
-        ('THad_P/Alpha_THad_P', '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', ''),
+    fitvars = [ # variables for hists
+        ('THad_E/Alpha_THad_E', '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
+        ('THad_P/Alpha_THad_P', '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
     ]
 
-    xranges = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
-    for num in range(len(xranges)-1):
-        txt_box = "%.1f < 173.1/Reco M(t_{h}) #leq %.1f" % (xranges[num], xranges[num+1])
-        Evar = ('THad_E/Gen_vs_Reco_THadE_%.1fto%.1f' % (xranges[num], xranges[num+1]), 'Reco E(t_{h})', 'Gen E(t_{h})', txt_box )
-        Pvar = ('THad_P/Gen_vs_Reco_THadP_%.1fto%.1f' % (xranges[num], xranges[num+1]), 'Reco E(t_{h})', 'Gen E(t_{h})', txt_box )
-        hvars.append(Evar)
-        hvars.append(Pvar)
+    mtt_ranges = np.array([200, 350, 400, 500, 700, 1000, np.Inf])
+    for mtt in range(len(mtt_ranges)-1):
+        if mtt_ranges[mtt+1] == np.Inf:
+            txt_box = "M($t\\overline{t}$) > %.0f" % mtt_ranges[mtt]
+            Evar = ('THad_E/Alpha_THad_E_Mttbar%.0ftoInf' % mtt_ranges[mtt], '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', txt_box )
+            Pvar = ('THad_P/Alpha_THad_P_Mttbar%.0ftoInf' % mtt_ranges[mtt], '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', txt_box )
+        else:
+            txt_box = "%.0f $\leq$ M($t\\overline{t}$) < %.0f" % (mtt_ranges[mtt], mtt_ranges[mtt+1])
+            Evar = ('THad_E/Alpha_THad_E_Mttbar%.0fto%.0f' % (mtt_ranges[mtt], mtt_ranges[mtt+1]), '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', txt_box )
+            Pvar = ('THad_P/Alpha_THad_P_Mttbar%.0fto%.0f' % (mtt_ranges[mtt], mtt_ranges[mtt+1]), '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', txt_box )
+        fitvars.append(Evar)
+        fitvars.append(Pvar)
 
-    fits = {
-        'Alpha_THad_E' : {},
-        'Alpha_THad_P' : {},
-    }
 
-    for hvar, xlabel, ylabel, txt_box_label in hvars:
-        hname = '/'.join([directory, 'Alpha_Correction', hvar])
+    ### create dictionary for fit values for E and P for each mttbar range
+    alphas = list(set([ fitvars[i][0].split('/')[0] for i in range(len(fitvars))]))
+    mranges = list(set([ fitvars[i][0].split('/')[1].split('_')[-1] for i in range(len(fitvars)) if 'Mttbar' in fitvars[i][0].split('/')[1] ]))+['All']
+
+    fits = {}
+    for alpha in alphas:
+        fits[alpha] = {}
+        for mrange in mranges:
+            fits[alpha][mrange] = {}
+
+    #set_trace()
+    for hvar, xlabel, ylabel, txt_box_label in fitvars:
+        hname = '/'.join([directory, 'Alpha_Correction', 'CORRECT_WJET_CORRECT_Bs', hvar])
         hist = asrootpy(myfile.Get(hname)).Clone()
 
         if hist.Integral() == 0:
@@ -252,101 +201,112 @@ def alpha_corrections(directory, subdir):
 
         plotter.plot(hist)
         #set_trace()
-        if hvar == 'THad_E/Alpha_THad_E' or hvar == 'THad_P/Alpha_THad_P':
+        #if hvar == 'THad_E/Alpha_THad_E' or hvar == 'THad_P/Alpha_THad_P':
 
-            xbins = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
-            ybins = np.linspace( hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
+        xbins = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
+        ybins = np.linspace( hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
 
-            hist = RebinView.newRebin2D(hist, xbins, ybins)
-            hist.xaxis.range_user = 0.9, 2.5
-            #hist.yaxis.range_user = 0.0, 4.0
-            #set_trace()
+        hist = RebinView.newRebin2D(hist, xbins, ybins)
+        hist.xaxis.range_user = 0.9, 2.5
+        #hist.yaxis.range_user = 0.0, 4.0
+        #set_trace()
 
-            medians = []
-            median_weights = []
-            median_errors = []
-            maxvals = []
-            for xbin in range(hist.GetNbinsX() + 1):
-                if hist.GetXaxis().GetBinLowEdge(xbin) >= hist.xaxis.range_user[0] and hist.GetXaxis().GetBinUpEdge(xbin) <= hist.xaxis.range_user[1]:
-                    hist_yproj = hist.ProjectionY("", xbin, xbin)
-                    if hist_yproj.Integral() == 0:
-                        continue
+        medians = []
+        median_weights = []
+        median_errors = []
+        maxvals = []
+        for xbin in range(hist.GetNbinsX() + 1):
+            if hist.GetXaxis().GetBinLowEdge(xbin) >= hist.xaxis.range_user[0] and hist.GetXaxis().GetBinUpEdge(xbin) <= hist.xaxis.range_user[1]:
+                hist_yproj = hist.ProjectionY("", xbin, xbin)
+                if hist_yproj.Integral() == 0:
+                    continue
 
-                    hist_yproj.Draw()
-                    hist_yproj.GetXaxis().SetRangeUser(0.0,15.0)
-                    hist_yproj.GetXaxis().SetTitle(ylabel)
+                hist_yproj.Draw()
+                hist_yproj.GetXaxis().SetRangeUser(0.0,15.0)
+                hist_yproj.GetXaxis().SetTitle(ylabel)
 
-                    probs = np.zeros(len(ybins))
-                    binvals = np.zeros(len(ybins))
+                probs = np.zeros(len(ybins))
+                binvals = np.zeros(len(ybins))
 
-                    for bins in range(len(ybins)):
-                        probs[bins] = hist_yproj.Integral(1, bins+1)/hist_yproj.Integral()
-                        binvals[bins] = hist_yproj.GetBinContent(bins)
+                for bins in range(len(ybins)):
+                    probs[bins] = hist_yproj.Integral(1, bins+1)/hist_yproj.Integral()
+                    binvals[bins] = hist_yproj.GetBinContent(bins)
 
-                    median = hist_yproj.GetBinCenter(np.where(probs>= 0.5)[0][0])
-                    median_error = 1.2533*hist_yproj.GetMeanError() #standard error of median
-                    if median_error == 0:
-                        #set_trace()
-                        median_weight = 1000 # 1/(standard error of median) to be used in fit
-                    else:
-                        median_weight = 1/(1.2533*hist_yproj.GetMeanError()) # 1/(standard error of median) to be used in fit
-                    maxval = round(hist_yproj.GetBinCenter(np.where(binvals==binvals.max())[0][0]), 2)
-
-                    medians.append(median)
-                    median_weights.append(median_weight)
-                    median_errors.append(median_error)
-                    maxvals.append(maxval)
-
-                    box1 = plotter.make_text_box('%s #leq %s #leq %s' % (hist.GetXaxis().GetBinLowEdge(xbin), xlabel, hist.GetXaxis().GetBinUpEdge(xbin)), position='NE')
-                    box1.Draw()
-                    plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
-                    plotter.save('%s_%s' % (hvar.split('/')[1], hist.GetXaxis().GetBinLowEdge(xbin)) )
+                median = hist_yproj.GetBinCenter(np.where(probs>= 0.5)[0][0])
+                median_error = 1.2533*hist_yproj.GetMeanError() #standard error of median
+                if median_error == 0:
                     #set_trace()
+                    median_weight = 1000 # 1/(standard error of median) to be used in fit
+                else:
+                    median_weight = 1/(1.2533*hist_yproj.GetMeanError()) # 1/(standard error of median) to be used in fit
+                maxval = round(hist_yproj.GetBinCenter(np.where(binvals==binvals.max())[0][0]), 2)
 
-            xbin_ints = [hist.Integral(xbinid+1, xbinid+1, 1, hist.GetNbinsY()+1) for xbinid in range(hist.GetNbinsX())]
-            xbin_ratios = [xbin_ints[i]/sum(xbin_ints) for i in range(len(xbin_ints))]
+                medians.append(median)
+                median_weights.append(median_weight)
+                median_errors.append(median_error)
+                maxvals.append(maxval)
 
-            hist.yaxis.range_user = 0.0, 4.0
+                box1 = plotter.make_text_box('%s #leq %s #leq %s' % (hist.GetXaxis().GetBinLowEdge(xbin), xlabel, hist.GetXaxis().GetBinUpEdge(xbin)), position='NE')
+                box1.Draw()
+                plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
+                plotter.save('%s_%s' % (hvar.split('/')[1], hist.GetXaxis().GetBinLowEdge(xbin)) )
+                #set_trace()
 
-            #### section to fit polynomials to median values from xaxis bins
-            #xfit_bins = np.linspace(hist.GetXaxis().GetXmin(),hist.GetXaxis().GetXmax(), 200) #makes points to be used for fit results
-            xfit_bins = np.linspace(0, 5.0, 200) #makes points to be used for fit results
-            hist.GetXaxis().GetCenter(xbins) # change array of xbin values from edges to centers
+        xbin_ints = [hist.Integral(xbinid+1, xbinid+1, 1, hist.GetNbinsY()+1) for xbinid in range(hist.GetNbinsX())]
+        xbin_ratios = [xbin_ints[i]/sum(xbin_ints) for i in range(len(xbin_ints))]
 
-            fit_1d_groom = np.polyfit(xbins[:-1], medians, 1, w=median_weights) # fit medians to 1 degree polynomial for 0.9 < xbin < 2.5
-            fit_1d_1p1 = np.polyfit(xbins[1:-1], medians[1:], 1, w=median_weights[1:]) # weighted fit medians to 1 degree polynomial for 1.1 < xbin < 2.5
-            fit_2d_groom = np.polyfit(xbins[:-1], medians, 2, w=median_weights) # fit medians to 2 degree polynomial for 0.9 < xbin < 2.5
-            fit_2d_1p1 = np.polyfit(xbins[1:-1], medians[1:], 2, w=median_weights[1:]) # fit medians to 2 degree polynomial for 1.1 < xbin < 2.5
+        hist.yaxis.range_user = 0.0, 4.0
 
-            p1_groom = np.poly1d(fit_1d_groom) #gets parameters for 1 degree fit getting rid of first 2 points
-            p1_1p1 = np.poly1d(fit_1d_1p1) #gets parameters for weighted 1 degree fit getting rid of first 3 points
-            p2_groom = np.poly1d(fit_2d_groom) #gets parameters for 2 degree fit getting rid of first 2 points
-            p2_1p1 = np.poly1d(fit_2d_1p1) #gets parameters for weighted 2 degree fit getting rid of first 3 points
+        #### section to fit polynomials to median values from xaxis bins
+        #xfit_bins = np.linspace(hist.GetXaxis().GetXmin(),hist.GetXaxis().GetXmax(), 200) #makes points to be used for fit results
+        xfit_bins = np.linspace(0, 5.0, 200) #makes points to be used for fit results
+        hist.GetXaxis().GetCenter(xbins) # change array of xbin values from edges to centers
 
-            fig = plt.figure()
-            fit_medians = plt.errorbar(xbins[:-1], medians, yerr=median_errors, label='Medians', linestyle='None', color='black', marker='.') #plots median values with errors
-                # 1 degree fits
-            p1_1p1_weighted = plt.plot(xfit_bins, p1_1p1(xfit_bins), label='weighted deg=1 bins > 1.1', linestyle='-', color='red') #plots p1 for weighted bins > 1.1
-            p1_groom_fit = plt.plot(xfit_bins, p1_groom(xfit_bins), label='weighted deg=1 bins > 0.9', linestyle='--', color='red') #plots p1 for bins > 0.9
-                # 2 degree fits
-            p2_1p1_weighted = plt.plot(xfit_bins, p2_1p1(xfit_bins), label='weighted deg=2 bins > 1.1', linestyle='-', color='green') #plots p2 for weighted bins > 1.1
-            p2_groom_fit = plt.plot(xfit_bins, p2_groom(xfit_bins), label='weighted deg=2 bins > 0.9', linestyle='--', color='green') #plots p2 for bins > 0.9
+        fit_1d_groom = np.polyfit(xbins[:-1], medians, 1, full=True, w=median_weights) # fit medians to 1 degree polynomial for 0.9 < xbin < 2.5
+        fit_2d_groom = np.polyfit(xbins[:-1], medians, 2, full=True, w=median_weights) # fit medians to 2 degree polynomial for 0.9 < xbin < 2.5
+        #fit_1d_1p1 = np.polyfit(xbins[1:-1], medians[1:], 1, full=True, w=median_weights[1:]) # weighted fit medians to 1 degree polynomial for 1.1 < xbin < 2.5
+        #fit_2d_1p1 = np.polyfit(xbins[1:-1], medians[1:], 2, full=True, w=median_weights[1:]) # fit medians to 2 degree polynomial for 1.1 < xbin < 2.5
 
-            fits[hvar.split('/')[1]]['1D_g1.1'] = fit_1d_1p1.tolist()
-            fits[hvar.split('/')[1]]['2D_g1.1'] = fit_2d_1p1.tolist()
+        #set_trace()
+        p1_groom = np.poly1d(fit_1d_groom[0]) #gets parameters for 1 degree fit getting rid of first 2 points
+        p2_groom = np.poly1d(fit_2d_groom[0]) #gets parameters for 2 degree fit getting rid of first 2 points
+        #p1_1p1 = np.poly1d(fit_1d_1p1[0]) #gets parameters for weighted 1 degree fit getting rid of first 3 points
+        #p2_1p1 = np.poly1d(fit_2d_1p1[0]) #gets parameters for weighted 2 degree fit getting rid of first 3 points
 
-            plt.xlabel('173.1/Reco M($t_{h}$)')
-            if hvar == 'THad_E/Alpha_THad_E':
-                plt.ylabel('$\\alpha_{E}$ = Gen E($t_{h}$)/Reco E($t_{h}$)')
-            if hvar == 'THad_P/Alpha_THad_P':
-               plt.ylabel('$\\alpha_{P}$ = Gen P($t_{h}$)/Reco P($t_{h}$)')
-            plt.ylim(0.0, 4.0)
-            plt.grid()
-            plt.legend(loc='upper right',fontsize=8, numpoints=1)
-            plotter.set_subdir('/'.join([subdir, 'Alpha_Correction']))
-            plotting_dir = plotter.outputdir
-            fig.savefig('%s/%s_fits' % (plotting_dir, hvar.split('/')[1]))
-            #set_trace()
+        fig = plt.figure()
+        fit_medians = plt.errorbar(xbins[:-1], medians, yerr=median_errors, label='Medians', linestyle='None', color='black', marker='.') #plots median values with errors
+            # 1 degree fits
+        p1_groom_fit = plt.plot(xfit_bins, p1_groom(xfit_bins), label='weighted deg=1 bins > 0.9', linestyle='--', color='red') #plots p1 for bins > 0.9
+        #p1_1p1_weighted = plt.plot(xfit_bins, p1_1p1(xfit_bins), label='weighted deg=1 bins > 1.1', linestyle='-', color='red') #plots p1 for weighted bins > 1.1
+            # 2 degree fits
+        p2_groom_fit = plt.plot(xfit_bins, p2_groom(xfit_bins), label='weighted deg=2 bins > 0.9', linestyle='--', color='green') #plots p2 for bins > 0.9
+        #p2_1p1_weighted = plt.plot(xfit_bins, p2_1p1(xfit_bins), label='weighted deg=2 bins > 1.1', linestyle='-', color='green') #plots p2 for weighted bins > 1.1
+
+        ### fill dictionary with fit values
+        mrange = 'All' if 'Mttbar' not in hvar else hvar.split('/')[1].split('_')[-1]
+        fits[hvar.split('/')[0]][mrange]['1D_g0.9'] = {}
+        fits[hvar.split('/')[0]][mrange]['2D_g0.9'] = {}
+        #fits[hvar.split('/')[0]][mrange]['1D_g1.1'] = {}
+        #fits[hvar.split('/')[0]][mrange]['2D_g1.1'] = {}
+
+        fits[hvar.split('/')[0]][mrange]['1D_g0.9'] = { 'Pars' : fit_1d_groom[0].tolist(), 'Residual' : '%.4f' % float(fit_1d_groom[1]) }
+        fits[hvar.split('/')[0]][mrange]['2D_g0.9'] = { 'Pars' : fit_2d_groom[0].tolist(), 'Residual' : '%.4f' % float(fit_2d_groom[1]) }
+        #fits[hvar.split('/')[0]][mrange]['1D_g1.1'] = { 'Pars' : fit_1d_1p1[0].tolist(), 'Residual' : '%.4f' % float(fit_1d_1p1[1]) }
+        #fits[hvar.split('/')[0]][mrange]['2D_g1.1'] = { 'Pars' : fit_2d_1p1[0].tolist(), 'Residual' : '%.4f' % float(fit_2d_1p1[1]) }
+
+        #set_trace()
+
+
+        plt.xlabel('173.1/Reco M($t_{h}$)')
+        plt.ylabel('$\\alpha_{E}$ = Gen E($t_{h}$)/Reco E($t_{h}$)') if 'THad_E' in hvar else plt.ylabel('$\\alpha_{P}$ = Gen P($t_{h}$)/Reco P($t_{h}$)')
+        plt.title(txt_box_label)
+        #set_trace()
+        plt.ylim(0.0, 4.0)
+        plt.grid()
+        plt.legend(loc='upper right',fontsize=8, numpoints=1)
+        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0]]))
+        plotting_dir = plotter.outputdir
+        fig.savefig('%s/%s_fits' % (plotting_dir, hvar.split('/')[1]))
 
         plotter.set_histo_style(hist, xtitle=xlabel, ytitle=ylabel)
         plotter.plot(hist, drawstyle='colz')
@@ -358,18 +318,38 @@ def alpha_corrections(directory, subdir):
 
         box2 = plotter.make_text_box('X Mean=%.2f, RMS=%.2f\nY Mean=%.2f, RMS=%.2f' % (mean_x, rms_x, mean_y, rms_y), position='NE')
         box2.Draw()
-
-        if 'Gen_vs_Reco' in hvar:
-            box1 = plotter.make_text_box( txt_box_label, position='NE')
-            box1.Draw()
-            if 'THadE' in hvar:
-                plotter.set_subdir('/'.join([subdir, 'Alpha_Correction/THad_E/Gen_vs_Reco']))
-            if 'THadP' in hvar:
-                plotter.set_subdir('/'.join([subdir, 'Alpha_Correction/THad_P/Gen_vs_Reco']))
-        else:
-            plotter.set_subdir('/'.join([subdir, 'Alpha_Correction']))
+        #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction']))
 
         plotter.save(hvar.split('/')[1])
+
+    #xranges = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
+    #hvars = []
+    #for num in range(len(xranges)-1):
+    #    txt_box = "%.1f < 173.1/Reco M(t_{h}) #leq %.1f" % (xranges[num], xranges[num+1])
+    #    Evar = ('THad_E/Gen_vs_Reco_THadE_%.1fto%.1f' % (xranges[num], xranges[num+1]), 'Reco E(t_{h})', 'Gen E(t_{h})', txt_box )
+    #    Pvar = ('THad_P/Gen_vs_Reco_THadP_%.1fto%.1f' % (xranges[num], xranges[num+1]), 'Reco E(t_{h})', 'Gen E(t_{h})', txt_box )
+    #    hvars.append(Evar)
+    #    hvars.append(Pvar)
+
+    #for hvar, xlabel, ylabel, txt_box_label in hvars:
+    #    hname = '/'.join([directory, 'Alpha_Correction', hvar])
+    #    hist = asrootpy(myfile.Get(hname)).Clone()
+
+    #    if hist.Integral() == 0:
+    #        continue
+
+    #    plotter.plot(hist)
+    #    #if 'Gen_vs_Reco' in hvar:
+    #    box1 = plotter.make_text_box( txt_box_label, position='NE')
+    #    box1.Draw()
+    #    if 'THadE' in hvar:
+    #        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction/THad_E/Gen_vs_Reco']))
+    #    if 'THadP' in hvar:
+    #        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction/THad_P/Gen_vs_Reco']))
+    #    #else:
+    #    #    plotter.set_subdir('/'.join([subdir, 'Alpha_Correction']))
+
+    #    plotter.save(hvar.split('/')[1])
         
         #set_trace()
 
@@ -377,8 +357,8 @@ def alpha_corrections(directory, subdir):
         #if topology:
         #    for cat in Categories[topology]:
         #        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', cat]))
-        #        #evt_col=hist_styles[cat]['fillcolor']
-        #        evt_type = hist_styles[cat]['name']
+        #        #evt_col=styles[cat]['fillcolor']
+        #        evt_type = styles[cat]['name']
         #        cat_hname = '/'.join([directory, 'Alpha_Correction', cat, hvar])
         #        cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
 
@@ -397,11 +377,98 @@ def alpha_corrections(directory, subdir):
         #        box1.Draw()
     
         #        plotter.save('%s_%s' % (hvar, cat))
+    #fit_pars_root('%s/fit_parameters' % '/'.join([project, 'inputs', jobid, 'INPUT']), fits)
 
-    with open('%s/fit_parameters.json' % '/'.join([plotter.base_out_dir, subdir, 'Alpha_Correction']), 'w') as f:
-        #set_trace()
+    with open('%s/fit_parameters.json' % '/'.join([plotter.base_out_dir, subdir, 'Alpha_Correction']), 'w') as f: # write to same dir as plots
+        f.write(prettyjson.dumps(fits))
+    with open('%s/fit_parameters.json' % '/'.join([project, 'inputs', jobid, 'INPUT']), 'w') as f: # write to $jobid/INPUT directory
         f.write(prettyjson.dumps(fits))
 
+
+
+
+def fit_pars_root(fname, fit_dict):
+
+    mtt_xbins = np.array([200, 350, 400, 500, 700, 1000, 2000]) #bins of mtt
+    all_xbins = np.array([200, 2000]) #bins of mtt
+    with root_open('%s.root' % fname, 'w') as out:
+        for fit_var in fit_dict.keys():
+            out.mkdir(fit_var).cd()
+            for fit_degree in ['1D', '2D']:
+                out.mkdir(fit_var+'/'+fit_degree).cd()
+                out.cd(fit_var+'/'+fit_degree)
+                if fit_degree == '1D':
+                    Mtt_slope = Hist(mtt_xbins, name='Mtt_slope', title='Mtt slope')
+                    for i in range(Mtt_slope.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'Mttbar' in j if int(j.split('to')[0].split('Mttbar')[1]) == int(Mtt_slope.GetBinLowEdge(i+1))][0] ## get 'Mttbar...to...' hist corresponding to bin
+                        Mtt_slope[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][0] # set bin value to slope
+
+                    Mtt_slope.Write()
+
+                    Mtt_yint = Hist(mtt_xbins, name='Mtt_yint', title='Mtt yint')
+                    for i in range(Mtt_yint.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'Mttbar' in j if int(j.split('to')[0].split('Mttbar')[1]) == int(Mtt_yint.GetBinLowEdge(i+1))][0] ## get 'Mttbar...to...' hist corresponding to bin
+                        Mtt_yint[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][1] # set bin value to slope
+
+                    Mtt_yint.Write()
+
+                    All_slope = Hist(all_xbins, name='All_slope', title='All slope')
+                    for i in range(All_slope.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'All' in j][0] ## get 'All' hist corresponding to bin
+                        All_slope[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][0] # set bin value to slope
+
+                    All_slope.Write()
+
+                    All_yint = Hist(mtt_xbins, name='All_yint', title='All yint')
+                    for i in range(All_yint.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'All' in j][0] ## get 'All' hist corresponding to bin
+                        All_yint[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][1] # set bin value to slope
+
+                    All_yint.Write()
+
+                if fit_degree == '2D':
+                    Mtt_c0 = Hist(mtt_xbins, name='Mtt_c0', title='Mtt c0')
+                    for i in range(Mtt_c0.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'Mttbar' in j if int(j.split('to')[0].split('Mttbar')[1]) == int(Mtt_c0.GetBinLowEdge(i+1))][0] ## get 'Mttbar...to...' hist corresponding to bin
+                        Mtt_c0[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][0] # set bin value to c0
+
+                    Mtt_c0.Write()
+
+                    Mtt_c1 = Hist(mtt_xbins, name='Mtt_c1', title='Mtt c1')
+                    for i in range(Mtt_c1.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'Mttbar' in j if int(j.split('to')[0].split('Mttbar')[1]) == int(Mtt_c1.GetBinLowEdge(i+1))][0] ## get 'Mttbar...to...' hist corresponding to bin
+                        Mtt_c1[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][1] # set bin value to slope
+
+                    Mtt_c1.Write()
+
+                    Mtt_c2 = Hist(mtt_xbins, name='Mtt_c2', title='Mtt c2')
+                    for i in range(Mtt_c2.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'Mttbar' in j if int(j.split('to')[0].split('Mttbar')[1]) == int(Mtt_c2.GetBinLowEdge(i+1))][0] ## get 'Mttbar...to...' hist corresponding to bin
+                        Mtt_c2[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][2] # set bin value to slope
+
+                    Mtt_c2.Write()
+
+                    All_c0 = Hist(all_xbins, name='All_c0', title='All c0')
+                    for i in range(All_c0.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'All' in j][0] ## get 'All' hist corresponding to bin
+                        All_c0[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][0] # set bin value to c0
+
+                    All_c0.Write()
+
+                    All_c1 = Hist(all_xbins, name='All_c1', title='All c1')
+                    for i in range(All_c1.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'All' in j][0] ## get 'All' hist corresponding to bin
+                        All_c1[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][1] # set bin value to c1
+
+                    All_c1.Write()
+
+                    All_c2 = Hist(all_xbins, name='All_c2', title='All c2')
+                    for i in range(All_c2.GetNbinsX()):
+                        hname = [j for j in fit_dict[fit_var].keys() if 'All' in j][0] ## get 'All' hist corresponding to bin
+                        All_c2[i+1].value = fit_dict[fit_var][hname]['%s_g0.9' % fit_degree]['Pars'][2] # set bin value to c2
+
+                    All_c2.Write()
+                #    set_trace()
 
 
 ##############################################################################################
@@ -459,11 +526,11 @@ def Gen_Plots(directory, subdir):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
             to_draw = []
-            for cat in Perm_Categories:#[topology]:
+            for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
                 plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Perm_Categories']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Gen', cat, kvar, obj])
                 cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
     
@@ -474,7 +541,7 @@ def Gen_Plots(directory, subdir):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -490,36 +557,76 @@ def Gen_Plots(directory, subdir):
             plotter.save('Gen_%s_%s_Stack_Norm' % (obj, kvar))
 
 
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+                ### create hists based on correct wjet perm assignment
             to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Gen_Categories']))
+            for cat in Correct_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Perm_Categories', 'Correct_WJet']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Gen', cat, kvar, obj])
                 cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-    
+
                 cat_hist = RebinView.rebin(cat_hist, new_bins)
                 #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-    
+
                 if cat_hist.Integral() == 0:
                     continue
-    
+
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
-    
+
             if not to_draw:
                 continue
             stack, norm_stack, ratio = fncts.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
             plotter.save('Gen_%s_%s_Stack' % (obj, kvar))
-    
+
             plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            box2.Draw()
+            plotter.save('Gen_%s_%s_Stack_Norm' % (obj, kvar))
+
+                ### create hists based on wrong wjet perm assignment
+            to_draw = []
+            for cat in Wrong_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Perm_Categories', 'Wrong_WJet']))
+                #set_trace()
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
+                cat_hname = '/'.join([directory, 'Gen', cat, kvar, obj])
+                cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
+
+                cat_hist = RebinView.rebin(cat_hist, new_bins)
+                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+
+                if cat_hist.Integral() == 0:
+                    continue
+
+                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                to_draw.append(cat_hist)
+
+            if not to_draw:
+                continue
+            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
+            plotter.save('Gen_%s_%s_Stack' % (obj, kvar))
+
+            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            box2.Draw()
             plotter.save('Gen_%s_%s_Stack_Norm' % (obj, kvar))
 
 
@@ -568,11 +675,11 @@ def Reco_Plots(directory, subdir):#, topology):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
             to_draw = []
-            for cat in Perm_Categories:#[topology]:
+            for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
                 plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Perm_Categories']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
                 cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
     
@@ -583,7 +690,7 @@ def Reco_Plots(directory, subdir):#, topology):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -599,39 +706,78 @@ def Reco_Plots(directory, subdir):#, topology):
             plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
 
 
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+                ### create hists based on correct wjet perm assignment
             to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Gen_Categories']))
+            for cat in Correct_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Perm_Categories', 'Correct_WJet']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
                 cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-    
+
                 cat_hist = RebinView.rebin(cat_hist, new_bins)
                 #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-    
+
                 if cat_hist.Integral() == 0:
                     continue
-    
+
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
-    
+
             if not to_draw:
                 continue
             stack, norm_stack, ratio = fncts.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
             plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
-    
+
             plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            box2.Draw()
             plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
 
 
+                ### create hists based on wrong wjet perm assignment
+            to_draw = []
+            for cat in Wrong_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Perm_Categories', 'Wrong_WJet']))
+                #set_trace()
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
+                cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
+                cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
+
+                cat_hist = RebinView.rebin(cat_hist, new_bins)
+                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+
+                if cat_hist.Integral() == 0:
+                    continue
+
+                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                to_draw.append(cat_hist)
+
+            if not to_draw:
+                continue
+            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
+            plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
+
+            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            box2.Draw()
+            plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
 
 
 ##############################################################################################
@@ -675,11 +821,11 @@ def Resolution_Plots(directory, subdir):#, topology):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
             to_draw = []
-            for cat in Perm_Categories:#[topology]:
+            for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
                 plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Perm_Categories']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
                 cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
     
@@ -690,7 +836,7 @@ def Resolution_Plots(directory, subdir):#, topology):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -706,36 +852,77 @@ def Resolution_Plots(directory, subdir):#, topology):
             plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
 
 
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+                ### create hists based on correct wjet perm assignment
             to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Gen_Categories']))
+            for cat in Correct_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Perm_Categories', 'Correct_WJet']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
                 cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-    
+
                 cat_hist = RebinView.rebin(cat_hist, new_bins)
                 #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-    
+
                 if cat_hist.Integral() == 0:
                     continue
-    
+
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
-    
+
             if not to_draw:
                 continue
             stack, norm_stack, ratio = fncts.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
             plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
-    
+
             plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            box2.Draw()
+            plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
+
+
+                ### create hists based on wrong wjet perm assignment
+            to_draw = []
+            for cat in Wrong_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Perm_Categories', 'Wrong_WJet']))
+                #set_trace()
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
+                cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
+                cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
+
+                cat_hist = RebinView.rebin(cat_hist, new_bins)
+                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+
+                if cat_hist.Integral() == 0:
+                    continue
+
+                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                to_draw.append(cat_hist)
+
+            if not to_draw:
+                continue
+            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
+            plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
+
+            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            box2.Draw()
             plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
 
 
@@ -769,11 +956,11 @@ def Discriminant_Plots(directory, subdir):#, topology):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
         to_draw = []
-        for cat in Perm_Categories:#[topology]:
+        for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
             plotter.set_subdir('/'.join([subdir, 'Discr', disc, 'Perm_Categories']))
             #set_trace()
-            evt_col=hist_styles[cat]['fillcolor']
-            evt_type = hist_styles[cat]['name']
+            evt_col=styles[cat]['fillcolor']
+            evt_type = styles[cat]['name']
             cat_hname = '/'.join([directory, 'Discr', cat, disc])
             cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
         
@@ -784,7 +971,7 @@ def Discriminant_Plots(directory, subdir):#, topology):
                 continue
         
             plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel+' 3 jets', ytitle=defyax)
-            cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+            cat_hist.SetFillStyle(styles[cat]['fillstyle'])
             plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
             to_draw.append(cat_hist)
         
@@ -799,40 +986,79 @@ def Discriminant_Plots(directory, subdir):#, topology):
         box1.Draw()
         plotter.save(disc+'_Stack_Norm')
         
-        
-                 ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+
+            ### create hists based on correct wjet perm assignment
         to_draw = []
-        for cat in Gen_Categories:#[topology]:
-            plotter.set_subdir('/'.join([subdir, 'Discr', disc, 'Gen_Categories']))
+        for cat in Correct_WJet_Categories:
+            plotter.set_subdir('/'.join([subdir, 'Discr', disc, 'Perm_Categories', 'Correct_WJet']))
             #set_trace()
-            evt_col=hist_styles[cat]['fillcolor']
-            evt_type = hist_styles[cat]['name']
+            evt_col=styles[cat]['fillcolor']
+            evt_type = styles[cat]['name']
             cat_hname = '/'.join([directory, 'Discr', cat, disc])
             cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
-        
+
             #cat_hist = RebinView.rebin(cat_hist, new_bins)
             #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
-        
+
             if cat_hist.Integral() == 0:
                 continue
-        
+
             plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel+' 3 jets', ytitle=defyax)
-            cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+            cat_hist.SetFillStyle(styles[cat]['fillstyle'])
             plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
             to_draw.append(cat_hist)
-        
+
         if not to_draw:
             continue
         stack, norm_stack, ratio = fncts.stack_plots(to_draw)
         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
-        box1.Draw()
+        #set_trace()
+        hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+        hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+        box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+        box2.Draw()
         plotter.save(disc+'_Stack')
-        
+
         plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
-        box1.Draw()
+        box2.Draw()
         plotter.save(disc+'_Stack_Norm')
 
+            ### create hists based on wrong wjet perm assignment
+        to_draw = []
+        for cat in Wrong_WJet_Categories:
+            plotter.set_subdir('/'.join([subdir, 'Discr', disc, 'Perm_Categories', 'Wrong_WJet']))
+            #set_trace()
+            evt_col=styles[cat]['fillcolor']
+            evt_type = styles[cat]['name']
+            cat_hname = '/'.join([directory, 'Discr', cat, disc])
+            cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
 
+            #cat_hist = RebinView.rebin(cat_hist, new_bins)
+            #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+
+            if cat_hist.Integral() == 0:
+                continue
+
+            plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel+' 3 jets', ytitle=defyax)
+            cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+            plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+            to_draw.append(cat_hist)
+
+        if not to_draw:
+            continue
+        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
+        #set_trace()
+        hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+        hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+        box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+        box2.Draw()
+        plotter.save(disc+'_Stack')
+
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
+        box2.Draw()
+        plotter.save(disc+'_Stack_Norm')
+        
     
 
 #####################################################################################################
