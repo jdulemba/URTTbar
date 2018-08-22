@@ -1,6 +1,7 @@
 #! /bin/env python
 
 from URAnalysis.PlotTools.Plotter import Plotter, BasePlotter
+from URAnalysis.PlotTools.BasePlotter import LegendDefinition
 import URAnalysis.PlotTools.views as urviews
 import os
 import glob
@@ -112,7 +113,7 @@ class HTTPlotter(Plotter):
                 info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode+'/3Jets')
             elif args.njets == '4+':
                 info['view'] = views.SubdirectoryView(info['view'], mode+'/4PJets')
-                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode+'/4PJ')
+                info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode+'/4PJets')
             else:
                 if args.flow and args.combinedflow:
                     info['view'] = views.SubdirectoryView(info['view'], '')
@@ -1074,6 +1075,7 @@ if args.preselection or args.all:
 
 if args.plots or args.all:
 
+    #qcd_renorm = True
     qcd_renorm = False
     qcd_scale = 1.
     if qcd_renorm:
@@ -1254,7 +1256,7 @@ if args.card:
     if args.smoothsys:
         #systematics = args.smoothsys.split(',')
         systematics = plotter.systematics.keys()
-        set_trace()
+        #set_trace()
         for shift in systematics:
             if not shift in plotter.systematics:
                 raise KeyError(
@@ -1281,18 +1283,21 @@ if args.card:
             dfcn.decorate(linecolor='red', linewidth=2)
             down.fit(dfcn)
             newd = down*-1
-            with io.root_open('test.root', 'w') as out:
+            plotter.set_subdir('%s/shapes/%s' % (njets, category) )
+            with io.root_open('smoothsys_test.root', 'w') as out:
                 newd.name = 'down'
                 up.name = 'up'
-                out.WriteTObject(newd, 'down')
-                out.WriteTObject(up, 'up')
+                out.WriteTObject(newd, '%s_down' % shift)
+                out.WriteTObject(up, '%s_up' % shift)
             
-            plotter.set_subdir('%s/shapes/%s' % (njets, category) )
+            #set_trace()
             plotter.overlay(
                 [up, down], linecolor=['blue', 'red'], y_range=(0.8,1.2),
                 markercolor=['blue', 'red'], title=['up', 'down'],
-                legendstyle='p', markerstyle=20, fillstyle='hollow',
-                drawstyle='E0', markersize=0.5)
+                legend_def=LegendDefinition(position='NW'), legendstyle='p',
+                markerstyle=20, fillstyle='hollow',
+                drawstyle='E0', markersize=0.5,
+                xtitle='m(t#bar{t}) (GeV)')
             plotter.save('%s_unsmoothed' % shift)
             print "Symmetry test:"
             for idx in range(ufcn.GetNpar()):
@@ -1312,8 +1317,7 @@ if args.card:
             plotter.systematics[shift]['mass_sfs'] = {
                 '+' : upsf, '-' : downsf
                 }
-    set_trace()
-    raise ValueError()
+    #raise ValueError()
     plotter.write_shapes(       
         category,
         'nosys/tight/MTHigh', 'mtt_tlep_ctstar_abs',
@@ -1326,12 +1330,13 @@ if args.card:
     ##  'mujets' if args.mode == 'muons' else 'ejets',
     ##  'nosys/tight/MTHigh', 'tlep_ctstar',
     ##  rebin=10)
-    plotter.set_subdir()
+    plotter.set_subdir(njets)
+    #set_trace()
     plotter.save_card(args.mode)
     if args.sysplots:
         categories = plotter.card.categories.keys()
         for category in categories:
-            plotter.set_subdir('shapes/%s' % category)
+            plotter.set_subdir('%s/shapes/%s' % (njets, category) )
             category = plotter.card.categories[category]
             samples  = category.keys()
             shifted_tt = [i for i in samples if i.startswith('TT_') and i.endswith('Up')]
