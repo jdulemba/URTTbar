@@ -57,7 +57,7 @@ if args.analysis == "Test":
     	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
     	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
         styles = {
-            'sample' : styles[args.sample]
+            'sample' : styles['ttJetsM0'] if args.sample=='ttJets' else styles[args.sample]
         }
     )
     #set_trace()
@@ -71,7 +71,7 @@ if args.analysis == "Full":
     	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
     	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
         styles = {
-            'sample' : styles[args.sample]
+            'sample' : styles['ttJetsM0'] if args.sample=='ttJets' else styles[args.sample]
         }
     )
 
@@ -203,6 +203,8 @@ def alpha_corrections(directory, subdir):
         #set_trace()
         #if hvar == 'THad_E/Alpha_THad_E' or hvar == 'THad_P/Alpha_THad_P':
 
+        colors = ['green', 'red', 'black', 'blue', 'orange', 'yellow', 'magenta', 'cyan']
+        i = 0
         xbins = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
         ybins = np.linspace( hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
 
@@ -215,15 +217,16 @@ def alpha_corrections(directory, subdir):
         median_weights = []
         median_errors = []
         maxvals = []
+
+        yprojections = []
+        yproj_norms = []
+
         for xbin in range(hist.GetNbinsX() + 1):
             if hist.GetXaxis().GetBinLowEdge(xbin) >= hist.xaxis.range_user[0] and hist.GetXaxis().GetBinUpEdge(xbin) <= hist.xaxis.range_user[1]:
-                hist_yproj = hist.ProjectionY("", xbin, xbin)
+                hist_yproj = hist.ProjectionY("", xbin, xbin).Clone()
+                hist_yproj = asrootpy(hist_yproj)
                 if hist_yproj.Integral() == 0:
                     continue
-
-                hist_yproj.Draw()
-                hist_yproj.GetXaxis().SetRangeUser(0.0,15.0)
-                hist_yproj.GetXaxis().SetTitle(ylabel)
 
                 probs = np.zeros(len(ybins))
                 binvals = np.zeros(len(ybins))
@@ -246,12 +249,25 @@ def alpha_corrections(directory, subdir):
                 median_errors.append(median_error)
                 maxvals.append(maxval)
 
-                box1 = plotter.make_text_box('%s #leq %s #leq %s' % (hist.GetXaxis().GetBinLowEdge(xbin), xlabel, hist.GetXaxis().GetBinUpEdge(xbin)), position='NE')
-                box1.Draw()
-                plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
-                plotter.save('%s_%s' % (hvar.split('/')[1], hist.GetXaxis().GetBinLowEdge(xbin)) )
+                #plotter.set_histo_style(hist_yproj, color='black', title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
+                #plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+                #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
+                #plotter.save('%s_%s' % (hvar.split('/')[1], hist.GetXaxis().GetBinLowEdge(xbin)) )
+
+                plotter.set_histo_style(hist_yproj, color=colors[i], title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
+                plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+                yprojections.append(hist_yproj)
+                yproj_norms.append(hist_yproj/hist_yproj.Integral())
+                i += 1
                 #set_trace()
 
+        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
+        plotter.overlay(yprojections, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        plotter.save('%s_yprojections' % hvar.split('/')[1])
+        plotter.overlay(yproj_norms, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        plotter.save('%s_yprojections_Norm' % hvar.split('/')[1])
+        #set_trace()
+    
         xbin_ints = [hist.Integral(xbinid+1, xbinid+1, 1, hist.GetNbinsY()+1) for xbinid in range(hist.GetNbinsX())]
         xbin_ratios = [xbin_ints[i]/sum(xbin_ints) for i in range(len(xbin_ints))]
 

@@ -64,7 +64,7 @@ if args.analysis == "Test":
     	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
     	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
         styles = {
-            'sample' : styles[args.sample]
+            'sample' : styles['ttJetsM0'] if args.sample=='ttJets' else styles[args.sample]
         }
     )
     #set_trace()
@@ -78,7 +78,7 @@ if args.analysis == "Full":
     	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
     	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
         styles = {
-            'sample' : styles[args.sample]
+            'sample' : styles['ttJetsM0'] if args.sample=='ttJets' else styles[args.sample]
         }
     )
 
@@ -173,49 +173,49 @@ def Reconstruction_Plots(directory, subdir):
 
     reco_hists = {
         'Mass' : {
-                    'THad' : {  'Uncorrected' : ('', 50., 300., 'k', 'Uncorrected', 'solid'),
-                                'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 50., 300., 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 50., 300., 'g', '2D #alpha_{E} All', 'solid'),
-                                'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 50., 300., 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 50., 300., 'm', '2D #alpha_{P} All', 'solid'),
-                                'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 50., 300., 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 50., 300., 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                                'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 50., 300., 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 50., 300., 'm', '2D #alpha_{P} Mtt', 'dashed')
+                    'THad' : {  'Uncorrected' : ('', 50., 200., 'k', 'Uncorrected', 'solid'),
+                                'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 50., 200., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 50., 200., 'g', '2d #alpha_{E} All', 'solid'),
+                                'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 50., 200., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 50., 200., 'm', '2d #alpha_{P} All', 'solid'),
+                                'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 50., 200., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 50., 200., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                                'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 50., 200., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 50., 200., 'm', '2d #alpha_{P} Mtt', 'dashed')
                     },
                     'TTbar' : { 'Uncorrected' : ('', 200., 2000., 'k', 'Uncorrected', 'solid'),
-                                'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 200., 2000., 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 200., 2000., 'g', '2D #alpha_{E} All', 'solid'),
-                                'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 200., 2000., 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 200., 2000., 'm', '2D #alpha_{P} All', 'solid'),
-                                'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 200., 2000., 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 200., 2000., 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                                'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 200., 2000., 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 200., 2000., 'm', '2D #alpha_{P} Mtt', 'dashed')
+                                'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 200., 2000., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 200., 2000., 'g', '2d #alpha_{E} All', 'solid'),
+                                'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 200., 2000., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 200., 2000., 'm', '2d #alpha_{P} All', 'solid'),
+                                'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 200., 2000., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 200., 2000., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                                'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 200., 2000., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 200., 2000., 'm', '2d #alpha_{P} Mtt', 'dashed')
                     },
                     'Reco_vs_Gen_TTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) (GeV)', 'Uncorrected Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen M(t#bar{t}) (GeV)', '1D #alpha_{E} All Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen M(t#bar{t}) (GeV)', '2D #alpha_{E} All Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen M(t#bar{t}) (GeV)', '1D #alpha_{P} All Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen M(t#bar{t}) (GeV)', '2D #alpha_{P} All Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen M(t#bar{t}) (GeV)', '1D #alpha_{E} Mtt Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen M(t#bar{t}) (GeV)', '2D #alpha_{E} Mtt Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen M(t#bar{t}) (GeV)', '1D #alpha_{P} Mtt Reco M(t#bar{t}) (GeV)'),
-                                            'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen M(t#bar{t}) (GeV)', '2D #alpha_{P} Mtt Reco M(t#bar{t}) (GeV)')
+                                            'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen M(t#bar{t}) (GeV)', '1d #alpha_{E} All Reco M(t#bar{t}) (GeV)'),
+                                            'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen M(t#bar{t}) (GeV)', '2d #alpha_{E} All Reco M(t#bar{t}) (GeV)'),
+                                            'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen M(t#bar{t}) (GeV)', '1d #alpha_{P} All Reco M(t#bar{t}) (GeV)'),
+                                            'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen M(t#bar{t}) (GeV)', '2d #alpha_{P} All Reco M(t#bar{t}) (GeV)'),
+                                            'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen M(t#bar{t}) (GeV)', '1d #alpha_{E} Mtt Reco M(t#bar{t}) (GeV)'),
+                                            'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen M(t#bar{t}) (GeV)', '2d #alpha_{E} Mtt Reco M(t#bar{t}) (GeV)'),
+                                            'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen M(t#bar{t}) (GeV)', '1d #alpha_{P} Mtt Reco M(t#bar{t}) (GeV)'),
+                                            'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen M(t#bar{t}) (GeV)', '2d #alpha_{P} Mtt Reco M(t#bar{t}) (GeV)')
                     },
          },
         'Costh' : {
                     'THad' : { 'Uncorrected' : ('', -1., 1., 'k', 'Uncorrected', 'solid'),
-                               'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -1., 1., 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -1., 1., 'g', '2D #alpha_{E} All', 'solid'),
-                               'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -1., 1., 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -1., 1., 'm', '2D #alpha_{P} All', 'solid'),
-                               'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -1., 1., 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -1., 1., 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                               'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -1., 1., 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -1., 1., 'm', '2D #alpha_{P} Mtt', 'dashed')
+                               'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -1., 1., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -1., 1., 'g', '2d #alpha_{E} All', 'solid'),
+                               'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -1., 1., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -1., 1., 'm', '2d #alpha_{P} All', 'solid'),
+                               'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -1., 1., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -1., 1., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                               'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -1., 1., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -1., 1., 'm', '2d #alpha_{P} Mtt', 'dashed')
                     },
                     #'THad_Labframe' : { 'Uncorrected' : ('', -1., 1., 'k', 'Uncorrected', 'solid'),
                     #                    'Corrected_1D_E' : ('_Corrected_1D_E', -1., 1., 'r', 'Corrected 1D #alpha_{E}'), 'Corrected_2D_E' : ('_Corrected_2D_E', -1., 1., 'g', 'Corrected 2D #alpha_{E}'),
                     #                    'Corrected_1D_P' : ('_Corrected_1D_P', -1., 1., 'b', 'Corrected 1D #alpha_{P}'), 'Corrected_2D_P' : ('_Corrected_2D_P', -1., 1., 'm', 'Corrected 2D #alpha_{P}')
                     #},
                     'Reco_vs_Gen_THad' : { 'Uncorrected' : ('', 'Gen cos(#theta^{*})', 'Reco cos(#theta^{*})'),
-                                           'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen cos(#theta^{*})', '1D #alpha_{E} All Reco cos(#theta^{*})'),
-                                           'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen cos(#theta^{*})', '2D #alpha_{E} All Reco cos(#theta^{*})'), 
-                                           'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen cos(#theta^{*})', '1D #alpha_{P} All Reco cos(#theta^{*})'),
-                                           'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen cos(#theta^{*})', '2D #alpha_{P} All Reco cos(#theta^{*})'),
-                                           'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen cos(#theta^{*})', '1D #alpha_{E} Mtt Reco cos(#theta^{*})'),
-                                           'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen cos(#theta^{*})', '2D #alpha_{E} Mtt Reco cos(#theta^{*})'), 
-                                           'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen cos(#theta^{*})', '1D #alpha_{P} Mtt Reco cos(#theta^{*})'),
-                                           'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen cos(#theta^{*})', '2D #alpha_{P} Mtt Reco cos(#theta^{*})') 
+                                           'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen cos(#theta^{*})', '1d #alpha_{E} All Reco cos(#theta^{*})'),
+                                           'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen cos(#theta^{*})', '2d #alpha_{E} All Reco cos(#theta^{*})'), 
+                                           'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen cos(#theta^{*})', '1d #alpha_{P} All Reco cos(#theta^{*})'),
+                                           'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen cos(#theta^{*})', '2d #alpha_{P} All Reco cos(#theta^{*})'),
+                                           'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen cos(#theta^{*})', '1d #alpha_{E} Mtt Reco cos(#theta^{*})'),
+                                           'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen cos(#theta^{*})', '2d #alpha_{E} Mtt Reco cos(#theta^{*})'), 
+                                           'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen cos(#theta^{*})', '1d #alpha_{P} Mtt Reco cos(#theta^{*})'),
+                                           'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen cos(#theta^{*})', '2d #alpha_{P} Mtt Reco cos(#theta^{*})') 
                     },
         }
     }
@@ -290,57 +290,123 @@ def Reso_Plots(directory, subdir):
 
     reso_hists = {
         'Mass' : {
-                    'THad' : { 'Uncorrected' : ('', -200., 200., 'k', 'Uncorrected', 'solid'),
-                               'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -200., 200., 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -200., 200., 'g', '2D #alpha_{E} All', 'solid'),
-                               'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -200., 200., 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -200., 200., 'm', '2D #alpha_{P} All', 'solid'),
-                               'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -200., 200., 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -200., 200., 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                               'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -200., 200., 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -200., 200., 'm', '2D #alpha_{P} Mtt', 'dashed')
+                    'THad' : { 'Uncorrected' : ('', -40., 160., 'k', 'Uncorrected', 'solid'),
+                               'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -40., 160., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -40., 160., 'g', '2d #alpha_{E} All', 'solid'),
+                               'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -40., 160., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -40., 160., 'm', '2d #alpha_{P} All', 'solid'),
+                               'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -40., 160., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -40., 160., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                               'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -40., 160., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -40., 160., 'm', '2d #alpha_{P} Mtt', 'dashed')
                     },
-                    'TTbar' : { 'Uncorrected' : ('', -500., 500., 'k', 'Uncorrected', 'solid'),
-                                'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -500., 500., 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -500., 500., 'g', '2D #alpha_{E} All', 'solid'),
-                                'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -500., 500., 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -500., 500., 'm', '2D #alpha_{P} All', 'solid'),
-                                'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -500., 500., 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -500., 500., 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                                'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -500., 500., 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -500., 500., 'm', '2D #alpha_{P} Mtt', 'dashed')
+                    'TTbar' : { 'Uncorrected' : ('', -300., 300., 'k', 'Uncorrected', 'solid'),
+                                'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -300., 300., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -300., 300., 'g', '2d #alpha_{E} All', 'solid'),
+                                'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -300., 300., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -300., 300., 'm', '2d #alpha_{P} All', 'solid'),
+                                'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -300., 300., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -300., 300., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                                'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -300., 300., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -300., 300., 'm', '2d #alpha_{P} Mtt', 'dashed')
+                    },
+                    'TLep' : { 'Uncorrected' : ('', -200., 200., 'k', 'Uncorrected', 'solid'),
+                               #'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -200., 200., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -200., 200., 'g', '2d #alpha_{E} All', 'solid'),
+                               #'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -200., 200., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -200., 200., 'm', '2d #alpha_{P} All', 'solid'),
+                               #'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -200., 200., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -200., 200., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                               #'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -200., 200., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -200., 200., 'm', '2d #alpha_{P} Mtt', 'dashed')
                     },
                     'Frac_THad' : { 'Uncorrected' : ('', -1., 1., 'k', 'Uncorrected', 'solid'),
-                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -1.0, 1.0, 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -1.0, 1.0, 'g', '2D #alpha_{E} All', 'solid'),
-                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -1.0, 1.0, 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -1.0, 1.0, 'm', '2D #alpha_{P} All', 'solid'),
-                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -1.0, 1.0, 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -1.0, 1.0, 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -1.0, 1.0, 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -1.0, 1.0, 'm', '2D #alpha_{P} Mtt', 'dashed')
+                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -1.0, 1.0, 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -1.0, 1.0, 'g', '2d #alpha_{E} All', 'solid'),
+                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -1.0, 1.0, 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -1.0, 1.0, 'm', '2d #alpha_{P} All', 'solid'),
+                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -1.0, 1.0, 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -1.0, 1.0, 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -1.0, 1.0, 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -1.0, 1.0, 'm', '2d #alpha_{P} Mtt', 'dashed')
                     },
                     'Frac_TTbar' : { 'Uncorrected' : ('', -1., 1., 'k', 'Uncorrected', 'solid'),
-                                     'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -1., 1., 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -1., 1., 'g', '2D #alpha_{E} All', 'solid'),
-                                     'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -1., 1., 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -1., 1., 'm', '2D #alpha_{P} All', 'solid'),
-                                     'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -1., 1., 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -1., 1., 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                                     'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -1., 1., 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -1., 1., 'm', '2D #alpha_{P} Mtt', 'dashed')
+                                     'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -1., 1., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -1., 1., 'g', '2d #alpha_{E} All', 'solid'),
+                                     'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -1., 1., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -1., 1., 'm', '2d #alpha_{P} All', 'solid'),
+                                     'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -1., 1., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -1., 1., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                                     'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -1., 1., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -1., 1., 'm', '2d #alpha_{P} Mtt', 'dashed')
                     },
                     'Reso_MTTbar_vs_Gen_MTTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Uncorrected M(t#bar{t}) Resolution [GeV]'),
-                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen M(t#bar{t}) [GeV]', '1D #alpha_{E} All M(t#bar{t}) Res. [GeV]'),
-                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen M(t#bar{t}) [GeV]', '2D #alpha_{E} All M(t#bar{t}) Res. [GeV]'),
-                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen M(t#bar{t}) [GeV]', '1D #alpha_{P} All M(t#bar{t}) Res. [GeV]'),
-                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen M(t#bar{t}) [GeV]', '2D #alpha_{P} All M(t#bar{t}) Res. [GeV]'),
-                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen M(t#bar{t}) [GeV]', '1D #alpha_{E} Mtt M(t#bar{t}) Res. [GeV]'),
-                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen M(t#bar{t}) [GeV]', '2D #alpha_{E} Mtt M(t#bar{t}) Res. [GeV]'),
-                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen M(t#bar{t}) [GeV]', '1D #alpha_{P} Mtt M(t#bar{t}) Res. [GeV]'),
-                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen M(t#bar{t}) [GeV]', '2D #alpha_{P} Mtt M(t#bar{t}) Res. [GeV]')
+                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{E} All M(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{E} All M(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{P} All M(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{P} All M(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{E} Mtt M(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{E} Mtt M(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{P} Mtt M(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{P} Mtt M(t#bar{t}) Res. [GeV]')
+                    },
+                    'Reso_MTHad_vs_Gen_MTTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Uncorrected M(t_{h}) Resolution [GeV]'),
+                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{E} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{E} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{P} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{P} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{E} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{E} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen M(t#bar{t}) [GeV]', '1d #alpha_{P} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen M(t#bar{t}) [GeV]', '2d #alpha_{P} Mtt M(t_{h}) Res. [GeV]')
+                    },
+                    'Reso_MTHad_vs_Gen_THadPt' : { 'Uncorrected' : ('', 'Gen p_{T}(t_{h}) [GeV]', 'Uncorrected M(t_{h}) Resolution [GeV]'),
+                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{E} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{E} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{P} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{P} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{E} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{E} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{P} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{P} Mtt M(t_{h}) Res. [GeV]')
+                    },
+                    'Reso_MTHad_vs_Uncorrected_MTHad' : { 'Uncorrected' : ('', '173.1/Uncorrected M(t_{h}) [GeV]', 'Uncorrected M(t_{h}) Resolution [GeV]'),
+                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', '173.1/Uncorrected M(t_{h}) [GeV]', '1d #alpha_{E} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', '173.1/Uncorrected M(t_{h}) [GeV]', '2d #alpha_{E} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', '173.1/Uncorrected M(t_{h}) [GeV]', '1d #alpha_{P} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', '173.1/Uncorrected M(t_{h}) [GeV]', '2d #alpha_{P} All M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', '173.1/Uncorrected M(t_{h}) [GeV]', '1d #alpha_{E} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', '173.1/Uncorrected M(t_{h}) [GeV]', '2d #alpha_{E} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', '173.1/Uncorrected M(t_{h}) [GeV]', '1d #alpha_{P} Mtt M(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', '173.1/Uncorrected M(t_{h}) [GeV]', '2d #alpha_{P} Mtt M(t_{h}) Res. [GeV]')
+                    },
+                    'Reso_THadPt_vs_Gen_THadPt' : { 'Uncorrected' : ('', 'Gen p_{T}(t_{h}) [GeV]', 'Uncorrected p_{T}(t_{h}) Resolution [GeV]'),
+                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{E} All p_{T}(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{E} All p_{T}(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{P} All p_{T}(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{P} All p_{T}(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{E} Mtt p_{T}(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{E} Mtt p_{T}(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{P} Mtt p_{T}(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{P} Mtt p_{T}(t_{h}) Res. [GeV]')
+                    },
+                    'Reso_THadEta_vs_Gen_THadEta' : { 'Uncorrected' : ('', 'Gen #eta(t_{h}) [GeV]', 'Uncorrected #eta(t_{h}) Resolution [GeV]'),
+                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen #eta(t_{h}) [GeV]', '1d #alpha_{E} All #eta(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen #eta(t_{h}) [GeV]', '2d #alpha_{E} All #eta(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen #eta(t_{h}) [GeV]', '1d #alpha_{P} All #eta(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen #eta(t_{h}) [GeV]', '2d #alpha_{P} All #eta(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen #eta(t_{h}) [GeV]', '1d #alpha_{E} Mtt #eta(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen #eta(t_{h}) [GeV]', '2d #alpha_{E} Mtt #eta(t_{h}) Res. [GeV]'),
+                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen #eta(t_{h}) [GeV]', '1d #alpha_{P} Mtt #eta(t_{h}) Res. [GeV]'),
+                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen #eta(t_{h}) [GeV]', '2d #alpha_{P} Mtt #eta(t_{h}) Res. [GeV]')
+                    },
+                    'Reso_EtaTTbar_vs_Gen_EtaTTbar' : { 'Uncorrected' : ('', 'Gen #eta(t#bar{t}) [GeV]', 'Uncorrected #eta(t#bar{t}) Resolution [GeV]'),
+                                                    'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen #eta(t#bar{t}) [GeV]', '1d #alpha_{E} All #eta(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen #eta(t#bar{t}) [GeV]', '2d #alpha_{E} All #eta(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen #eta(t#bar{t}) [GeV]', '1d #alpha_{P} All #eta(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen #eta(t#bar{t}) [GeV]', '2d #alpha_{P} All #eta(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen #eta(t#bar{t}) [GeV]', '1d #alpha_{E} Mtt #eta(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen #eta(t#bar{t}) [GeV]', '2d #alpha_{E} Mtt #eta(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen #eta(t#bar{t}) [GeV]', '1d #alpha_{P} Mtt #eta(t#bar{t}) Res. [GeV]'),
+                                                    'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen #eta(t#bar{t}) [GeV]', '2d #alpha_{P} Mtt #eta(t#bar{t}) Res. [GeV]')
                     },
                     'Frac_TTbar_vs_Gen_THadPt' : { 'Uncorrected' : ('', 'Gen p_{T}(t_{h}) [GeV]', 'Uncorrected M(t#bar{t}) Frac Resolution'),
-                                                   'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '1D #alpha_{E} All M(t#bar{t}) Frac Res.'),
-                                                   'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '2D #alpha_{E} All M(t#bar{t}) Frac Res.'),
-                                                   'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '1D #alpha_{P} All M(t#bar{t}) Frac Res.'),
-                                                   'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '2D #alpha_{P} All M(t#bar{t}) Frac Res.'),
-                                                   'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1D #alpha_{E} Mtt M(t#bar{t}) Frac Res.'),
-                                                   'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2D #alpha_{E} Mtt M(t#bar{t}) Frac Res.'),
-                                                   'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1D #alpha_{P} Mtt M(t#bar{t}) Frac Res.'),
-                                                   'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2D #alpha_{P} Mtt M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_1D_E_All' : ('_Corrected_1D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{E} All M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_2D_E_All' : ('_Corrected_2D_E_All', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{E} All M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_1D_P_All' : ('_Corrected_1D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{P} All M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_2D_P_All' : ('_Corrected_2D_P_All', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{P} All M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{E} Mtt M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{E} Mtt M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '1d #alpha_{P} Mtt M(t#bar{t}) Frac Res.'),
+                                                   'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', 'Gen p_{T}(t_{h}) [GeV]', '2d #alpha_{P} Mtt M(t#bar{t}) Frac Res.'),
                     },
          },
         'Costh' : {
-                    'THad' : { 'Uncorrected' : ('', -1., 1., 'k', 'Uncorrected', 'solid'),
-                               'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -1., 1., 'r', '1D #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -1., 1., 'g', '2D #alpha_{E} All', 'solid'),
-                               'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -1., 1., 'b', '1D #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -1., 1., 'm', '2D #alpha_{P} All', 'solid'),
-                               'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -1., 1., 'r', '1D #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -1., 1., 'g', '2D #alpha_{E} Mtt', 'dashed'),
-                               'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -1., 1., 'b', '1D #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -1., 1., 'm', '2D #alpha_{P} Mtt', 'dashed'),
+                    'THad' : { 'Uncorrected' : ('', -2., 2., 'k', 'Uncorrected', 'solid'),
+                               'Corrected_1D_E_All' : ('_Corrected_1D_E_All', -2., 2., 'r', '1d #alpha_{E} All', 'solid'), 'Corrected_2D_E_All' : ('_Corrected_2D_E_All', -2., 2., 'g', '2d #alpha_{E} All', 'solid'),
+                               'Corrected_1D_P_All' : ('_Corrected_1D_P_All', -2., 2., 'b', '1d #alpha_{P} All', 'solid'), 'Corrected_2D_P_All' : ('_Corrected_2D_P_All', -2., 2., 'm', '2d #alpha_{P} All', 'solid'),
+                               'Corrected_1D_E_Mtt' : ('_Corrected_1D_E_Mtt', -2., 2., 'r', '1d #alpha_{E} Mtt', 'dashed'), 'Corrected_2D_E_Mtt' : ('_Corrected_2D_E_Mtt', -2., 2., 'g', '2d #alpha_{E} Mtt', 'dashed'),
+                               'Corrected_1D_P_Mtt' : ('_Corrected_1D_P_Mtt', -2., 2., 'b', '1d #alpha_{P} Mtt', 'dashed'), 'Corrected_2D_P_Mtt' : ('_Corrected_2D_P_Mtt', -2., 2., 'm', '2d #alpha_{P} Mtt', 'dashed'),
                   }
         }
     }
@@ -360,77 +426,70 @@ def Reso_Plots(directory, subdir):
                 xlabel = ''
 
             to_draw_normal = []
-            ## for comparing perm types
-            #correct_b_to_draw = []
-            #wrong_b_to_draw = []
-            #other_to_draw = []
 
             for corr_type in reso_hists[kvar][obj].keys():
 
                     ### create hists based on perm category (Correct b, wrong b, etc...)
                 #print 'kvar = %s\nobj = %s\ncorr_type= %s ' % (kvar, obj, corr_type)
-                #if (kvar == 'Costh' and obj == 'THad') or (kvar == 'Mass' and obj == 'THad') or (kvar == 'Mass' and obj == 'TTbar'):
-                    #to_draw = []
-                    #for cat in Perm_Categories:
-                    #    plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories', corr_type]))
-                    #    evt_col=styles[cat]['fillcolor']
-                    #    evt_type = styles[cat]['name']
+                if (kvar == 'Costh' and obj == 'THad') or (kvar == 'Mass' and obj == 'THad') or (kvar == 'Mass' and obj == 'TTbar'):
+                    to_draw = []
+                    correct_to_draw = []
+                    wrong_to_draw = []
+                    for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
+                        plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories']))
+                        #set_trace()
+                        cat_hvar_extension = reso_hists[kvar][obj][corr_type][0]
+                        cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', kvar, obj+cat_hvar_extension])
+                        cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
 
-                    #    cat_hvar_extension = reso_hists[kvar][obj][corr_type][0]
-                    #    cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', kvar, obj+cat_hvar_extension])
-                    #    cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
+                        #cat_hist = RebinView.rebin(cat_hist, new_bins)
+                        #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+
+                        if cat_hist.Integral() == 0:
+                            continue
+
+                            ## set hist range, get hist mean and rms 
+                        cat_hvar_xmin = reso_hists[kvar][obj][corr_type][1]
+                        cat_hvar_xmax = reso_hists[kvar][obj][corr_type][2]
+                        cat_hvar_col = reso_hists[kvar][obj][corr_type][3]
+                        cat_hvar_title = reso_hists[kvar][obj][corr_type][4]
+
+                        cat_hist.xaxis.range_user = cat_hvar_xmin, cat_hvar_xmax
+                        cat_hist_mean = cat_hist.GetMean() 
+                        cat_hist_rms = cat_hist.GetRMS() 
     
-                    #    if cat_hist.Integral() == 0:
-                    #        continue
-        
-                    #        ## set hist range, get hist mean and rms 
-                    #    hvar_xmin = reso_hists[kvar][obj][corr_type][1]
-                    #    hvar_xmax = reso_hists[kvar][obj][corr_type][2]
-                    #    hvar_col = reso_hists[kvar][obj][corr_type][3]
-                    #    hvar_title = reso_hists[kvar][obj][corr_type][4]
-
-                    #    cat_hist.xaxis.range_user = hvar_xmin, hvar_xmax
-                    #    cat_hist_mean = cat_hist.GetMean() 
-                    #    cat_hist_rms = cat_hist.GetRMS() 
+                        plotter.set_histo_style(cat_hist, color=styles[cat]['fillcolor'], title='%s Mean=%.2f, RMS=%.2f' % (styles[cat]['name'], cat_hist_mean, cat_hist_rms), fillstyle=styles[cat]['fillstyle'])
+                        plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                        cat_hist.SetName(cat)
+                        to_draw.append(cat_hist)
     
-                    #    plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                    #    cat_hist.SetFillStyle(styles[cat]['fillstyle'])
-                    #    plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                    #    to_draw.append(cat_hist)
-    
-                    #    box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
-                    #    box.Draw()
-                    #    plotter.save('Reso_%s_%s_%s_%s' % (obj, kvar, corr_type, cat))
-    
-                    #    #set_trace() 
-                    #    perm_cat_hist = cat_hist.Clone()
-                    #    perm_cat_hist.set_name(corr_type)
-                    #    plotter.set_histo_style(perm_cat_hist, color=hvar_col, fillstyle=0, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, cat_hist_mean, cat_hist_rms), xtitle='%s, %s' % (xlabel, evt_type) )
-                    #    if cat == 'CORRECT_B':
-                    #        correct_b_to_draw.append(perm_cat_hist)
-                    #    elif cat == 'WRONG_B':
-                    #        wrong_b_to_draw.append(perm_cat_hist)
-                    #    elif cat == 'OTHER':
-                    #        other_to_draw.append(perm_cat_hist)
+
+                    if to_draw:
+                        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='%s %s' % (cat_hvar_title, xlabel), ytitle=defyax, drawstyle='hist', x_range=(reso_hists[kvar][obj][corr_type][1], reso_hists[kvar][obj][corr_type][2]))
+                        plotter.save('Reso_%s_%s_%s_Stack' % (kvar, obj, corr_type))
+
+                        #plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+                        #box1.Draw()
+                        #plotter.save('Reso_%s_%s_%s_Stack_Norm' % (kvar, obj, corr_type))
+
+                        correct_hist = sum([i for i in to_draw if i.name == 'CORRECT_WJET_CORRECT_Bs'])
+                        plotter.set_histo_style(correct_hist, color='r', title='Correct Mean=%.2f, RMS=%.2f' % (correct_hist.GetMean(), correct_hist.GetRMS()), fillstyle=1001)
+                        plotter.plot(correct_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+
+                        wrong_hist = sum([i for i in to_draw if i.name != 'CORRECT_WJET_CORRECT_Bs'])
+                        plotter.set_histo_style(wrong_hist, color='b', title='Wrong Mean=%.2f, RMS=%.2f' % (wrong_hist.GetMean(), wrong_hist.GetRMS()), fillstyle=1001)
+                        plotter.plot(wrong_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+
+                        
+                        stack, norm_stack, ratio = fncts.stack_plots([correct_hist, wrong_hist])
+                        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='%s %s' % (cat_hvar_title, xlabel), ytitle=defyax, drawstyle='hist', x_range=(reso_hists[kvar][obj][corr_type][1], reso_hists[kvar][obj][corr_type][2]))
+                        box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % ((correct_hist+wrong_hist).GetMean(), (correct_hist+wrong_hist).GetRMS()), position='NE')
+                        box1.Draw()
+                        plotter.save('Reso_%s_%s_%s_Correct_Wrong_Stack' % (kvar, obj, corr_type))
+                    #set_trace()
 
 
-                    #if not to_draw:
-                    #    continue
-                    #
-                    #box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
-
-                    #stack, norm_stack, ratio = fncts.stack_plots(to_draw)
-
-                    ##set_trace()   
-                    #plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', x_range=(hvar_xmin, hvar_xmax), xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    #box1.Draw()
-                    #plotter.save('Reso_%s_%s_%s_Stack' % (obj, kvar, corr_type))
-        
-                    #plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', x_range=(hvar_xmin, hvar_xmax), xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    #box1.Draw()
-                    #plotter.save('Reso_%s_%s_%s_Stack_Norm' % (obj, kvar, corr_type))
-
-                    ##set_trace()   
 
                     #### normal plots
                 plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar]))
@@ -443,6 +502,14 @@ def Reso_Plots(directory, subdir):
                     continue
   
                 if hist.DIM == 2:
+                    plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, obj]))
+
+                    if obj ==  'Reso_MTHad_vs_Gen_MTTbar' or obj == 'Reso_MTHad_vs_Uncorrected_MTHad' or obj == 'Reso_MTHad_vs_Gen_THadPt':
+                        xbins = np.linspace(hist.GetXaxis().GetBinLowEdge(1), hist.GetXaxis().GetBinUpEdge(hist.GetXaxis().GetNbins()), hist.GetXaxis().GetNbins()+1 ) # ybinning remains unchanged
+                        ybins = np.linspace(-100., 98, 67)
+                        hist = RebinView.newRebin2D(hist, xbins, ybins)
+                        #set_trace()
+
                     plotter.set_histo_style(hist, xtitle=reso_hists[kvar][obj][corr_type][1], ytitle=reso_hists[kvar][obj][corr_type][2])
                     plotter.plot(hist, drawstyle='colz')
 
@@ -455,6 +522,62 @@ def Reso_Plots(directory, subdir):
                     box2.Draw()
 
                     plotter.save('%s_%s_%s' % (obj, kvar, corr_type))
+
+                    colors = []
+                    x_rebin = []
+                    ybins = np.linspace(hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
+                    if 'Gen_MTTbar' in obj:
+                        x_rebin = [250., 500., 700., 2000.]
+                        colors = ['r', 'b', 'k']
+                        if 'MTHad' in obj:
+                            ybins = np.linspace(-100., 98, 67)
+                            #set_trace()
+                    elif 'Uncorrected_MTHad' in obj:
+                        x_rebin = [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
+                        colors = ['r', 'b', 'k', 'g', 'c', 'm', '#00FFFF', '#C76114']
+                        ybins = np.linspace(-100., 98, 67)
+                        #set_trace()
+                    elif 'Gen_THadPt' in obj:
+                        x_rebin = [0., 100., 200., 1000.]
+                        colors = ['r', 'b', 'k']
+                    else: # eta bins
+                        x_rebin = [-3., -2.4, -1.2, 0., 1.2, 2.4, 3.]
+                        colors = ['r', 'b', 'k', 'g', 'c', 'm']
+                    #x_rebin = mtt_bins if 'MTTbar' in obj else pt_bins
+                    hist_rebinned = RebinView.newRebin2D(hist, x_rebin, ybins)
+
+                    yprojections = []
+                    yproj_norms = []
+                    i = 0
+                    for xbin in range(1, hist_rebinned.GetNbinsX() + 1):
+                        #set_trace()
+                        #if hist_rebinned.GetXaxis().GetBinLowEdge(xbin) >= hist_rebinned.xaxis.range_user[0] and hist_rebinned.GetXaxis().GetBinUpEdge(xbin) <= hist_rebinned.xaxis.range_user[1]:
+                        hist_yproj = hist_rebinned.ProjectionY("", xbin, xbin).Clone()
+                        hist_yproj = asrootpy(hist_yproj)
+                        if hist_yproj.Integral() == 0:
+                            continue
+
+                        hmean = hist_yproj.GetMean()
+                        hrms = hist_yproj.GetRMS()           
+
+                        plotter.set_histo_style(hist_yproj, color=colors[i], title='%s-%s Mean=%.2f, RMS=%.2f' % (hist_rebinned.GetXaxis().GetBinLowEdge(xbin), hist_rebinned.GetXaxis().GetBinUpEdge(xbin), hmean, hrms))
+                        plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=reso_hists[kvar][obj][corr_type][2], ytitle=defyax, drawstyle='hist')
+                        #plotter.save('test_yproj')
+                        yprojections.append(hist_yproj)
+                        yproj_norms.append(hist_yproj/hist_yproj.Integral())
+                        i += 1
+                        #if 'Reso_MTTbar' in obj: set_trace()
+                        #set_trace()
+        
+                    #set_trace() 
+                    #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
+                    plotter.overlay(yprojections, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=reso_hists[kvar][obj][corr_type][2], ytitle=defyax, drawstyle='hist')
+                    plotter.save('%s_%s_yprojections' % (obj, corr_type))
+                    plotter.overlay(yproj_norms, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=reso_hists[kvar][obj][corr_type][2], ytitle=defyax, drawstyle='hist')
+                    plotter.save('%s_%s_yprojections_Norm' % (obj, corr_type))
+
+                    #set_trace() 
+
                     continue
 
 
@@ -489,20 +612,6 @@ def Reso_Plots(directory, subdir):
             plotter.save('Reso_%s_%s_Comparison' % (kvar, obj) )
 
 
-            #    ## compare perm categories
-            #if not correct_b_to_draw:
-            #    continue
-
-            #plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories']))
-            #plotter.overlay(correct_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
-            #plotter.save('Reso_%s_%s_CorrectBs_Comparison' % (kvar, obj) )
-
-            #plotter.overlay(wrong_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
-            #plotter.save('Reso_%s_%s_WrongBs_Comparison' % (kvar, obj) )
-
-            #plotter.overlay(other_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
-            #plotter.save('Reso_%s_%s_Other_Comparison' % (kvar, obj) )
-            ##set_trace()   
 
 
 def Parton_Acceptances_Plots(directory, subdir):

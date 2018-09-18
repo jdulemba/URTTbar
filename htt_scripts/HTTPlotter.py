@@ -33,6 +33,7 @@ import re
 import itertools
 import rootpy.stats as stats
 import functions as fncts
+import numpy as np
 
 parser = ArgumentParser()
 parser.add_argument('mode', choices=['electrons', 'muons'], help='choose leptonic decay type')
@@ -243,10 +244,10 @@ class HTTPlotter(Plotter):
                     added_samples.append(sub_name)
 
         self.generic_mcs = [
-            'QCD*',
             'EWK',
             'single*',          
             'ttJets_generic',
+            'QCD*',
             ]
 
         self.mc_samples = self.generic_mcs
@@ -423,16 +424,16 @@ class HTTPlotter(Plotter):
                 category = self.card.categories[catname]
                 #inflate bin errors of tt for each sample
                 hists = [category[i] for i in mcsamples]
-                for bins in zip(*hists):
-                    if bins[0].overflow: continue
-                    unc = quad.quad(*[i.error for i in bins[1:]])
-                    idx = bins[0].idx
-                    hup = category['TT'].Clone()
-                    hup[idx].value += unc
-                    hdw = category['TT'].Clone()
-                    hdw[idx].value -= unc
-                    category['TT_CMS_httbar_%s_MCstatBin%dUp'   % (catname, idx)] = hup
-                    category['TT_CMS_httbar_%s_MCstatBin%dDown' % (catname, idx)] = hdw
+                #for bins in zip(*hists):
+                #    if bins[0].overflow: continue
+                #    unc = quad.quad(*[i.error for i in bins[1:]])
+                #    idx = bins[0].idx
+                #    hup = category['TT'].Clone()
+                #    hup[idx].value += unc
+                #    hdw = category['TT'].Clone()
+                #    hdw[idx].value -= unc
+                #    category['TT_CMS_httbar_%s_MCstatBin%dUp'   % (catname, idx)] = hup
+                #    category['TT_CMS_httbar_%s_MCstatBin%dDown' % (catname, idx)] = hdw
         self.card.save(name, self.outputdir)
     
     def pdf_unc_histo(self, view, var, pdf, central):
@@ -526,19 +527,29 @@ class HTTPlotter(Plotter):
         path = os.path.join(folder, variable)
         card_views = {}
         for name, samples in self.card_names.iteritems():
-            card_views[name] = self.rebin_view(
-                views.SumView(
+            #set_trace()
+            card_views[name] = views.SumView(
                     *[self.get_view(i) for i in samples]
-                    ),
-                rebin
-                )
+                    )
+            #card_views[name] = self.rebin_view(
+            #    views.SumView(
+            #        *[self.get_view(i) for i in samples]
+            #        ),
+            #    rebin
+            #    )
             if 'ggA_neg' in name or 'ggH_neg' in name:
                 card_views[name] = views.ScaleView(
                     card_views[name], 1)
 
         if preprocess:
             for name in card_views:
-                card_views[name] = preprocess(card_views[name])
+                ### only linearize 2D hists for background processes (not ggA/H)
+                #set_trace()
+                if 'gg' not in name:
+                    #set_trace()
+                    card_views[name] = self.rebin_view(card_views[name], rebin)
+                    card_views[name] = preprocess(card_views[name])
+                #card_views[name] = preprocess(card_views[name])
 
         for name, view in card_views.iteritems():
             histo = view.Get(path)
@@ -578,6 +589,8 @@ class HTTPlotter(Plotter):
                     else:
                         path_up = info['+'](path) if '+' in info else None
                         path_dw = info['-'](path) if '-' in info else None
+                        #print name
+                        #if name == 'TT': set_trace()
                         hup = view.Get(path_up) if path_up else None
                         hdw = view.Get(path_dw) if path_dw else None
                     if 'scales' in info:
@@ -745,10 +758,10 @@ class HTTPlotter(Plotter):
             del kwargs['sys_effs']
         mc_default = self.mc_samples
         self.mc_samples = [
-            'QCD*',
             'EWK',
             'single*',          
-            'ttJets_preselection'
+            'ttJets_preselection',
+            'QCD*',
             ]
         #set_trace()
         self.plot_mc_vs_data(*args, **kwargs)
@@ -816,10 +829,11 @@ class HTTPlotter(Plotter):
         
 
     def make_sample_table(self, threshold=None, absolute=False, fname='yields.raw_txt'):
+        #set_trace()
+        #if len([i for i in self.keep if isinstance(i, plotting.HistStack)]) == 0: return
         stack = [i for i in self.keep if isinstance(i, plotting.HistStack)][0]
         names = [i.title for i in stack.hists]
         yields = [i.Integral() for i in stack.hists]
-        #set_trace()
         data = [i for i in self.keep if hasattr(i, 'title') and i.title == 'Observed'][0]
         def ratio(lst):
             tot = sum(lst)/100. if not absolute else 1.
@@ -919,8 +933,36 @@ class HTTPlotter(Plotter):
     #            hist.Write()
 
 
+    def QCD_est_from_MC_scale(self, var): ## find amount of QCD in each of the 4 regions only based on MC simulation
 
-    def get_abcd_scale(self, var):
+        N_A = 0 # amount of QCD in signal region just from MC
+        N_B = 0
+        N_C = 0
+        N_D = 0
+        for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh', 'MTLow']):
+            tdir = '%s/%s' % dirid
+            qcd_hist = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s' % tdir, False) if i.Get(var).title == 'QCD' ][0]
+            qcd_hist.set_name('QCD')
+
+            set_trace()
+            N = qcd_hist.Integral()
+            if tdir == 'tight/MTHigh':
+                N_A = N
+            if tdir == 'tight/MTLow':
+                N_B = N
+            if tdir == 'looseNOTTight/MTLow':
+                N_D = N
+            if tdir == 'looseNOTTight/MTHigh':
+                N_C = N
+            #set_trace()
+
+        ##### get scale Na = Nb*(Nc/Nd)
+        #N_A = N_B*(N_C/N_D)
+        #set_trace()
+        return N_A
+
+
+    def QCD_est_from_abcd_scale(self, var):
 
         N_B = 0
         N_C = 0
@@ -936,6 +978,7 @@ class HTTPlotter(Plotter):
             data_hist = self.get_view('data').Get('nosys/%s/%s' % (tdir, var))
             data_hist.set_name(data_hist.title)
 
+            set_trace()
             ### subtract all mc (except QCD) from data in all regions
             N = data_hist.Integral() - sum(mc_hists).Integral()
             if tdir == 'tight/MTLow':
@@ -946,11 +989,10 @@ class HTTPlotter(Plotter):
                 N_C = N
             #set_trace()
 
-        #set_trace()
         #### get scale Na = Nb*(Nc/Nd)
         N_A = N_B*(N_C/N_D)
-        return N_A
         #set_trace()
+        return N_A
 
 
     #def qcd_norm(self, fname, scale, var):
@@ -1050,7 +1092,7 @@ jet_categories = ["3jets", "4jets", "5Pjets"]
 
 #cut flow
 
-if args.flow or args.all:
+if args.flow:# or args.all:
    flow = plotter.cut_flow()
    if args.combinedflow:
       plotter.set_outdir('plots/%s/htt' % plotter.jobid)
@@ -1075,12 +1117,14 @@ if args.preselection or args.all:
 
 if args.plots or args.all:
 
-    #qcd_renorm = True
-    qcd_renorm = False
-    qcd_scale = 1.
+    qcd_renorm = True
+    #qcd_renorm = False
+    qcd_abcd_scale = 1.
     if qcd_renorm:
-        qcdd_scale = plotter.get_abcd_scale('njets')
-    #set_trace()
+        qcd_MC_scale = plotter.QCD_est_from_MC_scale('njets')
+        qcd_abcd_scale = plotter.QCD_est_from_abcd_scale('njets')
+        set_trace()
+    set_trace()
     #    ## create file to save mtt hists for abcd method
     #if args.njets == '3':
     #    plotter.create_mtt_root(fname='3J_mtt_plots.root')
@@ -1109,10 +1153,11 @@ if args.plots or args.all:
                 plotter.mc_samples = plotter.split_mcs
                 if 'mass' in var: rebin = [0, 5, 10, 15, 20]
             plotter.plot_mc_vs_data(
-                'nosys/%s' % tdir, var, sort=True,
+                'nosys/%s' % tdir, var, sort=False,
+                #'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
-                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=qcd_scale)
+                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=qcd_abcd_scale)
             #set_trace()
             if first:
                 first = False
@@ -1188,7 +1233,7 @@ if args.shapes or args.all:
                 plotter.add_legend(histos)
                 plotter.save('%s_M%s' % (boson, mass) )
 
-if args.btag:
+if args.btag or args.all:
     mc_default = plotter.mc_samples
     plotter.mc_samples = [
         '[WZ][WZ]', 'QCD*', '[WZ]Jets', 
@@ -1249,11 +1294,16 @@ binnind2D = (
     [250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 680.0, 730.0, 800.0, 920.0, 1200.0], #~3k events each mtt bin
     [1] #[0, 0.2, 0.4, 0.6, 0.8, 1.0]
 )
-if args.card:
+linearizeview_bins = (
+    [300.0, 340.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 600.0, 625.0, 650.0, 675.0, 700.0, 730.0, 760.0, 800.0, 850.0, 900.0, 1000.0, 1200.0],
+    [1]
+)
+
+if args.card or args.all:
     correction_factors = {}
     category = 'mujets' if args.mode == 'muons' else 'ejets'
     njets = '3Jets' if args.njets == '3' else '4PJets'
-    if args.smoothsys:
+    if args.smoothsys or args.all:
         #systematics = args.smoothsys.split(',')
         systematics = plotter.systematics.keys()
         #set_trace()
@@ -1321,7 +1371,8 @@ if args.card:
     plotter.write_shapes(       
         category,
         'nosys/tight/MTHigh', 'mtt_tlep_ctstar_abs',
-        rebin=binnind2D, preprocess=urviews.LinearizeView)  
+        rebin=linearizeview_bins, preprocess=urviews.LinearizeView)  
+        #rebin=binnind2D, preprocess=urviews.LinearizeView)  
     ## plotter.write_shapes(        
     ##  'mujets' if args.mode == 'muons' else 'ejets',
     ##  'nosys/tight/MTHigh', 'm_tt',
@@ -1333,7 +1384,7 @@ if args.card:
     plotter.set_subdir(njets)
     #set_trace()
     plotter.save_card(args.mode)
-    if args.sysplots:
+    if args.sysplots or args.all:
         categories = plotter.card.categories.keys()
         for category in categories:
             plotter.set_subdir('%s/shapes/%s' % (njets, category) )

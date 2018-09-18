@@ -55,5 +55,3 @@ def print_table(lines, filename, separate_head=True):
             if (i == 0 and separate_head):
                 print >> f, "-"*(sum(widths)+3*(len(widths)-1))
 
-
-

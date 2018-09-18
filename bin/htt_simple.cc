@@ -99,7 +99,6 @@ class htt_simple : public AnalyzerBase
         TTree *sync_tree_;
         SyncInfo sync_info_;
 
-        //float alpha_correction_slope_, alpha_correction_yint_;
         float MTCut_;
 
     public:
@@ -137,13 +136,9 @@ class htt_simple : public AnalyzerBase
 
                 URParser &parser = URParser::instance();
 
-                //parser.addCfgParameter<float>("alpha_correction", "slope", "slope to be used in alpha correction");
-                //parser.addCfgParameter<float>("alpha_correction", "yint", "y-int to be used in alpha correction");
                 parser.addCfgParameter<string>("event", "MTCut","");
                 parser.parseArguments();
 
-                //alpha_correction_slope_ = parser.getCfgPar<float>("alpha_correction", "slope" );
-                //alpha_correction_yint_ = parser.getCfgPar<float>("alpha_correction", "yint" );
                 MTCut_ = parser.getCfgPar<float>("event", "MTCut" );
 
                 if( MTCut_ != 0 ){
@@ -250,7 +245,7 @@ class htt_simple : public AnalyzerBase
             dir->second["full_discriminant"].fill(hyp.Prob(), evt_weight_);
 
                 // corrected thad
-            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "E", "Mtt");
+            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "None", "All"); // 3rd argument set to "None" to not apply correction
 
             //double whad_mass = hyp.WHad().M();
             double thad_mass = corrected_thad.M();
@@ -278,7 +273,7 @@ class htt_simple : public AnalyzerBase
             std::pair< double, double > reco_cosths = reco_costh_tops(hyp); // < reco thad, tlep costh >
 
                 // corrected thad
-            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "E", "Mtt");
+            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "None", "All"); // 3rd argument set to "None" to not apply correction
 
             ////PDF uncertainties
             //if(has_pdfs_) {
@@ -322,7 +317,7 @@ class htt_simple : public AnalyzerBase
 
             ////top angles
             double tlep_ctstar = reco_cosths.second;
-            double thad_ctstar = alpha_corr_.alpha_thad_cthstar(hyp, "1D", "E", "Mtt");
+            double thad_ctstar = alpha_corr_.alpha_thad_cthstar(hyp, "1D", "None", "Mtt"); // 3rd argument set to "None" to not apply correction
             double tlep_ctstar_abs = min(fabs(reco_cosths.second), 0.99999);
             double thad_ctstar_abs = min(fabs(thad_ctstar), 0.99999);
             //double thad_ctstar = corrected_thad.second;
@@ -528,9 +523,15 @@ class htt_simple : public AnalyzerBase
                 250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 
                 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 
                 680.0, 730.0, 800.0, 920.0, 1200.0};
+            const vector<double> ctstar_binning = {
+                0.0, 0.4, 0.6, 0.75, 0.9, 1.0
+            };
+
 
             //book<TH1F>(folder, "m_tt", "", 180, 200., 2000);			
             book<TH1F>(folder, "m_tt", "", 19, &mbinning[0]);			
+            //    // unrolled mtt ctstar dists 
+            //book<TH2F>(folder, "mtt_x_tlep_ctstar_abs", "", 125, 0., 125.);
 
             book<TH1F>(folder, "pt_thad" , "", 200, 0., 2000);			
             book<TH1F>(folder, "eta_thad", "", 200, -10., 10);			
@@ -558,8 +559,10 @@ class htt_simple : public AnalyzerBase
             book<TH1F>(folder, "hframe_ctheta_d", "", 200, -1.0001, 1.0001);
 
             //2D plots
-            book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 20, 0., 1.0001);
-            book<TH2F>(folder, "mtt_tlep_ctstar_abs", "", 19, &mbinning[0], 20, 0., 1.0001);
+            book<TH2F>(folder, "mtt_tlep_ctstar", "", 180, 300, 1200, 5, &ctstar_binning[0]);
+            book<TH2F>(folder, "mtt_tlep_ctstar_abs", "", 180, 300, 1200, 5, &ctstar_binning[0]);
+            //book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 20, 0., 1.0001);
+            //book<TH2F>(folder, "mtt_tlep_ctstar_abs", "", 19, &mbinning[0], 20, 0., 1.0001);
             //book<TH2F>(folder, "mtt_tlep_ctstar", "", 19, &mbinning[0], 5, 0., 1.0001);
 
             //PDF uncertainties
@@ -917,7 +920,7 @@ class htt_simple : public AnalyzerBase
                         sync_info_.RecoSuccess = reco_success_3J;
                         if(reco_success_3J){
                                 // corrected thad
-                            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(best_perm, "1D", "E", "Mtt");
+                            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(best_perm, "1D", "None", "All"); // 3rd argument set to "None" to not apply correction
                             sync_info_.MassTT = (corrected_thad + best_perm.TLep()).M();
                         }
                         else{
@@ -1160,7 +1163,6 @@ class htt_simple : public AnalyzerBase
             Logger::log().debug() << "-- DONE -- reporting every -- " << report << " out of " << tree_->GetEntries() << endl;
             URStreamer event(tree_);
 
-            //cout << "Alpha correction slope: " << alpha_correction_slope_ << ", yint: " << alpha_correction_yint_ << endl; 
             while( event.next() )
             {
 

@@ -414,6 +414,7 @@ class ttbar_alpha_reco : public AnalyzerBase
                 // entire mass spectrum
             book<TH2D>(folder+"/THad_P", "Alpha_THad_P", "", 32, 0.9, 2.5, 500, 0., 10.);
             book<TH2D>(folder+"/THad_E", "Alpha_THad_E", "", 32, 0.9, 2.5, 500, 0., 10.);
+            book<TH2D>(folder+"/THad_M", "Alpha_THad_M", "", 32, 0.9, 2.5, 500, 0., 10.);
 
                 // parts of mass spectrum
             vector<string> mttbar_ranges = { "200to350", "350to400", "400to500", "500to700", "700to1000", "1000toInf"};
@@ -437,12 +438,14 @@ class ttbar_alpha_reco : public AnalyzerBase
         void fill_alpha_correction_plots( string folder, GenTTBar &ttbar, Permutation &perm ){
             auto thad_E_dir = histos_.find(folder+"/THad_E");
             auto thad_P_dir = histos_.find(folder+"/THad_P");
+            auto thad_M_dir = histos_.find(folder+"/THad_M");
 
             if( perm.THad().M() > 180.0 ) return;
             //dir->second["Reco_vs_Gen_MTTbar"].fill( ttbar.M(), perm.LVect().M(), evt_weight_ );
 
             thad_P_dir->second["Alpha_THad_P"].fill( 173.1/perm.THad().M(), ttbar.had_top()->P()/perm.THad().P(), evt_weight_ );//mthad taken from pdg
             thad_E_dir->second["Alpha_THad_E"].fill( 173.1/perm.THad().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ );
+            thad_M_dir->second["Alpha_THad_M"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M()/perm.THad().M(), evt_weight_ );
 
             string mtt_range;
             if( 200. <= perm.LVect().M() && perm.LVect().M() < 350. ) mtt_range = "200to350";

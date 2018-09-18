@@ -238,27 +238,27 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             vector<string> fit_ranges    = {"All", "Mtt"};
 
                 //book uncorrected plots
-            book<TH1F>(folder+"/Reconstruction/Mass"+cat, "THad", "", 500, 0., 500.);
-            book<TH1F>(folder+"/Reconstruction/Mass"+cat, "TTbar", "", mass_bins_, 200., 2000.);
-            book<TH2D>(folder+"/Reconstruction/Mass"+cat, "Reco_vs_Gen_TTbar", ";Gen M(ttbar); Reco M(ttbar)", mass_bins_, 200., 2000., mass_bins_, 200., 2000.);
+            book<TH1F>(folder+"/Reconstruction/Mass"+cat+"/Uncorrected", "THad", "", 500, 0., 500.);
+            book<TH1F>(folder+"/Reconstruction/Mass"+cat+"/Uncorrected", "TTbar", "", mass_bins_, 200., 2000.);
+            book<TH2D>(folder+"/Reconstruction/Mass"+cat+"/Uncorrected", "Reco_vs_Gen_TTbar", ";Gen M(ttbar); Reco M(ttbar)", mass_bins_, 200., 2000., mass_bins_, 200., 2000.);
 
             //book<TH1F>(folder+"/Reconstruction/Costh"+cat, "THad_Labframe", "", costh_bins_, -1., 1.);
-            book<TH1F>(folder+"/Reconstruction/Costh"+cat, "THad", "", costh_bins_, -1., 1.);
-            book<TH2D>(folder+"/Reconstruction/Costh"+cat, "Reco_vs_Gen_THad", ";Gen Cos(theta)(t_{h}); Reco Cos(theta)(t_{h})", costh_bins_, -1., 1., costh_bins_, -1., 1.);
+            book<TH1F>(folder+"/Reconstruction/Costh"+cat+"/Uncorrected", "THad", "", costh_bins_, -1., 1.);
+            book<TH2D>(folder+"/Reconstruction/Costh"+cat+"/Uncorrected", "Reco_vs_Gen_THad", ";Gen Cos(theta)(t_{h}); Reco Cos(theta)(t_{h})", costh_bins_, -1., 1., costh_bins_, -1., 1.);
 
                 //book corrected plots
             for( auto fit_degree : fit_degrees ){
                 for( auto fit_var : fit_vars ){
                     for( auto fit_range : fit_ranges ){
-                        string hname = "_Corrected_"+fit_degree+"_"+fit_var+"_"+fit_range;
+                        string hname = "/Corrected_"+fit_degree+"_"+fit_var+"_"+fit_range;
 
-                        book<TH1F>(folder+"/Reconstruction/Mass"+cat, "THad"+hname, "", 500, 0., 500.);
-                        book<TH1F>(folder+"/Reconstruction/Mass"+cat, "TTbar"+hname, "", mass_bins_, 200., 2000.);
-                        book<TH2D>(folder+"/Reconstruction/Mass"+cat, "Reco_vs_Gen_TTbar"+hname, ";Gen M(ttbar); Reco M(ttbar)", mass_bins_, 200., 2000., mass_bins_, 200., 2000.);
+                        book<TH1F>(folder+"/Reconstruction/Mass"+cat+hname, "THad", "", 500, 0., 500.);
+                        book<TH1F>(folder+"/Reconstruction/Mass"+cat+hname, "TTbar", "", mass_bins_, 200., 2000.);
+                        book<TH2D>(folder+"/Reconstruction/Mass"+cat+hname, "Reco_vs_Gen_TTbar", ";Gen M(ttbar); Reco M(ttbar)", mass_bins_, 200., 2000., mass_bins_, 200., 2000.);
 
-                        //book<TH1F>(folder+"/Reconstruction/Costh"+cat, "THad_Labframe"+hname, "", costh_bins_, -1., 1.);
-                        book<TH1F>(folder+"/Reconstruction/Costh"+cat, "THad"+hname, "", costh_bins_, -1., 1.);
-                        book<TH2D>(folder+"/Reconstruction/Costh"+cat, "Reco_vs_Gen_THad"+hname, ";Gen Cos(theta)(t_{h}); Reco Cos(theta)(t_{h})", costh_bins_, -1., 1., costh_bins_, -1., 1.);
+                        //book<TH1F>(folder+"/Reconstruction/Costh"+cat, "THad_Labframe", "", costh_bins_, -1., 1.);
+                        book<TH1F>(folder+"/Reconstruction/Costh"+cat+hname, "THad", "", costh_bins_, -1., 1.);
+                        book<TH2D>(folder+"/Reconstruction/Costh"+cat+hname, "Reco_vs_Gen_THad", ";Gen Cos(theta)(t_{h}); Reco Cos(theta)(t_{h})", costh_bins_, -1., 1., costh_bins_, -1., 1.);
                     }
                 }
             }
@@ -266,43 +266,94 @@ class ttbar_post_alpha_reco : public AnalyzerBase
 
         void book_resolution_plots( string folder, string cat ){
 
+            vector<string> shoulder_parts = {"L30", "G30"};
             vector<string> fit_degrees = {"1D", "2D"};
             vector<string> fit_vars    = {"E", "P"};
             vector<string> fit_ranges    = {"All", "Mtt"};
 
                 //book uncorreted plots
-            book<TH1F>(folder+"/Resolution/Mass"+cat, "THad", "", 500, -1000., 500.);
-            book<TH1F>(folder+"/Resolution/Mass"+cat, "TTbar", "", 500, -1000., 1000.);
-            book<TH2D>(folder+"/Resolution/Mass"+cat, "Reso_MTTbar_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
-            book<TH1F>(folder+"/Resolution/Mass"+cat, "Frac_THad", "", mass_bins_, -2., 2.);
-            book<TH1F>(folder+"/Resolution/Mass"+cat, "Frac_TTbar", "", mass_bins_, -2., 2.);
-            book<TH2D>(folder+"/Resolution/Mass"+cat, "Frac_TTbar_vs_Gen_THadPt", "", 100, 0., 1000., mass_bins_, -2., 2.);
+            book<TH1F>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "TLep", "", 500, -1000., 500.);
+            book<TH1F>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "THad", "", 500, -1000., 500.);
+            book<TH1F>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "TTbar", "", 500, -1000., 1000.);
+            //book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Alpha_vs_Gen_MTTbar", "", 80, 0., 2000., 100, 0., 5.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_MTTbar_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_MTHad_vs_Gen_MTTbar", "", 80, 0., 2000., 500, -1000., 500.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_MTHad_vs_Gen_THadPt", "", 100, 0., 1000., 500, -1000., 500.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_MTHad_vs_Uncorrected_MTHad", ";173.1/Uncorrected M(t_{h}); M(t_{h}) Resolution", 8, 0.9, 2.5, 500, -1000., 500.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_THadPt_vs_Gen_THadPt", "", 100, 0., 1000., 200., -1000., 1000.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_THadEta_vs_Gen_THadEta", "", 100, -3., 3., 200., -6., 6.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_EtaTTbar_vs_Gen_EtaTTbar", "", 100, -3., 3., 200., -6., 6.);
+            //book<TH1F>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Frac_THad", "", mass_bins_, -2., 2.);
+            //book<TH1F>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Frac_TTbar", "", mass_bins_, -2., 2.);
+            //book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Frac_TTbar_vs_Gen_THadPt", "", 100, 0., 1000., mass_bins_, -2., 2.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_TLepPt_vs_Gen_TLepPt", "", 100, 0., 1000., 200., -1000., 1000.);
+            book<TH2D>(folder+"/Resolution/Mass"+cat+"/Uncorrected", "Reso_TLepEta_vs_Gen_TLepEta", "", 100, -3., 3., 200., -6., 6.);
 
-            book<TH1F>(folder+"/Resolution/Costh"+cat, "THad", "", costh_bins_, -2., 2.);
+            book<TH1F>(folder+"/Resolution/Costh"+cat+"/Uncorrected", "THad", "", costh_bins_, -2., 2.);
 
                 //book corrected plots
             for( auto fit_degree : fit_degrees ){
                 for( auto fit_var : fit_vars ){
                     for( auto fit_range : fit_ranges ){
-                        string hname = "_Corrected_"+fit_degree+"_"+fit_var+"_"+fit_range;
+                        string hname = "/Corrected_"+fit_degree+"_"+fit_var+"_"+fit_range;
 
-                        book<TH1F>(folder+"/Resolution/Mass"+cat, "THad"+hname, "", 500, -1000., 500.);
-                        book<TH1F>(folder+"/Resolution/Mass"+cat, "TTbar"+hname, "", 500, -1000., 1000.);
-                        book<TH2D>(folder+"/Resolution/Mass"+cat, "Reso_MTTbar_vs_Gen_MTTbar"+hname, "", 80, 0., 2000., mass_bins_, -1000., 1000.);
-                        book<TH1F>(folder+"/Resolution/Mass"+cat, "Frac_THad"+hname, "", mass_bins_, -2., 2.);
-                        book<TH1F>(folder+"/Resolution/Mass"+cat, "Frac_TTbar"+hname, "", mass_bins_, -2., 2.);
-                        book<TH2D>(folder+"/Resolution/Mass"+cat, "Frac_TTbar_vs_Gen_THadPt"+hname, "", 100, 0., 1000., mass_bins_, -2., 2.);
+                        book<TH1F>(folder+"/Resolution/Mass"+cat+hname, "THad", "", 500, -1000., 500.);
+                        book<TH1F>(folder+"/Resolution/Mass"+cat+hname, "TTbar", "", 500, -1000., 1000.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Alpha_vs_Gen_MTTbar", "", 80, 0., 2000., 300, 0., 3.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Median_Alpha_vs_Gen_MTTbar", "", 80, 0., 2000., 300, 0., 3.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Alpha_Diff_vs_Gen_MTTbar", ";;#alpha computed-median", 80, 0., 2000., 200, -1., 1.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Computed_Alpha_vs_Uncorrected_MTHad", "", 8, 0.9, 2.5, 300, 0., 3.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Median_Alpha_vs_Uncorrected_MTHad", "", 8, 0.9, 2.5, 300, 0., 3.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Alpha_Diff_vs_Uncorrected_MTHad", ";;#alpha computed-median", 8, 0.9, 2.5, 200, -1., 1.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Reso_MTTbar_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Reso_MTHad_vs_Gen_MTTbar", "", 80, 0., 2000., 500, -1000., 500.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Reso_MTHad_vs_Gen_THadPt", "", 100, 0., 1000., 500, -1000., 500.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Reso_MTHad_vs_Uncorrected_MTHad", ";173.1/Uncorrected M(t_{h}); M(t_{h}) Resolution", 8, 0.9, 2.5, 500, -1000., 500.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Reso_THadPt_vs_Gen_THadPt", "", 100, 0., 1000., 200., -1000., 1000.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Reso_THadEta_vs_Gen_THadEta", "", 100, -3., 3., 200., -6., 6.);
+                        book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Reso_EtaTTbar_vs_Gen_EtaTTbar", "", 100, -3., 3., 200., -6., 6.);
+                        //book<TH1F>(folder+"/Resolution/Mass"+cat+hname, "Frac_THad"+hname, "", mass_bins_, -2., 2.);
+                        //book<TH1F>(folder+"/Resolution/Mass"+cat+hname, "Frac_TTbar"+hname, "", mass_bins_, -2., 2.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname, "Frac_TTbar_vs_Gen_THadPt"+hname, "", 100, 0., 1000., mass_bins_, -2., 2.);
 
-                        book<TH1F>(folder+"/Resolution/Costh"+cat, "THad"+hname, "", costh_bins_, -2., 2.);
+                        book<TH1F>(folder+"/Resolution/Costh"+cat+hname, "THad", "", costh_bins_, -2., 2.);
 
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_LCut_THadPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_GCut_THadPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_LCut_THadMass_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_GCut_THadMass_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_LCut_TLepPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_GCut_TLepPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_LCut_NuPz_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
-                        //book<TH2D>(folder+"/Resolution"+cat, "Reso_MTTbar"+hname+"_GCut_NuPz_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
+                        for( auto shoulder_part : shoulder_parts ){
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_Mass_Uncorrected", "", 500, 0., 500.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_Mass_Corrected", "", 500, 0., 500.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_Pt_Uncorrected", "", 1000, 0., 1000.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_Pt_Corrected", "", 1000, 0., 1000.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_P_Uncorrected", "", 500, 0., 1000.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_P_Corrected", "", 500, 0., 1000.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_E_Uncorrected", "", 500, 0., 1000.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "THad_E_Corrected", "", 500, 0., 1000.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "TTbar_Mass_Uncorrected", "", mass_bins_, 0., 2000.);
+                            book<TH1F>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "TTbar_Mass_Corrected", "", mass_bins_, 0., 2000.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Alpha_vs_Gen_MTTbar", "", 80, 0., 2000., 300, 0., 3.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Median_Alpha_vs_Gen_MTTbar", "", 80, 0., 2000., 300, 0., 3.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Alpha_Diff_vs_Gen_MTTbar", ";;#alpha computed-median", 80, 0., 2000., 200, -1., 1.);
+                            book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Computed_Alpha_vs_Uncorrected_MTHad", "", 8, 0.9, 2.5, 300, 0., 3.);
+                            book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Median_Alpha_vs_Uncorrected_MTHad", "", 8, 0.9, 2.5, 300, 0., 3.);
+                            book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Alpha_Diff_vs_Uncorrected_MTHad", ";;#alpha computed-median", 8, 0.9, 2.5, 200, -1., 1.);
+                            book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "AlphaE_vs_Uncorrected_MTHad", "; 173.1/Uncorrected M(t_{h});#alpha_{E}", 8, 0.9, 2.5, 100, 0., 5.);
+                            book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "AlphaP_vs_Uncorrected_MTHad", "; 173.1/Uncorrected M(t_{h});#alpha_{P}", 8, 0.9, 2.5, 100, 0., 5.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Reso_MTTbar_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Reso_MTHad_vs_Gen_MTTbar", "", 80, 0., 2000., 500, -1000., 500.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Reso_MTHad_vs_Gen_THadPt", "", 100, 0., 1000., 500, -1000., 500.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Reso_MTHad_vs_Uncorrected_MTHad", ";173.1/Uncorrected M(t_{h}); M(t_{h}) Resolution", 8, 0.9, 2.5, 500, -1000., 500.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Reso_THadPt_vs_Gen_THadPt", "", 100, 0., 1000., 200., -1000., 1000.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Reso_THadEta_vs_Gen_THadEta", "", 100, -3., 3., 200., -6., 6.);
+                        //book<TH2D>(folder+"/Resolution/Mass"+cat+hname+"/"+shoulder_part, "Reso_EtaTTbar_vs_Gen_EtaTTbar", "", 100, -3., 3., 200., -6., 6.);
+
+                        }
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_LCut_THadPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_GCut_THadPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_LCut_THadMass_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_GCut_THadMass_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_LCut_TLepPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_GCut_TLepPt_vs_Gen_MTTbar", "", 80, 0., 2000., 50, 0., 1000.);
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_LCut_NuPz_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
+                        //book<TH2D>(folder+"/Resolution"+cat+hname, "Reso_MTTbar_GCut_NuPz_vs_Gen_MTTbar", "", 80, 0., 2000., mass_bins_, -1000., 1000.);
                     }
                 }
             }
@@ -320,6 +371,11 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             for( auto nparts : npartons ){
                 book<TH1F>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTTbar_"+nparts, "", mass_bins_, -1000., 1000.);
                 book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTTbar_vs_Gen_MTTbar_"+nparts, "", 80, 0., 2000., mass_bins_, -1000., 1000.);
+                book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTHad_vs_Gen_MTTbar_"+nparts, "", 80, 0., 2000., 500, -1000., 500.);
+                book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTHad_vs_Uncorrected_MTHad_"+nparts, ";173.1/Uncorrected M(t_{h}); M(t_{h}) Resolution", 8, 0.9, 2.5, 500, -1000., 500.);
+                book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_THadPt_vs_Gen_THadPt_"+nparts, "", 100, 0., 1000., 200., -1000., 1000.);
+                book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_THadEta_vs_Gen_THadEta_"+nparts, "", 100, -3., 3., 200., -6., 6.);
+                book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_EtaTTbar_vs_Gen_EtaTTbar_"+nparts, "", 100, -3., 3., 200., -6., 6.);
                 book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Frac_MTTbar_vs_Gen_THadPt_"+nparts, "", 100, 0., 1000., mass_bins_, -2., 2.);
             }
 
@@ -332,6 +388,11 @@ class ttbar_post_alpha_reco : public AnalyzerBase
                         for( auto nparts : npartons ){
                             book<TH1F>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTTbar_"+nparts+hname, "", mass_bins_, -1000., 1000.);
                             book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTTbar_vs_Gen_MTTbar_"+nparts+hname, "", 80, 0., 2000., mass_bins_, -1000., 1000.);
+                            book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTHad_vs_Gen_MTTbar_"+nparts+hname, "", 80, 0., 2000., 500, -1000., 500.);
+                            book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_MTHad_vs_Uncorrected_MTHad_"+nparts+hname, ";173.1/Uncorrected M(t_{h}); M(t_{h}) Resolution", 8, 0.9, 2.5, 500, -1000., 500.);
+                            book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_THadPt_vs_Gen_THadPt_"+nparts+hname, "", 100, 0., 1000., 200., -1000., 1000.);
+                            book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_THadEta_vs_Gen_THadEta_"+nparts+hname, "", 100, -3., 3., 200., -6., 6.);
+                            book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Reso_EtaTTbar_vs_Gen_EtaTTbar_"+nparts+hname, "", 100, -3., 3., 200., -6., 6.);
                             book<TH2D>(folder+"/Resolution/Parton_Acceptance"+cat, "Frac_MTTbar_vs_Gen_THadPt_"+nparts+hname, "", 100, 0., 1000., mass_bins_, -2., 2.);
                         }
                     }
@@ -343,13 +404,13 @@ class ttbar_post_alpha_reco : public AnalyzerBase
         void book_plots( string folder, string cat ){
             book_reconstruction_plots(folder, cat);
             book_resolution_plots(folder, cat);
-            book_parton_accept_plots(folder, cat);
+            //book_parton_accept_plots(folder, cat);
         }
 
 
         void fill_reconstruction_plots( string folder, string cat, GenTTBar &ttbar, Permutation &perm ){
-            auto reco_mass_dir = histos_.find(folder+"/Reconstruction/Mass"+cat);
-            auto reco_costh_dir = histos_.find(folder+"/Reconstruction/Costh"+cat);
+            auto uncorr_reco_mass_dir = histos_.find(folder+"/Reconstruction/Mass"+cat+"/Uncorrected");
+            auto uncorr_reco_costh_dir = histos_.find(folder+"/Reconstruction/Costh"+cat+"/Uncorrected");
 
 
             // costheta variables
@@ -364,35 +425,66 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             for( auto fit_deg : fit_degrees ){
                 for( auto fit_var : fit_vars ){
                     for( auto fit_range : fit_ranges ){
-                        string hname = fit_deg+"_"+fit_var+"_"+fit_range;
+                        string hname = "/Corrected_"+fit_deg+"_"+fit_var+"_"+fit_range;
+                        auto corr_reco_mass_dir = histos_.find(folder+"/Reconstruction/Mass"+cat+hname);
+                        auto corr_reco_costh_dir = histos_.find(folder+"/Reconstruction/Costh"+cat+hname);
 
                             // get corrected thad 4-vec and costhetastar vals
                         TLorentzVector Alpha_THad = alpha_corr_.Alpha_THad(perm, fit_deg, fit_var, fit_range);
                         double alpha_thad_cth = alpha_corr_.alpha_thad_cthstar(perm, fit_deg, fit_var, fit_range);
 
                             // fill plots for corrected thad
-                        reco_mass_dir->second["THad_Corrected_"+hname].fill( Alpha_THad.M(), evt_weight_ );
-                        reco_mass_dir->second["TTbar_Corrected_"+hname].fill( (Alpha_THad + perm.TLep()).M(), evt_weight_ );
-                        reco_mass_dir->second["Reco_vs_Gen_TTbar_Corrected_"+hname].fill( ttbar.M(), (Alpha_THad + perm.TLep()).M(), evt_weight_ );
-                        reco_costh_dir->second["THad_Corrected_"+hname].fill( alpha_thad_cth, evt_weight_ );
-                        reco_costh_dir->second["Reco_vs_Gen_THad_Corrected_"+hname].fill( gen_cosths.first, alpha_thad_cth, evt_weight_ );
+                        corr_reco_mass_dir->second["THad"].fill( Alpha_THad.M(), evt_weight_ );
+                        corr_reco_mass_dir->second["TTbar"].fill( (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                        corr_reco_mass_dir->second["Reco_vs_Gen_TTbar"].fill( ttbar.M(), (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                        corr_reco_costh_dir->second["THad"].fill( alpha_thad_cth, evt_weight_ );
+                        corr_reco_costh_dir->second["Reco_vs_Gen_THad"].fill( gen_cosths.first, alpha_thad_cth, evt_weight_ );
                     }
                 }
             }
 
               // fill plots for original thad
-            reco_mass_dir->second["THad"].fill( perm.THad().M(), evt_weight_ );
-            reco_mass_dir->second["TTbar"].fill( perm.LVect().M(), evt_weight_ );
-            reco_mass_dir->second["Reco_vs_Gen_TTbar"].fill( ttbar.M(), perm.LVect().M(), evt_weight_ );
-            reco_costh_dir->second["THad"].fill( reco_thad_cth, evt_weight_ );
-            reco_costh_dir->second["Reco_vs_Gen_THad"].fill(gen_cosths.first, reco_thad_cth, evt_weight_);
+            uncorr_reco_mass_dir->second["THad"].fill( perm.THad().M(), evt_weight_ );
+            uncorr_reco_mass_dir->second["TTbar"].fill( perm.LVect().M(), evt_weight_ );
+            uncorr_reco_mass_dir->second["Reco_vs_Gen_TTbar"].fill( ttbar.M(), perm.LVect().M(), evt_weight_ );
+            uncorr_reco_costh_dir->second["THad"].fill( reco_thad_cth, evt_weight_ );
+            uncorr_reco_costh_dir->second["Reco_vs_Gen_THad"].fill(gen_cosths.first, reco_thad_cth, evt_weight_);
         }
+
+
+        void fill_shoulder_resolution_plots( string folder, GenTTBar &ttbar, Permutation &perm, TLorentzVector &corr_thad, string fit_deg, string fit_var, string fit_range){
+
+            auto dir = histos_.find(folder);
+
+            dir->second["THad_Mass_Uncorrected"].fill( perm.THad().M(), evt_weight_ );
+            dir->second["THad_Mass_Corrected"].fill( corr_thad.M(), evt_weight_ );
+            dir->second["THad_Pt_Uncorrected"].fill( perm.THad().Pt(), evt_weight_ );
+            dir->second["THad_Pt_Corrected"].fill( corr_thad.Pt(), evt_weight_ );
+            dir->second["THad_P_Uncorrected"].fill( perm.THad().P(), evt_weight_ );
+            dir->second["THad_P_Corrected"].fill( corr_thad.P(), evt_weight_ );
+            dir->second["THad_E_Uncorrected"].fill( perm.THad().E(), evt_weight_ );
+            dir->second["THad_E_Corrected"].fill( corr_thad.E(), evt_weight_ );
+
+            dir->second["TTbar_Mass_Uncorrected"].fill( perm.LVect().M(), evt_weight_ );
+            dir->second["TTbar_Mass_Corrected"].fill( (corr_thad + perm.TLep()).M(), evt_weight_ );
+
+            dir->second["Computed_Alpha_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), alpha_corr_.alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+            dir->second["Median_Alpha_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), alpha_corr_.median_alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+            dir->second["Alpha_Diff_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), alpha_corr_.alpha(perm, fit_deg, fit_var, fit_range)-alpha_corr_.median_alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+            dir->second["AlphaE_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ );
+            dir->second["AlphaP_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), ttbar.had_top()->P()/perm.THad().P(), evt_weight_ );
+        }
+
+
 
         void fill_resolution_plots( string folder, string cat, GenTTBar &ttbar, Permutation &perm ){
             //auto reso_dir = histos_.find(folder+"/Resolution"+cat);
-            auto reso_costh_dir = histos_.find(folder+"/Resolution/Costh"+cat);
-            auto reso_mass_dir = histos_.find(folder+"/Resolution/Mass"+cat);
+            auto uncorr_reso_costh_dir = histos_.find(folder+"/Resolution/Costh"+cat+"/Uncorrected");
+            auto uncorr_reso_mass_dir = histos_.find(folder+"/Resolution/Mass"+cat+"/Uncorrected");
 
+//cout << endl;
+//cout << "Event: " << evt_idx_ << endl;
+//cout << "   Original THad M(thad) Res: " << ttbar.had_top()->M() - perm.THad().M() << ", M(tt) Res: " << ttbar.M() - perm.LVect().M() << ", 173.1/Reco M(thad): " << 173.1/perm.THad().M() << ", Reco M(tt): " << perm.LVect().M() << ", pT: " << perm.THad().Pt() << ", E: " << perm.THad().E() << ", P: " << perm.THad().P() << endl;
 
             // costheta variables
             std::pair< double, double > gen_cosths = gen_costh_tops(ttbar); // < gen thad, tlep costh >
@@ -405,20 +497,49 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             for( auto fit_deg : fit_degrees ){
                 for( auto fit_var : fit_vars ){
                     for( auto fit_range : fit_ranges ){
-                        string hname = fit_deg+"_"+fit_var+"_"+fit_range;
+                        string hname = "/Corrected_"+fit_deg+"_"+fit_var+"_"+fit_range;
+                        auto corr_reso_costh_dir = histos_.find(folder+"/Resolution/Costh"+cat+hname);
+                        auto corr_reso_mass_dir = histos_.find(folder+"/Resolution/Mass"+cat+hname);
 
                             // get corrected thad 4-vec and costhetastar vals
                         TLorentzVector Alpha_THad = alpha_corr_.Alpha_THad(perm, fit_deg, fit_var, fit_range);
                         double alpha_thad_cth = alpha_corr_.alpha_thad_cthstar(perm, fit_deg, fit_var, fit_range);
 
+                        //TLorentzVector median_Alpha_THad = alpha_corr_.median_Alpha_THad(perm, fit_deg, fit_var, fit_range);
+
+                        //cout << "   " << hname << ", alpha = " << alpha_corr_.alpha(perm, fit_deg, fit_var, fit_range) << ", median alpha: " << alpha_corr_.median_alpha(perm, fit_deg, fit_var, fit_range) << endl;
+                        //cout << "       Corrected M(thad) Res: " << ttbar.had_top()->M()-Alpha_THad.M() << ", M(tt) Res: " << ttbar.M()-(Alpha_THad + perm.TLep()).M() << ", Reco M(thad): " << Alpha_THad.M() << ", Reco M(tt): " << (Alpha_THad + perm.TLep()).M() << ", pT: " << Alpha_THad.Pt() << ", Mass: " << Alpha_THad.M() << ", E: " << Alpha_THad.E() << ", P: " << Alpha_THad.P() << endl;
+                        //cout << "       Median Corrected M(thad) Res: " << ttbar.had_top()->M()-median_Alpha_THad.M() << ", M(tt) Res: " << ttbar.M()-(median_Alpha_THad + perm.TLep()).M() << ", Reco M(thad): " << median_Alpha_THad.M() << ", Reco M(tt): " << (median_Alpha_THad + perm.TLep()).M() << ", pT: " << median_Alpha_THad.Pt() << ", Mass: " << median_Alpha_THad.M() << ", E: " << median_Alpha_THad.E() << ", P: " << median_Alpha_THad.P() << endl;
+
+
+                            // investigate shoulder in Mthad resolution dists
+                        if( ttbar.had_top()->M() - Alpha_THad.M() < 30 ){
+                            fill_shoulder_resolution_plots( folder+"/Resolution/Mass"+cat+hname+"/L30", ttbar, perm, Alpha_THad, fit_deg, fit_var, fit_range );
+                        }
+                        else{
+                            fill_shoulder_resolution_plots( folder+"/Resolution/Mass"+cat+hname+"/G30", ttbar, perm, Alpha_THad, fit_deg, fit_var, fit_range );
+                        }
+
                             // fill plots for corrected thad
-                        reso_mass_dir->second["THad_Corrected_"+hname].fill( ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
-                        reso_mass_dir->second["TTbar_Corrected_"+hname].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
-                        reso_mass_dir->second["Reso_MTTbar_vs_Gen_MTTbar_Corrected_"+hname].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
-                        reso_mass_dir->second["Frac_THad_Corrected_"+hname].fill( (ttbar.had_top()->M() - Alpha_THad.M())/ttbar.had_top()->M(), evt_weight_ );
-                        reso_mass_dir->second["Frac_TTbar_Corrected_"+hname].fill( (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
-                        reso_mass_dir->second["Frac_TTbar_vs_Gen_THadPt_Corrected_"+hname].fill( ttbar.had_top()->Pt(), (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
-                        reso_costh_dir->second["THad_Corrected_"+hname].fill( gen_cosths.first - alpha_thad_cth, evt_weight_);
+                        corr_reso_mass_dir->second["THad"].fill( ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                        corr_reso_mass_dir->second["TTbar"].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                        corr_reso_mass_dir->second["Alpha_vs_Gen_MTTbar"].fill( ttbar.M(), alpha_corr_.alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+                        corr_reso_mass_dir->second["Median_Alpha_vs_Gen_MTTbar"].fill( ttbar.M(), alpha_corr_.median_alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+                        corr_reso_mass_dir->second["Alpha_Diff_vs_Gen_MTTbar"].fill( ttbar.M(), alpha_corr_.alpha(perm, fit_deg, fit_var, fit_range)-alpha_corr_.median_alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+                        corr_reso_mass_dir->second["Computed_Alpha_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), alpha_corr_.alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+                        corr_reso_mass_dir->second["Median_Alpha_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), alpha_corr_.median_alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+                        corr_reso_mass_dir->second["Alpha_Diff_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), alpha_corr_.alpha(perm, fit_deg, fit_var, fit_range)-alpha_corr_.median_alpha(perm, fit_deg, fit_var, fit_range), evt_weight_ );
+                        corr_reso_mass_dir->second["Reso_MTTbar_vs_Gen_MTTbar"].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                        corr_reso_mass_dir->second["Reso_MTHad_vs_Gen_MTTbar"].fill( ttbar.M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                        corr_reso_mass_dir->second["Reso_MTHad_vs_Gen_THadPt"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                        corr_reso_mass_dir->second["Reso_MTHad_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                        corr_reso_mass_dir->second["Reso_THadPt_vs_Gen_THadPt"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - Alpha_THad.Pt(), evt_weight_ );
+                        corr_reso_mass_dir->second["Reso_THadEta_vs_Gen_THadEta"].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - Alpha_THad.Eta(), evt_weight_ );
+                        corr_reso_mass_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar"].fill( ttbar.Eta(), ttbar.Eta() - (Alpha_THad +perm.TLep()).Eta(), evt_weight_ );
+                        //reso_mass_dir->second["Frac_THad_Corrected_"+hname].fill( (ttbar.had_top()->M() - Alpha_THad.M())/ttbar.had_top()->M(), evt_weight_ );
+                        //reso_mass_dir->second["Frac_TTbar_Corrected_"+hname].fill( (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
+                        //reso_mass_dir->second["Frac_TTbar_vs_Gen_THadPt_Corrected_"+hname].fill( ttbar.had_top()->Pt(), (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
+                        corr_reso_costh_dir->second["THad"].fill( gen_cosths.first - alpha_thad_cth, evt_weight_);
 
                         //if( ttbar.M() - (Alpha_THad + perm.TLep()).M() > ttbar.M()/3. ){
                         //    reso_dir->second["Reso_MTTbar_Corrected_GCut_THadPt_vs_Gen_MTTbar"].fill( ttbar.M(), Alpha_THad.Pt(), evt_weight_ );
@@ -437,13 +558,24 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             }
 
                 // fill plots for original thad
-            reso_mass_dir->second["THad"].fill( ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
-            reso_mass_dir->second["TTbar"].fill( ttbar.M() - perm.LVect().M(), evt_weight_ );
-            reso_mass_dir->second["Reso_MTTbar_vs_Gen_MTTbar"].fill( ttbar.M(), ttbar.M() - perm.LVect().M(), evt_weight_ );
-            reso_mass_dir->second["Frac_THad"].fill( (ttbar.had_top()->M() - perm.THad().M())/ttbar.had_top()->M(), evt_weight_ );
-            reso_mass_dir->second["Frac_TTbar"].fill( (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
-            reso_mass_dir->second["Frac_TTbar_vs_Gen_THadPt"].fill( ttbar.had_top()->Pt(), (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
-            reso_costh_dir->second["THad"].fill( gen_cosths.first - reco_thad_cth, evt_weight_ );
+            uncorr_reso_mass_dir->second["THad"].fill( ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+            uncorr_reso_mass_dir->second["TTbar"].fill( ttbar.M() - perm.LVect().M(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_MTTbar_vs_Gen_MTTbar"].fill( ttbar.M(), ttbar.M() - perm.LVect().M(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_MTHad_vs_Gen_MTTbar"].fill( ttbar.M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_MTHad_vs_Gen_THadPt"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_MTHad_vs_Uncorrected_MTHad"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_THadPt_vs_Gen_THadPt"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - perm.THad().Pt(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_THadEta_vs_Gen_THadEta"].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - perm.THad().Eta(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar"].fill( ttbar.Eta(), ttbar.Eta() - perm.LVect().Eta(), evt_weight_ );
+            //uncorr_reso_mass_dir->second["Frac_THad"].fill( (ttbar.had_top()->M() - perm.THad().M())/ttbar.had_top()->M(), evt_weight_ );
+            //uncorr_reso_mass_dir->second["Frac_TTbar"].fill( (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
+            //uncorr_reso_mass_dir->second["Frac_TTbar_vs_Gen_THadPt"].fill( ttbar.had_top()->Pt(), (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
+
+            uncorr_reso_mass_dir->second["TLep"].fill( ttbar.lep_top()->M() - perm.TLep().M(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_TLepPt_vs_Gen_TLepPt"].fill( ttbar.lep_top()->Pt(), ttbar.lep_top()->Pt() - perm.TLep().Pt(), evt_weight_ );
+            uncorr_reso_mass_dir->second["Reso_TLepEta_vs_Gen_TLepEta"].fill( ttbar.lep_top()->Eta(), ttbar.lep_top()->Eta() - perm.TLep().Eta(), evt_weight_ );
+
+            uncorr_reso_costh_dir->second["THad"].fill( gen_cosths.first - reco_thad_cth, evt_weight_ );
 
         }
 
@@ -466,20 +598,40 @@ class ttbar_post_alpha_reco : public AnalyzerBase
                             // fill plots for corrected thad
                         reso_part_dir->second["Reso_MTTbar_All_Corrected_"+hname].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
                         reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_All_Corrected_"+hname].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                        reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_All_Corrected_"+hname].fill( ttbar.M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                        reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_All_Corrected_"+hname].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                        reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_All_Corrected_"+hname].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - Alpha_THad.Pt(), evt_weight_ );
+                        reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_All_Corrected_"+hname].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - Alpha_THad.Eta(), evt_weight_ );
+                        reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_All_Corrected_"+hname].fill( ttbar.Eta(), ttbar.Eta() - (Alpha_THad + perm.TLep()).Eta(), evt_weight_ );
                         reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_All_Corrected_"+hname].fill( ttbar.had_top()->Pt(), (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
                         if( ttbar.two_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                             reso_part_dir->second["Reso_MTTbar_2Partons_Corrected_"+hname].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
                             reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_2Partons_Corrected_"+hname].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                            reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_2Partons_Corrected_"+hname].fill( ttbar.M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                            reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_2Partons_Corrected_"+hname].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                            reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_2Partons_Corrected_"+hname].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - Alpha_THad.Pt(), evt_weight_ );
+                            reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_2Partons_Corrected_"+hname].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - Alpha_THad.Eta(), evt_weight_ );
+                            reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_2Partons_Corrected_"+hname].fill( ttbar.Eta(), ttbar.Eta() - (Alpha_THad + perm.TLep()).Eta(), evt_weight_ );
                             reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_2Partons_Corrected_"+hname].fill( ttbar.had_top()->Pt(), (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
                         }
                         if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                             reso_part_dir->second["Reso_MTTbar_3Partons_Corrected_"+hname].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
                             reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_3Partons_Corrected_"+hname].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                            reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_3Partons_Corrected_"+hname].fill( ttbar.M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                            reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_3Partons_Corrected_"+hname].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                            reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_3Partons_Corrected_"+hname].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - Alpha_THad.Pt(), evt_weight_ );
+                            reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_3Partons_Corrected_"+hname].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - Alpha_THad.Eta(), evt_weight_ );
+                            reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_3Partons_Corrected_"+hname].fill( ttbar.Eta(), ttbar.Eta() - (Alpha_THad + perm.TLep()).Eta(), evt_weight_ );
                             reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_3Partons_Corrected_"+hname].fill( ttbar.had_top()->Pt(), (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
                         }
                         if( ttbar.all_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                             reso_part_dir->second["Reso_MTTbar_4Partons_Corrected_"+hname].fill( ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
                             reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_4Partons_Corrected_"+hname].fill( ttbar.M(), ttbar.M() - (Alpha_THad + perm.TLep()).M(), evt_weight_ );
+                            reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_4Partons_Corrected_"+hname].fill( ttbar.M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                            reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_4Partons_Corrected_"+hname].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - Alpha_THad.M(), evt_weight_ );
+                            reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_4Partons_Corrected_"+hname].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - Alpha_THad.Pt(), evt_weight_ );
+                            reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_4Partons_Corrected_"+hname].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - Alpha_THad.Eta(), evt_weight_ );
+                            reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_4Partons_Corrected_"+hname].fill( ttbar.Eta(), ttbar.Eta() - (Alpha_THad + perm.TLep()).Eta(), evt_weight_ );
                             reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_4Partons_Corrected_"+hname].fill( ttbar.had_top()->Pt(), (ttbar.M() - (Alpha_THad + perm.TLep()).M())/ttbar.M(), evt_weight_ );
                         }
                     }
@@ -491,21 +643,41 @@ class ttbar_post_alpha_reco : public AnalyzerBase
                         // combined categores
             reso_part_dir->second["Reso_MTTbar_All"].fill( ttbar.M() - perm.LVect().M(), evt_weight_ );
             reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_All"].fill( ttbar.M(), ttbar.M() - perm.LVect().M(), evt_weight_ );
+            reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_All"].fill( ttbar.M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+            reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_All"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+            reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_All"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - perm.THad().Pt(), evt_weight_ );
+            reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_All"].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - perm.THad().Eta(), evt_weight_ );
+            reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_All"].fill( ttbar.Eta(), ttbar.Eta() - perm.LVect().Eta(), evt_weight_ );
             reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_All"].fill( ttbar.had_top()->Pt(), (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
 
             if( ttbar.two_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 reso_part_dir->second["Reso_MTTbar_2Partons"].fill( ttbar.M() - perm.LVect().M(), evt_weight_ );
                 reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_2Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M(), evt_weight_ );
+                reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_2Partons"].fill( ttbar.M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+                reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_2Partons"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+                reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_2Partons"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - perm.THad().Pt(), evt_weight_ );
+                reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_2Partons"].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - perm.THad().Eta(), evt_weight_ );
+                reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_2Partons"].fill( ttbar.Eta(), ttbar.Eta() - perm.LVect().Eta(), evt_weight_ );
                 reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_2Partons"].fill( ttbar.had_top()->Pt(), (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
             }
             if( ttbar.three_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 reso_part_dir->second["Reso_MTTbar_3Partons"].fill( ttbar.M() - perm.LVect().M(), evt_weight_ );
                 reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_3Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M(), evt_weight_ );
+                reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_3Partons"].fill( ttbar.M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+                reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_3Partons"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+                reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_3Partons"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - perm.THad().Pt(), evt_weight_ );
+                reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_3Partons"].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - perm.THad().Eta(), evt_weight_ );
+                reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_3Partons"].fill( ttbar.Eta(), ttbar.Eta() - perm.LVect().Eta(), evt_weight_ );
                 reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_3Partons"].fill( ttbar.had_top()->Pt(), (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
             }
             if( ttbar.all_partons_in_acceptance(cut_jet_ptmin_, cut_jet_etamax_, cut_leadjet_ptmin_) ){
                 reso_part_dir->second["Reso_MTTbar_4Partons"].fill( ttbar.M() - perm.LVect().M(), evt_weight_ );
                 reso_part_dir->second["Reso_MTTbar_vs_Gen_MTTbar_4Partons"].fill( ttbar.M(), ttbar.M() - perm.LVect().M(), evt_weight_ );
+                reso_part_dir->second["Reso_MTHad_vs_Gen_MTTbar_4Partons"].fill( ttbar.M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+                reso_part_dir->second["Reso_MTHad_vs_Uncorrected_MTHad_4Partons"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M() - perm.THad().M(), evt_weight_ );
+                reso_part_dir->second["Reso_THadPt_vs_Gen_THadPt_4Partons"].fill( ttbar.had_top()->Pt(), ttbar.had_top()->Pt() - perm.THad().Pt(), evt_weight_ );
+                reso_part_dir->second["Reso_THadEta_vs_Gen_THadEta_4Partons"].fill( ttbar.had_top()->Eta(), ttbar.had_top()->Eta() - perm.THad().Eta(), evt_weight_ );
+                reso_part_dir->second["Reso_EtaTTbar_vs_Gen_EtaTTbar_4Partons"].fill( ttbar.Eta(), ttbar.Eta() - perm.LVect().Eta(), evt_weight_ );
                 reso_part_dir->second["Frac_MTTbar_vs_Gen_THadPt_4Partons"].fill( ttbar.had_top()->Pt(), (ttbar.M() - perm.LVect().M())/ttbar.M(), evt_weight_ );
             }
 
@@ -515,7 +687,7 @@ class ttbar_post_alpha_reco : public AnalyzerBase
         void fill_plots( string folder, string cat, GenTTBar &ttbar, Permutation &perm ){
             fill_reconstruction_plots( folder, cat, ttbar, perm );
             fill_resolution_plots( folder, cat, ttbar, perm );
-            fill_parton_accept_plots( folder, cat, ttbar, perm );
+            //fill_parton_accept_plots( folder, cat, ttbar, perm );
         }
 
         /// book and fill plots for matched permutations
@@ -587,18 +759,20 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             // LOST 3-jet events
             vector<string> lost_evt_type_categories = {"NO_MP", // categories for best perm
                 "CORRECT_WJET_CORRECT_Bs", "CORRECT_WJET_SWAPPED_Bs", "CORRECT_WJET_CORRECT_BHAD", "CORRECT_WJET_CORRECT_BLEP", "CORRECT_WJET_WRONG_Bs",
-                "WRONG_WJET_CORRECT_Bs", "WRONG_WJET_SWAPPED_Bs", "WRONG_WJET_CORRECT_BHAD", "WRONG_WJET_CORRECT_BLEP", "WRONG_WJET_WRONG_Bs"
+                "WRONG_WJET_CORRECT_Bs", "WRONG_WJET_SWAPPED_Bs", "WRONG_WJET_CORRECT_BHAD", "WRONG_WJET_CORRECT_BLEP", "WRONG_WJET_WRONG_Bs",
+
+                "Lost_Jets", "Merged_Jets"
             };
 
-            // matched perm
-            vector<string> matched_perm_nunique_solutions = {
-                "0", "1", "2", "3"
-            };
-            vector<string> matched_perm_3matches_evt_tyes = {
-                "Lost/BHad", "Lost/BLep", "Lost/WJa", "Lost/WJb",
-                "Merged/BHadBLep", "Merged/BHadWJa", "Merged/BHadWJb",
-                "Merged/BLepWJa", "Merged/BLepWJb", "Merged/WJets"
-            };
+            //// matched perm
+            //vector<string> matched_perm_nunique_solutions = {
+            //    "0", "1", "2", "3"
+            //};
+            //vector<string> matched_perm_3matches_evt_tyes = {
+            //    "Lost/BHad", "Lost/BLep", "Lost/WJa", "Lost/WJb",
+            //    "Merged/BHadBLep", "Merged/BHadWJa", "Merged/BHadWJb",
+            //    "Merged/BLepWJa", "Merged/BLepWJb", "Merged/WJets"
+            //};
 
             for( auto& sys : systematics_ ){
                 string sys_name = systematics::shift_to_name.at(sys);
@@ -611,20 +785,20 @@ class ttbar_post_alpha_reco : public AnalyzerBase
                     book_plots(lost_bp_dname+"/Post_Alpha_Correction/"+lost_evt_type_cat, "" );
                 }
 
-                string mp_dname = "3J/"+sys_name+"/Matched_Perm";
-                // plots for matched perm
-                for( auto mp_solution : matched_perm_nunique_solutions ){
-                    // plots for lost_bp from 3-jet events
-                    if( mp_solution == "3" ){
-                        for( auto evt_type : matched_perm_3matches_evt_tyes ){
-                            book_plots(mp_dname+"/Post_Alpha_Correction", "/"+mp_solution+"/"+evt_type );
-                        }
-                    }
-                    else{
-                        book_plots(mp_dname+"/Post_Alpha_Correction", "/"+mp_solution );
-                    }
+                //// plots for matched perm
+                //string mp_dname = "3J/"+sys_name+"/Matched_Perm";
+                //for( auto mp_solution : matched_perm_nunique_solutions ){
+                //    // plots for lost_bp from 3-jet events
+                //    if( mp_solution == "3" ){
+                //        for( auto evt_type : matched_perm_3matches_evt_tyes ){
+                //            book_plots(mp_dname+"/Post_Alpha_Correction", "/"+mp_solution+"/"+evt_type );
+                //        }
+                //    }
+                //    else{
+                //        book_plots(mp_dname+"/Post_Alpha_Correction", "/"+mp_solution );
+                //    }
 
-                }
+                //}
             }
 
             Logger::log().debug() << "End of begin() " << evt_idx_ << endl;
@@ -758,9 +932,9 @@ class ttbar_post_alpha_reco : public AnalyzerBase
                     object_selector_.met(),
                     object_selector_.lepton_charge());
 
-                // matched perm plots
-            string mp_cat = matched_perm_categories( mp );
-            fill_plots( dname+"/Matched_Perm/Post_Alpha_Correction", "/"+mp_cat, ttbar, lost_bp);
+            //    // matched perm plots
+            //string mp_cat = matched_perm_categories( mp );
+            //fill_plots( dname+"/Matched_Perm/Post_Alpha_Correction", "/"+mp_cat, ttbar, lost_bp);
 
             string lost_perm_status;
             if( mp.IsEmpty() || ( !(mp.BHad() && mp.BLep()) && !(mp.WJa() || mp.WJb()) ) ) lost_perm_status = "NO_MP"; // check if mp exists, has bhad and blep and at least one wjet
@@ -786,6 +960,14 @@ class ttbar_post_alpha_reco : public AnalyzerBase
 
             // break dists up by classification comparing best_perm and matched_perm
             fill_plots( dname+"/Lost_BP/Post_Alpha_Correction/"+lost_perm_status, "", ttbar, lost_bp);
+
+            // break up dists based on matched perm being lost or merged
+            if( mp.Lost_Event() ){
+                fill_plots( dname+"/Lost_BP/Post_Alpha_Correction/Lost_Jets", "", ttbar, lost_bp);
+            }
+            if( mp.Merged_Event() ){
+                fill_plots( dname+"/Lost_BP/Post_Alpha_Correction/Merged_Jets", "", ttbar, lost_bp);
+            }
 
         } // end of lost_bp_cats
 
@@ -874,7 +1056,7 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             int report = values["report"].as<int>();
             Logger::log().debug() << "-- DONE -- reporting every -- " << report << " out of " << tree_->GetEntries() << endl;
 
-            //int limit = 10;
+            //int limit = 1000;
             int limit = -100;
 
             URStreamer event(tree_);

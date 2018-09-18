@@ -17,6 +17,7 @@ class Alpha_Corrections {
     private:
 
         double alpha_;
+        double median_alpha_;
         json jsonFile_;
 
     public:
@@ -25,8 +26,10 @@ class Alpha_Corrections {
         ~Alpha_Corrections();
 
         double alpha(Permutation &perm, string fit_degree, string fit_var, string fit_range);
-
         TLorentzVector Alpha_THad(Permutation &perm, string fit_degree, string fit_var, string fit_range);
+
+        double median_alpha(Permutation &perm, string fit_degree, string fit_var, string fit_range);
+        TLorentzVector median_Alpha_THad(Permutation &perm, string fit_degree, string fit_var, string fit_range);
 
         double alpha_thad_cthstar(Permutation &perm, string fit_degree, string fit_var, string fit_range);
 
