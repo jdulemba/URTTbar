@@ -123,7 +123,8 @@ bool IDMuon::ID(IDS idtyp)
     }
     else if(idtyp == IDMuon::IDS::ANTILOOSE_15Db) {
         double relIso = (PFIsoDb()/Pt());
-        return isTight() && 0.15 <= relIso && relIso < 0.43;
+        return isTight() && 0.15 <= relIso && relIso < 0.5;
+        //return isTight() && 0.15 <= relIso && relIso < 0.43;
     }
     return(false);
 }
