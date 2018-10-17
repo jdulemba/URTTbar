@@ -29,6 +29,7 @@ from URAnalysis.Utilities.datacard import DataCard
 from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.Utilities.latex import t2latex
 from URAnalysis.Utilities.roottools import Envelope
+from URAnalysis.PlotTools.views.RebinView import RebinView
 import re
 import itertools
 import rootpy.stats as stats
@@ -48,6 +49,7 @@ parser.add_argument('--card', action='store_true', help='')
 parser.add_argument('--sysplots', action='store_true', help='dumps systematics plots, valid only if --card')
 parser.add_argument('--smoothsys', action='store_true', help='')
 parser.add_argument('--njets', default='', help='choose 3, 4+')
+parser.add_argument('--qcd_yields', default=False, help='Makes table comparing QCD yields from different methods, file with values used in ML Fit')
 #parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 args = parser.parse_args()
 
@@ -905,35 +907,8 @@ class HTTPlotter(Plotter):
                 )
         return ret
 
-    #def create_mtt_root(self, fname):
-    #    # create and then move to correct directory to get full tdir path
-    #    with io.root_open(fname, 'w') as out:
-    #        for lepiso in ['looseNOTTight', 'tight']:
-    #            out.mkdir(lepiso).cd()
-    #            for mt in ['MTHigh', 'MTLow']:
-    #                out.mkdir(lepiso+'/'+mt).cd()
 
-
-    #def make_mtt_plots(self, tdir, fname):
-    #    hists = [ i.Get('njets') for i in plotter.mc_views(1, None, 'nosys/%s' % tdir) ]
-    #    if tdir != 'tight/MTHigh':
-    #        data = self.get_view('data').Get('nosys/%s/njets' % tdir)
-    #        hists.append(data)
-    #    names = [i.title for i in hists]
-    #    yields = [i.Integral() for i in hists]
-    #    [ hists[i].set_name(hists[i].title) for i in range(len(hists))] # set hist name to QCD, EW, Single...
-    #    mtt_dict[tdir] = hists
-    #    #set_trace()
-    #    #open root file
-    #    with io.root_open(fname, 'update') as out:
-    #        #set_trace()
-    #        #move to correct directory to get full tdir path
-    #        out.cd(tdir)
-    #        for hist in hists:
-    #            hist.Write()
-
-
-    def QCD_est_from_MC_scale(self, var): ## find amount of QCD in each of the 4 regions only based on MC simulation
+    def QCD_est_from_MC(self, var): ## find amount of QCD in each of the 4 regions only based on MC simulation
 
         N_A = 0 # amount of QCD in signal region just from MC
         N_B = 0
@@ -944,8 +919,10 @@ class HTTPlotter(Plotter):
             qcd_hist = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s' % tdir, False) if i.Get(var).title == 'QCD' ][0]
             qcd_hist.set_name('QCD')
 
-            set_trace()
-            N = qcd_hist.Integral()
+            #set_trace()
+            qcd_error = ROOT.Double()
+            N = (qcd_hist.IntegralAndError(1, qcd_hist.nbins()+1, qcd_error), qcd_error)
+            #N = qcd_hist.Integral()
             if tdir == 'tight/MTHigh':
                 N_A = N
             if tdir == 'tight/MTLow':
@@ -956,31 +933,39 @@ class HTTPlotter(Plotter):
                 N_C = N
             #set_trace()
 
-        ##### get scale Na = Nb*(Nc/Nd)
-        #N_A = N_B*(N_C/N_D)
         #set_trace()
         return N_A
 
 
-    def QCD_est_from_abcd_scale(self, var):
+    def QCD_est_from_abcd(self, var):
 
         N_B = 0
         N_C = 0
         N_D = 0
         for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh', 'MTLow']):
             tdir = '%s/%s' % dirid
-            if tdir == 'tight/MTHigh':
-                continue
+            yields_dict[tdir] = {}
+            #if tdir == 'tight/MTHigh':
+            #    continue
             #set_trace()
             mc_hists = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s' % tdir, False) if i.Get(var).title != 'QCD' ]
             mc_names = [i.title for i in mc_hists]
             [ mc_hists[i].set_name(mc_hists[i].title) for i in range(len(mc_hists))] # set hist name to QCD, EW, Single...
+            prompt_hist = sum(mc_hists)
+            prompt_hist.set_name('Prompt MC')
+
             data_hist = self.get_view('data').Get('nosys/%s/%s' % (tdir, var))
             data_hist.set_name(data_hist.title)
 
-            set_trace()
+            data_error = ROOT.Double()
+            yields_dict[tdir]['Observed'] = (data_hist.IntegralAndError(1, data_hist.nbins()+1, data_error), data_error)
+            prompt_error = ROOT.Double()
+            yields_dict[tdir]['Prompt'] = (prompt_hist.IntegralAndError(1, prompt_hist.nbins()+1, prompt_error), prompt_error)
+            #set_trace()
+
             ### subtract all mc (except QCD) from data in all regions
-            N = data_hist.Integral() - sum(mc_hists).Integral()
+            N = data_hist - prompt_hist
+            #N = data_hist.Integral() - sum(mc_hists).Integral()
             if tdir == 'tight/MTLow':
                 N_B = N
             if tdir == 'looseNOTTight/MTLow':
@@ -990,52 +975,131 @@ class HTTPlotter(Plotter):
             #set_trace()
 
         #### get scale Na = Nb*(Nc/Nd)
-        N_A = N_B*(N_C/N_D)
         #set_trace()
-        return N_A
+        N_A = N_B*(N_C/N_D)
+        N_A_error = ROOT.Double()
+        return (N_A.IntegralAndError(1, N_A.nbins()+1, N_A_error), N_A_error)
 
 
-    #def qcd_norm(self, fname, scale, var):
-    #    shape_region = 'tight/MTLow'
-    #    signal_region = 'tight/MTHigh'
-    #    qcd_shape_hist = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s' % shape_region) if i.Get(var).title == 'QCD' ][0]
-    #    #N_C = 0
-    #    #N_D = 0
-    #    set_trace()
-    #    #for key in mtt_dict.keys():
+    def QCD_est_from_mlFit(self):
 
-    #    #    if key == 'tight/MTHigh':
-    #    #        continue
-    #    #    ## find indices for observed and ttbar hists in dictionary
-    #    #    obs_idx = [ n for n,i in enumerate(mtt_dict[key]) if i.name == 'Observed' ][0]
-    #    #    tt_idx = [ n for n,i in enumerate(mtt_dict[key]) if i.name == 't#bar{t}' ][0]
-    #    #    singlet_idx = [ n for n,i in enumerate(mtt_dict[key]) if i.name == 'single top' ][0]
-    #    #    ew_idx = [ n for n,i in enumerate(mtt_dict[key]) if i.name == 'EW' ][0]
+        #set_trace()
+        folder = ('/').join([os.getcwd(), 'htt_scripts'])
+        #yields = prettyjson.loads(open('%s/mlFit_yields_orig_lepIso.json' % folder).read())
+        yields = prettyjson.loads(open('%s/mlFit_yields_new_lepIso.json' % folder).read())
+        scale = yields[args.mode][args.njets]
+        error = (scale, scale*0.5)
 
-    #    #    ### subtract all mc (except QCD) from data in all regions
-    #    #    N = (mtt_dict[key][obs_idx]-(mtt_dict[key][tt_idx]+mtt_dict[key][singlet_idx]+mtt_dict[key][ew_idx])).Integral()
+        return scale, error
 
-    #    #    if key == 'tight/MTLow':
-    #    #        N_B = N
-    #    #    if key == 'looseNOTTight/MTLow':
-    #    #        N_D = N
-    #    #    if key == 'looseNOTTight/MTHigh':
-    #    #        N_C = N
-    #    #        #set_trace()
 
-    #    #### get scale Na = Nb*(Nc/Nd)
-    #    #N_A = N_B*(N_C/N_D)
-    #    ##set_trace()
-    #    #qcd_shape = [ i for i in mtt_dict['looseNOTTight/MTHigh'] if i.name == 'QCD' ][0]  # get shape of QCD from region C
-    #    #qcd_hist = qcd_shape*(N_A/qcd_shape.Integral())
-    #    #qcd_hist.set_name('QCD_est')
-    #    #qcd_hist.set_title('QCD Estimation')
-    #    #with io.root_open(fname, 'update') as out:
-    #    #    qcd_hist.Write()
-    #    #set_trace()
+    def compare_QCD_estimations(self):
+
+        variables = [
+            (False, "MT" , "M_{T}",  10, (0, 300), False),
+            (False, "lep_iso", 'l rel Iso', 1, [0,1], False),
+        ]
+
+        lep_isos = ['tight', 'looseNOTTight']
+        mt_regions = ['MTHigh', 'MTLow']
+
+        for logy, var, axis, rebin, x_range, leftside in variables:
+
+            region_change = lep_isos if var == 'MT' else mt_regions
+            comb_region = mt_regions if var == 'MT' else lep_isos
+
+            for cut in region_change:
+                labelSizeFactor1, labelSizeFactor2 = plotter.dual_pad_format()
+                plotter.label_factor = labelSizeFactor1
+
+                tdirs = ['%s/%s' % (cut, region) for region in comb_region] if comb_region == mt_regions else ['%s/%s' % (region, cut) for region in comb_region]
+                #set_trace()
+
+                    ## get MC contribution
+                Region_1_MC = plotter.make_stack(rebin, None, 'nosys/%s' % tdirs[0], False, False, None).Get(var)
+                Region_2_MC = plotter.make_stack(rebin, None, 'nosys/%s' % tdirs[1], False, False, None).Get(var)
+                MT_MC_stack = Region_1_MC+Region_2_MC
+
+                        ## style mc stack
+                plotter.style_histo(MT_MC_stack)
+                MT_MC_stack.Draw()
+                MT_MC_stack.GetHistogram().GetYaxis().SetTitle('events')
+                MT_MC_stack.GetHistogram().GetXaxis().SetTitle(axis)
+                label_size = ROOT.gStyle.GetTitleSize()*plotter.label_factor
+                MT_MC_stack.GetHistogram().GetYaxis().SetLabelSize(label_size)
+                MT_MC_stack.GetHistogram().GetXaxis().SetLabelSize(label_size)
+                MT_MC_stack.GetXaxis().SetRangeUser(x_range[0], x_range[1])
+                MT_MC_stack.Draw()
+
+                to_legend = [Region_1_MC]
+
+                    ## get data contribution
+                Region_1_data_corr_view = plotter.get_view('data')
+                Region_1_data_corr_view = plotter.get_wild_dir(plotter.rebin_view(Region_1_data_corr_view, rebin), 'nosys/%s' % tdirs[0])
+                Region_1_data = Region_1_data_corr_view.Get(var)
+                Region_2_data_corr_view = plotter.get_view('data')
+                Region_2_data_corr_view = plotter.get_wild_dir(plotter.rebin_view(Region_2_data_corr_view, rebin), 'nosys/%s' % tdirs[1])
+                Region_2_data = Region_2_data_corr_view.Get(var)
+                data = Region_1_data+Region_2_data
+                data.Draw('same')
+                to_legend.append(data)
+
+                # Add legend
+                plotter.add_legend(to_legend, leftside, entries=len(MT_MC_stack.GetHists())+len(to_legend)-1)
+                plotter.label_factor = labelSizeFactor2
+                for i in MT_MC_stack.hists:
+                    i.xaxis.title=axis
+                plotter.add_ratio_plot(data, MT_MC_stack, x_range=x_range, ratio_range=0.2)
+
+                plotter.set_subdir('3Jets') if args.njets == '3' else plotter.set_subdir('4PJets')
+                plotter.save('%s_%s_No_QCD_Est' % (cut, var) )
+                #set_trace()
+
+
+                    ### make comparison plots for data-prompt and QCD mc
+                ## data-prompt
+                mc_hists = [ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[0], False) if i.Get(var).title != 'QCD' ]+[ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[1], False) if i.Get(var).title != 'QCD' ]
+                prompt_hist = sum(mc_hists)
+                prompt_hist.set_name('Prompt MC')
+                data_minus_prompt = data - prompt_hist
+                plotter.set_histo_style(data_minus_prompt, xtitle=axis, ytitle='events', color='red', title='Data-Prompt')
+                data_minus_prompt.Draw()
+                data_minus_prompt.GetYaxis().SetLabelSize(label_size)
+                data_minus_prompt.GetXaxis().SetLabelSize(label_size)
+                data_minus_prompt.GetXaxis().SetRangeUser(x_range[0], x_range[1])
+                data_minus_prompt.Draw()
+
+                ## QCD mc
+                qcd_hist = sum([ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[0], False) if i.Get(var).title == 'QCD' ]+[ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[1], False) if i.Get(var).title == 'QCD' ])
+                plotter.set_histo_style(qcd_hist, xtitle=axis, ytitle='events', color='c', title='QCD MC', drawstyle='E0 X0', legendstyle='p')
+
+                yrange = plotter._get_y_range_(data_minus_prompt, qcd_hist)
+                #data_minus_prompt.SetMinimum(10**-3) #ignore minimum!
+                data_minus_prompt.SetMinimum(yrange[0])
+                data_minus_prompt.SetMaximum(yrange[1])
+
+                #set_trace()
+                plotter.overlay_and_compare([qcd_hist], data_minus_prompt, legend_def=LegendDefinition(position='NE'), legendstyle='p', method='ratio', lower_y_range=1.0, x_range=x_range)
+                plotter.save('%s_%s_QCD_DataMinusPrompt_Comp' % (cut, var))
+                #set_trace()
+
+                data_minus_prompt.SetMinimum(10**-3) #ignore minimum!
+                data_minus_prompt.SetMaximum(yrange[1])
+
+                #set_trace()
+                plotter.overlay([qcd_hist, data_minus_prompt], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=x_range, y_range=(10**-3, yrange[1]), logy=True)
+                #plotter.overlay_and_compare([qcd_hist], data_minus_prompt, legend_def=LegendDefinition(position='NE'), legendstyle='p', method='ratio', lower_y_range=1.0, x_range=x_range, y_range=(10**-1, yrange[1]), logy=True)
+                plotter.save('%s_%s_QCD_DataMinusPrompt_Comp_LogY' % (cut, var))
+
+
+
 
 
 plotter = HTTPlotter(args.mode)
+
+vars2D = [
+    ("MT_iso" , "M_{T}", "l rel Iso", np.linspace(0, 300, 301), np.linspace(0,1,21) ),
+]
 
 variables = [
   (False, "m_tt"    , "m(t#bar{t}) (GeV)", 1, None, False),       
@@ -1088,7 +1152,7 @@ permutations = [
     (False, "j2bratio", "p_{T}(j)/p_{T}(b)", 1, (0, 6), False),
 ]
 
-jet_categories = ["3jets", "4jets", "5Pjets"]
+#jet_categories = ["3jets", "4jets", "5Pjets"]
 
 #cut flow
 
@@ -1115,24 +1179,42 @@ if args.preselection or args.all:
             show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)        
         plotter.save(var)
 
+if args.qcd_yields:# or args.all:
+    yields_dict = {}
+    qcd_MC_scale, qcd_MC_error = plotter.QCD_est_from_MC('njets')
+    qcd_abcd_scale, qcd_abcd_error = plotter.QCD_est_from_abcd('njets')
+    qcd_mlFit_scale, qcd_mlFit_error = plotter.QCD_est_from_mlFit()
+
+    rows = [
+        ("Method", "Est. Value", "+", "-"),
+        ("MC simulation", format(qcd_MC_scale, '.0f'), format(qcd_MC_error, '.0f'), format(qcd_MC_error, '.0f')),
+        ("ABCD", format(qcd_abcd_scale, '.0f'), format(qcd_abcd_error, '.0f'), format(qcd_abcd_error, '.0f')),
+        ("ML Fit", format(qcd_mlFit_scale, '.0f'), format(qcd_mlFit_error[0], '.0f'), format(qcd_mlFit_error[1], '.0f'))
+    ]
+
+    fncts.print_table(rows, filename='%s/%s/QCD_Est_Results.raw_txt' % (plotter.outputdir, '3Jets' if args.njets == '3' else '4PJets') )
+    print '\n-----   Table comparing estimated QCD yields written to %s/%s/QCD_Est_Results.raw_txt   -----\n' % (plotter.outputdir, '3Jets' if args.njets == '3' else '4PJets')
+
+        ## creates file to be used in estimating background with ml Fit
+    with open('%s/%s/%s_%s_yields.json' % (plotter.outputdir, '3Jets' if args.njets == '3' else '4PJets', plotter.outputdir.split('/')[-1], '3Jets' if args.njets == '3' else '4PJets'), 'w') as f: # write to same dir as plots
+        f.write(prettyjson.dumps(yields_dict))
+    print '\n-----   File with values to be used in ML Fit for QCD yields written to %s/%s/%s_%s_yields.json   -----\n' %\
+                 (plotter.outputdir, '3Jets' if args.njets == '3' else '4PJets',\
+                  plotter.outputdir.split('/')[-1], '3Jets' if args.njets == '3' else '4PJets')
+
+
+
 if args.plots or args.all:
 
     qcd_renorm = True
     #qcd_renorm = False
-    qcd_abcd_scale = 1.
+    qcd_est_scale = 1.
     if qcd_renorm:
-        qcd_MC_scale = plotter.QCD_est_from_MC_scale('njets')
-        qcd_abcd_scale = plotter.QCD_est_from_abcd_scale('njets')
-        set_trace()
-    set_trace()
-    #    ## create file to save mtt hists for abcd method
-    #if args.njets == '3':
-    #    plotter.create_mtt_root(fname='3J_mtt_plots.root')
-    #elif args.njets == '4+':
-    #    plotter.create_mtt_root(fname='4PJ_mtt_plots.root')
-    #else:
-    #    plotter.create_mtt_root(fname='Incl_mtt_plots.root')
-    #mtt_dict = {}
+            ### estimate QCD scale from ml fit
+        qcd_est_scale, qcd_est_error = plotter.QCD_est_from_mlFit()
+
+    plotter.compare_QCD_estimations()
+    #set_trace()
     vals = []
     #for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh']):
     for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh', 'MTLow']):
@@ -1143,10 +1225,21 @@ if args.plots or args.all:
             plotter.set_subdir('4PJets/'+tdir)
         else:
             raise RuntimeError('Your choice for --njets is invalid!')
-            #plotter.set_subdir('Incl/'+tdir)
         #plotter.set_subdir(tdir)
         #set_trace()
         first = True
+
+        for var, xaxis, yaxis, xbins, ybins in vars2D:
+            for i in plotter.mc_views(1, None, 'nosys/%s' % tdir, False):
+                hist = i.Get(var)
+                hist = RebinView.newRebin2D(hist, xbins, ybins)
+                #set_trace()
+                plotter.set_histo_style(hist, xtitle=xaxis, ytitle=yaxis, drawstyle='colz')
+                plotter.plot(hist)
+                plotter.save('%s_%s' % (i.Get(var).title, var) )
+
+            #set_trace()
+
         #for logy, var, axis, rebin, x_range, leftside in variables:
         for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
             if 'discriminant' in var:
@@ -1157,7 +1250,7 @@ if args.plots or args.all:
                 #'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
-                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=qcd_abcd_scale)
+                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=qcd_est_scale)
             #set_trace()
             if first:
                 first = False
