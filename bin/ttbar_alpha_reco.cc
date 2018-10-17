@@ -411,16 +411,23 @@ class ttbar_alpha_reco : public AnalyzerBase
         /// book and fill plots for hadronic top mass corrections for lost-jet events
         void book_alpha_correction_plots( string folder ){
 
+                // 3D plots of ( x=173.1/Mth, y=Mtt, z=alpha )
+            book<TH3D>(folder+"/THad_P", "Alpha_THad_P_Mtt_vs_Mthad_vs_Alpha", ";173.1/M(t_{h}); M(t#bar{t}); #alpha_{P}= Gen P(t_{h})/Reco P(t_{h})", 32, 0.9, 2.5, 36, 200., 2000., 500, 0., 10.);
+            book<TH3D>(folder+"/THad_E", "Alpha_THad_E_Mtt_vs_Mthad_vs_Alpha", ";173.1/M(t_{h}); M(t#bar{t}); #alpha_{E}= Gen E(t_{h})/Reco E(t_{h})", 32, 0.9, 2.5, 36, 200., 2000., 500, 0., 10.);
+            book<TH3D>(folder+"/THad_M", "Alpha_THad_M_Mtt_vs_Mthad_vs_Alpha", ";173.1/M(t_{h}); M(t#bar{t}); #alpha_{M}= Gen M(t_{h})/Reco M(t_{h})", 32, 0.9, 2.5, 36, 200., 2000., 500, 0., 10.);
+
+
                 // entire mass spectrum
-            book<TH2D>(folder+"/THad_P", "Alpha_THad_P", "", 32, 0.9, 2.5, 500, 0., 10.);
-            book<TH2D>(folder+"/THad_E", "Alpha_THad_E", "", 32, 0.9, 2.5, 500, 0., 10.);
-            book<TH2D>(folder+"/THad_M", "Alpha_THad_M", "", 32, 0.9, 2.5, 500, 0., 10.);
+            book<TH2D>(folder+"/THad_P", "Alpha_THad_P", ";173.1/M(t_{h}); #alpha_{P}= Gen P(t_{h})/Reco P(t_{h})", 32, 0.9, 2.5, 500, 0., 10.);
+            book<TH2D>(folder+"/THad_E", "Alpha_THad_E", ";173.1/M(t_{h}); #alpha_{E}= Gen E(t_{h})/Reco E(t_{h})", 32, 0.9, 2.5, 500, 0., 10.);
+            book<TH2D>(folder+"/THad_M", "Alpha_THad_M", ";173.1/M(t_{h}); #alpha_{M}= Gen M(t_{h})/Reco M(t_{h})", 32, 0.9, 2.5, 500, 0., 10.);
 
                 // parts of mass spectrum
             vector<string> mttbar_ranges = { "200to350", "350to400", "400to500", "500to700", "700to1000", "1000toInf"};
             for( auto m_range : mttbar_ranges ){
-                book<TH2D>(folder+"/THad_P", "Alpha_THad_P_Mttbar"+m_range, "", 32, 0.9, 2.5, 500, 0., 10.);
-                book<TH2D>(folder+"/THad_E", "Alpha_THad_E_Mttbar"+m_range, "", 32, 0.9, 2.5, 500, 0., 10.);
+                book<TH2D>(folder+"/THad_P", "Alpha_THad_P_Mttbar"+m_range, ";173.1/M(t_{h}); #alpha_{P}= Gen P(t_{h})/Reco P(t_{h})", 32, 0.9, 2.5, 500, 0., 10.);
+                book<TH2D>(folder+"/THad_E", "Alpha_THad_E_Mttbar"+m_range, ";173.1/M(t_{h}); #alpha_{E}= Gen E(t_{h})/Reco E(t_{h})", 32, 0.9, 2.5, 500, 0., 10.);
+                book<TH2D>(folder+"/THad_M", "Alpha_THad_M_Mttbar"+m_range, ";173.1/M(t_{h}); #alpha_{M}= Gen M(t_{h})/Reco M(t_{h})", 32, 0.9, 2.5, 500, 0., 10.);
             }
 
             if( !boost::contains(folder, "nosys") ) return;
@@ -429,8 +436,9 @@ class ttbar_alpha_reco : public AnalyzerBase
 
             // gen vs reco plots for bins of 173.1/reco M(thad)
             for( auto m_range : mthad_ranges ){
-                book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_"+m_range, "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
-                book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_"+m_range, "", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
+                book<TH2D>(folder+"/THad_E", "Gen_vs_Reco_THadE_"+m_range, ";Reco E(t_{h}) [GeV]; Gen E(t_{h}) [GeV]", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
+                book<TH2D>(folder+"/THad_P", "Gen_vs_Reco_THadP_"+m_range, ";Reco P(t_{h}) [GeV]; Gen P(t_{h}) [GeV]", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
+                book<TH2D>(folder+"/THad_M", "Gen_vs_Reco_THadM_"+m_range, ";Reco M(t_{h}) [GeV]; Gen M(t_{h}) [GeV]", 75, 0., 1500., 100, 0., 2000.); // 0.9 < 173.1/reco M(thad) < 1.1
             }
 
         }
@@ -447,6 +455,10 @@ class ttbar_alpha_reco : public AnalyzerBase
             thad_E_dir->second["Alpha_THad_E"].fill( 173.1/perm.THad().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ );
             thad_M_dir->second["Alpha_THad_M"].fill( 173.1/perm.THad().M(), ttbar.had_top()->M()/perm.THad().M(), evt_weight_ );
 
+            thad_P_dir->second["Alpha_THad_P_Mtt_vs_Mthad_vs_Alpha"].fill( 173.1/perm.THad().M(), perm.LVect().M(), ttbar.had_top()->P()/perm.THad().P(), evt_weight_ );
+            thad_E_dir->second["Alpha_THad_E_Mtt_vs_Mthad_vs_Alpha"].fill( 173.1/perm.THad().M(), perm.LVect().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ ); 
+            thad_M_dir->second["Alpha_THad_M_Mtt_vs_Mthad_vs_Alpha"].fill( 173.1/perm.THad().M(), perm.LVect().M(), ttbar.had_top()->M()/perm.THad().M(), evt_weight_ ); 
+
             string mtt_range;
             if( 200. <= perm.LVect().M() && perm.LVect().M() < 350. ) mtt_range = "200to350";
             else if( 350. <= perm.LVect().M() && perm.LVect().M() < 400. ) mtt_range = "350to400";
@@ -458,6 +470,7 @@ class ttbar_alpha_reco : public AnalyzerBase
             if( perm.LVect().M() >= 200. ){
                 thad_P_dir->second["Alpha_THad_P_Mttbar"+mtt_range].fill( 173.1/perm.THad().M(), ttbar.had_top()->P()/perm.THad().P(), evt_weight_ );
                 thad_E_dir->second["Alpha_THad_E_Mttbar"+mtt_range].fill( 173.1/perm.THad().M(), ttbar.had_top()->E()/perm.THad().E(), evt_weight_ );
+                thad_M_dir->second["Alpha_THad_M_Mttbar"+mtt_range].fill( 173.1/perm.THad().M(), ttbar.had_top()->M()/perm.THad().M(), evt_weight_ );
             }
 
             if( !boost::contains(folder, "nosys") ) return;
@@ -475,6 +488,7 @@ class ttbar_alpha_reco : public AnalyzerBase
             if( 0.9 <= 173.1/perm.THad().M() && 173.1/perm.THad().M() < 2.5 ){
                 thad_E_dir->second["Gen_vs_Reco_THadE_"+mthad_range].fill( perm.THad().E(), ttbar.had_top()->E(), evt_weight_ );
                 thad_P_dir->second["Gen_vs_Reco_THadP_"+mthad_range].fill( perm.THad().P(), ttbar.had_top()->P(), evt_weight_ );
+                thad_M_dir->second["Gen_vs_Reco_THadM_"+mthad_range].fill( perm.THad().M(), ttbar.had_top()->M(), evt_weight_ );
             }
             
 

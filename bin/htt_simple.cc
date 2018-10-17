@@ -317,7 +317,7 @@ class htt_simple : public AnalyzerBase
 
             ////top angles
             double tlep_ctstar = reco_cosths.second;
-            double thad_ctstar = alpha_corr_.alpha_thad_cthstar(hyp, "1D", "None", "Mtt"); // 3rd argument set to "None" to not apply correction
+            double thad_ctstar = alpha_corr_.alpha_thad_cthstar(hyp, "1D", "None", "All"); // 3rd argument set to "None" to not apply correction
             double tlep_ctstar_abs = min(fabs(reco_cosths.second), 0.99999);
             double thad_ctstar_abs = min(fabs(thad_ctstar), 0.99999);
             //double thad_ctstar = corrected_thad.second;
@@ -402,9 +402,9 @@ class htt_simple : public AnalyzerBase
             book<TH1F>(folder, "lead_jet_eta" , ";#eta(j) (GeV)",  300, -3, 3);
             book<TH1F>(folder, "jets_"+btag_str_id_ , ";#eta(j) (GeV)",  200, -1, 1);
             book<TH1F>(folder, "max_jets_"+btag_str_id_ , ";#eta(j) (GeV)",  200, -1, 1);
-            book<TH1F>(folder, "lep_iso", ";#eta(j) (GeV)",  200, 0, 10);
+            book<TH1F>(folder, "lep_iso", ";l rel Iso",  200, 0, 10);
             book<TH1F>(folder, "lep_wp" , ";#eta(j) (GeV)",  4, 0, 4);
-            book<TH1F>(folder, "MT" , ";#eta(j) (GeV)",  500, 0, 500);
+            book<TH1F>(folder, "MT" , ";M_{T} (GeV)",  500, 0, 500);
             book<TH1F>(folder, "MET" , ";#eta(j) (GeV)",  500, 0, 1000);
             book<TH1F>(folder, "METPhi" , ";#eta(j) (GeV)",  314, -1*Pi(), Pi());
 
@@ -413,7 +413,7 @@ class htt_simple : public AnalyzerBase
 
             book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
 
-            book<TH2F>(folder, "MT_iso" , ";#eta(j) (GeV)"  ,  10, 0, 100, 10, 0, 1);
+            book<TH2F>(folder, "MT_iso" , ";M_{T} (GeV);l rel Iso"  ,  500, 0, 500, 200, 0, 10);
             book<TH2F>(folder, "MT_btag" , ";#eta(j) (GeV)" ,  10, 0, 100, 10, 0, 1);
             book<TH2F>(folder, "iso_btag" , ";#eta(j) (GeV)",  10, 0, 1,   10, 0, 1);
             book<TH2D>(folder, "jets_"+btag_str_id_+"_WP", "", 4, 0., 4., 4, 0., 4.);
