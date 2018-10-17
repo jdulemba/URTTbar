@@ -162,181 +162,315 @@ def alpha_corrections(directory, subdir):
     plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
 
 
-    fitvars = [ # variables for hists
-        ('THad_E/Alpha_THad_E', '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
-        ('THad_P/Alpha_THad_P', '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
+    #fitvars = [ # variables for hists
+    #    ('THad_E/Alpha_THad_E', '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
+    #    ('THad_P/Alpha_THad_P', '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
+    #    ('THad_M/Alpha_THad_M', '173.1/Reco M(t_{h})', '#alpha_{M} = Gen M(t_{h})/Reco M(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
+    #]
+
+    fitvars = [
+        ('THad_E/Alpha_THad_E_Mtt_vs_Mthad_vs_Alpha'),# '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
+        ('THad_P/Alpha_THad_P_Mtt_vs_Mthad_vs_Alpha'),# '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
+        ('THad_M/Alpha_THad_M_Mtt_vs_Mthad_vs_Alpha'),# '173.1/Reco M(t_{h})', '#alpha_{M} = Gen M(t_{h})/Reco M(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
     ]
 
-    mtt_ranges = np.array([200, 350, 400, 500, 700, 1000, np.Inf])
-    for mtt in range(len(mtt_ranges)-1):
-        if mtt_ranges[mtt+1] == np.Inf:
-            txt_box = "M($t\\overline{t}$) > %.0f" % mtt_ranges[mtt]
-            Evar = ('THad_E/Alpha_THad_E_Mttbar%.0ftoInf' % mtt_ranges[mtt], '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', txt_box )
-            Pvar = ('THad_P/Alpha_THad_P_Mttbar%.0ftoInf' % mtt_ranges[mtt], '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', txt_box )
-        else:
-            txt_box = "%.0f $\leq$ M($t\\overline{t}$) < %.0f" % (mtt_ranges[mtt], mtt_ranges[mtt+1])
-            Evar = ('THad_E/Alpha_THad_E_Mttbar%.0fto%.0f' % (mtt_ranges[mtt], mtt_ranges[mtt+1]), '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', txt_box )
-            Pvar = ('THad_P/Alpha_THad_P_Mttbar%.0fto%.0f' % (mtt_ranges[mtt], mtt_ranges[mtt+1]), '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', txt_box )
-        fitvars.append(Evar)
-        fitvars.append(Pvar)
+    #mtt_ranges = np.array([200, 350, 400, 500, 700, 1000, np.Inf])
+    #for mtt in range(len(mtt_ranges)-1):
+    #    if mtt_ranges[mtt+1] == np.Inf:
+    #        txt_box = "M($t\\overline{t}$) > %.0f" % mtt_ranges[mtt]
+    #        Evar = ('THad_E/Alpha_THad_E_Mttbar%.0ftoInf' % mtt_ranges[mtt], '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', txt_box )
+    #        Pvar = ('THad_P/Alpha_THad_P_Mttbar%.0ftoInf' % mtt_ranges[mtt], '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', txt_box )
+    #        Mvar = ('THad_M/Alpha_THad_M_Mttbar%.0ftoInf' % mtt_ranges[mtt], '173.1/Reco M(t_{h})', '#alpha_{M} = Gen M(t_{h})/Reco M(t_{h})', txt_box )
+    #    else:
+    #        txt_box = "%.0f $\leq$ M($t\\overline{t}$) < %.0f" % (mtt_ranges[mtt], mtt_ranges[mtt+1])
+    #        Evar = ('THad_E/Alpha_THad_E_Mttbar%.0fto%.0f' % (mtt_ranges[mtt], mtt_ranges[mtt+1]), '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', txt_box )
+    #        Pvar = ('THad_P/Alpha_THad_P_Mttbar%.0fto%.0f' % (mtt_ranges[mtt], mtt_ranges[mtt+1]), '173.1/Reco M(t_{h})', '#alpha_{P} = Gen P(t_{h})/Reco P(t_{h})', txt_box )
+    #        Mvar = ('THad_M/Alpha_THad_M_Mttbar%.0fto%.0f' % (mtt_ranges[mtt], mtt_ranges[mtt+1]), '173.1/Reco M(t_{h})', '#alpha_{M} = Gen M(t_{h})/Reco M(t_{h})', txt_box )
+    #    fitvars.append(Evar)
+    #    fitvars.append(Pvar)
+    #    fitvars.append(Mvar)
 
 
     ### create dictionary for fit values for E and P for each mttbar range
-    alphas = list(set([ fitvars[i][0].split('/')[0] for i in range(len(fitvars))]))
-    mranges = list(set([ fitvars[i][0].split('/')[1].split('_')[-1] for i in range(len(fitvars)) if 'Mttbar' in fitvars[i][0].split('/')[1] ]))+['All']
+    #alphas = list(set([ fitvars[i][0].split('/')[0] for i in range(len(fitvars))]))
+    #mranges = list(set([ fitvars[i][0].split('/')[1].split('_')[-1] for i in range(len(fitvars)) if 'Mttbar' in fitvars[i][0].split('/')[1] ]))+['All']
 
-    fits = {}
-    for alpha in alphas:
-        fits[alpha] = {}
-        for mrange in mranges:
-            fits[alpha][mrange] = {}
+
+        ## create file with directories for 'THad_E', 'THad_P', and 'THad_M'
+    with root_open('%s/alpha_hists.root' % '/'.join([project, 'inputs', jobid, 'INPUT']), 'w') as out:# write to $jobid/INPUT directory
+        for hname in fitvars:
+            out.mkdir(hname.split('/')[0]).cd()
 
     #set_trace()
-    for hvar, xlabel, ylabel, txt_box_label in fitvars:
+
+    #fits = {}
+    #median_dict = {}
+    #for alpha in alphas:
+    #    fits[alpha] = {}
+    #    median_dict[alpha] = {}
+    #    for mrange in mranges:
+    #        fits[alpha][mrange] = {}
+    #        median_dict[alpha][mrange] = {}
+
+    #set_trace()
+    #for hvar, xlabel, ylabel, txt_box_label in fitvars:
+    for hvar in fitvars:
         hname = '/'.join([directory, 'Alpha_Correction', 'CORRECT_WJET_CORRECT_Bs', hvar])
         hist = asrootpy(myfile.Get(hname)).Clone()
 
         if hist.Integral() == 0:
             continue
 
-        plotter.plot(hist)
+        #plotter.plot(hist)
         #set_trace()
         #if hvar == 'THad_E/Alpha_THad_E' or hvar == 'THad_P/Alpha_THad_P':
 
-        colors = ['green', 'red', 'black', 'blue', 'orange', 'yellow', 'magenta', 'cyan']
+        colors = ['green', 'red', 'black', 'blue', 'orange', 'magenta', 'cyan', 'yellow']
+        #colors = ['green', 'red', 'black', 'blue']
         i = 0
-        xbins = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
-        ybins = np.linspace( hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
 
-        hist = RebinView.newRebin2D(hist, xbins, ybins)
-        hist.xaxis.range_user = 0.9, 2.5
-        #hist.yaxis.range_user = 0.0, 4.0
+        #xbins = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
+        ##xbins = np.linspace(0.9, 1.5, 7) 
+        #ybins = np.linspace( hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetYaxis().GetNbins()), hist.GetYaxis().GetNbins()+1 ) # ybinning remains unchanged
+
+            ## define bin edges for future rebinning
+        mthad_bins = np.linspace(0.9, 2.5, 9)
+        mtt_bins = np.array([200., 350., 400., 500., 700., 1000., 2000.])
+        #mtt_bins = np.linspace( hist.GetYaxis().GetBinLowEdge(1), hist.GetYaxis().GetBinUpEdge(hist.GetNbinsY()), hist.GetNbinsY()+1 )
+        alpha_bins = np.linspace( hist.GetZaxis().GetBinLowEdge(1), hist.GetZaxis().GetBinUpEdge(hist.GetNbinsZ()), hist.GetNbinsZ()+1 )
+
         #set_trace()
+        hist = RebinView.newRebin3D(hist, mthad_bins, mtt_bins, alpha_bins)
 
-        medians = []
-        median_weights = []
-        median_errors = []
-        maxvals = []
+            ## initialize dictionary to keep median values for different dists of mtt bins
+        alphas_dict = {'All': {}, 'Mtt' : {} }
 
-        yprojections = []
-        yproj_norms = []
 
-        for xbin in range(hist.GetNbinsX() + 1):
-            if hist.GetXaxis().GetBinLowEdge(xbin) >= hist.xaxis.range_user[0] and hist.GetXaxis().GetBinUpEdge(xbin) <= hist.xaxis.range_user[1]:
-                hist_yproj = hist.ProjectionY("", xbin, xbin).Clone()
-                hist_yproj = asrootpy(hist_yproj)
-                if hist_yproj.Integral() == 0:
-                    continue
+        #set_trace()
+        #hist = RebinView.newRebin2D(hist, xbins, ybins)
+        #hist.xaxis.range_user = min(xbins), max(xbins)
+        ##hist.xaxis.range_user = 0.9, 2.5
+        ##hist.yaxis.range_user = 0.0, 4.0
 
-                probs = np.zeros(len(ybins))
-                binvals = np.zeros(len(ybins))
+        #yprojections = []
+        #yproj_norms = []
 
-                for bins in range(len(ybins)):
-                    probs[bins] = hist_yproj.Integral(1, bins+1)/hist_yproj.Integral()
-                    binvals[bins] = hist_yproj.GetBinContent(bins)
+        def median_from_3d_hist(h3d):
 
-                median = hist_yproj.GetBinCenter(np.where(probs>= 0.5)[0][0])
-                median_error = 1.2533*hist_yproj.GetMeanError() #standard error of median
+            medians = []
+            median_weights = []
+            median_errors = []
+
+            h2d_xz = asrootpy(h3d.Project3D('zx')) ## make alpha vs 173.1/Mthad hist
+            h2d_xz = RebinView.newRebin2D(h2d_xz, mthad_bins, alpha_bins)
+            h2d_xz.xaxis.range_user = min(mthad_bins), max(mthad_bins)
+
+            for mthad_bin in range(1, h2d_xz.GetNbinsX()+1):
+                hist_yproj = asrootpy(h2d_xz.ProjectionY("", mthad_bin, mthad_bin).Clone())
+
+                #set_trace()
+                median, median_error = fncts.FindMedianAndMedianError(hist_yproj)
+                #median, median_error = fncts.FindMedianAndMedianError(hist_yproj) if fncts.FindMedianAndMedianError(hist_yproj) is not None else -1., -1.
                 if median_error == 0:
                     #set_trace()
-                    median_weight = 1000 # 1/(standard error of median) to be used in fit
+                    median_weight = 100000 # 1/(standard error of median) to be used in fit
                 else:
-                    median_weight = 1/(1.2533*hist_yproj.GetMeanError()) # 1/(standard error of median) to be used in fit
-                maxval = round(hist_yproj.GetBinCenter(np.where(binvals==binvals.max())[0][0]), 2)
+                    median_weight = 1/median_error # 1/(standard error of median) to be used in fit
 
                 medians.append(median)
                 median_weights.append(median_weight)
                 median_errors.append(median_error)
-                maxvals.append(maxval)
 
-                #plotter.set_histo_style(hist_yproj, color='black', title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
-                #plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
-                #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
-                #plotter.save('%s_%s' % (hvar.split('/')[1], hist.GetXaxis().GetBinLowEdge(xbin)) )
+            return medians, median_errors, median_weights
 
-                plotter.set_histo_style(hist_yproj, color=colors[i], title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
-                plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
-                yprojections.append(hist_yproj)
-                yproj_norms.append(hist_yproj/hist_yproj.Integral())
-                i += 1
-                #set_trace()
 
-        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
-        plotter.overlay(yprojections, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
-        plotter.save('%s_yprojections' % hvar.split('/')[1])
-        plotter.overlay(yproj_norms, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
-        plotter.save('%s_yprojections_Norm' % hvar.split('/')[1])
+            ## get medians for single bin of mtt
+        medians, median_errors, median_weights = median_from_3d_hist(hist)
+        alphas_dict['All'] = {'Medians' : medians, 'Errors' : median_errors, 'Weights' : median_weights }
+
+
+            ## get medians for all bins of mtt
+        for mtt_bin in range(1, len(mtt_bins)):
+        #for mtt_bin in range(1, len(mtt_bins)+1):
+
+            mtt_yslice = hist.Clone()
+            mtt_yslice.GetYaxis().SetRange(mtt_bin, mtt_bin+1)
+
+            #set_trace() 
+            medians, median_errors, median_weights = median_from_3d_hist(mtt_yslice)
+            alphas_dict['Mtt']['Bin%s' % mtt_bin] = {'Medians' : medians, 'Errors' : median_errors, 'Weights' : median_weights }
+
         #set_trace()
+
+            ## fill hists with medians in root file
+        with root_open('%s/alpha_hists.root' % '/'.join([project, 'inputs', jobid, 'INPUT']), 'update') as out:# write to $jobid/INPUT directory
+        #with root_open('test_alphas.root', 'update') as out:
+            #out.cd(hvar.split('/')[0])
+
+                ## fill alphas for single mtt bin
+            mttbar_bins = np.array([min(mtt_bins), max(mtt_bins)])
+            all_mtt = Hist2D(mthad_bins, mttbar_bins, name='%s_All' % hvar.split('/')[0], title='Median #alpha')
+            all_mtt.set_x_title(hist.xaxis.title)
+            all_mtt.set_y_title(hist.yaxis.title)
+
+            #set_trace()
+            for binx in range( 1, len(alphas_dict['All']['Medians'])+1 ):
+                if alphas_dict['All']['Medians'][binx-1] < 0: continue # skip invalid alphas that have negative values
+
+                all_mtt[binx, 1].value = alphas_dict['All']['Medians'][binx-1]
+                all_mtt[binx, 1].error = alphas_dict['All']['Errors'][binx-1]
+
+            all_mtt.Write()
+
+                ## fill alphas for different mtt bins
+            mttbar_bins = mtt_bins
+            binned_mtt = Hist2D(mthad_bins, mttbar_bins, name='%s_Mtt' % hvar.split('/')[0], title='Median #alpha')
+            binned_mtt.set_x_title(hist.xaxis.title)
+            binned_mtt.set_y_title(hist.yaxis.title)
+
+            for biny in range( 1, len(alphas_dict['Mtt'].keys())+1 ):
+                for binx in range( 1, len(alphas_dict['Mtt']['Bin%s' % biny]['Medians'])+1 ):
+                    #set_trace()
+                    if alphas_dict['Mtt']['Bin%s' % biny]['Medians'][binx-1] < 0: continue # skip invalid alphas that have negative values
+
+                    binned_mtt[binx, biny].value = alphas_dict['Mtt']['Bin%s' % biny]['Medians'][binx-1]
+                    binned_mtt[binx, biny].error = alphas_dict['Mtt']['Bin%s' % biny]['Errors'][binx-1]
+
+            binned_mtt.Write()
+        #set_trace()
+
+        #    #plotter.set_histo_style(hist_yproj, color='black', title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
+        #    #plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        #    #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
+        #    #plotter.save('%s_%s' % (hvar.split('/')[1], hist.GetXaxis().GetBinLowEdge(xbin)) )
+        #    #set_trace()
+
+        #    plotter.set_histo_style(hist_yproj, color=colors[i], title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
+        #    plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        #    yprojections.append(hist_yproj)
+        #    yproj_norms.append(hist_yproj/hist_yproj.Integral())
+        #    i += 1
+        #    #set_trace()
+
+        #for xbin in range(hist.GetNbinsX() + 1):
+        #    if hist.GetXaxis().GetBinLowEdge(xbin) >= hist.xaxis.range_user[0] and hist.GetXaxis().GetBinUpEdge(xbin) <= hist.xaxis.range_user[1]:
+        #        hist_yproj = hist.ProjectionY("", xbin, xbin).Clone()
+        #        hist_yproj = asrootpy(hist_yproj)
+        #        if hist_yproj.Integral() == 0:
+        #            continue
+
+        #        probs = np.zeros(hist.GetYaxis().GetNbins()+1)
+        #        binvals = np.zeros(hist.GetYaxis().GetNbins()+1)
+
+        #        for bins in range(hist.GetYaxis().GetNbins()+1):
+        #            probs[bins] = hist_yproj.Integral(1, bins+1)/hist_yproj.Integral()
+        #            binvals[bins] = hist_yproj.GetBinContent(bins)
+
+        #        median = hist_yproj.GetBinCenter(np.where(probs>= 0.5)[0][0])
+        #        median_error = 1.2533*hist_yproj.GetMeanError() #standard error of median
+        #        #set_trace()
+        #        if median_error == 0:
+        #            #set_trace()
+        #            median_weight = 1000 # 1/(standard error of median) to be used in fit
+        #        else:
+        #            median_weight = 1/(1.2533*hist_yproj.GetMeanError()) # 1/(standard error of median) to be used in fit
+        #        maxval = round(hist_yproj.GetBinCenter(np.where(binvals==binvals.max())[0][0]), 2)
+
+        #        medians.append(median)
+        #        median_weights.append(median_weight)
+        #        median_errors.append(median_error)
+        #        maxvals.append(maxval)
+
+        #        #plotter.set_histo_style(hist_yproj, color='black', title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
+        #        #plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        #        #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
+        #        #plotter.save('%s_%s' % (hvar.split('/')[1], hist.GetXaxis().GetBinLowEdge(xbin)) )
+        #        #set_trace()
+
+        #        plotter.set_histo_style(hist_yproj, color=colors[i], title='%s-%s Med=%.2f, Max=%.2f' % (hist.GetXaxis().GetBinLowEdge(xbin), hist.GetXaxis().GetBinUpEdge(xbin), median, maxval))
+        #        plotter.plot(hist_yproj, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        #        yprojections.append(hist_yproj)
+        #        yproj_norms.append(hist_yproj/hist_yproj.Integral())
+        #        i += 1
+        #        #set_trace()
+
+        #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0], 'y_proj']))
+        #plotter.overlay(yprojections, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        #plotter.save('%s_yprojections' % hvar.split('/')[1])
+        #plotter.overlay(yproj_norms, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=ylabel, ytitle=defyax, drawstyle='hist', x_range=(0.0, 5.0))
+        #plotter.save('%s_yprojections_Norm' % hvar.split('/')[1])
     
-        xbin_ints = [hist.Integral(xbinid+1, xbinid+1, 1, hist.GetNbinsY()+1) for xbinid in range(hist.GetNbinsX())]
-        xbin_ratios = [xbin_ints[i]/sum(xbin_ints) for i in range(len(xbin_ints))]
+        #xbin_ints = [hist.Integral(xbinid+1, xbinid+1, 1, hist.GetNbinsY()+1) for xbinid in range(hist.GetNbinsX())]
+        #xbin_ratios = [xbin_ints[i]/sum(xbin_ints) for i in range(len(xbin_ints))]
 
-        hist.yaxis.range_user = 0.0, 4.0
+        #hist.yaxis.range_user = 0.0, 4.0
 
-        #### section to fit polynomials to median values from xaxis bins
-        #xfit_bins = np.linspace(hist.GetXaxis().GetXmin(),hist.GetXaxis().GetXmax(), 200) #makes points to be used for fit results
-        xfit_bins = np.linspace(0, 5.0, 200) #makes points to be used for fit results
-        hist.GetXaxis().GetCenter(xbins) # change array of xbin values from edges to centers
+        ##### section to fit polynomials to median values from xaxis bins
+        ##xfit_bins = np.linspace(hist.GetXaxis().GetXmin(),hist.GetXaxis().GetXmax(), 200) #makes points to be used for fit results
+        #xfit_bins = np.linspace(0, 3.0, 200) #makes points to be used for fit results
+        ##set_trace()
+        #hist.GetXaxis().GetCenter(xbins) # change array of xbin values from edges to centers
 
-        fit_1d_groom = np.polyfit(xbins[:-1], medians, 1, full=True, w=median_weights) # fit medians to 1 degree polynomial for 0.9 < xbin < 2.5
-        fit_2d_groom = np.polyfit(xbins[:-1], medians, 2, full=True, w=median_weights) # fit medians to 2 degree polynomial for 0.9 < xbin < 2.5
-        #fit_1d_1p1 = np.polyfit(xbins[1:-1], medians[1:], 1, full=True, w=median_weights[1:]) # weighted fit medians to 1 degree polynomial for 1.1 < xbin < 2.5
-        #fit_2d_1p1 = np.polyfit(xbins[1:-1], medians[1:], 2, full=True, w=median_weights[1:]) # fit medians to 2 degree polynomial for 1.1 < xbin < 2.5
+        #fit_1d_groom = np.polyfit(xbins[:-1], medians, 1, full=True, w=median_weights) # fit medians to 1 degree polynomial for 0.9 < xbin < 2.5
+        #fit_2d_groom = np.polyfit(xbins[:-1], medians, 2, full=True, w=median_weights) # fit medians to 2 degree polynomial for 0.9 < xbin < 2.5
 
-        #set_trace()
-        p1_groom = np.poly1d(fit_1d_groom[0]) #gets parameters for 1 degree fit getting rid of first 2 points
-        p2_groom = np.poly1d(fit_2d_groom[0]) #gets parameters for 2 degree fit getting rid of first 2 points
-        #p1_1p1 = np.poly1d(fit_1d_1p1[0]) #gets parameters for weighted 1 degree fit getting rid of first 3 points
-        #p2_1p1 = np.poly1d(fit_2d_1p1[0]) #gets parameters for weighted 2 degree fit getting rid of first 3 points
+        ##set_trace()
+        #p1_groom = np.poly1d(fit_1d_groom[0]) #gets parameters for 1 degree fit getting rid of first 2 points
+        #p2_groom = np.poly1d(fit_2d_groom[0]) #gets parameters for 2 degree fit getting rid of first 2 points
 
-        fig = plt.figure()
-        fit_medians = plt.errorbar(xbins[:-1], medians, yerr=median_errors, label='Medians', linestyle='None', color='black', marker='.') #plots median values with errors
-            # 1 degree fits
-        p1_groom_fit = plt.plot(xfit_bins, p1_groom(xfit_bins), label='weighted deg=1 bins > 0.9', linestyle='--', color='red') #plots p1 for bins > 0.9
-        #p1_1p1_weighted = plt.plot(xfit_bins, p1_1p1(xfit_bins), label='weighted deg=1 bins > 1.1', linestyle='-', color='red') #plots p1 for weighted bins > 1.1
-            # 2 degree fits
-        p2_groom_fit = plt.plot(xfit_bins, p2_groom(xfit_bins), label='weighted deg=2 bins > 0.9', linestyle='--', color='green') #plots p2 for bins > 0.9
-        #p2_1p1_weighted = plt.plot(xfit_bins, p2_1p1(xfit_bins), label='weighted deg=2 bins > 1.1', linestyle='-', color='green') #plots p2 for weighted bins > 1.1
+        #fig = plt.figure()
+        #fit_medians = plt.errorbar(xbins[:-1], medians, yerr=median_errors, label='Medians', linestyle='None', color='black', marker='.') #plots median values with errors
+        #    # 1 degree fits
+        #p1_groom_fit = plt.plot(xfit_bins, p1_groom(xfit_bins), label='weighted deg=1 bins > 0.9', linestyle='--', color='red') #plots p1 for bins > 0.9
+        #    # 2 degree fits
+        #p2_groom_fit = plt.plot(xfit_bins, p2_groom(xfit_bins), label='weighted deg=2 bins > 0.9', linestyle='--', color='green') #plots p2 for bins > 0.9
 
-        ### fill dictionary with fit values
-        mrange = 'All' if 'Mttbar' not in hvar else hvar.split('/')[1].split('_')[-1]
-        fits[hvar.split('/')[0]][mrange]['1D_g0.9'] = {}
-        fits[hvar.split('/')[0]][mrange]['2D_g0.9'] = {}
-        #fits[hvar.split('/')[0]][mrange]['1D_g1.1'] = {}
-        #fits[hvar.split('/')[0]][mrange]['2D_g1.1'] = {}
+        #### fill dictionary with fit values
+        #mrange = 'All' if 'Mttbar' not in hvar else hvar.split('/')[1].split('_')[-1]
+        #fits[hvar.split('/')[0]][mrange] = { '1d' : fit_1d_groom[0].tolist(), '2d' : fit_2d_groom[0].tolist() }
+        ##fits[hvar.split('/')[0]][mrange]['1D_g0.9'] = {}
+        ##fits[hvar.split('/')[0]][mrange]['2D_g0.9'] = {}
 
-        fits[hvar.split('/')[0]][mrange]['1D_g0.9'] = { 'Pars' : fit_1d_groom[0].tolist(), 'Residual' : '%.4f' % float(fit_1d_groom[1]) }
-        fits[hvar.split('/')[0]][mrange]['2D_g0.9'] = { 'Pars' : fit_2d_groom[0].tolist(), 'Residual' : '%.4f' % float(fit_2d_groom[1]) }
-        #fits[hvar.split('/')[0]][mrange]['1D_g1.1'] = { 'Pars' : fit_1d_1p1[0].tolist(), 'Residual' : '%.4f' % float(fit_1d_1p1[1]) }
-        #fits[hvar.split('/')[0]][mrange]['2D_g1.1'] = { 'Pars' : fit_2d_1p1[0].tolist(), 'Residual' : '%.4f' % float(fit_2d_1p1[1]) }
+        ##fits[hvar.split('/')[0]][mrange]['1D_g0.9'] = { 'Pars' : fit_1d_groom[0].tolist() }
+        ##fits[hvar.split('/')[0]][mrange]['2D_g0.9'] = { 'Pars' : fit_2d_groom[0].tolist() }
+        ##fits[hvar.split('/')[0]][mrange]['1D_g0.9'] = { 'Pars' : fit_1d_groom[0].tolist(), 'Residual' : '%.4f' % float(fit_1d_groom[1]) }
+        ##fits[hvar.split('/')[0]][mrange]['2D_g0.9'] = { 'Pars' : fit_2d_groom[0].tolist(), 'Residual' : '%.4f' % float(fit_2d_groom[1]) }
 
-        #set_trace()
+        ##set_trace()
 
+        #plt.xlabel('173.1/Reco M($t_{h}$)')
+        #if 'THad_E' in hvar:
+        #    plt.ylabel('$\\alpha_{E}$ = Gen E($t_{h}$)/Reco E($t_{h}$)')
+        #elif 'THad_P' in hvar:
+        #    plt.ylabel('$\\alpha_{P}$ = Gen P($t_{h}$)/Reco P($t_{h}$)')
+        #else: # 'THad_M'
+        #    plt.ylabel('$\\alpha_{M}$ = Gen M($t_{h}$)/Reco M($t_{h}$)')
+        #plt.title(txt_box_label)
+        ##set_trace()
+        #plt.ylim(0.0, 4.0)
+        #plt.grid()
+        #plt.legend(loc='upper right',fontsize=8, numpoints=1)
+        #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0]]))
+        #plotting_dir = plotter.outputdir
+        #fig.savefig('%s/%s_fits' % (plotting_dir, hvar.split('/')[1]))
 
-        plt.xlabel('173.1/Reco M($t_{h}$)')
-        plt.ylabel('$\\alpha_{E}$ = Gen E($t_{h}$)/Reco E($t_{h}$)') if 'THad_E' in hvar else plt.ylabel('$\\alpha_{P}$ = Gen P($t_{h}$)/Reco P($t_{h}$)')
-        plt.title(txt_box_label)
-        #set_trace()
-        plt.ylim(0.0, 4.0)
-        plt.grid()
-        plt.legend(loc='upper right',fontsize=8, numpoints=1)
-        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', hvar.split('/')[0]]))
-        plotting_dir = plotter.outputdir
-        fig.savefig('%s/%s_fits' % (plotting_dir, hvar.split('/')[1]))
+        #plotter.set_histo_style(hist, xtitle=xlabel, ytitle=ylabel)
+        #plotter.plot(hist, drawstyle='colz')
 
-        plotter.set_histo_style(hist, xtitle=xlabel, ytitle=ylabel)
-        plotter.plot(hist, drawstyle='colz')
+        #mean_x = hist.ProjectionX().GetMean()
+        #rms_x = hist.ProjectionX().GetRMS()
+        #mean_y = hist.ProjectionY().GetMean()
+        #rms_y = hist.ProjectionY().GetRMS()
 
-        mean_x = hist.ProjectionX().GetMean()
-        rms_x = hist.ProjectionX().GetRMS()
-        mean_y = hist.ProjectionY().GetMean()
-        rms_y = hist.ProjectionY().GetRMS()
+        #box2 = plotter.make_text_box('X Mean=%.2f, RMS=%.2f\nY Mean=%.2f, RMS=%.2f' % (mean_x, rms_x, mean_y, rms_y), position='NE')
+        #box2.Draw()
+        ##plotter.set_subdir('/'.join([subdir, 'Alpha_Correction']))
 
-        box2 = plotter.make_text_box('X Mean=%.2f, RMS=%.2f\nY Mean=%.2f, RMS=%.2f' % (mean_x, rms_x, mean_y, rms_y), position='NE')
-        box2.Draw()
-        #plotter.set_subdir('/'.join([subdir, 'Alpha_Correction']))
+        #plotter.save(hvar.split('/')[1])
 
-        plotter.save(hvar.split('/')[1])
+        ##set_trace()
+        #median_dict[hvar.split('/')[0]][mrange] = { 'medians' : medians, 'mthad': xbins[:-1].tolist(), 'median_weights' : median_weights }#[ (round(medians[i], 2), round(xbins[i], 2)) for i in range(len(medians))]
+
 
     #xranges = np.linspace(0.9, 2.5, 9) ## rebin xaxis so [0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5]
     #hvars = []
@@ -393,13 +527,113 @@ def alpha_corrections(directory, subdir):
         #        box1.Draw()
     
         #        plotter.save('%s_%s' % (hvar, cat))
-    #fit_pars_root('%s/fit_parameters' % '/'.join([project, 'inputs', jobid, 'INPUT']), fits)
 
-    with open('%s/fit_parameters.json' % '/'.join([plotter.base_out_dir, subdir, 'Alpha_Correction']), 'w') as f: # write to same dir as plots
-        f.write(prettyjson.dumps(fits))
-    with open('%s/fit_parameters.json' % '/'.join([project, 'inputs', jobid, 'INPUT']), 'w') as f: # write to $jobid/INPUT directory
-        f.write(prettyjson.dumps(fits))
 
+    #mttbar_ranges = [ 'Mttbar200to350', 'Mttbar350to400', 'Mttbar400to500', 'Mttbar500to700', 'Mttbar700to1000', 'Mttbar1000toInf']
+    #mtt_bins = np.array([275, 375, 450, 600, 850, 1200])
+    #mthad_vals = { '1.0' : '0.9 < 173.1/Reco M($t_{h}$) $\leq$ 1.1', '1.2' : '1.1 < 173.1/Reco M($t_{h}$) $\leq$ 1.3', '1.4' : '1.3 < 173.1/Reco M($t_{h}$) $\leq$ 1.5',
+    #                '1.6' : '1.5 < 173.1/Reco M($t_{h}$) $\leq$ 1.7', '1.8' : '1.7 < 173.1/Reco M($t_{h}$) $\leq$ 1.9', '2.0' : '1.9 < 173.1/Reco M(t_{h}) $\leq$ 2.1',
+    #                '2.2' : '2.1 < 173.1/Reco M($t_{h}$) $\leq$ 2.3', '2.4' : '2.3 < 173.1/Reco M($t_{h}$) $\leq$ 2.5'
+    #            }
+
+    #xmin, xmax, ymin, ymax = 200, 1300, 0.0, 3.0
+
+    #for alpha_key in median_dict.keys():
+    #    ## initialize fit results dict to include mthad
+    #    for mthad_val in mthad_vals.keys():
+    #        fits[alpha_key]['MTHad%s' % mthad_val] = {}
+
+
+    #        ## make plot comparing median values for all mtt bins
+    #    fig = plt.figure()
+    #    i=0
+    #    for mttbar_range in mttbar_ranges:
+
+    #        meds = np.array(median_dict[alpha_key][mttbar_range]['medians'])
+    #        mthad_bins = np.array(median_dict[alpha_key][mttbar_range]['mthad'])
+
+    #        plt.plot(mthad_bins, meds, linestyle='-', color=colors[i], label=mttbar_range)
+    #        i += 1
+
+    #    plt.xlabel('173.1/Reco M($t_{h}$)')
+    #    if alpha_key == 'THad_E':
+    #        plt.ylabel('$\\alpha_{E}$ = Gen E($t_{h}$)/Reco E($t_{h}$)')
+    #    elif alpha_key == 'THad_P':
+    #        plt.ylabel('$\\alpha_{P}$ = Gen P($t_{h}$)/Reco P($t_{h}$)')
+    #    else: # 'THad_M'
+    #        plt.ylabel('$\\alpha_{M}$ = Gen M($t_{h}$)/Reco M($t_{h}$)')
+    #    #plt.title(txt_box_label)
+    #    #set_trace()
+    #    plt.ylim(0.5, 2.5)
+    #    plt.grid()
+    #    plt.legend(loc='upper left',fontsize=8, numpoints=1)
+    #    plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', alpha_key]))
+    #    plotting_dir = plotter.outputdir
+    #    #set_trace()
+    #    #fig.savefig('test')
+    #    fig.savefig('%s/Alpha_vs_mthad_compare_Mtt' % plotting_dir)
+    #    print '%s/Alpha_vs_mthad_compare_Mtt.png has been created' % plotting_dir
+
+    #    for idx, binval in enumerate(sorted(mthad_vals.keys())):
+    #        #set_trace()
+    #        alpha_medians = np.array([median_dict[alpha_key][key]['medians'][idx] for key in mttbar_ranges])
+    #        alpha_median_weights = np.array([median_dict[alpha_key][key]['median_weights'][idx] for key in mttbar_ranges])
+    #        alpha_median_errors = np.array([1/median_dict[alpha_key][key]['median_weights'][idx] for key in mttbar_ranges])
+
+    #            ## get results of 1d and 2d fits
+    #        xfit_bins = np.linspace(xmin, xmax, (xmax-xmin)*2+1) #makes points to be used for fit results
+
+    #        fit_1d = np.polyfit(mtt_bins, alpha_medians, 1, full=True, w=alpha_median_weights) # fit medians to 1 degree polynomial
+    #        fit_2d = np.polyfit(mtt_bins, alpha_medians, 2, full=True, w=alpha_median_weights) # fit medians to 2 degree polynomial
+
+    #        poly1d = np.poly1d(fit_1d[0]) #gets parameters for 1 degree fit
+    #        poly2d = np.poly1d(fit_2d[0]) #gets parameters for 2 degree fit
+
+    #            ## plot medians, 1d and 2d fits
+    #        fig, ax = plt.subplots()
+    #        alpha_vs_mttbar = plt.errorbar(mtt_bins, alpha_medians, yerr=alpha_median_errors, label='Medians', linestyle='None', color='black', marker='.') #plots median values with errors
+    #        p1_fit = plt.plot(xfit_bins, poly1d(xfit_bins), label='weighted deg=1', linestyle='-', color='red') #plots p1 for bins > 0.9
+    #        p2_fit = plt.plot(xfit_bins, poly2d(xfit_bins), label='weighted deg=2', linestyle='-', color='blue') #plots p2 for bins > 0.9
+
+    #            ## format hists
+    #        plt.xlabel('M($t\\overline{t}$)')
+    #        if alpha_key == 'THad_E':
+    #            plt.ylabel('$\\alpha_{E}$ = Gen E($t_{h}$)/Reco E($t_{h}$)')
+    #        elif alpha_key == 'THad_P':
+    #            plt.ylabel('$\\alpha_{P}$ = Gen P($t_{h}$)/Reco P($t_{h}$)')
+    #        else: # 'THad_M'
+    #            plt.ylabel('$\\alpha_{M}$ = Gen M($t_{h}$)/Reco M($t_{h}$)')
+    #        plt.title(mthad_vals[binval])
+    #        plt.xlim(xmin, xmax)
+    #        plt.ylim(ymin, ymax)
+    #        ax.set_xticks([200, 350, 400, 500, 700, 1000])
+    #        ax.xaxis.grid(True, which='major')
+    #        ax.set_yticks(np.linspace(ymin,ymax,(ymax-ymin)*2+1).tolist())
+    #        ax.yaxis.grid(True, which='major')
+    #        #set_trace()
+    #        plt.legend(loc='upper right',fontsize=8, numpoints=1)
+    #        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', alpha_key]))
+    #        plotting_dir = plotter.outputdir
+    #        #set_trace()
+    #        #fig.savefig('test')
+    #        fig.savefig('%s/alpha_vs_mttbar_mthad%s_fits' % (plotting_dir, binval.replace('.', 'p')))
+    #        print '%s/alpha_vs_mttbar_mthad%s_fits.png has been created' % (plotting_dir, binval.replace('.', 'p'))
+
+    #        fits[alpha_key]['MTHad%s' % binval] = { '2d' : fit_2d[0].tolist() }
+    #        #set_trace()
+    #
+
+    #    ## write fit parameters dict to json files
+    #with open('%s/median_Mtt_Mthad.json' % '/'.join([plotter.base_out_dir, subdir, 'Alpha_Correction']), 'w') as f: # write to same dir as plots
+    #    f.write(prettyjson.dumps(median_dict))
+    ##set_trace()
+
+    ##fit_pars_root('%s/fit_parameters' % '/'.join([project, 'inputs', jobid, 'INPUT']), fits)
+
+    #with open('%s/fit_parameters.json' % '/'.join([plotter.base_out_dir, subdir, 'Alpha_Correction']), 'w') as f: # write to same dir as plots
+    #    f.write(prettyjson.dumps(fits))
+    #with open('%s/fit_parameters.json' % '/'.join([project, 'inputs', jobid, 'INPUT']), 'w') as f: # write to $jobid/INPUT directory
+    #    f.write(prettyjson.dumps(fits))
 
 
 
