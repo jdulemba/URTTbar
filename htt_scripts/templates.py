@@ -32,7 +32,7 @@ mu_tfile = io.root_open(mu_file)
 mu_sig = [ sys.name for sys in mu_tfile.mujets.keys() if re.match('gg[AH]', sys.name) ]
 mu_bkg = [ sys.name for sys in mu_tfile.mujets.keys() if not re.match('gg[AH]', sys.name) ]
 
-set_trace()
+#set_trace()
 el_tfile = io.root_open(el_file)
 
 el_sig = [ sys.name for sys in el_tfile.ejets.keys() if re.match('gg[AH]', sys.name) ]
