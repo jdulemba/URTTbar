@@ -17,7 +17,6 @@ from URAnalysis.Utilities.tables import latex_table
 import argparse
 #import matplotlib.pyplot as plt
 from collections import OrderedDict
-import functions as fncts
 
 
 analyzer = 'resolved_matched_jets'

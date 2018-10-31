@@ -17,7 +17,6 @@ from URAnalysis.Utilities.tables import latex_table
 import argparse
 #import matplotlib.pyplot as plt
 from collections import OrderedDict
-import functions as fncts
 
 
 analyzer = 'jet_perm_disc'
@@ -516,7 +515,7 @@ def Discs():
         plotter.save('3J_Best_Perm_Categories_'+disc)
     
             
-        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+        stack, norm_stack, ratio = plotter.stack_plots(to_draw)
     
         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), xtitle=xaxis, ytitle=defyax, legendstyle='l', drawstyle='hist')
         box = plotter.make_text_box(decay, position='NE')
@@ -761,7 +760,7 @@ def Matched_Best_Perm():
             plotter.plot(G_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
             to_draw.append(G_hist)
     
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
         
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xaxis, ytitle=defyax, drawstyle='hist')
             box = plotter.make_text_box('%s' % cat, position='NE')
@@ -809,7 +808,7 @@ def Matched_Best_Perm():
                 plotter.plot(G_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(G_hist)
         
-                stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                stack, norm_stack, ratio = plotter.stack_plots(to_draw)
 
                 if kvar == 'Mass':
                     plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{'+xaxis+'} [GeV]', ytitle=defyax, drawstyle='hist')
@@ -867,14 +866,14 @@ def Matched_Best_Perm_Combined():
                 plotter.plot(lep_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 blep_to_draw.append(lep_hist)
     
-        had_stack, norm_had_stack, ratio = fncts.stack_plots(bhad_to_draw)
+        had_stack, norm_had_stack, ratio = plotter.stack_plots(bhad_to_draw)
         
         plotter.plot(had_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{b_{h}+w_{j}} [GeV]', ytitle=defyax, drawstyle='hist')
         box = plotter.make_text_box('#lambda_{comb} %s' % Cut[cut], position='NE')
         box.Draw()
         plotter.save('3J_BHadWJet_Mass_%s_Stack' % cut)
 
-        lep_stack, norm_lep_stack, ratio = fncts.stack_plots(blep_to_draw)
+        lep_stack, norm_lep_stack, ratio = plotter.stack_plots(blep_to_draw)
         
         plotter.plot(lep_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{b_{l}+w_{j}} [GeV]', ytitle=defyax, drawstyle='hist')
         box = plotter.make_text_box('#lambda_{comb} %s' % Cut[cut], position='NE')
@@ -936,7 +935,7 @@ def Matched_Best_Perm_Combined():
                     plotter.plot(w_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                     wjet_to_draw.append(w_hist)
         
-            had_stack, norm_had_stack, ratio = fncts.stack_plots(bhad_to_draw)
+            had_stack, norm_had_stack, ratio = plotter.stack_plots(bhad_to_draw)
 
             if kvar == 'Mass':
                 plotter.plot(had_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{b_{h}} %s' % xlabel, ytitle=defyax, drawstyle='hist')
@@ -946,7 +945,7 @@ def Matched_Best_Perm_Combined():
             box.Draw()
             plotter.save('3J_BHad_%s_%s_Stack' % (kvar,cut))
     
-            lep_stack, norm_lep_stack, ratio = fncts.stack_plots(blep_to_draw)
+            lep_stack, norm_lep_stack, ratio = plotter.stack_plots(blep_to_draw)
 
             if kvar == 'Mass':            
                 plotter.plot(lep_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{b_{l}} %s' % xlabel, ytitle=defyax, drawstyle='hist')
@@ -956,7 +955,7 @@ def Matched_Best_Perm_Combined():
             box.Draw()
             plotter.save('3J_BLep_%s_%s_Stack' % (kvar, cut))
     
-            w_stack, norm_w_stack, ratio = fncts.stack_plots(wjet_to_draw)
+            w_stack, norm_w_stack, ratio = plotter.stack_plots(wjet_to_draw)
             
             if kvar == 'Mass':
                 plotter.plot(w_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='m_{w_{j}} %s' % xlabel, ytitle=defyax, drawstyle='hist')

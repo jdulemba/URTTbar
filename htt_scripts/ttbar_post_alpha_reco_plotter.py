@@ -17,7 +17,6 @@ from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import argparse
 import matplotlib.pyplot as plt
-import functions as fncts
 import numpy as np
 from styles import styles
 import URAnalysis.Utilities.prettyjson as prettyjson
@@ -334,7 +333,7 @@ def Reso_Plots(directory, subdir):
     
 
                     if to_draw:
-                        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                        stack, norm_stack, ratio = plotter.stack_plots(to_draw)
                         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='%s %s' % (cat_hvar_title, xlabel), ytitle=defyax, drawstyle='hist', x_range=reso_hists[kvar][obj] )
                         plotter.save('Reso_%s_%s_%s_Stack' % (kvar, obj, corr_type))
                         #set_trace()
@@ -351,7 +350,7 @@ def Reso_Plots(directory, subdir):
                         plotter.plot(wrong_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
 
                         
-                        stack, norm_stack, ratio = fncts.stack_plots([correct_hist, wrong_hist])
+                        stack, norm_stack, ratio = plotter.stack_plots([correct_hist, wrong_hist])
                         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle='%s %s' % (cat_hvar_title, xlabel), ytitle=defyax, drawstyle='hist', x_range=reso_hists[kvar][obj] )
                         box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % ((correct_hist+wrong_hist).GetMean(), (correct_hist+wrong_hist).GetRMS()), position='NE')
                         box1.Draw()
@@ -714,7 +713,7 @@ def Parton_Acceptances_Plots(directory, subdir):
  
                     if not to_draw:
                         continue
-                    stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                    stack, norm_stack, ratio = plotter.stack_plots(to_draw)
                     plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
                     #set_trace()
                     
@@ -761,7 +760,7 @@ def Parton_Acceptances_Plots(directory, subdir):
     
                     #if not to_draw:
                     #    continue
-                    #stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                    #stack, norm_stack, ratio = plotter.stack_plots(to_draw)
                     #plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
                     #box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
                     #box1.Draw()

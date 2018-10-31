@@ -17,7 +17,6 @@ from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import argparse
 import matplotlib.pyplot as plt
-import functions as fncts
 import numpy as np
 from styles import styles
 import URAnalysis.Utilities.prettyjson as prettyjson
@@ -969,7 +968,7 @@ def Matched_Perm_Plots( plot_type ):
                         plotter.set_histo_style(hist, color=event_types[evt_type], title=evt_type+' Mean = %.2f, RMS = %.2f' % (mean,rms) )
                         to_draw.append(hist)
     
-                    #stack, norm_stack, ratio =  fncts.stack_plots(to_draw)
+                    #stack, norm_stack, ratio =  plotter.stack_plots(to_draw)
                     plotter.defaults['watermark'] = ['%s Comparison (13 TeV, 25ns)' % treatment, False]
                     plotter.overlay(to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
     
@@ -1034,7 +1033,7 @@ def Gen_Plots(directory, subdir, topology):
 
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             box1.Draw()
             plotter.save('Gen_%s_%s_Stack' % (obj, kvar))
@@ -1111,7 +1110,7 @@ def Reco_Plots(directory, subdir, topology):
     
                 if not to_draw:
                     continue
-                stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                stack, norm_stack, ratio = plotter.stack_plots(to_draw)
                 plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
                 box1.Draw()
                 plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
@@ -1193,7 +1192,7 @@ def Resolution_Plots(directory, subdir, topology):
     
                 if not to_draw:
                     continue
-                stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                stack, norm_stack, ratio = plotter.stack_plots(to_draw)
                 plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
                 box1.Draw()
                 plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
@@ -1331,7 +1330,7 @@ def Discriminant_Plots(directory, subdir, topology):
     
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
             box1.Draw()
             plotter.save(disc+'_Stack')
@@ -1401,7 +1400,7 @@ def Discriminant_Plots(directory, subdir, topology):
     #    comb_disc_mean = comb_disc_hist.GetMean()
     #    comb_disc_rms = comb_disc_hist.GetRMS()
 
-    #    stack, norm_stack, ratio = fncts.stack_plots(draw_comb_discs)
+    #    stack, norm_stack, ratio = plotter.stack_plots(draw_comb_discs)
     #    plotter.set_subdir(sdir_base)
 
     #    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')

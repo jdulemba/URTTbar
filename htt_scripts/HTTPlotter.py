@@ -33,7 +33,6 @@ from URAnalysis.PlotTools.views.RebinView import RebinView
 import re
 import itertools
 import rootpy.stats as stats
-import functions as fncts
 import numpy as np
 
 parser = ArgumentParser()
@@ -793,7 +792,7 @@ class HTTPlotter(Plotter):
                 [mc_stack, stack_sum], data,
                 xtitle = kwargs.get('xaxis',''),
                 ytitle='Events', ignore_style=True,             
-                method='datamc'
+                method='ratio'
                 )
             # Add legend
             self.pad.cd()
@@ -804,31 +803,6 @@ class HTTPlotter(Plotter):
 
         self.mc_samples = mc_default
 
-    def print_table(self, lines, separate_head=True):
-        #"""Prints a formatted table given a 2 dimensional array"""
-        #Count the column width
-        widths = []
-        for line in lines:
-            for i, size in enumerate([len(x) for x in line]):
-                while i <= len(widths):
-                    widths.append(0)
-                if size < widths[i]:
-                    widths[i] = size
-        
-        #Generate the format string to pad the columns
-        print_string = ""
-        for i, width in enumerate(widths):
-            print_string += "{" + str(i) + ":" + str(width) + "} | "
-        if (len(print_string) == 0):
-            return
-        print_string = print_string[:-3]
-        
-        #Print the actual data
-        for i, line in enumerate(lines):
-            print(print_string.format(*line))
-            if (i==0 and separate_head):
-                print("-"*(sum(widths)+3*(len(widths)-1)))
-        
 
     def make_sample_table(self, threshold=None, absolute=False, fname='yields.raw_txt'):
         #set_trace()
@@ -844,15 +818,6 @@ class HTTPlotter(Plotter):
         if absolute:
             yields.append(data.Integral())
             names.append('Observed')
-
-
-#       rows = []
-#       rows.append(("Sample", "Fraction"))
-#       for i in range(len(names)):
-#           print "Name: ", names[i]
-#           print "Yield: ", yields[i]
-#           #rows.append((names[i], format(yields[i], '.1f')))
-#       #plotter.print_table(rows)
 
         mlen = max(len(i) for i in names)
         format = '%'+str(mlen)+('s     %.1f%%\n' if not absolute else 's     %.0f\n')
@@ -1128,7 +1093,8 @@ preselection = [
     (False, "njets"  , "# of selected jets", range(13), None, False),
     (False, "jets_eta", "#eta(jet)", 5, None, False),
     (False, "jets_pt", "p_{T}(jet)", 10, (0, 300), False),
-    (False, "lep_eta", "#eta(l)", 5, None, False),
+    (False, "lep_eta", "#eta(l)", 10, None, False),
+    #(False, "lep_eta", "#eta(l)", 5, None, False),
     (False, "lep_pt"    , "p_{T}(l) (GeV)", 20, (0, 300), False),       
     (False, "nvtx", "# of reconstructed vertices", range(41), None, False),
     (False, "rho", "#rho", range(40), None, False),
@@ -1137,7 +1103,8 @@ preselection = [
     (True   , "csvv2"    , "csv",  1, None, False),
     (True   , "csvv2_p11", "csv^{11}", 1, None, False),
     (False, "METPhi", "MET #varphi", 4, None, False),
-    (False, "MET"   , "MET E_{T}"  , 1, [0, 400], False),
+    (False, "MET"   , "MET E_{T}"  , 10, [0, 400], False),
+    #(False, "MET"   , "MET E_{T}"  , 1, [0, 400], False),
 ]
 
 permutations = [
@@ -1192,7 +1159,7 @@ if args.qcd_yields:# or args.all:
         ("ML Fit", format(qcd_mlFit_scale, '.0f'), format(qcd_mlFit_error[0], '.0f'), format(qcd_mlFit_error[1], '.0f'))
     ]
 
-    fncts.print_table(rows, filename='%s/%s/QCD_Est_Results.raw_txt' % (plotter.outputdir, '3Jets' if args.njets == '3' else '4PJets') )
+    plotter.print_table(rows, filename='%s/%s/QCD_Est_Results.raw_txt' % (plotter.outputdir, '3Jets' if args.njets == '3' else '4PJets'), print_output=True )
     print '\n-----   Table comparing estimated QCD yields written to %s/%s/QCD_Est_Results.raw_txt   -----\n' % (plotter.outputdir, '3Jets' if args.njets == '3' else '4PJets')
 
         ## creates file to be used in estimating background with ml Fit
@@ -1241,6 +1208,7 @@ if args.plots or args.all:
             #set_trace()
 
         #for logy, var, axis, rebin, x_range, leftside in variables:
+        #for logy, var, axis, rebin, x_range, leftside in preselection:
         for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
             if 'discriminant' in var:
                 plotter.mc_samples = plotter.split_mcs
@@ -1381,7 +1349,7 @@ if args.btag or args.all:
     plotter.save('qcd_contamination')
     plotter.plot(ttfrac, drawstyle='colz')
     plotter.save('fraction_tt')
-    fncts.print_table(rows, filename='%s/WP_Fracs.raw_txt' % plotter.outputdir )
+    plotter.print_table(rows, filename='%s/WP_Fracs.raw_txt' % plotter.outputdir )
 
 binnind2D = (
     [250.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 610.0, 640.0, 680.0, 730.0, 800.0, 920.0, 1200.0], #~3k events each mtt bin

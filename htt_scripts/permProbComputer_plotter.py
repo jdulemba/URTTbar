@@ -18,7 +18,6 @@ from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import argparse
 import matplotlib.pyplot as plt
-import functions as fncts
 views = plotting.views
 
 

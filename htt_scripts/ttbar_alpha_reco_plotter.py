@@ -17,7 +17,6 @@ from URAnalysis.Utilities.tables import latex_table
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import argparse
 import matplotlib.pyplot as plt
-import functions as fncts
 import numpy as np
 from styles import styles
 import URAnalysis.Utilities.prettyjson as prettyjson
@@ -161,6 +160,8 @@ def alpha_corrections(directory, subdir):
 
     plotter.defaults['watermark'] = ['%s %s (13 TeV, 25ns)' % (decay, m_range), False]
 
+    print "These plots aren't currently supported.\nThe alpha_hists.root file to be used for the alpha correction is made from new_alpha_interp.py in my PYTHON_FILES/ttbar Toshiba directory.\n"
+    return
 
     #fitvars = [ # variables for hists
     #    ('THad_E/Alpha_THad_E', '173.1/Reco M(t_{h})', '#alpha_{E} = Gen E(t_{h})/Reco E(t_{h})', 'M($t\\overline{t}$) < $\\infty$'),
@@ -203,17 +204,6 @@ def alpha_corrections(directory, subdir):
 
     #set_trace()
 
-    #fits = {}
-    #median_dict = {}
-    #for alpha in alphas:
-    #    fits[alpha] = {}
-    #    median_dict[alpha] = {}
-    #    for mrange in mranges:
-    #        fits[alpha][mrange] = {}
-    #        median_dict[alpha][mrange] = {}
-
-    #set_trace()
-    #for hvar, xlabel, ylabel, txt_box_label in fitvars:
     for hvar in fitvars:
         hname = '/'.join([directory, 'Alpha_Correction', 'CORRECT_WJET_CORRECT_Bs', hvar])
         hist = asrootpy(myfile.Get(hname)).Clone()
@@ -222,8 +212,6 @@ def alpha_corrections(directory, subdir):
             continue
 
         #plotter.plot(hist)
-        #set_trace()
-        #if hvar == 'THad_E/Alpha_THad_E' or hvar == 'THad_P/Alpha_THad_P':
 
         colors = ['green', 'red', 'black', 'blue', 'orange', 'magenta', 'cyan', 'yellow']
         #colors = ['green', 'red', 'black', 'blue']
@@ -255,57 +243,25 @@ def alpha_corrections(directory, subdir):
         #yprojections = []
         #yproj_norms = []
 
-        def median_from_3d_hist(h3d):
-
-            medians = []
-            median_weights = []
-            median_errors = []
-
-            h2d_xz = asrootpy(h3d.Project3D('zx')) ## make alpha vs 173.1/Mthad hist
-            h2d_xz = RebinView.newRebin2D(h2d_xz, mthad_bins, alpha_bins)
-            h2d_xz.xaxis.range_user = min(mthad_bins), max(mthad_bins)
-
-            for mthad_bin in range(1, h2d_xz.GetNbinsX()+1):
-                hist_yproj = asrootpy(h2d_xz.ProjectionY("", mthad_bin, mthad_bin).Clone())
-
-                #set_trace()
-                median, median_error = fncts.FindMedianAndMedianError(hist_yproj)
-                #median, median_error = fncts.FindMedianAndMedianError(hist_yproj) if fncts.FindMedianAndMedianError(hist_yproj) is not None else -1., -1.
-                if median_error == 0:
-                    #set_trace()
-                    median_weight = 100000 # 1/(standard error of median) to be used in fit
-                else:
-                    median_weight = 1/median_error # 1/(standard error of median) to be used in fit
-
-                medians.append(median)
-                median_weights.append(median_weight)
-                median_errors.append(median_error)
-
-            return medians, median_errors, median_weights
-
-
             ## get medians for single bin of mtt
-        medians, median_errors, median_weights = median_from_3d_hist(hist)
+        medians, median_errors, median_weights = plotter.median_from_3d_hist(hist, projection='zx', xbins=mthad_bins, ybins=alpha_bins)
         alphas_dict['All'] = {'Medians' : medians, 'Errors' : median_errors, 'Weights' : median_weights }
 
 
             ## get medians for all bins of mtt
         for mtt_bin in range(1, len(mtt_bins)):
-        #for mtt_bin in range(1, len(mtt_bins)+1):
 
             mtt_yslice = hist.Clone()
             mtt_yslice.GetYaxis().SetRange(mtt_bin, mtt_bin+1)
 
             #set_trace() 
-            medians, median_errors, median_weights = median_from_3d_hist(mtt_yslice)
+            medians, median_errors, median_weights = plotter.median_from_3d_hist(mtt_yslice, projection='zx', xbins=mthad_bins, ybins=alpha_bins)
             alphas_dict['Mtt']['Bin%s' % mtt_bin] = {'Medians' : medians, 'Errors' : median_errors, 'Weights' : median_weights }
 
         #set_trace()
 
             ## fill hists with medians in root file
         with root_open('%s/alpha_hists.root' % '/'.join([project, 'inputs', jobid, 'INPUT']), 'update') as out:# write to $jobid/INPUT directory
-        #with root_open('test_alphas.root', 'update') as out:
-            #out.cd(hvar.split('/')[0])
 
                 ## fill alphas for single mtt bin
             mttbar_bins = np.array([min(mtt_bins), max(mtt_bins)])
@@ -797,7 +753,7 @@ def Gen_Plots(directory, subdir):
     
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             box1.Draw()
             plotter.save('Gen_%s_%s_Stack' % (obj, kvar))
@@ -830,7 +786,7 @@ def Gen_Plots(directory, subdir):
 
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             #set_trace()
             hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
@@ -866,7 +822,7 @@ def Gen_Plots(directory, subdir):
 
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             #set_trace()
             hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
@@ -946,7 +902,7 @@ def Reco_Plots(directory, subdir):#, topology):
     
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             box1.Draw()
             plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
@@ -979,7 +935,7 @@ def Reco_Plots(directory, subdir):#, topology):
 
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             #set_trace()
             hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
@@ -1016,7 +972,7 @@ def Reco_Plots(directory, subdir):#, topology):
 
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             #set_trace()
             hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
@@ -1092,7 +1048,7 @@ def Resolution_Plots(directory, subdir):#, topology):
     
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             box1.Draw()
             plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
@@ -1125,7 +1081,7 @@ def Resolution_Plots(directory, subdir):#, topology):
 
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             #set_trace()
             hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
@@ -1162,7 +1118,7 @@ def Resolution_Plots(directory, subdir):#, topology):
 
             if not to_draw:
                 continue
-            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            stack, norm_stack, ratio = plotter.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
             #set_trace()
             hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
@@ -1227,7 +1183,7 @@ def Discriminant_Plots(directory, subdir):#, topology):
         
         if not to_draw:
             continue
-        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+        stack, norm_stack, ratio = plotter.stack_plots(to_draw)
         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
         box1.Draw()
         plotter.save(disc+'_Stack')
@@ -1260,7 +1216,7 @@ def Discriminant_Plots(directory, subdir):#, topology):
 
         if not to_draw:
             continue
-        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+        stack, norm_stack, ratio = plotter.stack_plots(to_draw)
         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
         #set_trace()
         hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
@@ -1296,7 +1252,7 @@ def Discriminant_Plots(directory, subdir):#, topology):
 
         if not to_draw:
             continue
-        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+        stack, norm_stack, ratio = plotter.stack_plots(to_draw)
         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
         #set_trace()
         hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
