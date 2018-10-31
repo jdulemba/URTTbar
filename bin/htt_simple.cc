@@ -245,7 +245,8 @@ class htt_simple : public AnalyzerBase
             dir->second["full_discriminant"].fill(hyp.Prob(), evt_weight_);
 
                 // corrected thad
-            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "None", "All"); // 3rd argument set to "None" to not apply correction
+            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1d", "None", "Mtt"); // 3rd argument set to "None" to not apply correction
+            //TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1d", "E", "Mtt"); // 3rd argument set to "None" to not apply correction
 
             //double whad_mass = hyp.WHad().M();
             double thad_mass = corrected_thad.M();
@@ -273,7 +274,8 @@ class htt_simple : public AnalyzerBase
             std::pair< double, double > reco_cosths = reco_costh_tops(hyp); // < reco thad, tlep costh >
 
                 // corrected thad
-            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1D", "None", "All"); // 3rd argument set to "None" to not apply correction
+            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1d", "None", "Mtt"); // 3rd argument set to "None" to not apply correction
+            //TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(hyp, "1d", "E", "Mtt"); // 3rd argument set to "None" to not apply correction
 
             ////PDF uncertainties
             //if(has_pdfs_) {
@@ -920,7 +922,8 @@ class htt_simple : public AnalyzerBase
                         sync_info_.RecoSuccess = reco_success_3J;
                         if(reco_success_3J){
                                 // corrected thad
-                            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(best_perm, "1D", "None", "All"); // 3rd argument set to "None" to not apply correction
+                            TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(best_perm, "1d", "None", "Mtt"); // 3rd argument set to "None" to not apply correction
+                            //TLorentzVector corrected_thad = alpha_corr_.Alpha_THad(best_perm, "1d", "E", "Mtt"); // 3rd argument set to "None" to not apply correction
                             sync_info_.MassTT = (corrected_thad + best_perm.TLep()).M();
                         }
                         else{
