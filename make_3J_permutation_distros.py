@@ -83,7 +83,7 @@ plotter = BasePlotter(
    'plots/%s/permutations' % jobid,
     defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
 )
-plotter.reset()
+#plotter.reset()
     
 
 #################### scale ttbar xsec for combining 3 different files
