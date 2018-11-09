@@ -90,8 +90,6 @@ plotter = BasePlotter(
 ttJets_fnames = ['ttJetsM0', 'ttJetsM700', 'ttJetsM1000']
 #ttJets_fnames = ['ttJets']
 lumis = [ float(open('inputs/%s/%s.lumi' % (jobid, fname), 'read').readline()) for fname in ttJets_fnames ]
-#max_lumi = max(lumis)
-#lumis[:] = [x/max_lumi for x in lumis]
 lumi_ratios = [ x/sum(lumis) for x in lumis ]
 
 #set_trace()
