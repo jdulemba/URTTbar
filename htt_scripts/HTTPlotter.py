@@ -268,13 +268,15 @@ class HTTPlotter(Plotter):
             'TT' : ['ttJets_other', 'ttJets_unmatchable', 'ttJets_matchable', 'ttJets_right'],
             'VV' : ['[WZ][WZ]'],
             'TTV': ['tt[WZ]*'],
-            'WJets' : ['W[0-9]Jets'],
+            'WJets' : ['WJets'],
+            #'WJets' : ['W[0-9]Jets'],
             'ZJets' : ['ZJets'],
-            'tChannel' : ['singlet_[st]channel'],
+            'tChannel' : ['single*_tchannel'],
+            'sChannel' : ['single*_schannel'],
             'tWChannel' : ['single*_tW'],
             'data_obs'  : ['data']
             }
-        non_qcd = ['TT', 'VV', 'TTV',   'WJets', 'ZJets',   'tChannel', 'tWChannel']
+        non_qcd = ['TT', 'VV', 'TTV',   'WJets', 'ZJets',   'tChannel', 'tWChannel', 'sChannel']
 
         self.card_names.update({i : [i] for i in added_samples})
 
