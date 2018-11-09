@@ -48,9 +48,11 @@ parser.add_argument('--card', action='store_true', help='')
 parser.add_argument('--sysplots', action='store_true', help='dumps systematics plots, valid only if --card')
 parser.add_argument('--smoothsys', action='store_true', help='')
 parser.add_argument('--njets', default='', help='choose 3, 4+')
-parser.add_argument('--qcd_yields', default=False, help='Makes table comparing QCD yields from different methods, file with values used in ML Fit')
+parser.add_argument('--qcd_est', action='store_true', help='QCD estimation will be made using ABCD method')
+parser.add_argument('--qcd_yields', action='store_true', help='Makes table comparing QCD yields from different methods, file with values used in ML Fit')
 #parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 args = parser.parse_args()
+arg_options = vars(args)
 
 if args.sysplots and not args.card:
     raise RuntimeError('I can only draw systematics plots if I am creating the card!')
@@ -949,13 +951,17 @@ class HTTPlotter(Plotter):
     def QCD_est_from_mlFit(self):
 
         #set_trace()
-        folder = ('/').join([os.getcwd(), 'htt_scripts'])
-        #yields = prettyjson.loads(open('%s/mlFit_yields_orig_lepIso.json' % folder).read())
-        yields = prettyjson.loads(open('%s/mlFit_yields_new_lepIso.json' % folder).read())
-        scale = yields[args.mode][args.njets]
-        error = (scale, scale*0.5)
-
-        return scale, error
+        folder = ('/').join([os.getcwd(), 'inputs', plotter.jobid, 'INPUT'])
+        fname = 'mlFit_yields_orig_lepIso.json'
+        if not os.path.isfile(fname):
+            return -1., (-1., -1.)
+        else:
+            yields = prettyjson.loads( open( '%s/%s' % (folder, fname) ).read() )
+            #yields = prettyjson.loads(open('%s/mlFit_yields_new_lepIso.json' % folder).read())
+            scale = yields[args.mode][args.njets]
+            error = (scale, scale*0.5)
+    
+            return scale, error
 
 
     def compare_QCD_estimations(self):
@@ -1152,6 +1158,7 @@ if args.qcd_yields:# or args.all:
     qcd_abcd_scale, qcd_abcd_error = plotter.QCD_est_from_abcd('njets')
     qcd_mlFit_scale, qcd_mlFit_error = plotter.QCD_est_from_mlFit()
 
+    #set_trace()
     rows = [
         ("Method", "Est. Value", "+", "-"),
         ("MC simulation", format(qcd_MC_scale, '.0f'), format(qcd_MC_error, '.0f'), format(qcd_MC_error, '.0f')),
@@ -1173,12 +1180,15 @@ if args.qcd_yields:# or args.all:
 
 if args.plots or args.all:
 
-    qcd_renorm = True
+    #set_trace()
     #qcd_renorm = False
-    qcd_est_scale = 1.
-    if qcd_renorm:
-            ### estimate QCD scale from ml fit
-        qcd_est_scale, qcd_est_error = plotter.QCD_est_from_mlFit()
+    #qcd_est_scale = 1.
+    #if args.qcd_est:
+    #        ### estimate QCD scale from ml fit
+    #    qcd_est_scale, qcd_est_error = plotter.QCD_est_from_mlFit()
+    #    qcd_renorm = True
+
+    qcd_est_scale, qcd_est_error = plotter.QCD_est_from_mlFit() if args.qcd_est else 1., (1.,1.)
 
     plotter.compare_QCD_estimations()
     #set_trace()
@@ -1213,13 +1223,13 @@ if args.plots or args.all:
             if 'discriminant' in var:
                 plotter.mc_samples = plotter.split_mcs
                 if 'mass' in var: rebin = [0, 5, 10, 15, 20]
+            #set_trace()
             plotter.plot_mc_vs_data(
                 'nosys/%s' % tdir, var, sort=False,
                 #'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
-                logy=logy, qcd_renorm=qcd_renorm, qcd_scale=qcd_est_scale)
-            #set_trace()
+                logy=logy, qcd_renorm=args.qcd_est, qcd_scale=qcd_est_scale)
             if first:
                 first = False
                 plotter.make_sample_table(threshold=50)
