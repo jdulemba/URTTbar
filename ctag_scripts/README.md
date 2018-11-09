@@ -11,7 +11,7 @@ To get the info:
 
 ```
 echo export jobid=SOME_JOBID_TAG > jobid.sh
-rake getfiles[USER]  ** user argument is only needed if you're getting files from someone else**
+rake getfiles[USER, sample]  ** if user==group then lpcbtag will be checked else a personal eos is used **
 #depending on the number of files, might take a couple of hours
 rake meta_batch
 #depending on the number of files, could take a very long time
@@ -20,13 +20,19 @@ rake getlumi
 
 Plan on this taking a day or more depending on the number of files.
 
-Get lumi computes lumi for MC only. **NOT FOR DATA**, for data you need to check every time (and works only on lxplus using BRIL).
+Get lumi computes lumi for MC only. **NOT FOR DATA**
+Lumi ** FOR DATA **
 Follow the commands from this webpage: https://cms-service-lumi.web.cern.ch/cms-service-lumi/brilwsdoc.html
     or from this TWIKI: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolPreExerciseThirdSet#Exercise_16_Combining_the_data_a
 
 Alternatively, download https://github.com/urcms/URBril on lxplus and follow those commands.
 
 Another option is to directly copy the inputs/$jobid directory from someone who already did it.
+
+Pileup ** FOR DATA **
+Check input files (run.json and pileup_latest.txt) for correctness.
+
+bash data_pileup.sh
 
 ## Running the analyzers
 
