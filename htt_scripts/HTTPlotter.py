@@ -194,8 +194,8 @@ class HTTPlotter(Plotter):
         self.views['EWK'] = {
             'view' : views.TitleView(
                 views.StyleView(
-                    views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', '[WZ]Jets', 'tt[WZ]*']]),
-                    #views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', 'ZJets', 'W[1-4]Jets', 'tt[WZ]*']]),
+                    #views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', '[WZ]Jets', 'tt[WZ]*']]),
+                    views.SumView(*[self.get_view(i) for i in ['[WZ][WZ]', 'ZJets', 'W[1-4]Jets', 'tt[WZ]*']]),
                     fillcolor = '#FFD700'
                     #fillcolor = ROOT.kGreen + 1
                     ),
@@ -268,8 +268,8 @@ class HTTPlotter(Plotter):
             'TT' : ['ttJets_other', 'ttJets_unmatchable', 'ttJets_matchable', 'ttJets_right'],
             'VV' : ['[WZ][WZ]'],
             'TTV': ['tt[WZ]*'],
-            'WJets' : ['WJets'],
-            #'WJets' : ['W[0-9]Jets'],
+            #'WJets' : ['WJets'],
+            'WJets' : ['W[0-9]Jets'],
             'ZJets' : ['ZJets'],
             'tChannel' : ['single*_tchannel'],
             'sChannel' : ['single*_schannel'],
