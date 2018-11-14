@@ -392,6 +392,13 @@ class htt_simple : public AnalyzerBase
 
         void book_presel_plots(string folder) {
             if(optim_) return;
+            //book<TH1F>(folder, "min_lep_jet_dr" , "", 50, 0., 5.);			
+            book<TH1F>(folder, "min_lep_jet_dr" , ";min #Delta R(lep, jets);", 50, 0., 5.);			
+            book<TH1F>(folder, "lep_pt_B" , ";p_{T}(l matched to b-quark) (GeV)", 500, 0., 500.);
+            book<TH1F>(folder, "lep_pt_Prompt" , ";p_{T}(l matched to prompt-quark) (GeV)", 500, 0., 500.);
+            book<TH1F>(folder, "lep_pt_B_pdgid" , ";p_{T}(l with b parton nearby) (GeV)", 500, 0., 500.);
+            book<TH1F>(folder, "lep_pt_Prompt_pdgid" , ";p_{T}(l with no b parton nearby) (GeV)", 500, 0., 500.);
+
             book<TH1F>(folder, "nvtx_noweight", "", 100, 0., 100.);
             book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
             book<TH1F>(folder, "rho", "", 100, 0., 100.);
@@ -489,10 +496,7 @@ class htt_simple : public AnalyzerBase
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
             }
-            //else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPCSV){
-            //    sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->DeepCSVProbB() + A->DeepCSVProbBB() > B->DeepCSVProbB() + B->DeepCSVProbBB());});
-            //}
-            else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
+            else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
                 throw 42;
             }
@@ -516,6 +520,43 @@ class htt_simple : public AnalyzerBase
             dir->second["MT_iso"  ].fill(mt, iso, evt_weight_);
             dir->second["MT_btag" ].fill(mt, max_btagval, evt_weight_);
             dir->second["iso_btag"].fill(iso, max_btagval, evt_weight_);
+
+
+            double lep_jet_DR = 1e10;
+            Jet lep_parton;
+            for( auto jet : event.jets() ){
+                if( jet.DeltaR( *object_selector_.lepton() ) < lep_jet_DR ){
+                    lep_jet_DR = jet.DeltaR( *object_selector_.lepton() );
+                    lep_parton = jet;
+                }
+            }
+
+            string quark_flav = "Prompt";
+            for( auto genp : event.genParticles() ){
+                int pdgid = fabs( genp.pdgId() );
+                double dr = lep_parton.DeltaR( genp );
+                if( pdgid == 5 && dr < 0.4 ) quark_flav = "B"; //cout << "pdgId: " << pdgid << ", dr: " << dr << endl;
+            }
+            dir->second["lep_pt_"+quark_flav+"_pdgid"].fill(object_selector_.lepton()->Pt(), evt_weight_);
+
+            //string pflav_str = "Prompt";
+            int pflav = fabs( lep_parton.partonFlavour() );
+            if( pflav == 5 ){
+                //pflav_str = "B";
+                dir->second["lep_pt_B"].fill(object_selector_.lepton()->Pt(), evt_weight_);
+            //    cout << pflav_str << endl;
+            }
+            else if( pflav != 5 && pflav > 0 ){
+                //pflav_str = "Prompt";
+                dir->second["lep_pt_Prompt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
+            }
+            //else{
+            //    pflav_str = "g,PU";
+            //}
+
+            dir->second["min_lep_jet_dr"].fill(lep_jet_DR, evt_weight_);
+            //dir->second["lep_pt_"+pflav_str].fill(object_selector_.lepton()->Pt(), evt_weight_);
+
         }
 
         void book_selection_plots(string folder, bool pdf){
@@ -686,6 +727,8 @@ class htt_simple : public AnalyzerBase
             vector<string> lepIDs  = {"looseNOTTight", "tight"};		
             //vector<string> MTs     = {"MTHigh"};		
             vector<string> MTs     = {"MTHigh", "MTLow"};		
+            //vector<string> btags   = {"csvHigh"};		
+            vector<string> btags   = {"csvHigh", "csvLow"};		
             //vector<string> tagging = {"ctagged", "notag"};
             for(auto& lepton : leptons) {
                 for(auto& njet: njets){
@@ -700,18 +743,21 @@ class htt_simple : public AnalyzerBase
                             string sub = (isTTbar_ || isSignal_) ? subsample : "";
                             for(auto& lepid : lepIDs) {
                                 for(auto& mt : MTs) {
-                                    if(sys != Sys::NOSYS && (lepid != "tight" || mt != "MTHigh")) {
-                                        continue;
-                                    }
-                                    stringstream dstream;
-                                    dstream << lepton << "/" << njet << sub << "/";
-                                    dstream << sys_name << "/" << lepid << "/" << mt;
+                                    for(auto& btag : btags) {
+                                        if(sys != Sys::NOSYS && (lepid != "tight" || mt != "MTHigh")) {
+                                            continue;
+                                        }
+                                        stringstream dstream;
+                                        dstream << lepton << "/" << njet << sub << "/";
+                                        //dstream << sys_name << "/" << lepid << "/" << mt;
+                                        dstream << sys_name << "/" << lepid << "/" << mt << "/" << btag;
 
-                                    //Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
-                                    bool runpdf = (runsys_ && isTTbar_ && sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
-                                    //bool runpdf = (runsys_ && isTTbar_ );//&& sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
-                                        // 3 and 4+ jet plots
-                                    book_selection_plots(dstream.str(), runpdf);
+                                        //Logger::log().debug() << "Booking histos in: " << dstream.str() << endl;
+                                        bool runpdf = (runsys_ && isTTbar_ && sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
+                                        //bool runpdf = (runsys_ && isTTbar_ );//&& sys == systematics::SysShifts::NOSYS && lepid == "tight" && mt == "MTHigh");
+                                            // 3 and 4+ jet plots
+                                        book_selection_plots(dstream.str(), runpdf);
+                                    }
                                 }
                             }
                             if(!(isTTbar_ || isSignal_)) break;
@@ -827,11 +873,9 @@ class htt_simple : public AnalyzerBase
 
             // check MT
             double mt = MT(object_selector_.lepton(), object_selector_.met());
-            bool mt_high;
+            bool mt_high = true;
             if( mt < 50. ) mt_high = false;
-            else mt_high = true;
 
-            // cout << "Muon: " << *object_selector_.lepton() << endl;
             //MC Weight for lepton selection
             float lep_weight=1;
             if(!isData_) { 
@@ -843,6 +887,7 @@ class htt_simple : public AnalyzerBase
                 if(object_selector_.tight_electrons().size() == 1) lep_weight = electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
             }
             evt_weight_ *= lep_weight;
+
             string sys_name = systematics::shift_to_name.at(shift);
             stringstream presel_dir;
             presel_dir << leptype << "/" << njets_type << "/";
@@ -853,37 +898,56 @@ class htt_simple : public AnalyzerBase
                 //tracker_.track("not sync and tight lep");
             }
 
-
-            //cut on btag
+            // btag regions
             auto &clean_jets = object_selector_.clean_jets();
-           if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
+            if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
             }
-            //else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPCSV){
-            //    sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->DeepCSVProbB() + A->DeepCSVProbBB() > B->DeepCSVProbB() + B->DeepCSVProbBB());});
-            //}
-            else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
+            else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
                 throw 42;
             }
 
-            if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
-            //tracker_.track("first b pass");
-            if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
-            //tracker_.track("second b pass");
-            //
+                // both highest-tagged jets pass cuts
+            bool btag_high = false;
+            if( clean_jets[0]->BTagId(cut_tight_b_) && clean_jets[1]->BTagId(cut_loose_b_) ){
+                btag_high = true;
+            }
 
-            if(lep_is_tight) tracker_.track("b cuts", leptype);
+                // neither highest-tagged jets pass cuts
+            bool btag_low = false;
+            if( !clean_jets[0]->BTagId(cut_tight_b_) && !clean_jets[1]->BTagId(cut_loose_b_) ){
+                btag_low = true;
+            }
 
-            if( !permutator_.preselection(
+            if( !(btag_high || btag_low) ) return;
+            //if( btag_low ) cout << "btag low: " << btag_low << ", njets = " << njets << endl;
+            //if( btag_high ) cout << "btag high: " << btag_high << ", njets = " << njets << endl;
+
+            //if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
+            ////tracker_.track("tight b pass");
+            //if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
+            ////tracker_.track("loose b pass");
+            
+            //if(lep_is_tight) tracker_.track("b cuts", leptype);
+
+            permutator_.preselection(
                         object_selector_.clean_jets(), object_selector_.lepton(), 
                         object_selector_.met(), object_selector_.lepton_charge(),
                         //lep_is_tight) ) return;
-                event.rho().value(), lep_is_tight) ) return;
-            if(lep_is_tight) tracker_.track("perm preselection");
+                        event.rho().value(), lep_is_tight
+            );
+            //if( !permutator_.preselection(
+            //            object_selector_.clean_jets(), object_selector_.lepton(), 
+            //            object_selector_.met(), object_selector_.lepton_charge(),
+            //            //lep_is_tight) ) return;
+            //            event.rho().value(), lep_is_tight
+            //            )
+            //) return;
+            //if(lep_is_tight) tracker_.track("perm preselection");
 
             //find mc weight for btag
             double bweight = 1;
@@ -899,6 +963,7 @@ class htt_simple : public AnalyzerBase
             }
 
             if( njets == 3 ){
+                //return;
 
                 /// Find best permutation
                 permutator_.reset_3J();
@@ -983,7 +1048,7 @@ class htt_simple : public AnalyzerBase
                 }
                 if(!tight && shift != Sys::NOSYS) return;
 
-                ////MT category 
+                //// btag and MT categories
                 if( shift == Sys::NOSYS ){
                     if( !mt_high ){
                         evtdir << "/MTLow";
@@ -991,10 +1056,12 @@ class htt_simple : public AnalyzerBase
                         //cout << "MTLow: " << mt_high << endl;
                     }
                     else evtdir << "/MTHigh";
+                    if( btag_high ) evtdir << "/csvHigh";
+                    if( btag_low )  evtdir << "/csvLow";
                 }
                 else{
-                    if( !mt_high ) return;
-                    evtdir << "/MTHigh";
+                    if( !btag_high || !mt_high ) return;
+                    evtdir << "/MTHigh/csvHigh";
                 }
 
                 //cout << "category: " << evtdir.str() << endl;
@@ -1008,14 +1075,7 @@ class htt_simple : public AnalyzerBase
             } // njets == 3 requirement
 
 
-
     //// events with 4+ jets
-
-            // cout << object_selector_.clean_jets().size() << " --> " << permutator_.capped_jets().size() << endl;
-            // for(auto i : object_selector_.clean_jets()) {
-            // 	cout << *i << endl;
-            // }
-            // cout << endl << endl;
 
             //Find best permutation
             Permutation best_permutation;
@@ -1023,17 +1083,6 @@ class htt_simple : public AnalyzerBase
             for(auto& test_perm : permutator_.permutations()) {
                 solver_.Solve(test_perm);
 
-                // cout << "Permutation #" << idx << "  " << test_perm.Prob() << " -- " << best_permutation.Prob() << endl;
-                // idx++;
-                // if(test_perm.IsComplete()) {
-                // 	cout << test_perm << endl;
-                // }
-                // else {
-                // 	cout << "Permutation incomplete!" << endl
-                // 			 << "l: " << test_perm.L() << ", b_l: " << test_perm.BLep() << ", b_h: " 
-                // 			 << test_perm.BHad() << ", j1: " << test_perm.WJa() << ", j2: " 
-                // 			 << test_perm.WJb() << endl;
-                // }
                 if(!sync_ && lep_is_tight){
                     fill_combo_plots(presel_dir.str(), test_perm);
                 }
@@ -1043,10 +1092,6 @@ class htt_simple : public AnalyzerBase
                 }
                 // cout << endl;
             }
-
-            //            float wja_sf = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, best_permutation.WJa()->Eta()}});
-            //            float wja_sf_down = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, best_permutation.WJa()->Eta()}}, Variation::DOWN);
-            //            float wja_sf_up = jet_res_sf_.getScaleFactor({{JME::Binning::JetEta, best_permutation.WJa()->Eta()}}, Variation::UP);
 
             bool reco_success = (best_permutation.IsComplete() && best_permutation.Prob() <= 1E9);
             if(!sync_ && !reco_success){
@@ -1125,17 +1170,19 @@ class htt_simple : public AnalyzerBase
             }
             if(!tight && shift != Sys::NOSYS) return;
 
-            //MT category
+            //// btag and MT categories
             if( shift == Sys::NOSYS ){
                 if( !mt_high ){
                     evtdir << "/MTLow";
                     runpdf=false;
                 }
                 else evtdir << "/MTHigh";
+                if( btag_high ) evtdir << "/csvHigh";
+                if( btag_low )  evtdir << "/csvLow";
             }
             else{
-                if( !mt_high ) return;
-                evtdir << "/MTHigh";
+                if( !btag_high || !mt_high ) return;
+                evtdir << "/MTHigh/csvHigh";
             }
 
             //fill right category
@@ -1149,7 +1196,7 @@ class htt_simple : public AnalyzerBase
         //run your proper analysis here
         virtual void analyze(){
             opts::variables_map &values = URParser::instance().values();
-            //int limit = 10;
+            //int limit = 10000;
             int limit = values["limit"].as<int>();
             int report = values["report"].as<int>();
             int skip  = values["skip"].as<int>();
