@@ -130,7 +130,7 @@ class HTTPlotter(Plotter):
             #info['unweighted_view'] = views.SubdirectoryView(info['unweighted_view'], mode)
         self.views['data']['view'] = urviews.BlindView(
             self.views['data']['view'], 
-            '\w+/tight/MTHigh/(:?(:?m_tt)|(:?.+_ctstar)|(:?.+_ctstar_abs)|(:?cdelta_ld)|(:?hframe_ctheta_d))'
+            '\w+/tight/MTHigh/csvHigh/(:?(:?m_tt)|(:?.+_ctstar)|(:?.+_ctstar_abs)|(:?cdelta_ld)|(:?hframe_ctheta_d))'
             )
 
         self.defaults = {
@@ -877,6 +877,78 @@ class HTTPlotter(Plotter):
         return ret
 
 
+    def flav_fracs_and_effs(self, var, xtitle, name, xlims, nbinsx): ## find fractions and efficiencies of MC for b and prompt quarks
+
+        plotter.set_subdir( '%s/ISO_BTag_Est' % '3Jets' if args.njets == '3' else '4PJets' )
+        
+        tight_CSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/tight/MTHigh/csvHigh', False) ])
+        tight_CSV_b = RebinView.rebin(tight_CSV_b, nbinsx)
+        loose_CSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/MTHigh/csvHigh', False) ])
+        loose_CSV_b = RebinView.rebin(loose_CSV_b, nbinsx)
+        tight_CSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/tight/MTHigh/csvHigh', False) ])
+        tight_CSV_p = RebinView.rebin(tight_CSV_p, nbinsx)
+        loose_CSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/MTHigh/csvHigh', False) ])
+        loose_CSV_p = RebinView.rebin(loose_CSV_p, nbinsx)
+        tight_nonCSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/tight/MTHigh/csvLow', False) ])
+        tight_nonCSV_b = RebinView.rebin(tight_nonCSV_b, nbinsx)
+        loose_nonCSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/MTHigh/csvLow', False) ])
+        loose_nonCSV_b = RebinView.rebin(loose_nonCSV_b, nbinsx)
+        tight_nonCSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/tight/MTHigh/csvLow', False) ])
+        tight_nonCSV_p = RebinView.rebin(tight_nonCSV_p, nbinsx)
+        loose_nonCSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/MTHigh/csvLow', False) ])
+        loose_nonCSV_p = RebinView.rebin(loose_nonCSV_p, nbinsx)
+
+        N_b_CSV = tight_CSV_b+loose_CSV_b
+        N_p_CSV = tight_CSV_p+loose_CSV_p
+        N_b_nonCSV = tight_nonCSV_b+loose_nonCSV_b
+        N_p_nonCSV = tight_nonCSV_p+loose_nonCSV_p
+
+        #set_trace()
+            ## format and plot lep pT hists for number of leps matched to b and prompt
+        plotter.plot( N_b_CSV, x_range=xlims, ytitle='N_{b}^{CSV}' )
+        plotter.save( 'N_b_CSV_%s' % name )
+        plotter.plot( N_p_CSV, x_range=xlims, ytitle='N_{prompt}^{CSV}' )
+        plotter.save( 'N_p_CSV_%s' % name )
+        plotter.plot( N_b_nonCSV, x_range=xlims, ytitle='N_{b}^{nonCSV}' )
+        plotter.save( 'N_b_nonCSV_%s' % name )
+        plotter.plot( N_p_nonCSV, x_range=xlims, ytitle='N_{prompt}^{nonCSV}' )
+        plotter.save( 'N_p_nonCSV_%s' % name )
+
+            ## format and plot lep pT hists for fraction of leps matched to b and prompt
+        f_b_CSV = N_b_CSV/(N_b_CSV+N_p_CSV)
+        plotter.set_histo_style( f_b_CSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        f_p_CSV = N_p_CSV/(N_b_CSV+N_p_CSV)
+        plotter.set_histo_style( f_p_CSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
+        plotter.overlay([f_b_CSV, f_p_CSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='f_{CSV}', xtitle=xtitle)
+        plotter.save( 'Fractions_B_Prompt_CSV_%s' % name )
+
+        f_b_nonCSV = N_b_nonCSV/(N_b_nonCSV+N_p_nonCSV)
+        plotter.set_histo_style( f_b_nonCSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        f_p_nonCSV = N_p_nonCSV/(N_b_nonCSV+N_p_nonCSV)
+        plotter.set_histo_style( f_p_nonCSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
+        plotter.overlay([f_b_nonCSV, f_p_nonCSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='f_{nonCSV}', xtitle=xtitle)
+        plotter.save( 'Fractions_B_Prompt_nonCSV_%s' % name )
+
+        #set_trace()
+            ## format and plot lep pT hists for efficiency of leps matched to b and prompt
+        e_b_CSV = tight_CSV_b/N_b_CSV
+        plotter.set_histo_style( e_b_CSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        e_p_CSV = tight_CSV_p/N_p_CSV
+        plotter.set_histo_style( e_p_CSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
+        plotter.overlay([e_b_CSV, e_p_CSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='#epsilon_{CSV}', xtitle=xtitle)
+        plotter.save( 'Efficiencies_B_Prompt_CSV_%s' % name )
+
+        e_b_nonCSV = tight_nonCSV_b/N_b_nonCSV
+        plotter.set_histo_style( e_b_nonCSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        e_p_nonCSV = tight_nonCSV_p/N_p_nonCSV
+        plotter.set_histo_style( e_p_nonCSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
+        plotter.overlay([e_b_nonCSV, e_p_nonCSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='#epsilon_{nonCSV}', xtitle=xtitle)
+        plotter.save( 'Efficiencies_B_Prompt_nonCSV_%s' % name )
+
+
+
+
+
     def QCD_est_from_MC(self, var): ## find amount of QCD in each of the 4 regions only based on MC simulation
 
         N_A = 0 # amount of QCD in signal region just from MC
@@ -885,7 +957,7 @@ class HTTPlotter(Plotter):
         N_D = 0
         for dirid in itertools.product(['looseNOTTight', 'tight'], ['MTHigh', 'MTLow']):
             tdir = '%s/%s' % dirid
-            qcd_hist = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s' % tdir, False) if i.Get(var).title == 'QCD' ][0]
+            qcd_hist = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s/csvHigh' % tdir, False) if i.Get(var).title == 'QCD' ][0]
             qcd_hist.set_name('QCD')
 
             #set_trace()
@@ -917,13 +989,13 @@ class HTTPlotter(Plotter):
             #if tdir == 'tight/MTHigh':
             #    continue
             #set_trace()
-            mc_hists = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s' % tdir, False) if i.Get(var).title != 'QCD' ]
+            mc_hists = [ i.Get(var) for i in plotter.mc_views(1, None, 'nosys/%s/csvHigh' % tdir, False) if i.Get(var).title != 'QCD' ]
             mc_names = [i.title for i in mc_hists]
             [ mc_hists[i].set_name(mc_hists[i].title) for i in range(len(mc_hists))] # set hist name to QCD, EW, Single...
             prompt_hist = sum(mc_hists)
             prompt_hist.set_name('Prompt MC')
 
-            data_hist = self.get_view('data').Get('nosys/%s/%s' % (tdir, var))
+            data_hist = self.get_view('data').Get('nosys/%s/csvHigh/%s' % (tdir, var))
             data_hist.set_name(data_hist.title)
 
             data_error = ROOT.Double()
@@ -989,8 +1061,8 @@ class HTTPlotter(Plotter):
                 #set_trace()
 
                     ## get MC contribution
-                Region_1_MC = plotter.make_stack(rebin, None, 'nosys/%s' % tdirs[0], False, False, None).Get(var)
-                Region_2_MC = plotter.make_stack(rebin, None, 'nosys/%s' % tdirs[1], False, False, None).Get(var)
+                Region_1_MC = plotter.make_stack(rebin, None, 'nosys/%s/csvHigh' % tdirs[0], False, False, None).Get(var)
+                Region_2_MC = plotter.make_stack(rebin, None, 'nosys/%s/csvHigh' % tdirs[1], False, False, None).Get(var)
                 MT_MC_stack = Region_1_MC+Region_2_MC
 
                         ## style mc stack
@@ -1008,10 +1080,10 @@ class HTTPlotter(Plotter):
 
                     ## get data contribution
                 Region_1_data_corr_view = plotter.get_view('data')
-                Region_1_data_corr_view = plotter.get_wild_dir(plotter.rebin_view(Region_1_data_corr_view, rebin), 'nosys/%s' % tdirs[0])
+                Region_1_data_corr_view = plotter.get_wild_dir(plotter.rebin_view(Region_1_data_corr_view, rebin), 'nosys/%s/csvHigh' % tdirs[0])
                 Region_1_data = Region_1_data_corr_view.Get(var)
                 Region_2_data_corr_view = plotter.get_view('data')
-                Region_2_data_corr_view = plotter.get_wild_dir(plotter.rebin_view(Region_2_data_corr_view, rebin), 'nosys/%s' % tdirs[1])
+                Region_2_data_corr_view = plotter.get_wild_dir(plotter.rebin_view(Region_2_data_corr_view, rebin), 'nosys/%s/csvHigh' % tdirs[1])
                 Region_2_data = Region_2_data_corr_view.Get(var)
                 data = Region_1_data+Region_2_data
                 data.Draw('same')
@@ -1031,7 +1103,7 @@ class HTTPlotter(Plotter):
 
                     ### make comparison plots for data-prompt and QCD mc
                 ## data-prompt
-                mc_hists = [ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[0], False) if i.Get(var).title != 'QCD' ]+[ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[1], False) if i.Get(var).title != 'QCD' ]
+                mc_hists = [ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s/csvHigh' % tdirs[0], False) if i.Get(var).title != 'QCD' ]+[ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s/csvHigh' % tdirs[1], False) if i.Get(var).title != 'QCD' ]
                 prompt_hist = sum(mc_hists)
                 prompt_hist.set_name('Prompt MC')
                 data_minus_prompt = data - prompt_hist
@@ -1043,7 +1115,7 @@ class HTTPlotter(Plotter):
                 data_minus_prompt.Draw()
 
                 ## QCD mc
-                qcd_hist = sum([ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[0], False) if i.Get(var).title == 'QCD' ]+[ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s' % tdirs[1], False) if i.Get(var).title == 'QCD' ])
+                qcd_hist = sum([ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s/csvHigh' % tdirs[0], False) if i.Get(var).title == 'QCD' ]+[ i.Get(var) for i in plotter.mc_views(rebin, None, 'nosys/%s/csvHigh' % tdirs[1], False) if i.Get(var).title == 'QCD' ])
                 plotter.set_histo_style(qcd_hist, xtitle=axis, ytitle='events', color='c', title='QCD MC', drawstyle='E0 X0', legendstyle='p')
 
                 yrange = plotter._get_y_range_(data_minus_prompt, qcd_hist)
@@ -1097,6 +1169,11 @@ variables = [
 ]
 
 preselection = [
+    (False, "min_lep_jet_dr" , "min #DeltaR(lep, jets)",  1, (0, 0.5), False),
+    (False, "lep_pt_B" , "p_{T}(l matched to b-quark) (GeV)",  20, (0,300), False),
+    (False, "lep_pt_Prompt" , "p_{T}(l matched to prompt quark) (GeV)",  20, (0,300), False),
+    (False, "lep_pt_B_pdgid" , "p_{T}(l w/ b parton nearby) (GeV)", 20, (0,300), False),
+    (False, "lep_pt_Prompt_pdgid" , "p_{T}(l w/o b parton nearby) (GeV)", 20, (0,300), False),
     (False, "MT" , "M_{T}",  10, (0, 300), False),
     (False, "njets"  , "# of selected jets", range(13), None, False),
     (False, "jets_eta", "#eta(jet)", 5, None, False),
@@ -1155,6 +1232,14 @@ if args.preselection or args.all:
         plotter.save(var)
 
 if args.qcd_yields:# or args.all:
+
+    lepIso_bTag = [
+        ('lep_pt', 'p_{T}(l) (GeV)', 'Pt', (0, 300), 20),
+        ('lep_eta', '#eta(l) (GeV)', 'Eta', (-2.4, 2.4), 20)
+    ]
+    for var, overlay_xtitle, name_var, xlims, nbinsx in lepIso_bTag:
+        plotter.flav_fracs_and_effs(var, overlay_xtitle, name_var, xlims, nbinsx)
+    plotter.set_subdir(plotter.base_out_dir)
     yields_dict = {}
     qcd_MC_scale, qcd_MC_error = plotter.QCD_est_from_MC('njets')
     qcd_abcd_scale, qcd_abcd_error = plotter.QCD_est_from_abcd('njets')
@@ -1209,7 +1294,7 @@ if args.plots or args.all:
         first = True
 
         for var, xaxis, yaxis, xbins, ybins in vars2D:
-            for i in plotter.mc_views(1, None, 'nosys/%s' % tdir, False):
+            for i in plotter.mc_views(1, None, 'nosys/%s/csvHigh' % tdir, False):
                 hist = i.Get(var)
                 hist = RebinView.newRebin2D(hist, xbins, ybins)
                 #set_trace()
@@ -1227,7 +1312,7 @@ if args.plots or args.all:
                 if 'mass' in var: rebin = [0, 5, 10, 15, 20]
             #set_trace()
             plotter.plot_mc_vs_data(
-                'nosys/%s' % tdir, var, sort=False,
+                'nosys/%s/csvHigh' % tdir, var, sort=False,
                 #'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
