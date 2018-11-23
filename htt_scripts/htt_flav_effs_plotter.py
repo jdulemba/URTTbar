@@ -113,7 +113,7 @@ class HTTPlotter(Plotter):
         #set_trace()
         self.views['data']['view'] = urviews.BlindView(
             self.views['data']['view'], 
-            '\w+/tight/MTHigh/csvHigh/(:?(:?m_tt)|(:?.+_ctstar)|(:?.+_ctstar_abs)|(:?cdelta_ld)|(:?hframe_ctheta_d))'
+            '\w+/tight/MTHigh/csvPass/(:?(:?m_tt)|(:?.+_ctstar)|(:?.+_ctstar_abs)|(:?cdelta_ld)|(:?hframe_ctheta_d))'
             )
 
         self.defaults = {
@@ -294,21 +294,23 @@ class HTTPlotter(Plotter):
 
     def flav_fracs_and_effs(self, var, xtitle, name, xlims, nbinsx): ## find fractions and efficiencies of MC for b and prompt quarks
 
-        tight_CSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvHigh', False) ])
+        #set_trace()
+        ## find fractions and efficiencies of QCD MC for leps matched to b and prompt quarks
+        tight_CSV_b = self.get_view('QCD*').Get('nosys/tight/csvPass/%s_B' % var )
         tight_CSV_b = RebinView.rebin(tight_CSV_b, nbinsx)
-        loose_CSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvHigh', False) ])
+        loose_CSV_b = self.get_view('QCD*').Get('nosys/looseNOTTight/csvPass/%s_B' % var )
         loose_CSV_b = RebinView.rebin(loose_CSV_b, nbinsx)
-        tight_CSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvHigh', False) ])
+        tight_CSV_p = self.get_view('QCD*').Get('nosys/tight/csvPass/%s_Prompt' % var )
         tight_CSV_p = RebinView.rebin(tight_CSV_p, nbinsx)
-        loose_CSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvHigh', False) ])
+        loose_CSV_p = self.get_view('QCD*').Get('nosys/looseNOTTight/csvPass/%s_Prompt' % var )
         loose_CSV_p = RebinView.rebin(loose_CSV_p, nbinsx)
-        tight_nonCSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvLow', False) ])
+        tight_nonCSV_b = self.get_view('QCD*').Get('nosys/tight/csvFail/%s_B' % var )
         tight_nonCSV_b = RebinView.rebin(tight_nonCSV_b, nbinsx)
-        loose_nonCSV_b = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvLow', False) ])
+        loose_nonCSV_b = self.get_view('QCD*').Get('nosys/looseNOTTight/csvFail/%s_B' % var )
         loose_nonCSV_b = RebinView.rebin(loose_nonCSV_b, nbinsx)
-        tight_nonCSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvLow', False) ])
+        tight_nonCSV_p = self.get_view('QCD*').Get('nosys/tight/csvFail/%s_Prompt' % var )
         tight_nonCSV_p = RebinView.rebin(tight_nonCSV_p, nbinsx)
-        loose_nonCSV_p = sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvLow', False) ])
+        loose_nonCSV_p = self.get_view('QCD*').Get('nosys/looseNOTTight/csvFail/%s_Prompt' % var )
         loose_nonCSV_p = RebinView.rebin(loose_nonCSV_p, nbinsx)
 
         N_b_CSV = tight_CSV_b+loose_CSV_b
@@ -316,66 +318,68 @@ class HTTPlotter(Plotter):
         N_b_nonCSV = tight_nonCSV_b+loose_nonCSV_b
         N_p_nonCSV = tight_nonCSV_p+loose_nonCSV_p
 
-        #set_trace()
             ## format and plot lep pT hists for number of leps matched to b and prompt
-        plotter.plot( N_b_CSV, x_range=xlims, ytitle='N_{b}^{CSV}' )
+        plotter.plot( N_b_CSV, x_range=xlims, ytitle='N_{b}^{CSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
         plotter.save( 'N_b_CSV_%s' % name )
-        plotter.plot( N_p_CSV, x_range=xlims, ytitle='N_{prompt}^{CSV}' )
+        plotter.plot( N_p_CSV, x_range=xlims, ytitle='N_{prompt}^{CSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
         plotter.save( 'N_p_CSV_%s' % name )
-        plotter.plot( N_b_nonCSV, x_range=xlims, ytitle='N_{b}^{nonCSV}' )
+        plotter.plot( N_b_nonCSV, x_range=xlims, ytitle='N_{b}^{nonCSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
         plotter.save( 'N_b_nonCSV_%s' % name )
-        plotter.plot( N_p_nonCSV, x_range=xlims, ytitle='N_{prompt}^{nonCSV}' )
+        plotter.plot( N_p_nonCSV, x_range=xlims, ytitle='N_{prompt}^{nonCSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
         plotter.save( 'N_p_nonCSV_%s' % name )
 
+        #set_trace()
             ## format and plot lep pT hists for fraction of leps matched to b and prompt
         f_b_CSV = N_b_CSV/(N_b_CSV+N_p_CSV)
-        plotter.set_histo_style( f_b_CSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        plotter.plot( f_b_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{b}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Fractions_b_CSV_%s' % name )
         f_p_CSV = N_p_CSV/(N_b_CSV+N_p_CSV)
-        plotter.set_histo_style( f_p_CSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
-        plotter.overlay([f_b_CSV, f_p_CSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='f_{CSV}', xtitle=xtitle)
-        plotter.save( 'Fractions_B_Prompt_CSV_%s' % name )
+        plotter.plot( f_p_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{prompt}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Fractions_p_CSV_%s' % name )
+        #plotter.set_histo_style( f_p_CSV, name='Prompt', color='r', fillstyle=0, drawstyle='E0 X0')
 
         f_b_nonCSV = N_b_nonCSV/(N_b_nonCSV+N_p_nonCSV)
-        plotter.set_histo_style( f_b_nonCSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        plotter.plot( f_b_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{b}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Fractions_b_nonCSV_%s' % name )
         f_p_nonCSV = N_p_nonCSV/(N_b_nonCSV+N_p_nonCSV)
-        plotter.set_histo_style( f_p_nonCSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
-        plotter.overlay([f_b_nonCSV, f_p_nonCSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='f_{nonCSV}', xtitle=xtitle)
-        plotter.save( 'Fractions_B_Prompt_nonCSV_%s' % name )
+        plotter.plot( f_p_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{prompt}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Fractions_p_nonCSV_%s' % name )
 
         #set_trace()
             ## format and plot lep pT hists for efficiency of leps matched to b and prompt
         e_b_CSV = tight_CSV_b/N_b_CSV
-        plotter.set_histo_style( e_b_CSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        plotter.plot( e_b_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{b}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Efficiencies_b_CSV_%s' % name )
         e_p_CSV = tight_CSV_p/N_p_CSV
-        plotter.set_histo_style( e_p_CSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
-        plotter.overlay([e_b_CSV, e_p_CSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='#epsilon_{CSV}', xtitle=xtitle)
-        plotter.save( 'Efficiencies_B_Prompt_CSV_%s' % name )
+        plotter.plot( e_p_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{prompt}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Efficiencies_p_CSV_%s' % name )
 
         e_b_nonCSV = tight_nonCSV_b/N_b_nonCSV
-        plotter.set_histo_style( e_b_nonCSV, name='b', color='b', fillstyle=0, drawstyle='hist')
+        plotter.plot( e_b_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{b}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Efficiencies_b_nonCSV_%s' % name )
         e_p_nonCSV = tight_nonCSV_p/N_p_nonCSV
-        plotter.set_histo_style( e_p_nonCSV, name='Prompt', color='r', fillstyle=0, drawstyle='hist')
-        plotter.overlay([e_b_nonCSV, e_p_nonCSV], legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, y_range=(0, 1.2), ytitle='#epsilon_{nonCSV}', xtitle=xtitle)
-        plotter.save( 'Efficiencies_B_Prompt_nonCSV_%s' % name )
+        plotter.plot( e_p_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{prompt}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+        plotter.save( 'Efficiencies_p_nonCSV_%s' % name )
 
 
+        #set_trace()
 
 
     #def scale_factor(self, var, xtitle, name, xlims, nbinsx): ## find fractions and efficiencies of MC for b and prompt quarks
 
-        data_Iso_nonCSV_hist = self.get_view('data').Get('nosys/tight/csvLow/%s_B' % var )+self.get_view('data').Get('nosys/tight/csvLow/%s_Prompt' % var )
+        data_Iso_nonCSV_hist = self.get_view('data').Get('nosys/tight/csvFail/%s_B' % var )+self.get_view('data').Get('nosys/tight/csvFail/%s_Prompt' % var )
         data_Iso_nonCSV_hist = RebinView.rebin(data_Iso_nonCSV_hist, nbinsx)
-        data_nonIso_nonCSV_hist = self.get_view('data').Get('nosys/looseNOTTight/csvLow/%s_B' % var )+self.get_view('data').Get('nosys/looseNOTTight/csvLow/%s_Prompt' % var )
+        data_nonIso_nonCSV_hist = self.get_view('data').Get('nosys/looseNOTTight/csvFail/%s_B' % var )+self.get_view('data').Get('nosys/looseNOTTight/csvFail/%s_Prompt' % var )
         data_nonIso_nonCSV_hist = RebinView.rebin(data_nonIso_nonCSV_hist, nbinsx)
         data_nonCSV_hist = data_Iso_nonCSV_hist+data_nonIso_nonCSV_hist
 
         r_data = data_Iso_nonCSV_hist/data_nonCSV_hist
-        plotter.plot( r_data, x_range=xlims, xtitle=xtitle, ytitle='r=N^{Iso-nonCSV}/N^{nonCSV}' )
+        plotter.plot( r_data, x_range=xlims, xtitle=xtitle, ytitle='r=N_{data}^{Iso-nonCSV}/N_{data}^{nonCSV}', legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
         plotter.save( 'r_data_nonCSV_%s' % name )
         #set_trace()
 
         scale_factor = r_data/(f_b_nonCSV*e_b_nonCSV+f_p_nonCSV*e_p_nonCSV)
-        plotter.plot( scale_factor, x_range=xlims, xtitle=xtitle, ytitle='SF^{nonCSV}' )
+        plotter.plot( scale_factor, x_range=xlims, xtitle=xtitle, ytitle='SF^{nonCSV}', drawstyle='E0 X0' )
         plotter.save( 'SF_nonCSV_%s' % name )
 
 
@@ -388,6 +392,7 @@ preselection = [
     (True, "lep_pt_Prompt" , "p_{T}(l matched to prompt quark) (GeV)",  20, (0,300), False),
     (True, "lep_eta_B" , "#eta(l matched to b-quark)",  20, (-2.4, 2.4), False),
     (True, "lep_eta_Prompt" , "#eta(l matched to prompt quark)",  20, (-2.4, 2.4), False),
+    (False, "MT" , "M_{T}",  10, (0, 300), False)
 ]
 
 if args.preselection or args.all:
@@ -401,10 +406,19 @@ if args.preselection or args.all:
     #set_trace()
     for logy, var, axis, rebin, x_range, leftside in preselection:
     #for logy, var, axis, rebin, x_range, leftside in preselection + permutations:
+        NoData = False
+        if 'B' in var or 'Prompt' in var: NoData = True
+
         plotter.make_preselection_plot(
             'nosys/preselection', var, sort=True,
             xaxis=axis, leftside=leftside, rebin=rebin, 
-            show_ratio=True, ratio_range=0.5, xrange=x_range, logy=logy)        
+            show_ratio=True, ratio_range=0.5, xrange=x_range, logy=True, nodata=NoData)        
+        plotter.save(var+'_logy')
+
+        plotter.make_preselection_plot(
+            'nosys/preselection', var, sort=True,
+            xaxis=axis, leftside=leftside, rebin=rebin, 
+            show_ratio=True, ratio_range=0.5, xrange=x_range, logy=False, nodata=NoData)        
         plotter.save(var)
 
 if args.qcd_yields or args.all:
@@ -447,22 +461,12 @@ if args.qcd_yields or args.all:
 
 if args.plots or args.all:
 
-    #set_trace()
-    #qcd_renorm = False
-    #qcd_est_scale = 1.
-    #if args.qcd_est:
-    #        ### estimate QCD scale from ml fit
-    #    qcd_est_scale, qcd_est_error = plotter.QCD_est_from_mlFit()
-    #    qcd_renorm = True
-
     #qcd_est_scale, qcd_est_error = plotter.QCD_est_from_mlFit() if args.qcd_est else 1., (1.,1.)
     qcd_est_scale, qcd_est_error = 1., (1.,1.)
 
     #plotter.compare_QCD_estimations()
     #set_trace()
-    #vals = []
-    #for dirid in ['looseNOTTight', 'tight']:
-    for dirid in itertools.product(['looseNOTTight', 'tight'], ['csvHigh', 'csvLow']):
+    for dirid in itertools.product(['looseNOTTight', 'tight'], ['csvPass', 'csvFail']):
         tdir = '%s/%s' % dirid
         if args.njets == '3':
             plotter.set_subdir('3Jets/'+tdir)
@@ -475,7 +479,7 @@ if args.plots or args.all:
         #first = True
 
         #for var, xaxis, yaxis, xbins, ybins in vars2D:
-        #    for i in plotter.mc_views(1, None, 'nosys/%s/csvHigh' % tdir, False):
+        #    for i in plotter.mc_views(1, None, 'nosys/%s/csvPass' % tdir, False):
         #        hist = i.Get(var)
         #        hist = RebinView.newRebin2D(hist, xbins, ybins)
         #        #set_trace()
@@ -484,18 +488,29 @@ if args.plots or args.all:
         #        plotter.save('%s_%s' % (i.Get(var).title, var) )
 
             #set_trace()
-
-        #for logy, var, axis, rebin, x_range, leftside in variables:
         for logy, var, axis, rebin, x_range, leftside in preselection:
-        #for logy, var, axis, rebin, x_range, leftside in preselection+variables+permutations:
+            NoData = False
+            if 'B' in var or 'Prompt' in var: NoData = True
+
             #set_trace()
             plotter.plot_mc_vs_data(
                 'nosys/%s' % tdir, var, sort=False,
                 #'nosys/%s' % tdir, var, sort=True,
                 xaxis=axis, leftside=leftside, rebin=rebin,
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
-                logy=logy, qcd_renorm=False, qcd_scale=qcd_est_scale)
+                logy=False, qcd_renorm=False, qcd_scale=qcd_est_scale, nodata=NoData)
 
             print var
             #set_trace()
             plotter.save(var)
+
+            plotter.plot_mc_vs_data(
+                'nosys/%s' % tdir, var, sort=False,
+                #'nosys/%s' % tdir, var, sort=True,
+                xaxis=axis, leftside=leftside, rebin=rebin,
+                show_ratio=True, ratio_range=0.2, xrange=x_range,
+                logy=True, qcd_renorm=False, qcd_scale=qcd_est_scale, nodata=NoData)
+
+            print var
+            #set_trace()
+            plotter.save(var+'_logy')
