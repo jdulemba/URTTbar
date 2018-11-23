@@ -253,6 +253,8 @@ class htt_qcd_est : public AnalyzerBase
             book<TH2F>(folder, "lep_eta_pt_B" , ";p_{T}(l matched to b-quark) (GeV);#eta(l matched to b-quark)", 500, 0., 500., 300, -3., 3.);
             book<TH2F>(folder, "lep_eta_pt_Prompt" , ";p_{T}(l matched to prompt-quark) (GeV);#eta(l matched to prompt-quark)", 500, 0., 500., 300, -3., 3.);
 
+            book<TH1F>(folder, "MT" , ";M_{T} (GeV)",  500, 0, 500);
+
         }
 
         void fill_presel_plots(string folder, URStreamer &event){
@@ -262,6 +264,9 @@ class htt_qcd_est : public AnalyzerBase
                 Logger::log().error() << "could not find: " << folder << endl;
                 throw 40;
             }
+
+            double mt = MT(object_selector_.lepton(), object_selector_.met());
+            dir->second["MT"].fill(mt, evt_weight_);
 
             double lep_jet_DR = 1e10;
             Jet lep_parton;
