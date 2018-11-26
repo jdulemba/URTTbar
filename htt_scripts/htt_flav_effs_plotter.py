@@ -250,44 +250,67 @@ class HTTPlotter(Plotter):
             'ttJets_preselection',
             'QCD*',
             ]
-        #set_trace()
         self.plot_mc_vs_data(*args, **kwargs)
-        if systematics is not None:
-            data = [i for i in self.keep if isinstance(i, ROOT.TH1)][0]
+        if kwargs['plot_unc']:
             mc_stack = [i for i in self.keep if isinstance(i, ROOT.THStack)][0]
-            stack_sum = sum(mc_stack.hists)
-            set_trace()
-            self.reset()
-            dirname = args[0].split('/')[0]
-            path = args[0]
-            args = list(args)
-            args[0] = path.replace(dirname, '%s_up' % systematics)
-            kwargs['nodata'] = True
-            self.plot_mc_vs_data(*args, **kwargs)
-            stack_up = [i for i in self.keep if isinstance(i, ROOT.THStack)][0]
-            self.reset()
-            s_up = sum(stack_up.hists)
-            for ibin, jbin in zip(stack_sum, s_up):
-                ibin.error = quad.quad(ibin.error, abs(ibin.value - jbin.value))
-            stack_sum.fillcolor = 'black'
-            stack_sum.fillstyle = 3013
-            stack_sum.title = 'uncertainty'
-            stack_sum.drawstyle = 'pe2'
-            stack_sum.markerstyle = 0
-            plotter.overlay_and_compare(
-                [mc_stack, stack_sum], data,
-                xtitle = kwargs.get('xaxis',''),
-                ytitle='Events', ignore_style=True,             
-                method='ratio'
-                )
-            # Add legend
-            self.pad.cd()
-            self.add_legend(
-                [mc_stack, stack_sum, data], kwargs.get('leftside', True), 
-                entries=len(mc_stack.hists)+2
-                )
+            unc_hist = sum(mc_stack.hists)
+            unc_hist.fillcolor = 'black'
+            unc_hist.fillstyle = 3013
+            unc_hist.title = 'Uncertainty'
+            unc_hist.drawstyle = 'pe2'
+            unc_hist.markerstyle = 0
+            #set_trace()
 
-        self.mc_samples = mc_default
+            if kwargs['nodata']:
+                plotter.overlay([mc_stack, unc_hist], legend_def=LegendDefinition(position='NE'),
+                    logy=kwargs['logy'], x_range=kwargs['xrange']
+                )
+            else:
+                #set_trace()
+                data = [i for i in self.keep if isinstance(i, ROOT.TH1)][0]
+                plotter.overlay_and_compare(
+                    [mc_stack, unc_hist], data,
+                    method='datamc', legend_def=LegendDefinition(position='NE'),
+                    logy=kwargs['logy'], x_range=kwargs['xrange']
+                )
+            #set_trace()
+
+        #if systematics is not None:
+        #    data = [i for i in self.keep if isinstance(i, ROOT.TH1)][0]
+        #    mc_stack = [i for i in self.keep if isinstance(i, ROOT.THStack)][0]
+        #    stack_sum = sum(mc_stack.hists)
+        #    set_trace()
+        #    self.reset()
+        #    dirname = args[0].split('/')[0]
+        #    path = args[0]
+        #    args = list(args)
+        #    args[0] = path.replace(dirname, '%s_up' % systematics)
+        #    kwargs['nodata'] = True
+        #    self.plot_mc_vs_data(*args, **kwargs)
+        #    stack_up = [i for i in self.keep if isinstance(i, ROOT.THStack)][0]
+        #    self.reset()
+        #    s_up = sum(stack_up.hists)
+        #    for ibin, jbin in zip(stack_sum, s_up):
+        #        ibin.error = quad.quad(ibin.error, abs(ibin.value - jbin.value))
+        #    stack_sum.fillcolor = 'black'
+        #    stack_sum.fillstyle = 3013
+        #    stack_sum.title = 'uncertainty'
+        #    stack_sum.drawstyle = 'pe2'
+        #    stack_sum.markerstyle = 0
+        #    plotter.overlay_and_compare(
+        #        [mc_stack, stack_sum], data,
+        #        xtitle = kwargs.get('xaxis',''),
+        #        ytitle='Events', ignore_style=True,             
+        #        method='ratio'
+        #        )
+        #    # Add legend
+        #    self.pad.cd()
+        #    self.add_legend(
+        #        [mc_stack, stack_sum, data], kwargs.get('leftside', True), 
+        #        entries=len(mc_stack.hists)+2
+        #        )
+
+        #self.mc_samples = mc_default
 
 
 
@@ -412,13 +435,13 @@ if args.preselection or args.all:
         plotter.make_preselection_plot(
             'nosys/preselection', var, sort=True,
             xaxis=axis, leftside=leftside, rebin=rebin, 
-            show_ratio=True, ratio_range=0.5, xrange=x_range, logy=True, nodata=NoData)        
+            show_ratio=True, ratio_range=0.5, xrange=x_range, logy=True, nodata=NoData, plot_unc=True)        
         plotter.save(var+'_logy')
 
         plotter.make_preselection_plot(
             'nosys/preselection', var, sort=True,
             xaxis=axis, leftside=leftside, rebin=rebin, 
-            show_ratio=True, ratio_range=0.5, xrange=x_range, logy=False, nodata=NoData)        
+            show_ratio=True, ratio_range=0.5, xrange=x_range, logy=False, nodata=NoData, plot_unc=True)        
         plotter.save(var)
 
 if args.qcd_yields or args.all:
@@ -492,6 +515,7 @@ if args.plots or args.all:
             NoData = False
             if 'B' in var or 'Prompt' in var: NoData = True
 
+            plot_unc = True
             #set_trace()
             plotter.plot_mc_vs_data(
                 'nosys/%s' % tdir, var, sort=False,
@@ -500,8 +524,32 @@ if args.plots or args.all:
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
                 logy=False, qcd_renorm=False, qcd_scale=qcd_est_scale, nodata=NoData)
 
-            print var
             #set_trace()
+            if plot_unc:
+                mc_stack = [i for i in plotter.keep if isinstance(i, ROOT.THStack)][0]
+                unc_hist = sum(mc_stack.hists)
+                unc_hist.fillcolor = 'black'
+                unc_hist.fillstyle = 3013
+                unc_hist.title = 'Uncertainty'
+                unc_hist.drawstyle = 'pe2'
+                unc_hist.markerstyle = 0
+                #set_trace()
+
+                if NoData:
+                    plotter.overlay([mc_stack, unc_hist], legend_def=LegendDefinition(position='NE'),
+                        logy=False, x_range=x_range
+                    )
+                else:
+                    #set_trace()
+                    data = [i for i in plotter.keep if isinstance(i, ROOT.TH1)][0]
+                    plotter.overlay_and_compare(
+                        [mc_stack, unc_hist], data,
+                        method='datamc', legend_def=LegendDefinition(position='NE'),
+                        logy=False, x_range=x_range
+                    )
+
+            #set_trace()
+            print var
             plotter.save(var)
 
             plotter.plot_mc_vs_data(
@@ -511,6 +559,28 @@ if args.plots or args.all:
                 show_ratio=True, ratio_range=0.2, xrange=x_range,
                 logy=True, qcd_renorm=False, qcd_scale=qcd_est_scale, nodata=NoData)
 
+            if plot_unc:
+                mc_stack = [i for i in plotter.keep if isinstance(i, ROOT.THStack)][0]
+                unc_hist = sum(mc_stack.hists)
+                unc_hist.fillcolor = 'black'
+                unc_hist.fillstyle = 3013
+                unc_hist.title = 'Uncertainty'
+                unc_hist.drawstyle = 'pe2'
+                unc_hist.markerstyle = 0
+                #set_trace()
+
+                if NoData:
+                    plotter.overlay([mc_stack, unc_hist], legend_def=LegendDefinition(position='NE'),
+                        logy=True, x_range=x_range
+                    )
+                else:
+                    #set_trace()
+                    data = [i for i in plotter.keep if isinstance(i, ROOT.TH1)][0]
+                    plotter.overlay_and_compare(
+                        [mc_stack, unc_hist], data,
+                        method='datamc', legend_def=LegendDefinition(position='NE'),
+                        logy=True, x_range=x_range
+                    )
             print var
             #set_trace()
             plotter.save(var+'_logy')
