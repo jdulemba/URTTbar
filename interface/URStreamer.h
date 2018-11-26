@@ -8,13 +8,13 @@
 #include <vector>
 using namespace std;
 
-class Je: public TLorentzVector{
+class Jet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Je(const Float_ &i_area_,const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_btagDeepC_,const Float_ &i_chEmEF_,const Float_ &i_chHEF_,const Float_ &i_neEmEF_,const Float_ &i_neHEF_,const Float_ &i_qgl_,const Float_ &i_rawFactor_,const Float_ &i_bReg_,const Int_ &i_electronIdx1_,const Int_ &i_electronIdx2_,const Int_ &i_jetId_,const Int_ &i_muonIdx1_,const Int_ &i_muonIdx2_,const Int_ &i_nConstituents_,const Int_ &i_nElectrons_,const Int_ &i_nMuons_,const Int_ &i_puId_,const Int_ &i_genJetIdx_,const Int_ &i_hadronFlavour_,const Int_ &i_partonFlavour_,const UChar_ &i_cleanmask_):
+//  Jet(const Float_ &i_area_,const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_btagDeepC_,const Float_ &i_chEmEF_,const Float_ &i_chHEF_,const Float_ &i_neEmEF_,const Float_ &i_neHEF_,const Float_ &i_qgl_,const Float_ &i_rawFactor_,const Float_ &i_bReg_,const Int_ &i_electronIdx1_,const Int_ &i_electronIdx2_,const Int_ &i_jetId_,const Int_ &i_muonIdx1_,const Int_ &i_muonIdx2_,const Int_ &i_nConstituents_,const Int_ &i_nElectrons_,const Int_ &i_nMuons_,const Int_ &i_puId_,const Int_ &i_genJetIdx_,const Int_ &i_hadronFlavour_,const Int_ &i_partonFlavour_,const UChar_ &i_cleanmask_):
 //    
 //  {}
-  Je():
+  Jet():
     TLorentzVector(),
     area_(0),
     btagCMVA_(0),
@@ -121,13 +121,13 @@ private:
   void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Genjetak: public TLorentzVector{
+class Genjetak8: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genjetak(const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_):
+//  Genjetak8(const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_):
 //    
 //  {}
-  Genjetak():
+  Genjetak8():
     TLorentzVector(),
     partonFlavour_(0),
     hadronFlavour_(0)
@@ -142,13 +142,13 @@ private:
   void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Genvista: public TLorentzVector{
+class Genvistau: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genvista(const Int_ &i_charge_,const Int_ &i_genPartIdxMother_,const Int_ &i_status_):
+//  Genvistau(const Int_ &i_charge_,const Int_ &i_genPartIdxMother_,const Int_ &i_status_):
 //    
 //  {}
-  Genvista():
+  Genvistau():
     TLorentzVector(),
     charge_(0),
     genPartIdxMother_(0),
@@ -184,13 +184,13 @@ private:
   void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Gendressedlepto: public TLorentzVector{
+class Gendressedlepton: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Gendressedlepto(const Int_ &i_pdgId_):
+//  Gendressedlepton(const Int_ &i_pdgId_):
 //    
 //  {}
-  Gendressedlepto():
+  Gendressedlepton():
     TLorentzVector(),
     pdgId_(0)
   {}
@@ -291,13 +291,13 @@ private:
   void setid2(const Int_t value) {id2_ = value;}
 };
 
-class Trigob: public TLorentzVector{
+class Trigobj: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Trigob(const Float_ &i_l1pt_,const Float_ &i_l1pt_,const Float_ &i_l2pt_,const Int_ &i_id_,const Int_ &i_l1iso_,const Int_ &i_l1charge_,const Int_ &i_filterBits_):
+//  Trigobj(const Float_ &i_l1pt_,const Float_ &i_l1pt_,const Float_ &i_l2pt_,const Int_ &i_id_,const Int_ &i_l1iso_,const Int_ &i_l1charge_,const Int_ &i_filterBits_):
 //    
 //  {}
-  Trigob():
+  Trigobj():
     TLorentzVector(),
     l1pt_(0),
     l1pt_(0),
@@ -332,13 +332,13 @@ private:
   void setLotentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
 };
 
-class Photo: public TLorentzVector{
+class Photon: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Photo(const Float_ &i_eCorr_,const Float_ &i_energyErr_,const Float_ &i_hoe_,const Float_ &i_mvaID_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_r9_,const Float_ &i_sieie_,const Int_ &i_charge_,const Int_ &i_cutBased_,const Int_ &i_electronIdx_,const Int_ &i_jetIdx_,const Int_ &i_pdgId_,const Int_ &i_vidNestedWPBitmap_,const Bool_ &i_electronVeto_,const Bool_ &i_mvaID_,const Bool_ &i_mvaID_,const Bool_ &i_pixelSeed_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
+//  Photon(const Float_ &i_eCorr_,const Float_ &i_energyErr_,const Float_ &i_hoe_,const Float_ &i_mvaID_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_r9_,const Float_ &i_sieie_,const Int_ &i_charge_,const Int_ &i_cutBased_,const Int_ &i_electronIdx_,const Int_ &i_jetIdx_,const Int_ &i_pdgId_,const Int_ &i_vidNestedWPBitmap_,const Bool_ &i_electronVeto_,const Bool_ &i_mvaID_,const Bool_ &i_mvaID_,const Bool_ &i_pixelSeed_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
 //    
 //  {}
-  Photo():
+  Photon():
     TLorentzVector(),
     eCorr_(0),
     energyErr_(0),
@@ -429,13 +429,13 @@ private:
   void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Genje: public TLorentzVector{
+class Genjet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genje(const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_,const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_):
+//  Genjet(const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_,const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_):
 //    
 //  {}
-  Genje():
+  Genjet():
     TLorentzVector(),
     partonFlavour_(0),
     hadronFlavour_(0),
@@ -474,13 +474,13 @@ private:
   void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Electro: public TLorentzVector{
+class Electron: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Electro(const Float_ &i_deltaEtaSC_,const Float_ &i_dr03EcalRecHitSumEt_,const Float_ &i_dr03HcalDepth1TowerSumEt_,const Float_ &i_dr03TkSumPt_,const Float_ &i_dxy_,const Float_ &i_dxyErr_,const Float_ &i_dz_,const Float_ &i_dzErr_,const Float_ &i_eCorr_,const Float_ &i_eInvMinusPInv_,const Float_ &i_energyErr_,const Float_ &i_hoe_,const Float_ &i_ip3d_,const Float_ &i_miniPFRelIso_,const Float_ &i_miniPFRelIso_,const Float_ &i_mvaSpring16GP_,const Float_ &i_mvaSpring16HZZ_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_r9_,const Float_ &i_sieie_,const Float_ &i_sip3d_,const Float_ &i_mvaTTH_,const Int_ &i_charge_,const Int_ &i_cutBased_,const Int_ &i_cutBased_,const Int_ &i_jetIdx_,const Int_ &i_pdgId_,const Int_ &i_photonIdx_,const Int_ &i_tightCharge_,const Int_ &i_vidNestedWPBitmap_,const Bool_ &i_convVeto_,const Bool_ &i_cutBased_,const Bool_ &i_isPFcand_,const UChar_ &i_lostHits_,const Bool_ &i_mvaSpring16GP_,const Bool_ &i_mvaSpring16GP_,const Bool_ &i_mvaSpring16HZZ_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
+//  Electron(const Float_ &i_deltaEtaSC_,const Float_ &i_dr03EcalRecHitSumEt_,const Float_ &i_dr03HcalDepth1TowerSumEt_,const Float_ &i_dr03TkSumPt_,const Float_ &i_dxy_,const Float_ &i_dxyErr_,const Float_ &i_dz_,const Float_ &i_dzErr_,const Float_ &i_eCorr_,const Float_ &i_eInvMinusPInv_,const Float_ &i_energyErr_,const Float_ &i_hoe_,const Float_ &i_ip3d_,const Float_ &i_miniPFRelIso_,const Float_ &i_miniPFRelIso_,const Float_ &i_mvaSpring16GP_,const Float_ &i_mvaSpring16HZZ_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_r9_,const Float_ &i_sieie_,const Float_ &i_sip3d_,const Float_ &i_mvaTTH_,const Int_ &i_charge_,const Int_ &i_cutBased_,const Int_ &i_cutBased_,const Int_ &i_jetIdx_,const Int_ &i_pdgId_,const Int_ &i_photonIdx_,const Int_ &i_tightCharge_,const Int_ &i_vidNestedWPBitmap_,const Bool_ &i_convVeto_,const Bool_ &i_cutBased_,const Bool_ &i_isPFcand_,const UChar_ &i_lostHits_,const Bool_ &i_mvaSpring16GP_,const Bool_ &i_mvaSpring16GP_,const Bool_ &i_mvaSpring16HZZ_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
 //    
 //  {}
-  Electro():
+  Electron():
     TLorentzVector(),
     deltaEtaSC_(0),
     dr03EcalRecHitSumEt_(0),
@@ -707,13 +707,13 @@ private:
   void setstep(const Bool_t value) {step_ = value;}
 };
 
-class Genpar: public TLorentzVector{
+class Genpart: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genpar(const Int_ &i_genPartIdxMother_,const Int_ &i_pdgId_,const Int_ &i_status_,const Int_ &i_statusFlags_):
+//  Genpart(const Int_ &i_genPartIdxMother_,const Int_ &i_pdgId_,const Int_ &i_status_,const Int_ &i_statusFlags_):
 //    
 //  {}
-  Genpar():
+  Genpart():
     TLorentzVector(),
     genPartIdxMother_(0),
     pdgId_(0),
@@ -816,13 +816,13 @@ private:
   void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Ta: public TLorentzVector{
+class Tau: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Ta(const Float_ &i_chargedIso_,const Float_ &i_dxy_,const Float_ &i_dz_,const Float_ &i_footprintCorr_,const Float_ &i_leadTkDeltaEta_,const Float_ &i_leadTkDeltaPhi_,const Float_ &i_leadTkPtOverTauPt_,const Float_ &i_neutralIso_,const Float_ &i_photonsOutsideSignalCone_,const Float_ &i_puCorr_,const Float_ &i_rawAntiEle_,const Float_ &i_rawIso_,const Float_ &i_rawMVAnewDM_,const Float_ &i_rawMVAoldDM_,const Float_ &i_rawMVAoldDMdR03_,const Int_ &i_charge_,const Int_ &i_decayMode_,const Int_ &i_jetIdx_,const Int_ &i_rawAntiEleCat_,const UChar_ &i_idAntiEle_,const UChar_ &i_idAntiMu_,const Bool_ &i_idDecayMode_,const Bool_ &i_idDecayModeNewDMs_,const UChar_ &i_idMVAnewDM_,const UChar_ &i_idMVAoldDM_,const UChar_ &i_idMVAoldDMdR03_,const UChar_ &i_cleanmask_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_):
+//  Tau(const Float_ &i_chargedIso_,const Float_ &i_dxy_,const Float_ &i_dz_,const Float_ &i_footprintCorr_,const Float_ &i_leadTkDeltaEta_,const Float_ &i_leadTkDeltaPhi_,const Float_ &i_leadTkPtOverTauPt_,const Float_ &i_neutralIso_,const Float_ &i_photonsOutsideSignalCone_,const Float_ &i_puCorr_,const Float_ &i_rawAntiEle_,const Float_ &i_rawIso_,const Float_ &i_rawMVAnewDM_,const Float_ &i_rawMVAoldDM_,const Float_ &i_rawMVAoldDMdR03_,const Int_ &i_charge_,const Int_ &i_decayMode_,const Int_ &i_jetIdx_,const Int_ &i_rawAntiEleCat_,const UChar_ &i_idAntiEle_,const UChar_ &i_idAntiMu_,const Bool_ &i_idDecayMode_,const Bool_ &i_idDecayModeNewDMs_,const UChar_ &i_idMVAnewDM_,const UChar_ &i_idMVAoldDM_,const UChar_ &i_idMVAoldDMdR03_,const UChar_ &i_cleanmask_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_):
 //    
 //  {}
-  Ta():
+  Tau():
     TLorentzVector(),
     chargedIso_(0),
     dxy_(0),
@@ -962,13 +962,13 @@ private:
   void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Muo: public TLorentzVector{
+class Muon: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Muo(const Float_ &i_dxy_,const Float_ &i_dxyErr_,const Float_ &i_dz_,const Float_ &i_dzErr_,const Float_ &i_ip3d_,const Float_ &i_miniPFRelIso_,const Float_ &i_miniPFRelIso_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso04_,const Float_ &i_ptErr_,const Float_ &i_segmentComp_,const Float_ &i_sip3d_,const Float_ &i_mvaTTH_,const Int_ &i_charge_,const Int_ &i_jetIdx_,const Int_ &i_nStations_,const Int_ &i_nTrackerLayers_,const Int_ &i_pdgId_,const Int_ &i_tightCharge_,const UChar_ &i_highPtId_,const Bool_ &i_isPFcand_,const Bool_ &i_mediumId_,const Bool_ &i_softId_,const Bool_ &i_tightId_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
+//  Muon(const Float_ &i_dxy_,const Float_ &i_dxyErr_,const Float_ &i_dz_,const Float_ &i_dzErr_,const Float_ &i_ip3d_,const Float_ &i_miniPFRelIso_,const Float_ &i_miniPFRelIso_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso04_,const Float_ &i_ptErr_,const Float_ &i_segmentComp_,const Float_ &i_sip3d_,const Float_ &i_mvaTTH_,const Int_ &i_charge_,const Int_ &i_jetIdx_,const Int_ &i_nStations_,const Int_ &i_nTrackerLayers_,const Int_ &i_pdgId_,const Int_ &i_tightCharge_,const UChar_ &i_highPtId_,const Bool_ &i_isPFcand_,const Bool_ &i_mediumId_,const Bool_ &i_softId_,const Bool_ &i_tightId_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
 //    
 //  {}
-  Muo():
+  Muon():
     TLorentzVector(),
     dxy_(0),
     dxyErr_(0),
@@ -1087,13 +1087,13 @@ private:
   void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Otherp{
+class Otherpv{
 friend class URStreamer;
 public:
-//  Otherp(const Float_ &i_z_):
+//  Otherpv(const Float_ &i_z_):
 //    
 //  {}
-  Otherp():
+  Otherpv():
     z_(0)
   {}
   Float_ z() const {return z_;}
@@ -3525,13 +3525,13 @@ private:
   void setHLTriggerFinalPath(const Bool_t value) {HLTriggerFinalPath_ = value;}
 };
 
-class S: public TLorentzVector{
+class Sv: public TLorentzVector{
 friend class URStreamer;
 public:
-//  S(const Float_ &i_dlen_,const Float_ &i_dlenSig_,const Float_ &i_pAngle_,const Float_ &i_chi2_,const Float_ &i_ndof_,const Float_ &i_x_,const Float_ &i_y_,const Float_ &i_z_):
+//  Sv(const Float_ &i_dlen_,const Float_ &i_dlenSig_,const Float_ &i_pAngle_,const Float_ &i_chi2_,const Float_ &i_ndof_,const Float_ &i_x_,const Float_ &i_y_,const Float_ &i_z_):
 //    
 //  {}
-  S():
+  Sv():
     TLorentzVector(),
     dlen_(0),
     dlenSig_(0),
@@ -3636,13 +3636,13 @@ private:
   void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Fatje: public TLorentzVector{
+class Fatjet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Fatje(const Float_ &i_area_,const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_btagHbb_,const Float_ &i_msoftdrop_,const Float_ &i_msoftdrop_,const Float_ &i_n2b1_,const Float_ &i_n3b1_,const Float_ &i_tau1_,const Float_ &i_tau2_,const Float_ &i_tau3_,const Float_ &i_tau4_,const Int_ &i_jetId_,const Int_ &i_subJetIdx1_,const Int_ &i_subJetIdx2_):
+//  Fatjet(const Float_ &i_area_,const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_btagHbb_,const Float_ &i_msoftdrop_,const Float_ &i_msoftdrop_,const Float_ &i_n2b1_,const Float_ &i_n3b1_,const Float_ &i_tau1_,const Float_ &i_tau2_,const Float_ &i_tau3_,const Float_ &i_tau4_,const Int_ &i_jetId_,const Int_ &i_subJetIdx1_,const Int_ &i_subJetIdx2_):
 //    
 //  {}
-  Fatje():
+  Fatjet():
     TLorentzVector(),
     area_(0),
     btagCMVA_(0),
@@ -3713,13 +3713,13 @@ private:
   void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Subje: public TLorentzVector{
+class Subjet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Subje(const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_n2b1_,const Float_ &i_n3b1_,const Float_ &i_tau1_,const Float_ &i_tau2_,const Float_ &i_tau3_,const Float_ &i_tau4_):
+//  Subjet(const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_n2b1_,const Float_ &i_n3b1_,const Float_ &i_tau1_,const Float_ &i_tau2_,const Float_ &i_tau3_,const Float_ &i_tau4_):
 //    
 //  {}
-  Subje():
+  Subjet():
     TLorentzVector(),
     btagCMVA_(0),
     btagCSVV2_(0),
@@ -6195,9 +6195,9 @@ public:
   }
   
 
-  const vector<Je>& Jet(){
+  const vector<Jet>& Jet(){
     if(Jet_.size() > 0) return Jet_;
-    loadJes();
+    loadJets();
   	Jet_.reserve(Jet_area_->size());
     auto it_Jet_area_ = Jet_area_->cbegin();
     auto it_Jet_btagCMVA_ = Jet_btagCMVA_->cbegin();
@@ -6229,7 +6229,7 @@ public:
     auto it_Jet_partonFlavour_ = Jet_partonFlavour_->cbegin();
     auto it_Jet_cleanmask_ = Jet_cleanmask_->cbegin();
     for(; it_Jet_area_ != Jet_area_->cend(); ){
-      Je obj;
+      Jet obj;
       obj.setarea(*it_Jet_area_);
       obj.setbtagCMVA(*it_Jet_btagCMVA_);
       obj.setbtagCSVV2(*it_Jet_btagCSVV2_);
@@ -6290,9 +6290,9 @@ public:
     return Jet_;
   }
   
-  const vector<Genjetak>& GenJetAK8(){
+  const vector<Genjetak8>& GenJetAK8(){
     if(GenJetAK8_.size() > 0) return GenJetAK8_;
-    loadGenjetaks();
+    loadGenjetak8s();
   	GenJetAK8_.reserve(GenJetAK8_eta_->size());
     auto it_GenJetAK8_eta_ = GenJetAK8_eta_->cbegin();
     auto it_GenJetAK8_mass_ = GenJetAK8_mass_->cbegin();
@@ -6301,7 +6301,7 @@ public:
     auto it_GenJetAK8_partonFlavour_ = GenJetAK8_partonFlavour_->cbegin();
     auto it_GenJetAK8_hadronFlavour_ = GenJetAK8_hadronFlavour_->cbegin();
     for(; it_GenJetAK8_eta_ != GenJetAK8_eta_->cend(); ){
-      Genjetak obj;
+      Genjetak8 obj;
       obj.setpartonFlavour(*it_GenJetAK8_partonFlavour_);
       obj.sethadronFlavour(*it_GenJetAK8_hadronFlavour_);
       obj.setLotentzVector(*it_GenJetAK8_pt_, *it_GenJetAK8_eta_, *it_GenJetAK8_phi_, *it_GenJetAK8_mass_);
@@ -6316,9 +6316,9 @@ public:
     return GenJetAK8_;
   }
   
-  const vector<Genvista>& GenVisTau(){
+  const vector<Genvistau>& GenVisTau(){
     if(GenVisTau_.size() > 0) return GenVisTau_;
-    loadGenvistas();
+    loadGenvistaus();
   	GenVisTau_.reserve(GenVisTau_eta_->size());
     auto it_GenVisTau_eta_ = GenVisTau_eta_->cbegin();
     auto it_GenVisTau_mass_ = GenVisTau_mass_->cbegin();
@@ -6328,7 +6328,7 @@ public:
     auto it_GenVisTau_genPartIdxMother_ = GenVisTau_genPartIdxMother_->cbegin();
     auto it_GenVisTau_status_ = GenVisTau_status_->cbegin();
     for(; it_GenVisTau_eta_ != GenVisTau_eta_->cend(); ){
-      Genvista obj;
+      Genvistau obj;
       obj.setcharge(*it_GenVisTau_charge_);
       obj.setgenPartIdxMother(*it_GenVisTau_genPartIdxMother_);
       obj.setstatus(*it_GenVisTau_status_);
@@ -6356,9 +6356,9 @@ public:
     return obj;
   }
   
-  const vector<Gendressedlepto>& GenDressedLepton(){
+  const vector<Gendressedlepton>& GenDressedLepton(){
     if(GenDressedLepton_.size() > 0) return GenDressedLepton_;
-    loadGendressedleptos();
+    loadGendressedleptons();
   	GenDressedLepton_.reserve(GenDressedLepton_eta_->size());
     auto it_GenDressedLepton_eta_ = GenDressedLepton_eta_->cbegin();
     auto it_GenDressedLepton_mass_ = GenDressedLepton_mass_->cbegin();
@@ -6366,7 +6366,7 @@ public:
     auto it_GenDressedLepton_pt_ = GenDressedLepton_pt_->cbegin();
     auto it_GenDressedLepton_pdgId_ = GenDressedLepton_pdgId_->cbegin();
     for(; it_GenDressedLepton_eta_ != GenDressedLepton_eta_->cend(); ){
-      Gendressedlepto obj;
+      Gendressedlepton obj;
       obj.setpdgId(*it_GenDressedLepton_pdgId_);
       obj.setLotentzVector(*it_GenDressedLepton_pt_, *it_GenDressedLepton_eta_, *it_GenDressedLepton_phi_, *it_GenDressedLepton_mass_);
       GenDressedLepton_.push_back( obj );
@@ -6416,9 +6416,9 @@ public:
     return obj;
   }
   
-  const vector<Trigob>& TrigObj(){
+  const vector<Trigobj>& TrigObj(){
     if(TrigObj_.size() > 0) return TrigObj_;
-    loadTrigobs();
+    loadTrigobjs();
   	TrigObj_.reserve(TrigObj_pt_->size());
     auto it_TrigObj_pt_ = TrigObj_pt_->cbegin();
     auto it_TrigObj_eta_ = TrigObj_eta_->cbegin();
@@ -6431,7 +6431,7 @@ public:
     auto it_TrigObj_l1charge_ = TrigObj_l1charge_->cbegin();
     auto it_TrigObj_filterBits_ = TrigObj_filterBits_->cbegin();
     for(; it_TrigObj_pt_ != TrigObj_pt_->cend(); ){
-      Trigob obj;
+      Trigobj obj;
       obj.setl1pt(*it_TrigObj_l1pt_);
       obj.setl1pt(*it_TrigObj_l1pt_2_);
       obj.setl2pt(*it_TrigObj_l2pt_);
@@ -6455,9 +6455,9 @@ public:
     return TrigObj_;
   }
   
-  const vector<Photo>& Photon(){
+  const vector<Photon>& Photon(){
     if(Photon_.size() > 0) return Photon_;
-    loadPhotos();
+    loadPhotons();
   	Photon_.reserve(Photon_eCorr_->size());
     auto it_Photon_eCorr_ = Photon_eCorr_->cbegin();
     auto it_Photon_energyErr_ = Photon_energyErr_->cbegin();
@@ -6485,7 +6485,7 @@ public:
     auto it_Photon_genPartFlav_ = Photon_genPartFlav_->cbegin();
     auto it_Photon_cleanmask_ = Photon_cleanmask_->cbegin();
     for(; it_Photon_eCorr_ != Photon_eCorr_->cend(); ){
-      Photo obj;
+      Photon obj;
       obj.seteCorr(*it_Photon_eCorr_);
       obj.setenergyErr(*it_Photon_energyErr_);
       obj.sethoe(*it_Photon_hoe_);
@@ -6538,9 +6538,9 @@ public:
     return Photon_;
   }
   
-  const vector<Genje>& GenJet(){
+  const vector<Genjet>& GenJet(){
     if(GenJet_.size() > 0) return GenJet_;
-    loadGenjes();
+    loadGenjets();
   	GenJet_.reserve(GenJetAK8_eta_->size());
     auto it_GenJetAK8_eta_ = GenJetAK8_eta_->cbegin();
     auto it_GenJetAK8_mass_ = GenJetAK8_mass_->cbegin();
@@ -6555,7 +6555,7 @@ public:
     auto it_GenJet_partonFlavour_ = GenJet_partonFlavour_->cbegin();
     auto it_GenJet_hadronFlavour_ = GenJet_hadronFlavour_->cbegin();
     for(; it_GenJetAK8_eta_ != GenJetAK8_eta_->cend(); ){
-      Genje obj;
+      Genjet obj;
       obj.setpartonFlavour(*it_GenJetAK8_partonFlavour_);
       obj.sethadronFlavour(*it_GenJetAK8_hadronFlavour_);
       obj.setpartonFlavour(*it_GenJet_partonFlavour_);
@@ -6589,9 +6589,9 @@ public:
     return obj;
   }
   
-  const vector<Electro>& Electron(){
+  const vector<Electron>& Electron(){
     if(Electron_.size() > 0) return Electron_;
-    loadElectros();
+    loadElectrons();
   	Electron_.reserve(Electron_deltaEtaSC_->size());
     auto it_Electron_deltaEtaSC_ = Electron_deltaEtaSC_->cbegin();
     auto it_Electron_dr03EcalRecHitSumEt_ = Electron_dr03EcalRecHitSumEt_->cbegin();
@@ -6639,7 +6639,7 @@ public:
     auto it_Electron_genPartFlav_ = Electron_genPartFlav_->cbegin();
     auto it_Electron_cleanmask_ = Electron_cleanmask_->cbegin();
     for(; it_Electron_deltaEtaSC_ != Electron_deltaEtaSC_->cend(); ){
-      Electro obj;
+      Electron obj;
       obj.setdeltaEtaSC(*it_Electron_deltaEtaSC_);
       obj.setdr03EcalRecHitSumEt(*it_Electron_dr03EcalRecHitSumEt_);
       obj.setdr03HcalDepth1TowerSumEt(*it_Electron_dr03HcalDepth1TowerSumEt_);
@@ -6760,9 +6760,9 @@ public:
     return obj;
   }
   
-  const vector<Genpar>& GenPart(){
+  const vector<Genpart>& GenPart(){
     if(GenPart_.size() > 0) return GenPart_;
-    loadGenpars();
+    loadGenparts();
   	GenPart_.reserve(GenPart_eta_->size());
     auto it_GenPart_eta_ = GenPart_eta_->cbegin();
     auto it_GenPart_mass_ = GenPart_mass_->cbegin();
@@ -6773,7 +6773,7 @@ public:
     auto it_GenPart_status_ = GenPart_status_->cbegin();
     auto it_GenPart_statusFlags_ = GenPart_statusFlags_->cbegin();
     for(; it_GenPart_eta_ != GenPart_eta_->cend(); ){
-      Genpar obj;
+      Genpart obj;
       obj.setgenPartIdxMother(*it_GenPart_genPartIdxMother_);
       obj.setpdgId(*it_GenPart_pdgId_);
       obj.setstatus(*it_GenPart_status_);
@@ -6826,9 +6826,9 @@ public:
     return obj;
   }
   
-  const vector<Ta>& Tau(){
+  const vector<Tau>& Tau(){
     if(Tau_.size() > 0) return Tau_;
-    loadTas();
+    loadTaus();
   	Tau_.reserve(Tau_chargedIso_->size());
     auto it_Tau_chargedIso_ = Tau_chargedIso_->cbegin();
     auto it_Tau_dxy_ = Tau_dxy_->cbegin();
@@ -6864,7 +6864,7 @@ public:
     auto it_Tau_genPartIdx_ = Tau_genPartIdx_->cbegin();
     auto it_Tau_genPartFlav_ = Tau_genPartFlav_->cbegin();
     for(; it_Tau_chargedIso_ != Tau_chargedIso_->cend(); ){
-      Ta obj;
+      Tau obj;
       obj.setchargedIso(*it_Tau_chargedIso_);
       obj.setdxy(*it_Tau_dxy_);
       obj.setdz(*it_Tau_dz_);
@@ -6944,9 +6944,9 @@ public:
     return obj;
   }
   
-  const vector<Muo>& Muon(){
+  const vector<Muon>& Muon(){
     if(Muon_.size() > 0) return Muon_;
-    loadMuos();
+    loadMuons();
   	Muon_.reserve(Muon_dxy_->size());
     auto it_Muon_dxy_ = Muon_dxy_->cbegin();
     auto it_Muon_dxyErr_ = Muon_dxyErr_->cbegin();
@@ -6981,7 +6981,7 @@ public:
     auto it_Muon_genPartFlav_ = Muon_genPartFlav_->cbegin();
     auto it_Muon_cleanmask_ = Muon_cleanmask_->cbegin();
     for(; it_Muon_dxy_ != Muon_dxy_->cend(); ){
-      Muo obj;
+      Muon obj;
       obj.setdxy(*it_Muon_dxy_);
       obj.setdxyErr(*it_Muon_dxyErr_);
       obj.setdz(*it_Muon_dz_);
@@ -7048,13 +7048,13 @@ public:
     return Muon_;
   }
   
-  const vector<Otherp>& OtherPV(){
+  const vector<Otherpv>& OtherPV(){
     if(OtherPV_.size() > 0) return OtherPV_;
-    loadOtherps();
+    loadOtherpvs();
   	OtherPV_.reserve(OtherPV_z_->size());
     auto it_OtherPV_z_ = OtherPV_z_->cbegin();
     for(; it_OtherPV_z_ != OtherPV_z_->cend(); ){
-      Otherp obj;
+      Otherpv obj;
       obj.setz(*it_OtherPV_z_);
       
       OtherPV_.push_back( obj );
@@ -7676,9 +7676,9 @@ public:
     return obj;
   }
   
-  const vector<S>& SV(){
+  const vector<Sv>& SV(){
     if(SV_.size() > 0) return SV_;
-    loadSs();
+    loadSvs();
   	SV_.reserve(SV_dlen_->size());
     auto it_SV_dlen_ = SV_dlen_->cbegin();
     auto it_SV_dlenSig_ = SV_dlenSig_->cbegin();
@@ -7693,7 +7693,7 @@ public:
     auto it_SV_y_ = SV_y_->cbegin();
     auto it_SV_z_ = SV_z_->cbegin();
     for(; it_SV_dlen_ != SV_dlen_->cend(); ){
-      S obj;
+      Sv obj;
       obj.setdlen(*it_SV_dlen_);
       obj.setdlenSig(*it_SV_dlenSig_);
       obj.setpAngle(*it_SV_pAngle_);
@@ -7750,9 +7750,9 @@ public:
     return obj;
   }
   
-  const vector<Fatje>& FatJet(){
+  const vector<Fatjet>& FatJet(){
     if(FatJet_.size() > 0) return FatJet_;
-    loadFatjes();
+    loadFatjets();
   	FatJet_.reserve(FatJet_area_->size());
     auto it_FatJet_area_ = FatJet_area_->cbegin();
     auto it_FatJet_btagCMVA_ = FatJet_btagCMVA_->cbegin();
@@ -7775,7 +7775,7 @@ public:
     auto it_FatJet_subJetIdx1_ = FatJet_subJetIdx1_->cbegin();
     auto it_FatJet_subJetIdx2_ = FatJet_subJetIdx2_->cbegin();
     for(; it_FatJet_area_ != FatJet_area_->cend(); ){
-      Fatje obj;
+      Fatjet obj;
       obj.setarea(*it_FatJet_area_);
       obj.setbtagCMVA(*it_FatJet_btagCMVA_);
       obj.setbtagCSVV2(*it_FatJet_btagCSVV2_);
@@ -7818,9 +7818,9 @@ public:
     return FatJet_;
   }
   
-  const vector<Subje>& SubJet(){
+  const vector<Subjet>& SubJet(){
     if(SubJet_.size() > 0) return SubJet_;
-    loadSubjes();
+    loadSubjets();
   	SubJet_.reserve(SubJet_btagCMVA_->size());
     auto it_SubJet_btagCMVA_ = SubJet_btagCMVA_->cbegin();
     auto it_SubJet_btagCSVV2_ = SubJet_btagCSVV2_->cbegin();
@@ -7836,7 +7836,7 @@ public:
     auto it_SubJet_tau3_ = SubJet_tau3_->cbegin();
     auto it_SubJet_tau4_ = SubJet_tau4_->cbegin();
     for(; it_SubJet_btagCMVA_ != SubJet_btagCMVA_->cend(); ){
-      Subje obj;
+      Subjet obj;
       obj.setbtagCMVA(*it_SubJet_btagCMVA_);
       obj.setbtagCSVV2(*it_SubJet_btagCSVV2_);
       obj.setbtagDeepB(*it_SubJet_btagDeepB_);
@@ -8862,59 +8862,59 @@ private:
   Bool_t Flag_trkPOG_logErrorTooManyClusters_;
   Bool_t Flag_METFilters_;
   bool are_Jet_loaded_;
-  vector<Je> Jet_;
+  vector<Jet> Jet_;
   bool are_GenJetAK8_loaded_;
-  vector<Genjetak> GenJetAK8_;
+  vector<Genjetak8> GenJetAK8_;
   bool are_GenVisTau_loaded_;
-  vector<Genvista> GenVisTau_;
+  vector<Genvistau> GenVisTau_;
   bool are_CaloMET_loaded_;
   Calomet CaloMET_;
   bool are_GenDressedLepton_loaded_;
-  vector<Gendressedlepto> GenDressedLepton_;
+  vector<Gendressedlepton> GenDressedLepton_;
   bool are_PV_loaded_;
   Pv PV_;
   bool are_Generator_loaded_;
   Generator Generator_;
   bool are_TrigObj_loaded_;
-  vector<Trigob> TrigObj_;
+  vector<Trigobj> TrigObj_;
   bool are_Photon_loaded_;
-  vector<Photo> Photon_;
+  vector<Photon> Photon_;
   bool are_GenJet_loaded_;
-  vector<Genje> GenJet_;
+  vector<Genjet> GenJet_;
   bool are_RawMET_loaded_;
   Rawmet RawMET_;
   bool are_Electron_loaded_;
-  vector<Electro> Electron_;
+  vector<Electron> Electron_;
   bool are_SoftActivityJet_loaded_;
   Softactivityjet SoftActivityJet_;
   bool are_L1simulation_loaded_;
   L1Simulation L1simulation_;
   bool are_GenPart_loaded_;
-  vector<Genpar> GenPart_;
+  vector<Genpart> GenPart_;
   bool are_LHE_loaded_;
   Lhe LHE_;
   bool are_TkMET_loaded_;
   Tkmet TkMET_;
   bool are_Tau_loaded_;
-  vector<Ta> Tau_;
+  vector<Tau> Tau_;
   bool are_PuppiMET_loaded_;
   Puppimet PuppiMET_;
   bool are_Muon_loaded_;
-  vector<Muo> Muon_;
+  vector<Muon> Muon_;
   bool are_OtherPV_loaded_;
-  vector<Otherp> OtherPV_;
+  vector<Otherpv> OtherPV_;
   bool are_HLT_loaded_;
   Hlt HLT_;
   bool are_SV_loaded_;
-  vector<S> SV_;
+  vector<Sv> SV_;
   bool are_MET_loaded_;
   Met MET_;
   bool are_GenMET_loaded_;
   Genmet GenMET_;
   bool are_FatJet_loaded_;
-  vector<Fatje> FatJet_;
+  vector<Fatjet> FatJet_;
   bool are_SubJet_loaded_;
-  vector<Subje> SubJet_;
+  vector<Subjet> SubJet_;
   bool are_Flag_loaded_;
   Flag Flag_;
   bool are_Pileup_loaded_;
