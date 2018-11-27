@@ -118,7 +118,7 @@ private:
   void sethadronFlavour(const Int_ value) {hadronFlavour_ = value;}
   void setpartonFlavour(const Int_ value) {partonFlavour_ = value;}
   void setcleanmask(const UChar_ value) {cleanmask_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Genjetak8: public TLorentzVector{
@@ -139,7 +139,7 @@ private:
   UChar_ hadronFlavour_;
   void setpartonFlavour(const Int_ value) {partonFlavour_ = value;}
   void sethadronFlavour(const UChar_ value) {hadronFlavour_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Genvistau: public TLorentzVector{
@@ -164,7 +164,7 @@ private:
   void setcharge(const Int_ value) {charge_ = value;}
   void setgenPartIdxMother(const Int_ value) {genPartIdxMother_ = value;}
   void setstatus(const Int_ value) {status_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Calomet: public TLorentzVector{
@@ -181,7 +181,7 @@ public:
 private:
   Float_t sumEt_;
   void setsumEt(const Float_t value) {sumEt_ = value;}
-  void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
+  void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
 class Gendressedlepton: public TLorentzVector{
@@ -198,7 +198,7 @@ public:
 private:
   Int_ pdgId_;
   void setpdgId(const Int_ value) {pdgId_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Pv{
@@ -329,7 +329,7 @@ private:
   void setl1iso(const Int_ value) {l1iso_ = value;}
   void setl1charge(const Int_ value) {l1charge_ = value;}
   void setfilterBits(const Int_ value) {filterBits_ = value;}
-  void setLotentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
+  void setLorentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
 };
 
 class Photon: public TLorentzVector{
@@ -426,7 +426,7 @@ private:
   void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
   void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
   void setcleanmask(const UChar_ value) {cleanmask_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Genjet: public TLorentzVector{
@@ -471,7 +471,7 @@ public:
 private:
   Float_t sumEt_;
   void setsumEt(const Float_t value) {sumEt_ = value;}
-  void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
+  void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
 class Electron: public TLorentzVector{
@@ -648,7 +648,7 @@ private:
   void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
   void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
   void setcleanmask(const UChar_ value) {cleanmask_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Softactivityjet: public TLorentzVector{
@@ -689,7 +689,7 @@ private:
   void setSoftActivityJetNjets10(const Int_t value) {SoftActivityJetNjets10_ = value;}
   void setSoftActivityJetNjets2(const Int_t value) {SoftActivityJetNjets2_ = value;}
   void setSoftActivityJetNjets5(const Int_t value) {SoftActivityJetNjets5_ = value;}
-  void setLotentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
+  void setLorentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
 };
 
 class L1Simulation{
@@ -733,7 +733,7 @@ private:
   void setpdgId(const Int_ value) {pdgId_ = value;}
   void setstatus(const Int_ value) {status_ = value;}
   void setstatusFlags(const Int_ value) {statusFlags_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Lhe{
@@ -813,7 +813,7 @@ public:
 private:
   Float_t sumEt_;
   void setsumEt(const Float_t value) {sumEt_ = value;}
-  void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
+  void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
 class Tau: public TLorentzVector{
@@ -942,7 +942,7 @@ private:
   void setcleanmask(const UChar_ value) {cleanmask_ = value;}
   void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
   void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Puppimet: public TLorentzVector{
@@ -959,7 +959,7 @@ public:
 private:
   Float_t sumEt_;
   void setsumEt(const Float_t value) {sumEt_ = value;}
-  void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
+  void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
 class Muon: public TLorentzVector{
@@ -1084,7 +1084,7 @@ private:
   void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
   void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
   void setcleanmask(const UChar_ value) {cleanmask_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Otherpv{
@@ -3567,7 +3567,7 @@ private:
   void setx(const Float_ value) {x_ = value;}
   void sety(const Float_ value) {y_ = value;}
   void setz(const Float_ value) {z_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Met: public TLorentzVector{
@@ -3616,7 +3616,7 @@ private:
   void setsumEt(const Float_t value) {sumEt_ = value;}
   void setfiducialGenPhi(const Float_t value) {fiducialGenPhi_ = value;}
   void setfiducialGenPt(const Float_t value) {fiducialGenPt_ = value;}
-  void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
+  void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
 class Genmet: public TLorentzVector{
@@ -3633,7 +3633,7 @@ public:
 private:
   
   
-  void setLotentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
+  void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
 class Fatjet: public TLorentzVector{
@@ -3710,7 +3710,7 @@ private:
   void setjetId(const Int_ value) {jetId_ = value;}
   void setsubJetIdx1(const Int_ value) {subJetIdx1_ = value;}
   void setsubJetIdx2(const Int_ value) {subJetIdx2_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Subjet: public TLorentzVector{
@@ -3759,7 +3759,7 @@ private:
   void settau2(const Float_ value) {tau2_ = value;}
   void settau3(const Float_ value) {tau3_ = value;}
   void settau4(const Float_ value) {tau4_ = value;}
-  void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Flag{
@@ -6197,150 +6197,66 @@ public:
 
   const vector<Jet>& Jet(){
     if(Jet_.size() > 0) return Jet_;
-    loadJets();
-  	Jet_.reserve(Jet_area_->size());
-    auto it_Jet_area_ = Jet_area_->cbegin();
-    auto it_Jet_btagCMVA_ = Jet_btagCMVA_->cbegin();
-    auto it_Jet_btagCSVV2_ = Jet_btagCSVV2_->cbegin();
-    auto it_Jet_btagDeepB_ = Jet_btagDeepB_->cbegin();
-    auto it_Jet_btagDeepC_ = Jet_btagDeepC_->cbegin();
-    auto it_Jet_chEmEF_ = Jet_chEmEF_->cbegin();
-    auto it_Jet_chHEF_ = Jet_chHEF_->cbegin();
-    auto it_Jet_eta_ = Jet_eta_->cbegin();
-    auto it_Jet_mass_ = Jet_mass_->cbegin();
-    auto it_Jet_neEmEF_ = Jet_neEmEF_->cbegin();
-    auto it_Jet_neHEF_ = Jet_neHEF_->cbegin();
-    auto it_Jet_phi_ = Jet_phi_->cbegin();
-    auto it_Jet_pt_ = Jet_pt_->cbegin();
-    auto it_Jet_qgl_ = Jet_qgl_->cbegin();
-    auto it_Jet_rawFactor_ = Jet_rawFactor_->cbegin();
-    auto it_Jet_bReg_ = Jet_bReg_->cbegin();
-    auto it_Jet_electronIdx1_ = Jet_electronIdx1_->cbegin();
-    auto it_Jet_electronIdx2_ = Jet_electronIdx2_->cbegin();
-    auto it_Jet_jetId_ = Jet_jetId_->cbegin();
-    auto it_Jet_muonIdx1_ = Jet_muonIdx1_->cbegin();
-    auto it_Jet_muonIdx2_ = Jet_muonIdx2_->cbegin();
-    auto it_Jet_nConstituents_ = Jet_nConstituents_->cbegin();
-    auto it_Jet_nElectrons_ = Jet_nElectrons_->cbegin();
-    auto it_Jet_nMuons_ = Jet_nMuons_->cbegin();
-    auto it_Jet_puId_ = Jet_puId_->cbegin();
-    auto it_Jet_genJetIdx_ = Jet_genJetIdx_->cbegin();
-    auto it_Jet_hadronFlavour_ = Jet_hadronFlavour_->cbegin();
-    auto it_Jet_partonFlavour_ = Jet_partonFlavour_->cbegin();
-    auto it_Jet_cleanmask_ = Jet_cleanmask_->cbegin();
-    for(; it_Jet_area_ != Jet_area_->cend(); ){
+    loadJet();
+  	Jet_.reserve(nJet->size());
+    for(auto jet: nJet ){
       Jet obj;
-      obj.setarea(*it_Jet_area_);
-      obj.setbtagCMVA(*it_Jet_btagCMVA_);
-      obj.setbtagCSVV2(*it_Jet_btagCSVV2_);
-      obj.setbtagDeepB(*it_Jet_btagDeepB_);
-      obj.setbtagDeepC(*it_Jet_btagDeepC_);
-      obj.setchEmEF(*it_Jet_chEmEF_);
-      obj.setchHEF(*it_Jet_chHEF_);
-      obj.setneEmEF(*it_Jet_neEmEF_);
-      obj.setneHEF(*it_Jet_neHEF_);
-      obj.setqgl(*it_Jet_qgl_);
-      obj.setrawFactor(*it_Jet_rawFactor_);
-      obj.setbReg(*it_Jet_bReg_);
-      obj.setelectronIdx1(*it_Jet_electronIdx1_);
-      obj.setelectronIdx2(*it_Jet_electronIdx2_);
-      obj.setjetId(*it_Jet_jetId_);
-      obj.setmuonIdx1(*it_Jet_muonIdx1_);
-      obj.setmuonIdx2(*it_Jet_muonIdx2_);
-      obj.setnConstituents(*it_Jet_nConstituents_);
-      obj.setnElectrons(*it_Jet_nElectrons_);
-      obj.setnMuons(*it_Jet_nMuons_);
-      obj.setpuId(*it_Jet_puId_);
-      obj.setgenJetIdx(*it_Jet_genJetIdx_);
-      obj.sethadronFlavour(*it_Jet_hadronFlavour_);
-      obj.setpartonFlavour(*it_Jet_partonFlavour_);
-      obj.setcleanmask(*it_Jet_cleanmask_);
-      obj.setLotentzVector(*it_Jet_pt_, *it_Jet_eta_, *it_Jet_phi_, *it_Jet_mass_);
+      obj.setarea(jet.Jet_area_);
+      obj.setbtagCMVA(jet.Jet_btagCMVA_);
+      obj.setbtagCSVV2(jet.Jet_btagCSVV2_);
+      obj.setbtagDeepB(jet.Jet_btagDeepB_);
+      obj.setbtagDeepC(jet.Jet_btagDeepC_);
+      obj.setchEmEF(jet.Jet_chEmEF_);
+      obj.setchHEF(jet.Jet_chHEF_);
+      obj.setneEmEF(jet.Jet_neEmEF_);
+      obj.setneHEF(jet.Jet_neHEF_);
+      obj.setqgl(jet.Jet_qgl_);
+      obj.setrawFactor(jet.Jet_rawFactor_);
+      obj.setbReg(jet.Jet_bReg_);
+      obj.setelectronIdx1(jet.Jet_electronIdx1_);
+      obj.setelectronIdx2(jet.Jet_electronIdx2_);
+      obj.setjetId(jet.Jet_jetId_);
+      obj.setmuonIdx1(jet.Jet_muonIdx1_);
+      obj.setmuonIdx2(jet.Jet_muonIdx2_);
+      obj.setnConstituents(jet.Jet_nConstituents_);
+      obj.setnElectrons(jet.Jet_nElectrons_);
+      obj.setnMuons(jet.Jet_nMuons_);
+      obj.setpuId(jet.Jet_puId_);
+      obj.setgenJetIdx(jet.Jet_genJetIdx_);
+      obj.sethadronFlavour(jet.Jet_hadronFlavour_);
+      obj.setpartonFlavour(jet.Jet_partonFlavour_);
+      obj.setcleanmask(jet.Jet_cleanmask_);
+      obj.setLorentzVector(jet.Jet_pt_, jet.Jet_eta_, jet.Jet_phi_, jet.Jet_mass_);
       Jet_.push_back( obj );
-      ++it_Jet_area_;
-      ++it_Jet_btagCMVA_;
-      ++it_Jet_btagCSVV2_;
-      ++it_Jet_btagDeepB_;
-      ++it_Jet_btagDeepC_;
-      ++it_Jet_chEmEF_;
-      ++it_Jet_chHEF_;
-      ++it_Jet_eta_;
-      ++it_Jet_mass_;
-      ++it_Jet_neEmEF_;
-      ++it_Jet_neHEF_;
-      ++it_Jet_phi_;
-      ++it_Jet_pt_;
-      ++it_Jet_qgl_;
-      ++it_Jet_rawFactor_;
-      ++it_Jet_bReg_;
-      ++it_Jet_electronIdx1_;
-      ++it_Jet_electronIdx2_;
-      ++it_Jet_jetId_;
-      ++it_Jet_muonIdx1_;
-      ++it_Jet_muonIdx2_;
-      ++it_Jet_nConstituents_;
-      ++it_Jet_nElectrons_;
-      ++it_Jet_nMuons_;
-      ++it_Jet_puId_;
-      ++it_Jet_genJetIdx_;
-      ++it_Jet_hadronFlavour_;
-      ++it_Jet_partonFlavour_;
-      ++it_Jet_cleanmask_;
     }
     return Jet_;
   }
   
   const vector<Genjetak8>& GenJetAK8(){
     if(GenJetAK8_.size() > 0) return GenJetAK8_;
-    loadGenjetak8s();
-  	GenJetAK8_.reserve(GenJetAK8_eta_->size());
-    auto it_GenJetAK8_eta_ = GenJetAK8_eta_->cbegin();
-    auto it_GenJetAK8_mass_ = GenJetAK8_mass_->cbegin();
-    auto it_GenJetAK8_phi_ = GenJetAK8_phi_->cbegin();
-    auto it_GenJetAK8_pt_ = GenJetAK8_pt_->cbegin();
-    auto it_GenJetAK8_partonFlavour_ = GenJetAK8_partonFlavour_->cbegin();
-    auto it_GenJetAK8_hadronFlavour_ = GenJetAK8_hadronFlavour_->cbegin();
-    for(; it_GenJetAK8_eta_ != GenJetAK8_eta_->cend(); ){
+    loadGenjetak8();
+  	GenJetAK8_.reserve(nGenjetak8->size());
+    for(auto genjetak8: nGenjetak8 ){
       Genjetak8 obj;
-      obj.setpartonFlavour(*it_GenJetAK8_partonFlavour_);
-      obj.sethadronFlavour(*it_GenJetAK8_hadronFlavour_);
-      obj.setLotentzVector(*it_GenJetAK8_pt_, *it_GenJetAK8_eta_, *it_GenJetAK8_phi_, *it_GenJetAK8_mass_);
+      obj.setpartonFlavour(genjetak8.GenJetAK8_partonFlavour_);
+      obj.sethadronFlavour(genjetak8.GenJetAK8_hadronFlavour_);
+      obj.setLorentzVector(genjetak8.GenJetAK8_pt_, genjetak8.GenJetAK8_eta_, genjetak8.GenJetAK8_phi_, genjetak8.GenJetAK8_mass_);
       GenJetAK8_.push_back( obj );
-      ++it_GenJetAK8_eta_;
-      ++it_GenJetAK8_mass_;
-      ++it_GenJetAK8_phi_;
-      ++it_GenJetAK8_pt_;
-      ++it_GenJetAK8_partonFlavour_;
-      ++it_GenJetAK8_hadronFlavour_;
     }
     return GenJetAK8_;
   }
   
   const vector<Genvistau>& GenVisTau(){
     if(GenVisTau_.size() > 0) return GenVisTau_;
-    loadGenvistaus();
-  	GenVisTau_.reserve(GenVisTau_eta_->size());
-    auto it_GenVisTau_eta_ = GenVisTau_eta_->cbegin();
-    auto it_GenVisTau_mass_ = GenVisTau_mass_->cbegin();
-    auto it_GenVisTau_phi_ = GenVisTau_phi_->cbegin();
-    auto it_GenVisTau_pt_ = GenVisTau_pt_->cbegin();
-    auto it_GenVisTau_charge_ = GenVisTau_charge_->cbegin();
-    auto it_GenVisTau_genPartIdxMother_ = GenVisTau_genPartIdxMother_->cbegin();
-    auto it_GenVisTau_status_ = GenVisTau_status_->cbegin();
-    for(; it_GenVisTau_eta_ != GenVisTau_eta_->cend(); ){
+    loadGenvistau();
+  	GenVisTau_.reserve(nGenvistau->size());
+    for(auto genvistau: nGenvistau ){
       Genvistau obj;
-      obj.setcharge(*it_GenVisTau_charge_);
-      obj.setgenPartIdxMother(*it_GenVisTau_genPartIdxMother_);
-      obj.setstatus(*it_GenVisTau_status_);
-      obj.setLotentzVector(*it_GenVisTau_pt_, *it_GenVisTau_eta_, *it_GenVisTau_phi_, *it_GenVisTau_mass_);
+      obj.setcharge(genvistau.GenVisTau_charge_);
+      obj.setgenPartIdxMother(genvistau.GenVisTau_genPartIdxMother_);
+      obj.setstatus(genvistau.GenVisTau_status_);
+      obj.setLorentzVector(genvistau.GenVisTau_pt_, genvistau.GenVisTau_eta_, genvistau.GenVisTau_phi_, genvistau.GenVisTau_mass_);
       GenVisTau_.push_back( obj );
-      ++it_GenVisTau_eta_;
-      ++it_GenVisTau_mass_;
-      ++it_GenVisTau_phi_;
-      ++it_GenVisTau_pt_;
-      ++it_GenVisTau_charge_;
-      ++it_GenVisTau_genPartIdxMother_;
-      ++it_GenVisTau_status_;
     }
     return GenVisTau_;
   }
@@ -6358,23 +6274,13 @@ public:
   
   const vector<Gendressedlepton>& GenDressedLepton(){
     if(GenDressedLepton_.size() > 0) return GenDressedLepton_;
-    loadGendressedleptons();
-  	GenDressedLepton_.reserve(GenDressedLepton_eta_->size());
-    auto it_GenDressedLepton_eta_ = GenDressedLepton_eta_->cbegin();
-    auto it_GenDressedLepton_mass_ = GenDressedLepton_mass_->cbegin();
-    auto it_GenDressedLepton_phi_ = GenDressedLepton_phi_->cbegin();
-    auto it_GenDressedLepton_pt_ = GenDressedLepton_pt_->cbegin();
-    auto it_GenDressedLepton_pdgId_ = GenDressedLepton_pdgId_->cbegin();
-    for(; it_GenDressedLepton_eta_ != GenDressedLepton_eta_->cend(); ){
+    loadGendressedlepton();
+  	GenDressedLepton_.reserve(nGendressedlepton->size());
+    for(auto gendressedlepton: nGendressedlepton ){
       Gendressedlepton obj;
-      obj.setpdgId(*it_GenDressedLepton_pdgId_);
-      obj.setLotentzVector(*it_GenDressedLepton_pt_, *it_GenDressedLepton_eta_, *it_GenDressedLepton_phi_, *it_GenDressedLepton_mass_);
+      obj.setpdgId(gendressedlepton.GenDressedLepton_pdgId_);
+      obj.setLorentzVector(gendressedlepton.GenDressedLepton_pt_, gendressedlepton.GenDressedLepton_eta_, gendressedlepton.GenDressedLepton_phi_, gendressedlepton.GenDressedLepton_mass_);
       GenDressedLepton_.push_back( obj );
-      ++it_GenDressedLepton_eta_;
-      ++it_GenDressedLepton_mass_;
-      ++it_GenDressedLepton_phi_;
-      ++it_GenDressedLepton_pt_;
-      ++it_GenDressedLepton_pdgId_;
     }
     return GenDressedLepton_;
   }
@@ -6418,162 +6324,68 @@ public:
   
   const vector<Trigobj>& TrigObj(){
     if(TrigObj_.size() > 0) return TrigObj_;
-    loadTrigobjs();
-  	TrigObj_.reserve(TrigObj_pt_->size());
-    auto it_TrigObj_pt_ = TrigObj_pt_->cbegin();
-    auto it_TrigObj_eta_ = TrigObj_eta_->cbegin();
-    auto it_TrigObj_phi_ = TrigObj_phi_->cbegin();
-    auto it_TrigObj_l1pt_ = TrigObj_l1pt_->cbegin();
-    auto it_TrigObj_l1pt_2_ = TrigObj_l1pt_2_->cbegin();
-    auto it_TrigObj_l2pt_ = TrigObj_l2pt_->cbegin();
-    auto it_TrigObj_id_ = TrigObj_id_->cbegin();
-    auto it_TrigObj_l1iso_ = TrigObj_l1iso_->cbegin();
-    auto it_TrigObj_l1charge_ = TrigObj_l1charge_->cbegin();
-    auto it_TrigObj_filterBits_ = TrigObj_filterBits_->cbegin();
-    for(; it_TrigObj_pt_ != TrigObj_pt_->cend(); ){
+    loadTrigobj();
+  	TrigObj_.reserve(nTrigobj->size());
+    for(auto trigobj: nTrigobj ){
       Trigobj obj;
-      obj.setl1pt(*it_TrigObj_l1pt_);
-      obj.setl1pt(*it_TrigObj_l1pt_2_);
-      obj.setl2pt(*it_TrigObj_l2pt_);
-      obj.setid(*it_TrigObj_id_);
-      obj.setl1iso(*it_TrigObj_l1iso_);
-      obj.setl1charge(*it_TrigObj_l1charge_);
-      obj.setfilterBits(*it_TrigObj_filterBits_);
-      obj.setLotentzVector(*it_TrigObj_pt_, *it_TrigObj_eta_, *it_TrigObj_phi_);
+      obj.setl1pt(trigobj.TrigObj_l1pt_);
+      obj.setl1pt(trigobj.TrigObj_l1pt_2_);
+      obj.setl2pt(trigobj.TrigObj_l2pt_);
+      obj.setid(trigobj.TrigObj_id_);
+      obj.setl1iso(trigobj.TrigObj_l1iso_);
+      obj.setl1charge(trigobj.TrigObj_l1charge_);
+      obj.setfilterBits(trigobj.TrigObj_filterBits_);
+      obj.setLorentzVector(trigobj.TrigObj_pt_, trigobj.TrigObj_eta_, trigobj.TrigObj_phi_);
       TrigObj_.push_back( obj );
-      ++it_TrigObj_pt_;
-      ++it_TrigObj_eta_;
-      ++it_TrigObj_phi_;
-      ++it_TrigObj_l1pt_;
-      ++it_TrigObj_l1pt_2_;
-      ++it_TrigObj_l2pt_;
-      ++it_TrigObj_id_;
-      ++it_TrigObj_l1iso_;
-      ++it_TrigObj_l1charge_;
-      ++it_TrigObj_filterBits_;
     }
     return TrigObj_;
   }
   
   const vector<Photon>& Photon(){
     if(Photon_.size() > 0) return Photon_;
-    loadPhotons();
-  	Photon_.reserve(Photon_eCorr_->size());
-    auto it_Photon_eCorr_ = Photon_eCorr_->cbegin();
-    auto it_Photon_energyErr_ = Photon_energyErr_->cbegin();
-    auto it_Photon_eta_ = Photon_eta_->cbegin();
-    auto it_Photon_hoe_ = Photon_hoe_->cbegin();
-    auto it_Photon_mass_ = Photon_mass_->cbegin();
-    auto it_Photon_mvaID_ = Photon_mvaID_->cbegin();
-    auto it_Photon_pfRelIso03_all_ = Photon_pfRelIso03_all_->cbegin();
-    auto it_Photon_pfRelIso03_chg_ = Photon_pfRelIso03_chg_->cbegin();
-    auto it_Photon_phi_ = Photon_phi_->cbegin();
-    auto it_Photon_pt_ = Photon_pt_->cbegin();
-    auto it_Photon_r9_ = Photon_r9_->cbegin();
-    auto it_Photon_sieie_ = Photon_sieie_->cbegin();
-    auto it_Photon_charge_ = Photon_charge_->cbegin();
-    auto it_Photon_cutBased_ = Photon_cutBased_->cbegin();
-    auto it_Photon_electronIdx_ = Photon_electronIdx_->cbegin();
-    auto it_Photon_jetIdx_ = Photon_jetIdx_->cbegin();
-    auto it_Photon_pdgId_ = Photon_pdgId_->cbegin();
-    auto it_Photon_vidNestedWPBitmap_ = Photon_vidNestedWPBitmap_->cbegin();
-    auto it_Photon_electronVeto_ = Photon_electronVeto_->cbegin();
-    auto it_Photon_mvaID_WP80_ = Photon_mvaID_WP80_->cbegin();
-    auto it_Photon_mvaID_WP90_ = Photon_mvaID_WP90_->cbegin();
-    auto it_Photon_pixelSeed_ = Photon_pixelSeed_->cbegin();
-    auto it_Photon_genPartIdx_ = Photon_genPartIdx_->cbegin();
-    auto it_Photon_genPartFlav_ = Photon_genPartFlav_->cbegin();
-    auto it_Photon_cleanmask_ = Photon_cleanmask_->cbegin();
-    for(; it_Photon_eCorr_ != Photon_eCorr_->cend(); ){
+    loadPhoton();
+  	Photon_.reserve(nPhoton->size());
+    for(auto photon: nPhoton ){
       Photon obj;
-      obj.seteCorr(*it_Photon_eCorr_);
-      obj.setenergyErr(*it_Photon_energyErr_);
-      obj.sethoe(*it_Photon_hoe_);
-      obj.setmvaID(*it_Photon_mvaID_);
-      obj.setpfRelIso03(*it_Photon_pfRelIso03_all_);
-      obj.setpfRelIso03(*it_Photon_pfRelIso03_chg_);
-      obj.setr9(*it_Photon_r9_);
-      obj.setsieie(*it_Photon_sieie_);
-      obj.setcharge(*it_Photon_charge_);
-      obj.setcutBased(*it_Photon_cutBased_);
-      obj.setelectronIdx(*it_Photon_electronIdx_);
-      obj.setjetIdx(*it_Photon_jetIdx_);
-      obj.setpdgId(*it_Photon_pdgId_);
-      obj.setvidNestedWPBitmap(*it_Photon_vidNestedWPBitmap_);
-      obj.setelectronVeto(*it_Photon_electronVeto_);
-      obj.setmvaID(*it_Photon_mvaID_WP80_);
-      obj.setmvaID(*it_Photon_mvaID_WP90_);
-      obj.setpixelSeed(*it_Photon_pixelSeed_);
-      obj.setgenPartIdx(*it_Photon_genPartIdx_);
-      obj.setgenPartFlav(*it_Photon_genPartFlav_);
-      obj.setcleanmask(*it_Photon_cleanmask_);
-      obj.setLotentzVector(*it_Photon_pt_, *it_Photon_eta_, *it_Photon_phi_, *it_Photon_mass_);
+      obj.seteCorr(photon.Photon_eCorr_);
+      obj.setenergyErr(photon.Photon_energyErr_);
+      obj.sethoe(photon.Photon_hoe_);
+      obj.setmvaID(photon.Photon_mvaID_);
+      obj.setpfRelIso03(photon.Photon_pfRelIso03_all_);
+      obj.setpfRelIso03(photon.Photon_pfRelIso03_chg_);
+      obj.setr9(photon.Photon_r9_);
+      obj.setsieie(photon.Photon_sieie_);
+      obj.setcharge(photon.Photon_charge_);
+      obj.setcutBased(photon.Photon_cutBased_);
+      obj.setelectronIdx(photon.Photon_electronIdx_);
+      obj.setjetIdx(photon.Photon_jetIdx_);
+      obj.setpdgId(photon.Photon_pdgId_);
+      obj.setvidNestedWPBitmap(photon.Photon_vidNestedWPBitmap_);
+      obj.setelectronVeto(photon.Photon_electronVeto_);
+      obj.setmvaID(photon.Photon_mvaID_WP80_);
+      obj.setmvaID(photon.Photon_mvaID_WP90_);
+      obj.setpixelSeed(photon.Photon_pixelSeed_);
+      obj.setgenPartIdx(photon.Photon_genPartIdx_);
+      obj.setgenPartFlav(photon.Photon_genPartFlav_);
+      obj.setcleanmask(photon.Photon_cleanmask_);
+      obj.setLorentzVector(photon.Photon_pt_, photon.Photon_eta_, photon.Photon_phi_, photon.Photon_mass_);
       Photon_.push_back( obj );
-      ++it_Photon_eCorr_;
-      ++it_Photon_energyErr_;
-      ++it_Photon_eta_;
-      ++it_Photon_hoe_;
-      ++it_Photon_mass_;
-      ++it_Photon_mvaID_;
-      ++it_Photon_pfRelIso03_all_;
-      ++it_Photon_pfRelIso03_chg_;
-      ++it_Photon_phi_;
-      ++it_Photon_pt_;
-      ++it_Photon_r9_;
-      ++it_Photon_sieie_;
-      ++it_Photon_charge_;
-      ++it_Photon_cutBased_;
-      ++it_Photon_electronIdx_;
-      ++it_Photon_jetIdx_;
-      ++it_Photon_pdgId_;
-      ++it_Photon_vidNestedWPBitmap_;
-      ++it_Photon_electronVeto_;
-      ++it_Photon_mvaID_WP80_;
-      ++it_Photon_mvaID_WP90_;
-      ++it_Photon_pixelSeed_;
-      ++it_Photon_genPartIdx_;
-      ++it_Photon_genPartFlav_;
-      ++it_Photon_cleanmask_;
     }
     return Photon_;
   }
   
   const vector<Genjet>& GenJet(){
     if(GenJet_.size() > 0) return GenJet_;
-    loadGenjets();
-  	GenJet_.reserve(GenJetAK8_eta_->size());
-    auto it_GenJetAK8_eta_ = GenJetAK8_eta_->cbegin();
-    auto it_GenJetAK8_mass_ = GenJetAK8_mass_->cbegin();
-    auto it_GenJetAK8_phi_ = GenJetAK8_phi_->cbegin();
-    auto it_GenJetAK8_pt_ = GenJetAK8_pt_->cbegin();
-    auto it_GenJet_eta_ = GenJet_eta_->cbegin();
-    auto it_GenJet_mass_ = GenJet_mass_->cbegin();
-    auto it_GenJet_phi_ = GenJet_phi_->cbegin();
-    auto it_GenJet_pt_ = GenJet_pt_->cbegin();
-    auto it_GenJetAK8_partonFlavour_ = GenJetAK8_partonFlavour_->cbegin();
-    auto it_GenJetAK8_hadronFlavour_ = GenJetAK8_hadronFlavour_->cbegin();
-    auto it_GenJet_partonFlavour_ = GenJet_partonFlavour_->cbegin();
-    auto it_GenJet_hadronFlavour_ = GenJet_hadronFlavour_->cbegin();
-    for(; it_GenJetAK8_eta_ != GenJetAK8_eta_->cend(); ){
+    loadGenjet();
+  	GenJet_.reserve(nGenjet->size());
+    for(auto genjet: nGenjet ){
       Genjet obj;
-      obj.setpartonFlavour(*it_GenJetAK8_partonFlavour_);
-      obj.sethadronFlavour(*it_GenJetAK8_hadronFlavour_);
-      obj.setpartonFlavour(*it_GenJet_partonFlavour_);
-      obj.sethadronFlavour(*it_GenJet_hadronFlavour_);
-      obj.setLotentzVector(*it_GenJet_pt_, *it_GenJet_eta_, *it_GenJet_phi_, *it_GenJet_mass_);
+      obj.setpartonFlavour(genjet.GenJetAK8_partonFlavour_);
+      obj.sethadronFlavour(genjet.GenJetAK8_hadronFlavour_);
+      obj.setpartonFlavour(genjet.GenJet_partonFlavour_);
+      obj.sethadronFlavour(genjet.GenJet_hadronFlavour_);
+      obj.setLorentzVector(genjet.GenJet_pt_, genjet.GenJet_eta_, genjet.GenJet_phi_, genjet.GenJet_mass_);
       GenJet_.push_back( obj );
-      ++it_GenJetAK8_eta_;
-      ++it_GenJetAK8_mass_;
-      ++it_GenJetAK8_phi_;
-      ++it_GenJetAK8_pt_;
-      ++it_GenJet_eta_;
-      ++it_GenJet_mass_;
-      ++it_GenJet_phi_;
-      ++it_GenJet_pt_;
-      ++it_GenJetAK8_partonFlavour_;
-      ++it_GenJetAK8_hadronFlavour_;
-      ++it_GenJet_partonFlavour_;
-      ++it_GenJet_hadronFlavour_;
     }
     return GenJet_;
   }
@@ -6591,143 +6403,53 @@ public:
   
   const vector<Electron>& Electron(){
     if(Electron_.size() > 0) return Electron_;
-    loadElectrons();
-  	Electron_.reserve(Electron_deltaEtaSC_->size());
-    auto it_Electron_deltaEtaSC_ = Electron_deltaEtaSC_->cbegin();
-    auto it_Electron_dr03EcalRecHitSumEt_ = Electron_dr03EcalRecHitSumEt_->cbegin();
-    auto it_Electron_dr03HcalDepth1TowerSumEt_ = Electron_dr03HcalDepth1TowerSumEt_->cbegin();
-    auto it_Electron_dr03TkSumPt_ = Electron_dr03TkSumPt_->cbegin();
-    auto it_Electron_dxy_ = Electron_dxy_->cbegin();
-    auto it_Electron_dxyErr_ = Electron_dxyErr_->cbegin();
-    auto it_Electron_dz_ = Electron_dz_->cbegin();
-    auto it_Electron_dzErr_ = Electron_dzErr_->cbegin();
-    auto it_Electron_eCorr_ = Electron_eCorr_->cbegin();
-    auto it_Electron_eInvMinusPInv_ = Electron_eInvMinusPInv_->cbegin();
-    auto it_Electron_energyErr_ = Electron_energyErr_->cbegin();
-    auto it_Electron_eta_ = Electron_eta_->cbegin();
-    auto it_Electron_hoe_ = Electron_hoe_->cbegin();
-    auto it_Electron_ip3d_ = Electron_ip3d_->cbegin();
-    auto it_Electron_mass_ = Electron_mass_->cbegin();
-    auto it_Electron_miniPFRelIso_all_ = Electron_miniPFRelIso_all_->cbegin();
-    auto it_Electron_miniPFRelIso_chg_ = Electron_miniPFRelIso_chg_->cbegin();
-    auto it_Electron_mvaSpring16GP_ = Electron_mvaSpring16GP_->cbegin();
-    auto it_Electron_mvaSpring16HZZ_ = Electron_mvaSpring16HZZ_->cbegin();
-    auto it_Electron_pfRelIso03_all_ = Electron_pfRelIso03_all_->cbegin();
-    auto it_Electron_pfRelIso03_chg_ = Electron_pfRelIso03_chg_->cbegin();
-    auto it_Electron_phi_ = Electron_phi_->cbegin();
-    auto it_Electron_pt_ = Electron_pt_->cbegin();
-    auto it_Electron_r9_ = Electron_r9_->cbegin();
-    auto it_Electron_sieie_ = Electron_sieie_->cbegin();
-    auto it_Electron_sip3d_ = Electron_sip3d_->cbegin();
-    auto it_Electron_mvaTTH_ = Electron_mvaTTH_->cbegin();
-    auto it_Electron_charge_ = Electron_charge_->cbegin();
-    auto it_Electron_cutBased_ = Electron_cutBased_->cbegin();
-    auto it_Electron_cutBased_HLTPreSel_ = Electron_cutBased_HLTPreSel_->cbegin();
-    auto it_Electron_jetIdx_ = Electron_jetIdx_->cbegin();
-    auto it_Electron_pdgId_ = Electron_pdgId_->cbegin();
-    auto it_Electron_photonIdx_ = Electron_photonIdx_->cbegin();
-    auto it_Electron_tightCharge_ = Electron_tightCharge_->cbegin();
-    auto it_Electron_vidNestedWPBitmap_ = Electron_vidNestedWPBitmap_->cbegin();
-    auto it_Electron_convVeto_ = Electron_convVeto_->cbegin();
-    auto it_Electron_cutBased_HEEP_ = Electron_cutBased_HEEP_->cbegin();
-    auto it_Electron_isPFcand_ = Electron_isPFcand_->cbegin();
-    auto it_Electron_lostHits_ = Electron_lostHits_->cbegin();
-    auto it_Electron_mvaSpring16GP_WP80_ = Electron_mvaSpring16GP_WP80_->cbegin();
-    auto it_Electron_mvaSpring16GP_WP90_ = Electron_mvaSpring16GP_WP90_->cbegin();
-    auto it_Electron_mvaSpring16HZZ_WPL_ = Electron_mvaSpring16HZZ_WPL_->cbegin();
-    auto it_Electron_genPartIdx_ = Electron_genPartIdx_->cbegin();
-    auto it_Electron_genPartFlav_ = Electron_genPartFlav_->cbegin();
-    auto it_Electron_cleanmask_ = Electron_cleanmask_->cbegin();
-    for(; it_Electron_deltaEtaSC_ != Electron_deltaEtaSC_->cend(); ){
+    loadElectron();
+  	Electron_.reserve(nElectron->size());
+    for(auto electron: nElectron ){
       Electron obj;
-      obj.setdeltaEtaSC(*it_Electron_deltaEtaSC_);
-      obj.setdr03EcalRecHitSumEt(*it_Electron_dr03EcalRecHitSumEt_);
-      obj.setdr03HcalDepth1TowerSumEt(*it_Electron_dr03HcalDepth1TowerSumEt_);
-      obj.setdr03TkSumPt(*it_Electron_dr03TkSumPt_);
-      obj.setdxy(*it_Electron_dxy_);
-      obj.setdxyErr(*it_Electron_dxyErr_);
-      obj.setdz(*it_Electron_dz_);
-      obj.setdzErr(*it_Electron_dzErr_);
-      obj.seteCorr(*it_Electron_eCorr_);
-      obj.seteInvMinusPInv(*it_Electron_eInvMinusPInv_);
-      obj.setenergyErr(*it_Electron_energyErr_);
-      obj.sethoe(*it_Electron_hoe_);
-      obj.setip3d(*it_Electron_ip3d_);
-      obj.setminiPFRelIso(*it_Electron_miniPFRelIso_all_);
-      obj.setminiPFRelIso(*it_Electron_miniPFRelIso_chg_);
-      obj.setmvaSpring16GP(*it_Electron_mvaSpring16GP_);
-      obj.setmvaSpring16HZZ(*it_Electron_mvaSpring16HZZ_);
-      obj.setpfRelIso03(*it_Electron_pfRelIso03_all_);
-      obj.setpfRelIso03(*it_Electron_pfRelIso03_chg_);
-      obj.setr9(*it_Electron_r9_);
-      obj.setsieie(*it_Electron_sieie_);
-      obj.setsip3d(*it_Electron_sip3d_);
-      obj.setmvaTTH(*it_Electron_mvaTTH_);
-      obj.setcharge(*it_Electron_charge_);
-      obj.setcutBased(*it_Electron_cutBased_);
-      obj.setcutBased(*it_Electron_cutBased_HLTPreSel_);
-      obj.setjetIdx(*it_Electron_jetIdx_);
-      obj.setpdgId(*it_Electron_pdgId_);
-      obj.setphotonIdx(*it_Electron_photonIdx_);
-      obj.settightCharge(*it_Electron_tightCharge_);
-      obj.setvidNestedWPBitmap(*it_Electron_vidNestedWPBitmap_);
-      obj.setconvVeto(*it_Electron_convVeto_);
-      obj.setcutBased(*it_Electron_cutBased_HEEP_);
-      obj.setisPFcand(*it_Electron_isPFcand_);
-      obj.setlostHits(*it_Electron_lostHits_);
-      obj.setmvaSpring16GP(*it_Electron_mvaSpring16GP_WP80_);
-      obj.setmvaSpring16GP(*it_Electron_mvaSpring16GP_WP90_);
-      obj.setmvaSpring16HZZ(*it_Electron_mvaSpring16HZZ_WPL_);
-      obj.setgenPartIdx(*it_Electron_genPartIdx_);
-      obj.setgenPartFlav(*it_Electron_genPartFlav_);
-      obj.setcleanmask(*it_Electron_cleanmask_);
-      obj.setLotentzVector(*it_Electron_pt_, *it_Electron_eta_, *it_Electron_phi_, *it_Electron_mass_);
+      obj.setdeltaEtaSC(electron.Electron_deltaEtaSC_);
+      obj.setdr03EcalRecHitSumEt(electron.Electron_dr03EcalRecHitSumEt_);
+      obj.setdr03HcalDepth1TowerSumEt(electron.Electron_dr03HcalDepth1TowerSumEt_);
+      obj.setdr03TkSumPt(electron.Electron_dr03TkSumPt_);
+      obj.setdxy(electron.Electron_dxy_);
+      obj.setdxyErr(electron.Electron_dxyErr_);
+      obj.setdz(electron.Electron_dz_);
+      obj.setdzErr(electron.Electron_dzErr_);
+      obj.seteCorr(electron.Electron_eCorr_);
+      obj.seteInvMinusPInv(electron.Electron_eInvMinusPInv_);
+      obj.setenergyErr(electron.Electron_energyErr_);
+      obj.sethoe(electron.Electron_hoe_);
+      obj.setip3d(electron.Electron_ip3d_);
+      obj.setminiPFRelIso(electron.Electron_miniPFRelIso_all_);
+      obj.setminiPFRelIso(electron.Electron_miniPFRelIso_chg_);
+      obj.setmvaSpring16GP(electron.Electron_mvaSpring16GP_);
+      obj.setmvaSpring16HZZ(electron.Electron_mvaSpring16HZZ_);
+      obj.setpfRelIso03(electron.Electron_pfRelIso03_all_);
+      obj.setpfRelIso03(electron.Electron_pfRelIso03_chg_);
+      obj.setr9(electron.Electron_r9_);
+      obj.setsieie(electron.Electron_sieie_);
+      obj.setsip3d(electron.Electron_sip3d_);
+      obj.setmvaTTH(electron.Electron_mvaTTH_);
+      obj.setcharge(electron.Electron_charge_);
+      obj.setcutBased(electron.Electron_cutBased_);
+      obj.setcutBased(electron.Electron_cutBased_HLTPreSel_);
+      obj.setjetIdx(electron.Electron_jetIdx_);
+      obj.setpdgId(electron.Electron_pdgId_);
+      obj.setphotonIdx(electron.Electron_photonIdx_);
+      obj.settightCharge(electron.Electron_tightCharge_);
+      obj.setvidNestedWPBitmap(electron.Electron_vidNestedWPBitmap_);
+      obj.setconvVeto(electron.Electron_convVeto_);
+      obj.setcutBased(electron.Electron_cutBased_HEEP_);
+      obj.setisPFcand(electron.Electron_isPFcand_);
+      obj.setlostHits(electron.Electron_lostHits_);
+      obj.setmvaSpring16GP(electron.Electron_mvaSpring16GP_WP80_);
+      obj.setmvaSpring16GP(electron.Electron_mvaSpring16GP_WP90_);
+      obj.setmvaSpring16HZZ(electron.Electron_mvaSpring16HZZ_WPL_);
+      obj.setgenPartIdx(electron.Electron_genPartIdx_);
+      obj.setgenPartFlav(electron.Electron_genPartFlav_);
+      obj.setcleanmask(electron.Electron_cleanmask_);
+      obj.setLorentzVector(electron.Electron_pt_, electron.Electron_eta_, electron.Electron_phi_, electron.Electron_mass_);
       Electron_.push_back( obj );
-      ++it_Electron_deltaEtaSC_;
-      ++it_Electron_dr03EcalRecHitSumEt_;
-      ++it_Electron_dr03HcalDepth1TowerSumEt_;
-      ++it_Electron_dr03TkSumPt_;
-      ++it_Electron_dxy_;
-      ++it_Electron_dxyErr_;
-      ++it_Electron_dz_;
-      ++it_Electron_dzErr_;
-      ++it_Electron_eCorr_;
-      ++it_Electron_eInvMinusPInv_;
-      ++it_Electron_energyErr_;
-      ++it_Electron_eta_;
-      ++it_Electron_hoe_;
-      ++it_Electron_ip3d_;
-      ++it_Electron_mass_;
-      ++it_Electron_miniPFRelIso_all_;
-      ++it_Electron_miniPFRelIso_chg_;
-      ++it_Electron_mvaSpring16GP_;
-      ++it_Electron_mvaSpring16HZZ_;
-      ++it_Electron_pfRelIso03_all_;
-      ++it_Electron_pfRelIso03_chg_;
-      ++it_Electron_phi_;
-      ++it_Electron_pt_;
-      ++it_Electron_r9_;
-      ++it_Electron_sieie_;
-      ++it_Electron_sip3d_;
-      ++it_Electron_mvaTTH_;
-      ++it_Electron_charge_;
-      ++it_Electron_cutBased_;
-      ++it_Electron_cutBased_HLTPreSel_;
-      ++it_Electron_jetIdx_;
-      ++it_Electron_pdgId_;
-      ++it_Electron_photonIdx_;
-      ++it_Electron_tightCharge_;
-      ++it_Electron_vidNestedWPBitmap_;
-      ++it_Electron_convVeto_;
-      ++it_Electron_cutBased_HEEP_;
-      ++it_Electron_isPFcand_;
-      ++it_Electron_lostHits_;
-      ++it_Electron_mvaSpring16GP_WP80_;
-      ++it_Electron_mvaSpring16GP_WP90_;
-      ++it_Electron_mvaSpring16HZZ_WPL_;
-      ++it_Electron_genPartIdx_;
-      ++it_Electron_genPartFlav_;
-      ++it_Electron_cleanmask_;
     }
     return Electron_;
   }
@@ -6762,32 +6484,16 @@ public:
   
   const vector<Genpart>& GenPart(){
     if(GenPart_.size() > 0) return GenPart_;
-    loadGenparts();
-  	GenPart_.reserve(GenPart_eta_->size());
-    auto it_GenPart_eta_ = GenPart_eta_->cbegin();
-    auto it_GenPart_mass_ = GenPart_mass_->cbegin();
-    auto it_GenPart_phi_ = GenPart_phi_->cbegin();
-    auto it_GenPart_pt_ = GenPart_pt_->cbegin();
-    auto it_GenPart_genPartIdxMother_ = GenPart_genPartIdxMother_->cbegin();
-    auto it_GenPart_pdgId_ = GenPart_pdgId_->cbegin();
-    auto it_GenPart_status_ = GenPart_status_->cbegin();
-    auto it_GenPart_statusFlags_ = GenPart_statusFlags_->cbegin();
-    for(; it_GenPart_eta_ != GenPart_eta_->cend(); ){
+    loadGenpart();
+  	GenPart_.reserve(nGenpart->size());
+    for(auto genpart: nGenpart ){
       Genpart obj;
-      obj.setgenPartIdxMother(*it_GenPart_genPartIdxMother_);
-      obj.setpdgId(*it_GenPart_pdgId_);
-      obj.setstatus(*it_GenPart_status_);
-      obj.setstatusFlags(*it_GenPart_statusFlags_);
-      obj.setLotentzVector(*it_GenPart_pt_, *it_GenPart_eta_, *it_GenPart_phi_, *it_GenPart_mass_);
+      obj.setgenPartIdxMother(genpart.GenPart_genPartIdxMother_);
+      obj.setpdgId(genpart.GenPart_pdgId_);
+      obj.setstatus(genpart.GenPart_status_);
+      obj.setstatusFlags(genpart.GenPart_statusFlags_);
+      obj.setLorentzVector(genpart.GenPart_pt_, genpart.GenPart_eta_, genpart.GenPart_phi_, genpart.GenPart_mass_);
       GenPart_.push_back( obj );
-      ++it_GenPart_eta_;
-      ++it_GenPart_mass_;
-      ++it_GenPart_phi_;
-      ++it_GenPart_pt_;
-      ++it_GenPart_genPartIdxMother_;
-      ++it_GenPart_pdgId_;
-      ++it_GenPart_status_;
-      ++it_GenPart_statusFlags_;
     }
     return GenPart_;
   }
@@ -6828,107 +6534,41 @@ public:
   
   const vector<Tau>& Tau(){
     if(Tau_.size() > 0) return Tau_;
-    loadTaus();
-  	Tau_.reserve(Tau_chargedIso_->size());
-    auto it_Tau_chargedIso_ = Tau_chargedIso_->cbegin();
-    auto it_Tau_dxy_ = Tau_dxy_->cbegin();
-    auto it_Tau_dz_ = Tau_dz_->cbegin();
-    auto it_Tau_eta_ = Tau_eta_->cbegin();
-    auto it_Tau_footprintCorr_ = Tau_footprintCorr_->cbegin();
-    auto it_Tau_leadTkDeltaEta_ = Tau_leadTkDeltaEta_->cbegin();
-    auto it_Tau_leadTkDeltaPhi_ = Tau_leadTkDeltaPhi_->cbegin();
-    auto it_Tau_leadTkPtOverTauPt_ = Tau_leadTkPtOverTauPt_->cbegin();
-    auto it_Tau_mass_ = Tau_mass_->cbegin();
-    auto it_Tau_neutralIso_ = Tau_neutralIso_->cbegin();
-    auto it_Tau_phi_ = Tau_phi_->cbegin();
-    auto it_Tau_photonsOutsideSignalCone_ = Tau_photonsOutsideSignalCone_->cbegin();
-    auto it_Tau_pt_ = Tau_pt_->cbegin();
-    auto it_Tau_puCorr_ = Tau_puCorr_->cbegin();
-    auto it_Tau_rawAntiEle_ = Tau_rawAntiEle_->cbegin();
-    auto it_Tau_rawIso_ = Tau_rawIso_->cbegin();
-    auto it_Tau_rawMVAnewDM_ = Tau_rawMVAnewDM_->cbegin();
-    auto it_Tau_rawMVAoldDM_ = Tau_rawMVAoldDM_->cbegin();
-    auto it_Tau_rawMVAoldDMdR03_ = Tau_rawMVAoldDMdR03_->cbegin();
-    auto it_Tau_charge_ = Tau_charge_->cbegin();
-    auto it_Tau_decayMode_ = Tau_decayMode_->cbegin();
-    auto it_Tau_jetIdx_ = Tau_jetIdx_->cbegin();
-    auto it_Tau_rawAntiEleCat_ = Tau_rawAntiEleCat_->cbegin();
-    auto it_Tau_idAntiEle_ = Tau_idAntiEle_->cbegin();
-    auto it_Tau_idAntiMu_ = Tau_idAntiMu_->cbegin();
-    auto it_Tau_idDecayMode_ = Tau_idDecayMode_->cbegin();
-    auto it_Tau_idDecayModeNewDMs_ = Tau_idDecayModeNewDMs_->cbegin();
-    auto it_Tau_idMVAnewDM_ = Tau_idMVAnewDM_->cbegin();
-    auto it_Tau_idMVAoldDM_ = Tau_idMVAoldDM_->cbegin();
-    auto it_Tau_idMVAoldDMdR03_ = Tau_idMVAoldDMdR03_->cbegin();
-    auto it_Tau_cleanmask_ = Tau_cleanmask_->cbegin();
-    auto it_Tau_genPartIdx_ = Tau_genPartIdx_->cbegin();
-    auto it_Tau_genPartFlav_ = Tau_genPartFlav_->cbegin();
-    for(; it_Tau_chargedIso_ != Tau_chargedIso_->cend(); ){
+    loadTau();
+  	Tau_.reserve(nTau->size());
+    for(auto tau: nTau ){
       Tau obj;
-      obj.setchargedIso(*it_Tau_chargedIso_);
-      obj.setdxy(*it_Tau_dxy_);
-      obj.setdz(*it_Tau_dz_);
-      obj.setfootprintCorr(*it_Tau_footprintCorr_);
-      obj.setleadTkDeltaEta(*it_Tau_leadTkDeltaEta_);
-      obj.setleadTkDeltaPhi(*it_Tau_leadTkDeltaPhi_);
-      obj.setleadTkPtOverTauPt(*it_Tau_leadTkPtOverTauPt_);
-      obj.setneutralIso(*it_Tau_neutralIso_);
-      obj.setphotonsOutsideSignalCone(*it_Tau_photonsOutsideSignalCone_);
-      obj.setpuCorr(*it_Tau_puCorr_);
-      obj.setrawAntiEle(*it_Tau_rawAntiEle_);
-      obj.setrawIso(*it_Tau_rawIso_);
-      obj.setrawMVAnewDM(*it_Tau_rawMVAnewDM_);
-      obj.setrawMVAoldDM(*it_Tau_rawMVAoldDM_);
-      obj.setrawMVAoldDMdR03(*it_Tau_rawMVAoldDMdR03_);
-      obj.setcharge(*it_Tau_charge_);
-      obj.setdecayMode(*it_Tau_decayMode_);
-      obj.setjetIdx(*it_Tau_jetIdx_);
-      obj.setrawAntiEleCat(*it_Tau_rawAntiEleCat_);
-      obj.setidAntiEle(*it_Tau_idAntiEle_);
-      obj.setidAntiMu(*it_Tau_idAntiMu_);
-      obj.setidDecayMode(*it_Tau_idDecayMode_);
-      obj.setidDecayModeNewDMs(*it_Tau_idDecayModeNewDMs_);
-      obj.setidMVAnewDM(*it_Tau_idMVAnewDM_);
-      obj.setidMVAoldDM(*it_Tau_idMVAoldDM_);
-      obj.setidMVAoldDMdR03(*it_Tau_idMVAoldDMdR03_);
-      obj.setcleanmask(*it_Tau_cleanmask_);
-      obj.setgenPartIdx(*it_Tau_genPartIdx_);
-      obj.setgenPartFlav(*it_Tau_genPartFlav_);
-      obj.setLotentzVector(*it_Tau_pt_, *it_Tau_eta_, *it_Tau_phi_, *it_Tau_mass_);
+      obj.setchargedIso(tau.Tau_chargedIso_);
+      obj.setdxy(tau.Tau_dxy_);
+      obj.setdz(tau.Tau_dz_);
+      obj.setfootprintCorr(tau.Tau_footprintCorr_);
+      obj.setleadTkDeltaEta(tau.Tau_leadTkDeltaEta_);
+      obj.setleadTkDeltaPhi(tau.Tau_leadTkDeltaPhi_);
+      obj.setleadTkPtOverTauPt(tau.Tau_leadTkPtOverTauPt_);
+      obj.setneutralIso(tau.Tau_neutralIso_);
+      obj.setphotonsOutsideSignalCone(tau.Tau_photonsOutsideSignalCone_);
+      obj.setpuCorr(tau.Tau_puCorr_);
+      obj.setrawAntiEle(tau.Tau_rawAntiEle_);
+      obj.setrawIso(tau.Tau_rawIso_);
+      obj.setrawMVAnewDM(tau.Tau_rawMVAnewDM_);
+      obj.setrawMVAoldDM(tau.Tau_rawMVAoldDM_);
+      obj.setrawMVAoldDMdR03(tau.Tau_rawMVAoldDMdR03_);
+      obj.setcharge(tau.Tau_charge_);
+      obj.setdecayMode(tau.Tau_decayMode_);
+      obj.setjetIdx(tau.Tau_jetIdx_);
+      obj.setrawAntiEleCat(tau.Tau_rawAntiEleCat_);
+      obj.setidAntiEle(tau.Tau_idAntiEle_);
+      obj.setidAntiMu(tau.Tau_idAntiMu_);
+      obj.setidDecayMode(tau.Tau_idDecayMode_);
+      obj.setidDecayModeNewDMs(tau.Tau_idDecayModeNewDMs_);
+      obj.setidMVAnewDM(tau.Tau_idMVAnewDM_);
+      obj.setidMVAoldDM(tau.Tau_idMVAoldDM_);
+      obj.setidMVAoldDMdR03(tau.Tau_idMVAoldDMdR03_);
+      obj.setcleanmask(tau.Tau_cleanmask_);
+      obj.setgenPartIdx(tau.Tau_genPartIdx_);
+      obj.setgenPartFlav(tau.Tau_genPartFlav_);
+      obj.setLorentzVector(tau.Tau_pt_, tau.Tau_eta_, tau.Tau_phi_, tau.Tau_mass_);
       Tau_.push_back( obj );
-      ++it_Tau_chargedIso_;
-      ++it_Tau_dxy_;
-      ++it_Tau_dz_;
-      ++it_Tau_eta_;
-      ++it_Tau_footprintCorr_;
-      ++it_Tau_leadTkDeltaEta_;
-      ++it_Tau_leadTkDeltaPhi_;
-      ++it_Tau_leadTkPtOverTauPt_;
-      ++it_Tau_mass_;
-      ++it_Tau_neutralIso_;
-      ++it_Tau_phi_;
-      ++it_Tau_photonsOutsideSignalCone_;
-      ++it_Tau_pt_;
-      ++it_Tau_puCorr_;
-      ++it_Tau_rawAntiEle_;
-      ++it_Tau_rawIso_;
-      ++it_Tau_rawMVAnewDM_;
-      ++it_Tau_rawMVAoldDM_;
-      ++it_Tau_rawMVAoldDMdR03_;
-      ++it_Tau_charge_;
-      ++it_Tau_decayMode_;
-      ++it_Tau_jetIdx_;
-      ++it_Tau_rawAntiEleCat_;
-      ++it_Tau_idAntiEle_;
-      ++it_Tau_idAntiMu_;
-      ++it_Tau_idDecayMode_;
-      ++it_Tau_idDecayModeNewDMs_;
-      ++it_Tau_idMVAnewDM_;
-      ++it_Tau_idMVAoldDM_;
-      ++it_Tau_idMVAoldDMdR03_;
-      ++it_Tau_cleanmask_;
-      ++it_Tau_genPartIdx_;
-      ++it_Tau_genPartFlav_;
     }
     return Tau_;
   }
@@ -6946,119 +6586,53 @@ public:
   
   const vector<Muon>& Muon(){
     if(Muon_.size() > 0) return Muon_;
-    loadMuons();
-  	Muon_.reserve(Muon_dxy_->size());
-    auto it_Muon_dxy_ = Muon_dxy_->cbegin();
-    auto it_Muon_dxyErr_ = Muon_dxyErr_->cbegin();
-    auto it_Muon_dz_ = Muon_dz_->cbegin();
-    auto it_Muon_dzErr_ = Muon_dzErr_->cbegin();
-    auto it_Muon_eta_ = Muon_eta_->cbegin();
-    auto it_Muon_ip3d_ = Muon_ip3d_->cbegin();
-    auto it_Muon_mass_ = Muon_mass_->cbegin();
-    auto it_Muon_miniPFRelIso_all_ = Muon_miniPFRelIso_all_->cbegin();
-    auto it_Muon_miniPFRelIso_chg_ = Muon_miniPFRelIso_chg_->cbegin();
-    auto it_Muon_pfRelIso03_all_ = Muon_pfRelIso03_all_->cbegin();
-    auto it_Muon_pfRelIso03_chg_ = Muon_pfRelIso03_chg_->cbegin();
-    auto it_Muon_pfRelIso04_all_ = Muon_pfRelIso04_all_->cbegin();
-    auto it_Muon_phi_ = Muon_phi_->cbegin();
-    auto it_Muon_pt_ = Muon_pt_->cbegin();
-    auto it_Muon_ptErr_ = Muon_ptErr_->cbegin();
-    auto it_Muon_segmentComp_ = Muon_segmentComp_->cbegin();
-    auto it_Muon_sip3d_ = Muon_sip3d_->cbegin();
-    auto it_Muon_mvaTTH_ = Muon_mvaTTH_->cbegin();
-    auto it_Muon_charge_ = Muon_charge_->cbegin();
-    auto it_Muon_jetIdx_ = Muon_jetIdx_->cbegin();
-    auto it_Muon_nStations_ = Muon_nStations_->cbegin();
-    auto it_Muon_nTrackerLayers_ = Muon_nTrackerLayers_->cbegin();
-    auto it_Muon_pdgId_ = Muon_pdgId_->cbegin();
-    auto it_Muon_tightCharge_ = Muon_tightCharge_->cbegin();
-    auto it_Muon_highPtId_ = Muon_highPtId_->cbegin();
-    auto it_Muon_isPFcand_ = Muon_isPFcand_->cbegin();
-    auto it_Muon_mediumId_ = Muon_mediumId_->cbegin();
-    auto it_Muon_softId_ = Muon_softId_->cbegin();
-    auto it_Muon_tightId_ = Muon_tightId_->cbegin();
-    auto it_Muon_genPartIdx_ = Muon_genPartIdx_->cbegin();
-    auto it_Muon_genPartFlav_ = Muon_genPartFlav_->cbegin();
-    auto it_Muon_cleanmask_ = Muon_cleanmask_->cbegin();
-    for(; it_Muon_dxy_ != Muon_dxy_->cend(); ){
+    loadMuon();
+  	Muon_.reserve(nMuon->size());
+    for(auto muon: nMuon ){
       Muon obj;
-      obj.setdxy(*it_Muon_dxy_);
-      obj.setdxyErr(*it_Muon_dxyErr_);
-      obj.setdz(*it_Muon_dz_);
-      obj.setdzErr(*it_Muon_dzErr_);
-      obj.setip3d(*it_Muon_ip3d_);
-      obj.setminiPFRelIso(*it_Muon_miniPFRelIso_all_);
-      obj.setminiPFRelIso(*it_Muon_miniPFRelIso_chg_);
-      obj.setpfRelIso03(*it_Muon_pfRelIso03_all_);
-      obj.setpfRelIso03(*it_Muon_pfRelIso03_chg_);
-      obj.setpfRelIso04(*it_Muon_pfRelIso04_all_);
-      obj.setptErr(*it_Muon_ptErr_);
-      obj.setsegmentComp(*it_Muon_segmentComp_);
-      obj.setsip3d(*it_Muon_sip3d_);
-      obj.setmvaTTH(*it_Muon_mvaTTH_);
-      obj.setcharge(*it_Muon_charge_);
-      obj.setjetIdx(*it_Muon_jetIdx_);
-      obj.setnStations(*it_Muon_nStations_);
-      obj.setnTrackerLayers(*it_Muon_nTrackerLayers_);
-      obj.setpdgId(*it_Muon_pdgId_);
-      obj.settightCharge(*it_Muon_tightCharge_);
-      obj.sethighPtId(*it_Muon_highPtId_);
-      obj.setisPFcand(*it_Muon_isPFcand_);
-      obj.setmediumId(*it_Muon_mediumId_);
-      obj.setsoftId(*it_Muon_softId_);
-      obj.settightId(*it_Muon_tightId_);
-      obj.setgenPartIdx(*it_Muon_genPartIdx_);
-      obj.setgenPartFlav(*it_Muon_genPartFlav_);
-      obj.setcleanmask(*it_Muon_cleanmask_);
-      obj.setLotentzVector(*it_Muon_pt_, *it_Muon_eta_, *it_Muon_phi_, *it_Muon_mass_);
+      obj.setdxy(muon.Muon_dxy_);
+      obj.setdxyErr(muon.Muon_dxyErr_);
+      obj.setdz(muon.Muon_dz_);
+      obj.setdzErr(muon.Muon_dzErr_);
+      obj.setip3d(muon.Muon_ip3d_);
+      obj.setminiPFRelIso(muon.Muon_miniPFRelIso_all_);
+      obj.setminiPFRelIso(muon.Muon_miniPFRelIso_chg_);
+      obj.setpfRelIso03(muon.Muon_pfRelIso03_all_);
+      obj.setpfRelIso03(muon.Muon_pfRelIso03_chg_);
+      obj.setpfRelIso04(muon.Muon_pfRelIso04_all_);
+      obj.setptErr(muon.Muon_ptErr_);
+      obj.setsegmentComp(muon.Muon_segmentComp_);
+      obj.setsip3d(muon.Muon_sip3d_);
+      obj.setmvaTTH(muon.Muon_mvaTTH_);
+      obj.setcharge(muon.Muon_charge_);
+      obj.setjetIdx(muon.Muon_jetIdx_);
+      obj.setnStations(muon.Muon_nStations_);
+      obj.setnTrackerLayers(muon.Muon_nTrackerLayers_);
+      obj.setpdgId(muon.Muon_pdgId_);
+      obj.settightCharge(muon.Muon_tightCharge_);
+      obj.sethighPtId(muon.Muon_highPtId_);
+      obj.setisPFcand(muon.Muon_isPFcand_);
+      obj.setmediumId(muon.Muon_mediumId_);
+      obj.setsoftId(muon.Muon_softId_);
+      obj.settightId(muon.Muon_tightId_);
+      obj.setgenPartIdx(muon.Muon_genPartIdx_);
+      obj.setgenPartFlav(muon.Muon_genPartFlav_);
+      obj.setcleanmask(muon.Muon_cleanmask_);
+      obj.setLorentzVector(muon.Muon_pt_, muon.Muon_eta_, muon.Muon_phi_, muon.Muon_mass_);
       Muon_.push_back( obj );
-      ++it_Muon_dxy_;
-      ++it_Muon_dxyErr_;
-      ++it_Muon_dz_;
-      ++it_Muon_dzErr_;
-      ++it_Muon_eta_;
-      ++it_Muon_ip3d_;
-      ++it_Muon_mass_;
-      ++it_Muon_miniPFRelIso_all_;
-      ++it_Muon_miniPFRelIso_chg_;
-      ++it_Muon_pfRelIso03_all_;
-      ++it_Muon_pfRelIso03_chg_;
-      ++it_Muon_pfRelIso04_all_;
-      ++it_Muon_phi_;
-      ++it_Muon_pt_;
-      ++it_Muon_ptErr_;
-      ++it_Muon_segmentComp_;
-      ++it_Muon_sip3d_;
-      ++it_Muon_mvaTTH_;
-      ++it_Muon_charge_;
-      ++it_Muon_jetIdx_;
-      ++it_Muon_nStations_;
-      ++it_Muon_nTrackerLayers_;
-      ++it_Muon_pdgId_;
-      ++it_Muon_tightCharge_;
-      ++it_Muon_highPtId_;
-      ++it_Muon_isPFcand_;
-      ++it_Muon_mediumId_;
-      ++it_Muon_softId_;
-      ++it_Muon_tightId_;
-      ++it_Muon_genPartIdx_;
-      ++it_Muon_genPartFlav_;
-      ++it_Muon_cleanmask_;
     }
     return Muon_;
   }
   
   const vector<Otherpv>& OtherPV(){
     if(OtherPV_.size() > 0) return OtherPV_;
-    loadOtherpvs();
-  	OtherPV_.reserve(OtherPV_z_->size());
-    auto it_OtherPV_z_ = OtherPV_z_->cbegin();
-    for(; it_OtherPV_z_ != OtherPV_z_->cend(); ){
+    loadOtherpv();
+  	OtherPV_.reserve(nOtherpv->size());
+    for(auto otherpv: nOtherpv ){
       Otherpv obj;
-      obj.setz(*it_OtherPV_z_);
+      obj.setz(otherpv.OtherPV_z_);
       
       OtherPV_.push_back( obj );
-      ++it_OtherPV_z_;
     }
     return OtherPV_;
   }
@@ -7678,44 +7252,20 @@ public:
   
   const vector<Sv>& SV(){
     if(SV_.size() > 0) return SV_;
-    loadSvs();
-  	SV_.reserve(SV_dlen_->size());
-    auto it_SV_dlen_ = SV_dlen_->cbegin();
-    auto it_SV_dlenSig_ = SV_dlenSig_->cbegin();
-    auto it_SV_pAngle_ = SV_pAngle_->cbegin();
-    auto it_SV_chi2_ = SV_chi2_->cbegin();
-    auto it_SV_eta_ = SV_eta_->cbegin();
-    auto it_SV_mass_ = SV_mass_->cbegin();
-    auto it_SV_ndof_ = SV_ndof_->cbegin();
-    auto it_SV_phi_ = SV_phi_->cbegin();
-    auto it_SV_pt_ = SV_pt_->cbegin();
-    auto it_SV_x_ = SV_x_->cbegin();
-    auto it_SV_y_ = SV_y_->cbegin();
-    auto it_SV_z_ = SV_z_->cbegin();
-    for(; it_SV_dlen_ != SV_dlen_->cend(); ){
+    loadSv();
+  	SV_.reserve(nSv->size());
+    for(auto sv: nSv ){
       Sv obj;
-      obj.setdlen(*it_SV_dlen_);
-      obj.setdlenSig(*it_SV_dlenSig_);
-      obj.setpAngle(*it_SV_pAngle_);
-      obj.setchi2(*it_SV_chi2_);
-      obj.setndof(*it_SV_ndof_);
-      obj.setx(*it_SV_x_);
-      obj.sety(*it_SV_y_);
-      obj.setz(*it_SV_z_);
-      obj.setLotentzVector(*it_SV_pt_, *it_SV_eta_, *it_SV_phi_, *it_SV_mass_);
+      obj.setdlen(sv.SV_dlen_);
+      obj.setdlenSig(sv.SV_dlenSig_);
+      obj.setpAngle(sv.SV_pAngle_);
+      obj.setchi2(sv.SV_chi2_);
+      obj.setndof(sv.SV_ndof_);
+      obj.setx(sv.SV_x_);
+      obj.sety(sv.SV_y_);
+      obj.setz(sv.SV_z_);
+      obj.setLorentzVector(sv.SV_pt_, sv.SV_eta_, sv.SV_phi_, sv.SV_mass_);
       SV_.push_back( obj );
-      ++it_SV_dlen_;
-      ++it_SV_dlenSig_;
-      ++it_SV_pAngle_;
-      ++it_SV_chi2_;
-      ++it_SV_eta_;
-      ++it_SV_mass_;
-      ++it_SV_ndof_;
-      ++it_SV_phi_;
-      ++it_SV_pt_;
-      ++it_SV_x_;
-      ++it_SV_y_;
-      ++it_SV_z_;
     }
     return SV_;
   }
@@ -7752,115 +7302,49 @@ public:
   
   const vector<Fatjet>& FatJet(){
     if(FatJet_.size() > 0) return FatJet_;
-    loadFatjets();
-  	FatJet_.reserve(FatJet_area_->size());
-    auto it_FatJet_area_ = FatJet_area_->cbegin();
-    auto it_FatJet_btagCMVA_ = FatJet_btagCMVA_->cbegin();
-    auto it_FatJet_btagCSVV2_ = FatJet_btagCSVV2_->cbegin();
-    auto it_FatJet_btagDeepB_ = FatJet_btagDeepB_->cbegin();
-    auto it_FatJet_btagHbb_ = FatJet_btagHbb_->cbegin();
-    auto it_FatJet_eta_ = FatJet_eta_->cbegin();
-    auto it_FatJet_mass_ = FatJet_mass_->cbegin();
-    auto it_FatJet_msoftdrop_ = FatJet_msoftdrop_->cbegin();
-    auto it_FatJet_msoftdrop_chs_ = FatJet_msoftdrop_chs_->cbegin();
-    auto it_FatJet_n2b1_ = FatJet_n2b1_->cbegin();
-    auto it_FatJet_n3b1_ = FatJet_n3b1_->cbegin();
-    auto it_FatJet_phi_ = FatJet_phi_->cbegin();
-    auto it_FatJet_pt_ = FatJet_pt_->cbegin();
-    auto it_FatJet_tau1_ = FatJet_tau1_->cbegin();
-    auto it_FatJet_tau2_ = FatJet_tau2_->cbegin();
-    auto it_FatJet_tau3_ = FatJet_tau3_->cbegin();
-    auto it_FatJet_tau4_ = FatJet_tau4_->cbegin();
-    auto it_FatJet_jetId_ = FatJet_jetId_->cbegin();
-    auto it_FatJet_subJetIdx1_ = FatJet_subJetIdx1_->cbegin();
-    auto it_FatJet_subJetIdx2_ = FatJet_subJetIdx2_->cbegin();
-    for(; it_FatJet_area_ != FatJet_area_->cend(); ){
+    loadFatjet();
+  	FatJet_.reserve(nFatjet->size());
+    for(auto fatjet: nFatjet ){
       Fatjet obj;
-      obj.setarea(*it_FatJet_area_);
-      obj.setbtagCMVA(*it_FatJet_btagCMVA_);
-      obj.setbtagCSVV2(*it_FatJet_btagCSVV2_);
-      obj.setbtagDeepB(*it_FatJet_btagDeepB_);
-      obj.setbtagHbb(*it_FatJet_btagHbb_);
-      obj.setmsoftdrop(*it_FatJet_msoftdrop_);
-      obj.setmsoftdrop(*it_FatJet_msoftdrop_chs_);
-      obj.setn2b1(*it_FatJet_n2b1_);
-      obj.setn3b1(*it_FatJet_n3b1_);
-      obj.settau1(*it_FatJet_tau1_);
-      obj.settau2(*it_FatJet_tau2_);
-      obj.settau3(*it_FatJet_tau3_);
-      obj.settau4(*it_FatJet_tau4_);
-      obj.setjetId(*it_FatJet_jetId_);
-      obj.setsubJetIdx1(*it_FatJet_subJetIdx1_);
-      obj.setsubJetIdx2(*it_FatJet_subJetIdx2_);
-      obj.setLotentzVector(*it_FatJet_pt_, *it_FatJet_eta_, *it_FatJet_phi_, *it_FatJet_mass_);
+      obj.setarea(fatjet.FatJet_area_);
+      obj.setbtagCMVA(fatjet.FatJet_btagCMVA_);
+      obj.setbtagCSVV2(fatjet.FatJet_btagCSVV2_);
+      obj.setbtagDeepB(fatjet.FatJet_btagDeepB_);
+      obj.setbtagHbb(fatjet.FatJet_btagHbb_);
+      obj.setmsoftdrop(fatjet.FatJet_msoftdrop_);
+      obj.setmsoftdrop(fatjet.FatJet_msoftdrop_chs_);
+      obj.setn2b1(fatjet.FatJet_n2b1_);
+      obj.setn3b1(fatjet.FatJet_n3b1_);
+      obj.settau1(fatjet.FatJet_tau1_);
+      obj.settau2(fatjet.FatJet_tau2_);
+      obj.settau3(fatjet.FatJet_tau3_);
+      obj.settau4(fatjet.FatJet_tau4_);
+      obj.setjetId(fatjet.FatJet_jetId_);
+      obj.setsubJetIdx1(fatjet.FatJet_subJetIdx1_);
+      obj.setsubJetIdx2(fatjet.FatJet_subJetIdx2_);
+      obj.setLorentzVector(fatjet.FatJet_pt_, fatjet.FatJet_eta_, fatjet.FatJet_phi_, fatjet.FatJet_mass_);
       FatJet_.push_back( obj );
-      ++it_FatJet_area_;
-      ++it_FatJet_btagCMVA_;
-      ++it_FatJet_btagCSVV2_;
-      ++it_FatJet_btagDeepB_;
-      ++it_FatJet_btagHbb_;
-      ++it_FatJet_eta_;
-      ++it_FatJet_mass_;
-      ++it_FatJet_msoftdrop_;
-      ++it_FatJet_msoftdrop_chs_;
-      ++it_FatJet_n2b1_;
-      ++it_FatJet_n3b1_;
-      ++it_FatJet_phi_;
-      ++it_FatJet_pt_;
-      ++it_FatJet_tau1_;
-      ++it_FatJet_tau2_;
-      ++it_FatJet_tau3_;
-      ++it_FatJet_tau4_;
-      ++it_FatJet_jetId_;
-      ++it_FatJet_subJetIdx1_;
-      ++it_FatJet_subJetIdx2_;
     }
     return FatJet_;
   }
   
   const vector<Subjet>& SubJet(){
     if(SubJet_.size() > 0) return SubJet_;
-    loadSubjets();
-  	SubJet_.reserve(SubJet_btagCMVA_->size());
-    auto it_SubJet_btagCMVA_ = SubJet_btagCMVA_->cbegin();
-    auto it_SubJet_btagCSVV2_ = SubJet_btagCSVV2_->cbegin();
-    auto it_SubJet_btagDeepB_ = SubJet_btagDeepB_->cbegin();
-    auto it_SubJet_eta_ = SubJet_eta_->cbegin();
-    auto it_SubJet_mass_ = SubJet_mass_->cbegin();
-    auto it_SubJet_n2b1_ = SubJet_n2b1_->cbegin();
-    auto it_SubJet_n3b1_ = SubJet_n3b1_->cbegin();
-    auto it_SubJet_phi_ = SubJet_phi_->cbegin();
-    auto it_SubJet_pt_ = SubJet_pt_->cbegin();
-    auto it_SubJet_tau1_ = SubJet_tau1_->cbegin();
-    auto it_SubJet_tau2_ = SubJet_tau2_->cbegin();
-    auto it_SubJet_tau3_ = SubJet_tau3_->cbegin();
-    auto it_SubJet_tau4_ = SubJet_tau4_->cbegin();
-    for(; it_SubJet_btagCMVA_ != SubJet_btagCMVA_->cend(); ){
+    loadSubjet();
+  	SubJet_.reserve(nSubjet->size());
+    for(auto subjet: nSubjet ){
       Subjet obj;
-      obj.setbtagCMVA(*it_SubJet_btagCMVA_);
-      obj.setbtagCSVV2(*it_SubJet_btagCSVV2_);
-      obj.setbtagDeepB(*it_SubJet_btagDeepB_);
-      obj.setn2b1(*it_SubJet_n2b1_);
-      obj.setn3b1(*it_SubJet_n3b1_);
-      obj.settau1(*it_SubJet_tau1_);
-      obj.settau2(*it_SubJet_tau2_);
-      obj.settau3(*it_SubJet_tau3_);
-      obj.settau4(*it_SubJet_tau4_);
-      obj.setLotentzVector(*it_SubJet_pt_, *it_SubJet_eta_, *it_SubJet_phi_, *it_SubJet_mass_);
+      obj.setbtagCMVA(subjet.SubJet_btagCMVA_);
+      obj.setbtagCSVV2(subjet.SubJet_btagCSVV2_);
+      obj.setbtagDeepB(subjet.SubJet_btagDeepB_);
+      obj.setn2b1(subjet.SubJet_n2b1_);
+      obj.setn3b1(subjet.SubJet_n3b1_);
+      obj.settau1(subjet.SubJet_tau1_);
+      obj.settau2(subjet.SubJet_tau2_);
+      obj.settau3(subjet.SubJet_tau3_);
+      obj.settau4(subjet.SubJet_tau4_);
+      obj.setLorentzVector(subjet.SubJet_pt_, subjet.SubJet_eta_, subjet.SubJet_phi_, subjet.SubJet_mass_);
       SubJet_.push_back( obj );
-      ++it_SubJet_btagCMVA_;
-      ++it_SubJet_btagCSVV2_;
-      ++it_SubJet_btagDeepB_;
-      ++it_SubJet_eta_;
-      ++it_SubJet_mass_;
-      ++it_SubJet_n2b1_;
-      ++it_SubJet_n3b1_;
-      ++it_SubJet_phi_;
-      ++it_SubJet_pt_;
-      ++it_SubJet_tau1_;
-      ++it_SubJet_tau2_;
-      ++it_SubJet_tau3_;
-      ++it_SubJet_tau4_;
     }
     return SubJet_;
   }
