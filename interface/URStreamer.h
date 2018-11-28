@@ -11,7 +11,7 @@ using namespace std;
 class Jet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Jet(const Float_ &i_area_,const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_btagDeepC_,const Float_ &i_chEmEF_,const Float_ &i_chHEF_,const Float_ &i_neEmEF_,const Float_ &i_neHEF_,const Float_ &i_qgl_,const Float_ &i_rawFactor_,const Float_ &i_bReg_,const Int_ &i_electronIdx1_,const Int_ &i_electronIdx2_,const Int_ &i_jetId_,const Int_ &i_muonIdx1_,const Int_ &i_muonIdx2_,const Int_ &i_nConstituents_,const Int_ &i_nElectrons_,const Int_ &i_nMuons_,const Int_ &i_puId_,const Int_ &i_genJetIdx_,const Int_ &i_hadronFlavour_,const Int_ &i_partonFlavour_,const UChar_ &i_cleanmask_):
+//  Jet(const Float_t &i_area_,const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_btagDeepC_,const Float_t &i_chEmEF_,const Float_t &i_chHEF_,const Float_t &i_neEmEF_,const Float_t &i_neHEF_,const Float_t &i_qgl_,const Float_t &i_rawFactor_,const Float_t &i_bReg_,const Int_t &i_electronIdx1_,const Int_t &i_electronIdx2_,const Int_t &i_jetId_,const Int_t &i_muonIdx1_,const Int_t &i_muonIdx2_,const Int_t &i_nConstituents_,const Int_t &i_nElectrons_,const Int_t &i_nMuons_,const Int_t &i_puId_,const Int_t &i_genJetIdx_,const Int_t &i_hadronFlavour_,const Int_t &i_partonFlavour_,const UChar_t &i_cleanmask_):
 //    
 //  {}
   Jet():
@@ -42,89 +42,89 @@ public:
     partonFlavour_(0),
     cleanmask_(0)
   {}
-  Float_ area() const {return area_;}
-  Float_ btagCMVA() const {return btagCMVA_;}
-  Float_ btagCSVV2() const {return btagCSVV2_;}
-  Float_ btagDeepB() const {return btagDeepB_;}
-  Float_ btagDeepC() const {return btagDeepC_;}
-  Float_ chEmEF() const {return chEmEF_;}
-  Float_ chHEF() const {return chHEF_;}
-  Float_ neEmEF() const {return neEmEF_;}
-  Float_ neHEF() const {return neHEF_;}
-  Float_ qgl() const {return qgl_;}
-  Float_ rawFactor() const {return rawFactor_;}
-  Float_ bReg() const {return bReg_;}
-  Int_ electronIdx1() const {return electronIdx1_;}
-  Int_ electronIdx2() const {return electronIdx2_;}
-  Int_ jetId() const {return jetId_;}
-  Int_ muonIdx1() const {return muonIdx1_;}
-  Int_ muonIdx2() const {return muonIdx2_;}
-  Int_ nConstituents() const {return nConstituents_;}
-  Int_ nElectrons() const {return nElectrons_;}
-  Int_ nMuons() const {return nMuons_;}
-  Int_ puId() const {return puId_;}
-  Int_ genJetIdx() const {return genJetIdx_;}
-  Int_ hadronFlavour() const {return hadronFlavour_;}
-  Int_ partonFlavour() const {return partonFlavour_;}
-  UChar_ cleanmask() const {return cleanmask_;}
+  Float_t area() const {return area_;}
+  Float_t btagCMVA() const {return btagCMVA_;}
+  Float_t btagCSVV2() const {return btagCSVV2_;}
+  Float_t btagDeepB() const {return btagDeepB_;}
+  Float_t btagDeepC() const {return btagDeepC_;}
+  Float_t chEmEF() const {return chEmEF_;}
+  Float_t chHEF() const {return chHEF_;}
+  Float_t neEmEF() const {return neEmEF_;}
+  Float_t neHEF() const {return neHEF_;}
+  Float_t qgl() const {return qgl_;}
+  Float_t rawFactor() const {return rawFactor_;}
+  Float_t bReg() const {return bReg_;}
+  Int_t electronIdx1() const {return electronIdx1_;}
+  Int_t electronIdx2() const {return electronIdx2_;}
+  Int_t jetId() const {return jetId_;}
+  Int_t muonIdx1() const {return muonIdx1_;}
+  Int_t muonIdx2() const {return muonIdx2_;}
+  Int_t nConstituents() const {return nConstituents_;}
+  Int_t nElectrons() const {return nElectrons_;}
+  Int_t nMuons() const {return nMuons_;}
+  Int_t puId() const {return puId_;}
+  Int_t genJetIdx() const {return genJetIdx_;}
+  Int_t hadronFlavour() const {return hadronFlavour_;}
+  Int_t partonFlavour() const {return partonFlavour_;}
+  UChar_t cleanmask() const {return cleanmask_;}
 private:
-  Float_ area_;
-  Float_ btagCMVA_;
-  Float_ btagCSVV2_;
-  Float_ btagDeepB_;
-  Float_ btagDeepC_;
-  Float_ chEmEF_;
-  Float_ chHEF_;
-  Float_ neEmEF_;
-  Float_ neHEF_;
-  Float_ qgl_;
-  Float_ rawFactor_;
-  Float_ bReg_;
-  Int_ electronIdx1_;
-  Int_ electronIdx2_;
-  Int_ jetId_;
-  Int_ muonIdx1_;
-  Int_ muonIdx2_;
-  Int_ nConstituents_;
-  Int_ nElectrons_;
-  Int_ nMuons_;
-  Int_ puId_;
-  Int_ genJetIdx_;
-  Int_ hadronFlavour_;
-  Int_ partonFlavour_;
-  UChar_ cleanmask_;
-  void setarea(const Float_ value) {area_ = value;}
-  void setbtagCMVA(const Float_ value) {btagCMVA_ = value;}
-  void setbtagCSVV2(const Float_ value) {btagCSVV2_ = value;}
-  void setbtagDeepB(const Float_ value) {btagDeepB_ = value;}
-  void setbtagDeepC(const Float_ value) {btagDeepC_ = value;}
-  void setchEmEF(const Float_ value) {chEmEF_ = value;}
-  void setchHEF(const Float_ value) {chHEF_ = value;}
-  void setneEmEF(const Float_ value) {neEmEF_ = value;}
-  void setneHEF(const Float_ value) {neHEF_ = value;}
-  void setqgl(const Float_ value) {qgl_ = value;}
-  void setrawFactor(const Float_ value) {rawFactor_ = value;}
-  void setbReg(const Float_ value) {bReg_ = value;}
-  void setelectronIdx1(const Int_ value) {electronIdx1_ = value;}
-  void setelectronIdx2(const Int_ value) {electronIdx2_ = value;}
-  void setjetId(const Int_ value) {jetId_ = value;}
-  void setmuonIdx1(const Int_ value) {muonIdx1_ = value;}
-  void setmuonIdx2(const Int_ value) {muonIdx2_ = value;}
-  void setnConstituents(const Int_ value) {nConstituents_ = value;}
-  void setnElectrons(const Int_ value) {nElectrons_ = value;}
-  void setnMuons(const Int_ value) {nMuons_ = value;}
-  void setpuId(const Int_ value) {puId_ = value;}
-  void setgenJetIdx(const Int_ value) {genJetIdx_ = value;}
-  void sethadronFlavour(const Int_ value) {hadronFlavour_ = value;}
-  void setpartonFlavour(const Int_ value) {partonFlavour_ = value;}
-  void setcleanmask(const UChar_ value) {cleanmask_ = value;}
+  Float_t area_;
+  Float_t btagCMVA_;
+  Float_t btagCSVV2_;
+  Float_t btagDeepB_;
+  Float_t btagDeepC_;
+  Float_t chEmEF_;
+  Float_t chHEF_;
+  Float_t neEmEF_;
+  Float_t neHEF_;
+  Float_t qgl_;
+  Float_t rawFactor_;
+  Float_t bReg_;
+  Int_t electronIdx1_;
+  Int_t electronIdx2_;
+  Int_t jetId_;
+  Int_t muonIdx1_;
+  Int_t muonIdx2_;
+  Int_t nConstituents_;
+  Int_t nElectrons_;
+  Int_t nMuons_;
+  Int_t puId_;
+  Int_t genJetIdx_;
+  Int_t hadronFlavour_;
+  Int_t partonFlavour_;
+  UChar_t cleanmask_;
+  void setarea(const Float_t value) {area_ = value;}
+  void setbtagCMVA(const Float_t value) {btagCMVA_ = value;}
+  void setbtagCSVV2(const Float_t value) {btagCSVV2_ = value;}
+  void setbtagDeepB(const Float_t value) {btagDeepB_ = value;}
+  void setbtagDeepC(const Float_t value) {btagDeepC_ = value;}
+  void setchEmEF(const Float_t value) {chEmEF_ = value;}
+  void setchHEF(const Float_t value) {chHEF_ = value;}
+  void setneEmEF(const Float_t value) {neEmEF_ = value;}
+  void setneHEF(const Float_t value) {neHEF_ = value;}
+  void setqgl(const Float_t value) {qgl_ = value;}
+  void setrawFactor(const Float_t value) {rawFactor_ = value;}
+  void setbReg(const Float_t value) {bReg_ = value;}
+  void setelectronIdx1(const Int_t value) {electronIdx1_ = value;}
+  void setelectronIdx2(const Int_t value) {electronIdx2_ = value;}
+  void setjetId(const Int_t value) {jetId_ = value;}
+  void setmuonIdx1(const Int_t value) {muonIdx1_ = value;}
+  void setmuonIdx2(const Int_t value) {muonIdx2_ = value;}
+  void setnConstituents(const Int_t value) {nConstituents_ = value;}
+  void setnElectrons(const Int_t value) {nElectrons_ = value;}
+  void setnMuons(const Int_t value) {nMuons_ = value;}
+  void setpuId(const Int_t value) {puId_ = value;}
+  void setgenJetIdx(const Int_t value) {genJetIdx_ = value;}
+  void sethadronFlavour(const Int_t value) {hadronFlavour_ = value;}
+  void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
+  void setcleanmask(const UChar_t value) {cleanmask_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Genjetak8: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genjetak8(const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_):
+//  Genjetak8(const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_):
 //    
 //  {}
   Genjetak8():
@@ -132,20 +132,20 @@ public:
     partonFlavour_(0),
     hadronFlavour_(0)
   {}
-  Int_ partonFlavour() const {return partonFlavour_;}
-  UChar_ hadronFlavour() const {return hadronFlavour_;}
+  Int_t partonFlavour() const {return partonFlavour_;}
+  UChar_t hadronFlavour() const {return hadronFlavour_;}
 private:
-  Int_ partonFlavour_;
-  UChar_ hadronFlavour_;
-  void setpartonFlavour(const Int_ value) {partonFlavour_ = value;}
-  void sethadronFlavour(const UChar_ value) {hadronFlavour_ = value;}
+  Int_t partonFlavour_;
+  UChar_t hadronFlavour_;
+  void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
+  void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Genvistau: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genvistau(const Int_ &i_charge_,const Int_ &i_genPartIdxMother_,const Int_ &i_status_):
+//  Genvistau(const Int_t &i_charge_,const Int_t &i_genPartIdxMother_,const Int_t &i_status_):
 //    
 //  {}
   Genvistau():
@@ -154,16 +154,16 @@ public:
     genPartIdxMother_(0),
     status_(0)
   {}
-  Int_ charge() const {return charge_;}
-  Int_ genPartIdxMother() const {return genPartIdxMother_;}
-  Int_ status() const {return status_;}
+  Int_t charge() const {return charge_;}
+  Int_t genPartIdxMother() const {return genPartIdxMother_;}
+  Int_t status() const {return status_;}
 private:
-  Int_ charge_;
-  Int_ genPartIdxMother_;
-  Int_ status_;
-  void setcharge(const Int_ value) {charge_ = value;}
-  void setgenPartIdxMother(const Int_ value) {genPartIdxMother_ = value;}
-  void setstatus(const Int_ value) {status_ = value;}
+  Int_t charge_;
+  Int_t genPartIdxMother_;
+  Int_t status_;
+  void setcharge(const Int_t value) {charge_ = value;}
+  void setgenPartIdxMother(const Int_t value) {genPartIdxMother_ = value;}
+  void setstatus(const Int_t value) {status_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
@@ -187,17 +187,17 @@ private:
 class Gendressedlepton: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Gendressedlepton(const Int_ &i_pdgId_):
+//  Gendressedlepton(const Int_t &i_pdgId_):
 //    
 //  {}
   Gendressedlepton():
     TLorentzVector(),
     pdgId_(0)
   {}
-  Int_ pdgId() const {return pdgId_;}
+  Int_t pdgId() const {return pdgId_;}
 private:
-  Int_ pdgId_;
-  void setpdgId(const Int_ value) {pdgId_ = value;}
+  Int_t pdgId_;
+  void setpdgId(const Int_t value) {pdgId_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
@@ -294,7 +294,7 @@ private:
 class Trigobj: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Trigobj(const Float_ &i_l1pt_,const Float_ &i_l1pt_,const Float_ &i_l2pt_,const Int_ &i_id_,const Int_ &i_l1iso_,const Int_ &i_l1charge_,const Int_ &i_filterBits_):
+//  Trigobj(const Float_t &i_l1pt_,const Float_t &i_l1pt_,const Float_t &i_l2pt_,const Int_t &i_id_,const Int_t &i_l1iso_,const Int_t &i_l1charge_,const Int_t &i_filterBits_):
 //    
 //  {}
   Trigobj():
@@ -307,35 +307,35 @@ public:
     l1charge_(0),
     filterBits_(0)
   {}
-  Float_ l1pt() const {return l1pt_;}
-  Float_ l1pt() const {return l1pt_;}
-  Float_ l2pt() const {return l2pt_;}
-  Int_ id() const {return id_;}
-  Int_ l1iso() const {return l1iso_;}
-  Int_ l1charge() const {return l1charge_;}
-  Int_ filterBits() const {return filterBits_;}
+  Float_t l1pt() const {return l1pt_;}
+  Float_t l1pt() const {return l1pt_;}
+  Float_t l2pt() const {return l2pt_;}
+  Int_t id() const {return id_;}
+  Int_t l1iso() const {return l1iso_;}
+  Int_t l1charge() const {return l1charge_;}
+  Int_t filterBits() const {return filterBits_;}
 private:
-  Float_ l1pt_;
-  Float_ l1pt_;
-  Float_ l2pt_;
-  Int_ id_;
-  Int_ l1iso_;
-  Int_ l1charge_;
-  Int_ filterBits_;
-  void setl1pt(const Float_ value) {l1pt_ = value;}
-  void setl1pt(const Float_ value) {l1pt_ = value;}
-  void setl2pt(const Float_ value) {l2pt_ = value;}
-  void setid(const Int_ value) {id_ = value;}
-  void setl1iso(const Int_ value) {l1iso_ = value;}
-  void setl1charge(const Int_ value) {l1charge_ = value;}
-  void setfilterBits(const Int_ value) {filterBits_ = value;}
+  Float_t l1pt_;
+  Float_t l1pt_;
+  Float_t l2pt_;
+  Int_t id_;
+  Int_t l1iso_;
+  Int_t l1charge_;
+  Int_t filterBits_;
+  void setl1pt(const Float_t value) {l1pt_ = value;}
+  void setl1pt(const Float_t value) {l1pt_ = value;}
+  void setl2pt(const Float_t value) {l2pt_ = value;}
+  void setid(const Int_t value) {id_ = value;}
+  void setl1iso(const Int_t value) {l1iso_ = value;}
+  void setl1charge(const Int_t value) {l1charge_ = value;}
+  void setfilterBits(const Int_t value) {filterBits_ = value;}
   void setLorentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
 };
 
 class Photon: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Photon(const Float_ &i_eCorr_,const Float_ &i_energyErr_,const Float_ &i_hoe_,const Float_ &i_mvaID_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_r9_,const Float_ &i_sieie_,const Int_ &i_charge_,const Int_ &i_cutBased_,const Int_ &i_electronIdx_,const Int_ &i_jetIdx_,const Int_ &i_pdgId_,const Int_ &i_vidNestedWPBitmap_,const Bool_ &i_electronVeto_,const Bool_ &i_mvaID_,const Bool_ &i_mvaID_,const Bool_ &i_pixelSeed_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
+//  Photon(const Float_t &i_eCorr_,const Float_t &i_energyErr_,const Float_t &i_hoe_,const Float_t &i_mvaID_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso03_,const Float_t &i_r9_,const Float_t &i_sieie_,const Int_t &i_charge_,const Int_t &i_cutBased_,const Int_t &i_electronIdx_,const Int_t &i_jetIdx_,const Int_t &i_pdgId_,const Int_t &i_vidNestedWPBitmap_,const Bool_t &i_electronVeto_,const Bool_t &i_mvaID_,const Bool_t &i_mvaID_,const Bool_t &i_pixelSeed_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
 //    
 //  {}
   Photon():
@@ -362,77 +362,77 @@ public:
     genPartFlav_(0),
     cleanmask_(0)
   {}
-  Float_ eCorr() const {return eCorr_;}
-  Float_ energyErr() const {return energyErr_;}
-  Float_ hoe() const {return hoe_;}
-  Float_ mvaID() const {return mvaID_;}
-  Float_ pfRelIso03() const {return pfRelIso03_;}
-  Float_ pfRelIso03() const {return pfRelIso03_;}
-  Float_ r9() const {return r9_;}
-  Float_ sieie() const {return sieie_;}
-  Int_ charge() const {return charge_;}
-  Int_ cutBased() const {return cutBased_;}
-  Int_ electronIdx() const {return electronIdx_;}
-  Int_ jetIdx() const {return jetIdx_;}
-  Int_ pdgId() const {return pdgId_;}
-  Int_ vidNestedWPBitmap() const {return vidNestedWPBitmap_;}
-  Bool_ electronVeto() const {return electronVeto_;}
-  Bool_ mvaID() const {return mvaID_;}
-  Bool_ mvaID() const {return mvaID_;}
-  Bool_ pixelSeed() const {return pixelSeed_;}
-  Int_ genPartIdx() const {return genPartIdx_;}
-  UChar_ genPartFlav() const {return genPartFlav_;}
-  UChar_ cleanmask() const {return cleanmask_;}
+  Float_t eCorr() const {return eCorr_;}
+  Float_t energyErr() const {return energyErr_;}
+  Float_t hoe() const {return hoe_;}
+  Float_t mvaID() const {return mvaID_;}
+  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t r9() const {return r9_;}
+  Float_t sieie() const {return sieie_;}
+  Int_t charge() const {return charge_;}
+  Int_t cutBased() const {return cutBased_;}
+  Int_t electronIdx() const {return electronIdx_;}
+  Int_t jetIdx() const {return jetIdx_;}
+  Int_t pdgId() const {return pdgId_;}
+  Int_t vidNestedWPBitmap() const {return vidNestedWPBitmap_;}
+  Bool_t electronVeto() const {return electronVeto_;}
+  Bool_t mvaID() const {return mvaID_;}
+  Bool_t mvaID() const {return mvaID_;}
+  Bool_t pixelSeed() const {return pixelSeed_;}
+  Int_t genPartIdx() const {return genPartIdx_;}
+  UChar_t genPartFlav() const {return genPartFlav_;}
+  UChar_t cleanmask() const {return cleanmask_;}
 private:
-  Float_ eCorr_;
-  Float_ energyErr_;
-  Float_ hoe_;
-  Float_ mvaID_;
-  Float_ pfRelIso03_;
-  Float_ pfRelIso03_;
-  Float_ r9_;
-  Float_ sieie_;
-  Int_ charge_;
-  Int_ cutBased_;
-  Int_ electronIdx_;
-  Int_ jetIdx_;
-  Int_ pdgId_;
-  Int_ vidNestedWPBitmap_;
-  Bool_ electronVeto_;
-  Bool_ mvaID_;
-  Bool_ mvaID_;
-  Bool_ pixelSeed_;
-  Int_ genPartIdx_;
-  UChar_ genPartFlav_;
-  UChar_ cleanmask_;
-  void seteCorr(const Float_ value) {eCorr_ = value;}
-  void setenergyErr(const Float_ value) {energyErr_ = value;}
-  void sethoe(const Float_ value) {hoe_ = value;}
-  void setmvaID(const Float_ value) {mvaID_ = value;}
-  void setpfRelIso03(const Float_ value) {pfRelIso03_ = value;}
-  void setpfRelIso03(const Float_ value) {pfRelIso03_ = value;}
-  void setr9(const Float_ value) {r9_ = value;}
-  void setsieie(const Float_ value) {sieie_ = value;}
-  void setcharge(const Int_ value) {charge_ = value;}
-  void setcutBased(const Int_ value) {cutBased_ = value;}
-  void setelectronIdx(const Int_ value) {electronIdx_ = value;}
-  void setjetIdx(const Int_ value) {jetIdx_ = value;}
-  void setpdgId(const Int_ value) {pdgId_ = value;}
-  void setvidNestedWPBitmap(const Int_ value) {vidNestedWPBitmap_ = value;}
-  void setelectronVeto(const Bool_ value) {electronVeto_ = value;}
-  void setmvaID(const Bool_ value) {mvaID_ = value;}
-  void setmvaID(const Bool_ value) {mvaID_ = value;}
-  void setpixelSeed(const Bool_ value) {pixelSeed_ = value;}
-  void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
-  void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
-  void setcleanmask(const UChar_ value) {cleanmask_ = value;}
+  Float_t eCorr_;
+  Float_t energyErr_;
+  Float_t hoe_;
+  Float_t mvaID_;
+  Float_t pfRelIso03_;
+  Float_t pfRelIso03_;
+  Float_t r9_;
+  Float_t sieie_;
+  Int_t charge_;
+  Int_t cutBased_;
+  Int_t electronIdx_;
+  Int_t jetIdx_;
+  Int_t pdgId_;
+  Int_t vidNestedWPBitmap_;
+  Bool_t electronVeto_;
+  Bool_t mvaID_;
+  Bool_t mvaID_;
+  Bool_t pixelSeed_;
+  Int_t genPartIdx_;
+  UChar_t genPartFlav_;
+  UChar_t cleanmask_;
+  void seteCorr(const Float_t value) {eCorr_ = value;}
+  void setenergyErr(const Float_t value) {energyErr_ = value;}
+  void sethoe(const Float_t value) {hoe_ = value;}
+  void setmvaID(const Float_t value) {mvaID_ = value;}
+  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setr9(const Float_t value) {r9_ = value;}
+  void setsieie(const Float_t value) {sieie_ = value;}
+  void setcharge(const Int_t value) {charge_ = value;}
+  void setcutBased(const Int_t value) {cutBased_ = value;}
+  void setelectronIdx(const Int_t value) {electronIdx_ = value;}
+  void setjetIdx(const Int_t value) {jetIdx_ = value;}
+  void setpdgId(const Int_t value) {pdgId_ = value;}
+  void setvidNestedWPBitmap(const Int_t value) {vidNestedWPBitmap_ = value;}
+  void setelectronVeto(const Bool_t value) {electronVeto_ = value;}
+  void setmvaID(const Bool_t value) {mvaID_ = value;}
+  void setmvaID(const Bool_t value) {mvaID_ = value;}
+  void setpixelSeed(const Bool_t value) {pixelSeed_ = value;}
+  void setgenPartIdx(const Int_t value) {genPartIdx_ = value;}
+  void setgenPartFlav(const UChar_t value) {genPartFlav_ = value;}
+  void setcleanmask(const UChar_t value) {cleanmask_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Genjet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genjet(const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_,const Int_ &i_partonFlavour_,const UChar_ &i_hadronFlavour_):
+//  Genjet(const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_,const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_):
 //    
 //  {}
   Genjet():
@@ -442,19 +442,19 @@ public:
     partonFlavour_(0),
     hadronFlavour_(0)
   {}
-  Int_ partonFlavour() const {return partonFlavour_;}
-  UChar_ hadronFlavour() const {return hadronFlavour_;}
-  Int_ partonFlavour() const {return partonFlavour_;}
-  UChar_ hadronFlavour() const {return hadronFlavour_;}
+  Int_t partonFlavour() const {return partonFlavour_;}
+  UChar_t hadronFlavour() const {return hadronFlavour_;}
+  Int_t partonFlavour() const {return partonFlavour_;}
+  UChar_t hadronFlavour() const {return hadronFlavour_;}
 private:
-  Int_ partonFlavour_;
-  UChar_ hadronFlavour_;
-  Int_ partonFlavour_;
-  UChar_ hadronFlavour_;
-  void setpartonFlavour(const Int_ value) {partonFlavour_ = value;}
-  void sethadronFlavour(const UChar_ value) {hadronFlavour_ = value;}
-  void setpartonFlavour(const Int_ value) {partonFlavour_ = value;}
-  void sethadronFlavour(const UChar_ value) {hadronFlavour_ = value;}
+  Int_t partonFlavour_;
+  UChar_t hadronFlavour_;
+  Int_t partonFlavour_;
+  UChar_t hadronFlavour_;
+  void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
+  void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
+  void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
+  void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
 };
 
 class Rawmet: public TLorentzVector{
@@ -477,7 +477,7 @@ private:
 class Electron: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Electron(const Float_ &i_deltaEtaSC_,const Float_ &i_dr03EcalRecHitSumEt_,const Float_ &i_dr03HcalDepth1TowerSumEt_,const Float_ &i_dr03TkSumPt_,const Float_ &i_dxy_,const Float_ &i_dxyErr_,const Float_ &i_dz_,const Float_ &i_dzErr_,const Float_ &i_eCorr_,const Float_ &i_eInvMinusPInv_,const Float_ &i_energyErr_,const Float_ &i_hoe_,const Float_ &i_ip3d_,const Float_ &i_miniPFRelIso_,const Float_ &i_miniPFRelIso_,const Float_ &i_mvaSpring16GP_,const Float_ &i_mvaSpring16HZZ_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_r9_,const Float_ &i_sieie_,const Float_ &i_sip3d_,const Float_ &i_mvaTTH_,const Int_ &i_charge_,const Int_ &i_cutBased_,const Int_ &i_cutBased_,const Int_ &i_jetIdx_,const Int_ &i_pdgId_,const Int_ &i_photonIdx_,const Int_ &i_tightCharge_,const Int_ &i_vidNestedWPBitmap_,const Bool_ &i_convVeto_,const Bool_ &i_cutBased_,const Bool_ &i_isPFcand_,const UChar_ &i_lostHits_,const Bool_ &i_mvaSpring16GP_,const Bool_ &i_mvaSpring16GP_,const Bool_ &i_mvaSpring16HZZ_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
+//  Electron(const Float_t &i_deltaEtaSC_,const Float_t &i_dr03EcalRecHitSumEt_,const Float_t &i_dr03HcalDepth1TowerSumEt_,const Float_t &i_dr03TkSumPt_,const Float_t &i_dxy_,const Float_t &i_dxyErr_,const Float_t &i_dz_,const Float_t &i_dzErr_,const Float_t &i_eCorr_,const Float_t &i_eInvMinusPInv_,const Float_t &i_energyErr_,const Float_t &i_hoe_,const Float_t &i_ip3d_,const Float_t &i_miniPFRelIso_,const Float_t &i_miniPFRelIso_,const Float_t &i_mvaSpring16GP_,const Float_t &i_mvaSpring16HZZ_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso03_,const Float_t &i_r9_,const Float_t &i_sieie_,const Float_t &i_sip3d_,const Float_t &i_mvaTTH_,const Int_t &i_charge_,const Int_t &i_cutBased_,const Int_t &i_cutBased_,const Int_t &i_jetIdx_,const Int_t &i_pdgId_,const Int_t &i_photonIdx_,const Int_t &i_tightCharge_,const Int_t &i_vidNestedWPBitmap_,const Bool_t &i_convVeto_,const Bool_t &i_cutBased_,const Bool_t &i_isPFcand_,const UChar_t &i_lostHits_,const Bool_t &i_mvaSpring16GP_,const Bool_t &i_mvaSpring16GP_,const Bool_t &i_mvaSpring16HZZ_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
 //    
 //  {}
   Electron():
@@ -524,130 +524,130 @@ public:
     genPartFlav_(0),
     cleanmask_(0)
   {}
-  Float_ deltaEtaSC() const {return deltaEtaSC_;}
-  Float_ dr03EcalRecHitSumEt() const {return dr03EcalRecHitSumEt_;}
-  Float_ dr03HcalDepth1TowerSumEt() const {return dr03HcalDepth1TowerSumEt_;}
-  Float_ dr03TkSumPt() const {return dr03TkSumPt_;}
-  Float_ dxy() const {return dxy_;}
-  Float_ dxyErr() const {return dxyErr_;}
-  Float_ dz() const {return dz_;}
-  Float_ dzErr() const {return dzErr_;}
-  Float_ eCorr() const {return eCorr_;}
-  Float_ eInvMinusPInv() const {return eInvMinusPInv_;}
-  Float_ energyErr() const {return energyErr_;}
-  Float_ hoe() const {return hoe_;}
-  Float_ ip3d() const {return ip3d_;}
-  Float_ miniPFRelIso() const {return miniPFRelIso_;}
-  Float_ miniPFRelIso() const {return miniPFRelIso_;}
-  Float_ mvaSpring16GP() const {return mvaSpring16GP_;}
-  Float_ mvaSpring16HZZ() const {return mvaSpring16HZZ_;}
-  Float_ pfRelIso03() const {return pfRelIso03_;}
-  Float_ pfRelIso03() const {return pfRelIso03_;}
-  Float_ r9() const {return r9_;}
-  Float_ sieie() const {return sieie_;}
-  Float_ sip3d() const {return sip3d_;}
-  Float_ mvaTTH() const {return mvaTTH_;}
-  Int_ charge() const {return charge_;}
-  Int_ cutBased() const {return cutBased_;}
-  Int_ cutBased() const {return cutBased_;}
-  Int_ jetIdx() const {return jetIdx_;}
-  Int_ pdgId() const {return pdgId_;}
-  Int_ photonIdx() const {return photonIdx_;}
-  Int_ tightCharge() const {return tightCharge_;}
-  Int_ vidNestedWPBitmap() const {return vidNestedWPBitmap_;}
-  Bool_ convVeto() const {return convVeto_;}
-  Bool_ cutBased() const {return cutBased_;}
-  Bool_ isPFcand() const {return isPFcand_;}
-  UChar_ lostHits() const {return lostHits_;}
-  Bool_ mvaSpring16GP() const {return mvaSpring16GP_;}
-  Bool_ mvaSpring16GP() const {return mvaSpring16GP_;}
-  Bool_ mvaSpring16HZZ() const {return mvaSpring16HZZ_;}
-  Int_ genPartIdx() const {return genPartIdx_;}
-  UChar_ genPartFlav() const {return genPartFlav_;}
-  UChar_ cleanmask() const {return cleanmask_;}
+  Float_t deltaEtaSC() const {return deltaEtaSC_;}
+  Float_t dr03EcalRecHitSumEt() const {return dr03EcalRecHitSumEt_;}
+  Float_t dr03HcalDepth1TowerSumEt() const {return dr03HcalDepth1TowerSumEt_;}
+  Float_t dr03TkSumPt() const {return dr03TkSumPt_;}
+  Float_t dxy() const {return dxy_;}
+  Float_t dxyErr() const {return dxyErr_;}
+  Float_t dz() const {return dz_;}
+  Float_t dzErr() const {return dzErr_;}
+  Float_t eCorr() const {return eCorr_;}
+  Float_t eInvMinusPInv() const {return eInvMinusPInv_;}
+  Float_t energyErr() const {return energyErr_;}
+  Float_t hoe() const {return hoe_;}
+  Float_t ip3d() const {return ip3d_;}
+  Float_t miniPFRelIso() const {return miniPFRelIso_;}
+  Float_t miniPFRelIso() const {return miniPFRelIso_;}
+  Float_t mvaSpring16GP() const {return mvaSpring16GP_;}
+  Float_t mvaSpring16HZZ() const {return mvaSpring16HZZ_;}
+  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t r9() const {return r9_;}
+  Float_t sieie() const {return sieie_;}
+  Float_t sip3d() const {return sip3d_;}
+  Float_t mvaTTH() const {return mvaTTH_;}
+  Int_t charge() const {return charge_;}
+  Int_t cutBased() const {return cutBased_;}
+  Int_t cutBased() const {return cutBased_;}
+  Int_t jetIdx() const {return jetIdx_;}
+  Int_t pdgId() const {return pdgId_;}
+  Int_t photonIdx() const {return photonIdx_;}
+  Int_t tightCharge() const {return tightCharge_;}
+  Int_t vidNestedWPBitmap() const {return vidNestedWPBitmap_;}
+  Bool_t convVeto() const {return convVeto_;}
+  Bool_t cutBased() const {return cutBased_;}
+  Bool_t isPFcand() const {return isPFcand_;}
+  UChar_t lostHits() const {return lostHits_;}
+  Bool_t mvaSpring16GP() const {return mvaSpring16GP_;}
+  Bool_t mvaSpring16GP() const {return mvaSpring16GP_;}
+  Bool_t mvaSpring16HZZ() const {return mvaSpring16HZZ_;}
+  Int_t genPartIdx() const {return genPartIdx_;}
+  UChar_t genPartFlav() const {return genPartFlav_;}
+  UChar_t cleanmask() const {return cleanmask_;}
 private:
-  Float_ deltaEtaSC_;
-  Float_ dr03EcalRecHitSumEt_;
-  Float_ dr03HcalDepth1TowerSumEt_;
-  Float_ dr03TkSumPt_;
-  Float_ dxy_;
-  Float_ dxyErr_;
-  Float_ dz_;
-  Float_ dzErr_;
-  Float_ eCorr_;
-  Float_ eInvMinusPInv_;
-  Float_ energyErr_;
-  Float_ hoe_;
-  Float_ ip3d_;
-  Float_ miniPFRelIso_;
-  Float_ miniPFRelIso_;
-  Float_ mvaSpring16GP_;
-  Float_ mvaSpring16HZZ_;
-  Float_ pfRelIso03_;
-  Float_ pfRelIso03_;
-  Float_ r9_;
-  Float_ sieie_;
-  Float_ sip3d_;
-  Float_ mvaTTH_;
-  Int_ charge_;
-  Int_ cutBased_;
-  Int_ cutBased_;
-  Int_ jetIdx_;
-  Int_ pdgId_;
-  Int_ photonIdx_;
-  Int_ tightCharge_;
-  Int_ vidNestedWPBitmap_;
-  Bool_ convVeto_;
-  Bool_ cutBased_;
-  Bool_ isPFcand_;
-  UChar_ lostHits_;
-  Bool_ mvaSpring16GP_;
-  Bool_ mvaSpring16GP_;
-  Bool_ mvaSpring16HZZ_;
-  Int_ genPartIdx_;
-  UChar_ genPartFlav_;
-  UChar_ cleanmask_;
-  void setdeltaEtaSC(const Float_ value) {deltaEtaSC_ = value;}
-  void setdr03EcalRecHitSumEt(const Float_ value) {dr03EcalRecHitSumEt_ = value;}
-  void setdr03HcalDepth1TowerSumEt(const Float_ value) {dr03HcalDepth1TowerSumEt_ = value;}
-  void setdr03TkSumPt(const Float_ value) {dr03TkSumPt_ = value;}
-  void setdxy(const Float_ value) {dxy_ = value;}
-  void setdxyErr(const Float_ value) {dxyErr_ = value;}
-  void setdz(const Float_ value) {dz_ = value;}
-  void setdzErr(const Float_ value) {dzErr_ = value;}
-  void seteCorr(const Float_ value) {eCorr_ = value;}
-  void seteInvMinusPInv(const Float_ value) {eInvMinusPInv_ = value;}
-  void setenergyErr(const Float_ value) {energyErr_ = value;}
-  void sethoe(const Float_ value) {hoe_ = value;}
-  void setip3d(const Float_ value) {ip3d_ = value;}
-  void setminiPFRelIso(const Float_ value) {miniPFRelIso_ = value;}
-  void setminiPFRelIso(const Float_ value) {miniPFRelIso_ = value;}
-  void setmvaSpring16GP(const Float_ value) {mvaSpring16GP_ = value;}
-  void setmvaSpring16HZZ(const Float_ value) {mvaSpring16HZZ_ = value;}
-  void setpfRelIso03(const Float_ value) {pfRelIso03_ = value;}
-  void setpfRelIso03(const Float_ value) {pfRelIso03_ = value;}
-  void setr9(const Float_ value) {r9_ = value;}
-  void setsieie(const Float_ value) {sieie_ = value;}
-  void setsip3d(const Float_ value) {sip3d_ = value;}
-  void setmvaTTH(const Float_ value) {mvaTTH_ = value;}
-  void setcharge(const Int_ value) {charge_ = value;}
-  void setcutBased(const Int_ value) {cutBased_ = value;}
-  void setcutBased(const Int_ value) {cutBased_ = value;}
-  void setjetIdx(const Int_ value) {jetIdx_ = value;}
-  void setpdgId(const Int_ value) {pdgId_ = value;}
-  void setphotonIdx(const Int_ value) {photonIdx_ = value;}
-  void settightCharge(const Int_ value) {tightCharge_ = value;}
-  void setvidNestedWPBitmap(const Int_ value) {vidNestedWPBitmap_ = value;}
-  void setconvVeto(const Bool_ value) {convVeto_ = value;}
-  void setcutBased(const Bool_ value) {cutBased_ = value;}
-  void setisPFcand(const Bool_ value) {isPFcand_ = value;}
-  void setlostHits(const UChar_ value) {lostHits_ = value;}
-  void setmvaSpring16GP(const Bool_ value) {mvaSpring16GP_ = value;}
-  void setmvaSpring16GP(const Bool_ value) {mvaSpring16GP_ = value;}
-  void setmvaSpring16HZZ(const Bool_ value) {mvaSpring16HZZ_ = value;}
-  void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
-  void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
-  void setcleanmask(const UChar_ value) {cleanmask_ = value;}
+  Float_t deltaEtaSC_;
+  Float_t dr03EcalRecHitSumEt_;
+  Float_t dr03HcalDepth1TowerSumEt_;
+  Float_t dr03TkSumPt_;
+  Float_t dxy_;
+  Float_t dxyErr_;
+  Float_t dz_;
+  Float_t dzErr_;
+  Float_t eCorr_;
+  Float_t eInvMinusPInv_;
+  Float_t energyErr_;
+  Float_t hoe_;
+  Float_t ip3d_;
+  Float_t miniPFRelIso_;
+  Float_t miniPFRelIso_;
+  Float_t mvaSpring16GP_;
+  Float_t mvaSpring16HZZ_;
+  Float_t pfRelIso03_;
+  Float_t pfRelIso03_;
+  Float_t r9_;
+  Float_t sieie_;
+  Float_t sip3d_;
+  Float_t mvaTTH_;
+  Int_t charge_;
+  Int_t cutBased_;
+  Int_t cutBased_;
+  Int_t jetIdx_;
+  Int_t pdgId_;
+  Int_t photonIdx_;
+  Int_t tightCharge_;
+  Int_t vidNestedWPBitmap_;
+  Bool_t convVeto_;
+  Bool_t cutBased_;
+  Bool_t isPFcand_;
+  UChar_t lostHits_;
+  Bool_t mvaSpring16GP_;
+  Bool_t mvaSpring16GP_;
+  Bool_t mvaSpring16HZZ_;
+  Int_t genPartIdx_;
+  UChar_t genPartFlav_;
+  UChar_t cleanmask_;
+  void setdeltaEtaSC(const Float_t value) {deltaEtaSC_ = value;}
+  void setdr03EcalRecHitSumEt(const Float_t value) {dr03EcalRecHitSumEt_ = value;}
+  void setdr03HcalDepth1TowerSumEt(const Float_t value) {dr03HcalDepth1TowerSumEt_ = value;}
+  void setdr03TkSumPt(const Float_t value) {dr03TkSumPt_ = value;}
+  void setdxy(const Float_t value) {dxy_ = value;}
+  void setdxyErr(const Float_t value) {dxyErr_ = value;}
+  void setdz(const Float_t value) {dz_ = value;}
+  void setdzErr(const Float_t value) {dzErr_ = value;}
+  void seteCorr(const Float_t value) {eCorr_ = value;}
+  void seteInvMinusPInv(const Float_t value) {eInvMinusPInv_ = value;}
+  void setenergyErr(const Float_t value) {energyErr_ = value;}
+  void sethoe(const Float_t value) {hoe_ = value;}
+  void setip3d(const Float_t value) {ip3d_ = value;}
+  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
+  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
+  void setmvaSpring16GP(const Float_t value) {mvaSpring16GP_ = value;}
+  void setmvaSpring16HZZ(const Float_t value) {mvaSpring16HZZ_ = value;}
+  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setr9(const Float_t value) {r9_ = value;}
+  void setsieie(const Float_t value) {sieie_ = value;}
+  void setsip3d(const Float_t value) {sip3d_ = value;}
+  void setmvaTTH(const Float_t value) {mvaTTH_ = value;}
+  void setcharge(const Int_t value) {charge_ = value;}
+  void setcutBased(const Int_t value) {cutBased_ = value;}
+  void setcutBased(const Int_t value) {cutBased_ = value;}
+  void setjetIdx(const Int_t value) {jetIdx_ = value;}
+  void setpdgId(const Int_t value) {pdgId_ = value;}
+  void setphotonIdx(const Int_t value) {photonIdx_ = value;}
+  void settightCharge(const Int_t value) {tightCharge_ = value;}
+  void setvidNestedWPBitmap(const Int_t value) {vidNestedWPBitmap_ = value;}
+  void setconvVeto(const Bool_t value) {convVeto_ = value;}
+  void setcutBased(const Bool_t value) {cutBased_ = value;}
+  void setisPFcand(const Bool_t value) {isPFcand_ = value;}
+  void setlostHits(const UChar_t value) {lostHits_ = value;}
+  void setmvaSpring16GP(const Bool_t value) {mvaSpring16GP_ = value;}
+  void setmvaSpring16GP(const Bool_t value) {mvaSpring16GP_ = value;}
+  void setmvaSpring16HZZ(const Bool_t value) {mvaSpring16HZZ_ = value;}
+  void setgenPartIdx(const Int_t value) {genPartIdx_ = value;}
+  void setgenPartFlav(const UChar_t value) {genPartFlav_ = value;}
+  void setcleanmask(const UChar_t value) {cleanmask_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
@@ -710,7 +710,7 @@ private:
 class Genpart: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genpart(const Int_ &i_genPartIdxMother_,const Int_ &i_pdgId_,const Int_ &i_status_,const Int_ &i_statusFlags_):
+//  Genpart(const Int_t &i_genPartIdxMother_,const Int_t &i_pdgId_,const Int_t &i_status_,const Int_t &i_statusFlags_):
 //    
 //  {}
   Genpart():
@@ -720,26 +720,26 @@ public:
     status_(0),
     statusFlags_(0)
   {}
-  Int_ genPartIdxMother() const {return genPartIdxMother_;}
-  Int_ pdgId() const {return pdgId_;}
-  Int_ status() const {return status_;}
-  Int_ statusFlags() const {return statusFlags_;}
+  Int_t genPartIdxMother() const {return genPartIdxMother_;}
+  Int_t pdgId() const {return pdgId_;}
+  Int_t status() const {return status_;}
+  Int_t statusFlags() const {return statusFlags_;}
 private:
-  Int_ genPartIdxMother_;
-  Int_ pdgId_;
-  Int_ status_;
-  Int_ statusFlags_;
-  void setgenPartIdxMother(const Int_ value) {genPartIdxMother_ = value;}
-  void setpdgId(const Int_ value) {pdgId_ = value;}
-  void setstatus(const Int_ value) {status_ = value;}
-  void setstatusFlags(const Int_ value) {statusFlags_ = value;}
+  Int_t genPartIdxMother_;
+  Int_t pdgId_;
+  Int_t status_;
+  Int_t statusFlags_;
+  void setgenPartIdxMother(const Int_t value) {genPartIdxMother_ = value;}
+  void setpdgId(const Int_t value) {pdgId_ = value;}
+  void setstatus(const Int_t value) {status_ = value;}
+  void setstatusFlags(const Int_t value) {statusFlags_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Lhe{
 friend class URStreamer;
 public:
-//  Lhe(const Float_t &i_originalXWGTUP_,const Float_ &i_LHEPdfWeight_,const Float_ &i_LHEScaleWeight_,const Float_t &i_HT_,const Float_t &i_HTIncoming_,const Float_t &i_Vpt_,const UChar_t &i_Njets_,const UChar_t &i_Nb_,const UChar_t &i_Nc_,const UChar_t &i_Nuds_,const UChar_t &i_Nglu_,const UChar_t &i_NpNLO_,const UChar_t &i_NpLO_):
+//  Lhe(const Float_t &i_originalXWGTUP_,const Float_t &i_LHEPdfWeight_,const Float_t &i_LHEScaleWeight_,const Float_t &i_HT_,const Float_t &i_HTIncoming_,const Float_t &i_Vpt_,const UChar_t &i_Njets_,const UChar_t &i_Nb_,const UChar_t &i_Nc_,const UChar_t &i_Nuds_,const UChar_t &i_Nglu_,const UChar_t &i_NpNLO_,const UChar_t &i_NpLO_):
 //    
 //  {}
   Lhe():
@@ -758,8 +758,8 @@ public:
     NpLO_(0)
   {}
   Float_t originalXWGTUP() const {return originalXWGTUP_;}
-  Float_ LHEPdfWeight() const {return LHEPdfWeight_;}
-  Float_ LHEScaleWeight() const {return LHEScaleWeight_;}
+  Float_t LHEPdfWeight() const {return LHEPdfWeight_;}
+  Float_t LHEScaleWeight() const {return LHEScaleWeight_;}
   Float_t HT() const {return HT_;}
   Float_t HTIncoming() const {return HTIncoming_;}
   Float_t Vpt() const {return Vpt_;}
@@ -772,8 +772,8 @@ public:
   UChar_t NpLO() const {return NpLO_;}
 private:
   Float_t originalXWGTUP_;
-  Float_ LHEPdfWeight_;
-  Float_ LHEScaleWeight_;
+  Float_t LHEPdfWeight_;
+  Float_t LHEScaleWeight_;
   Float_t HT_;
   Float_t HTIncoming_;
   Float_t Vpt_;
@@ -785,8 +785,8 @@ private:
   UChar_t NpNLO_;
   UChar_t NpLO_;
   void setoriginalXWGTUP(const Float_t value) {originalXWGTUP_ = value;}
-  void setLHEPdfWeight(const Float_ value) {LHEPdfWeight_ = value;}
-  void setLHEScaleWeight(const Float_ value) {LHEScaleWeight_ = value;}
+  void setLHEPdfWeight(const Float_t value) {LHEPdfWeight_ = value;}
+  void setLHEScaleWeight(const Float_t value) {LHEScaleWeight_ = value;}
   void setHT(const Float_t value) {HT_ = value;}
   void setHTIncoming(const Float_t value) {HTIncoming_ = value;}
   void setVpt(const Float_t value) {Vpt_ = value;}
@@ -819,7 +819,7 @@ private:
 class Tau: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Tau(const Float_ &i_chargedIso_,const Float_ &i_dxy_,const Float_ &i_dz_,const Float_ &i_footprintCorr_,const Float_ &i_leadTkDeltaEta_,const Float_ &i_leadTkDeltaPhi_,const Float_ &i_leadTkPtOverTauPt_,const Float_ &i_neutralIso_,const Float_ &i_photonsOutsideSignalCone_,const Float_ &i_puCorr_,const Float_ &i_rawAntiEle_,const Float_ &i_rawIso_,const Float_ &i_rawMVAnewDM_,const Float_ &i_rawMVAoldDM_,const Float_ &i_rawMVAoldDMdR03_,const Int_ &i_charge_,const Int_ &i_decayMode_,const Int_ &i_jetIdx_,const Int_ &i_rawAntiEleCat_,const UChar_ &i_idAntiEle_,const UChar_ &i_idAntiMu_,const Bool_ &i_idDecayMode_,const Bool_ &i_idDecayModeNewDMs_,const UChar_ &i_idMVAnewDM_,const UChar_ &i_idMVAoldDM_,const UChar_ &i_idMVAoldDMdR03_,const UChar_ &i_cleanmask_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_):
+//  Tau(const Float_t &i_chargedIso_,const Float_t &i_dxy_,const Float_t &i_dz_,const Float_t &i_footprintCorr_,const Float_t &i_leadTkDeltaEta_,const Float_t &i_leadTkDeltaPhi_,const Float_t &i_leadTkPtOverTauPt_,const Float_t &i_neutralIso_,const Float_t &i_photonsOutsideSignalCone_,const Float_t &i_puCorr_,const Float_t &i_rawAntiEle_,const Float_t &i_rawIso_,const Float_t &i_rawMVAnewDM_,const Float_t &i_rawMVAoldDM_,const Float_t &i_rawMVAoldDMdR03_,const Int_t &i_charge_,const Int_t &i_decayMode_,const Int_t &i_jetIdx_,const Int_t &i_rawAntiEleCat_,const UChar_t &i_idAntiEle_,const UChar_t &i_idAntiMu_,const Bool_t &i_idDecayMode_,const Bool_t &i_idDecayModeNewDMs_,const UChar_t &i_idMVAnewDM_,const UChar_t &i_idMVAoldDM_,const UChar_t &i_idMVAoldDMdR03_,const UChar_t &i_cleanmask_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_):
 //    
 //  {}
   Tau():
@@ -854,94 +854,94 @@ public:
     genPartIdx_(0),
     genPartFlav_(0)
   {}
-  Float_ chargedIso() const {return chargedIso_;}
-  Float_ dxy() const {return dxy_;}
-  Float_ dz() const {return dz_;}
-  Float_ footprintCorr() const {return footprintCorr_;}
-  Float_ leadTkDeltaEta() const {return leadTkDeltaEta_;}
-  Float_ leadTkDeltaPhi() const {return leadTkDeltaPhi_;}
-  Float_ leadTkPtOverTauPt() const {return leadTkPtOverTauPt_;}
-  Float_ neutralIso() const {return neutralIso_;}
-  Float_ photonsOutsideSignalCone() const {return photonsOutsideSignalCone_;}
-  Float_ puCorr() const {return puCorr_;}
-  Float_ rawAntiEle() const {return rawAntiEle_;}
-  Float_ rawIso() const {return rawIso_;}
-  Float_ rawMVAnewDM() const {return rawMVAnewDM_;}
-  Float_ rawMVAoldDM() const {return rawMVAoldDM_;}
-  Float_ rawMVAoldDMdR03() const {return rawMVAoldDMdR03_;}
-  Int_ charge() const {return charge_;}
-  Int_ decayMode() const {return decayMode_;}
-  Int_ jetIdx() const {return jetIdx_;}
-  Int_ rawAntiEleCat() const {return rawAntiEleCat_;}
-  UChar_ idAntiEle() const {return idAntiEle_;}
-  UChar_ idAntiMu() const {return idAntiMu_;}
-  Bool_ idDecayMode() const {return idDecayMode_;}
-  Bool_ idDecayModeNewDMs() const {return idDecayModeNewDMs_;}
-  UChar_ idMVAnewDM() const {return idMVAnewDM_;}
-  UChar_ idMVAoldDM() const {return idMVAoldDM_;}
-  UChar_ idMVAoldDMdR03() const {return idMVAoldDMdR03_;}
-  UChar_ cleanmask() const {return cleanmask_;}
-  Int_ genPartIdx() const {return genPartIdx_;}
-  UChar_ genPartFlav() const {return genPartFlav_;}
+  Float_t chargedIso() const {return chargedIso_;}
+  Float_t dxy() const {return dxy_;}
+  Float_t dz() const {return dz_;}
+  Float_t footprintCorr() const {return footprintCorr_;}
+  Float_t leadTkDeltaEta() const {return leadTkDeltaEta_;}
+  Float_t leadTkDeltaPhi() const {return leadTkDeltaPhi_;}
+  Float_t leadTkPtOverTauPt() const {return leadTkPtOverTauPt_;}
+  Float_t neutralIso() const {return neutralIso_;}
+  Float_t photonsOutsideSignalCone() const {return photonsOutsideSignalCone_;}
+  Float_t puCorr() const {return puCorr_;}
+  Float_t rawAntiEle() const {return rawAntiEle_;}
+  Float_t rawIso() const {return rawIso_;}
+  Float_t rawMVAnewDM() const {return rawMVAnewDM_;}
+  Float_t rawMVAoldDM() const {return rawMVAoldDM_;}
+  Float_t rawMVAoldDMdR03() const {return rawMVAoldDMdR03_;}
+  Int_t charge() const {return charge_;}
+  Int_t decayMode() const {return decayMode_;}
+  Int_t jetIdx() const {return jetIdx_;}
+  Int_t rawAntiEleCat() const {return rawAntiEleCat_;}
+  UChar_t idAntiEle() const {return idAntiEle_;}
+  UChar_t idAntiMu() const {return idAntiMu_;}
+  Bool_t idDecayMode() const {return idDecayMode_;}
+  Bool_t idDecayModeNewDMs() const {return idDecayModeNewDMs_;}
+  UChar_t idMVAnewDM() const {return idMVAnewDM_;}
+  UChar_t idMVAoldDM() const {return idMVAoldDM_;}
+  UChar_t idMVAoldDMdR03() const {return idMVAoldDMdR03_;}
+  UChar_t cleanmask() const {return cleanmask_;}
+  Int_t genPartIdx() const {return genPartIdx_;}
+  UChar_t genPartFlav() const {return genPartFlav_;}
 private:
-  Float_ chargedIso_;
-  Float_ dxy_;
-  Float_ dz_;
-  Float_ footprintCorr_;
-  Float_ leadTkDeltaEta_;
-  Float_ leadTkDeltaPhi_;
-  Float_ leadTkPtOverTauPt_;
-  Float_ neutralIso_;
-  Float_ photonsOutsideSignalCone_;
-  Float_ puCorr_;
-  Float_ rawAntiEle_;
-  Float_ rawIso_;
-  Float_ rawMVAnewDM_;
-  Float_ rawMVAoldDM_;
-  Float_ rawMVAoldDMdR03_;
-  Int_ charge_;
-  Int_ decayMode_;
-  Int_ jetIdx_;
-  Int_ rawAntiEleCat_;
-  UChar_ idAntiEle_;
-  UChar_ idAntiMu_;
-  Bool_ idDecayMode_;
-  Bool_ idDecayModeNewDMs_;
-  UChar_ idMVAnewDM_;
-  UChar_ idMVAoldDM_;
-  UChar_ idMVAoldDMdR03_;
-  UChar_ cleanmask_;
-  Int_ genPartIdx_;
-  UChar_ genPartFlav_;
-  void setchargedIso(const Float_ value) {chargedIso_ = value;}
-  void setdxy(const Float_ value) {dxy_ = value;}
-  void setdz(const Float_ value) {dz_ = value;}
-  void setfootprintCorr(const Float_ value) {footprintCorr_ = value;}
-  void setleadTkDeltaEta(const Float_ value) {leadTkDeltaEta_ = value;}
-  void setleadTkDeltaPhi(const Float_ value) {leadTkDeltaPhi_ = value;}
-  void setleadTkPtOverTauPt(const Float_ value) {leadTkPtOverTauPt_ = value;}
-  void setneutralIso(const Float_ value) {neutralIso_ = value;}
-  void setphotonsOutsideSignalCone(const Float_ value) {photonsOutsideSignalCone_ = value;}
-  void setpuCorr(const Float_ value) {puCorr_ = value;}
-  void setrawAntiEle(const Float_ value) {rawAntiEle_ = value;}
-  void setrawIso(const Float_ value) {rawIso_ = value;}
-  void setrawMVAnewDM(const Float_ value) {rawMVAnewDM_ = value;}
-  void setrawMVAoldDM(const Float_ value) {rawMVAoldDM_ = value;}
-  void setrawMVAoldDMdR03(const Float_ value) {rawMVAoldDMdR03_ = value;}
-  void setcharge(const Int_ value) {charge_ = value;}
-  void setdecayMode(const Int_ value) {decayMode_ = value;}
-  void setjetIdx(const Int_ value) {jetIdx_ = value;}
-  void setrawAntiEleCat(const Int_ value) {rawAntiEleCat_ = value;}
-  void setidAntiEle(const UChar_ value) {idAntiEle_ = value;}
-  void setidAntiMu(const UChar_ value) {idAntiMu_ = value;}
-  void setidDecayMode(const Bool_ value) {idDecayMode_ = value;}
-  void setidDecayModeNewDMs(const Bool_ value) {idDecayModeNewDMs_ = value;}
-  void setidMVAnewDM(const UChar_ value) {idMVAnewDM_ = value;}
-  void setidMVAoldDM(const UChar_ value) {idMVAoldDM_ = value;}
-  void setidMVAoldDMdR03(const UChar_ value) {idMVAoldDMdR03_ = value;}
-  void setcleanmask(const UChar_ value) {cleanmask_ = value;}
-  void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
-  void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
+  Float_t chargedIso_;
+  Float_t dxy_;
+  Float_t dz_;
+  Float_t footprintCorr_;
+  Float_t leadTkDeltaEta_;
+  Float_t leadTkDeltaPhi_;
+  Float_t leadTkPtOverTauPt_;
+  Float_t neutralIso_;
+  Float_t photonsOutsideSignalCone_;
+  Float_t puCorr_;
+  Float_t rawAntiEle_;
+  Float_t rawIso_;
+  Float_t rawMVAnewDM_;
+  Float_t rawMVAoldDM_;
+  Float_t rawMVAoldDMdR03_;
+  Int_t charge_;
+  Int_t decayMode_;
+  Int_t jetIdx_;
+  Int_t rawAntiEleCat_;
+  UChar_t idAntiEle_;
+  UChar_t idAntiMu_;
+  Bool_t idDecayMode_;
+  Bool_t idDecayModeNewDMs_;
+  UChar_t idMVAnewDM_;
+  UChar_t idMVAoldDM_;
+  UChar_t idMVAoldDMdR03_;
+  UChar_t cleanmask_;
+  Int_t genPartIdx_;
+  UChar_t genPartFlav_;
+  void setchargedIso(const Float_t value) {chargedIso_ = value;}
+  void setdxy(const Float_t value) {dxy_ = value;}
+  void setdz(const Float_t value) {dz_ = value;}
+  void setfootprintCorr(const Float_t value) {footprintCorr_ = value;}
+  void setleadTkDeltaEta(const Float_t value) {leadTkDeltaEta_ = value;}
+  void setleadTkDeltaPhi(const Float_t value) {leadTkDeltaPhi_ = value;}
+  void setleadTkPtOverTauPt(const Float_t value) {leadTkPtOverTauPt_ = value;}
+  void setneutralIso(const Float_t value) {neutralIso_ = value;}
+  void setphotonsOutsideSignalCone(const Float_t value) {photonsOutsideSignalCone_ = value;}
+  void setpuCorr(const Float_t value) {puCorr_ = value;}
+  void setrawAntiEle(const Float_t value) {rawAntiEle_ = value;}
+  void setrawIso(const Float_t value) {rawIso_ = value;}
+  void setrawMVAnewDM(const Float_t value) {rawMVAnewDM_ = value;}
+  void setrawMVAoldDM(const Float_t value) {rawMVAoldDM_ = value;}
+  void setrawMVAoldDMdR03(const Float_t value) {rawMVAoldDMdR03_ = value;}
+  void setcharge(const Int_t value) {charge_ = value;}
+  void setdecayMode(const Int_t value) {decayMode_ = value;}
+  void setjetIdx(const Int_t value) {jetIdx_ = value;}
+  void setrawAntiEleCat(const Int_t value) {rawAntiEleCat_ = value;}
+  void setidAntiEle(const UChar_t value) {idAntiEle_ = value;}
+  void setidAntiMu(const UChar_t value) {idAntiMu_ = value;}
+  void setidDecayMode(const Bool_t value) {idDecayMode_ = value;}
+  void setidDecayModeNewDMs(const Bool_t value) {idDecayModeNewDMs_ = value;}
+  void setidMVAnewDM(const UChar_t value) {idMVAnewDM_ = value;}
+  void setidMVAoldDM(const UChar_t value) {idMVAoldDM_ = value;}
+  void setidMVAoldDMdR03(const UChar_t value) {idMVAoldDMdR03_ = value;}
+  void setcleanmask(const UChar_t value) {cleanmask_ = value;}
+  void setgenPartIdx(const Int_t value) {genPartIdx_ = value;}
+  void setgenPartFlav(const UChar_t value) {genPartFlav_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
@@ -965,7 +965,7 @@ private:
 class Muon: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Muon(const Float_ &i_dxy_,const Float_ &i_dxyErr_,const Float_ &i_dz_,const Float_ &i_dzErr_,const Float_ &i_ip3d_,const Float_ &i_miniPFRelIso_,const Float_ &i_miniPFRelIso_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso03_,const Float_ &i_pfRelIso04_,const Float_ &i_ptErr_,const Float_ &i_segmentComp_,const Float_ &i_sip3d_,const Float_ &i_mvaTTH_,const Int_ &i_charge_,const Int_ &i_jetIdx_,const Int_ &i_nStations_,const Int_ &i_nTrackerLayers_,const Int_ &i_pdgId_,const Int_ &i_tightCharge_,const UChar_ &i_highPtId_,const Bool_ &i_isPFcand_,const Bool_ &i_mediumId_,const Bool_ &i_softId_,const Bool_ &i_tightId_,const Int_ &i_genPartIdx_,const UChar_ &i_genPartFlav_,const UChar_ &i_cleanmask_):
+//  Muon(const Float_t &i_dxy_,const Float_t &i_dxyErr_,const Float_t &i_dz_,const Float_t &i_dzErr_,const Float_t &i_ip3d_,const Float_t &i_miniPFRelIso_,const Float_t &i_miniPFRelIso_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso04_,const Float_t &i_ptErr_,const Float_t &i_segmentComp_,const Float_t &i_sip3d_,const Float_t &i_mvaTTH_,const Int_t &i_charge_,const Int_t &i_jetIdx_,const Int_t &i_nStations_,const Int_t &i_nTrackerLayers_,const Int_t &i_pdgId_,const Int_t &i_tightCharge_,const UChar_t &i_highPtId_,const Bool_t &i_isPFcand_,const Bool_t &i_mediumId_,const Bool_t &i_softId_,const Bool_t &i_tightId_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
 //    
 //  {}
   Muon():
@@ -999,107 +999,107 @@ public:
     genPartFlav_(0),
     cleanmask_(0)
   {}
-  Float_ dxy() const {return dxy_;}
-  Float_ dxyErr() const {return dxyErr_;}
-  Float_ dz() const {return dz_;}
-  Float_ dzErr() const {return dzErr_;}
-  Float_ ip3d() const {return ip3d_;}
-  Float_ miniPFRelIso() const {return miniPFRelIso_;}
-  Float_ miniPFRelIso() const {return miniPFRelIso_;}
-  Float_ pfRelIso03() const {return pfRelIso03_;}
-  Float_ pfRelIso03() const {return pfRelIso03_;}
-  Float_ pfRelIso04() const {return pfRelIso04_;}
-  Float_ ptErr() const {return ptErr_;}
-  Float_ segmentComp() const {return segmentComp_;}
-  Float_ sip3d() const {return sip3d_;}
-  Float_ mvaTTH() const {return mvaTTH_;}
-  Int_ charge() const {return charge_;}
-  Int_ jetIdx() const {return jetIdx_;}
-  Int_ nStations() const {return nStations_;}
-  Int_ nTrackerLayers() const {return nTrackerLayers_;}
-  Int_ pdgId() const {return pdgId_;}
-  Int_ tightCharge() const {return tightCharge_;}
-  UChar_ highPtId() const {return highPtId_;}
-  Bool_ isPFcand() const {return isPFcand_;}
-  Bool_ mediumId() const {return mediumId_;}
-  Bool_ softId() const {return softId_;}
-  Bool_ tightId() const {return tightId_;}
-  Int_ genPartIdx() const {return genPartIdx_;}
-  UChar_ genPartFlav() const {return genPartFlav_;}
-  UChar_ cleanmask() const {return cleanmask_;}
+  Float_t dxy() const {return dxy_;}
+  Float_t dxyErr() const {return dxyErr_;}
+  Float_t dz() const {return dz_;}
+  Float_t dzErr() const {return dzErr_;}
+  Float_t ip3d() const {return ip3d_;}
+  Float_t miniPFRelIso() const {return miniPFRelIso_;}
+  Float_t miniPFRelIso() const {return miniPFRelIso_;}
+  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t pfRelIso04() const {return pfRelIso04_;}
+  Float_t ptErr() const {return ptErr_;}
+  Float_t segmentComp() const {return segmentComp_;}
+  Float_t sip3d() const {return sip3d_;}
+  Float_t mvaTTH() const {return mvaTTH_;}
+  Int_t charge() const {return charge_;}
+  Int_t jetIdx() const {return jetIdx_;}
+  Int_t nStations() const {return nStations_;}
+  Int_t nTrackerLayers() const {return nTrackerLayers_;}
+  Int_t pdgId() const {return pdgId_;}
+  Int_t tightCharge() const {return tightCharge_;}
+  UChar_t highPtId() const {return highPtId_;}
+  Bool_t isPFcand() const {return isPFcand_;}
+  Bool_t mediumId() const {return mediumId_;}
+  Bool_t softId() const {return softId_;}
+  Bool_t tightId() const {return tightId_;}
+  Int_t genPartIdx() const {return genPartIdx_;}
+  UChar_t genPartFlav() const {return genPartFlav_;}
+  UChar_t cleanmask() const {return cleanmask_;}
 private:
-  Float_ dxy_;
-  Float_ dxyErr_;
-  Float_ dz_;
-  Float_ dzErr_;
-  Float_ ip3d_;
-  Float_ miniPFRelIso_;
-  Float_ miniPFRelIso_;
-  Float_ pfRelIso03_;
-  Float_ pfRelIso03_;
-  Float_ pfRelIso04_;
-  Float_ ptErr_;
-  Float_ segmentComp_;
-  Float_ sip3d_;
-  Float_ mvaTTH_;
-  Int_ charge_;
-  Int_ jetIdx_;
-  Int_ nStations_;
-  Int_ nTrackerLayers_;
-  Int_ pdgId_;
-  Int_ tightCharge_;
-  UChar_ highPtId_;
-  Bool_ isPFcand_;
-  Bool_ mediumId_;
-  Bool_ softId_;
-  Bool_ tightId_;
-  Int_ genPartIdx_;
-  UChar_ genPartFlav_;
-  UChar_ cleanmask_;
-  void setdxy(const Float_ value) {dxy_ = value;}
-  void setdxyErr(const Float_ value) {dxyErr_ = value;}
-  void setdz(const Float_ value) {dz_ = value;}
-  void setdzErr(const Float_ value) {dzErr_ = value;}
-  void setip3d(const Float_ value) {ip3d_ = value;}
-  void setminiPFRelIso(const Float_ value) {miniPFRelIso_ = value;}
-  void setminiPFRelIso(const Float_ value) {miniPFRelIso_ = value;}
-  void setpfRelIso03(const Float_ value) {pfRelIso03_ = value;}
-  void setpfRelIso03(const Float_ value) {pfRelIso03_ = value;}
-  void setpfRelIso04(const Float_ value) {pfRelIso04_ = value;}
-  void setptErr(const Float_ value) {ptErr_ = value;}
-  void setsegmentComp(const Float_ value) {segmentComp_ = value;}
-  void setsip3d(const Float_ value) {sip3d_ = value;}
-  void setmvaTTH(const Float_ value) {mvaTTH_ = value;}
-  void setcharge(const Int_ value) {charge_ = value;}
-  void setjetIdx(const Int_ value) {jetIdx_ = value;}
-  void setnStations(const Int_ value) {nStations_ = value;}
-  void setnTrackerLayers(const Int_ value) {nTrackerLayers_ = value;}
-  void setpdgId(const Int_ value) {pdgId_ = value;}
-  void settightCharge(const Int_ value) {tightCharge_ = value;}
-  void sethighPtId(const UChar_ value) {highPtId_ = value;}
-  void setisPFcand(const Bool_ value) {isPFcand_ = value;}
-  void setmediumId(const Bool_ value) {mediumId_ = value;}
-  void setsoftId(const Bool_ value) {softId_ = value;}
-  void settightId(const Bool_ value) {tightId_ = value;}
-  void setgenPartIdx(const Int_ value) {genPartIdx_ = value;}
-  void setgenPartFlav(const UChar_ value) {genPartFlav_ = value;}
-  void setcleanmask(const UChar_ value) {cleanmask_ = value;}
+  Float_t dxy_;
+  Float_t dxyErr_;
+  Float_t dz_;
+  Float_t dzErr_;
+  Float_t ip3d_;
+  Float_t miniPFRelIso_;
+  Float_t miniPFRelIso_;
+  Float_t pfRelIso03_;
+  Float_t pfRelIso03_;
+  Float_t pfRelIso04_;
+  Float_t ptErr_;
+  Float_t segmentComp_;
+  Float_t sip3d_;
+  Float_t mvaTTH_;
+  Int_t charge_;
+  Int_t jetIdx_;
+  Int_t nStations_;
+  Int_t nTrackerLayers_;
+  Int_t pdgId_;
+  Int_t tightCharge_;
+  UChar_t highPtId_;
+  Bool_t isPFcand_;
+  Bool_t mediumId_;
+  Bool_t softId_;
+  Bool_t tightId_;
+  Int_t genPartIdx_;
+  UChar_t genPartFlav_;
+  UChar_t cleanmask_;
+  void setdxy(const Float_t value) {dxy_ = value;}
+  void setdxyErr(const Float_t value) {dxyErr_ = value;}
+  void setdz(const Float_t value) {dz_ = value;}
+  void setdzErr(const Float_t value) {dzErr_ = value;}
+  void setip3d(const Float_t value) {ip3d_ = value;}
+  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
+  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
+  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setpfRelIso04(const Float_t value) {pfRelIso04_ = value;}
+  void setptErr(const Float_t value) {ptErr_ = value;}
+  void setsegmentComp(const Float_t value) {segmentComp_ = value;}
+  void setsip3d(const Float_t value) {sip3d_ = value;}
+  void setmvaTTH(const Float_t value) {mvaTTH_ = value;}
+  void setcharge(const Int_t value) {charge_ = value;}
+  void setjetIdx(const Int_t value) {jetIdx_ = value;}
+  void setnStations(const Int_t value) {nStations_ = value;}
+  void setnTrackerLayers(const Int_t value) {nTrackerLayers_ = value;}
+  void setpdgId(const Int_t value) {pdgId_ = value;}
+  void settightCharge(const Int_t value) {tightCharge_ = value;}
+  void sethighPtId(const UChar_t value) {highPtId_ = value;}
+  void setisPFcand(const Bool_t value) {isPFcand_ = value;}
+  void setmediumId(const Bool_t value) {mediumId_ = value;}
+  void setsoftId(const Bool_t value) {softId_ = value;}
+  void settightId(const Bool_t value) {tightId_ = value;}
+  void setgenPartIdx(const Int_t value) {genPartIdx_ = value;}
+  void setgenPartFlav(const UChar_t value) {genPartFlav_ = value;}
+  void setcleanmask(const UChar_t value) {cleanmask_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Otherpv{
 friend class URStreamer;
 public:
-//  Otherpv(const Float_ &i_z_):
+//  Otherpv(const Float_t &i_z_):
 //    
 //  {}
   Otherpv():
     z_(0)
   {}
-  Float_ z() const {return z_;}
+  Float_t z() const {return z_;}
 private:
-  Float_ z_;
-  void setz(const Float_ value) {z_ = value;}
+  Float_t z_;
+  void setz(const Float_t value) {z_ = value;}
 };
 
 class Hlt{
@@ -3528,7 +3528,7 @@ private:
 class Sv: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Sv(const Float_ &i_dlen_,const Float_ &i_dlenSig_,const Float_ &i_pAngle_,const Float_ &i_chi2_,const Float_ &i_ndof_,const Float_ &i_x_,const Float_ &i_y_,const Float_ &i_z_):
+//  Sv(const Float_t &i_dlen_,const Float_t &i_dlenSig_,const Float_t &i_pAngle_,const Float_t &i_chi2_,const Float_t &i_ndof_,const Float_t &i_x_,const Float_t &i_y_,const Float_t &i_z_):
 //    
 //  {}
   Sv():
@@ -3542,31 +3542,31 @@ public:
     y_(0),
     z_(0)
   {}
-  Float_ dlen() const {return dlen_;}
-  Float_ dlenSig() const {return dlenSig_;}
-  Float_ pAngle() const {return pAngle_;}
-  Float_ chi2() const {return chi2_;}
-  Float_ ndof() const {return ndof_;}
-  Float_ x() const {return x_;}
-  Float_ y() const {return y_;}
-  Float_ z() const {return z_;}
+  Float_t dlen() const {return dlen_;}
+  Float_t dlenSig() const {return dlenSig_;}
+  Float_t pAngle() const {return pAngle_;}
+  Float_t chi2() const {return chi2_;}
+  Float_t ndof() const {return ndof_;}
+  Float_t x() const {return x_;}
+  Float_t y() const {return y_;}
+  Float_t z() const {return z_;}
 private:
-  Float_ dlen_;
-  Float_ dlenSig_;
-  Float_ pAngle_;
-  Float_ chi2_;
-  Float_ ndof_;
-  Float_ x_;
-  Float_ y_;
-  Float_ z_;
-  void setdlen(const Float_ value) {dlen_ = value;}
-  void setdlenSig(const Float_ value) {dlenSig_ = value;}
-  void setpAngle(const Float_ value) {pAngle_ = value;}
-  void setchi2(const Float_ value) {chi2_ = value;}
-  void setndof(const Float_ value) {ndof_ = value;}
-  void setx(const Float_ value) {x_ = value;}
-  void sety(const Float_ value) {y_ = value;}
-  void setz(const Float_ value) {z_ = value;}
+  Float_t dlen_;
+  Float_t dlenSig_;
+  Float_t pAngle_;
+  Float_t chi2_;
+  Float_t ndof_;
+  Float_t x_;
+  Float_t y_;
+  Float_t z_;
+  void setdlen(const Float_t value) {dlen_ = value;}
+  void setdlenSig(const Float_t value) {dlenSig_ = value;}
+  void setpAngle(const Float_t value) {pAngle_ = value;}
+  void setchi2(const Float_t value) {chi2_ = value;}
+  void setndof(const Float_t value) {ndof_ = value;}
+  void setx(const Float_t value) {x_ = value;}
+  void sety(const Float_t value) {y_ = value;}
+  void setz(const Float_t value) {z_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
@@ -3639,7 +3639,7 @@ private:
 class Fatjet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Fatjet(const Float_ &i_area_,const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_btagHbb_,const Float_ &i_msoftdrop_,const Float_ &i_msoftdrop_,const Float_ &i_n2b1_,const Float_ &i_n3b1_,const Float_ &i_tau1_,const Float_ &i_tau2_,const Float_ &i_tau3_,const Float_ &i_tau4_,const Int_ &i_jetId_,const Int_ &i_subJetIdx1_,const Int_ &i_subJetIdx2_):
+//  Fatjet(const Float_t &i_area_,const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_btagHbb_,const Float_t &i_msoftdrop_,const Float_t &i_msoftdrop_,const Float_t &i_n2b1_,const Float_t &i_n3b1_,const Float_t &i_tau1_,const Float_t &i_tau2_,const Float_t &i_tau3_,const Float_t &i_tau4_,const Int_t &i_jetId_,const Int_t &i_subJetIdx1_,const Int_t &i_subJetIdx2_):
 //    
 //  {}
   Fatjet():
@@ -3661,62 +3661,62 @@ public:
     subJetIdx1_(0),
     subJetIdx2_(0)
   {}
-  Float_ area() const {return area_;}
-  Float_ btagCMVA() const {return btagCMVA_;}
-  Float_ btagCSVV2() const {return btagCSVV2_;}
-  Float_ btagDeepB() const {return btagDeepB_;}
-  Float_ btagHbb() const {return btagHbb_;}
-  Float_ msoftdrop() const {return msoftdrop_;}
-  Float_ msoftdrop() const {return msoftdrop_;}
-  Float_ n2b1() const {return n2b1_;}
-  Float_ n3b1() const {return n3b1_;}
-  Float_ tau1() const {return tau1_;}
-  Float_ tau2() const {return tau2_;}
-  Float_ tau3() const {return tau3_;}
-  Float_ tau4() const {return tau4_;}
-  Int_ jetId() const {return jetId_;}
-  Int_ subJetIdx1() const {return subJetIdx1_;}
-  Int_ subJetIdx2() const {return subJetIdx2_;}
+  Float_t area() const {return area_;}
+  Float_t btagCMVA() const {return btagCMVA_;}
+  Float_t btagCSVV2() const {return btagCSVV2_;}
+  Float_t btagDeepB() const {return btagDeepB_;}
+  Float_t btagHbb() const {return btagHbb_;}
+  Float_t msoftdrop() const {return msoftdrop_;}
+  Float_t msoftdrop() const {return msoftdrop_;}
+  Float_t n2b1() const {return n2b1_;}
+  Float_t n3b1() const {return n3b1_;}
+  Float_t tau1() const {return tau1_;}
+  Float_t tau2() const {return tau2_;}
+  Float_t tau3() const {return tau3_;}
+  Float_t tau4() const {return tau4_;}
+  Int_t jetId() const {return jetId_;}
+  Int_t subJetIdx1() const {return subJetIdx1_;}
+  Int_t subJetIdx2() const {return subJetIdx2_;}
 private:
-  Float_ area_;
-  Float_ btagCMVA_;
-  Float_ btagCSVV2_;
-  Float_ btagDeepB_;
-  Float_ btagHbb_;
-  Float_ msoftdrop_;
-  Float_ msoftdrop_;
-  Float_ n2b1_;
-  Float_ n3b1_;
-  Float_ tau1_;
-  Float_ tau2_;
-  Float_ tau3_;
-  Float_ tau4_;
-  Int_ jetId_;
-  Int_ subJetIdx1_;
-  Int_ subJetIdx2_;
-  void setarea(const Float_ value) {area_ = value;}
-  void setbtagCMVA(const Float_ value) {btagCMVA_ = value;}
-  void setbtagCSVV2(const Float_ value) {btagCSVV2_ = value;}
-  void setbtagDeepB(const Float_ value) {btagDeepB_ = value;}
-  void setbtagHbb(const Float_ value) {btagHbb_ = value;}
-  void setmsoftdrop(const Float_ value) {msoftdrop_ = value;}
-  void setmsoftdrop(const Float_ value) {msoftdrop_ = value;}
-  void setn2b1(const Float_ value) {n2b1_ = value;}
-  void setn3b1(const Float_ value) {n3b1_ = value;}
-  void settau1(const Float_ value) {tau1_ = value;}
-  void settau2(const Float_ value) {tau2_ = value;}
-  void settau3(const Float_ value) {tau3_ = value;}
-  void settau4(const Float_ value) {tau4_ = value;}
-  void setjetId(const Int_ value) {jetId_ = value;}
-  void setsubJetIdx1(const Int_ value) {subJetIdx1_ = value;}
-  void setsubJetIdx2(const Int_ value) {subJetIdx2_ = value;}
+  Float_t area_;
+  Float_t btagCMVA_;
+  Float_t btagCSVV2_;
+  Float_t btagDeepB_;
+  Float_t btagHbb_;
+  Float_t msoftdrop_;
+  Float_t msoftdrop_;
+  Float_t n2b1_;
+  Float_t n3b1_;
+  Float_t tau1_;
+  Float_t tau2_;
+  Float_t tau3_;
+  Float_t tau4_;
+  Int_t jetId_;
+  Int_t subJetIdx1_;
+  Int_t subJetIdx2_;
+  void setarea(const Float_t value) {area_ = value;}
+  void setbtagCMVA(const Float_t value) {btagCMVA_ = value;}
+  void setbtagCSVV2(const Float_t value) {btagCSVV2_ = value;}
+  void setbtagDeepB(const Float_t value) {btagDeepB_ = value;}
+  void setbtagHbb(const Float_t value) {btagHbb_ = value;}
+  void setmsoftdrop(const Float_t value) {msoftdrop_ = value;}
+  void setmsoftdrop(const Float_t value) {msoftdrop_ = value;}
+  void setn2b1(const Float_t value) {n2b1_ = value;}
+  void setn3b1(const Float_t value) {n3b1_ = value;}
+  void settau1(const Float_t value) {tau1_ = value;}
+  void settau2(const Float_t value) {tau2_ = value;}
+  void settau3(const Float_t value) {tau3_ = value;}
+  void settau4(const Float_t value) {tau4_ = value;}
+  void setjetId(const Int_t value) {jetId_ = value;}
+  void setsubJetIdx1(const Int_t value) {subJetIdx1_ = value;}
+  void setsubJetIdx2(const Int_t value) {subJetIdx2_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Subjet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Subjet(const Float_ &i_btagCMVA_,const Float_ &i_btagCSVV2_,const Float_ &i_btagDeepB_,const Float_ &i_n2b1_,const Float_ &i_n3b1_,const Float_ &i_tau1_,const Float_ &i_tau2_,const Float_ &i_tau3_,const Float_ &i_tau4_):
+//  Subjet(const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_n2b1_,const Float_t &i_n3b1_,const Float_t &i_tau1_,const Float_t &i_tau2_,const Float_t &i_tau3_,const Float_t &i_tau4_):
 //    
 //  {}
   Subjet():
@@ -3731,34 +3731,34 @@ public:
     tau3_(0),
     tau4_(0)
   {}
-  Float_ btagCMVA() const {return btagCMVA_;}
-  Float_ btagCSVV2() const {return btagCSVV2_;}
-  Float_ btagDeepB() const {return btagDeepB_;}
-  Float_ n2b1() const {return n2b1_;}
-  Float_ n3b1() const {return n3b1_;}
-  Float_ tau1() const {return tau1_;}
-  Float_ tau2() const {return tau2_;}
-  Float_ tau3() const {return tau3_;}
-  Float_ tau4() const {return tau4_;}
+  Float_t btagCMVA() const {return btagCMVA_;}
+  Float_t btagCSVV2() const {return btagCSVV2_;}
+  Float_t btagDeepB() const {return btagDeepB_;}
+  Float_t n2b1() const {return n2b1_;}
+  Float_t n3b1() const {return n3b1_;}
+  Float_t tau1() const {return tau1_;}
+  Float_t tau2() const {return tau2_;}
+  Float_t tau3() const {return tau3_;}
+  Float_t tau4() const {return tau4_;}
 private:
-  Float_ btagCMVA_;
-  Float_ btagCSVV2_;
-  Float_ btagDeepB_;
-  Float_ n2b1_;
-  Float_ n3b1_;
-  Float_ tau1_;
-  Float_ tau2_;
-  Float_ tau3_;
-  Float_ tau4_;
-  void setbtagCMVA(const Float_ value) {btagCMVA_ = value;}
-  void setbtagCSVV2(const Float_ value) {btagCSVV2_ = value;}
-  void setbtagDeepB(const Float_ value) {btagDeepB_ = value;}
-  void setn2b1(const Float_ value) {n2b1_ = value;}
-  void setn3b1(const Float_ value) {n3b1_ = value;}
-  void settau1(const Float_ value) {tau1_ = value;}
-  void settau2(const Float_ value) {tau2_ = value;}
-  void settau3(const Float_ value) {tau3_ = value;}
-  void settau4(const Float_ value) {tau4_ = value;}
+  Float_t btagCMVA_;
+  Float_t btagCSVV2_;
+  Float_t btagDeepB_;
+  Float_t n2b1_;
+  Float_t n3b1_;
+  Float_t tau1_;
+  Float_t tau2_;
+  Float_t tau3_;
+  Float_t tau4_;
+  void setbtagCMVA(const Float_t value) {btagCMVA_ = value;}
+  void setbtagCSVV2(const Float_t value) {btagCSVV2_ = value;}
+  void setbtagDeepB(const Float_t value) {btagDeepB_ = value;}
+  void setn2b1(const Float_t value) {n2b1_ = value;}
+  void setn3b1(const Float_t value) {n3b1_ = value;}
+  void settau1(const Float_t value) {tau1_ = value;}
+  void settau2(const Float_t value) {tau2_ = value;}
+  void settau3(const Float_t value) {tau3_ = value;}
+  void settau4(const Float_t value) {tau4_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
@@ -5031,7 +5031,7 @@ public:
     return false;
   }
 
-  void loadJet(){
+  void loadJets(){
     if(!are_Jet_loaded_){
       tree_->SetBranchStatus("Jet_area", 1); tree_->SetBranchAddress("Jet_area", &Jet_area_);
       tree_->SetBranchStatus("Jet_btagCMVA", 1); tree_->SetBranchAddress("Jet_btagCMVA", &Jet_btagCMVA_);
@@ -5067,7 +5067,7 @@ public:
     }
   }
   
-  void loadGenjetak8(){
+  void loadGenjetak8s(){
     if(!are_GenJetAK8_loaded_){
       tree_->SetBranchStatus("GenJetAK8_eta", 1); tree_->SetBranchAddress("GenJetAK8_eta", &GenJetAK8_eta_);
       tree_->SetBranchStatus("GenJetAK8_mass", 1); tree_->SetBranchAddress("GenJetAK8_mass", &GenJetAK8_mass_);
@@ -5080,7 +5080,7 @@ public:
     }
   }
   
-  void loadGenvistau(){
+  void loadGenvistaus(){
     if(!are_GenVisTau_loaded_){
       tree_->SetBranchStatus("GenVisTau_eta", 1); tree_->SetBranchAddress("GenVisTau_eta", &GenVisTau_eta_);
       tree_->SetBranchStatus("GenVisTau_mass", 1); tree_->SetBranchAddress("GenVisTau_mass", &GenVisTau_mass_);
@@ -5094,7 +5094,7 @@ public:
     }
   }
   
-  void loadCalomet(){
+  void loadCalomets(){
     if(!are_CaloMET_loaded_){
       tree_->SetBranchStatus("CaloMET_phi", 1); tree_->SetBranchAddress("CaloMET_phi", &CaloMET_phi_);
       tree_->SetBranchStatus("CaloMET_pt", 1); tree_->SetBranchAddress("CaloMET_pt", &CaloMET_pt_);
@@ -5104,7 +5104,7 @@ public:
     }
   }
   
-  void loadGendressedlepton(){
+  void loadGendressedleptons(){
     if(!are_GenDressedLepton_loaded_){
       tree_->SetBranchStatus("GenDressedLepton_eta", 1); tree_->SetBranchAddress("GenDressedLepton_eta", &GenDressedLepton_eta_);
       tree_->SetBranchStatus("GenDressedLepton_mass", 1); tree_->SetBranchAddress("GenDressedLepton_mass", &GenDressedLepton_mass_);
@@ -5116,7 +5116,7 @@ public:
     }
   }
   
-  void loadPv(){
+  void loadPvs(){
     if(!are_PV_loaded_){
       tree_->SetBranchStatus("PV_ndof", 1); tree_->SetBranchAddress("PV_ndof", &PV_ndof_);
       tree_->SetBranchStatus("PV_x", 1); tree_->SetBranchAddress("PV_x", &PV_x_);
@@ -5131,7 +5131,7 @@ public:
     }
   }
   
-  void loadGenerator(){
+  void loadGenerators(){
     if(!are_Generator_loaded_){
       tree_->SetBranchStatus("Generator_binvar", 1); tree_->SetBranchAddress("Generator_binvar", &Generator_binvar_);
       tree_->SetBranchStatus("Generator_scalePDF", 1); tree_->SetBranchAddress("Generator_scalePDF", &Generator_scalePDF_);
@@ -5147,7 +5147,7 @@ public:
     }
   }
   
-  void loadTrigobj(){
+  void loadTrigobjs(){
     if(!are_TrigObj_loaded_){
       tree_->SetBranchStatus("TrigObj_pt", 1); tree_->SetBranchAddress("TrigObj_pt", &TrigObj_pt_);
       tree_->SetBranchStatus("TrigObj_eta", 1); tree_->SetBranchAddress("TrigObj_eta", &TrigObj_eta_);
@@ -5164,7 +5164,7 @@ public:
     }
   }
   
-  void loadPhoton(){
+  void loadPhotons(){
     if(!are_Photon_loaded_){
       tree_->SetBranchStatus("Photon_eCorr", 1); tree_->SetBranchAddress("Photon_eCorr", &Photon_eCorr_);
       tree_->SetBranchStatus("Photon_energyErr", 1); tree_->SetBranchAddress("Photon_energyErr", &Photon_energyErr_);
@@ -5196,7 +5196,7 @@ public:
     }
   }
   
-  void loadGenjet(){
+  void loadGenjets(){
     if(!are_GenJet_loaded_){
       tree_->SetBranchStatus("GenJetAK8_eta", 1); tree_->SetBranchAddress("GenJetAK8_eta", &GenJetAK8_eta_);
       tree_->SetBranchStatus("GenJetAK8_mass", 1); tree_->SetBranchAddress("GenJetAK8_mass", &GenJetAK8_mass_);
@@ -5215,7 +5215,7 @@ public:
     }
   }
   
-  void loadRawmet(){
+  void loadRawmets(){
     if(!are_RawMET_loaded_){
       tree_->SetBranchStatus("RawMET_phi", 1); tree_->SetBranchAddress("RawMET_phi", &RawMET_phi_);
       tree_->SetBranchStatus("RawMET_pt", 1); tree_->SetBranchAddress("RawMET_pt", &RawMET_pt_);
@@ -5225,7 +5225,7 @@ public:
     }
   }
   
-  void loadElectron(){
+  void loadElectrons(){
     if(!are_Electron_loaded_){
       tree_->SetBranchStatus("Electron_deltaEtaSC", 1); tree_->SetBranchAddress("Electron_deltaEtaSC", &Electron_deltaEtaSC_);
       tree_->SetBranchStatus("Electron_dr03EcalRecHitSumEt", 1); tree_->SetBranchAddress("Electron_dr03EcalRecHitSumEt", &Electron_dr03EcalRecHitSumEt_);
@@ -5277,7 +5277,7 @@ public:
     }
   }
   
-  void loadSoftactivityjet(){
+  void loadSoftactivityjets(){
     if(!are_SoftActivityJet_loaded_){
       tree_->SetBranchStatus("SoftActivityJet_eta", 1); tree_->SetBranchAddress("SoftActivityJet_eta", &SoftActivityJet_eta_);
       tree_->SetBranchStatus("SoftActivityJet_phi", 1); tree_->SetBranchAddress("SoftActivityJet_phi", &SoftActivityJet_phi_);
@@ -5294,7 +5294,7 @@ public:
     }
   }
   
-  void loadL1Simulation(){
+  void loadL1Simulations(){
     if(!are_L1simulation_loaded_){
       tree_->SetBranchStatus("L1simulation_step", 1); tree_->SetBranchAddress("L1simulation_step", &L1simulation_step_);
       are_L1simulation_loaded_ = true;
@@ -5302,7 +5302,7 @@ public:
     }
   }
   
-  void loadGenpart(){
+  void loadGenparts(){
     if(!are_GenPart_loaded_){
       tree_->SetBranchStatus("GenPart_eta", 1); tree_->SetBranchAddress("GenPart_eta", &GenPart_eta_);
       tree_->SetBranchStatus("GenPart_mass", 1); tree_->SetBranchAddress("GenPart_mass", &GenPart_mass_);
@@ -5317,7 +5317,7 @@ public:
     }
   }
   
-  void loadLhe(){
+  void loadLhes(){
     if(!are_LHE_loaded_){
       tree_->SetBranchStatus("LHEWeight_originalXWGTUP", 1); tree_->SetBranchAddress("LHEWeight_originalXWGTUP", &LHEWeight_originalXWGTUP_);
       tree_->SetBranchStatus("LHEPdfWeight", 1); tree_->SetBranchAddress("LHEPdfWeight", &LHEPdfWeight);
@@ -5337,7 +5337,7 @@ public:
     }
   }
   
-  void loadTkmet(){
+  void loadTkmets(){
     if(!are_TkMET_loaded_){
       tree_->SetBranchStatus("TkMET_phi", 1); tree_->SetBranchAddress("TkMET_phi", &TkMET_phi_);
       tree_->SetBranchStatus("TkMET_pt", 1); tree_->SetBranchAddress("TkMET_pt", &TkMET_pt_);
@@ -5347,7 +5347,7 @@ public:
     }
   }
   
-  void loadTau(){
+  void loadTaus(){
     if(!are_Tau_loaded_){
       tree_->SetBranchStatus("Tau_chargedIso", 1); tree_->SetBranchAddress("Tau_chargedIso", &Tau_chargedIso_);
       tree_->SetBranchStatus("Tau_dxy", 1); tree_->SetBranchAddress("Tau_dxy", &Tau_dxy_);
@@ -5387,7 +5387,7 @@ public:
     }
   }
   
-  void loadPuppimet(){
+  void loadPuppimets(){
     if(!are_PuppiMET_loaded_){
       tree_->SetBranchStatus("PuppiMET_phi", 1); tree_->SetBranchAddress("PuppiMET_phi", &PuppiMET_phi_);
       tree_->SetBranchStatus("PuppiMET_pt", 1); tree_->SetBranchAddress("PuppiMET_pt", &PuppiMET_pt_);
@@ -5397,7 +5397,7 @@ public:
     }
   }
   
-  void loadMuon(){
+  void loadMuons(){
     if(!are_Muon_loaded_){
       tree_->SetBranchStatus("Muon_dxy", 1); tree_->SetBranchAddress("Muon_dxy", &Muon_dxy_);
       tree_->SetBranchStatus("Muon_dxyErr", 1); tree_->SetBranchAddress("Muon_dxyErr", &Muon_dxyErr_);
@@ -5436,7 +5436,7 @@ public:
     }
   }
   
-  void loadOtherpv(){
+  void loadOtherpvs(){
     if(!are_OtherPV_loaded_){
       tree_->SetBranchStatus("OtherPV_z", 1); tree_->SetBranchAddress("OtherPV_z", &OtherPV_z_);
       are_OtherPV_loaded_ = true;
@@ -5444,7 +5444,7 @@ public:
     }
   }
   
-  void loadHlt(){
+  void loadHlts(){
     if(!are_HLT_loaded_){
       tree_->SetBranchStatus("HLTriggerFirstPath", 1); tree_->SetBranchAddress("HLTriggerFirstPath", &HLTriggerFirstPath);
       tree_->SetBranchStatus("HLT_AK8PFJet360_TrimMass30", 1); tree_->SetBranchAddress("HLT_AK8PFJet360_TrimMass30", &HLT_AK8PFJet360_TrimMass30_);
@@ -6054,7 +6054,7 @@ public:
     }
   }
   
-  void loadSv(){
+  void loadSvs(){
     if(!are_SV_loaded_){
       tree_->SetBranchStatus("SV_dlen", 1); tree_->SetBranchAddress("SV_dlen", &SV_dlen_);
       tree_->SetBranchStatus("SV_dlenSig", 1); tree_->SetBranchAddress("SV_dlenSig", &SV_dlenSig_);
@@ -6073,7 +6073,7 @@ public:
     }
   }
   
-  void loadMet(){
+  void loadMets(){
     if(!are_MET_loaded_){
       tree_->SetBranchStatus("MET_MetUnclustEnUpDeltaX", 1); tree_->SetBranchAddress("MET_MetUnclustEnUpDeltaX", &MET_MetUnclustEnUpDeltaX_);
       tree_->SetBranchStatus("MET_MetUnclustEnUpDeltaY", 1); tree_->SetBranchAddress("MET_MetUnclustEnUpDeltaY", &MET_MetUnclustEnUpDeltaY_);
@@ -6091,7 +6091,7 @@ public:
     }
   }
   
-  void loadGenmet(){
+  void loadGenmets(){
     if(!are_GenMET_loaded_){
       tree_->SetBranchStatus("GenMET_phi", 1); tree_->SetBranchAddress("GenMET_phi", &GenMET_phi_);
       tree_->SetBranchStatus("GenMET_pt", 1); tree_->SetBranchAddress("GenMET_pt", &GenMET_pt_);
@@ -6100,7 +6100,7 @@ public:
     }
   }
   
-  void loadFatjet(){
+  void loadFatjets(){
     if(!are_FatJet_loaded_){
       tree_->SetBranchStatus("FatJet_area", 1); tree_->SetBranchAddress("FatJet_area", &FatJet_area_);
       tree_->SetBranchStatus("FatJet_btagCMVA", 1); tree_->SetBranchAddress("FatJet_btagCMVA", &FatJet_btagCMVA_);
@@ -6127,7 +6127,7 @@ public:
     }
   }
   
-  void loadSubjet(){
+  void loadSubjets(){
     if(!are_SubJet_loaded_){
       tree_->SetBranchStatus("SubJet_btagCMVA", 1); tree_->SetBranchAddress("SubJet_btagCMVA", &SubJet_btagCMVA_);
       tree_->SetBranchStatus("SubJet_btagCSVV2", 1); tree_->SetBranchAddress("SubJet_btagCSVV2", &SubJet_btagCSVV2_);
@@ -6147,7 +6147,7 @@ public:
     }
   }
   
-  void loadFlag(){
+  void loadFlags(){
     if(!are_Flag_loaded_){
       tree_->SetBranchStatus("Flag_HBHENoiseFilter", 1); tree_->SetBranchAddress("Flag_HBHENoiseFilter", &Flag_HBHENoiseFilter_);
       tree_->SetBranchStatus("Flag_HBHENoiseIsoFilter", 1); tree_->SetBranchAddress("Flag_HBHENoiseIsoFilter", &Flag_HBHENoiseIsoFilter_);
@@ -6175,7 +6175,7 @@ public:
     }
   }
   
-  void loadPileup(){
+  void loadPileups(){
     if(!are_Pileup_loaded_){
       tree_->SetBranchStatus("Pileup_nTrueInt", 1); tree_->SetBranchAddress("Pileup_nTrueInt", &Pileup_nTrueInt_);
       tree_->SetBranchStatus("Pileup_nPU", 1); tree_->SetBranchAddress("Pileup_nPU", &Pileup_nPU_);
@@ -6186,7 +6186,7 @@ public:
     }
   }
   
-  void loadLheweight(){
+  void loadLheweights(){
     if(!are_LHEWeight_loaded_){
       tree_->SetBranchStatus("LHEWeight_originalXWGTUP", 1); tree_->SetBranchAddress("LHEWeight_originalXWGTUP", &LHEWeight_originalXWGTUP_);
       are_LHEWeight_loaded_ = true;
@@ -6195,67 +6195,67 @@ public:
   }
   
 
-  const vector<Jet>& Jet(){
+  const vector<Jet>& jets(){
     if(Jet_.size() > 0) return Jet_;
-    loadJet();
-  	Jet_.reserve(nJet->size());
-    for(auto jet: nJet ){
+    loadJets();
+  	Jet_.reserve(Jet_area_->size());
+    for(size_t idx = 0; idx < nJet; ++idx ){
       Jet obj;
-      obj.setarea(jet.Jet_area_);
-      obj.setbtagCMVA(jet.Jet_btagCMVA_);
-      obj.setbtagCSVV2(jet.Jet_btagCSVV2_);
-      obj.setbtagDeepB(jet.Jet_btagDeepB_);
-      obj.setbtagDeepC(jet.Jet_btagDeepC_);
-      obj.setchEmEF(jet.Jet_chEmEF_);
-      obj.setchHEF(jet.Jet_chHEF_);
-      obj.setneEmEF(jet.Jet_neEmEF_);
-      obj.setneHEF(jet.Jet_neHEF_);
-      obj.setqgl(jet.Jet_qgl_);
-      obj.setrawFactor(jet.Jet_rawFactor_);
-      obj.setbReg(jet.Jet_bReg_);
-      obj.setelectronIdx1(jet.Jet_electronIdx1_);
-      obj.setelectronIdx2(jet.Jet_electronIdx2_);
-      obj.setjetId(jet.Jet_jetId_);
-      obj.setmuonIdx1(jet.Jet_muonIdx1_);
-      obj.setmuonIdx2(jet.Jet_muonIdx2_);
-      obj.setnConstituents(jet.Jet_nConstituents_);
-      obj.setnElectrons(jet.Jet_nElectrons_);
-      obj.setnMuons(jet.Jet_nMuons_);
-      obj.setpuId(jet.Jet_puId_);
-      obj.setgenJetIdx(jet.Jet_genJetIdx_);
-      obj.sethadronFlavour(jet.Jet_hadronFlavour_);
-      obj.setpartonFlavour(jet.Jet_partonFlavour_);
-      obj.setcleanmask(jet.Jet_cleanmask_);
-      obj.setLorentzVector(jet.Jet_pt_, jet.Jet_eta_, jet.Jet_phi_, jet.Jet_mass_);
+      obj.setarea(Jet_area_[idx]);
+      obj.setbtagCMVA(Jet_btagCMVA_[idx]);
+      obj.setbtagCSVV2(Jet_btagCSVV2_[idx]);
+      obj.setbtagDeepB(Jet_btagDeepB_[idx]);
+      obj.setbtagDeepC(Jet_btagDeepC_[idx]);
+      obj.setchEmEF(Jet_chEmEF_[idx]);
+      obj.setchHEF(Jet_chHEF_[idx]);
+      obj.setneEmEF(Jet_neEmEF_[idx]);
+      obj.setneHEF(Jet_neHEF_[idx]);
+      obj.setqgl(Jet_qgl_[idx]);
+      obj.setrawFactor(Jet_rawFactor_[idx]);
+      obj.setbReg(Jet_bReg_[idx]);
+      obj.setelectronIdx1(Jet_electronIdx1_[idx]);
+      obj.setelectronIdx2(Jet_electronIdx2_[idx]);
+      obj.setjetId(Jet_jetId_[idx]);
+      obj.setmuonIdx1(Jet_muonIdx1_[idx]);
+      obj.setmuonIdx2(Jet_muonIdx2_[idx]);
+      obj.setnConstituents(Jet_nConstituents_[idx]);
+      obj.setnElectrons(Jet_nElectrons_[idx]);
+      obj.setnMuons(Jet_nMuons_[idx]);
+      obj.setpuId(Jet_puId_[idx]);
+      obj.setgenJetIdx(Jet_genJetIdx_[idx]);
+      obj.sethadronFlavour(Jet_hadronFlavour_[idx]);
+      obj.setpartonFlavour(Jet_partonFlavour_[idx]);
+      obj.setcleanmask(Jet_cleanmask_[idx]);
+      obj.setLorentzVector(Jet_pt_[idx], Jet_eta_[idx], Jet_phi_[idx], Jet_mass_[idx]);
       Jet_.push_back( obj );
     }
     return Jet_;
   }
   
-  const vector<Genjetak8>& GenJetAK8(){
+  const vector<Genjetak8>& genjetak8s(){
     if(GenJetAK8_.size() > 0) return GenJetAK8_;
-    loadGenjetak8();
-  	GenJetAK8_.reserve(nGenjetak8->size());
-    for(auto genjetak8: nGenjetak8 ){
+    loadGenjetak8s();
+  	GenJetAK8_.reserve(GenJetAK8_eta_->size());
+    for(size_t idx = 0; idx < nGenjetak8; ++idx ){
       Genjetak8 obj;
-      obj.setpartonFlavour(genjetak8.GenJetAK8_partonFlavour_);
-      obj.sethadronFlavour(genjetak8.GenJetAK8_hadronFlavour_);
-      obj.setLorentzVector(genjetak8.GenJetAK8_pt_, genjetak8.GenJetAK8_eta_, genjetak8.GenJetAK8_phi_, genjetak8.GenJetAK8_mass_);
+      obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
+      obj.sethadronFlavour(GenJetAK8_hadronFlavour_[idx]);
+      obj.setLorentzVector(GenJetAK8_pt_[idx], GenJetAK8_eta_[idx], GenJetAK8_phi_[idx], GenJetAK8_mass_[idx]);
       GenJetAK8_.push_back( obj );
     }
     return GenJetAK8_;
   }
   
-  const vector<Genvistau>& GenVisTau(){
+  const vector<Genvistau>& genvistaus(){
     if(GenVisTau_.size() > 0) return GenVisTau_;
-    loadGenvistau();
-  	GenVisTau_.reserve(nGenvistau->size());
-    for(auto genvistau: nGenvistau ){
+    loadGenvistaus();
+  	GenVisTau_.reserve(GenVisTau_eta_->size());
+    for(size_t idx = 0; idx < nGenvistau; ++idx ){
       Genvistau obj;
-      obj.setcharge(genvistau.GenVisTau_charge_);
-      obj.setgenPartIdxMother(genvistau.GenVisTau_genPartIdxMother_);
-      obj.setstatus(genvistau.GenVisTau_status_);
-      obj.setLorentzVector(genvistau.GenVisTau_pt_, genvistau.GenVisTau_eta_, genvistau.GenVisTau_phi_, genvistau.GenVisTau_mass_);
+      obj.setcharge(GenVisTau_charge_[idx]);
+      obj.setgenPartIdxMother(GenVisTau_genPartIdxMother_[idx]);
+      obj.setstatus(GenVisTau_status_[idx]);
+      obj.setLorentzVector(GenVisTau_pt_[idx], GenVisTau_eta_[idx], GenVisTau_phi_[idx], GenVisTau_mass_[idx]);
       GenVisTau_.push_back( obj );
     }
     return GenVisTau_;
@@ -6272,14 +6272,14 @@ public:
     return obj;
   }
   
-  const vector<Gendressedlepton>& GenDressedLepton(){
+  const vector<Gendressedlepton>& gendressedleptons(){
     if(GenDressedLepton_.size() > 0) return GenDressedLepton_;
-    loadGendressedlepton();
-  	GenDressedLepton_.reserve(nGendressedlepton->size());
-    for(auto gendressedlepton: nGendressedlepton ){
+    loadGendressedleptons();
+  	GenDressedLepton_.reserve(GenDressedLepton_eta_->size());
+    for(size_t idx = 0; idx < nGendressedlepton; ++idx ){
       Gendressedlepton obj;
-      obj.setpdgId(gendressedlepton.GenDressedLepton_pdgId_);
-      obj.setLorentzVector(gendressedlepton.GenDressedLepton_pt_, gendressedlepton.GenDressedLepton_eta_, gendressedlepton.GenDressedLepton_phi_, gendressedlepton.GenDressedLepton_mass_);
+      obj.setpdgId(GenDressedLepton_pdgId_[idx]);
+      obj.setLorentzVector(GenDressedLepton_pt_[idx], GenDressedLepton_eta_[idx], GenDressedLepton_phi_[idx], GenDressedLepton_mass_[idx]);
       GenDressedLepton_.push_back( obj );
     }
     return GenDressedLepton_;
@@ -6322,69 +6322,69 @@ public:
     return obj;
   }
   
-  const vector<Trigobj>& TrigObj(){
+  const vector<Trigobj>& trigobjs(){
     if(TrigObj_.size() > 0) return TrigObj_;
-    loadTrigobj();
-  	TrigObj_.reserve(nTrigobj->size());
-    for(auto trigobj: nTrigobj ){
+    loadTrigobjs();
+  	TrigObj_.reserve(TrigObj_pt_->size());
+    for(size_t idx = 0; idx < nTrigobj; ++idx ){
       Trigobj obj;
-      obj.setl1pt(trigobj.TrigObj_l1pt_);
-      obj.setl1pt(trigobj.TrigObj_l1pt_2_);
-      obj.setl2pt(trigobj.TrigObj_l2pt_);
-      obj.setid(trigobj.TrigObj_id_);
-      obj.setl1iso(trigobj.TrigObj_l1iso_);
-      obj.setl1charge(trigobj.TrigObj_l1charge_);
-      obj.setfilterBits(trigobj.TrigObj_filterBits_);
-      obj.setLorentzVector(trigobj.TrigObj_pt_, trigobj.TrigObj_eta_, trigobj.TrigObj_phi_);
+      obj.setl1pt(TrigObj_l1pt_[idx]);
+      obj.setl1pt(TrigObj_l1pt_2_[idx]);
+      obj.setl2pt(TrigObj_l2pt_[idx]);
+      obj.setid(TrigObj_id_[idx]);
+      obj.setl1iso(TrigObj_l1iso_[idx]);
+      obj.setl1charge(TrigObj_l1charge_[idx]);
+      obj.setfilterBits(TrigObj_filterBits_[idx]);
+      obj.setLorentzVector(TrigObj_pt_[idx], TrigObj_eta_[idx], TrigObj_phi_[idx]);
       TrigObj_.push_back( obj );
     }
     return TrigObj_;
   }
   
-  const vector<Photon>& Photon(){
+  const vector<Photon>& photons(){
     if(Photon_.size() > 0) return Photon_;
-    loadPhoton();
-  	Photon_.reserve(nPhoton->size());
-    for(auto photon: nPhoton ){
+    loadPhotons();
+  	Photon_.reserve(Photon_eCorr_->size());
+    for(size_t idx = 0; idx < nPhoton; ++idx ){
       Photon obj;
-      obj.seteCorr(photon.Photon_eCorr_);
-      obj.setenergyErr(photon.Photon_energyErr_);
-      obj.sethoe(photon.Photon_hoe_);
-      obj.setmvaID(photon.Photon_mvaID_);
-      obj.setpfRelIso03(photon.Photon_pfRelIso03_all_);
-      obj.setpfRelIso03(photon.Photon_pfRelIso03_chg_);
-      obj.setr9(photon.Photon_r9_);
-      obj.setsieie(photon.Photon_sieie_);
-      obj.setcharge(photon.Photon_charge_);
-      obj.setcutBased(photon.Photon_cutBased_);
-      obj.setelectronIdx(photon.Photon_electronIdx_);
-      obj.setjetIdx(photon.Photon_jetIdx_);
-      obj.setpdgId(photon.Photon_pdgId_);
-      obj.setvidNestedWPBitmap(photon.Photon_vidNestedWPBitmap_);
-      obj.setelectronVeto(photon.Photon_electronVeto_);
-      obj.setmvaID(photon.Photon_mvaID_WP80_);
-      obj.setmvaID(photon.Photon_mvaID_WP90_);
-      obj.setpixelSeed(photon.Photon_pixelSeed_);
-      obj.setgenPartIdx(photon.Photon_genPartIdx_);
-      obj.setgenPartFlav(photon.Photon_genPartFlav_);
-      obj.setcleanmask(photon.Photon_cleanmask_);
-      obj.setLorentzVector(photon.Photon_pt_, photon.Photon_eta_, photon.Photon_phi_, photon.Photon_mass_);
+      obj.seteCorr(Photon_eCorr_[idx]);
+      obj.setenergyErr(Photon_energyErr_[idx]);
+      obj.sethoe(Photon_hoe_[idx]);
+      obj.setmvaID(Photon_mvaID_[idx]);
+      obj.setpfRelIso03(Photon_pfRelIso03_all_[idx]);
+      obj.setpfRelIso03(Photon_pfRelIso03_chg_[idx]);
+      obj.setr9(Photon_r9_[idx]);
+      obj.setsieie(Photon_sieie_[idx]);
+      obj.setcharge(Photon_charge_[idx]);
+      obj.setcutBased(Photon_cutBased_[idx]);
+      obj.setelectronIdx(Photon_electronIdx_[idx]);
+      obj.setjetIdx(Photon_jetIdx_[idx]);
+      obj.setpdgId(Photon_pdgId_[idx]);
+      obj.setvidNestedWPBitmap(Photon_vidNestedWPBitmap_[idx]);
+      obj.setelectronVeto(Photon_electronVeto_[idx]);
+      obj.setmvaID(Photon_mvaID_WP80_[idx]);
+      obj.setmvaID(Photon_mvaID_WP90_[idx]);
+      obj.setpixelSeed(Photon_pixelSeed_[idx]);
+      obj.setgenPartIdx(Photon_genPartIdx_[idx]);
+      obj.setgenPartFlav(Photon_genPartFlav_[idx]);
+      obj.setcleanmask(Photon_cleanmask_[idx]);
+      obj.setLorentzVector(Photon_pt_[idx], Photon_eta_[idx], Photon_phi_[idx], Photon_mass_[idx]);
       Photon_.push_back( obj );
     }
     return Photon_;
   }
   
-  const vector<Genjet>& GenJet(){
+  const vector<Genjet>& genjets(){
     if(GenJet_.size() > 0) return GenJet_;
-    loadGenjet();
-  	GenJet_.reserve(nGenjet->size());
-    for(auto genjet: nGenjet ){
+    loadGenjets();
+  	GenJet_.reserve(GenJetAK8_eta_->size());
+    for(size_t idx = 0; idx < nGenjet; ++idx ){
       Genjet obj;
-      obj.setpartonFlavour(genjet.GenJetAK8_partonFlavour_);
-      obj.sethadronFlavour(genjet.GenJetAK8_hadronFlavour_);
-      obj.setpartonFlavour(genjet.GenJet_partonFlavour_);
-      obj.sethadronFlavour(genjet.GenJet_hadronFlavour_);
-      obj.setLorentzVector(genjet.GenJet_pt_, genjet.GenJet_eta_, genjet.GenJet_phi_, genjet.GenJet_mass_);
+      obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
+      obj.sethadronFlavour(GenJetAK8_hadronFlavour_[idx]);
+      obj.setpartonFlavour(GenJet_partonFlavour_[idx]);
+      obj.sethadronFlavour(GenJet_hadronFlavour_[idx]);
+      obj.setLorentzVector(GenJet_pt_[idx], GenJet_eta_[idx], GenJet_phi_[idx], GenJet_mass_[idx]);
       GenJet_.push_back( obj );
     }
     return GenJet_;
@@ -6401,54 +6401,54 @@ public:
     return obj;
   }
   
-  const vector<Electron>& Electron(){
+  const vector<Electron>& electrons(){
     if(Electron_.size() > 0) return Electron_;
-    loadElectron();
-  	Electron_.reserve(nElectron->size());
-    for(auto electron: nElectron ){
+    loadElectrons();
+  	Electron_.reserve(Electron_deltaEtaSC_->size());
+    for(size_t idx = 0; idx < nElectron; ++idx ){
       Electron obj;
-      obj.setdeltaEtaSC(electron.Electron_deltaEtaSC_);
-      obj.setdr03EcalRecHitSumEt(electron.Electron_dr03EcalRecHitSumEt_);
-      obj.setdr03HcalDepth1TowerSumEt(electron.Electron_dr03HcalDepth1TowerSumEt_);
-      obj.setdr03TkSumPt(electron.Electron_dr03TkSumPt_);
-      obj.setdxy(electron.Electron_dxy_);
-      obj.setdxyErr(electron.Electron_dxyErr_);
-      obj.setdz(electron.Electron_dz_);
-      obj.setdzErr(electron.Electron_dzErr_);
-      obj.seteCorr(electron.Electron_eCorr_);
-      obj.seteInvMinusPInv(electron.Electron_eInvMinusPInv_);
-      obj.setenergyErr(electron.Electron_energyErr_);
-      obj.sethoe(electron.Electron_hoe_);
-      obj.setip3d(electron.Electron_ip3d_);
-      obj.setminiPFRelIso(electron.Electron_miniPFRelIso_all_);
-      obj.setminiPFRelIso(electron.Electron_miniPFRelIso_chg_);
-      obj.setmvaSpring16GP(electron.Electron_mvaSpring16GP_);
-      obj.setmvaSpring16HZZ(electron.Electron_mvaSpring16HZZ_);
-      obj.setpfRelIso03(electron.Electron_pfRelIso03_all_);
-      obj.setpfRelIso03(electron.Electron_pfRelIso03_chg_);
-      obj.setr9(electron.Electron_r9_);
-      obj.setsieie(electron.Electron_sieie_);
-      obj.setsip3d(electron.Electron_sip3d_);
-      obj.setmvaTTH(electron.Electron_mvaTTH_);
-      obj.setcharge(electron.Electron_charge_);
-      obj.setcutBased(electron.Electron_cutBased_);
-      obj.setcutBased(electron.Electron_cutBased_HLTPreSel_);
-      obj.setjetIdx(electron.Electron_jetIdx_);
-      obj.setpdgId(electron.Electron_pdgId_);
-      obj.setphotonIdx(electron.Electron_photonIdx_);
-      obj.settightCharge(electron.Electron_tightCharge_);
-      obj.setvidNestedWPBitmap(electron.Electron_vidNestedWPBitmap_);
-      obj.setconvVeto(electron.Electron_convVeto_);
-      obj.setcutBased(electron.Electron_cutBased_HEEP_);
-      obj.setisPFcand(electron.Electron_isPFcand_);
-      obj.setlostHits(electron.Electron_lostHits_);
-      obj.setmvaSpring16GP(electron.Electron_mvaSpring16GP_WP80_);
-      obj.setmvaSpring16GP(electron.Electron_mvaSpring16GP_WP90_);
-      obj.setmvaSpring16HZZ(electron.Electron_mvaSpring16HZZ_WPL_);
-      obj.setgenPartIdx(electron.Electron_genPartIdx_);
-      obj.setgenPartFlav(electron.Electron_genPartFlav_);
-      obj.setcleanmask(electron.Electron_cleanmask_);
-      obj.setLorentzVector(electron.Electron_pt_, electron.Electron_eta_, electron.Electron_phi_, electron.Electron_mass_);
+      obj.setdeltaEtaSC(Electron_deltaEtaSC_[idx]);
+      obj.setdr03EcalRecHitSumEt(Electron_dr03EcalRecHitSumEt_[idx]);
+      obj.setdr03HcalDepth1TowerSumEt(Electron_dr03HcalDepth1TowerSumEt_[idx]);
+      obj.setdr03TkSumPt(Electron_dr03TkSumPt_[idx]);
+      obj.setdxy(Electron_dxy_[idx]);
+      obj.setdxyErr(Electron_dxyErr_[idx]);
+      obj.setdz(Electron_dz_[idx]);
+      obj.setdzErr(Electron_dzErr_[idx]);
+      obj.seteCorr(Electron_eCorr_[idx]);
+      obj.seteInvMinusPInv(Electron_eInvMinusPInv_[idx]);
+      obj.setenergyErr(Electron_energyErr_[idx]);
+      obj.sethoe(Electron_hoe_[idx]);
+      obj.setip3d(Electron_ip3d_[idx]);
+      obj.setminiPFRelIso(Electron_miniPFRelIso_all_[idx]);
+      obj.setminiPFRelIso(Electron_miniPFRelIso_chg_[idx]);
+      obj.setmvaSpring16GP(Electron_mvaSpring16GP_[idx]);
+      obj.setmvaSpring16HZZ(Electron_mvaSpring16HZZ_[idx]);
+      obj.setpfRelIso03(Electron_pfRelIso03_all_[idx]);
+      obj.setpfRelIso03(Electron_pfRelIso03_chg_[idx]);
+      obj.setr9(Electron_r9_[idx]);
+      obj.setsieie(Electron_sieie_[idx]);
+      obj.setsip3d(Electron_sip3d_[idx]);
+      obj.setmvaTTH(Electron_mvaTTH_[idx]);
+      obj.setcharge(Electron_charge_[idx]);
+      obj.setcutBased(Electron_cutBased_[idx]);
+      obj.setcutBased(Electron_cutBased_HLTPreSel_[idx]);
+      obj.setjetIdx(Electron_jetIdx_[idx]);
+      obj.setpdgId(Electron_pdgId_[idx]);
+      obj.setphotonIdx(Electron_photonIdx_[idx]);
+      obj.settightCharge(Electron_tightCharge_[idx]);
+      obj.setvidNestedWPBitmap(Electron_vidNestedWPBitmap_[idx]);
+      obj.setconvVeto(Electron_convVeto_[idx]);
+      obj.setcutBased(Electron_cutBased_HEEP_[idx]);
+      obj.setisPFcand(Electron_isPFcand_[idx]);
+      obj.setlostHits(Electron_lostHits_[idx]);
+      obj.setmvaSpring16GP(Electron_mvaSpring16GP_WP80_[idx]);
+      obj.setmvaSpring16GP(Electron_mvaSpring16GP_WP90_[idx]);
+      obj.setmvaSpring16HZZ(Electron_mvaSpring16HZZ_WPL_[idx]);
+      obj.setgenPartIdx(Electron_genPartIdx_[idx]);
+      obj.setgenPartFlav(Electron_genPartFlav_[idx]);
+      obj.setcleanmask(Electron_cleanmask_[idx]);
+      obj.setLorentzVector(Electron_pt_[idx], Electron_eta_[idx], Electron_phi_[idx], Electron_mass_[idx]);
       Electron_.push_back( obj );
     }
     return Electron_;
@@ -6482,17 +6482,17 @@ public:
     return obj;
   }
   
-  const vector<Genpart>& GenPart(){
+  const vector<Genpart>& genparts(){
     if(GenPart_.size() > 0) return GenPart_;
-    loadGenpart();
-  	GenPart_.reserve(nGenpart->size());
-    for(auto genpart: nGenpart ){
+    loadGenparts();
+  	GenPart_.reserve(GenPart_eta_->size());
+    for(size_t idx = 0; idx < nGenpart; ++idx ){
       Genpart obj;
-      obj.setgenPartIdxMother(genpart.GenPart_genPartIdxMother_);
-      obj.setpdgId(genpart.GenPart_pdgId_);
-      obj.setstatus(genpart.GenPart_status_);
-      obj.setstatusFlags(genpart.GenPart_statusFlags_);
-      obj.setLorentzVector(genpart.GenPart_pt_, genpart.GenPart_eta_, genpart.GenPart_phi_, genpart.GenPart_mass_);
+      obj.setgenPartIdxMother(GenPart_genPartIdxMother_[idx]);
+      obj.setpdgId(GenPart_pdgId_[idx]);
+      obj.setstatus(GenPart_status_[idx]);
+      obj.setstatusFlags(GenPart_statusFlags_[idx]);
+      obj.setLorentzVector(GenPart_pt_[idx], GenPart_eta_[idx], GenPart_phi_[idx], GenPart_mass_[idx]);
       GenPart_.push_back( obj );
     }
     return GenPart_;
@@ -6532,42 +6532,42 @@ public:
     return obj;
   }
   
-  const vector<Tau>& Tau(){
+  const vector<Tau>& taus(){
     if(Tau_.size() > 0) return Tau_;
-    loadTau();
-  	Tau_.reserve(nTau->size());
-    for(auto tau: nTau ){
+    loadTaus();
+  	Tau_.reserve(Tau_chargedIso_->size());
+    for(size_t idx = 0; idx < nTau; ++idx ){
       Tau obj;
-      obj.setchargedIso(tau.Tau_chargedIso_);
-      obj.setdxy(tau.Tau_dxy_);
-      obj.setdz(tau.Tau_dz_);
-      obj.setfootprintCorr(tau.Tau_footprintCorr_);
-      obj.setleadTkDeltaEta(tau.Tau_leadTkDeltaEta_);
-      obj.setleadTkDeltaPhi(tau.Tau_leadTkDeltaPhi_);
-      obj.setleadTkPtOverTauPt(tau.Tau_leadTkPtOverTauPt_);
-      obj.setneutralIso(tau.Tau_neutralIso_);
-      obj.setphotonsOutsideSignalCone(tau.Tau_photonsOutsideSignalCone_);
-      obj.setpuCorr(tau.Tau_puCorr_);
-      obj.setrawAntiEle(tau.Tau_rawAntiEle_);
-      obj.setrawIso(tau.Tau_rawIso_);
-      obj.setrawMVAnewDM(tau.Tau_rawMVAnewDM_);
-      obj.setrawMVAoldDM(tau.Tau_rawMVAoldDM_);
-      obj.setrawMVAoldDMdR03(tau.Tau_rawMVAoldDMdR03_);
-      obj.setcharge(tau.Tau_charge_);
-      obj.setdecayMode(tau.Tau_decayMode_);
-      obj.setjetIdx(tau.Tau_jetIdx_);
-      obj.setrawAntiEleCat(tau.Tau_rawAntiEleCat_);
-      obj.setidAntiEle(tau.Tau_idAntiEle_);
-      obj.setidAntiMu(tau.Tau_idAntiMu_);
-      obj.setidDecayMode(tau.Tau_idDecayMode_);
-      obj.setidDecayModeNewDMs(tau.Tau_idDecayModeNewDMs_);
-      obj.setidMVAnewDM(tau.Tau_idMVAnewDM_);
-      obj.setidMVAoldDM(tau.Tau_idMVAoldDM_);
-      obj.setidMVAoldDMdR03(tau.Tau_idMVAoldDMdR03_);
-      obj.setcleanmask(tau.Tau_cleanmask_);
-      obj.setgenPartIdx(tau.Tau_genPartIdx_);
-      obj.setgenPartFlav(tau.Tau_genPartFlav_);
-      obj.setLorentzVector(tau.Tau_pt_, tau.Tau_eta_, tau.Tau_phi_, tau.Tau_mass_);
+      obj.setchargedIso(Tau_chargedIso_[idx]);
+      obj.setdxy(Tau_dxy_[idx]);
+      obj.setdz(Tau_dz_[idx]);
+      obj.setfootprintCorr(Tau_footprintCorr_[idx]);
+      obj.setleadTkDeltaEta(Tau_leadTkDeltaEta_[idx]);
+      obj.setleadTkDeltaPhi(Tau_leadTkDeltaPhi_[idx]);
+      obj.setleadTkPtOverTauPt(Tau_leadTkPtOverTauPt_[idx]);
+      obj.setneutralIso(Tau_neutralIso_[idx]);
+      obj.setphotonsOutsideSignalCone(Tau_photonsOutsideSignalCone_[idx]);
+      obj.setpuCorr(Tau_puCorr_[idx]);
+      obj.setrawAntiEle(Tau_rawAntiEle_[idx]);
+      obj.setrawIso(Tau_rawIso_[idx]);
+      obj.setrawMVAnewDM(Tau_rawMVAnewDM_[idx]);
+      obj.setrawMVAoldDM(Tau_rawMVAoldDM_[idx]);
+      obj.setrawMVAoldDMdR03(Tau_rawMVAoldDMdR03_[idx]);
+      obj.setcharge(Tau_charge_[idx]);
+      obj.setdecayMode(Tau_decayMode_[idx]);
+      obj.setjetIdx(Tau_jetIdx_[idx]);
+      obj.setrawAntiEleCat(Tau_rawAntiEleCat_[idx]);
+      obj.setidAntiEle(Tau_idAntiEle_[idx]);
+      obj.setidAntiMu(Tau_idAntiMu_[idx]);
+      obj.setidDecayMode(Tau_idDecayMode_[idx]);
+      obj.setidDecayModeNewDMs(Tau_idDecayModeNewDMs_[idx]);
+      obj.setidMVAnewDM(Tau_idMVAnewDM_[idx]);
+      obj.setidMVAoldDM(Tau_idMVAoldDM_[idx]);
+      obj.setidMVAoldDMdR03(Tau_idMVAoldDMdR03_[idx]);
+      obj.setcleanmask(Tau_cleanmask_[idx]);
+      obj.setgenPartIdx(Tau_genPartIdx_[idx]);
+      obj.setgenPartFlav(Tau_genPartFlav_[idx]);
+      obj.setLorentzVector(Tau_pt_[idx], Tau_eta_[idx], Tau_phi_[idx], Tau_mass_[idx]);
       Tau_.push_back( obj );
     }
     return Tau_;
@@ -6584,53 +6584,53 @@ public:
     return obj;
   }
   
-  const vector<Muon>& Muon(){
+  const vector<Muon>& muons(){
     if(Muon_.size() > 0) return Muon_;
-    loadMuon();
-  	Muon_.reserve(nMuon->size());
-    for(auto muon: nMuon ){
+    loadMuons();
+  	Muon_.reserve(Muon_dxy_->size());
+    for(size_t idx = 0; idx < nMuon; ++idx ){
       Muon obj;
-      obj.setdxy(muon.Muon_dxy_);
-      obj.setdxyErr(muon.Muon_dxyErr_);
-      obj.setdz(muon.Muon_dz_);
-      obj.setdzErr(muon.Muon_dzErr_);
-      obj.setip3d(muon.Muon_ip3d_);
-      obj.setminiPFRelIso(muon.Muon_miniPFRelIso_all_);
-      obj.setminiPFRelIso(muon.Muon_miniPFRelIso_chg_);
-      obj.setpfRelIso03(muon.Muon_pfRelIso03_all_);
-      obj.setpfRelIso03(muon.Muon_pfRelIso03_chg_);
-      obj.setpfRelIso04(muon.Muon_pfRelIso04_all_);
-      obj.setptErr(muon.Muon_ptErr_);
-      obj.setsegmentComp(muon.Muon_segmentComp_);
-      obj.setsip3d(muon.Muon_sip3d_);
-      obj.setmvaTTH(muon.Muon_mvaTTH_);
-      obj.setcharge(muon.Muon_charge_);
-      obj.setjetIdx(muon.Muon_jetIdx_);
-      obj.setnStations(muon.Muon_nStations_);
-      obj.setnTrackerLayers(muon.Muon_nTrackerLayers_);
-      obj.setpdgId(muon.Muon_pdgId_);
-      obj.settightCharge(muon.Muon_tightCharge_);
-      obj.sethighPtId(muon.Muon_highPtId_);
-      obj.setisPFcand(muon.Muon_isPFcand_);
-      obj.setmediumId(muon.Muon_mediumId_);
-      obj.setsoftId(muon.Muon_softId_);
-      obj.settightId(muon.Muon_tightId_);
-      obj.setgenPartIdx(muon.Muon_genPartIdx_);
-      obj.setgenPartFlav(muon.Muon_genPartFlav_);
-      obj.setcleanmask(muon.Muon_cleanmask_);
-      obj.setLorentzVector(muon.Muon_pt_, muon.Muon_eta_, muon.Muon_phi_, muon.Muon_mass_);
+      obj.setdxy(Muon_dxy_[idx]);
+      obj.setdxyErr(Muon_dxyErr_[idx]);
+      obj.setdz(Muon_dz_[idx]);
+      obj.setdzErr(Muon_dzErr_[idx]);
+      obj.setip3d(Muon_ip3d_[idx]);
+      obj.setminiPFRelIso(Muon_miniPFRelIso_all_[idx]);
+      obj.setminiPFRelIso(Muon_miniPFRelIso_chg_[idx]);
+      obj.setpfRelIso03(Muon_pfRelIso03_all_[idx]);
+      obj.setpfRelIso03(Muon_pfRelIso03_chg_[idx]);
+      obj.setpfRelIso04(Muon_pfRelIso04_all_[idx]);
+      obj.setptErr(Muon_ptErr_[idx]);
+      obj.setsegmentComp(Muon_segmentComp_[idx]);
+      obj.setsip3d(Muon_sip3d_[idx]);
+      obj.setmvaTTH(Muon_mvaTTH_[idx]);
+      obj.setcharge(Muon_charge_[idx]);
+      obj.setjetIdx(Muon_jetIdx_[idx]);
+      obj.setnStations(Muon_nStations_[idx]);
+      obj.setnTrackerLayers(Muon_nTrackerLayers_[idx]);
+      obj.setpdgId(Muon_pdgId_[idx]);
+      obj.settightCharge(Muon_tightCharge_[idx]);
+      obj.sethighPtId(Muon_highPtId_[idx]);
+      obj.setisPFcand(Muon_isPFcand_[idx]);
+      obj.setmediumId(Muon_mediumId_[idx]);
+      obj.setsoftId(Muon_softId_[idx]);
+      obj.settightId(Muon_tightId_[idx]);
+      obj.setgenPartIdx(Muon_genPartIdx_[idx]);
+      obj.setgenPartFlav(Muon_genPartFlav_[idx]);
+      obj.setcleanmask(Muon_cleanmask_[idx]);
+      obj.setLorentzVector(Muon_pt_[idx], Muon_eta_[idx], Muon_phi_[idx], Muon_mass_[idx]);
       Muon_.push_back( obj );
     }
     return Muon_;
   }
   
-  const vector<Otherpv>& OtherPV(){
+  const vector<Otherpv>& otherpvs(){
     if(OtherPV_.size() > 0) return OtherPV_;
-    loadOtherpv();
-  	OtherPV_.reserve(nOtherpv->size());
-    for(auto otherpv: nOtherpv ){
+    loadOtherpvs();
+  	OtherPV_.reserve(OtherPV_z_->size());
+    for(size_t idx = 0; idx < nOtherpv; ++idx ){
       Otherpv obj;
-      obj.setz(otherpv.OtherPV_z_);
+      obj.setz(OtherPV_z_[idx]);
       
       OtherPV_.push_back( obj );
     }
@@ -7250,21 +7250,21 @@ public:
     return obj;
   }
   
-  const vector<Sv>& SV(){
+  const vector<Sv>& svs(){
     if(SV_.size() > 0) return SV_;
-    loadSv();
-  	SV_.reserve(nSv->size());
-    for(auto sv: nSv ){
+    loadSvs();
+  	SV_.reserve(SV_dlen_->size());
+    for(size_t idx = 0; idx < nSv; ++idx ){
       Sv obj;
-      obj.setdlen(sv.SV_dlen_);
-      obj.setdlenSig(sv.SV_dlenSig_);
-      obj.setpAngle(sv.SV_pAngle_);
-      obj.setchi2(sv.SV_chi2_);
-      obj.setndof(sv.SV_ndof_);
-      obj.setx(sv.SV_x_);
-      obj.sety(sv.SV_y_);
-      obj.setz(sv.SV_z_);
-      obj.setLorentzVector(sv.SV_pt_, sv.SV_eta_, sv.SV_phi_, sv.SV_mass_);
+      obj.setdlen(SV_dlen_[idx]);
+      obj.setdlenSig(SV_dlenSig_[idx]);
+      obj.setpAngle(SV_pAngle_[idx]);
+      obj.setchi2(SV_chi2_[idx]);
+      obj.setndof(SV_ndof_[idx]);
+      obj.setx(SV_x_[idx]);
+      obj.sety(SV_y_[idx]);
+      obj.setz(SV_z_[idx]);
+      obj.setLorentzVector(SV_pt_[idx], SV_eta_[idx], SV_phi_[idx], SV_mass_[idx]);
       SV_.push_back( obj );
     }
     return SV_;
@@ -7300,50 +7300,50 @@ public:
     return obj;
   }
   
-  const vector<Fatjet>& FatJet(){
+  const vector<Fatjet>& fatjets(){
     if(FatJet_.size() > 0) return FatJet_;
-    loadFatjet();
-  	FatJet_.reserve(nFatjet->size());
-    for(auto fatjet: nFatjet ){
+    loadFatjets();
+  	FatJet_.reserve(FatJet_area_->size());
+    for(size_t idx = 0; idx < nFatjet; ++idx ){
       Fatjet obj;
-      obj.setarea(fatjet.FatJet_area_);
-      obj.setbtagCMVA(fatjet.FatJet_btagCMVA_);
-      obj.setbtagCSVV2(fatjet.FatJet_btagCSVV2_);
-      obj.setbtagDeepB(fatjet.FatJet_btagDeepB_);
-      obj.setbtagHbb(fatjet.FatJet_btagHbb_);
-      obj.setmsoftdrop(fatjet.FatJet_msoftdrop_);
-      obj.setmsoftdrop(fatjet.FatJet_msoftdrop_chs_);
-      obj.setn2b1(fatjet.FatJet_n2b1_);
-      obj.setn3b1(fatjet.FatJet_n3b1_);
-      obj.settau1(fatjet.FatJet_tau1_);
-      obj.settau2(fatjet.FatJet_tau2_);
-      obj.settau3(fatjet.FatJet_tau3_);
-      obj.settau4(fatjet.FatJet_tau4_);
-      obj.setjetId(fatjet.FatJet_jetId_);
-      obj.setsubJetIdx1(fatjet.FatJet_subJetIdx1_);
-      obj.setsubJetIdx2(fatjet.FatJet_subJetIdx2_);
-      obj.setLorentzVector(fatjet.FatJet_pt_, fatjet.FatJet_eta_, fatjet.FatJet_phi_, fatjet.FatJet_mass_);
+      obj.setarea(FatJet_area_[idx]);
+      obj.setbtagCMVA(FatJet_btagCMVA_[idx]);
+      obj.setbtagCSVV2(FatJet_btagCSVV2_[idx]);
+      obj.setbtagDeepB(FatJet_btagDeepB_[idx]);
+      obj.setbtagHbb(FatJet_btagHbb_[idx]);
+      obj.setmsoftdrop(FatJet_msoftdrop_[idx]);
+      obj.setmsoftdrop(FatJet_msoftdrop_chs_[idx]);
+      obj.setn2b1(FatJet_n2b1_[idx]);
+      obj.setn3b1(FatJet_n3b1_[idx]);
+      obj.settau1(FatJet_tau1_[idx]);
+      obj.settau2(FatJet_tau2_[idx]);
+      obj.settau3(FatJet_tau3_[idx]);
+      obj.settau4(FatJet_tau4_[idx]);
+      obj.setjetId(FatJet_jetId_[idx]);
+      obj.setsubJetIdx1(FatJet_subJetIdx1_[idx]);
+      obj.setsubJetIdx2(FatJet_subJetIdx2_[idx]);
+      obj.setLorentzVector(FatJet_pt_[idx], FatJet_eta_[idx], FatJet_phi_[idx], FatJet_mass_[idx]);
       FatJet_.push_back( obj );
     }
     return FatJet_;
   }
   
-  const vector<Subjet>& SubJet(){
+  const vector<Subjet>& subjets(){
     if(SubJet_.size() > 0) return SubJet_;
-    loadSubjet();
-  	SubJet_.reserve(nSubjet->size());
-    for(auto subjet: nSubjet ){
+    loadSubjets();
+  	SubJet_.reserve(SubJet_btagCMVA_->size());
+    for(size_t idx = 0; idx < nSubjet; ++idx ){
       Subjet obj;
-      obj.setbtagCMVA(subjet.SubJet_btagCMVA_);
-      obj.setbtagCSVV2(subjet.SubJet_btagCSVV2_);
-      obj.setbtagDeepB(subjet.SubJet_btagDeepB_);
-      obj.setn2b1(subjet.SubJet_n2b1_);
-      obj.setn3b1(subjet.SubJet_n3b1_);
-      obj.settau1(subjet.SubJet_tau1_);
-      obj.settau2(subjet.SubJet_tau2_);
-      obj.settau3(subjet.SubJet_tau3_);
-      obj.settau4(subjet.SubJet_tau4_);
-      obj.setLorentzVector(subjet.SubJet_pt_, subjet.SubJet_eta_, subjet.SubJet_phi_, subjet.SubJet_mass_);
+      obj.setbtagCMVA(SubJet_btagCMVA_[idx]);
+      obj.setbtagCSVV2(SubJet_btagCSVV2_[idx]);
+      obj.setbtagDeepB(SubJet_btagDeepB_[idx]);
+      obj.setn2b1(SubJet_n2b1_[idx]);
+      obj.setn3b1(SubJet_n3b1_[idx]);
+      obj.settau1(SubJet_tau1_[idx]);
+      obj.settau2(SubJet_tau2_[idx]);
+      obj.settau3(SubJet_tau3_[idx]);
+      obj.settau4(SubJet_tau4_[idx]);
+      obj.setLorentzVector(SubJet_pt_[idx], SubJet_eta_[idx], SubJet_phi_[idx], SubJet_mass_[idx]);
       SubJet_.push_back( obj );
     }
     return SubJet_;
