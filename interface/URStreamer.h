@@ -6196,9 +6196,9 @@ public:
   
 
   const vector<Jet>& jets(){
-    if(Jet_.size() > 0) return Jet_;
+    if( Jet_ > 0) return Jet_;
     loadJets();
-  	Jet_.reserve(Jet_area_->size());
+  	Jet_.reserve(nJet);
     for(size_t idx = 0; idx < nJet; ++idx ){
       Jet obj;
       obj.setarea(Jet_area_[idx]);
@@ -6233,9 +6233,9 @@ public:
   }
   
   const vector<Genjetak8>& genjetak8s(){
-    if(GenJetAK8_.size() > 0) return GenJetAK8_;
+    if( GenJetAK8_ > 0) return GenJetAK8_;
     loadGenjetak8s();
-  	GenJetAK8_.reserve(GenJetAK8_eta_->size());
+  	GenJetAK8_.reserve(nGenjetak8);
     for(size_t idx = 0; idx < nGenjetak8; ++idx ){
       Genjetak8 obj;
       obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
@@ -6247,9 +6247,9 @@ public:
   }
   
   const vector<Genvistau>& genvistaus(){
-    if(GenVisTau_.size() > 0) return GenVisTau_;
+    if( GenVisTau_ > 0) return GenVisTau_;
     loadGenvistaus();
-  	GenVisTau_.reserve(GenVisTau_eta_->size());
+  	GenVisTau_.reserve(nGenvistau);
     for(size_t idx = 0; idx < nGenvistau; ++idx ){
       Genvistau obj;
       obj.setcharge(GenVisTau_charge_[idx]);
@@ -6273,9 +6273,9 @@ public:
   }
   
   const vector<Gendressedlepton>& gendressedleptons(){
-    if(GenDressedLepton_.size() > 0) return GenDressedLepton_;
+    if( GenDressedLepton_ > 0) return GenDressedLepton_;
     loadGendressedleptons();
-  	GenDressedLepton_.reserve(GenDressedLepton_eta_->size());
+  	GenDressedLepton_.reserve(nGendressedlepton);
     for(size_t idx = 0; idx < nGendressedlepton; ++idx ){
       Gendressedlepton obj;
       obj.setpdgId(GenDressedLepton_pdgId_[idx]);
@@ -6323,9 +6323,9 @@ public:
   }
   
   const vector<Trigobj>& trigobjs(){
-    if(TrigObj_.size() > 0) return TrigObj_;
+    if( TrigObj_ > 0) return TrigObj_;
     loadTrigobjs();
-  	TrigObj_.reserve(TrigObj_pt_->size());
+  	TrigObj_.reserve(nTrigobj);
     for(size_t idx = 0; idx < nTrigobj; ++idx ){
       Trigobj obj;
       obj.setl1pt(TrigObj_l1pt_[idx]);
@@ -6342,9 +6342,9 @@ public:
   }
   
   const vector<Photon>& photons(){
-    if(Photon_.size() > 0) return Photon_;
+    if( Photon_ > 0) return Photon_;
     loadPhotons();
-  	Photon_.reserve(Photon_eCorr_->size());
+  	Photon_.reserve(nPhoton);
     for(size_t idx = 0; idx < nPhoton; ++idx ){
       Photon obj;
       obj.seteCorr(Photon_eCorr_[idx]);
@@ -6375,9 +6375,9 @@ public:
   }
   
   const vector<Genjet>& genjets(){
-    if(GenJet_.size() > 0) return GenJet_;
+    if( GenJet_ > 0) return GenJet_;
     loadGenjets();
-  	GenJet_.reserve(GenJetAK8_eta_->size());
+  	GenJet_.reserve(nGenjet);
     for(size_t idx = 0; idx < nGenjet; ++idx ){
       Genjet obj;
       obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
@@ -6402,9 +6402,9 @@ public:
   }
   
   const vector<Electron>& electrons(){
-    if(Electron_.size() > 0) return Electron_;
+    if( Electron_ > 0) return Electron_;
     loadElectrons();
-  	Electron_.reserve(Electron_deltaEtaSC_->size());
+  	Electron_.reserve(nElectron);
     for(size_t idx = 0; idx < nElectron; ++idx ){
       Electron obj;
       obj.setdeltaEtaSC(Electron_deltaEtaSC_[idx]);
@@ -6483,9 +6483,9 @@ public:
   }
   
   const vector<Genpart>& genparts(){
-    if(GenPart_.size() > 0) return GenPart_;
+    if( GenPart_ > 0) return GenPart_;
     loadGenparts();
-  	GenPart_.reserve(GenPart_eta_->size());
+  	GenPart_.reserve(nGenpart);
     for(size_t idx = 0; idx < nGenpart; ++idx ){
       Genpart obj;
       obj.setgenPartIdxMother(GenPart_genPartIdxMother_[idx]);
@@ -6533,9 +6533,9 @@ public:
   }
   
   const vector<Tau>& taus(){
-    if(Tau_.size() > 0) return Tau_;
+    if( Tau_ > 0) return Tau_;
     loadTaus();
-  	Tau_.reserve(Tau_chargedIso_->size());
+  	Tau_.reserve(nTau);
     for(size_t idx = 0; idx < nTau; ++idx ){
       Tau obj;
       obj.setchargedIso(Tau_chargedIso_[idx]);
@@ -6585,9 +6585,9 @@ public:
   }
   
   const vector<Muon>& muons(){
-    if(Muon_.size() > 0) return Muon_;
+    if( Muon_ > 0) return Muon_;
     loadMuons();
-  	Muon_.reserve(Muon_dxy_->size());
+  	Muon_.reserve(nMuon);
     for(size_t idx = 0; idx < nMuon; ++idx ){
       Muon obj;
       obj.setdxy(Muon_dxy_[idx]);
@@ -6625,9 +6625,9 @@ public:
   }
   
   const vector<Otherpv>& otherpvs(){
-    if(OtherPV_.size() > 0) return OtherPV_;
+    if( OtherPV_ > 0) return OtherPV_;
     loadOtherpvs();
-  	OtherPV_.reserve(OtherPV_z_->size());
+  	OtherPV_.reserve(nOtherpv);
     for(size_t idx = 0; idx < nOtherpv; ++idx ){
       Otherpv obj;
       obj.setz(OtherPV_z_[idx]);
@@ -7251,9 +7251,9 @@ public:
   }
   
   const vector<Sv>& svs(){
-    if(SV_.size() > 0) return SV_;
+    if( SV_ > 0) return SV_;
     loadSvs();
-  	SV_.reserve(SV_dlen_->size());
+  	SV_.reserve(nSv);
     for(size_t idx = 0; idx < nSv; ++idx ){
       Sv obj;
       obj.setdlen(SV_dlen_[idx]);
@@ -7301,9 +7301,9 @@ public:
   }
   
   const vector<Fatjet>& fatjets(){
-    if(FatJet_.size() > 0) return FatJet_;
+    if( FatJet_ > 0) return FatJet_;
     loadFatjets();
-  	FatJet_.reserve(FatJet_area_->size());
+  	FatJet_.reserve(nFatjet);
     for(size_t idx = 0; idx < nFatjet; ++idx ){
       Fatjet obj;
       obj.setarea(FatJet_area_[idx]);
@@ -7329,9 +7329,9 @@ public:
   }
   
   const vector<Subjet>& subjets(){
-    if(SubJet_.size() > 0) return SubJet_;
+    if( SubJet_ > 0) return SubJet_;
     loadSubjets();
-  	SubJet_.reserve(SubJet_btagCMVA_->size());
+  	SubJet_.reserve(nSubjet);
     for(size_t idx = 0; idx < nSubjet; ++idx ){
       Subjet obj;
       obj.setbtagCMVA(SubJet_btagCMVA_[idx]);
