@@ -8,13 +8,13 @@
 #include <vector>
 using namespace std;
 
-class Jet: public TLorentzVector{
+class Jets: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Jet(const Float_t &i_area_,const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_btagDeepC_,const Float_t &i_chEmEF_,const Float_t &i_chHEF_,const Float_t &i_neEmEF_,const Float_t &i_neHEF_,const Float_t &i_qgl_,const Float_t &i_rawFactor_,const Float_t &i_bReg_,const Int_t &i_electronIdx1_,const Int_t &i_electronIdx2_,const Int_t &i_jetId_,const Int_t &i_muonIdx1_,const Int_t &i_muonIdx2_,const Int_t &i_nConstituents_,const Int_t &i_nElectrons_,const Int_t &i_nMuons_,const Int_t &i_puId_,const Int_t &i_genJetIdx_,const Int_t &i_hadronFlavour_,const Int_t &i_partonFlavour_,const UChar_t &i_cleanmask_):
+//  Jets(const Float_t &i_area_,const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_btagDeepC_,const Float_t &i_chEmEF_,const Float_t &i_chHEF_,const Float_t &i_neEmEF_,const Float_t &i_neHEF_,const Float_t &i_qgl_,const Float_t &i_rawFactor_,const Float_t &i_bReg_,const Int_t &i_electronIdx1_,const Int_t &i_electronIdx2_,const Int_t &i_jetId_,const Int_t &i_muonIdx1_,const Int_t &i_muonIdx2_,const Int_t &i_nConstituents_,const Int_t &i_nElectrons_,const Int_t &i_nMuons_,const Int_t &i_puId_,const Int_t &i_genJetIdx_,const Int_t &i_hadronFlavour_,const Int_t &i_partonFlavour_,const UChar_t &i_cleanmask_):
 //    
 //  {}
-  Jet():
+  Jets():
     TLorentzVector(),
     area_(0),
     btagCMVA_(0),
@@ -121,13 +121,13 @@ private:
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Genjetak8: public TLorentzVector{
+class Genjetak8s: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genjetak8(const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_):
+//  Genjetak8s(const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_):
 //    
 //  {}
-  Genjetak8():
+  Genjetak8s():
     TLorentzVector(),
     partonFlavour_(0),
     hadronFlavour_(0)
@@ -142,13 +142,13 @@ private:
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Genvistau: public TLorentzVector{
+class Genvistaus: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genvistau(const Int_t &i_charge_,const Int_t &i_genPartIdxMother_,const Int_t &i_status_):
+//  Genvistaus(const Int_t &i_charge_,const Int_t &i_genPartIdxMother_,const Int_t &i_status_):
 //    
 //  {}
-  Genvistau():
+  Genvistaus():
     TLorentzVector(),
     charge_(0),
     genPartIdxMother_(0),
@@ -184,13 +184,13 @@ private:
   void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Gendressedlepton: public TLorentzVector{
+class Gendressedleptons: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Gendressedlepton(const Int_t &i_pdgId_):
+//  Gendressedleptons(const Int_t &i_pdgId_):
 //    
 //  {}
-  Gendressedlepton():
+  Gendressedleptons():
     TLorentzVector(),
     pdgId_(0)
   {}
@@ -291,16 +291,16 @@ private:
   void setid2(const Int_t value) {id2_ = value;}
 };
 
-class Trigobj: public TLorentzVector{
+class Trigobjs: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Trigobj(const Float_t &i_l1pt_,const Float_t &i_l1pt_,const Float_t &i_l2pt_,const Int_t &i_id_,const Int_t &i_l1iso_,const Int_t &i_l1charge_,const Int_t &i_filterBits_):
+//  Trigobjs(const Float_t &i_l1pt_,const Float_t &i_l1pt_2_,const Float_t &i_l2pt_,const Int_t &i_id_,const Int_t &i_l1iso_,const Int_t &i_l1charge_,const Int_t &i_filterBits_):
 //    
 //  {}
-  Trigobj():
+  Trigobjs():
     TLorentzVector(),
     l1pt_(0),
-    l1pt_(0),
+    l1pt_2_(0),
     l2pt_(0),
     id_(0),
     l1iso_(0),
@@ -308,7 +308,7 @@ public:
     filterBits_(0)
   {}
   Float_t l1pt() const {return l1pt_;}
-  Float_t l1pt() const {return l1pt_;}
+  Float_t l1pt_2() const {return l1pt_2_;}
   Float_t l2pt() const {return l2pt_;}
   Int_t id() const {return id_;}
   Int_t l1iso() const {return l1iso_;}
@@ -316,14 +316,14 @@ public:
   Int_t filterBits() const {return filterBits_;}
 private:
   Float_t l1pt_;
-  Float_t l1pt_;
+  Float_t l1pt_2_;
   Float_t l2pt_;
   Int_t id_;
   Int_t l1iso_;
   Int_t l1charge_;
   Int_t filterBits_;
   void setl1pt(const Float_t value) {l1pt_ = value;}
-  void setl1pt(const Float_t value) {l1pt_ = value;}
+  void setl1pt_2(const Float_t value) {l1pt_2_ = value;}
   void setl2pt(const Float_t value) {l2pt_ = value;}
   void setid(const Int_t value) {id_ = value;}
   void setl1iso(const Int_t value) {l1iso_ = value;}
@@ -332,20 +332,20 @@ private:
   void setLorentzVector(float pt, float eta, float phi){SetPtEtaPhiM(pt, eta, phi, 0.);}
 };
 
-class Photon: public TLorentzVector{
+class Photons: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Photon(const Float_t &i_eCorr_,const Float_t &i_energyErr_,const Float_t &i_hoe_,const Float_t &i_mvaID_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso03_,const Float_t &i_r9_,const Float_t &i_sieie_,const Int_t &i_charge_,const Int_t &i_cutBased_,const Int_t &i_electronIdx_,const Int_t &i_jetIdx_,const Int_t &i_pdgId_,const Int_t &i_vidNestedWPBitmap_,const Bool_t &i_electronVeto_,const Bool_t &i_mvaID_,const Bool_t &i_mvaID_,const Bool_t &i_pixelSeed_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
+//  Photons(const Float_t &i_eCorr_,const Float_t &i_energyErr_,const Float_t &i_hoe_,const Float_t &i_mvaID_,const Float_t &i_pfRelIso03_all_,const Float_t &i_pfRelIso03_chg_,const Float_t &i_r9_,const Float_t &i_sieie_,const Int_t &i_charge_,const Int_t &i_cutBased_,const Int_t &i_electronIdx_,const Int_t &i_jetIdx_,const Int_t &i_pdgId_,const Int_t &i_vidNestedWPBitmap_,const Bool_t &i_electronVeto_,const Bool_t &i_mvaID_WP80_,const Bool_t &i_mvaID_WP90_,const Bool_t &i_pixelSeed_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
 //    
 //  {}
-  Photon():
+  Photons():
     TLorentzVector(),
     eCorr_(0),
     energyErr_(0),
     hoe_(0),
     mvaID_(0),
-    pfRelIso03_(0),
-    pfRelIso03_(0),
+    pfRelIso03_all_(0),
+    pfRelIso03_chg_(0),
     r9_(0),
     sieie_(0),
     charge_(0),
@@ -355,8 +355,8 @@ public:
     pdgId_(0),
     vidNestedWPBitmap_(0),
     electronVeto_(0),
-    mvaID_(0),
-    mvaID_(0),
+    mvaID_WP80_(0),
+    mvaID_WP90_(0),
     pixelSeed_(0),
     genPartIdx_(0),
     genPartFlav_(0),
@@ -366,8 +366,8 @@ public:
   Float_t energyErr() const {return energyErr_;}
   Float_t hoe() const {return hoe_;}
   Float_t mvaID() const {return mvaID_;}
-  Float_t pfRelIso03() const {return pfRelIso03_;}
-  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t pfRelIso03_all() const {return pfRelIso03_all_;}
+  Float_t pfRelIso03_chg() const {return pfRelIso03_chg_;}
   Float_t r9() const {return r9_;}
   Float_t sieie() const {return sieie_;}
   Int_t charge() const {return charge_;}
@@ -377,8 +377,8 @@ public:
   Int_t pdgId() const {return pdgId_;}
   Int_t vidNestedWPBitmap() const {return vidNestedWPBitmap_;}
   Bool_t electronVeto() const {return electronVeto_;}
-  Bool_t mvaID() const {return mvaID_;}
-  Bool_t mvaID() const {return mvaID_;}
+  Bool_t mvaID_WP80() const {return mvaID_WP80_;}
+  Bool_t mvaID_WP90() const {return mvaID_WP90_;}
   Bool_t pixelSeed() const {return pixelSeed_;}
   Int_t genPartIdx() const {return genPartIdx_;}
   UChar_t genPartFlav() const {return genPartFlav_;}
@@ -388,8 +388,8 @@ private:
   Float_t energyErr_;
   Float_t hoe_;
   Float_t mvaID_;
-  Float_t pfRelIso03_;
-  Float_t pfRelIso03_;
+  Float_t pfRelIso03_all_;
+  Float_t pfRelIso03_chg_;
   Float_t r9_;
   Float_t sieie_;
   Int_t charge_;
@@ -399,8 +399,8 @@ private:
   Int_t pdgId_;
   Int_t vidNestedWPBitmap_;
   Bool_t electronVeto_;
-  Bool_t mvaID_;
-  Bool_t mvaID_;
+  Bool_t mvaID_WP80_;
+  Bool_t mvaID_WP90_;
   Bool_t pixelSeed_;
   Int_t genPartIdx_;
   UChar_t genPartFlav_;
@@ -409,8 +409,8 @@ private:
   void setenergyErr(const Float_t value) {energyErr_ = value;}
   void sethoe(const Float_t value) {hoe_ = value;}
   void setmvaID(const Float_t value) {mvaID_ = value;}
-  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
-  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setpfRelIso03_all(const Float_t value) {pfRelIso03_all_ = value;}
+  void setpfRelIso03_chg(const Float_t value) {pfRelIso03_chg_ = value;}
   void setr9(const Float_t value) {r9_ = value;}
   void setsieie(const Float_t value) {sieie_ = value;}
   void setcharge(const Int_t value) {charge_ = value;}
@@ -420,8 +420,8 @@ private:
   void setpdgId(const Int_t value) {pdgId_ = value;}
   void setvidNestedWPBitmap(const Int_t value) {vidNestedWPBitmap_ = value;}
   void setelectronVeto(const Bool_t value) {electronVeto_ = value;}
-  void setmvaID(const Bool_t value) {mvaID_ = value;}
-  void setmvaID(const Bool_t value) {mvaID_ = value;}
+  void setmvaID_WP80(const Bool_t value) {mvaID_WP80_ = value;}
+  void setmvaID_WP90(const Bool_t value) {mvaID_WP90_ = value;}
   void setpixelSeed(const Bool_t value) {pixelSeed_ = value;}
   void setgenPartIdx(const Int_t value) {genPartIdx_ = value;}
   void setgenPartFlav(const UChar_t value) {genPartFlav_ = value;}
@@ -429,32 +429,33 @@ private:
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Genjet: public TLorentzVector{
+class Genjets: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genjet(const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_,const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_):
+//  Genjets(const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_,const Int_t &i_partonFlavour_,const UChar_t &i_hadronFlavour_):
 //    
 //  {}
-  Genjet():
+  Genjets():
     TLorentzVector(),
-    partonFlavour_(0),
-    hadronFlavour_(0),
+    //partonFlavour_(0),
+    //hadronFlavour_(0),
     partonFlavour_(0),
     hadronFlavour_(0)
   {}
-  Int_t partonFlavour() const {return partonFlavour_;}
-  UChar_t hadronFlavour() const {return hadronFlavour_;}
+  //Int_t partonFlavour() const {return partonFlavour_;}
+  //UChar_t hadronFlavour() const {return hadronFlavour_;}
   Int_t partonFlavour() const {return partonFlavour_;}
   UChar_t hadronFlavour() const {return hadronFlavour_;}
 private:
+  //Int_t partonFlavour_;
+  //UChar_t hadronFlavour_;
   Int_t partonFlavour_;
   UChar_t hadronFlavour_;
-  Int_t partonFlavour_;
-  UChar_t hadronFlavour_;
+  //void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
+  //void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
   void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
   void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
-  void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
-  void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
+  void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
 class Rawmet: public TLorentzVector{
@@ -474,13 +475,13 @@ private:
   void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Electron: public TLorentzVector{
+class Electrons: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Electron(const Float_t &i_deltaEtaSC_,const Float_t &i_dr03EcalRecHitSumEt_,const Float_t &i_dr03HcalDepth1TowerSumEt_,const Float_t &i_dr03TkSumPt_,const Float_t &i_dxy_,const Float_t &i_dxyErr_,const Float_t &i_dz_,const Float_t &i_dzErr_,const Float_t &i_eCorr_,const Float_t &i_eInvMinusPInv_,const Float_t &i_energyErr_,const Float_t &i_hoe_,const Float_t &i_ip3d_,const Float_t &i_miniPFRelIso_,const Float_t &i_miniPFRelIso_,const Float_t &i_mvaSpring16GP_,const Float_t &i_mvaSpring16HZZ_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso03_,const Float_t &i_r9_,const Float_t &i_sieie_,const Float_t &i_sip3d_,const Float_t &i_mvaTTH_,const Int_t &i_charge_,const Int_t &i_cutBased_,const Int_t &i_cutBased_,const Int_t &i_jetIdx_,const Int_t &i_pdgId_,const Int_t &i_photonIdx_,const Int_t &i_tightCharge_,const Int_t &i_vidNestedWPBitmap_,const Bool_t &i_convVeto_,const Bool_t &i_cutBased_,const Bool_t &i_isPFcand_,const UChar_t &i_lostHits_,const Bool_t &i_mvaSpring16GP_,const Bool_t &i_mvaSpring16GP_,const Bool_t &i_mvaSpring16HZZ_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
+//  Electrons(const Float_t &i_deltaEtaSC_,const Float_t &i_dr03EcalRecHitSumEt_,const Float_t &i_dr03HcalDepth1TowerSumEt_,const Float_t &i_dr03TkSumPt_,const Float_t &i_dxy_,const Float_t &i_dxyErr_,const Float_t &i_dz_,const Float_t &i_dzErr_,const Float_t &i_eCorr_,const Float_t &i_eInvMinusPInv_,const Float_t &i_energyErr_,const Float_t &i_hoe_,const Float_t &i_ip3d_,const Float_t &i_miniPFRelIso_all_,const Float_t &i_miniPFRelIso_chg_,const Float_t &i_mvaSpring16GP_,const Float_t &i_mvaSpring16HZZ_,const Float_t &i_pfRelIso03_all_,const Float_t &i_pfRelIso03_chg_,const Float_t &i_r9_,const Float_t &i_sieie_,const Float_t &i_sip3d_,const Float_t &i_mvaTTH_,const Int_t &i_charge_,const Int_t &i_cutBased_,const Int_t &i_cutBased_HLTPreSel_,const Int_t &i_jetIdx_,const Int_t &i_pdgId_,const Int_t &i_photonIdx_,const Int_t &i_tightCharge_,const Int_t &i_vidNestedWPBitmap_,const Bool_t &i_convVeto_,const Bool_t &i_cutBased_HEEP_,const Bool_t &i_isPFcand_,const UChar_t &i_lostHits_,const Bool_t &i_mvaSpring16GP_WP80_,const Bool_t &i_mvaSpring16GP_WP90_,const Bool_t &i_mvaSpring16HZZ_WPL_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
 //    
 //  {}
-  Electron():
+  Electrons():
     TLorentzVector(),
     deltaEtaSC_(0),
     dr03EcalRecHitSumEt_(0),
@@ -495,31 +496,31 @@ public:
     energyErr_(0),
     hoe_(0),
     ip3d_(0),
-    miniPFRelIso_(0),
-    miniPFRelIso_(0),
+    miniPFRelIso_all_(0),
+    miniPFRelIso_chg_(0),
     mvaSpring16GP_(0),
     mvaSpring16HZZ_(0),
-    pfRelIso03_(0),
-    pfRelIso03_(0),
+    pfRelIso03_all_(0),
+    pfRelIso03_chg_(0),
     r9_(0),
     sieie_(0),
     sip3d_(0),
     mvaTTH_(0),
     charge_(0),
     cutBased_(0),
-    cutBased_(0),
+    cutBased_HLTPreSel_(0),
     jetIdx_(0),
     pdgId_(0),
     photonIdx_(0),
     tightCharge_(0),
     vidNestedWPBitmap_(0),
     convVeto_(0),
-    cutBased_(0),
+    cutBased_HEEP_(0),
     isPFcand_(0),
     lostHits_(0),
-    mvaSpring16GP_(0),
-    mvaSpring16GP_(0),
-    mvaSpring16HZZ_(0),
+    mvaSpring16GP_WP80_(0),
+    mvaSpring16GP_WP90_(0),
+    mvaSpring16HZZ_WPL_(0),
     genPartIdx_(0),
     genPartFlav_(0),
     cleanmask_(0)
@@ -537,31 +538,31 @@ public:
   Float_t energyErr() const {return energyErr_;}
   Float_t hoe() const {return hoe_;}
   Float_t ip3d() const {return ip3d_;}
-  Float_t miniPFRelIso() const {return miniPFRelIso_;}
-  Float_t miniPFRelIso() const {return miniPFRelIso_;}
+  Float_t miniPFRelIso_all() const {return miniPFRelIso_all_;}
+  Float_t miniPFRelIso_chg() const {return miniPFRelIso_chg_;}
   Float_t mvaSpring16GP() const {return mvaSpring16GP_;}
   Float_t mvaSpring16HZZ() const {return mvaSpring16HZZ_;}
-  Float_t pfRelIso03() const {return pfRelIso03_;}
-  Float_t pfRelIso03() const {return pfRelIso03_;}
+  Float_t pfRelIso03_all() const {return pfRelIso03_all_;}
+  Float_t pfRelIso03_chg() const {return pfRelIso03_chg_;}
   Float_t r9() const {return r9_;}
   Float_t sieie() const {return sieie_;}
   Float_t sip3d() const {return sip3d_;}
   Float_t mvaTTH() const {return mvaTTH_;}
   Int_t charge() const {return charge_;}
   Int_t cutBased() const {return cutBased_;}
-  Int_t cutBased() const {return cutBased_;}
+  Int_t cutBased_HLTPreSel() const {return cutBased_HLTPreSel_;}
   Int_t jetIdx() const {return jetIdx_;}
   Int_t pdgId() const {return pdgId_;}
   Int_t photonIdx() const {return photonIdx_;}
   Int_t tightCharge() const {return tightCharge_;}
   Int_t vidNestedWPBitmap() const {return vidNestedWPBitmap_;}
   Bool_t convVeto() const {return convVeto_;}
-  Bool_t cutBased() const {return cutBased_;}
+  Bool_t cutBased_HEEP() const {return cutBased_HEEP_;}
   Bool_t isPFcand() const {return isPFcand_;}
   UChar_t lostHits() const {return lostHits_;}
-  Bool_t mvaSpring16GP() const {return mvaSpring16GP_;}
-  Bool_t mvaSpring16GP() const {return mvaSpring16GP_;}
-  Bool_t mvaSpring16HZZ() const {return mvaSpring16HZZ_;}
+  Bool_t mvaSpring16GP_WP80() const {return mvaSpring16GP_WP80_;}
+  Bool_t mvaSpring16GP_WP90() const {return mvaSpring16GP_WP90_;}
+  Bool_t mvaSpring16HZZ_WPL() const {return mvaSpring16HZZ_WPL_;}
   Int_t genPartIdx() const {return genPartIdx_;}
   UChar_t genPartFlav() const {return genPartFlav_;}
   UChar_t cleanmask() const {return cleanmask_;}
@@ -579,31 +580,31 @@ private:
   Float_t energyErr_;
   Float_t hoe_;
   Float_t ip3d_;
-  Float_t miniPFRelIso_;
-  Float_t miniPFRelIso_;
+  Float_t miniPFRelIso_all_;
+  Float_t miniPFRelIso_chg_;
   Float_t mvaSpring16GP_;
   Float_t mvaSpring16HZZ_;
-  Float_t pfRelIso03_;
-  Float_t pfRelIso03_;
+  Float_t pfRelIso03_all_;
+  Float_t pfRelIso03_chg_;
   Float_t r9_;
   Float_t sieie_;
   Float_t sip3d_;
   Float_t mvaTTH_;
   Int_t charge_;
   Int_t cutBased_;
-  Int_t cutBased_;
+  Int_t cutBased_HLTPreSel_;
   Int_t jetIdx_;
   Int_t pdgId_;
   Int_t photonIdx_;
   Int_t tightCharge_;
   Int_t vidNestedWPBitmap_;
   Bool_t convVeto_;
-  Bool_t cutBased_;
+  Bool_t cutBased_HEEP_;
   Bool_t isPFcand_;
   UChar_t lostHits_;
-  Bool_t mvaSpring16GP_;
-  Bool_t mvaSpring16GP_;
-  Bool_t mvaSpring16HZZ_;
+  Bool_t mvaSpring16GP_WP80_;
+  Bool_t mvaSpring16GP_WP90_;
+  Bool_t mvaSpring16HZZ_WPL_;
   Int_t genPartIdx_;
   UChar_t genPartFlav_;
   UChar_t cleanmask_;
@@ -620,31 +621,31 @@ private:
   void setenergyErr(const Float_t value) {energyErr_ = value;}
   void sethoe(const Float_t value) {hoe_ = value;}
   void setip3d(const Float_t value) {ip3d_ = value;}
-  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
-  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
+  void setminiPFRelIso_all(const Float_t value) {miniPFRelIso_all_ = value;}
+  void setminiPFRelIso_chg(const Float_t value) {miniPFRelIso_chg_ = value;}
   void setmvaSpring16GP(const Float_t value) {mvaSpring16GP_ = value;}
   void setmvaSpring16HZZ(const Float_t value) {mvaSpring16HZZ_ = value;}
-  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
-  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
+  void setpfRelIso03_all(const Float_t value) {pfRelIso03_all_ = value;}
+  void setpfRelIso03_chg(const Float_t value) {pfRelIso03_chg_ = value;}
   void setr9(const Float_t value) {r9_ = value;}
   void setsieie(const Float_t value) {sieie_ = value;}
   void setsip3d(const Float_t value) {sip3d_ = value;}
   void setmvaTTH(const Float_t value) {mvaTTH_ = value;}
   void setcharge(const Int_t value) {charge_ = value;}
   void setcutBased(const Int_t value) {cutBased_ = value;}
-  void setcutBased(const Int_t value) {cutBased_ = value;}
+  void setcutBased_HLTPreSel(const Int_t value) {cutBased_HLTPreSel_ = value;}
   void setjetIdx(const Int_t value) {jetIdx_ = value;}
   void setpdgId(const Int_t value) {pdgId_ = value;}
   void setphotonIdx(const Int_t value) {photonIdx_ = value;}
   void settightCharge(const Int_t value) {tightCharge_ = value;}
   void setvidNestedWPBitmap(const Int_t value) {vidNestedWPBitmap_ = value;}
   void setconvVeto(const Bool_t value) {convVeto_ = value;}
-  void setcutBased(const Bool_t value) {cutBased_ = value;}
+  void setcutBased_HEEP(const Bool_t value) {cutBased_HEEP_ = value;}
   void setisPFcand(const Bool_t value) {isPFcand_ = value;}
   void setlostHits(const UChar_t value) {lostHits_ = value;}
-  void setmvaSpring16GP(const Bool_t value) {mvaSpring16GP_ = value;}
-  void setmvaSpring16GP(const Bool_t value) {mvaSpring16GP_ = value;}
-  void setmvaSpring16HZZ(const Bool_t value) {mvaSpring16HZZ_ = value;}
+  void setmvaSpring16GP_WP80(const Bool_t value) {mvaSpring16GP_WP80_ = value;}
+  void setmvaSpring16GP_WP90(const Bool_t value) {mvaSpring16GP_WP90_ = value;}
+  void setmvaSpring16HZZ_WPL(const Bool_t value) {mvaSpring16HZZ_WPL_ = value;}
   void setgenPartIdx(const Int_t value) {genPartIdx_ = value;}
   void setgenPartFlav(const UChar_t value) {genPartFlav_ = value;}
   void setcleanmask(const UChar_t value) {cleanmask_ = value;}
@@ -707,13 +708,13 @@ private:
   void setstep(const Bool_t value) {step_ = value;}
 };
 
-class Genpart: public TLorentzVector{
+class Genparts: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Genpart(const Int_t &i_genPartIdxMother_,const Int_t &i_pdgId_,const Int_t &i_status_,const Int_t &i_statusFlags_):
+//  Genparts(const Int_t &i_genPartIdxMother_,const Int_t &i_pdgId_,const Int_t &i_status_,const Int_t &i_statusFlags_):
 //    
 //  {}
-  Genpart():
+  Genparts():
     TLorentzVector(),
     genPartIdxMother_(0),
     pdgId_(0),
@@ -816,13 +817,13 @@ private:
   void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Tau: public TLorentzVector{
+class Taus: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Tau(const Float_t &i_chargedIso_,const Float_t &i_dxy_,const Float_t &i_dz_,const Float_t &i_footprintCorr_,const Float_t &i_leadTkDeltaEta_,const Float_t &i_leadTkDeltaPhi_,const Float_t &i_leadTkPtOverTauPt_,const Float_t &i_neutralIso_,const Float_t &i_photonsOutsideSignalCone_,const Float_t &i_puCorr_,const Float_t &i_rawAntiEle_,const Float_t &i_rawIso_,const Float_t &i_rawMVAnewDM_,const Float_t &i_rawMVAoldDM_,const Float_t &i_rawMVAoldDMdR03_,const Int_t &i_charge_,const Int_t &i_decayMode_,const Int_t &i_jetIdx_,const Int_t &i_rawAntiEleCat_,const UChar_t &i_idAntiEle_,const UChar_t &i_idAntiMu_,const Bool_t &i_idDecayMode_,const Bool_t &i_idDecayModeNewDMs_,const UChar_t &i_idMVAnewDM_,const UChar_t &i_idMVAoldDM_,const UChar_t &i_idMVAoldDMdR03_,const UChar_t &i_cleanmask_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_):
+//  Taus(const Float_t &i_chargedIso_,const Float_t &i_dxy_,const Float_t &i_dz_,const Float_t &i_footprintCorr_,const Float_t &i_leadTkDeltaEta_,const Float_t &i_leadTkDeltaPhi_,const Float_t &i_leadTkPtOverTauPt_,const Float_t &i_neutralIso_,const Float_t &i_photonsOutsideSignalCone_,const Float_t &i_puCorr_,const Float_t &i_rawAntiEle_,const Float_t &i_rawIso_,const Float_t &i_rawMVAnewDM_,const Float_t &i_rawMVAoldDM_,const Float_t &i_rawMVAoldDMdR03_,const Int_t &i_charge_,const Int_t &i_decayMode_,const Int_t &i_jetIdx_,const Int_t &i_rawAntiEleCat_,const UChar_t &i_idAntiEle_,const UChar_t &i_idAntiMu_,const Bool_t &i_idDecayMode_,const Bool_t &i_idDecayModeNewDMs_,const UChar_t &i_idMVAnewDM_,const UChar_t &i_idMVAoldDM_,const UChar_t &i_idMVAoldDMdR03_,const UChar_t &i_cleanmask_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_):
 //    
 //  {}
-  Tau():
+  Taus():
     TLorentzVector(),
     chargedIso_(0),
     dxy_(0),
@@ -962,24 +963,24 @@ private:
   void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Muon: public TLorentzVector{
+class Muons: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Muon(const Float_t &i_dxy_,const Float_t &i_dxyErr_,const Float_t &i_dz_,const Float_t &i_dzErr_,const Float_t &i_ip3d_,const Float_t &i_miniPFRelIso_,const Float_t &i_miniPFRelIso_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso03_,const Float_t &i_pfRelIso04_,const Float_t &i_ptErr_,const Float_t &i_segmentComp_,const Float_t &i_sip3d_,const Float_t &i_mvaTTH_,const Int_t &i_charge_,const Int_t &i_jetIdx_,const Int_t &i_nStations_,const Int_t &i_nTrackerLayers_,const Int_t &i_pdgId_,const Int_t &i_tightCharge_,const UChar_t &i_highPtId_,const Bool_t &i_isPFcand_,const Bool_t &i_mediumId_,const Bool_t &i_softId_,const Bool_t &i_tightId_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
+//  Muons(const Float_t &i_dxy_,const Float_t &i_dxyErr_,const Float_t &i_dz_,const Float_t &i_dzErr_,const Float_t &i_ip3d_,const Float_t &i_miniPFRelIso_all_,const Float_t &i_miniPFRelIso_chg_,const Float_t &i_pfRelIso03_all_,const Float_t &i_pfRelIso03_chg_,const Float_t &i_pfRelIso04_all_,const Float_t &i_ptErr_,const Float_t &i_segmentComp_,const Float_t &i_sip3d_,const Float_t &i_mvaTTH_,const Int_t &i_charge_,const Int_t &i_jetIdx_,const Int_t &i_nStations_,const Int_t &i_nTrackerLayers_,const Int_t &i_pdgId_,const Int_t &i_tightCharge_,const UChar_t &i_highPtId_,const Bool_t &i_isPFcand_,const Bool_t &i_mediumId_,const Bool_t &i_softId_,const Bool_t &i_tightId_,const Int_t &i_genPartIdx_,const UChar_t &i_genPartFlav_,const UChar_t &i_cleanmask_):
 //    
 //  {}
-  Muon():
+  Muons():
     TLorentzVector(),
     dxy_(0),
     dxyErr_(0),
     dz_(0),
     dzErr_(0),
     ip3d_(0),
-    miniPFRelIso_(0),
-    miniPFRelIso_(0),
-    pfRelIso03_(0),
-    pfRelIso03_(0),
-    pfRelIso04_(0),
+    miniPFRelIso_all_(0),
+    miniPFRelIso_chg_(0),
+    pfRelIso03_all_(0),
+    pfRelIso03_chg_(0),
+    pfRelIso04_all_(0),
     ptErr_(0),
     segmentComp_(0),
     sip3d_(0),
@@ -1004,11 +1005,11 @@ public:
   Float_t dz() const {return dz_;}
   Float_t dzErr() const {return dzErr_;}
   Float_t ip3d() const {return ip3d_;}
-  Float_t miniPFRelIso() const {return miniPFRelIso_;}
-  Float_t miniPFRelIso() const {return miniPFRelIso_;}
-  Float_t pfRelIso03() const {return pfRelIso03_;}
-  Float_t pfRelIso03() const {return pfRelIso03_;}
-  Float_t pfRelIso04() const {return pfRelIso04_;}
+  Float_t miniPFRelIso_all() const {return miniPFRelIso_all_;}
+  Float_t miniPFRelIso_chg() const {return miniPFRelIso_chg_;}
+  Float_t pfRelIso03_all() const {return pfRelIso03_all_;}
+  Float_t pfRelIso03_chg() const {return pfRelIso03_chg_;}
+  Float_t pfRelIso04_all() const {return pfRelIso04_all_;}
   Float_t ptErr() const {return ptErr_;}
   Float_t segmentComp() const {return segmentComp_;}
   Float_t sip3d() const {return sip3d_;}
@@ -1033,11 +1034,11 @@ private:
   Float_t dz_;
   Float_t dzErr_;
   Float_t ip3d_;
-  Float_t miniPFRelIso_;
-  Float_t miniPFRelIso_;
-  Float_t pfRelIso03_;
-  Float_t pfRelIso03_;
-  Float_t pfRelIso04_;
+  Float_t miniPFRelIso_all_;
+  Float_t miniPFRelIso_chg_;
+  Float_t pfRelIso03_all_;
+  Float_t pfRelIso03_chg_;
+  Float_t pfRelIso04_all_;
   Float_t ptErr_;
   Float_t segmentComp_;
   Float_t sip3d_;
@@ -1061,11 +1062,11 @@ private:
   void setdz(const Float_t value) {dz_ = value;}
   void setdzErr(const Float_t value) {dzErr_ = value;}
   void setip3d(const Float_t value) {ip3d_ = value;}
-  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
-  void setminiPFRelIso(const Float_t value) {miniPFRelIso_ = value;}
-  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
-  void setpfRelIso03(const Float_t value) {pfRelIso03_ = value;}
-  void setpfRelIso04(const Float_t value) {pfRelIso04_ = value;}
+  void setminiPFRelIso_all(const Float_t value) {miniPFRelIso_all_ = value;}
+  void setminiPFRelIso_chg(const Float_t value) {miniPFRelIso_chg_ = value;}
+  void setpfRelIso03_all(const Float_t value) {pfRelIso03_all_ = value;}
+  void setpfRelIso03_chg(const Float_t value) {pfRelIso03_chg_ = value;}
+  void setpfRelIso04_all(const Float_t value) {pfRelIso04_all_ = value;}
   void setptErr(const Float_t value) {ptErr_ = value;}
   void setsegmentComp(const Float_t value) {segmentComp_ = value;}
   void setsip3d(const Float_t value) {sip3d_ = value;}
@@ -1087,13 +1088,13 @@ private:
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Otherpv{
+class Otherpvs{
 friend class URStreamer;
 public:
-//  Otherpv(const Float_t &i_z_):
+//  Otherpvs(const Float_t &i_z_):
 //    
 //  {}
-  Otherpv():
+  Otherpvs():
     z_(0)
   {}
   Float_t z() const {return z_;}
@@ -1105,111 +1106,111 @@ private:
 class Hlt{
 friend class URStreamer;
 public:
-//  Hlt(const Bool_t &i_HLTriggerFirstPath_,const Bool_t &i_AK8PFJet360_,const Bool_t &i_AK8PFJet400_,const Bool_t &i_AK8PFHT750_,const Bool_t &i_AK8PFHT800_,const Bool_t &i_AK8DiPFJet300_,const Bool_t &i_AK8DiPFJet280_,const Bool_t &i_AK8DiPFJet300_,const Bool_t &i_AK8DiPFJet300_,const Bool_t &i_AK8PFHT700_,const Bool_t &i_AK8PFHT650_,const Bool_t &i_AK8PFHT600_,const Bool_t &i_AK8DiPFJet280_,const Bool_t &i_AK8DiPFJet250_,const Bool_t &i_AK8DiPFJet280_,const Bool_t &i_AK8DiPFJet250_,const Bool_t &i_CaloJet260_,const Bool_t &i_CaloJet500_,const Bool_t &i_Dimuon13_,const Bool_t &i_Dimuon13_,const Bool_t &i_Dimuon20_,const Bool_t &i_DoubleEle24_,const Bool_t &i_DoubleEle25_,const Bool_t &i_DoubleEle33_,const Bool_t &i_DoubleEle33_,const Bool_t &i_DoubleEle33_,const Bool_t &i_DoubleEle33_,const Bool_t &i_DoubleMediumCombinedIsoPFTau35_,const Bool_t &i_DoubleTightCombinedIsoPFTau35_,const Bool_t &i_DoubleMediumCombinedIsoPFTau40_,const Bool_t &i_DoubleTightCombinedIsoPFTau40_,const Bool_t &i_DoubleMediumCombinedIsoPFTau40_,const Bool_t &i_DoubleTightCombinedIsoPFTau40_,const Bool_t &i_DoubleMediumIsoPFTau35_,const Bool_t &i_DoubleMediumIsoPFTau40_,const Bool_t &i_DoubleMediumIsoPFTau40_,const Bool_t &i_DoubleEle37_,const Bool_t &i_DoubleMu33NoFiltersNoVtx_,const Bool_t &i_DoubleMu38NoFiltersNoVtx_,const Bool_t &i_DoubleMu23NoFiltersNoVtxDisplaced_,const Bool_t &i_DoubleMu28NoFiltersNoVtxDisplaced_,const Bool_t &i_DoubleMu0_,const Bool_t &i_DoubleMu4_,const Bool_t &i_DoubleMu4_,const Bool_t &i_DoubleMu4_,const Bool_t &i_DoubleMu4_,const Bool_t &i_DoubleMu3_,const Bool_t &i_DoubleMu4_,const Bool_t &i_Mu7p5_,const Bool_t &i_Mu7p5_,const Bool_t &i_Mu7p5_,const Bool_t &i_Mu7p5_,const Bool_t &i_Mu7p5_,const Bool_t &i_Mu7p5_,const Bool_t &i_Mu7p5_,const Bool_t &i_Mu7p5_,const Bool_t &i_Dimuon0er16_,const Bool_t &i_Dimuon0er16_,const Bool_t &i_Dimuon6_,const Bool_t &i_Photon150_,const Bool_t &i_Photon90_,const Bool_t &i_HT250_,const Bool_t &i_DoublePhoton60_,const Bool_t &i_DoublePhoton85_,const Bool_t &i_Ele17_,const Bool_t &i_Ele20_,const Bool_t &i_Ele22_,const Bool_t &i_Ele22_,const Bool_t &i_Ele22_,const Bool_t &i_Ele23_,const Bool_t &i_Ele23_,const Bool_t &i_Ele24_,const Bool_t &i_Ele24_,const Bool_t &i_Ele24_,const Bool_t &i_Ele24_,const Bool_t &i_Ele25_,const Bool_t &i_Ele25_,const Bool_t &i_Ele25_,const Bool_t &i_Ele27_,const Bool_t &i_Ele27_,const Bool_t &i_Ele27_,const Bool_t &i_Ele27_,const Bool_t &i_Ele27_,const Bool_t &i_Ele27_,const Bool_t &i_Ele27_,const Bool_t &i_Ele30_,const Bool_t &i_Ele30_,const Bool_t &i_Ele30_,const Bool_t &i_Ele32_,const Bool_t &i_Ele32_,const Bool_t &i_Ele32_,const Bool_t &i_Ele32_,const Bool_t &i_Ele35_,const Bool_t &i_Ele35_,const Bool_t &i_Ele36_,const Bool_t &i_Ele45_,const Bool_t &i_Ele45_,const Bool_t &i_Ele45_,const Bool_t &i_Ele105_,const Bool_t &i_Ele30WP60_,const Bool_t &i_Ele30WP60_,const Bool_t &i_HT200_,const Bool_t &i_HT275_,const Bool_t &i_HT325_,const Bool_t &i_HT425_,const Bool_t &i_HT575_,const Bool_t &i_HT410to430_,const Bool_t &i_HT430to450_,const Bool_t &i_HT450to470_,const Bool_t &i_HT470to500_,const Bool_t &i_HT500to550_,const Bool_t &i_HT550to650_,const Bool_t &i_HT650_,const Bool_t &i_Mu16_,const Bool_t &i_IsoMu16_,const Bool_t &i_IsoMu16_,const Bool_t &i_IsoMu17_,const Bool_t &i_IsoMu17_,const Bool_t &i_IsoMu17_,const Bool_t &i_DoubleIsoMu17_,const Bool_t &i_DoubleIsoMu17_,const Bool_t &i_IsoMu18_,const Bool_t &i_IsoMu19_,const Bool_t &i_IsoMu19_,const Bool_t &i_IsoMu19_,const Bool_t &i_IsoMu19_,const Bool_t &i_IsoMu19_,const Bool_t &i_IsoMu19_,const Bool_t &i_IsoMu21_,const Bool_t &i_IsoMu21_,const Bool_t &i_IsoMu20_,const Bool_t &i_IsoMu21_,const Bool_t &i_IsoMu21_,const Bool_t &i_IsoMu21_,const Bool_t &i_IsoMu22_,const Bool_t &i_IsoMu22_,const Bool_t &i_IsoMu24_,const Bool_t &i_IsoMu27_,const Bool_t &i_IsoTkMu18_,const Bool_t &i_IsoTkMu20_,const Bool_t &i_IsoTkMu22_,const Bool_t &i_IsoTkMu22_,const Bool_t &i_IsoTkMu24_,const Bool_t &i_IsoTkMu27_,const Bool_t &i_JetE30_,const Bool_t &i_JetE30_,const Bool_t &i_JetE50_,const Bool_t &i_JetE70_,const Bool_t &i_L1SingleMu18_,const Bool_t &i_L2Mu10_,const Bool_t &i_L1SingleMuOpen_,const Bool_t &i_L1SingleMuOpen_,const Bool_t &i_L2DoubleMu23_,const Bool_t &i_L2DoubleMu28_,const Bool_t &i_L2DoubleMu38_,const Bool_t &i_L2Mu10_,const Bool_t &i_L2Mu10_,const Bool_t &i_L2Mu45_,const Bool_t &i_L2Mu40_,const Bool_t &i_LooseIsoPFTau50_,const Bool_t &i_LooseIsoPFTau50_,const Bool_t &i_LooseIsoPFTau50_,const Bool_t &i_LooseIsoPFTau50_,const Bool_t &i_LooseIsoPFTau50_,const Bool_t &i_PFTau120_,const Bool_t &i_PFTau140_,const Bool_t &i_VLooseIsoPFTau120_,const Bool_t &i_VLooseIsoPFTau140_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu20_,const Bool_t &i_Mu20_,const Bool_t &i_Mu20_,const Bool_t &i_Mu20_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu25_,const Bool_t &i_Mu27_,const Bool_t &i_Mu30_,const Bool_t &i_Mu30_,const Bool_t &i_Mu40_,const Bool_t &i_Mu40_,const Bool_t &i_Mu20_,const Bool_t &i_TkMu17_,const Bool_t &i_TkMu17_,const Bool_t &i_TkMu17_,const Bool_t &i_TkMu20_,const Bool_t &i_Mu24_,const Bool_t &i_TkMu24_,const Bool_t &i_Mu27_,const Bool_t &i_TkMu27_,const Bool_t &i_Mu45_,const Bool_t &i_Mu50_,const Bool_t &i_TkMu50_,const Bool_t &i_Mu38NoFiltersNoVtx_,const Bool_t &i_Mu42NoFiltersNoVtx_,const Bool_t &i_Mu28NoFiltersNoVtxDisplaced_,const Bool_t &i_Mu33NoFiltersNoVtxDisplaced_,const Bool_t &i_Mu23NoFiltersNoVtx_,const Bool_t &i_DoubleMu18NoFiltersNoVtx_,const Bool_t &i_Mu33NoFiltersNoVtxDisplaced_,const Bool_t &i_Mu33NoFiltersNoVtxDisplaced_,const Bool_t &i_Mu28NoFiltersNoVtx_,const Bool_t &i_Mu38NoFiltersNoVtxDisplaced_,const Bool_t &i_Mu38NoFiltersNoVtxDisplaced_,const Bool_t &i_Mu38NoFiltersNoVtx_,const Bool_t &i_Mu28NoFiltersNoVtx_,const Bool_t &i_PFHT300_,const Bool_t &i_PFHT300_,const Bool_t &i_PFHT550_,const Bool_t &i_PFHT650_,const Bool_t &i_PFHT750_,const Bool_t &i_PFHT750_,const Bool_t &i_PFHT750_,const Bool_t &i_PFHT800_,const Bool_t &i_PFHT850_,const Bool_t &i_PFJet15_,const Bool_t &i_PFJet25_,const Bool_t &i_DiPFJet15_,const Bool_t &i_DiPFJet25_,const Bool_t &i_DiPFJet15_,const Bool_t &i_DiPFJet25_,const Bool_t &i_DiPFJetAve15_,const Bool_t &i_DiPFJetAve25_,const Bool_t &i_DiPFJetAve35_,const Bool_t &i_AK8PFJet40_,const Bool_t &i_AK8PFJet60_,const Bool_t &i_AK8PFJet80_,const Bool_t &i_AK8PFJet140_,const Bool_t &i_AK8PFJet200_,const Bool_t &i_AK8PFJet260_,const Bool_t &i_AK8PFJet320_,const Bool_t &i_AK8PFJet400_,const Bool_t &i_AK8PFJet450_,const Bool_t &i_AK8PFJet500_,const Bool_t &i_PFJet40_,const Bool_t &i_PFJet60_,const Bool_t &i_PFJet80_,const Bool_t &i_PFJet140_,const Bool_t &i_PFJet200_,const Bool_t &i_PFJet260_,const Bool_t &i_PFJet320_,const Bool_t &i_PFJet400_,const Bool_t &i_PFJet450_,const Bool_t &i_PFJet500_,const Bool_t &i_DiPFJetAve40_,const Bool_t &i_DiPFJetAve60_,const Bool_t &i_DiPFJetAve80_,const Bool_t &i_DiPFJetAve140_,const Bool_t &i_DiPFJetAve200_,const Bool_t &i_DiPFJetAve260_,const Bool_t &i_DiPFJetAve320_,const Bool_t &i_DiPFJetAve400_,const Bool_t &i_DiPFJetAve500_,const Bool_t &i_DiPFJetAve60_,const Bool_t &i_DiPFJetAve80_,const Bool_t &i_DiPFJetAve100_,const Bool_t &i_DiPFJetAve160_,const Bool_t &i_DiPFJetAve220_,const Bool_t &i_DiPFJetAve300_,const Bool_t &i_DiPFJet40_,const Bool_t &i_DiPFJet40_,const Bool_t &i_DiCentralPFJet170_,const Bool_t &i_SingleCentralPFJet170_,const Bool_t &i_DiCentralPFJet170_,const Bool_t &i_DiCentralPFJet220_,const Bool_t &i_DiCentralPFJet330_,const Bool_t &i_DiCentralPFJet430_,const Bool_t &i_PFHT125_,const Bool_t &i_PFHT200_,const Bool_t &i_PFHT250_,const Bool_t &i_PFHT300_,const Bool_t &i_PFHT350_,const Bool_t &i_PFHT400_,const Bool_t &i_PFHT475_,const Bool_t &i_PFHT600_,const Bool_t &i_PFHT650_,const Bool_t &i_PFHT800_,const Bool_t &i_PFHT900_,const Bool_t &i_PFHT200_,const Bool_t &i_PFHT200_,const Bool_t &i_PFHT200_,const Bool_t &i_PFHT250_,const Bool_t &i_PFHT250_,const Bool_t &i_PFHT300_,const Bool_t &i_PFHT300_,const Bool_t &i_PFHT350_,const Bool_t &i_PFHT350_,const Bool_t &i_PFHT400_,const Bool_t &i_PFHT400_,const Bool_t &i_MET60_,const Bool_t &i_MET75_,const Bool_t &i_MET90_,const Bool_t &i_PFMET120_,const Bool_t &i_PFMET120_,const Bool_t &i_PFMET170_,const Bool_t &i_PFMET170_,const Bool_t &i_PFMET170_,const Bool_t &i_PFMET170_,const Bool_t &i_PFMET170_,const Bool_t &i_PFMET170_,const Bool_t &i_PFMETTypeOne190_,const Bool_t &i_PFMET90_,const Bool_t &i_PFMET100_,const Bool_t &i_PFMET100_,const Bool_t &i_PFMET110_,const Bool_t &i_PFMET120_,const Bool_t &i_CaloMHTNoPU90_,const Bool_t &i_CaloMHTNoPU90_,const Bool_t &i_QuadPFJet_,const Bool_t &i_QuadPFJet_,const Bool_t &i_QuadPFJet_,const Bool_t &i_QuadPFJet_,const Bool_t &i_QuadPFJet_,const Bool_t &i_L1_,const Bool_t &i_QuadJet45_,const Bool_t &i_QuadJet45_,const Bool_t &i_DoubleJet90_,const Bool_t &i_DoubleJet90_,const Bool_t &i_DoubleJetsC100_,const Bool_t &i_DoubleJetsC100_,const Bool_t &i_DoubleJetsC112_,const Bool_t &i_DoubleJetsC112_,const Bool_t &i_DoubleJetsC100_,const Bool_t &i_DoubleJetsC100_,const Bool_t &i_DoubleJetsC100_,const Bool_t &i_DoubleJetsC100_,const Bool_t &i_Photon135_,const Bool_t &i_Photon20_,const Bool_t &i_Photon22_,const Bool_t &i_Photon22_,const Bool_t &i_Photon250_,const Bool_t &i_Photon300_,const Bool_t &i_Photon26_,const Bool_t &i_Photon36_,const Bool_t &i_Photon36_,const Bool_t &i_Photon36_,const Bool_t &i_Photon50_,const Bool_t &i_Photon50_,const Bool_t &i_Photon75_,const Bool_t &i_Photon75_,const Bool_t &i_Photon90_,const Bool_t &i_Photon90_,const Bool_t &i_Photon120_,const Bool_t &i_Photon120_,const Bool_t &i_Mu8_,const Bool_t &i_Mu17_,const Bool_t &i_Ele8_,const Bool_t &i_Ele12_,const Bool_t &i_Ele17_,const Bool_t &i_Ele23_,const Bool_t &i_BTagMu_,const Bool_t &i_BTagMu_,const Bool_t &i_BTagMu_,const Bool_t &i_BTagMu_,const Bool_t &i_BTagMu_,const Bool_t &i_BTagMu_,const Bool_t &i_BTagMu_,const Bool_t &i_Ele23_,const Bool_t &i_Ele23_,const Bool_t &i_Ele17_,const Bool_t &i_Ele16_,const Bool_t &i_Mu8_,const Bool_t &i_Mu8_,const Bool_t &i_Mu8_,const Bool_t &i_Mu12_,const Bool_t &i_Mu12_,const Bool_t &i_Mu17_,const Bool_t &i_Mu23_,const Bool_t &i_Mu23_,const Bool_t &i_Mu23_,const Bool_t &i_Mu23_,const Bool_t &i_Mu30_,const Bool_t &i_Mu33_,const Bool_t &i_Mu37_,const Bool_t &i_Mu27_,const Bool_t &i_Mu8_,const Bool_t &i_Mu12_,const Bool_t &i_Mu12_,const Bool_t &i_Mu12_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_Mu17_,const Bool_t &i_DiMu9_,const Bool_t &i_TripleMu_,const Bool_t &i_TripleMu_,const Bool_t &i_Mu3er_,const Bool_t &i_Mu6_,const Bool_t &i_Mu6_,const Bool_t &i_Mu14er_,const Bool_t &i_Ele17_,const Bool_t &i_Ele23_,const Bool_t &i_Ele12_,const Bool_t &i_Ele17_,const Bool_t &i_Ele17_,const Bool_t &i_Ele23_,const Bool_t &i_PFHT650_,const Bool_t &i_PFHT650_,const Bool_t &i_Photon22_,const Bool_t &i_Photon30_,const Bool_t &i_Photon36_,const Bool_t &i_Photon50_,const Bool_t &i_Photon75_,const Bool_t &i_Photon90_,const Bool_t &i_Photon120_,const Bool_t &i_Photon175_,const Bool_t &i_Photon165_,const Bool_t &i_Photon22_,const Bool_t &i_Photon30_,const Bool_t &i_Photon36_,const Bool_t &i_Photon50_,const Bool_t &i_Photon75_,const Bool_t &i_Photon90_,const Bool_t &i_Photon120_,const Bool_t &i_Photon165_,const Bool_t &i_Diphoton30_,const Bool_t &i_Diphoton30_,const Bool_t &i_Diphoton30PV_,const Bool_t &i_Diphoton30_,const Bool_t &i_Diphoton30EB_,const Bool_t &i_Dimuon0_,const Bool_t &i_Dimuon0_,const Bool_t &i_QuadMuon0_,const Bool_t &i_QuadMuon0_,const Bool_t &i_Rsq0p25_,const Bool_t &i_RsqMR240_,const Bool_t &i_RsqMR240_,const Bool_t &i_Rsq0p25_,const Bool_t &i_Rsq0p30_,const Bool_t &i_RsqMR240_,const Bool_t &i_RsqMR240_,const Bool_t &i_RsqMR270_,const Bool_t &i_RsqMR270_,const Bool_t &i_Rsq0p02_,const Bool_t &i_Rsq0p02_,const Bool_t &i_Rsq0p02_,const Bool_t &i_Rsq0p02_,const Bool_t &i_Rsq0p02_,const Bool_t &i_HT200_,const Bool_t &i_HT250_,const Bool_t &i_HT350_,const Bool_t &i_HT350_,const Bool_t &i_HT350_,const Bool_t &i_HT350_,const Bool_t &i_HT400_,const Bool_t &i_HT500_,const Bool_t &i_HT550_,const Bool_t &i_HT550_,const Bool_t &i_HT650_,const Bool_t &i_HT750_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_VBF_,const Bool_t &i_PFMETNoMu90_,const Bool_t &i_PFMETNoMu100_,const Bool_t &i_PFMETNoMu110_,const Bool_t &i_PFMETNoMu120_,const Bool_t &i_MonoCentralPFJet80_,const Bool_t &i_MonoCentralPFJet80_,const Bool_t &i_MonoCentralPFJet80_,const Bool_t &i_MonoCentralPFJet80_,const Bool_t &i_Ele27_,const Bool_t &i_Photon90_,const Bool_t &i_DoubleMu8_,const Bool_t &i_Mu8_,const Bool_t &i_DoubleEle8_,const Bool_t &i_DoubleMu8_,const Bool_t &i_Mu8_,const Bool_t &i_DoubleEle8_,const Bool_t &i_Mu10_,const Bool_t &i_DoubleMu3_,const Bool_t &i_Ele10_,const Bool_t &i_Ele15_,const Bool_t &i_Ele15_,const Bool_t &i_Ele15_,const Bool_t &i_Ele15_,const Bool_t &i_Ele15_,const Bool_t &i_Ele15_,const Bool_t &i_Ele50_,const Bool_t &i_Mu8_,const Bool_t &i_Mu10_,const Bool_t &i_Mu15_,const Bool_t &i_Mu15_,const Bool_t &i_Mu15_,const Bool_t &i_Mu15_,const Bool_t &i_Mu15_,const Bool_t &i_Mu15_,const Bool_t &i_Mu50_,const Bool_t &i_Dimuon16_,const Bool_t &i_Dimuon10_,const Bool_t &i_Dimuon8_,const Bool_t &i_Dimuon8_,const Bool_t &i_Dimuon0_,const Bool_t &i_Mu16_,const Bool_t &i_Mu16_,const Bool_t &i_TrkMu15_,const Bool_t &i_TrkMu17_,const Bool_t &i_Mu8_,const Bool_t &i_Mu17_,const Bool_t &i_Mu3_,const Bool_t &i_Ele8_,const Bool_t &i_Ele12_,const Bool_t &i_Ele17_,const Bool_t &i_Ele23_,const Bool_t &i_Ele50_,const Bool_t &i_Ele50_,const Bool_t &i_PFHT400_,const Bool_t &i_PFHT450_,const Bool_t &i_PFHT400_,const Bool_t &i_PFHT450_,const Bool_t &i_Ele115_,const Bool_t &i_Mu55_,const Bool_t &i_Photon42_,const Bool_t &i_Photon90_,const Bool_t &i_PixelTracks_,const Bool_t &i_PixelTracks_,const Bool_t &i_PixelTracks_,const Bool_t &i_PixelTracks_,const Bool_t &i_PixelTracks_,const Bool_t &i_FullTracks_,const Bool_t &i_FullTracks_,const Bool_t &i_FullTracks_,const Bool_t &i_FullTracks_,const Bool_t &i_ECALHT800_,const Bool_t &i_DiSC30_,const Bool_t &i_Photon125_,const Bool_t &i_MET100_,const Bool_t &i_MET150_,const Bool_t &i_MET200_,const Bool_t &i_Ele27_,const Bool_t &i_L1FatEvents_,const Bool_t &i_Physics_,const Bool_t &i_L1FatEvents_,const Bool_t &i_L1FatEvents_,const Bool_t &i_L1FatEvents_,const Bool_t &i_L1FatEvents_,const Bool_t &i_Random_,const Bool_t &i_ZeroBias_,const Bool_t &i_AK4CaloJet30_,const Bool_t &i_AK4CaloJet40_,const Bool_t &i_AK4CaloJet50_,const Bool_t &i_AK4CaloJet80_,const Bool_t &i_AK4CaloJet100_,const Bool_t &i_AK4PFJet30_,const Bool_t &i_AK4PFJet50_,const Bool_t &i_AK4PFJet80_,const Bool_t &i_AK4PFJet100_,const Bool_t &i_HISinglePhoton10_,const Bool_t &i_HISinglePhoton15_,const Bool_t &i_HISinglePhoton20_,const Bool_t &i_HISinglePhoton40_,const Bool_t &i_HISinglePhoton60_,const Bool_t &i_EcalCalibration_,const Bool_t &i_HcalCalibration_,const Bool_t &i_GlobalRunHPDNoise_,const Bool_t &i_L1BptxMinus_,const Bool_t &i_L1BptxPlus_,const Bool_t &i_L1NotBptxOR_,const Bool_t &i_L1BeamGasMinus_,const Bool_t &i_L1BeamGasPlus_,const Bool_t &i_L1BptxXOR_,const Bool_t &i_L1MinimumBiasHF_,const Bool_t &i_L1MinimumBiasHF_,const Bool_t &i_HcalNZS_,const Bool_t &i_HcalPhiSym_,const Bool_t &i_HcalIsolatedbunch_,const Bool_t &i_ZeroBias_,const Bool_t &i_ZeroBias_,const Bool_t &i_ZeroBias_,const Bool_t &i_ZeroBias_,const Bool_t &i_ZeroBias_,const Bool_t &i_ZeroBias_,const Bool_t &i_Photon500_,const Bool_t &i_Photon600_,const Bool_t &i_Mu300_,const Bool_t &i_Mu350_,const Bool_t &i_MET250_,const Bool_t &i_MET300_,const Bool_t &i_MET600_,const Bool_t &i_MET700_,const Bool_t &i_PFMET300_,const Bool_t &i_PFMET400_,const Bool_t &i_PFMET500_,const Bool_t &i_PFMET600_,const Bool_t &i_Ele250_,const Bool_t &i_Ele300_,const Bool_t &i_HT2000_,const Bool_t &i_HT2500_,const Bool_t &i_IsoTrackHE_,const Bool_t &i_IsoTrackHB_,const Bool_t &i_HLTriggerFinalPath_):
+//  Hlt(const Bool_t &i_HLTriggerFirstPath_,const Bool_t &i_AK8PFJet360_TrimMass30_,const Bool_t &i_AK8PFJet400_TrimMass30_,const Bool_t &i_AK8PFHT750_TrimMass50_,const Bool_t &i_AK8PFHT800_TrimMass50_,const Bool_t &i_AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_,const Bool_t &i_AK8DiPFJet280_200_TrimMass30_BTagCSV_p087_,const Bool_t &i_AK8DiPFJet300_200_TrimMass30_BTagCSV_p087_,const Bool_t &i_AK8DiPFJet300_200_TrimMass30_,const Bool_t &i_AK8PFHT700_TrimR0p1PT0p03Mass50_,const Bool_t &i_AK8PFHT650_TrimR0p1PT0p03Mass50_,const Bool_t &i_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_,const Bool_t &i_AK8DiPFJet280_200_TrimMass30_,const Bool_t &i_AK8DiPFJet250_200_TrimMass30_,const Bool_t &i_AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_,const Bool_t &i_AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_,const Bool_t &i_CaloJet260_,const Bool_t &i_CaloJet500_NoJetID_,const Bool_t &i_Dimuon13_PsiPrime_,const Bool_t &i_Dimuon13_Upsilon_,const Bool_t &i_Dimuon20_Jpsi_,const Bool_t &i_DoubleEle24_22_eta2p1_WPLoose_Gsf_,const Bool_t &i_DoubleEle25_CaloIdL_GsfTrkIdVL_,const Bool_t &i_DoubleEle33_CaloIdL_,const Bool_t &i_DoubleEle33_CaloIdL_MW_,const Bool_t &i_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_,const Bool_t &i_DoubleEle33_CaloIdL_GsfTrkIdVL_,const Bool_t &i_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_,const Bool_t &i_DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg_,const Bool_t &i_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_,const Bool_t &i_DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg_,const Bool_t &i_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_,const Bool_t &i_DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_,const Bool_t &i_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_,const Bool_t &i_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_,const Bool_t &i_DoubleMediumIsoPFTau40_Trk1_eta2p1_,const Bool_t &i_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_,const Bool_t &i_DoubleMu33NoFiltersNoVtx_,const Bool_t &i_DoubleMu38NoFiltersNoVtx_,const Bool_t &i_DoubleMu23NoFiltersNoVtxDisplaced_,const Bool_t &i_DoubleMu28NoFiltersNoVtxDisplaced_,const Bool_t &i_DoubleMu0_,const Bool_t &i_DoubleMu4_3_Bs_,const Bool_t &i_DoubleMu4_3_Jpsi_Displaced_,const Bool_t &i_DoubleMu4_JpsiTrk_Displaced_,const Bool_t &i_DoubleMu4_LowMassNonResonantTrk_Displaced_,const Bool_t &i_DoubleMu3_Trk_Tau3mu_,const Bool_t &i_DoubleMu4_PsiPrimeTrk_Displaced_,const Bool_t &i_Mu7p5_L2Mu2_Jpsi_,const Bool_t &i_Mu7p5_L2Mu2_Upsilon_,const Bool_t &i_Mu7p5_Track2_Jpsi_,const Bool_t &i_Mu7p5_Track3p5_Jpsi_,const Bool_t &i_Mu7p5_Track7_Jpsi_,const Bool_t &i_Mu7p5_Track2_Upsilon_,const Bool_t &i_Mu7p5_Track3p5_Upsilon_,const Bool_t &i_Mu7p5_Track7_Upsilon_,const Bool_t &i_Dimuon0er16_Jpsi_NoOS_NoVertexing_,const Bool_t &i_Dimuon0er16_Jpsi_NoVertexing_,const Bool_t &i_Dimuon6_Jpsi_NoVertexing_,const Bool_t &i_Photon150_,const Bool_t &i_Photon90_CaloIdL_HT300_,const Bool_t &i_HT250_CaloMET70_,const Bool_t &i_DoublePhoton60_,const Bool_t &i_DoublePhoton85_,const Bool_t &i_Ele17_Ele8_Gsf_,const Bool_t &i_Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_,const Bool_t &i_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_,const Bool_t &i_Ele22_eta2p1_WPLoose_Gsf_,const Bool_t &i_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_,const Bool_t &i_Ele23_WPLoose_Gsf_,const Bool_t &i_Ele23_WPLoose_Gsf_WHbbBoost_,const Bool_t &i_Ele24_eta2p1_WPLoose_Gsf_,const Bool_t &i_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_,const Bool_t &i_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_,const Bool_t &i_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_,const Bool_t &i_Ele25_WPTight_Gsf_,const Bool_t &i_Ele25_eta2p1_WPLoose_Gsf_,const Bool_t &i_Ele25_eta2p1_WPTight_Gsf_,const Bool_t &i_Ele27_WPLoose_Gsf_,const Bool_t &i_Ele27_WPLoose_Gsf_WHbbBoost_,const Bool_t &i_Ele27_WPTight_Gsf_,const Bool_t &i_Ele27_WPTight_Gsf_L1JetTauSeeded_,const Bool_t &i_Ele27_eta2p1_WPLoose_Gsf_,const Bool_t &i_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_,const Bool_t &i_Ele27_eta2p1_WPTight_Gsf_,const Bool_t &i_Ele30_WPTight_Gsf_,const Bool_t &i_Ele30_eta2p1_WPLoose_Gsf_,const Bool_t &i_Ele30_eta2p1_WPTight_Gsf_,const Bool_t &i_Ele32_WPTight_Gsf_,const Bool_t &i_Ele32_eta2p1_WPLoose_Gsf_,const Bool_t &i_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_,const Bool_t &i_Ele32_eta2p1_WPTight_Gsf_,const Bool_t &i_Ele35_WPLoose_Gsf_,const Bool_t &i_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_,const Bool_t &i_Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_,const Bool_t &i_Ele45_WPLoose_Gsf_,const Bool_t &i_Ele45_WPLoose_Gsf_L1JetTauSeeded_,const Bool_t &i_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_,const Bool_t &i_Ele105_CaloIdVT_GsfTrkIdT_,const Bool_t &i_Ele30WP60_SC4_Mass55_,const Bool_t &i_Ele30WP60_Ele8_Mass55_,const Bool_t &i_HT200_,const Bool_t &i_HT275_,const Bool_t &i_HT325_,const Bool_t &i_HT425_,const Bool_t &i_HT575_,const Bool_t &i_HT410to430_,const Bool_t &i_HT430to450_,const Bool_t &i_HT450to470_,const Bool_t &i_HT470to500_,const Bool_t &i_HT500to550_,const Bool_t &i_HT550to650_,const Bool_t &i_HT650_,const Bool_t &i_Mu16_eta2p1_MET30_,const Bool_t &i_IsoMu16_eta2p1_MET30_,const Bool_t &i_IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_,const Bool_t &i_IsoMu17_eta2p1_,const Bool_t &i_IsoMu17_eta2p1_LooseIsoPFTau20_,const Bool_t &i_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_,const Bool_t &i_DoubleIsoMu17_eta2p1_,const Bool_t &i_DoubleIsoMu17_eta2p1_noDzCut_,const Bool_t &i_IsoMu18_,const Bool_t &i_IsoMu19_eta2p1_LooseIsoPFTau20_,const Bool_t &i_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_,const Bool_t &i_IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_,const Bool_t &i_IsoMu19_eta2p1_LooseCombinedIsoPFTau20_,const Bool_t &i_IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_,const Bool_t &i_IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_,const Bool_t &i_IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_,const Bool_t &i_IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_,const Bool_t &i_IsoMu20_,const Bool_t &i_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_,const Bool_t &i_IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_,const Bool_t &i_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_,const Bool_t &i_IsoMu22_,const Bool_t &i_IsoMu22_eta2p1_,const Bool_t &i_IsoMu24_,const Bool_t &i_IsoMu27_,const Bool_t &i_IsoTkMu18_,const Bool_t &i_IsoTkMu20_,const Bool_t &i_IsoTkMu22_,const Bool_t &i_IsoTkMu22_eta2p1_,const Bool_t &i_IsoTkMu24_,const Bool_t &i_IsoTkMu27_,const Bool_t &i_JetE30_NoBPTX3BX_,const Bool_t &i_JetE30_NoBPTX_,const Bool_t &i_JetE50_NoBPTX3BX_,const Bool_t &i_JetE70_NoBPTX3BX_,const Bool_t &i_L1SingleMu18_,const Bool_t &i_L2Mu10_,const Bool_t &i_L1SingleMuOpen_,const Bool_t &i_L1SingleMuOpen_DT_,const Bool_t &i_L2DoubleMu23_NoVertex_,const Bool_t &i_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_,const Bool_t &i_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_,const Bool_t &i_L2Mu10_NoVertex_NoBPTX3BX_,const Bool_t &i_L2Mu10_NoVertex_NoBPTX_,const Bool_t &i_L2Mu45_NoVertex_3Sta_NoBPTX3BX_,const Bool_t &i_L2Mu40_NoVertex_3Sta_NoBPTX3BX_,const Bool_t &i_LooseIsoPFTau50_Trk30_eta2p1_,const Bool_t &i_LooseIsoPFTau50_Trk30_eta2p1_MET80_,const Bool_t &i_LooseIsoPFTau50_Trk30_eta2p1_MET90_,const Bool_t &i_LooseIsoPFTau50_Trk30_eta2p1_MET110_,const Bool_t &i_LooseIsoPFTau50_Trk30_eta2p1_MET120_,const Bool_t &i_PFTau120_eta2p1_,const Bool_t &i_PFTau140_eta2p1_,const Bool_t &i_VLooseIsoPFTau120_Trk50_eta2p1_,const Bool_t &i_VLooseIsoPFTau140_Trk50_eta2p1_,const Bool_t &i_Mu17_Mu8_,const Bool_t &i_Mu17_Mu8_DZ_,const Bool_t &i_Mu17_Mu8_SameSign_,const Bool_t &i_Mu17_Mu8_SameSign_DZ_,const Bool_t &i_Mu20_Mu10_,const Bool_t &i_Mu20_Mu10_DZ_,const Bool_t &i_Mu20_Mu10_SameSign_,const Bool_t &i_Mu20_Mu10_SameSign_DZ_,const Bool_t &i_Mu17_TkMu8_DZ_,const Bool_t &i_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_,const Bool_t &i_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_,const Bool_t &i_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_,const Bool_t &i_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_,const Bool_t &i_Mu25_TkMu0_dEta18_Onia_,const Bool_t &i_Mu27_TkMu8_,const Bool_t &i_Mu30_TkMu11_,const Bool_t &i_Mu30_eta2p1_PFJet150_PFJet50_,const Bool_t &i_Mu40_TkMu11_,const Bool_t &i_Mu40_eta2p1_PFJet200_PFJet50_,const Bool_t &i_Mu20_,const Bool_t &i_TkMu17_,const Bool_t &i_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_,const Bool_t &i_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_,const Bool_t &i_TkMu20_,const Bool_t &i_Mu24_eta2p1_,const Bool_t &i_TkMu24_eta2p1_,const Bool_t &i_Mu27_,const Bool_t &i_TkMu27_,const Bool_t &i_Mu45_eta2p1_,const Bool_t &i_Mu50_,const Bool_t &i_TkMu50_,const Bool_t &i_Mu38NoFiltersNoVtx_Photon38_CaloIdL_,const Bool_t &i_Mu42NoFiltersNoVtx_Photon42_CaloIdL_,const Bool_t &i_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_,const Bool_t &i_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_,const Bool_t &i_Mu23NoFiltersNoVtx_Photon23_CaloIdL_,const Bool_t &i_DoubleMu18NoFiltersNoVtx_,const Bool_t &i_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_,const Bool_t &i_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_,const Bool_t &i_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_,const Bool_t &i_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_,const Bool_t &i_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_,const Bool_t &i_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_,const Bool_t &i_Mu28NoFiltersNoVtx_CentralCaloJet40_,const Bool_t &i_PFHT300_PFMET100_,const Bool_t &i_PFHT300_PFMET110_,const Bool_t &i_PFHT550_4JetPt50_,const Bool_t &i_PFHT650_4JetPt50_,const Bool_t &i_PFHT750_4JetPt50_,const Bool_t &i_PFHT750_4JetPt70_,const Bool_t &i_PFHT750_4JetPt80_,const Bool_t &i_PFHT800_4JetPt50_,const Bool_t &i_PFHT850_4JetPt50_,const Bool_t &i_PFJet15_NoCaloMatched_,const Bool_t &i_PFJet25_NoCaloMatched_,const Bool_t &i_DiPFJet15_NoCaloMatched_,const Bool_t &i_DiPFJet25_NoCaloMatched_,const Bool_t &i_DiPFJet15_FBEta3_NoCaloMatched_,const Bool_t &i_DiPFJet25_FBEta3_NoCaloMatched_,const Bool_t &i_DiPFJetAve15_HFJEC_,const Bool_t &i_DiPFJetAve25_HFJEC_,const Bool_t &i_DiPFJetAve35_HFJEC_,const Bool_t &i_AK8PFJet40_,const Bool_t &i_AK8PFJet60_,const Bool_t &i_AK8PFJet80_,const Bool_t &i_AK8PFJet140_,const Bool_t &i_AK8PFJet200_,const Bool_t &i_AK8PFJet260_,const Bool_t &i_AK8PFJet320_,const Bool_t &i_AK8PFJet400_,const Bool_t &i_AK8PFJet450_,const Bool_t &i_AK8PFJet500_,const Bool_t &i_PFJet40_,const Bool_t &i_PFJet60_,const Bool_t &i_PFJet80_,const Bool_t &i_PFJet140_,const Bool_t &i_PFJet200_,const Bool_t &i_PFJet260_,const Bool_t &i_PFJet320_,const Bool_t &i_PFJet400_,const Bool_t &i_PFJet450_,const Bool_t &i_PFJet500_,const Bool_t &i_DiPFJetAve40_,const Bool_t &i_DiPFJetAve60_,const Bool_t &i_DiPFJetAve80_,const Bool_t &i_DiPFJetAve140_,const Bool_t &i_DiPFJetAve200_,const Bool_t &i_DiPFJetAve260_,const Bool_t &i_DiPFJetAve320_,const Bool_t &i_DiPFJetAve400_,const Bool_t &i_DiPFJetAve500_,const Bool_t &i_DiPFJetAve60_HFJEC_,const Bool_t &i_DiPFJetAve80_HFJEC_,const Bool_t &i_DiPFJetAve100_HFJEC_,const Bool_t &i_DiPFJetAve160_HFJEC_,const Bool_t &i_DiPFJetAve220_HFJEC_,const Bool_t &i_DiPFJetAve300_HFJEC_,const Bool_t &i_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_,const Bool_t &i_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_,const Bool_t &i_DiCentralPFJet170_,const Bool_t &i_SingleCentralPFJet170_CFMax0p1_,const Bool_t &i_DiCentralPFJet170_CFMax0p1_,const Bool_t &i_DiCentralPFJet220_CFMax0p3_,const Bool_t &i_DiCentralPFJet330_CFMax0p5_,const Bool_t &i_DiCentralPFJet430_,const Bool_t &i_PFHT125_,const Bool_t &i_PFHT200_,const Bool_t &i_PFHT250_,const Bool_t &i_PFHT300_,const Bool_t &i_PFHT350_,const Bool_t &i_PFHT400_,const Bool_t &i_PFHT475_,const Bool_t &i_PFHT600_,const Bool_t &i_PFHT650_,const Bool_t &i_PFHT800_,const Bool_t &i_PFHT900_,const Bool_t &i_PFHT200_PFAlphaT0p51_,const Bool_t &i_PFHT200_DiPFJetAve90_PFAlphaT0p57_,const Bool_t &i_PFHT200_DiPFJetAve90_PFAlphaT0p63_,const Bool_t &i_PFHT250_DiPFJetAve90_PFAlphaT0p55_,const Bool_t &i_PFHT250_DiPFJetAve90_PFAlphaT0p58_,const Bool_t &i_PFHT300_DiPFJetAve90_PFAlphaT0p53_,const Bool_t &i_PFHT300_DiPFJetAve90_PFAlphaT0p54_,const Bool_t &i_PFHT350_DiPFJetAve90_PFAlphaT0p52_,const Bool_t &i_PFHT350_DiPFJetAve90_PFAlphaT0p53_,const Bool_t &i_PFHT400_DiPFJetAve90_PFAlphaT0p51_,const Bool_t &i_PFHT400_DiPFJetAve90_PFAlphaT0p52_,const Bool_t &i_MET60_IsoTrk35_Loose_,const Bool_t &i_MET75_IsoTrk50_,const Bool_t &i_MET90_IsoTrk50_,const Bool_t &i_PFMET120_BTagCSV_p067_,const Bool_t &i_PFMET120_Mu5_,const Bool_t &i_PFMET170_NotCleaned_,const Bool_t &i_PFMET170_NoiseCleaned_,const Bool_t &i_PFMET170_HBHECleaned_,const Bool_t &i_PFMET170_JetIdCleaned_,const Bool_t &i_PFMET170_BeamHaloCleaned_,const Bool_t &i_PFMET170_HBHE_BeamHaloCleaned_,const Bool_t &i_PFMETTypeOne190_HBHE_BeamHaloCleaned_,const Bool_t &i_PFMET90_PFMHT90_IDTight_,const Bool_t &i_PFMET100_PFMHT100_IDTight_,const Bool_t &i_PFMET100_PFMHT100_IDTight_BeamHaloCleaned_,const Bool_t &i_PFMET110_PFMHT110_IDTight_,const Bool_t &i_PFMET120_PFMHT120_IDTight_,const Bool_t &i_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_,const Bool_t &i_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_,const Bool_t &i_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_,const Bool_t &i_QuadPFJet_BTagCSV_p016_VBF_Mqq460_,const Bool_t &i_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_,const Bool_t &i_QuadPFJet_BTagCSV_p016_VBF_Mqq500_,const Bool_t &i_QuadPFJet_VBF_,const Bool_t &i_L1_TripleJet_VBF_,const Bool_t &i_QuadJet45_TripleBTagCSV_p087_,const Bool_t &i_QuadJet45_DoubleBTagCSV_p087_,const Bool_t &i_DoubleJet90_Double30_TripleBTagCSV_p087_,const Bool_t &i_DoubleJet90_Double30_DoubleBTagCSV_p087_,const Bool_t &i_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_,const Bool_t &i_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_,const Bool_t &i_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_,const Bool_t &i_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_,const Bool_t &i_DoubleJetsC100_SingleBTagCSV_p026_,const Bool_t &i_DoubleJetsC100_SingleBTagCSV_p014_,const Bool_t &i_DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_,const Bool_t &i_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_,const Bool_t &i_Photon135_PFMET100_,const Bool_t &i_Photon20_CaloIdVL_IsoL_,const Bool_t &i_Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_,const Bool_t &i_Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_,const Bool_t &i_Photon250_NoHE_,const Bool_t &i_Photon300_NoHE_,const Bool_t &i_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_,const Bool_t &i_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_,const Bool_t &i_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_,const Bool_t &i_Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_,const Bool_t &i_Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_,const Bool_t &i_Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_,const Bool_t &i_Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_,const Bool_t &i_Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_,const Bool_t &i_Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_,const Bool_t &i_Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_,const Bool_t &i_Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_,const Bool_t &i_Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_,const Bool_t &i_Mu8_TrkIsoVVL_,const Bool_t &i_Mu17_TrkIsoVVL_,const Bool_t &i_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_,const Bool_t &i_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_,const Bool_t &i_Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30_,const Bool_t &i_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_,const Bool_t &i_BTagMu_DiJet20_Mu5_,const Bool_t &i_BTagMu_DiJet40_Mu5_,const Bool_t &i_BTagMu_DiJet70_Mu5_,const Bool_t &i_BTagMu_DiJet110_Mu5_,const Bool_t &i_BTagMu_DiJet170_Mu5_,const Bool_t &i_BTagMu_Jet300_Mu5_,const Bool_t &i_BTagMu_AK8Jet300_Mu5_,const Bool_t &i_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const Bool_t &i_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_,const Bool_t &i_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const Bool_t &i_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_,const Bool_t &i_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_,const Bool_t &i_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_,const Bool_t &i_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_,const Bool_t &i_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const Bool_t &i_Mu30_Ele30_CaloIdL_GsfTrkIdVL_,const Bool_t &i_Mu33_Ele33_CaloIdL_GsfTrkIdVL_,const Bool_t &i_Mu37_Ele27_CaloIdL_GsfTrkIdVL_,const Bool_t &i_Mu27_Ele37_CaloIdL_GsfTrkIdVL_,const Bool_t &i_Mu8_DiEle12_CaloIdL_TrackIdL_,const Bool_t &i_Mu12_Photon25_CaloIdL_,const Bool_t &i_Mu12_Photon25_CaloIdL_L1ISO_,const Bool_t &i_Mu12_Photon25_CaloIdL_L1OR_,const Bool_t &i_Mu17_Photon22_CaloIdL_L1ISO_,const Bool_t &i_Mu17_Photon30_CaloIdL_L1ISO_,const Bool_t &i_Mu17_Photon35_CaloIdL_L1ISO_,const Bool_t &i_DiMu9_Ele9_CaloIdL_TrackIdL_,const Bool_t &i_TripleMu_5_3_3_,const Bool_t &i_TripleMu_12_10_5_,const Bool_t &i_Mu3er_PFHT140_PFMET125_,const Bool_t &i_Mu6_PFHT200_PFMET80_BTagCSV_p067_,const Bool_t &i_Mu6_PFHT200_PFMET100_,const Bool_t &i_Mu14er_PFMET100_,const Bool_t &i_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Ele12_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Ele17_CaloIdL_GsfTrkIdVL_,const Bool_t &i_Ele17_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_Ele23_CaloIdL_TrackIdL_IsoVL_,const Bool_t &i_PFHT650_WideJetMJJ900DEtaJJ1p5_,const Bool_t &i_PFHT650_WideJetMJJ950DEtaJJ1p5_,const Bool_t &i_Photon22_,const Bool_t &i_Photon30_,const Bool_t &i_Photon36_,const Bool_t &i_Photon50_,const Bool_t &i_Photon75_,const Bool_t &i_Photon90_,const Bool_t &i_Photon120_,const Bool_t &i_Photon175_,const Bool_t &i_Photon165_HE10_,const Bool_t &i_Photon22_R9Id90_HE10_IsoM_,const Bool_t &i_Photon30_R9Id90_HE10_IsoM_,const Bool_t &i_Photon36_R9Id90_HE10_IsoM_,const Bool_t &i_Photon50_R9Id90_HE10_IsoM_,const Bool_t &i_Photon75_R9Id90_HE10_IsoM_,const Bool_t &i_Photon90_R9Id90_HE10_IsoM_,const Bool_t &i_Photon120_R9Id90_HE10_IsoM_,const Bool_t &i_Photon165_R9Id90_HE10_IsoM_,const Bool_t &i_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_,const Bool_t &i_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_,const Bool_t &i_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_,const Bool_t &i_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_,const Bool_t &i_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_,const Bool_t &i_Dimuon0_Jpsi_Muon_,const Bool_t &i_Dimuon0_Upsilon_Muon_,const Bool_t &i_QuadMuon0_Dimuon0_Jpsi_,const Bool_t &i_QuadMuon0_Dimuon0_Upsilon_,const Bool_t &i_Rsq0p25_Calo_,const Bool_t &i_RsqMR240_Rsq0p09_MR200_4jet_Calo_,const Bool_t &i_RsqMR240_Rsq0p09_MR200_Calo_,const Bool_t &i_Rsq0p25_,const Bool_t &i_Rsq0p30_,const Bool_t &i_RsqMR240_Rsq0p09_MR200_,const Bool_t &i_RsqMR240_Rsq0p09_MR200_4jet_,const Bool_t &i_RsqMR270_Rsq0p09_MR200_,const Bool_t &i_RsqMR270_Rsq0p09_MR200_4jet_,const Bool_t &i_Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_,const Bool_t &i_Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_,const Bool_t &i_Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_,const Bool_t &i_Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_,const Bool_t &i_Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_,const Bool_t &i_HT200_DisplacedDijet40_DisplacedTrack_,const Bool_t &i_HT250_DisplacedDijet40_DisplacedTrack_,const Bool_t &i_HT350_DisplacedDijet40_DisplacedTrack_,const Bool_t &i_HT350_DisplacedDijet80_DisplacedTrack_,const Bool_t &i_HT350_DisplacedDijet80_Tight_DisplacedTrack_,const Bool_t &i_HT350_DisplacedDijet40_Inclusive_,const Bool_t &i_HT400_DisplacedDijet40_Inclusive_,const Bool_t &i_HT500_DisplacedDijet40_Inclusive_,const Bool_t &i_HT550_DisplacedDijet40_Inclusive_,const Bool_t &i_HT550_DisplacedDijet80_Inclusive_,const Bool_t &i_HT650_DisplacedDijet80_Inclusive_,const Bool_t &i_HT750_DisplacedDijet80_Inclusive_,const Bool_t &i_VBF_DisplacedJet40_DisplacedTrack_,const Bool_t &i_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_,const Bool_t &i_VBF_DisplacedJet40_TightID_DisplacedTrack_,const Bool_t &i_VBF_DisplacedJet40_Hadronic_,const Bool_t &i_VBF_DisplacedJet40_Hadronic_2PromptTrack_,const Bool_t &i_VBF_DisplacedJet40_TightID_Hadronic_,const Bool_t &i_VBF_DisplacedJet40_VTightID_Hadronic_,const Bool_t &i_VBF_DisplacedJet40_VVTightID_Hadronic_,const Bool_t &i_VBF_DisplacedJet40_VTightID_DisplacedTrack_,const Bool_t &i_VBF_DisplacedJet40_VVTightID_DisplacedTrack_,const Bool_t &i_PFMETNoMu90_PFMHTNoMu90_IDTight_,const Bool_t &i_PFMETNoMu100_PFMHTNoMu100_IDTight_,const Bool_t &i_PFMETNoMu110_PFMHTNoMu110_IDTight_,const Bool_t &i_PFMETNoMu120_PFMHTNoMu120_IDTight_,const Bool_t &i_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_,const Bool_t &i_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_,const Bool_t &i_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_,const Bool_t &i_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_,const Bool_t &i_Ele27_eta2p1_WPLoose_Gsf_HT200_,const Bool_t &i_Photon90_CaloIdL_PFHT500_,const Bool_t &i_DoubleMu8_Mass8_PFHT250_,const Bool_t &i_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_,const Bool_t &i_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_,const Bool_t &i_DoubleMu8_Mass8_PFHT300_,const Bool_t &i_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_,const Bool_t &i_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_,const Bool_t &i_Mu10_CentralPFJet30_BTagCSV_p13_,const Bool_t &i_DoubleMu3_PFMET50_,const Bool_t &i_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_,const Bool_t &i_Ele15_IsoVVVL_BTagCSV_p067_PFHT400_,const Bool_t &i_Ele15_IsoVVVL_PFHT350_PFMET50_,const Bool_t &i_Ele15_IsoVVVL_PFHT600_,const Bool_t &i_Ele15_IsoVVVL_PFHT350_,const Bool_t &i_Ele15_IsoVVVL_PFHT400_PFMET50_,const Bool_t &i_Ele15_IsoVVVL_PFHT400_,const Bool_t &i_Ele50_IsoVVVL_PFHT400_,const Bool_t &i_Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_,const Bool_t &i_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_,const Bool_t &i_Mu15_IsoVVVL_BTagCSV_p067_PFHT400_,const Bool_t &i_Mu15_IsoVVVL_PFHT350_PFMET50_,const Bool_t &i_Mu15_IsoVVVL_PFHT600_,const Bool_t &i_Mu15_IsoVVVL_PFHT350_,const Bool_t &i_Mu15_IsoVVVL_PFHT400_PFMET50_,const Bool_t &i_Mu15_IsoVVVL_PFHT400_,const Bool_t &i_Mu50_IsoVVVL_PFHT400_,const Bool_t &i_Dimuon16_Jpsi_,const Bool_t &i_Dimuon10_Jpsi_Barrel_,const Bool_t &i_Dimuon8_PsiPrime_Barrel_,const Bool_t &i_Dimuon8_Upsilon_Barrel_,const Bool_t &i_Dimuon0_Phi_Barrel_,const Bool_t &i_Mu16_TkMu0_dEta18_Onia_,const Bool_t &i_Mu16_TkMu0_dEta18_Phi_,const Bool_t &i_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_,const Bool_t &i_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_,const Bool_t &i_Mu8_,const Bool_t &i_Mu17_,const Bool_t &i_Mu3_PFJet40_,const Bool_t &i_Ele8_CaloIdM_TrackIdM_PFJet30_,const Bool_t &i_Ele12_CaloIdM_TrackIdM_PFJet30_,const Bool_t &i_Ele17_CaloIdM_TrackIdM_PFJet30_,const Bool_t &i_Ele23_CaloIdM_TrackIdM_PFJet30_,const Bool_t &i_Ele50_CaloIdVT_GsfTrkIdT_PFJet140_,const Bool_t &i_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_,const Bool_t &i_PFHT400_SixJet30_DoubleBTagCSV_p056_,const Bool_t &i_PFHT450_SixJet40_BTagCSV_p056_,const Bool_t &i_PFHT400_SixJet30_,const Bool_t &i_PFHT450_SixJet40_,const Bool_t &i_Ele115_CaloIdVT_GsfTrkIdT_,const Bool_t &i_Mu55_,const Bool_t &i_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_,const Bool_t &i_Photon90_CaloIdL_PFHT600_,const Bool_t &i_PixelTracks_Multiplicity60ForEndOfFill_,const Bool_t &i_PixelTracks_Multiplicity85ForEndOfFill_,const Bool_t &i_PixelTracks_Multiplicity110ForEndOfFill_,const Bool_t &i_PixelTracks_Multiplicity135ForEndOfFill_,const Bool_t &i_PixelTracks_Multiplicity160ForEndOfFill_,const Bool_t &i_FullTracks_Multiplicity80_,const Bool_t &i_FullTracks_Multiplicity100_,const Bool_t &i_FullTracks_Multiplicity130_,const Bool_t &i_FullTracks_Multiplicity150_,const Bool_t &i_ECALHT800_,const Bool_t &i_DiSC30_18_EIso_AND_HE_Mass70_,const Bool_t &i_Photon125_,const Bool_t &i_MET100_,const Bool_t &i_MET150_,const Bool_t &i_MET200_,const Bool_t &i_Ele27_HighEta_Ele20_Mass55_,const Bool_t &i_L1FatEvents_,const Bool_t &i_Physics_,const Bool_t &i_L1FatEvents_part0_,const Bool_t &i_L1FatEvents_part1_,const Bool_t &i_L1FatEvents_part2_,const Bool_t &i_L1FatEvents_part3_,const Bool_t &i_Random_,const Bool_t &i_ZeroBias_,const Bool_t &i_AK4CaloJet30_,const Bool_t &i_AK4CaloJet40_,const Bool_t &i_AK4CaloJet50_,const Bool_t &i_AK4CaloJet80_,const Bool_t &i_AK4CaloJet100_,const Bool_t &i_AK4PFJet30_,const Bool_t &i_AK4PFJet50_,const Bool_t &i_AK4PFJet80_,const Bool_t &i_AK4PFJet100_,const Bool_t &i_HISinglePhoton10_,const Bool_t &i_HISinglePhoton15_,const Bool_t &i_HISinglePhoton20_,const Bool_t &i_HISinglePhoton40_,const Bool_t &i_HISinglePhoton60_,const Bool_t &i_EcalCalibration_,const Bool_t &i_HcalCalibration_,const Bool_t &i_GlobalRunHPDNoise_,const Bool_t &i_L1BptxMinus_,const Bool_t &i_L1BptxPlus_,const Bool_t &i_L1NotBptxOR_,const Bool_t &i_L1BeamGasMinus_,const Bool_t &i_L1BeamGasPlus_,const Bool_t &i_L1BptxXOR_,const Bool_t &i_L1MinimumBiasHF_OR_,const Bool_t &i_L1MinimumBiasHF_AND_,const Bool_t &i_HcalNZS_,const Bool_t &i_HcalPhiSym_,const Bool_t &i_HcalIsolatedbunch_,const Bool_t &i_ZeroBias_FirstCollisionAfterAbortGap_,const Bool_t &i_ZeroBias_FirstCollisionAfterAbortGap_copy_,const Bool_t &i_ZeroBias_FirstCollisionAfterAbortGap_TCDS_,const Bool_t &i_ZeroBias_IsolatedBunches_,const Bool_t &i_ZeroBias_FirstCollisionInTrain_,const Bool_t &i_ZeroBias_FirstBXAfterTrain_,const Bool_t &i_Photon500_,const Bool_t &i_Photon600_,const Bool_t &i_Mu300_,const Bool_t &i_Mu350_,const Bool_t &i_MET250_,const Bool_t &i_MET300_,const Bool_t &i_MET600_,const Bool_t &i_MET700_,const Bool_t &i_PFMET300_,const Bool_t &i_PFMET400_,const Bool_t &i_PFMET500_,const Bool_t &i_PFMET600_,const Bool_t &i_Ele250_CaloIdVT_GsfTrkIdT_,const Bool_t &i_Ele300_CaloIdVT_GsfTrkIdT_,const Bool_t &i_HT2000_,const Bool_t &i_HT2500_,const Bool_t &i_IsoTrackHE_,const Bool_t &i_IsoTrackHB_,const Bool_t &i_HLTriggerFinalPath_):
 //    
 //  {}
   Hlt():
     HLTriggerFirstPath_(0),
-    AK8PFJet360_(0),
-    AK8PFJet400_(0),
-    AK8PFHT750_(0),
-    AK8PFHT800_(0),
-    AK8DiPFJet300_(0),
-    AK8DiPFJet280_(0),
-    AK8DiPFJet300_(0),
-    AK8DiPFJet300_(0),
-    AK8PFHT700_(0),
-    AK8PFHT650_(0),
-    AK8PFHT600_(0),
-    AK8DiPFJet280_(0),
-    AK8DiPFJet250_(0),
-    AK8DiPFJet280_(0),
-    AK8DiPFJet250_(0),
+    AK8PFJet360_TrimMass30_(0),
+    AK8PFJet400_TrimMass30_(0),
+    AK8PFHT750_TrimMass50_(0),
+    AK8PFHT800_TrimMass50_(0),
+    AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_(0),
+    AK8DiPFJet280_200_TrimMass30_BTagCSV_p087_(0),
+    AK8DiPFJet300_200_TrimMass30_BTagCSV_p087_(0),
+    AK8DiPFJet300_200_TrimMass30_(0),
+    AK8PFHT700_TrimR0p1PT0p03Mass50_(0),
+    AK8PFHT650_TrimR0p1PT0p03Mass50_(0),
+    AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_(0),
+    AK8DiPFJet280_200_TrimMass30_(0),
+    AK8DiPFJet250_200_TrimMass30_(0),
+    AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_(0),
+    AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_(0),
     CaloJet260_(0),
-    CaloJet500_(0),
-    Dimuon13_(0),
-    Dimuon13_(0),
-    Dimuon20_(0),
-    DoubleEle24_(0),
-    DoubleEle25_(0),
-    DoubleEle33_(0),
-    DoubleEle33_(0),
-    DoubleEle33_(0),
-    DoubleEle33_(0),
-    DoubleMediumCombinedIsoPFTau35_(0),
-    DoubleTightCombinedIsoPFTau35_(0),
-    DoubleMediumCombinedIsoPFTau40_(0),
-    DoubleTightCombinedIsoPFTau40_(0),
-    DoubleMediumCombinedIsoPFTau40_(0),
-    DoubleTightCombinedIsoPFTau40_(0),
-    DoubleMediumIsoPFTau35_(0),
-    DoubleMediumIsoPFTau40_(0),
-    DoubleMediumIsoPFTau40_(0),
-    DoubleEle37_(0),
+    CaloJet500_NoJetID_(0),
+    Dimuon13_PsiPrime_(0),
+    Dimuon13_Upsilon_(0),
+    Dimuon20_Jpsi_(0),
+    DoubleEle24_22_eta2p1_WPLoose_Gsf_(0),
+    DoubleEle25_CaloIdL_GsfTrkIdVL_(0),
+    DoubleEle33_CaloIdL_(0),
+    DoubleEle33_CaloIdL_MW_(0),
+    DoubleEle33_CaloIdL_GsfTrkIdVL_MW_(0),
+    DoubleEle33_CaloIdL_GsfTrkIdVL_(0),
+    DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_(0),
+    DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg_(0),
+    DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_(0),
+    DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg_(0),
+    DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_(0),
+    DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_(0),
+    DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_(0),
+    DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_(0),
+    DoubleMediumIsoPFTau40_Trk1_eta2p1_(0),
+    DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_(0),
     DoubleMu33NoFiltersNoVtx_(0),
     DoubleMu38NoFiltersNoVtx_(0),
     DoubleMu23NoFiltersNoVtxDisplaced_(0),
     DoubleMu28NoFiltersNoVtxDisplaced_(0),
     DoubleMu0_(0),
-    DoubleMu4_(0),
-    DoubleMu4_(0),
-    DoubleMu4_(0),
-    DoubleMu4_(0),
-    DoubleMu3_(0),
-    DoubleMu4_(0),
-    Mu7p5_(0),
-    Mu7p5_(0),
-    Mu7p5_(0),
-    Mu7p5_(0),
-    Mu7p5_(0),
-    Mu7p5_(0),
-    Mu7p5_(0),
-    Mu7p5_(0),
-    Dimuon0er16_(0),
-    Dimuon0er16_(0),
-    Dimuon6_(0),
+    DoubleMu4_3_Bs_(0),
+    DoubleMu4_3_Jpsi_Displaced_(0),
+    DoubleMu4_JpsiTrk_Displaced_(0),
+    DoubleMu4_LowMassNonResonantTrk_Displaced_(0),
+    DoubleMu3_Trk_Tau3mu_(0),
+    DoubleMu4_PsiPrimeTrk_Displaced_(0),
+    Mu7p5_L2Mu2_Jpsi_(0),
+    Mu7p5_L2Mu2_Upsilon_(0),
+    Mu7p5_Track2_Jpsi_(0),
+    Mu7p5_Track3p5_Jpsi_(0),
+    Mu7p5_Track7_Jpsi_(0),
+    Mu7p5_Track2_Upsilon_(0),
+    Mu7p5_Track3p5_Upsilon_(0),
+    Mu7p5_Track7_Upsilon_(0),
+    Dimuon0er16_Jpsi_NoOS_NoVertexing_(0),
+    Dimuon0er16_Jpsi_NoVertexing_(0),
+    Dimuon6_Jpsi_NoVertexing_(0),
     Photon150_(0),
-    Photon90_(0),
-    HT250_(0),
+    Photon90_CaloIdL_HT300_(0),
+    HT250_CaloMET70_(0),
     DoublePhoton60_(0),
     DoublePhoton85_(0),
-    Ele17_(0),
-    Ele20_(0),
-    Ele22_(0),
-    Ele22_(0),
-    Ele22_(0),
-    Ele23_(0),
-    Ele23_(0),
-    Ele24_(0),
-    Ele24_(0),
-    Ele24_(0),
-    Ele24_(0),
-    Ele25_(0),
-    Ele25_(0),
-    Ele25_(0),
-    Ele27_(0),
-    Ele27_(0),
-    Ele27_(0),
-    Ele27_(0),
-    Ele27_(0),
-    Ele27_(0),
-    Ele27_(0),
-    Ele30_(0),
-    Ele30_(0),
-    Ele30_(0),
-    Ele32_(0),
-    Ele32_(0),
-    Ele32_(0),
-    Ele32_(0),
-    Ele35_(0),
-    Ele35_(0),
-    Ele36_(0),
-    Ele45_(0),
-    Ele45_(0),
-    Ele45_(0),
-    Ele105_(0),
-    Ele30WP60_(0),
-    Ele30WP60_(0),
+    Ele17_Ele8_Gsf_(0),
+    Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_(0),
+    Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_(0),
+    Ele22_eta2p1_WPLoose_Gsf_(0),
+    Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_(0),
+    Ele23_WPLoose_Gsf_(0),
+    Ele23_WPLoose_Gsf_WHbbBoost_(0),
+    Ele24_eta2p1_WPLoose_Gsf_(0),
+    Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_(0),
+    Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_(0),
+    Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_(0),
+    Ele25_WPTight_Gsf_(0),
+    Ele25_eta2p1_WPLoose_Gsf_(0),
+    Ele25_eta2p1_WPTight_Gsf_(0),
+    Ele27_WPLoose_Gsf_(0),
+    Ele27_WPLoose_Gsf_WHbbBoost_(0),
+    Ele27_WPTight_Gsf_(0),
+    Ele27_WPTight_Gsf_L1JetTauSeeded_(0),
+    Ele27_eta2p1_WPLoose_Gsf_(0),
+    Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_(0),
+    Ele27_eta2p1_WPTight_Gsf_(0),
+    Ele30_WPTight_Gsf_(0),
+    Ele30_eta2p1_WPLoose_Gsf_(0),
+    Ele30_eta2p1_WPTight_Gsf_(0),
+    Ele32_WPTight_Gsf_(0),
+    Ele32_eta2p1_WPLoose_Gsf_(0),
+    Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_(0),
+    Ele32_eta2p1_WPTight_Gsf_(0),
+    Ele35_WPLoose_Gsf_(0),
+    Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_(0),
+    Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_(0),
+    Ele45_WPLoose_Gsf_(0),
+    Ele45_WPLoose_Gsf_L1JetTauSeeded_(0),
+    Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_(0),
+    Ele105_CaloIdVT_GsfTrkIdT_(0),
+    Ele30WP60_SC4_Mass55_(0),
+    Ele30WP60_Ele8_Mass55_(0),
     HT200_(0),
     HT275_(0),
     HT325_(0),
@@ -1222,123 +1223,123 @@ public:
     HT500to550_(0),
     HT550to650_(0),
     HT650_(0),
-    Mu16_(0),
-    IsoMu16_(0),
-    IsoMu16_(0),
-    IsoMu17_(0),
-    IsoMu17_(0),
-    IsoMu17_(0),
-    DoubleIsoMu17_(0),
-    DoubleIsoMu17_(0),
+    Mu16_eta2p1_MET30_(0),
+    IsoMu16_eta2p1_MET30_(0),
+    IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_(0),
+    IsoMu17_eta2p1_(0),
+    IsoMu17_eta2p1_LooseIsoPFTau20_(0),
+    IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_(0),
+    DoubleIsoMu17_eta2p1_(0),
+    DoubleIsoMu17_eta2p1_noDzCut_(0),
     IsoMu18_(0),
-    IsoMu19_(0),
-    IsoMu19_(0),
-    IsoMu19_(0),
-    IsoMu19_(0),
-    IsoMu19_(0),
-    IsoMu19_(0),
-    IsoMu21_(0),
-    IsoMu21_(0),
+    IsoMu19_eta2p1_LooseIsoPFTau20_(0),
+    IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_(0),
+    IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_(0),
+    IsoMu19_eta2p1_LooseCombinedIsoPFTau20_(0),
+    IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_(0),
+    IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_(0),
+    IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_(0),
+    IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_(0),
     IsoMu20_(0),
-    IsoMu21_(0),
-    IsoMu21_(0),
-    IsoMu21_(0),
+    IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_(0),
+    IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_(0),
+    IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_(0),
     IsoMu22_(0),
-    IsoMu22_(0),
+    IsoMu22_eta2p1_(0),
     IsoMu24_(0),
     IsoMu27_(0),
     IsoTkMu18_(0),
     IsoTkMu20_(0),
     IsoTkMu22_(0),
-    IsoTkMu22_(0),
+    IsoTkMu22_eta2p1_(0),
     IsoTkMu24_(0),
     IsoTkMu27_(0),
-    JetE30_(0),
-    JetE30_(0),
-    JetE50_(0),
-    JetE70_(0),
+    JetE30_NoBPTX3BX_(0),
+    JetE30_NoBPTX_(0),
+    JetE50_NoBPTX3BX_(0),
+    JetE70_NoBPTX3BX_(0),
     L1SingleMu18_(0),
     L2Mu10_(0),
     L1SingleMuOpen_(0),
-    L1SingleMuOpen_(0),
-    L2DoubleMu23_(0),
-    L2DoubleMu28_(0),
-    L2DoubleMu38_(0),
-    L2Mu10_(0),
-    L2Mu10_(0),
-    L2Mu45_(0),
-    L2Mu40_(0),
-    LooseIsoPFTau50_(0),
-    LooseIsoPFTau50_(0),
-    LooseIsoPFTau50_(0),
-    LooseIsoPFTau50_(0),
-    LooseIsoPFTau50_(0),
-    PFTau120_(0),
-    PFTau140_(0),
-    VLooseIsoPFTau120_(0),
-    VLooseIsoPFTau140_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu20_(0),
-    Mu20_(0),
-    Mu20_(0),
-    Mu20_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu25_(0),
-    Mu27_(0),
-    Mu30_(0),
-    Mu30_(0),
-    Mu40_(0),
-    Mu40_(0),
+    L1SingleMuOpen_DT_(0),
+    L2DoubleMu23_NoVertex_(0),
+    L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_(0),
+    L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_(0),
+    L2Mu10_NoVertex_NoBPTX3BX_(0),
+    L2Mu10_NoVertex_NoBPTX_(0),
+    L2Mu45_NoVertex_3Sta_NoBPTX3BX_(0),
+    L2Mu40_NoVertex_3Sta_NoBPTX3BX_(0),
+    LooseIsoPFTau50_Trk30_eta2p1_(0),
+    LooseIsoPFTau50_Trk30_eta2p1_MET80_(0),
+    LooseIsoPFTau50_Trk30_eta2p1_MET90_(0),
+    LooseIsoPFTau50_Trk30_eta2p1_MET110_(0),
+    LooseIsoPFTau50_Trk30_eta2p1_MET120_(0),
+    PFTau120_eta2p1_(0),
+    PFTau140_eta2p1_(0),
+    VLooseIsoPFTau120_Trk50_eta2p1_(0),
+    VLooseIsoPFTau140_Trk50_eta2p1_(0),
+    Mu17_Mu8_(0),
+    Mu17_Mu8_DZ_(0),
+    Mu17_Mu8_SameSign_(0),
+    Mu17_Mu8_SameSign_DZ_(0),
+    Mu20_Mu10_(0),
+    Mu20_Mu10_DZ_(0),
+    Mu20_Mu10_SameSign_(0),
+    Mu20_Mu10_SameSign_DZ_(0),
+    Mu17_TkMu8_DZ_(0),
+    Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_(0),
+    Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_(0),
+    Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_(0),
+    Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_(0),
+    Mu25_TkMu0_dEta18_Onia_(0),
+    Mu27_TkMu8_(0),
+    Mu30_TkMu11_(0),
+    Mu30_eta2p1_PFJet150_PFJet50_(0),
+    Mu40_TkMu11_(0),
+    Mu40_eta2p1_PFJet200_PFJet50_(0),
     Mu20_(0),
     TkMu17_(0),
-    TkMu17_(0),
-    TkMu17_(0),
+    TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_(0),
+    TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_(0),
     TkMu20_(0),
-    Mu24_(0),
-    TkMu24_(0),
+    Mu24_eta2p1_(0),
+    TkMu24_eta2p1_(0),
     Mu27_(0),
     TkMu27_(0),
-    Mu45_(0),
+    Mu45_eta2p1_(0),
     Mu50_(0),
     TkMu50_(0),
-    Mu38NoFiltersNoVtx_(0),
-    Mu42NoFiltersNoVtx_(0),
-    Mu28NoFiltersNoVtxDisplaced_(0),
-    Mu33NoFiltersNoVtxDisplaced_(0),
-    Mu23NoFiltersNoVtx_(0),
+    Mu38NoFiltersNoVtx_Photon38_CaloIdL_(0),
+    Mu42NoFiltersNoVtx_Photon42_CaloIdL_(0),
+    Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_(0),
+    Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_(0),
+    Mu23NoFiltersNoVtx_Photon23_CaloIdL_(0),
     DoubleMu18NoFiltersNoVtx_(0),
-    Mu33NoFiltersNoVtxDisplaced_(0),
-    Mu33NoFiltersNoVtxDisplaced_(0),
-    Mu28NoFiltersNoVtx_(0),
-    Mu38NoFiltersNoVtxDisplaced_(0),
-    Mu38NoFiltersNoVtxDisplaced_(0),
-    Mu38NoFiltersNoVtx_(0),
-    Mu28NoFiltersNoVtx_(0),
-    PFHT300_(0),
-    PFHT300_(0),
-    PFHT550_(0),
-    PFHT650_(0),
-    PFHT750_(0),
-    PFHT750_(0),
-    PFHT750_(0),
-    PFHT800_(0),
-    PFHT850_(0),
-    PFJet15_(0),
-    PFJet25_(0),
-    DiPFJet15_(0),
-    DiPFJet25_(0),
-    DiPFJet15_(0),
-    DiPFJet25_(0),
-    DiPFJetAve15_(0),
-    DiPFJetAve25_(0),
-    DiPFJetAve35_(0),
+    Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_(0),
+    Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_(0),
+    Mu28NoFiltersNoVtx_DisplacedJet40_Loose_(0),
+    Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_(0),
+    Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_(0),
+    Mu38NoFiltersNoVtx_DisplacedJet60_Loose_(0),
+    Mu28NoFiltersNoVtx_CentralCaloJet40_(0),
+    PFHT300_PFMET100_(0),
+    PFHT300_PFMET110_(0),
+    PFHT550_4JetPt50_(0),
+    PFHT650_4JetPt50_(0),
+    PFHT750_4JetPt50_(0),
+    PFHT750_4JetPt70_(0),
+    PFHT750_4JetPt80_(0),
+    PFHT800_4JetPt50_(0),
+    PFHT850_4JetPt50_(0),
+    PFJet15_NoCaloMatched_(0),
+    PFJet25_NoCaloMatched_(0),
+    DiPFJet15_NoCaloMatched_(0),
+    DiPFJet25_NoCaloMatched_(0),
+    DiPFJet15_FBEta3_NoCaloMatched_(0),
+    DiPFJet25_FBEta3_NoCaloMatched_(0),
+    DiPFJetAve15_HFJEC_(0),
+    DiPFJetAve25_HFJEC_(0),
+    DiPFJetAve35_HFJEC_(0),
     AK8PFJet40_(0),
     AK8PFJet60_(0),
     AK8PFJet80_(0),
@@ -1368,19 +1369,19 @@ public:
     DiPFJetAve320_(0),
     DiPFJetAve400_(0),
     DiPFJetAve500_(0),
-    DiPFJetAve60_(0),
-    DiPFJetAve80_(0),
-    DiPFJetAve100_(0),
-    DiPFJetAve160_(0),
-    DiPFJetAve220_(0),
-    DiPFJetAve300_(0),
-    DiPFJet40_(0),
-    DiPFJet40_(0),
+    DiPFJetAve60_HFJEC_(0),
+    DiPFJetAve80_HFJEC_(0),
+    DiPFJetAve100_HFJEC_(0),
+    DiPFJetAve160_HFJEC_(0),
+    DiPFJetAve220_HFJEC_(0),
+    DiPFJetAve300_HFJEC_(0),
+    DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_(0),
+    DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_(0),
     DiCentralPFJet170_(0),
-    SingleCentralPFJet170_(0),
-    DiCentralPFJet170_(0),
-    DiCentralPFJet220_(0),
-    DiCentralPFJet330_(0),
+    SingleCentralPFJet170_CFMax0p1_(0),
+    DiCentralPFJet170_CFMax0p1_(0),
+    DiCentralPFJet220_CFMax0p3_(0),
+    DiCentralPFJet330_CFMax0p5_(0),
     DiCentralPFJet430_(0),
     PFHT125_(0),
     PFHT200_(0),
@@ -1393,125 +1394,125 @@ public:
     PFHT650_(0),
     PFHT800_(0),
     PFHT900_(0),
-    PFHT200_(0),
-    PFHT200_(0),
-    PFHT200_(0),
-    PFHT250_(0),
-    PFHT250_(0),
-    PFHT300_(0),
-    PFHT300_(0),
-    PFHT350_(0),
-    PFHT350_(0),
-    PFHT400_(0),
-    PFHT400_(0),
-    MET60_(0),
-    MET75_(0),
-    MET90_(0),
-    PFMET120_(0),
-    PFMET120_(0),
-    PFMET170_(0),
-    PFMET170_(0),
-    PFMET170_(0),
-    PFMET170_(0),
-    PFMET170_(0),
-    PFMET170_(0),
-    PFMETTypeOne190_(0),
-    PFMET90_(0),
-    PFMET100_(0),
-    PFMET100_(0),
-    PFMET110_(0),
-    PFMET120_(0),
-    CaloMHTNoPU90_(0),
-    CaloMHTNoPU90_(0),
-    QuadPFJet_(0),
-    QuadPFJet_(0),
-    QuadPFJet_(0),
-    QuadPFJet_(0),
-    QuadPFJet_(0),
-    L1_(0),
-    QuadJet45_(0),
-    QuadJet45_(0),
-    DoubleJet90_(0),
-    DoubleJet90_(0),
-    DoubleJetsC100_(0),
-    DoubleJetsC100_(0),
-    DoubleJetsC112_(0),
-    DoubleJetsC112_(0),
-    DoubleJetsC100_(0),
-    DoubleJetsC100_(0),
-    DoubleJetsC100_(0),
-    DoubleJetsC100_(0),
-    Photon135_(0),
-    Photon20_(0),
-    Photon22_(0),
-    Photon22_(0),
-    Photon250_(0),
-    Photon300_(0),
-    Photon26_(0),
-    Photon36_(0),
-    Photon36_(0),
-    Photon36_(0),
-    Photon50_(0),
-    Photon50_(0),
-    Photon75_(0),
-    Photon75_(0),
-    Photon90_(0),
-    Photon90_(0),
-    Photon120_(0),
-    Photon120_(0),
-    Mu8_(0),
-    Mu17_(0),
-    Ele8_(0),
-    Ele12_(0),
-    Ele17_(0),
-    Ele23_(0),
-    BTagMu_(0),
-    BTagMu_(0),
-    BTagMu_(0),
-    BTagMu_(0),
-    BTagMu_(0),
-    BTagMu_(0),
-    BTagMu_(0),
-    Ele23_(0),
-    Ele23_(0),
-    Ele17_(0),
-    Ele16_(0),
-    Mu8_(0),
-    Mu8_(0),
-    Mu8_(0),
-    Mu12_(0),
-    Mu12_(0),
-    Mu17_(0),
-    Mu23_(0),
-    Mu23_(0),
-    Mu23_(0),
-    Mu23_(0),
-    Mu30_(0),
-    Mu33_(0),
-    Mu37_(0),
-    Mu27_(0),
-    Mu8_(0),
-    Mu12_(0),
-    Mu12_(0),
-    Mu12_(0),
-    Mu17_(0),
-    Mu17_(0),
-    Mu17_(0),
-    DiMu9_(0),
-    TripleMu_(0),
-    TripleMu_(0),
-    Mu3er_(0),
-    Mu6_(0),
-    Mu6_(0),
-    Mu14er_(0),
-    Ele17_(0),
-    Ele23_(0),
-    Ele12_(0),
-    Ele17_(0),
-    Ele17_(0),
-    Ele23_(0),
-    PFHT650_(0),
-    PFHT650_(0),
+    PFHT200_PFAlphaT0p51_(0),
+    PFHT200_DiPFJetAve90_PFAlphaT0p57_(0),
+    PFHT200_DiPFJetAve90_PFAlphaT0p63_(0),
+    PFHT250_DiPFJetAve90_PFAlphaT0p55_(0),
+    PFHT250_DiPFJetAve90_PFAlphaT0p58_(0),
+    PFHT300_DiPFJetAve90_PFAlphaT0p53_(0),
+    PFHT300_DiPFJetAve90_PFAlphaT0p54_(0),
+    PFHT350_DiPFJetAve90_PFAlphaT0p52_(0),
+    PFHT350_DiPFJetAve90_PFAlphaT0p53_(0),
+    PFHT400_DiPFJetAve90_PFAlphaT0p51_(0),
+    PFHT400_DiPFJetAve90_PFAlphaT0p52_(0),
+    MET60_IsoTrk35_Loose_(0),
+    MET75_IsoTrk50_(0),
+    MET90_IsoTrk50_(0),
+    PFMET120_BTagCSV_p067_(0),
+    PFMET120_Mu5_(0),
+    PFMET170_NotCleaned_(0),
+    PFMET170_NoiseCleaned_(0),
+    PFMET170_HBHECleaned_(0),
+    PFMET170_JetIdCleaned_(0),
+    PFMET170_BeamHaloCleaned_(0),
+    PFMET170_HBHE_BeamHaloCleaned_(0),
+    PFMETTypeOne190_HBHE_BeamHaloCleaned_(0),
+    PFMET90_PFMHT90_IDTight_(0),
+    PFMET100_PFMHT100_IDTight_(0),
+    PFMET100_PFMHT100_IDTight_BeamHaloCleaned_(0),
+    PFMET110_PFMHT110_IDTight_(0),
+    PFMET120_PFMHT120_IDTight_(0),
+    CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_(0),
+    CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_(0),
+    QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_(0),
+    QuadPFJet_BTagCSV_p016_VBF_Mqq460_(0),
+    QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_(0),
+    QuadPFJet_BTagCSV_p016_VBF_Mqq500_(0),
+    QuadPFJet_VBF_(0),
+    L1_TripleJet_VBF_(0),
+    QuadJet45_TripleBTagCSV_p087_(0),
+    QuadJet45_DoubleBTagCSV_p087_(0),
+    DoubleJet90_Double30_TripleBTagCSV_p087_(0),
+    DoubleJet90_Double30_DoubleBTagCSV_p087_(0),
+    DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_(0),
+    DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_(0),
+    DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_(0),
+    DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_(0),
+    DoubleJetsC100_SingleBTagCSV_p026_(0),
+    DoubleJetsC100_SingleBTagCSV_p014_(0),
+    DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_(0),
+    DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_(0),
+    Photon135_PFMET100_(0),
+    Photon20_CaloIdVL_IsoL_(0),
+    Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_(0),
+    Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_(0),
+    Photon250_NoHE_(0),
+    Photon300_NoHE_(0),
+    Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_(0),
+    Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_(0),
+    Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_(0),
+    Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_(0),
+    Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_(0),
+    Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_(0),
+    Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_(0),
+    Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_(0),
+    Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_(0),
+    Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_(0),
+    Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_(0),
+    Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_(0),
+    Mu8_TrkIsoVVL_(0),
+    Mu17_TrkIsoVVL_(0),
+    Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_(0),
+    Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_(0),
+    Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30_(0),
+    Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_(0),
+    BTagMu_DiJet20_Mu5_(0),
+    BTagMu_DiJet40_Mu5_(0),
+    BTagMu_DiJet70_Mu5_(0),
+    BTagMu_DiJet110_Mu5_(0),
+    BTagMu_DiJet170_Mu5_(0),
+    BTagMu_Jet300_Mu5_(0),
+    BTagMu_AK8Jet300_Mu5_(0),
+    Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_(0),
+    Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    Ele16_Ele12_Ele8_CaloIdL_TrackIdL_(0),
+    Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_(0),
+    Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_(0),
+    Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_(0),
+    Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_(0),
+    Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_(0),
+    Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_(0),
+    Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_(0),
+    Mu30_Ele30_CaloIdL_GsfTrkIdVL_(0),
+    Mu33_Ele33_CaloIdL_GsfTrkIdVL_(0),
+    Mu37_Ele27_CaloIdL_GsfTrkIdVL_(0),
+    Mu27_Ele37_CaloIdL_GsfTrkIdVL_(0),
+    Mu8_DiEle12_CaloIdL_TrackIdL_(0),
+    Mu12_Photon25_CaloIdL_(0),
+    Mu12_Photon25_CaloIdL_L1ISO_(0),
+    Mu12_Photon25_CaloIdL_L1OR_(0),
+    Mu17_Photon22_CaloIdL_L1ISO_(0),
+    Mu17_Photon30_CaloIdL_L1ISO_(0),
+    Mu17_Photon35_CaloIdL_L1ISO_(0),
+    DiMu9_Ele9_CaloIdL_TrackIdL_(0),
+    TripleMu_5_3_3_(0),
+    TripleMu_12_10_5_(0),
+    Mu3er_PFHT140_PFMET125_(0),
+    Mu6_PFHT200_PFMET80_BTagCSV_p067_(0),
+    Mu6_PFHT200_PFMET100_(0),
+    Mu14er_PFMET100_(0),
+    Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_(0),
+    Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_(0),
+    Ele12_CaloIdL_TrackIdL_IsoVL_(0),
+    Ele17_CaloIdL_GsfTrkIdVL_(0),
+    Ele17_CaloIdL_TrackIdL_IsoVL_(0),
+    Ele23_CaloIdL_TrackIdL_IsoVL_(0),
+    PFHT650_WideJetMJJ900DEtaJJ1p5_(0),
+    PFHT650_WideJetMJJ950DEtaJJ1p5_(0),
     Photon22_(0),
     Photon30_(0),
     Photon36_(0),
@@ -1520,143 +1521,143 @@ public:
     Photon90_(0),
     Photon120_(0),
     Photon175_(0),
-    Photon165_(0),
-    Photon22_(0),
-    Photon30_(0),
-    Photon36_(0),
-    Photon50_(0),
-    Photon75_(0),
-    Photon90_(0),
-    Photon120_(0),
-    Photon165_(0),
-    Diphoton30_(0),
-    Diphoton30_(0),
-    Diphoton30PV_(0),
-    Diphoton30_(0),
-    Diphoton30EB_(0),
-    Dimuon0_(0),
-    Dimuon0_(0),
-    QuadMuon0_(0),
-    QuadMuon0_(0),
-    Rsq0p25_(0),
-    RsqMR240_(0),
-    RsqMR240_(0),
+    Photon165_HE10_(0),
+    Photon22_R9Id90_HE10_IsoM_(0),
+    Photon30_R9Id90_HE10_IsoM_(0),
+    Photon36_R9Id90_HE10_IsoM_(0),
+    Photon50_R9Id90_HE10_IsoM_(0),
+    Photon75_R9Id90_HE10_IsoM_(0),
+    Photon90_R9Id90_HE10_IsoM_(0),
+    Photon120_R9Id90_HE10_IsoM_(0),
+    Photon165_R9Id90_HE10_IsoM_(0),
+    Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_(0),
+    Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_(0),
+    Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_(0),
+    Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_(0),
+    Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_(0),
+    Dimuon0_Jpsi_Muon_(0),
+    Dimuon0_Upsilon_Muon_(0),
+    QuadMuon0_Dimuon0_Jpsi_(0),
+    QuadMuon0_Dimuon0_Upsilon_(0),
+    Rsq0p25_Calo_(0),
+    RsqMR240_Rsq0p09_MR200_4jet_Calo_(0),
+    RsqMR240_Rsq0p09_MR200_Calo_(0),
     Rsq0p25_(0),
     Rsq0p30_(0),
-    RsqMR240_(0),
-    RsqMR240_(0),
-    RsqMR270_(0),
-    RsqMR270_(0),
-    Rsq0p02_(0),
-    Rsq0p02_(0),
-    Rsq0p02_(0),
-    Rsq0p02_(0),
-    Rsq0p02_(0),
-    HT200_(0),
-    HT250_(0),
-    HT350_(0),
-    HT350_(0),
-    HT350_(0),
-    HT350_(0),
-    HT400_(0),
-    HT500_(0),
-    HT550_(0),
-    HT550_(0),
-    HT650_(0),
-    HT750_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    VBF_(0),
-    PFMETNoMu90_(0),
-    PFMETNoMu100_(0),
-    PFMETNoMu110_(0),
-    PFMETNoMu120_(0),
-    MonoCentralPFJet80_(0),
-    MonoCentralPFJet80_(0),
-    MonoCentralPFJet80_(0),
-    MonoCentralPFJet80_(0),
-    Ele27_(0),
-    Photon90_(0),
-    DoubleMu8_(0),
-    Mu8_(0),
-    DoubleEle8_(0),
-    DoubleMu8_(0),
-    Mu8_(0),
-    DoubleEle8_(0),
-    Mu10_(0),
-    DoubleMu3_(0),
-    Ele10_(0),
-    Ele15_(0),
-    Ele15_(0),
-    Ele15_(0),
-    Ele15_(0),
-    Ele15_(0),
-    Ele15_(0),
-    Ele50_(0),
-    Mu8_(0),
-    Mu10_(0),
-    Mu15_(0),
-    Mu15_(0),
-    Mu15_(0),
-    Mu15_(0),
-    Mu15_(0),
-    Mu15_(0),
-    Mu50_(0),
-    Dimuon16_(0),
-    Dimuon10_(0),
-    Dimuon8_(0),
-    Dimuon8_(0),
-    Dimuon0_(0),
-    Mu16_(0),
-    Mu16_(0),
-    TrkMu15_(0),
-    TrkMu17_(0),
+    RsqMR240_Rsq0p09_MR200_(0),
+    RsqMR240_Rsq0p09_MR200_4jet_(0),
+    RsqMR270_Rsq0p09_MR200_(0),
+    RsqMR270_Rsq0p09_MR200_4jet_(0),
+    Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_(0),
+    Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_(0),
+    Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_(0),
+    Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_(0),
+    Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_(0),
+    HT200_DisplacedDijet40_DisplacedTrack_(0),
+    HT250_DisplacedDijet40_DisplacedTrack_(0),
+    HT350_DisplacedDijet40_DisplacedTrack_(0),
+    HT350_DisplacedDijet80_DisplacedTrack_(0),
+    HT350_DisplacedDijet80_Tight_DisplacedTrack_(0),
+    HT350_DisplacedDijet40_Inclusive_(0),
+    HT400_DisplacedDijet40_Inclusive_(0),
+    HT500_DisplacedDijet40_Inclusive_(0),
+    HT550_DisplacedDijet40_Inclusive_(0),
+    HT550_DisplacedDijet80_Inclusive_(0),
+    HT650_DisplacedDijet80_Inclusive_(0),
+    HT750_DisplacedDijet80_Inclusive_(0),
+    VBF_DisplacedJet40_DisplacedTrack_(0),
+    VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_(0),
+    VBF_DisplacedJet40_TightID_DisplacedTrack_(0),
+    VBF_DisplacedJet40_Hadronic_(0),
+    VBF_DisplacedJet40_Hadronic_2PromptTrack_(0),
+    VBF_DisplacedJet40_TightID_Hadronic_(0),
+    VBF_DisplacedJet40_VTightID_Hadronic_(0),
+    VBF_DisplacedJet40_VVTightID_Hadronic_(0),
+    VBF_DisplacedJet40_VTightID_DisplacedTrack_(0),
+    VBF_DisplacedJet40_VVTightID_DisplacedTrack_(0),
+    PFMETNoMu90_PFMHTNoMu90_IDTight_(0),
+    PFMETNoMu100_PFMHTNoMu100_IDTight_(0),
+    PFMETNoMu110_PFMHTNoMu110_IDTight_(0),
+    PFMETNoMu120_PFMHTNoMu120_IDTight_(0),
+    MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_(0),
+    MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_(0),
+    MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_(0),
+    MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_(0),
+    Ele27_eta2p1_WPLoose_Gsf_HT200_(0),
+    Photon90_CaloIdL_PFHT500_(0),
+    DoubleMu8_Mass8_PFHT250_(0),
+    Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_(0),
+    DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_(0),
+    DoubleMu8_Mass8_PFHT300_(0),
+    Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_(0),
+    DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_(0),
+    Mu10_CentralPFJet30_BTagCSV_p13_(0),
+    DoubleMu3_PFMET50_(0),
+    Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_(0),
+    Ele15_IsoVVVL_BTagCSV_p067_PFHT400_(0),
+    Ele15_IsoVVVL_PFHT350_PFMET50_(0),
+    Ele15_IsoVVVL_PFHT600_(0),
+    Ele15_IsoVVVL_PFHT350_(0),
+    Ele15_IsoVVVL_PFHT400_PFMET50_(0),
+    Ele15_IsoVVVL_PFHT400_(0),
+    Ele50_IsoVVVL_PFHT400_(0),
+    Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_(0),
+    Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_(0),
+    Mu15_IsoVVVL_BTagCSV_p067_PFHT400_(0),
+    Mu15_IsoVVVL_PFHT350_PFMET50_(0),
+    Mu15_IsoVVVL_PFHT600_(0),
+    Mu15_IsoVVVL_PFHT350_(0),
+    Mu15_IsoVVVL_PFHT400_PFMET50_(0),
+    Mu15_IsoVVVL_PFHT400_(0),
+    Mu50_IsoVVVL_PFHT400_(0),
+    Dimuon16_Jpsi_(0),
+    Dimuon10_Jpsi_Barrel_(0),
+    Dimuon8_PsiPrime_Barrel_(0),
+    Dimuon8_Upsilon_Barrel_(0),
+    Dimuon0_Phi_Barrel_(0),
+    Mu16_TkMu0_dEta18_Onia_(0),
+    Mu16_TkMu0_dEta18_Phi_(0),
+    TrkMu15_DoubleTrkMu5NoFiltersNoVtx_(0),
+    TrkMu17_DoubleTrkMu8NoFiltersNoVtx_(0),
     Mu8_(0),
     Mu17_(0),
-    Mu3_(0),
-    Ele8_(0),
-    Ele12_(0),
-    Ele17_(0),
-    Ele23_(0),
-    Ele50_(0),
-    Ele50_(0),
-    PFHT400_(0),
-    PFHT450_(0),
-    PFHT400_(0),
-    PFHT450_(0),
-    Ele115_(0),
+    Mu3_PFJet40_(0),
+    Ele8_CaloIdM_TrackIdM_PFJet30_(0),
+    Ele12_CaloIdM_TrackIdM_PFJet30_(0),
+    Ele17_CaloIdM_TrackIdM_PFJet30_(0),
+    Ele23_CaloIdM_TrackIdM_PFJet30_(0),
+    Ele50_CaloIdVT_GsfTrkIdT_PFJet140_(0),
+    Ele50_CaloIdVT_GsfTrkIdT_PFJet165_(0),
+    PFHT400_SixJet30_DoubleBTagCSV_p056_(0),
+    PFHT450_SixJet40_BTagCSV_p056_(0),
+    PFHT400_SixJet30_(0),
+    PFHT450_SixJet40_(0),
+    Ele115_CaloIdVT_GsfTrkIdT_(0),
     Mu55_(0),
-    Photon42_(0),
-    Photon90_(0),
-    PixelTracks_(0),
-    PixelTracks_(0),
-    PixelTracks_(0),
-    PixelTracks_(0),
-    PixelTracks_(0),
-    FullTracks_(0),
-    FullTracks_(0),
-    FullTracks_(0),
-    FullTracks_(0),
+    Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_(0),
+    Photon90_CaloIdL_PFHT600_(0),
+    PixelTracks_Multiplicity60ForEndOfFill_(0),
+    PixelTracks_Multiplicity85ForEndOfFill_(0),
+    PixelTracks_Multiplicity110ForEndOfFill_(0),
+    PixelTracks_Multiplicity135ForEndOfFill_(0),
+    PixelTracks_Multiplicity160ForEndOfFill_(0),
+    FullTracks_Multiplicity80_(0),
+    FullTracks_Multiplicity100_(0),
+    FullTracks_Multiplicity130_(0),
+    FullTracks_Multiplicity150_(0),
     ECALHT800_(0),
-    DiSC30_(0),
+    DiSC30_18_EIso_AND_HE_Mass70_(0),
     Photon125_(0),
     MET100_(0),
     MET150_(0),
     MET200_(0),
-    Ele27_(0),
+    Ele27_HighEta_Ele20_Mass55_(0),
     L1FatEvents_(0),
     Physics_(0),
-    L1FatEvents_(0),
-    L1FatEvents_(0),
-    L1FatEvents_(0),
-    L1FatEvents_(0),
+    L1FatEvents_part0_(0),
+    L1FatEvents_part1_(0),
+    L1FatEvents_part2_(0),
+    L1FatEvents_part3_(0),
     Random_(0),
     ZeroBias_(0),
     AK4CaloJet30_(0),
@@ -1682,17 +1683,17 @@ public:
     L1BeamGasMinus_(0),
     L1BeamGasPlus_(0),
     L1BptxXOR_(0),
-    L1MinimumBiasHF_(0),
-    L1MinimumBiasHF_(0),
+    L1MinimumBiasHF_OR_(0),
+    L1MinimumBiasHF_AND_(0),
     HcalNZS_(0),
     HcalPhiSym_(0),
     HcalIsolatedbunch_(0),
-    ZeroBias_(0),
-    ZeroBias_(0),
-    ZeroBias_(0),
-    ZeroBias_(0),
-    ZeroBias_(0),
-    ZeroBias_(0),
+    ZeroBias_FirstCollisionAfterAbortGap_(0),
+    ZeroBias_FirstCollisionAfterAbortGap_copy_(0),
+    ZeroBias_FirstCollisionAfterAbortGap_TCDS_(0),
+    ZeroBias_IsolatedBunches_(0),
+    ZeroBias_FirstCollisionInTrain_(0),
+    ZeroBias_FirstBXAfterTrain_(0),
     Photon500_(0),
     Photon600_(0),
     Mu300_(0),
@@ -1705,8 +1706,8 @@ public:
     PFMET400_(0),
     PFMET500_(0),
     PFMET600_(0),
-    Ele250_(0),
-    Ele300_(0),
+    Ele250_CaloIdVT_GsfTrkIdT_(0),
+    Ele300_CaloIdVT_GsfTrkIdT_(0),
     HT2000_(0),
     HT2500_(0),
     IsoTrackHE_(0),
@@ -1714,106 +1715,106 @@ public:
     HLTriggerFinalPath_(0)
   {}
   Bool_t HLTriggerFirstPath() const {return HLTriggerFirstPath_;}
-  Bool_t AK8PFJet360() const {return AK8PFJet360_;}
-  Bool_t AK8PFJet400() const {return AK8PFJet400_;}
-  Bool_t AK8PFHT750() const {return AK8PFHT750_;}
-  Bool_t AK8PFHT800() const {return AK8PFHT800_;}
-  Bool_t AK8DiPFJet300() const {return AK8DiPFJet300_;}
-  Bool_t AK8DiPFJet280() const {return AK8DiPFJet280_;}
-  Bool_t AK8DiPFJet300() const {return AK8DiPFJet300_;}
-  Bool_t AK8DiPFJet300() const {return AK8DiPFJet300_;}
-  Bool_t AK8PFHT700() const {return AK8PFHT700_;}
-  Bool_t AK8PFHT650() const {return AK8PFHT650_;}
-  Bool_t AK8PFHT600() const {return AK8PFHT600_;}
-  Bool_t AK8DiPFJet280() const {return AK8DiPFJet280_;}
-  Bool_t AK8DiPFJet250() const {return AK8DiPFJet250_;}
-  Bool_t AK8DiPFJet280() const {return AK8DiPFJet280_;}
-  Bool_t AK8DiPFJet250() const {return AK8DiPFJet250_;}
+  Bool_t AK8PFJet360_TrimMass30() const {return AK8PFJet360_TrimMass30_;}
+  Bool_t AK8PFJet400_TrimMass30() const {return AK8PFJet400_TrimMass30_;}
+  Bool_t AK8PFHT750_TrimMass50() const {return AK8PFHT750_TrimMass50_;}
+  Bool_t AK8PFHT800_TrimMass50() const {return AK8PFHT800_TrimMass50_;}
+  Bool_t AK8DiPFJet300_200_TrimMass30_BTagCSV_p20() const {return AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_;}
+  Bool_t AK8DiPFJet280_200_TrimMass30_BTagCSV_p087() const {return AK8DiPFJet280_200_TrimMass30_BTagCSV_p087_;}
+  Bool_t AK8DiPFJet300_200_TrimMass30_BTagCSV_p087() const {return AK8DiPFJet300_200_TrimMass30_BTagCSV_p087_;}
+  Bool_t AK8DiPFJet300_200_TrimMass30() const {return AK8DiPFJet300_200_TrimMass30_;}
+  Bool_t AK8PFHT700_TrimR0p1PT0p03Mass50() const {return AK8PFHT700_TrimR0p1PT0p03Mass50_;}
+  Bool_t AK8PFHT650_TrimR0p1PT0p03Mass50() const {return AK8PFHT650_TrimR0p1PT0p03Mass50_;}
+  Bool_t AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20() const {return AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_;}
+  Bool_t AK8DiPFJet280_200_TrimMass30() const {return AK8DiPFJet280_200_TrimMass30_;}
+  Bool_t AK8DiPFJet250_200_TrimMass30() const {return AK8DiPFJet250_200_TrimMass30_;}
+  Bool_t AK8DiPFJet280_200_TrimMass30_BTagCSV_p20() const {return AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_;}
+  Bool_t AK8DiPFJet250_200_TrimMass30_BTagCSV_p20() const {return AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_;}
   Bool_t CaloJet260() const {return CaloJet260_;}
-  Bool_t CaloJet500() const {return CaloJet500_;}
-  Bool_t Dimuon13() const {return Dimuon13_;}
-  Bool_t Dimuon13() const {return Dimuon13_;}
-  Bool_t Dimuon20() const {return Dimuon20_;}
-  Bool_t DoubleEle24() const {return DoubleEle24_;}
-  Bool_t DoubleEle25() const {return DoubleEle25_;}
-  Bool_t DoubleEle33() const {return DoubleEle33_;}
-  Bool_t DoubleEle33() const {return DoubleEle33_;}
-  Bool_t DoubleEle33() const {return DoubleEle33_;}
-  Bool_t DoubleEle33() const {return DoubleEle33_;}
-  Bool_t DoubleMediumCombinedIsoPFTau35() const {return DoubleMediumCombinedIsoPFTau35_;}
-  Bool_t DoubleTightCombinedIsoPFTau35() const {return DoubleTightCombinedIsoPFTau35_;}
-  Bool_t DoubleMediumCombinedIsoPFTau40() const {return DoubleMediumCombinedIsoPFTau40_;}
-  Bool_t DoubleTightCombinedIsoPFTau40() const {return DoubleTightCombinedIsoPFTau40_;}
-  Bool_t DoubleMediumCombinedIsoPFTau40() const {return DoubleMediumCombinedIsoPFTau40_;}
-  Bool_t DoubleTightCombinedIsoPFTau40() const {return DoubleTightCombinedIsoPFTau40_;}
-  Bool_t DoubleMediumIsoPFTau35() const {return DoubleMediumIsoPFTau35_;}
-  Bool_t DoubleMediumIsoPFTau40() const {return DoubleMediumIsoPFTau40_;}
-  Bool_t DoubleMediumIsoPFTau40() const {return DoubleMediumIsoPFTau40_;}
-  Bool_t DoubleEle37() const {return DoubleEle37_;}
+  Bool_t CaloJet500_NoJetID() const {return CaloJet500_NoJetID_;}
+  Bool_t Dimuon13_PsiPrime() const {return Dimuon13_PsiPrime_;}
+  Bool_t Dimuon13_Upsilon() const {return Dimuon13_Upsilon_;}
+  Bool_t Dimuon20_Jpsi() const {return Dimuon20_Jpsi_;}
+  Bool_t DoubleEle24_22_eta2p1_WPLoose_Gsf() const {return DoubleEle24_22_eta2p1_WPLoose_Gsf_;}
+  Bool_t DoubleEle25_CaloIdL_GsfTrkIdVL() const {return DoubleEle25_CaloIdL_GsfTrkIdVL_;}
+  Bool_t DoubleEle33_CaloIdL() const {return DoubleEle33_CaloIdL_;}
+  Bool_t DoubleEle33_CaloIdL_MW() const {return DoubleEle33_CaloIdL_MW_;}
+  Bool_t DoubleEle33_CaloIdL_GsfTrkIdVL_MW() const {return DoubleEle33_CaloIdL_GsfTrkIdVL_MW_;}
+  Bool_t DoubleEle33_CaloIdL_GsfTrkIdVL() const {return DoubleEle33_CaloIdL_GsfTrkIdVL_;}
+  Bool_t DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg() const {return DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_;}
+  Bool_t DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg() const {return DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg_;}
+  Bool_t DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg() const {return DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_;}
+  Bool_t DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg() const {return DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg_;}
+  Bool_t DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1() const {return DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_;}
+  Bool_t DoubleTightCombinedIsoPFTau40_Trk1_eta2p1() const {return DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_;}
+  Bool_t DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg() const {return DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_;}
+  Bool_t DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg() const {return DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_;}
+  Bool_t DoubleMediumIsoPFTau40_Trk1_eta2p1() const {return DoubleMediumIsoPFTau40_Trk1_eta2p1_;}
+  Bool_t DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL() const {return DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_;}
   Bool_t DoubleMu33NoFiltersNoVtx() const {return DoubleMu33NoFiltersNoVtx_;}
   Bool_t DoubleMu38NoFiltersNoVtx() const {return DoubleMu38NoFiltersNoVtx_;}
   Bool_t DoubleMu23NoFiltersNoVtxDisplaced() const {return DoubleMu23NoFiltersNoVtxDisplaced_;}
   Bool_t DoubleMu28NoFiltersNoVtxDisplaced() const {return DoubleMu28NoFiltersNoVtxDisplaced_;}
   Bool_t DoubleMu0() const {return DoubleMu0_;}
-  Bool_t DoubleMu4() const {return DoubleMu4_;}
-  Bool_t DoubleMu4() const {return DoubleMu4_;}
-  Bool_t DoubleMu4() const {return DoubleMu4_;}
-  Bool_t DoubleMu4() const {return DoubleMu4_;}
-  Bool_t DoubleMu3() const {return DoubleMu3_;}
-  Bool_t DoubleMu4() const {return DoubleMu4_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Mu7p5() const {return Mu7p5_;}
-  Bool_t Dimuon0er16() const {return Dimuon0er16_;}
-  Bool_t Dimuon0er16() const {return Dimuon0er16_;}
-  Bool_t Dimuon6() const {return Dimuon6_;}
+  Bool_t DoubleMu4_3_Bs() const {return DoubleMu4_3_Bs_;}
+  Bool_t DoubleMu4_3_Jpsi_Displaced() const {return DoubleMu4_3_Jpsi_Displaced_;}
+  Bool_t DoubleMu4_JpsiTrk_Displaced() const {return DoubleMu4_JpsiTrk_Displaced_;}
+  Bool_t DoubleMu4_LowMassNonResonantTrk_Displaced() const {return DoubleMu4_LowMassNonResonantTrk_Displaced_;}
+  Bool_t DoubleMu3_Trk_Tau3mu() const {return DoubleMu3_Trk_Tau3mu_;}
+  Bool_t DoubleMu4_PsiPrimeTrk_Displaced() const {return DoubleMu4_PsiPrimeTrk_Displaced_;}
+  Bool_t Mu7p5_L2Mu2_Jpsi() const {return Mu7p5_L2Mu2_Jpsi_;}
+  Bool_t Mu7p5_L2Mu2_Upsilon() const {return Mu7p5_L2Mu2_Upsilon_;}
+  Bool_t Mu7p5_Track2_Jpsi() const {return Mu7p5_Track2_Jpsi_;}
+  Bool_t Mu7p5_Track3p5_Jpsi() const {return Mu7p5_Track3p5_Jpsi_;}
+  Bool_t Mu7p5_Track7_Jpsi() const {return Mu7p5_Track7_Jpsi_;}
+  Bool_t Mu7p5_Track2_Upsilon() const {return Mu7p5_Track2_Upsilon_;}
+  Bool_t Mu7p5_Track3p5_Upsilon() const {return Mu7p5_Track3p5_Upsilon_;}
+  Bool_t Mu7p5_Track7_Upsilon() const {return Mu7p5_Track7_Upsilon_;}
+  Bool_t Dimuon0er16_Jpsi_NoOS_NoVertexing() const {return Dimuon0er16_Jpsi_NoOS_NoVertexing_;}
+  Bool_t Dimuon0er16_Jpsi_NoVertexing() const {return Dimuon0er16_Jpsi_NoVertexing_;}
+  Bool_t Dimuon6_Jpsi_NoVertexing() const {return Dimuon6_Jpsi_NoVertexing_;}
   Bool_t Photon150() const {return Photon150_;}
-  Bool_t Photon90() const {return Photon90_;}
-  Bool_t HT250() const {return HT250_;}
+  Bool_t Photon90_CaloIdL_HT300() const {return Photon90_CaloIdL_HT300_;}
+  Bool_t HT250_CaloMET70() const {return HT250_CaloMET70_;}
   Bool_t DoublePhoton60() const {return DoublePhoton60_;}
   Bool_t DoublePhoton85() const {return DoublePhoton85_;}
-  Bool_t Ele17() const {return Ele17_;}
-  Bool_t Ele20() const {return Ele20_;}
-  Bool_t Ele22() const {return Ele22_;}
-  Bool_t Ele22() const {return Ele22_;}
-  Bool_t Ele22() const {return Ele22_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t Ele24() const {return Ele24_;}
-  Bool_t Ele24() const {return Ele24_;}
-  Bool_t Ele24() const {return Ele24_;}
-  Bool_t Ele24() const {return Ele24_;}
-  Bool_t Ele25() const {return Ele25_;}
-  Bool_t Ele25() const {return Ele25_;}
-  Bool_t Ele25() const {return Ele25_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Ele30() const {return Ele30_;}
-  Bool_t Ele30() const {return Ele30_;}
-  Bool_t Ele30() const {return Ele30_;}
-  Bool_t Ele32() const {return Ele32_;}
-  Bool_t Ele32() const {return Ele32_;}
-  Bool_t Ele32() const {return Ele32_;}
-  Bool_t Ele32() const {return Ele32_;}
-  Bool_t Ele35() const {return Ele35_;}
-  Bool_t Ele35() const {return Ele35_;}
-  Bool_t Ele36() const {return Ele36_;}
-  Bool_t Ele45() const {return Ele45_;}
-  Bool_t Ele45() const {return Ele45_;}
-  Bool_t Ele45() const {return Ele45_;}
-  Bool_t Ele105() const {return Ele105_;}
-  Bool_t Ele30WP60() const {return Ele30WP60_;}
-  Bool_t Ele30WP60() const {return Ele30WP60_;}
+  Bool_t Ele17_Ele8_Gsf() const {return Ele17_Ele8_Gsf_;}
+  Bool_t Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28() const {return Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_;}
+  Bool_t Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29() const {return Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_;}
+  Bool_t Ele22_eta2p1_WPLoose_Gsf() const {return Ele22_eta2p1_WPLoose_Gsf_;}
+  Bool_t Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1() const {return Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;}
+  Bool_t Ele23_WPLoose_Gsf() const {return Ele23_WPLoose_Gsf_;}
+  Bool_t Ele23_WPLoose_Gsf_WHbbBoost() const {return Ele23_WPLoose_Gsf_WHbbBoost_;}
+  Bool_t Ele24_eta2p1_WPLoose_Gsf() const {return Ele24_eta2p1_WPLoose_Gsf_;}
+  Bool_t Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20() const {return Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_;}
+  Bool_t Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1() const {return Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;}
+  Bool_t Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30() const {return Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_;}
+  Bool_t Ele25_WPTight_Gsf() const {return Ele25_WPTight_Gsf_;}
+  Bool_t Ele25_eta2p1_WPLoose_Gsf() const {return Ele25_eta2p1_WPLoose_Gsf_;}
+  Bool_t Ele25_eta2p1_WPTight_Gsf() const {return Ele25_eta2p1_WPTight_Gsf_;}
+  Bool_t Ele27_WPLoose_Gsf() const {return Ele27_WPLoose_Gsf_;}
+  Bool_t Ele27_WPLoose_Gsf_WHbbBoost() const {return Ele27_WPLoose_Gsf_WHbbBoost_;}
+  Bool_t Ele27_WPTight_Gsf() const {return Ele27_WPTight_Gsf_;}
+  Bool_t Ele27_WPTight_Gsf_L1JetTauSeeded() const {return Ele27_WPTight_Gsf_L1JetTauSeeded_;}
+  Bool_t Ele27_eta2p1_WPLoose_Gsf() const {return Ele27_eta2p1_WPLoose_Gsf_;}
+  Bool_t Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1() const {return Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;}
+  Bool_t Ele27_eta2p1_WPTight_Gsf() const {return Ele27_eta2p1_WPTight_Gsf_;}
+  Bool_t Ele30_WPTight_Gsf() const {return Ele30_WPTight_Gsf_;}
+  Bool_t Ele30_eta2p1_WPLoose_Gsf() const {return Ele30_eta2p1_WPLoose_Gsf_;}
+  Bool_t Ele30_eta2p1_WPTight_Gsf() const {return Ele30_eta2p1_WPTight_Gsf_;}
+  Bool_t Ele32_WPTight_Gsf() const {return Ele32_WPTight_Gsf_;}
+  Bool_t Ele32_eta2p1_WPLoose_Gsf() const {return Ele32_eta2p1_WPLoose_Gsf_;}
+  Bool_t Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1() const {return Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;}
+  Bool_t Ele32_eta2p1_WPTight_Gsf() const {return Ele32_eta2p1_WPTight_Gsf_;}
+  Bool_t Ele35_WPLoose_Gsf() const {return Ele35_WPLoose_Gsf_;}
+  Bool_t Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50() const {return Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_;}
+  Bool_t Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1() const {return Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;}
+  Bool_t Ele45_WPLoose_Gsf() const {return Ele45_WPLoose_Gsf_;}
+  Bool_t Ele45_WPLoose_Gsf_L1JetTauSeeded() const {return Ele45_WPLoose_Gsf_L1JetTauSeeded_;}
+  Bool_t Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50() const {return Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_;}
+  Bool_t Ele105_CaloIdVT_GsfTrkIdT() const {return Ele105_CaloIdVT_GsfTrkIdT_;}
+  Bool_t Ele30WP60_SC4_Mass55() const {return Ele30WP60_SC4_Mass55_;}
+  Bool_t Ele30WP60_Ele8_Mass55() const {return Ele30WP60_Ele8_Mass55_;}
   Bool_t HT200() const {return HT200_;}
   Bool_t HT275() const {return HT275_;}
   Bool_t HT325() const {return HT325_;}
@@ -1826,123 +1827,123 @@ public:
   Bool_t HT500to550() const {return HT500to550_;}
   Bool_t HT550to650() const {return HT550to650_;}
   Bool_t HT650() const {return HT650_;}
-  Bool_t Mu16() const {return Mu16_;}
-  Bool_t IsoMu16() const {return IsoMu16_;}
-  Bool_t IsoMu16() const {return IsoMu16_;}
-  Bool_t IsoMu17() const {return IsoMu17_;}
-  Bool_t IsoMu17() const {return IsoMu17_;}
-  Bool_t IsoMu17() const {return IsoMu17_;}
-  Bool_t DoubleIsoMu17() const {return DoubleIsoMu17_;}
-  Bool_t DoubleIsoMu17() const {return DoubleIsoMu17_;}
+  Bool_t Mu16_eta2p1_MET30() const {return Mu16_eta2p1_MET30_;}
+  Bool_t IsoMu16_eta2p1_MET30() const {return IsoMu16_eta2p1_MET30_;}
+  Bool_t IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1() const {return IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_;}
+  Bool_t IsoMu17_eta2p1() const {return IsoMu17_eta2p1_;}
+  Bool_t IsoMu17_eta2p1_LooseIsoPFTau20() const {return IsoMu17_eta2p1_LooseIsoPFTau20_;}
+  Bool_t IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1() const {return IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_;}
+  Bool_t DoubleIsoMu17_eta2p1() const {return DoubleIsoMu17_eta2p1_;}
+  Bool_t DoubleIsoMu17_eta2p1_noDzCut() const {return DoubleIsoMu17_eta2p1_noDzCut_;}
   Bool_t IsoMu18() const {return IsoMu18_;}
-  Bool_t IsoMu19() const {return IsoMu19_;}
-  Bool_t IsoMu19() const {return IsoMu19_;}
-  Bool_t IsoMu19() const {return IsoMu19_;}
-  Bool_t IsoMu19() const {return IsoMu19_;}
-  Bool_t IsoMu19() const {return IsoMu19_;}
-  Bool_t IsoMu19() const {return IsoMu19_;}
-  Bool_t IsoMu21() const {return IsoMu21_;}
-  Bool_t IsoMu21() const {return IsoMu21_;}
+  Bool_t IsoMu19_eta2p1_LooseIsoPFTau20() const {return IsoMu19_eta2p1_LooseIsoPFTau20_;}
+  Bool_t IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1() const {return IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_;}
+  Bool_t IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg() const {return IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_;}
+  Bool_t IsoMu19_eta2p1_LooseCombinedIsoPFTau20() const {return IsoMu19_eta2p1_LooseCombinedIsoPFTau20_;}
+  Bool_t IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg() const {return IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_;}
+  Bool_t IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg() const {return IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_;}
+  Bool_t IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg() const {return IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_;}
+  Bool_t IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg() const {return IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_;}
   Bool_t IsoMu20() const {return IsoMu20_;}
-  Bool_t IsoMu21() const {return IsoMu21_;}
-  Bool_t IsoMu21() const {return IsoMu21_;}
-  Bool_t IsoMu21() const {return IsoMu21_;}
+  Bool_t IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1() const {return IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_;}
+  Bool_t IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1() const {return IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_;}
+  Bool_t IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg() const {return IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_;}
   Bool_t IsoMu22() const {return IsoMu22_;}
-  Bool_t IsoMu22() const {return IsoMu22_;}
+  Bool_t IsoMu22_eta2p1() const {return IsoMu22_eta2p1_;}
   Bool_t IsoMu24() const {return IsoMu24_;}
   Bool_t IsoMu27() const {return IsoMu27_;}
   Bool_t IsoTkMu18() const {return IsoTkMu18_;}
   Bool_t IsoTkMu20() const {return IsoTkMu20_;}
   Bool_t IsoTkMu22() const {return IsoTkMu22_;}
-  Bool_t IsoTkMu22() const {return IsoTkMu22_;}
+  Bool_t IsoTkMu22_eta2p1() const {return IsoTkMu22_eta2p1_;}
   Bool_t IsoTkMu24() const {return IsoTkMu24_;}
   Bool_t IsoTkMu27() const {return IsoTkMu27_;}
-  Bool_t JetE30() const {return JetE30_;}
-  Bool_t JetE30() const {return JetE30_;}
-  Bool_t JetE50() const {return JetE50_;}
-  Bool_t JetE70() const {return JetE70_;}
+  Bool_t JetE30_NoBPTX3BX() const {return JetE30_NoBPTX3BX_;}
+  Bool_t JetE30_NoBPTX() const {return JetE30_NoBPTX_;}
+  Bool_t JetE50_NoBPTX3BX() const {return JetE50_NoBPTX3BX_;}
+  Bool_t JetE70_NoBPTX3BX() const {return JetE70_NoBPTX3BX_;}
   Bool_t L1SingleMu18() const {return L1SingleMu18_;}
   Bool_t L2Mu10() const {return L2Mu10_;}
   Bool_t L1SingleMuOpen() const {return L1SingleMuOpen_;}
-  Bool_t L1SingleMuOpen() const {return L1SingleMuOpen_;}
-  Bool_t L2DoubleMu23() const {return L2DoubleMu23_;}
-  Bool_t L2DoubleMu28() const {return L2DoubleMu28_;}
-  Bool_t L2DoubleMu38() const {return L2DoubleMu38_;}
-  Bool_t L2Mu10() const {return L2Mu10_;}
-  Bool_t L2Mu10() const {return L2Mu10_;}
-  Bool_t L2Mu45() const {return L2Mu45_;}
-  Bool_t L2Mu40() const {return L2Mu40_;}
-  Bool_t LooseIsoPFTau50() const {return LooseIsoPFTau50_;}
-  Bool_t LooseIsoPFTau50() const {return LooseIsoPFTau50_;}
-  Bool_t LooseIsoPFTau50() const {return LooseIsoPFTau50_;}
-  Bool_t LooseIsoPFTau50() const {return LooseIsoPFTau50_;}
-  Bool_t LooseIsoPFTau50() const {return LooseIsoPFTau50_;}
-  Bool_t PFTau120() const {return PFTau120_;}
-  Bool_t PFTau140() const {return PFTau140_;}
-  Bool_t VLooseIsoPFTau120() const {return VLooseIsoPFTau120_;}
-  Bool_t VLooseIsoPFTau140() const {return VLooseIsoPFTau140_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu20() const {return Mu20_;}
-  Bool_t Mu20() const {return Mu20_;}
-  Bool_t Mu20() const {return Mu20_;}
-  Bool_t Mu20() const {return Mu20_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu25() const {return Mu25_;}
-  Bool_t Mu27() const {return Mu27_;}
-  Bool_t Mu30() const {return Mu30_;}
-  Bool_t Mu30() const {return Mu30_;}
-  Bool_t Mu40() const {return Mu40_;}
-  Bool_t Mu40() const {return Mu40_;}
+  Bool_t L1SingleMuOpen_DT() const {return L1SingleMuOpen_DT_;}
+  Bool_t L2DoubleMu23_NoVertex() const {return L2DoubleMu23_NoVertex_;}
+  Bool_t L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10() const {return L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_;}
+  Bool_t L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10() const {return L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_;}
+  Bool_t L2Mu10_NoVertex_NoBPTX3BX() const {return L2Mu10_NoVertex_NoBPTX3BX_;}
+  Bool_t L2Mu10_NoVertex_NoBPTX() const {return L2Mu10_NoVertex_NoBPTX_;}
+  Bool_t L2Mu45_NoVertex_3Sta_NoBPTX3BX() const {return L2Mu45_NoVertex_3Sta_NoBPTX3BX_;}
+  Bool_t L2Mu40_NoVertex_3Sta_NoBPTX3BX() const {return L2Mu40_NoVertex_3Sta_NoBPTX3BX_;}
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1() const {return LooseIsoPFTau50_Trk30_eta2p1_;}
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET80() const {return LooseIsoPFTau50_Trk30_eta2p1_MET80_;}
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET90() const {return LooseIsoPFTau50_Trk30_eta2p1_MET90_;}
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET110() const {return LooseIsoPFTau50_Trk30_eta2p1_MET110_;}
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET120() const {return LooseIsoPFTau50_Trk30_eta2p1_MET120_;}
+  Bool_t PFTau120_eta2p1() const {return PFTau120_eta2p1_;}
+  Bool_t PFTau140_eta2p1() const {return PFTau140_eta2p1_;}
+  Bool_t VLooseIsoPFTau120_Trk50_eta2p1() const {return VLooseIsoPFTau120_Trk50_eta2p1_;}
+  Bool_t VLooseIsoPFTau140_Trk50_eta2p1() const {return VLooseIsoPFTau140_Trk50_eta2p1_;}
+  Bool_t Mu17_Mu8() const {return Mu17_Mu8_;}
+  Bool_t Mu17_Mu8_DZ() const {return Mu17_Mu8_DZ_;}
+  Bool_t Mu17_Mu8_SameSign() const {return Mu17_Mu8_SameSign_;}
+  Bool_t Mu17_Mu8_SameSign_DZ() const {return Mu17_Mu8_SameSign_DZ_;}
+  Bool_t Mu20_Mu10() const {return Mu20_Mu10_;}
+  Bool_t Mu20_Mu10_DZ() const {return Mu20_Mu10_DZ_;}
+  Bool_t Mu20_Mu10_SameSign() const {return Mu20_Mu10_SameSign_;}
+  Bool_t Mu20_Mu10_SameSign_DZ() const {return Mu20_Mu10_SameSign_DZ_;}
+  Bool_t Mu17_TkMu8_DZ() const {return Mu17_TkMu8_DZ_;}
+  Bool_t Mu17_TrkIsoVVL_Mu8_TrkIsoVVL() const {return Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_;}
+  Bool_t Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ() const {return Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;}
+  Bool_t Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL() const {return Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_;}
+  Bool_t Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ() const {return Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;}
+  Bool_t Mu25_TkMu0_dEta18_Onia() const {return Mu25_TkMu0_dEta18_Onia_;}
+  Bool_t Mu27_TkMu8() const {return Mu27_TkMu8_;}
+  Bool_t Mu30_TkMu11() const {return Mu30_TkMu11_;}
+  Bool_t Mu30_eta2p1_PFJet150_PFJet50() const {return Mu30_eta2p1_PFJet150_PFJet50_;}
+  Bool_t Mu40_TkMu11() const {return Mu40_TkMu11_;}
+  Bool_t Mu40_eta2p1_PFJet200_PFJet50() const {return Mu40_eta2p1_PFJet200_PFJet50_;}
   Bool_t Mu20() const {return Mu20_;}
   Bool_t TkMu17() const {return TkMu17_;}
-  Bool_t TkMu17() const {return TkMu17_;}
-  Bool_t TkMu17() const {return TkMu17_;}
+  Bool_t TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL() const {return TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_;}
+  Bool_t TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ() const {return TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;}
   Bool_t TkMu20() const {return TkMu20_;}
-  Bool_t Mu24() const {return Mu24_;}
-  Bool_t TkMu24() const {return TkMu24_;}
+  Bool_t Mu24_eta2p1() const {return Mu24_eta2p1_;}
+  Bool_t TkMu24_eta2p1() const {return TkMu24_eta2p1_;}
   Bool_t Mu27() const {return Mu27_;}
   Bool_t TkMu27() const {return TkMu27_;}
-  Bool_t Mu45() const {return Mu45_;}
+  Bool_t Mu45_eta2p1() const {return Mu45_eta2p1_;}
   Bool_t Mu50() const {return Mu50_;}
   Bool_t TkMu50() const {return TkMu50_;}
-  Bool_t Mu38NoFiltersNoVtx() const {return Mu38NoFiltersNoVtx_;}
-  Bool_t Mu42NoFiltersNoVtx() const {return Mu42NoFiltersNoVtx_;}
-  Bool_t Mu28NoFiltersNoVtxDisplaced() const {return Mu28NoFiltersNoVtxDisplaced_;}
-  Bool_t Mu33NoFiltersNoVtxDisplaced() const {return Mu33NoFiltersNoVtxDisplaced_;}
-  Bool_t Mu23NoFiltersNoVtx() const {return Mu23NoFiltersNoVtx_;}
+  Bool_t Mu38NoFiltersNoVtx_Photon38_CaloIdL() const {return Mu38NoFiltersNoVtx_Photon38_CaloIdL_;}
+  Bool_t Mu42NoFiltersNoVtx_Photon42_CaloIdL() const {return Mu42NoFiltersNoVtx_Photon42_CaloIdL_;}
+  Bool_t Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL() const {return Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_;}
+  Bool_t Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL() const {return Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_;}
+  Bool_t Mu23NoFiltersNoVtx_Photon23_CaloIdL() const {return Mu23NoFiltersNoVtx_Photon23_CaloIdL_;}
   Bool_t DoubleMu18NoFiltersNoVtx() const {return DoubleMu18NoFiltersNoVtx_;}
-  Bool_t Mu33NoFiltersNoVtxDisplaced() const {return Mu33NoFiltersNoVtxDisplaced_;}
-  Bool_t Mu33NoFiltersNoVtxDisplaced() const {return Mu33NoFiltersNoVtxDisplaced_;}
-  Bool_t Mu28NoFiltersNoVtx() const {return Mu28NoFiltersNoVtx_;}
-  Bool_t Mu38NoFiltersNoVtxDisplaced() const {return Mu38NoFiltersNoVtxDisplaced_;}
-  Bool_t Mu38NoFiltersNoVtxDisplaced() const {return Mu38NoFiltersNoVtxDisplaced_;}
-  Bool_t Mu38NoFiltersNoVtx() const {return Mu38NoFiltersNoVtx_;}
-  Bool_t Mu28NoFiltersNoVtx() const {return Mu28NoFiltersNoVtx_;}
-  Bool_t PFHT300() const {return PFHT300_;}
-  Bool_t PFHT300() const {return PFHT300_;}
-  Bool_t PFHT550() const {return PFHT550_;}
-  Bool_t PFHT650() const {return PFHT650_;}
-  Bool_t PFHT750() const {return PFHT750_;}
-  Bool_t PFHT750() const {return PFHT750_;}
-  Bool_t PFHT750() const {return PFHT750_;}
-  Bool_t PFHT800() const {return PFHT800_;}
-  Bool_t PFHT850() const {return PFHT850_;}
-  Bool_t PFJet15() const {return PFJet15_;}
-  Bool_t PFJet25() const {return PFJet25_;}
-  Bool_t DiPFJet15() const {return DiPFJet15_;}
-  Bool_t DiPFJet25() const {return DiPFJet25_;}
-  Bool_t DiPFJet15() const {return DiPFJet15_;}
-  Bool_t DiPFJet25() const {return DiPFJet25_;}
-  Bool_t DiPFJetAve15() const {return DiPFJetAve15_;}
-  Bool_t DiPFJetAve25() const {return DiPFJetAve25_;}
-  Bool_t DiPFJetAve35() const {return DiPFJetAve35_;}
+  Bool_t Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight() const {return Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_;}
+  Bool_t Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose() const {return Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_;}
+  Bool_t Mu28NoFiltersNoVtx_DisplacedJet40_Loose() const {return Mu28NoFiltersNoVtx_DisplacedJet40_Loose_;}
+  Bool_t Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight() const {return Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_;}
+  Bool_t Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose() const {return Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_;}
+  Bool_t Mu38NoFiltersNoVtx_DisplacedJet60_Loose() const {return Mu38NoFiltersNoVtx_DisplacedJet60_Loose_;}
+  Bool_t Mu28NoFiltersNoVtx_CentralCaloJet40() const {return Mu28NoFiltersNoVtx_CentralCaloJet40_;}
+  Bool_t PFHT300_PFMET100() const {return PFHT300_PFMET100_;}
+  Bool_t PFHT300_PFMET110() const {return PFHT300_PFMET110_;}
+  Bool_t PFHT550_4JetPt50() const {return PFHT550_4JetPt50_;}
+  Bool_t PFHT650_4JetPt50() const {return PFHT650_4JetPt50_;}
+  Bool_t PFHT750_4JetPt50() const {return PFHT750_4JetPt50_;}
+  Bool_t PFHT750_4JetPt70() const {return PFHT750_4JetPt70_;}
+  Bool_t PFHT750_4JetPt80() const {return PFHT750_4JetPt80_;}
+  Bool_t PFHT800_4JetPt50() const {return PFHT800_4JetPt50_;}
+  Bool_t PFHT850_4JetPt50() const {return PFHT850_4JetPt50_;}
+  Bool_t PFJet15_NoCaloMatched() const {return PFJet15_NoCaloMatched_;}
+  Bool_t PFJet25_NoCaloMatched() const {return PFJet25_NoCaloMatched_;}
+  Bool_t DiPFJet15_NoCaloMatched() const {return DiPFJet15_NoCaloMatched_;}
+  Bool_t DiPFJet25_NoCaloMatched() const {return DiPFJet25_NoCaloMatched_;}
+  Bool_t DiPFJet15_FBEta3_NoCaloMatched() const {return DiPFJet15_FBEta3_NoCaloMatched_;}
+  Bool_t DiPFJet25_FBEta3_NoCaloMatched() const {return DiPFJet25_FBEta3_NoCaloMatched_;}
+  Bool_t DiPFJetAve15_HFJEC() const {return DiPFJetAve15_HFJEC_;}
+  Bool_t DiPFJetAve25_HFJEC() const {return DiPFJetAve25_HFJEC_;}
+  Bool_t DiPFJetAve35_HFJEC() const {return DiPFJetAve35_HFJEC_;}
   Bool_t AK8PFJet40() const {return AK8PFJet40_;}
   Bool_t AK8PFJet60() const {return AK8PFJet60_;}
   Bool_t AK8PFJet80() const {return AK8PFJet80_;}
@@ -1972,19 +1973,19 @@ public:
   Bool_t DiPFJetAve320() const {return DiPFJetAve320_;}
   Bool_t DiPFJetAve400() const {return DiPFJetAve400_;}
   Bool_t DiPFJetAve500() const {return DiPFJetAve500_;}
-  Bool_t DiPFJetAve60() const {return DiPFJetAve60_;}
-  Bool_t DiPFJetAve80() const {return DiPFJetAve80_;}
-  Bool_t DiPFJetAve100() const {return DiPFJetAve100_;}
-  Bool_t DiPFJetAve160() const {return DiPFJetAve160_;}
-  Bool_t DiPFJetAve220() const {return DiPFJetAve220_;}
-  Bool_t DiPFJetAve300() const {return DiPFJetAve300_;}
-  Bool_t DiPFJet40() const {return DiPFJet40_;}
-  Bool_t DiPFJet40() const {return DiPFJet40_;}
+  Bool_t DiPFJetAve60_HFJEC() const {return DiPFJetAve60_HFJEC_;}
+  Bool_t DiPFJetAve80_HFJEC() const {return DiPFJetAve80_HFJEC_;}
+  Bool_t DiPFJetAve100_HFJEC() const {return DiPFJetAve100_HFJEC_;}
+  Bool_t DiPFJetAve160_HFJEC() const {return DiPFJetAve160_HFJEC_;}
+  Bool_t DiPFJetAve220_HFJEC() const {return DiPFJetAve220_HFJEC_;}
+  Bool_t DiPFJetAve300_HFJEC() const {return DiPFJetAve300_HFJEC_;}
+  Bool_t DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140() const {return DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_;}
+  Bool_t DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80() const {return DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_;}
   Bool_t DiCentralPFJet170() const {return DiCentralPFJet170_;}
-  Bool_t SingleCentralPFJet170() const {return SingleCentralPFJet170_;}
-  Bool_t DiCentralPFJet170() const {return DiCentralPFJet170_;}
-  Bool_t DiCentralPFJet220() const {return DiCentralPFJet220_;}
-  Bool_t DiCentralPFJet330() const {return DiCentralPFJet330_;}
+  Bool_t SingleCentralPFJet170_CFMax0p1() const {return SingleCentralPFJet170_CFMax0p1_;}
+  Bool_t DiCentralPFJet170_CFMax0p1() const {return DiCentralPFJet170_CFMax0p1_;}
+  Bool_t DiCentralPFJet220_CFMax0p3() const {return DiCentralPFJet220_CFMax0p3_;}
+  Bool_t DiCentralPFJet330_CFMax0p5() const {return DiCentralPFJet330_CFMax0p5_;}
   Bool_t DiCentralPFJet430() const {return DiCentralPFJet430_;}
   Bool_t PFHT125() const {return PFHT125_;}
   Bool_t PFHT200() const {return PFHT200_;}
@@ -1997,125 +1998,125 @@ public:
   Bool_t PFHT650() const {return PFHT650_;}
   Bool_t PFHT800() const {return PFHT800_;}
   Bool_t PFHT900() const {return PFHT900_;}
-  Bool_t PFHT200() const {return PFHT200_;}
-  Bool_t PFHT200() const {return PFHT200_;}
-  Bool_t PFHT200() const {return PFHT200_;}
-  Bool_t PFHT250() const {return PFHT250_;}
-  Bool_t PFHT250() const {return PFHT250_;}
-  Bool_t PFHT300() const {return PFHT300_;}
-  Bool_t PFHT300() const {return PFHT300_;}
-  Bool_t PFHT350() const {return PFHT350_;}
-  Bool_t PFHT350() const {return PFHT350_;}
-  Bool_t PFHT400() const {return PFHT400_;}
-  Bool_t PFHT400() const {return PFHT400_;}
-  Bool_t MET60() const {return MET60_;}
-  Bool_t MET75() const {return MET75_;}
-  Bool_t MET90() const {return MET90_;}
-  Bool_t PFMET120() const {return PFMET120_;}
-  Bool_t PFMET120() const {return PFMET120_;}
-  Bool_t PFMET170() const {return PFMET170_;}
-  Bool_t PFMET170() const {return PFMET170_;}
-  Bool_t PFMET170() const {return PFMET170_;}
-  Bool_t PFMET170() const {return PFMET170_;}
-  Bool_t PFMET170() const {return PFMET170_;}
-  Bool_t PFMET170() const {return PFMET170_;}
-  Bool_t PFMETTypeOne190() const {return PFMETTypeOne190_;}
-  Bool_t PFMET90() const {return PFMET90_;}
-  Bool_t PFMET100() const {return PFMET100_;}
-  Bool_t PFMET100() const {return PFMET100_;}
-  Bool_t PFMET110() const {return PFMET110_;}
-  Bool_t PFMET120() const {return PFMET120_;}
-  Bool_t CaloMHTNoPU90() const {return CaloMHTNoPU90_;}
-  Bool_t CaloMHTNoPU90() const {return CaloMHTNoPU90_;}
-  Bool_t QuadPFJet() const {return QuadPFJet_;}
-  Bool_t QuadPFJet() const {return QuadPFJet_;}
-  Bool_t QuadPFJet() const {return QuadPFJet_;}
-  Bool_t QuadPFJet() const {return QuadPFJet_;}
-  Bool_t QuadPFJet() const {return QuadPFJet_;}
-  Bool_t L1() const {return L1_;}
-  Bool_t QuadJet45() const {return QuadJet45_;}
-  Bool_t QuadJet45() const {return QuadJet45_;}
-  Bool_t DoubleJet90() const {return DoubleJet90_;}
-  Bool_t DoubleJet90() const {return DoubleJet90_;}
-  Bool_t DoubleJetsC100() const {return DoubleJetsC100_;}
-  Bool_t DoubleJetsC100() const {return DoubleJetsC100_;}
-  Bool_t DoubleJetsC112() const {return DoubleJetsC112_;}
-  Bool_t DoubleJetsC112() const {return DoubleJetsC112_;}
-  Bool_t DoubleJetsC100() const {return DoubleJetsC100_;}
-  Bool_t DoubleJetsC100() const {return DoubleJetsC100_;}
-  Bool_t DoubleJetsC100() const {return DoubleJetsC100_;}
-  Bool_t DoubleJetsC100() const {return DoubleJetsC100_;}
-  Bool_t Photon135() const {return Photon135_;}
-  Bool_t Photon20() const {return Photon20_;}
-  Bool_t Photon22() const {return Photon22_;}
-  Bool_t Photon22() const {return Photon22_;}
-  Bool_t Photon250() const {return Photon250_;}
-  Bool_t Photon300() const {return Photon300_;}
-  Bool_t Photon26() const {return Photon26_;}
-  Bool_t Photon36() const {return Photon36_;}
-  Bool_t Photon36() const {return Photon36_;}
-  Bool_t Photon36() const {return Photon36_;}
-  Bool_t Photon50() const {return Photon50_;}
-  Bool_t Photon50() const {return Photon50_;}
-  Bool_t Photon75() const {return Photon75_;}
-  Bool_t Photon75() const {return Photon75_;}
-  Bool_t Photon90() const {return Photon90_;}
-  Bool_t Photon90() const {return Photon90_;}
-  Bool_t Photon120() const {return Photon120_;}
-  Bool_t Photon120() const {return Photon120_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Ele8() const {return Ele8_;}
-  Bool_t Ele12() const {return Ele12_;}
-  Bool_t Ele17() const {return Ele17_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t BTagMu() const {return BTagMu_;}
-  Bool_t BTagMu() const {return BTagMu_;}
-  Bool_t BTagMu() const {return BTagMu_;}
-  Bool_t BTagMu() const {return BTagMu_;}
-  Bool_t BTagMu() const {return BTagMu_;}
-  Bool_t BTagMu() const {return BTagMu_;}
-  Bool_t BTagMu() const {return BTagMu_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t Ele17() const {return Ele17_;}
-  Bool_t Ele16() const {return Ele16_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t Mu12() const {return Mu12_;}
-  Bool_t Mu12() const {return Mu12_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu23() const {return Mu23_;}
-  Bool_t Mu23() const {return Mu23_;}
-  Bool_t Mu23() const {return Mu23_;}
-  Bool_t Mu23() const {return Mu23_;}
-  Bool_t Mu30() const {return Mu30_;}
-  Bool_t Mu33() const {return Mu33_;}
-  Bool_t Mu37() const {return Mu37_;}
-  Bool_t Mu27() const {return Mu27_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t Mu12() const {return Mu12_;}
-  Bool_t Mu12() const {return Mu12_;}
-  Bool_t Mu12() const {return Mu12_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu17() const {return Mu17_;}
-  Bool_t DiMu9() const {return DiMu9_;}
-  Bool_t TripleMu() const {return TripleMu_;}
-  Bool_t TripleMu() const {return TripleMu_;}
-  Bool_t Mu3er() const {return Mu3er_;}
-  Bool_t Mu6() const {return Mu6_;}
-  Bool_t Mu6() const {return Mu6_;}
-  Bool_t Mu14er() const {return Mu14er_;}
-  Bool_t Ele17() const {return Ele17_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t Ele12() const {return Ele12_;}
-  Bool_t Ele17() const {return Ele17_;}
-  Bool_t Ele17() const {return Ele17_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t PFHT650() const {return PFHT650_;}
-  Bool_t PFHT650() const {return PFHT650_;}
+  Bool_t PFHT200_PFAlphaT0p51() const {return PFHT200_PFAlphaT0p51_;}
+  Bool_t PFHT200_DiPFJetAve90_PFAlphaT0p57() const {return PFHT200_DiPFJetAve90_PFAlphaT0p57_;}
+  Bool_t PFHT200_DiPFJetAve90_PFAlphaT0p63() const {return PFHT200_DiPFJetAve90_PFAlphaT0p63_;}
+  Bool_t PFHT250_DiPFJetAve90_PFAlphaT0p55() const {return PFHT250_DiPFJetAve90_PFAlphaT0p55_;}
+  Bool_t PFHT250_DiPFJetAve90_PFAlphaT0p58() const {return PFHT250_DiPFJetAve90_PFAlphaT0p58_;}
+  Bool_t PFHT300_DiPFJetAve90_PFAlphaT0p53() const {return PFHT300_DiPFJetAve90_PFAlphaT0p53_;}
+  Bool_t PFHT300_DiPFJetAve90_PFAlphaT0p54() const {return PFHT300_DiPFJetAve90_PFAlphaT0p54_;}
+  Bool_t PFHT350_DiPFJetAve90_PFAlphaT0p52() const {return PFHT350_DiPFJetAve90_PFAlphaT0p52_;}
+  Bool_t PFHT350_DiPFJetAve90_PFAlphaT0p53() const {return PFHT350_DiPFJetAve90_PFAlphaT0p53_;}
+  Bool_t PFHT400_DiPFJetAve90_PFAlphaT0p51() const {return PFHT400_DiPFJetAve90_PFAlphaT0p51_;}
+  Bool_t PFHT400_DiPFJetAve90_PFAlphaT0p52() const {return PFHT400_DiPFJetAve90_PFAlphaT0p52_;}
+  Bool_t MET60_IsoTrk35_Loose() const {return MET60_IsoTrk35_Loose_;}
+  Bool_t MET75_IsoTrk50() const {return MET75_IsoTrk50_;}
+  Bool_t MET90_IsoTrk50() const {return MET90_IsoTrk50_;}
+  Bool_t PFMET120_BTagCSV_p067() const {return PFMET120_BTagCSV_p067_;}
+  Bool_t PFMET120_Mu5() const {return PFMET120_Mu5_;}
+  Bool_t PFMET170_NotCleaned() const {return PFMET170_NotCleaned_;}
+  Bool_t PFMET170_NoiseCleaned() const {return PFMET170_NoiseCleaned_;}
+  Bool_t PFMET170_HBHECleaned() const {return PFMET170_HBHECleaned_;}
+  Bool_t PFMET170_JetIdCleaned() const {return PFMET170_JetIdCleaned_;}
+  Bool_t PFMET170_BeamHaloCleaned() const {return PFMET170_BeamHaloCleaned_;}
+  Bool_t PFMET170_HBHE_BeamHaloCleaned() const {return PFMET170_HBHE_BeamHaloCleaned_;}
+  Bool_t PFMETTypeOne190_HBHE_BeamHaloCleaned() const {return PFMETTypeOne190_HBHE_BeamHaloCleaned_;}
+  Bool_t PFMET90_PFMHT90_IDTight() const {return PFMET90_PFMHT90_IDTight_;}
+  Bool_t PFMET100_PFMHT100_IDTight() const {return PFMET100_PFMHT100_IDTight_;}
+  Bool_t PFMET100_PFMHT100_IDTight_BeamHaloCleaned() const {return PFMET100_PFMHT100_IDTight_BeamHaloCleaned_;}
+  Bool_t PFMET110_PFMHT110_IDTight() const {return PFMET110_PFMHT110_IDTight_;}
+  Bool_t PFMET120_PFMHT120_IDTight() const {return PFMET120_PFMHT120_IDTight_;}
+  Bool_t CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067() const {return CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_;}
+  Bool_t CaloMHTNoPU90_PFMET90_PFMHT90_IDTight() const {return CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_;}
+  Bool_t QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200() const {return QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_;}
+  Bool_t QuadPFJet_BTagCSV_p016_VBF_Mqq460() const {return QuadPFJet_BTagCSV_p016_VBF_Mqq460_;}
+  Bool_t QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240() const {return QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_;}
+  Bool_t QuadPFJet_BTagCSV_p016_VBF_Mqq500() const {return QuadPFJet_BTagCSV_p016_VBF_Mqq500_;}
+  Bool_t QuadPFJet_VBF() const {return QuadPFJet_VBF_;}
+  Bool_t L1_TripleJet_VBF() const {return L1_TripleJet_VBF_;}
+  Bool_t QuadJet45_TripleBTagCSV_p087() const {return QuadJet45_TripleBTagCSV_p087_;}
+  Bool_t QuadJet45_DoubleBTagCSV_p087() const {return QuadJet45_DoubleBTagCSV_p087_;}
+  Bool_t DoubleJet90_Double30_TripleBTagCSV_p087() const {return DoubleJet90_Double30_TripleBTagCSV_p087_;}
+  Bool_t DoubleJet90_Double30_DoubleBTagCSV_p087() const {return DoubleJet90_Double30_DoubleBTagCSV_p087_;}
+  Bool_t DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160() const {return DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_;}
+  Bool_t DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6() const {return DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_;}
+  Bool_t DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172() const {return DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_;}
+  Bool_t DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6() const {return DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_;}
+  Bool_t DoubleJetsC100_SingleBTagCSV_p026() const {return DoubleJetsC100_SingleBTagCSV_p026_;}
+  Bool_t DoubleJetsC100_SingleBTagCSV_p014() const {return DoubleJetsC100_SingleBTagCSV_p014_;}
+  Bool_t DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350() const {return DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_;}
+  Bool_t DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350() const {return DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_;}
+  Bool_t Photon135_PFMET100() const {return Photon135_PFMET100_;}
+  Bool_t Photon20_CaloIdVL_IsoL() const {return Photon20_CaloIdVL_IsoL_;}
+  Bool_t Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40() const {return Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_;}
+  Bool_t Photon22_R9Id90_HE10_Iso40_EBOnly_VBF() const {return Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_;}
+  Bool_t Photon250_NoHE() const {return Photon250_NoHE_;}
+  Bool_t Photon300_NoHE() const {return Photon300_NoHE_;}
+  Bool_t Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60() const {return Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_;}
+  Bool_t Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15() const {return Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_;}
+  Bool_t Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40() const {return Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_;}
+  Bool_t Photon36_R9Id90_HE10_Iso40_EBOnly_VBF() const {return Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_;}
+  Bool_t Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40() const {return Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_;}
+  Bool_t Photon50_R9Id90_HE10_Iso40_EBOnly_VBF() const {return Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_;}
+  Bool_t Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40() const {return Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_;}
+  Bool_t Photon75_R9Id90_HE10_Iso40_EBOnly_VBF() const {return Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_;}
+  Bool_t Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40() const {return Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_;}
+  Bool_t Photon90_R9Id90_HE10_Iso40_EBOnly_VBF() const {return Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_;}
+  Bool_t Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40() const {return Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_;}
+  Bool_t Photon120_R9Id90_HE10_Iso40_EBOnly_VBF() const {return Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_;}
+  Bool_t Mu8_TrkIsoVVL() const {return Mu8_TrkIsoVVL_;}
+  Bool_t Mu17_TrkIsoVVL() const {return Mu17_TrkIsoVVL_;}
+  Bool_t Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30() const {return Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_;}
+  Bool_t Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30() const {return Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_;}
+  Bool_t Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30() const {return Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30_;}
+  Bool_t Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30() const {return Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_;}
+  Bool_t BTagMu_DiJet20_Mu5() const {return BTagMu_DiJet20_Mu5_;}
+  Bool_t BTagMu_DiJet40_Mu5() const {return BTagMu_DiJet40_Mu5_;}
+  Bool_t BTagMu_DiJet70_Mu5() const {return BTagMu_DiJet70_Mu5_;}
+  Bool_t BTagMu_DiJet110_Mu5() const {return BTagMu_DiJet110_Mu5_;}
+  Bool_t BTagMu_DiJet170_Mu5() const {return BTagMu_DiJet170_Mu5_;}
+  Bool_t BTagMu_Jet300_Mu5() const {return BTagMu_Jet300_Mu5_;}
+  Bool_t BTagMu_AK8Jet300_Mu5() const {return BTagMu_AK8Jet300_Mu5_;}
+  Bool_t Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ() const {return Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;}
+  Bool_t Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded() const {return Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_;}
+  Bool_t Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ() const {return Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;}
+  Bool_t Ele16_Ele12_Ele8_CaloIdL_TrackIdL() const {return Ele16_Ele12_Ele8_CaloIdL_TrackIdL_;}
+  Bool_t Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL() const {return Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL() const {return Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ() const {return Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_;}
+  Bool_t Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL() const {return Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ() const {return Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_;}
+  Bool_t Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL() const {return Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL() const {return Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ() const {return Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_;}
+  Bool_t Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL() const {return Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ() const {return Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;}
+  Bool_t Mu30_Ele30_CaloIdL_GsfTrkIdVL() const {return Mu30_Ele30_CaloIdL_GsfTrkIdVL_;}
+  Bool_t Mu33_Ele33_CaloIdL_GsfTrkIdVL() const {return Mu33_Ele33_CaloIdL_GsfTrkIdVL_;}
+  Bool_t Mu37_Ele27_CaloIdL_GsfTrkIdVL() const {return Mu37_Ele27_CaloIdL_GsfTrkIdVL_;}
+  Bool_t Mu27_Ele37_CaloIdL_GsfTrkIdVL() const {return Mu27_Ele37_CaloIdL_GsfTrkIdVL_;}
+  Bool_t Mu8_DiEle12_CaloIdL_TrackIdL() const {return Mu8_DiEle12_CaloIdL_TrackIdL_;}
+  Bool_t Mu12_Photon25_CaloIdL() const {return Mu12_Photon25_CaloIdL_;}
+  Bool_t Mu12_Photon25_CaloIdL_L1ISO() const {return Mu12_Photon25_CaloIdL_L1ISO_;}
+  Bool_t Mu12_Photon25_CaloIdL_L1OR() const {return Mu12_Photon25_CaloIdL_L1OR_;}
+  Bool_t Mu17_Photon22_CaloIdL_L1ISO() const {return Mu17_Photon22_CaloIdL_L1ISO_;}
+  Bool_t Mu17_Photon30_CaloIdL_L1ISO() const {return Mu17_Photon30_CaloIdL_L1ISO_;}
+  Bool_t Mu17_Photon35_CaloIdL_L1ISO() const {return Mu17_Photon35_CaloIdL_L1ISO_;}
+  Bool_t DiMu9_Ele9_CaloIdL_TrackIdL() const {return DiMu9_Ele9_CaloIdL_TrackIdL_;}
+  Bool_t TripleMu_5_3_3() const {return TripleMu_5_3_3_;}
+  Bool_t TripleMu_12_10_5() const {return TripleMu_12_10_5_;}
+  Bool_t Mu3er_PFHT140_PFMET125() const {return Mu3er_PFHT140_PFMET125_;}
+  Bool_t Mu6_PFHT200_PFMET80_BTagCSV_p067() const {return Mu6_PFHT200_PFMET80_BTagCSV_p067_;}
+  Bool_t Mu6_PFHT200_PFMET100() const {return Mu6_PFHT200_PFMET100_;}
+  Bool_t Mu14er_PFMET100() const {return Mu14er_PFMET100_;}
+  Bool_t Ele17_Ele12_CaloIdL_TrackIdL_IsoVL() const {return Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Ele23_Ele12_CaloIdL_TrackIdL_IsoVL() const {return Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Ele12_CaloIdL_TrackIdL_IsoVL() const {return Ele12_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Ele17_CaloIdL_GsfTrkIdVL() const {return Ele17_CaloIdL_GsfTrkIdVL_;}
+  Bool_t Ele17_CaloIdL_TrackIdL_IsoVL() const {return Ele17_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t Ele23_CaloIdL_TrackIdL_IsoVL() const {return Ele23_CaloIdL_TrackIdL_IsoVL_;}
+  Bool_t PFHT650_WideJetMJJ900DEtaJJ1p5() const {return PFHT650_WideJetMJJ900DEtaJJ1p5_;}
+  Bool_t PFHT650_WideJetMJJ950DEtaJJ1p5() const {return PFHT650_WideJetMJJ950DEtaJJ1p5_;}
   Bool_t Photon22() const {return Photon22_;}
   Bool_t Photon30() const {return Photon30_;}
   Bool_t Photon36() const {return Photon36_;}
@@ -2124,143 +2125,143 @@ public:
   Bool_t Photon90() const {return Photon90_;}
   Bool_t Photon120() const {return Photon120_;}
   Bool_t Photon175() const {return Photon175_;}
-  Bool_t Photon165() const {return Photon165_;}
-  Bool_t Photon22() const {return Photon22_;}
-  Bool_t Photon30() const {return Photon30_;}
-  Bool_t Photon36() const {return Photon36_;}
-  Bool_t Photon50() const {return Photon50_;}
-  Bool_t Photon75() const {return Photon75_;}
-  Bool_t Photon90() const {return Photon90_;}
-  Bool_t Photon120() const {return Photon120_;}
-  Bool_t Photon165() const {return Photon165_;}
-  Bool_t Diphoton30() const {return Diphoton30_;}
-  Bool_t Diphoton30() const {return Diphoton30_;}
-  Bool_t Diphoton30PV() const {return Diphoton30PV_;}
-  Bool_t Diphoton30() const {return Diphoton30_;}
-  Bool_t Diphoton30EB() const {return Diphoton30EB_;}
-  Bool_t Dimuon0() const {return Dimuon0_;}
-  Bool_t Dimuon0() const {return Dimuon0_;}
-  Bool_t QuadMuon0() const {return QuadMuon0_;}
-  Bool_t QuadMuon0() const {return QuadMuon0_;}
-  Bool_t Rsq0p25() const {return Rsq0p25_;}
-  Bool_t RsqMR240() const {return RsqMR240_;}
-  Bool_t RsqMR240() const {return RsqMR240_;}
+  Bool_t Photon165_HE10() const {return Photon165_HE10_;}
+  Bool_t Photon22_R9Id90_HE10_IsoM() const {return Photon22_R9Id90_HE10_IsoM_;}
+  Bool_t Photon30_R9Id90_HE10_IsoM() const {return Photon30_R9Id90_HE10_IsoM_;}
+  Bool_t Photon36_R9Id90_HE10_IsoM() const {return Photon36_R9Id90_HE10_IsoM_;}
+  Bool_t Photon50_R9Id90_HE10_IsoM() const {return Photon50_R9Id90_HE10_IsoM_;}
+  Bool_t Photon75_R9Id90_HE10_IsoM() const {return Photon75_R9Id90_HE10_IsoM_;}
+  Bool_t Photon90_R9Id90_HE10_IsoM() const {return Photon90_R9Id90_HE10_IsoM_;}
+  Bool_t Photon120_R9Id90_HE10_IsoM() const {return Photon120_R9Id90_HE10_IsoM_;}
+  Bool_t Photon165_R9Id90_HE10_IsoM() const {return Photon165_R9Id90_HE10_IsoM_;}
+  Bool_t Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90() const {return Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_;}
+  Bool_t Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70() const {return Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_;}
+  Bool_t Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55() const {return Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_;}
+  Bool_t Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55() const {return Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_;}
+  Bool_t Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55() const {return Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_;}
+  Bool_t Dimuon0_Jpsi_Muon() const {return Dimuon0_Jpsi_Muon_;}
+  Bool_t Dimuon0_Upsilon_Muon() const {return Dimuon0_Upsilon_Muon_;}
+  Bool_t QuadMuon0_Dimuon0_Jpsi() const {return QuadMuon0_Dimuon0_Jpsi_;}
+  Bool_t QuadMuon0_Dimuon0_Upsilon() const {return QuadMuon0_Dimuon0_Upsilon_;}
+  Bool_t Rsq0p25_Calo() const {return Rsq0p25_Calo_;}
+  Bool_t RsqMR240_Rsq0p09_MR200_4jet_Calo() const {return RsqMR240_Rsq0p09_MR200_4jet_Calo_;}
+  Bool_t RsqMR240_Rsq0p09_MR200_Calo() const {return RsqMR240_Rsq0p09_MR200_Calo_;}
   Bool_t Rsq0p25() const {return Rsq0p25_;}
   Bool_t Rsq0p30() const {return Rsq0p30_;}
-  Bool_t RsqMR240() const {return RsqMR240_;}
-  Bool_t RsqMR240() const {return RsqMR240_;}
-  Bool_t RsqMR270() const {return RsqMR270_;}
-  Bool_t RsqMR270() const {return RsqMR270_;}
-  Bool_t Rsq0p02() const {return Rsq0p02_;}
-  Bool_t Rsq0p02() const {return Rsq0p02_;}
-  Bool_t Rsq0p02() const {return Rsq0p02_;}
-  Bool_t Rsq0p02() const {return Rsq0p02_;}
-  Bool_t Rsq0p02() const {return Rsq0p02_;}
-  Bool_t HT200() const {return HT200_;}
-  Bool_t HT250() const {return HT250_;}
-  Bool_t HT350() const {return HT350_;}
-  Bool_t HT350() const {return HT350_;}
-  Bool_t HT350() const {return HT350_;}
-  Bool_t HT350() const {return HT350_;}
-  Bool_t HT400() const {return HT400_;}
-  Bool_t HT500() const {return HT500_;}
-  Bool_t HT550() const {return HT550_;}
-  Bool_t HT550() const {return HT550_;}
-  Bool_t HT650() const {return HT650_;}
-  Bool_t HT750() const {return HT750_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t VBF() const {return VBF_;}
-  Bool_t PFMETNoMu90() const {return PFMETNoMu90_;}
-  Bool_t PFMETNoMu100() const {return PFMETNoMu100_;}
-  Bool_t PFMETNoMu110() const {return PFMETNoMu110_;}
-  Bool_t PFMETNoMu120() const {return PFMETNoMu120_;}
-  Bool_t MonoCentralPFJet80() const {return MonoCentralPFJet80_;}
-  Bool_t MonoCentralPFJet80() const {return MonoCentralPFJet80_;}
-  Bool_t MonoCentralPFJet80() const {return MonoCentralPFJet80_;}
-  Bool_t MonoCentralPFJet80() const {return MonoCentralPFJet80_;}
-  Bool_t Ele27() const {return Ele27_;}
-  Bool_t Photon90() const {return Photon90_;}
-  Bool_t DoubleMu8() const {return DoubleMu8_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t DoubleEle8() const {return DoubleEle8_;}
-  Bool_t DoubleMu8() const {return DoubleMu8_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t DoubleEle8() const {return DoubleEle8_;}
-  Bool_t Mu10() const {return Mu10_;}
-  Bool_t DoubleMu3() const {return DoubleMu3_;}
-  Bool_t Ele10() const {return Ele10_;}
-  Bool_t Ele15() const {return Ele15_;}
-  Bool_t Ele15() const {return Ele15_;}
-  Bool_t Ele15() const {return Ele15_;}
-  Bool_t Ele15() const {return Ele15_;}
-  Bool_t Ele15() const {return Ele15_;}
-  Bool_t Ele15() const {return Ele15_;}
-  Bool_t Ele50() const {return Ele50_;}
-  Bool_t Mu8() const {return Mu8_;}
-  Bool_t Mu10() const {return Mu10_;}
-  Bool_t Mu15() const {return Mu15_;}
-  Bool_t Mu15() const {return Mu15_;}
-  Bool_t Mu15() const {return Mu15_;}
-  Bool_t Mu15() const {return Mu15_;}
-  Bool_t Mu15() const {return Mu15_;}
-  Bool_t Mu15() const {return Mu15_;}
-  Bool_t Mu50() const {return Mu50_;}
-  Bool_t Dimuon16() const {return Dimuon16_;}
-  Bool_t Dimuon10() const {return Dimuon10_;}
-  Bool_t Dimuon8() const {return Dimuon8_;}
-  Bool_t Dimuon8() const {return Dimuon8_;}
-  Bool_t Dimuon0() const {return Dimuon0_;}
-  Bool_t Mu16() const {return Mu16_;}
-  Bool_t Mu16() const {return Mu16_;}
-  Bool_t TrkMu15() const {return TrkMu15_;}
-  Bool_t TrkMu17() const {return TrkMu17_;}
+  Bool_t RsqMR240_Rsq0p09_MR200() const {return RsqMR240_Rsq0p09_MR200_;}
+  Bool_t RsqMR240_Rsq0p09_MR200_4jet() const {return RsqMR240_Rsq0p09_MR200_4jet_;}
+  Bool_t RsqMR270_Rsq0p09_MR200() const {return RsqMR270_Rsq0p09_MR200_;}
+  Bool_t RsqMR270_Rsq0p09_MR200_4jet() const {return RsqMR270_Rsq0p09_MR200_4jet_;}
+  Bool_t Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200() const {return Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_;}
+  Bool_t Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200() const {return Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;}
+  Bool_t Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200() const {return Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;}
+  Bool_t Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200() const {return Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;}
+  Bool_t Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200() const {return Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;}
+  Bool_t HT200_DisplacedDijet40_DisplacedTrack() const {return HT200_DisplacedDijet40_DisplacedTrack_;}
+  Bool_t HT250_DisplacedDijet40_DisplacedTrack() const {return HT250_DisplacedDijet40_DisplacedTrack_;}
+  Bool_t HT350_DisplacedDijet40_DisplacedTrack() const {return HT350_DisplacedDijet40_DisplacedTrack_;}
+  Bool_t HT350_DisplacedDijet80_DisplacedTrack() const {return HT350_DisplacedDijet80_DisplacedTrack_;}
+  Bool_t HT350_DisplacedDijet80_Tight_DisplacedTrack() const {return HT350_DisplacedDijet80_Tight_DisplacedTrack_;}
+  Bool_t HT350_DisplacedDijet40_Inclusive() const {return HT350_DisplacedDijet40_Inclusive_;}
+  Bool_t HT400_DisplacedDijet40_Inclusive() const {return HT400_DisplacedDijet40_Inclusive_;}
+  Bool_t HT500_DisplacedDijet40_Inclusive() const {return HT500_DisplacedDijet40_Inclusive_;}
+  Bool_t HT550_DisplacedDijet40_Inclusive() const {return HT550_DisplacedDijet40_Inclusive_;}
+  Bool_t HT550_DisplacedDijet80_Inclusive() const {return HT550_DisplacedDijet80_Inclusive_;}
+  Bool_t HT650_DisplacedDijet80_Inclusive() const {return HT650_DisplacedDijet80_Inclusive_;}
+  Bool_t HT750_DisplacedDijet80_Inclusive() const {return HT750_DisplacedDijet80_Inclusive_;}
+  Bool_t VBF_DisplacedJet40_DisplacedTrack() const {return VBF_DisplacedJet40_DisplacedTrack_;}
+  Bool_t VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5() const {return VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_;}
+  Bool_t VBF_DisplacedJet40_TightID_DisplacedTrack() const {return VBF_DisplacedJet40_TightID_DisplacedTrack_;}
+  Bool_t VBF_DisplacedJet40_Hadronic() const {return VBF_DisplacedJet40_Hadronic_;}
+  Bool_t VBF_DisplacedJet40_Hadronic_2PromptTrack() const {return VBF_DisplacedJet40_Hadronic_2PromptTrack_;}
+  Bool_t VBF_DisplacedJet40_TightID_Hadronic() const {return VBF_DisplacedJet40_TightID_Hadronic_;}
+  Bool_t VBF_DisplacedJet40_VTightID_Hadronic() const {return VBF_DisplacedJet40_VTightID_Hadronic_;}
+  Bool_t VBF_DisplacedJet40_VVTightID_Hadronic() const {return VBF_DisplacedJet40_VVTightID_Hadronic_;}
+  Bool_t VBF_DisplacedJet40_VTightID_DisplacedTrack() const {return VBF_DisplacedJet40_VTightID_DisplacedTrack_;}
+  Bool_t VBF_DisplacedJet40_VVTightID_DisplacedTrack() const {return VBF_DisplacedJet40_VVTightID_DisplacedTrack_;}
+  Bool_t PFMETNoMu90_PFMHTNoMu90_IDTight() const {return PFMETNoMu90_PFMHTNoMu90_IDTight_;}
+  Bool_t PFMETNoMu100_PFMHTNoMu100_IDTight() const {return PFMETNoMu100_PFMHTNoMu100_IDTight_;}
+  Bool_t PFMETNoMu110_PFMHTNoMu110_IDTight() const {return PFMETNoMu110_PFMHTNoMu110_IDTight_;}
+  Bool_t PFMETNoMu120_PFMHTNoMu120_IDTight() const {return PFMETNoMu120_PFMHTNoMu120_IDTight_;}
+  Bool_t MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight() const {return MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_;}
+  Bool_t MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight() const {return MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_;}
+  Bool_t MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight() const {return MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_;}
+  Bool_t MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight() const {return MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_;}
+  Bool_t Ele27_eta2p1_WPLoose_Gsf_HT200() const {return Ele27_eta2p1_WPLoose_Gsf_HT200_;}
+  Bool_t Photon90_CaloIdL_PFHT500() const {return Photon90_CaloIdL_PFHT500_;}
+  Bool_t DoubleMu8_Mass8_PFHT250() const {return DoubleMu8_Mass8_PFHT250_;}
+  Bool_t Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250() const {return Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_;}
+  Bool_t DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250() const {return DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_;}
+  Bool_t DoubleMu8_Mass8_PFHT300() const {return DoubleMu8_Mass8_PFHT300_;}
+  Bool_t Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300() const {return Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_;}
+  Bool_t DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300() const {return DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_;}
+  Bool_t Mu10_CentralPFJet30_BTagCSV_p13() const {return Mu10_CentralPFJet30_BTagCSV_p13_;}
+  Bool_t DoubleMu3_PFMET50() const {return DoubleMu3_PFMET50_;}
+  Bool_t Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13() const {return Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_;}
+  Bool_t Ele15_IsoVVVL_BTagCSV_p067_PFHT400() const {return Ele15_IsoVVVL_BTagCSV_p067_PFHT400_;}
+  Bool_t Ele15_IsoVVVL_PFHT350_PFMET50() const {return Ele15_IsoVVVL_PFHT350_PFMET50_;}
+  Bool_t Ele15_IsoVVVL_PFHT600() const {return Ele15_IsoVVVL_PFHT600_;}
+  Bool_t Ele15_IsoVVVL_PFHT350() const {return Ele15_IsoVVVL_PFHT350_;}
+  Bool_t Ele15_IsoVVVL_PFHT400_PFMET50() const {return Ele15_IsoVVVL_PFHT400_PFMET50_;}
+  Bool_t Ele15_IsoVVVL_PFHT400() const {return Ele15_IsoVVVL_PFHT400_;}
+  Bool_t Ele50_IsoVVVL_PFHT400() const {return Ele50_IsoVVVL_PFHT400_;}
+  Bool_t Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60() const {return Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_;}
+  Bool_t Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60() const {return Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_;}
+  Bool_t Mu15_IsoVVVL_BTagCSV_p067_PFHT400() const {return Mu15_IsoVVVL_BTagCSV_p067_PFHT400_;}
+  Bool_t Mu15_IsoVVVL_PFHT350_PFMET50() const {return Mu15_IsoVVVL_PFHT350_PFMET50_;}
+  Bool_t Mu15_IsoVVVL_PFHT600() const {return Mu15_IsoVVVL_PFHT600_;}
+  Bool_t Mu15_IsoVVVL_PFHT350() const {return Mu15_IsoVVVL_PFHT350_;}
+  Bool_t Mu15_IsoVVVL_PFHT400_PFMET50() const {return Mu15_IsoVVVL_PFHT400_PFMET50_;}
+  Bool_t Mu15_IsoVVVL_PFHT400() const {return Mu15_IsoVVVL_PFHT400_;}
+  Bool_t Mu50_IsoVVVL_PFHT400() const {return Mu50_IsoVVVL_PFHT400_;}
+  Bool_t Dimuon16_Jpsi() const {return Dimuon16_Jpsi_;}
+  Bool_t Dimuon10_Jpsi_Barrel() const {return Dimuon10_Jpsi_Barrel_;}
+  Bool_t Dimuon8_PsiPrime_Barrel() const {return Dimuon8_PsiPrime_Barrel_;}
+  Bool_t Dimuon8_Upsilon_Barrel() const {return Dimuon8_Upsilon_Barrel_;}
+  Bool_t Dimuon0_Phi_Barrel() const {return Dimuon0_Phi_Barrel_;}
+  Bool_t Mu16_TkMu0_dEta18_Onia() const {return Mu16_TkMu0_dEta18_Onia_;}
+  Bool_t Mu16_TkMu0_dEta18_Phi() const {return Mu16_TkMu0_dEta18_Phi_;}
+  Bool_t TrkMu15_DoubleTrkMu5NoFiltersNoVtx() const {return TrkMu15_DoubleTrkMu5NoFiltersNoVtx_;}
+  Bool_t TrkMu17_DoubleTrkMu8NoFiltersNoVtx() const {return TrkMu17_DoubleTrkMu8NoFiltersNoVtx_;}
   Bool_t Mu8() const {return Mu8_;}
   Bool_t Mu17() const {return Mu17_;}
-  Bool_t Mu3() const {return Mu3_;}
-  Bool_t Ele8() const {return Ele8_;}
-  Bool_t Ele12() const {return Ele12_;}
-  Bool_t Ele17() const {return Ele17_;}
-  Bool_t Ele23() const {return Ele23_;}
-  Bool_t Ele50() const {return Ele50_;}
-  Bool_t Ele50() const {return Ele50_;}
-  Bool_t PFHT400() const {return PFHT400_;}
-  Bool_t PFHT450() const {return PFHT450_;}
-  Bool_t PFHT400() const {return PFHT400_;}
-  Bool_t PFHT450() const {return PFHT450_;}
-  Bool_t Ele115() const {return Ele115_;}
+  Bool_t Mu3_PFJet40() const {return Mu3_PFJet40_;}
+  Bool_t Ele8_CaloIdM_TrackIdM_PFJet30() const {return Ele8_CaloIdM_TrackIdM_PFJet30_;}
+  Bool_t Ele12_CaloIdM_TrackIdM_PFJet30() const {return Ele12_CaloIdM_TrackIdM_PFJet30_;}
+  Bool_t Ele17_CaloIdM_TrackIdM_PFJet30() const {return Ele17_CaloIdM_TrackIdM_PFJet30_;}
+  Bool_t Ele23_CaloIdM_TrackIdM_PFJet30() const {return Ele23_CaloIdM_TrackIdM_PFJet30_;}
+  Bool_t Ele50_CaloIdVT_GsfTrkIdT_PFJet140() const {return Ele50_CaloIdVT_GsfTrkIdT_PFJet140_;}
+  Bool_t Ele50_CaloIdVT_GsfTrkIdT_PFJet165() const {return Ele50_CaloIdVT_GsfTrkIdT_PFJet165_;}
+  Bool_t PFHT400_SixJet30_DoubleBTagCSV_p056() const {return PFHT400_SixJet30_DoubleBTagCSV_p056_;}
+  Bool_t PFHT450_SixJet40_BTagCSV_p056() const {return PFHT450_SixJet40_BTagCSV_p056_;}
+  Bool_t PFHT400_SixJet30() const {return PFHT400_SixJet30_;}
+  Bool_t PFHT450_SixJet40() const {return PFHT450_SixJet40_;}
+  Bool_t Ele115_CaloIdVT_GsfTrkIdT() const {return Ele115_CaloIdVT_GsfTrkIdT_;}
   Bool_t Mu55() const {return Mu55_;}
-  Bool_t Photon42() const {return Photon42_;}
-  Bool_t Photon90() const {return Photon90_;}
-  Bool_t PixelTracks() const {return PixelTracks_;}
-  Bool_t PixelTracks() const {return PixelTracks_;}
-  Bool_t PixelTracks() const {return PixelTracks_;}
-  Bool_t PixelTracks() const {return PixelTracks_;}
-  Bool_t PixelTracks() const {return PixelTracks_;}
-  Bool_t FullTracks() const {return FullTracks_;}
-  Bool_t FullTracks() const {return FullTracks_;}
-  Bool_t FullTracks() const {return FullTracks_;}
-  Bool_t FullTracks() const {return FullTracks_;}
+  Bool_t Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15() const {return Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_;}
+  Bool_t Photon90_CaloIdL_PFHT600() const {return Photon90_CaloIdL_PFHT600_;}
+  Bool_t PixelTracks_Multiplicity60ForEndOfFill() const {return PixelTracks_Multiplicity60ForEndOfFill_;}
+  Bool_t PixelTracks_Multiplicity85ForEndOfFill() const {return PixelTracks_Multiplicity85ForEndOfFill_;}
+  Bool_t PixelTracks_Multiplicity110ForEndOfFill() const {return PixelTracks_Multiplicity110ForEndOfFill_;}
+  Bool_t PixelTracks_Multiplicity135ForEndOfFill() const {return PixelTracks_Multiplicity135ForEndOfFill_;}
+  Bool_t PixelTracks_Multiplicity160ForEndOfFill() const {return PixelTracks_Multiplicity160ForEndOfFill_;}
+  Bool_t FullTracks_Multiplicity80() const {return FullTracks_Multiplicity80_;}
+  Bool_t FullTracks_Multiplicity100() const {return FullTracks_Multiplicity100_;}
+  Bool_t FullTracks_Multiplicity130() const {return FullTracks_Multiplicity130_;}
+  Bool_t FullTracks_Multiplicity150() const {return FullTracks_Multiplicity150_;}
   Bool_t ECALHT800() const {return ECALHT800_;}
-  Bool_t DiSC30() const {return DiSC30_;}
+  Bool_t DiSC30_18_EIso_AND_HE_Mass70() const {return DiSC30_18_EIso_AND_HE_Mass70_;}
   Bool_t Photon125() const {return Photon125_;}
   Bool_t MET100() const {return MET100_;}
   Bool_t MET150() const {return MET150_;}
   Bool_t MET200() const {return MET200_;}
-  Bool_t Ele27() const {return Ele27_;}
+  Bool_t Ele27_HighEta_Ele20_Mass55() const {return Ele27_HighEta_Ele20_Mass55_;}
   Bool_t L1FatEvents() const {return L1FatEvents_;}
   Bool_t Physics() const {return Physics_;}
-  Bool_t L1FatEvents() const {return L1FatEvents_;}
-  Bool_t L1FatEvents() const {return L1FatEvents_;}
-  Bool_t L1FatEvents() const {return L1FatEvents_;}
-  Bool_t L1FatEvents() const {return L1FatEvents_;}
+  Bool_t L1FatEvents_part0() const {return L1FatEvents_part0_;}
+  Bool_t L1FatEvents_part1() const {return L1FatEvents_part1_;}
+  Bool_t L1FatEvents_part2() const {return L1FatEvents_part2_;}
+  Bool_t L1FatEvents_part3() const {return L1FatEvents_part3_;}
   Bool_t Random() const {return Random_;}
   Bool_t ZeroBias() const {return ZeroBias_;}
   Bool_t AK4CaloJet30() const {return AK4CaloJet30_;}
@@ -2286,17 +2287,17 @@ public:
   Bool_t L1BeamGasMinus() const {return L1BeamGasMinus_;}
   Bool_t L1BeamGasPlus() const {return L1BeamGasPlus_;}
   Bool_t L1BptxXOR() const {return L1BptxXOR_;}
-  Bool_t L1MinimumBiasHF() const {return L1MinimumBiasHF_;}
-  Bool_t L1MinimumBiasHF() const {return L1MinimumBiasHF_;}
+  Bool_t L1MinimumBiasHF_OR() const {return L1MinimumBiasHF_OR_;}
+  Bool_t L1MinimumBiasHF_AND() const {return L1MinimumBiasHF_AND_;}
   Bool_t HcalNZS() const {return HcalNZS_;}
   Bool_t HcalPhiSym() const {return HcalPhiSym_;}
   Bool_t HcalIsolatedbunch() const {return HcalIsolatedbunch_;}
-  Bool_t ZeroBias() const {return ZeroBias_;}
-  Bool_t ZeroBias() const {return ZeroBias_;}
-  Bool_t ZeroBias() const {return ZeroBias_;}
-  Bool_t ZeroBias() const {return ZeroBias_;}
-  Bool_t ZeroBias() const {return ZeroBias_;}
-  Bool_t ZeroBias() const {return ZeroBias_;}
+  Bool_t ZeroBias_FirstCollisionAfterAbortGap() const {return ZeroBias_FirstCollisionAfterAbortGap_;}
+  Bool_t ZeroBias_FirstCollisionAfterAbortGap_copy() const {return ZeroBias_FirstCollisionAfterAbortGap_copy_;}
+  Bool_t ZeroBias_FirstCollisionAfterAbortGap_TCDS() const {return ZeroBias_FirstCollisionAfterAbortGap_TCDS_;}
+  Bool_t ZeroBias_IsolatedBunches() const {return ZeroBias_IsolatedBunches_;}
+  Bool_t ZeroBias_FirstCollisionInTrain() const {return ZeroBias_FirstCollisionInTrain_;}
+  Bool_t ZeroBias_FirstBXAfterTrain() const {return ZeroBias_FirstBXAfterTrain_;}
   Bool_t Photon500() const {return Photon500_;}
   Bool_t Photon600() const {return Photon600_;}
   Bool_t Mu300() const {return Mu300_;}
@@ -2309,8 +2310,8 @@ public:
   Bool_t PFMET400() const {return PFMET400_;}
   Bool_t PFMET500() const {return PFMET500_;}
   Bool_t PFMET600() const {return PFMET600_;}
-  Bool_t Ele250() const {return Ele250_;}
-  Bool_t Ele300() const {return Ele300_;}
+  Bool_t Ele250_CaloIdVT_GsfTrkIdT() const {return Ele250_CaloIdVT_GsfTrkIdT_;}
+  Bool_t Ele300_CaloIdVT_GsfTrkIdT() const {return Ele300_CaloIdVT_GsfTrkIdT_;}
   Bool_t HT2000() const {return HT2000_;}
   Bool_t HT2500() const {return HT2500_;}
   Bool_t IsoTrackHE() const {return IsoTrackHE_;}
@@ -2318,106 +2319,106 @@ public:
   Bool_t HLTriggerFinalPath() const {return HLTriggerFinalPath_;}
 private:
   Bool_t HLTriggerFirstPath_;
-  Bool_t AK8PFJet360_;
-  Bool_t AK8PFJet400_;
-  Bool_t AK8PFHT750_;
-  Bool_t AK8PFHT800_;
-  Bool_t AK8DiPFJet300_;
-  Bool_t AK8DiPFJet280_;
-  Bool_t AK8DiPFJet300_;
-  Bool_t AK8DiPFJet300_;
-  Bool_t AK8PFHT700_;
-  Bool_t AK8PFHT650_;
-  Bool_t AK8PFHT600_;
-  Bool_t AK8DiPFJet280_;
-  Bool_t AK8DiPFJet250_;
-  Bool_t AK8DiPFJet280_;
-  Bool_t AK8DiPFJet250_;
+  Bool_t AK8PFJet360_TrimMass30_;
+  Bool_t AK8PFJet400_TrimMass30_;
+  Bool_t AK8PFHT750_TrimMass50_;
+  Bool_t AK8PFHT800_TrimMass50_;
+  Bool_t AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_;
+  Bool_t AK8DiPFJet280_200_TrimMass30_BTagCSV_p087_;
+  Bool_t AK8DiPFJet300_200_TrimMass30_BTagCSV_p087_;
+  Bool_t AK8DiPFJet300_200_TrimMass30_;
+  Bool_t AK8PFHT700_TrimR0p1PT0p03Mass50_;
+  Bool_t AK8PFHT650_TrimR0p1PT0p03Mass50_;
+  Bool_t AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_;
+  Bool_t AK8DiPFJet280_200_TrimMass30_;
+  Bool_t AK8DiPFJet250_200_TrimMass30_;
+  Bool_t AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_;
+  Bool_t AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_;
   Bool_t CaloJet260_;
-  Bool_t CaloJet500_;
-  Bool_t Dimuon13_;
-  Bool_t Dimuon13_;
-  Bool_t Dimuon20_;
-  Bool_t DoubleEle24_;
-  Bool_t DoubleEle25_;
-  Bool_t DoubleEle33_;
-  Bool_t DoubleEle33_;
-  Bool_t DoubleEle33_;
-  Bool_t DoubleEle33_;
-  Bool_t DoubleMediumCombinedIsoPFTau35_;
-  Bool_t DoubleTightCombinedIsoPFTau35_;
-  Bool_t DoubleMediumCombinedIsoPFTau40_;
-  Bool_t DoubleTightCombinedIsoPFTau40_;
-  Bool_t DoubleMediumCombinedIsoPFTau40_;
-  Bool_t DoubleTightCombinedIsoPFTau40_;
-  Bool_t DoubleMediumIsoPFTau35_;
-  Bool_t DoubleMediumIsoPFTau40_;
-  Bool_t DoubleMediumIsoPFTau40_;
-  Bool_t DoubleEle37_;
+  Bool_t CaloJet500_NoJetID_;
+  Bool_t Dimuon13_PsiPrime_;
+  Bool_t Dimuon13_Upsilon_;
+  Bool_t Dimuon20_Jpsi_;
+  Bool_t DoubleEle24_22_eta2p1_WPLoose_Gsf_;
+  Bool_t DoubleEle25_CaloIdL_GsfTrkIdVL_;
+  Bool_t DoubleEle33_CaloIdL_;
+  Bool_t DoubleEle33_CaloIdL_MW_;
+  Bool_t DoubleEle33_CaloIdL_GsfTrkIdVL_MW_;
+  Bool_t DoubleEle33_CaloIdL_GsfTrkIdVL_;
+  Bool_t DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_;
+  Bool_t DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg_;
+  Bool_t DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_;
+  Bool_t DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg_;
+  Bool_t DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_;
+  Bool_t DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_;
+  Bool_t DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_;
+  Bool_t DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_;
+  Bool_t DoubleMediumIsoPFTau40_Trk1_eta2p1_;
+  Bool_t DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_;
   Bool_t DoubleMu33NoFiltersNoVtx_;
   Bool_t DoubleMu38NoFiltersNoVtx_;
   Bool_t DoubleMu23NoFiltersNoVtxDisplaced_;
   Bool_t DoubleMu28NoFiltersNoVtxDisplaced_;
   Bool_t DoubleMu0_;
-  Bool_t DoubleMu4_;
-  Bool_t DoubleMu4_;
-  Bool_t DoubleMu4_;
-  Bool_t DoubleMu4_;
-  Bool_t DoubleMu3_;
-  Bool_t DoubleMu4_;
-  Bool_t Mu7p5_;
-  Bool_t Mu7p5_;
-  Bool_t Mu7p5_;
-  Bool_t Mu7p5_;
-  Bool_t Mu7p5_;
-  Bool_t Mu7p5_;
-  Bool_t Mu7p5_;
-  Bool_t Mu7p5_;
-  Bool_t Dimuon0er16_;
-  Bool_t Dimuon0er16_;
-  Bool_t Dimuon6_;
+  Bool_t DoubleMu4_3_Bs_;
+  Bool_t DoubleMu4_3_Jpsi_Displaced_;
+  Bool_t DoubleMu4_JpsiTrk_Displaced_;
+  Bool_t DoubleMu4_LowMassNonResonantTrk_Displaced_;
+  Bool_t DoubleMu3_Trk_Tau3mu_;
+  Bool_t DoubleMu4_PsiPrimeTrk_Displaced_;
+  Bool_t Mu7p5_L2Mu2_Jpsi_;
+  Bool_t Mu7p5_L2Mu2_Upsilon_;
+  Bool_t Mu7p5_Track2_Jpsi_;
+  Bool_t Mu7p5_Track3p5_Jpsi_;
+  Bool_t Mu7p5_Track7_Jpsi_;
+  Bool_t Mu7p5_Track2_Upsilon_;
+  Bool_t Mu7p5_Track3p5_Upsilon_;
+  Bool_t Mu7p5_Track7_Upsilon_;
+  Bool_t Dimuon0er16_Jpsi_NoOS_NoVertexing_;
+  Bool_t Dimuon0er16_Jpsi_NoVertexing_;
+  Bool_t Dimuon6_Jpsi_NoVertexing_;
   Bool_t Photon150_;
-  Bool_t Photon90_;
-  Bool_t HT250_;
+  Bool_t Photon90_CaloIdL_HT300_;
+  Bool_t HT250_CaloMET70_;
   Bool_t DoublePhoton60_;
   Bool_t DoublePhoton85_;
-  Bool_t Ele17_;
-  Bool_t Ele20_;
-  Bool_t Ele22_;
-  Bool_t Ele22_;
-  Bool_t Ele22_;
-  Bool_t Ele23_;
-  Bool_t Ele23_;
-  Bool_t Ele24_;
-  Bool_t Ele24_;
-  Bool_t Ele24_;
-  Bool_t Ele24_;
-  Bool_t Ele25_;
-  Bool_t Ele25_;
-  Bool_t Ele25_;
-  Bool_t Ele27_;
-  Bool_t Ele27_;
-  Bool_t Ele27_;
-  Bool_t Ele27_;
-  Bool_t Ele27_;
-  Bool_t Ele27_;
-  Bool_t Ele27_;
-  Bool_t Ele30_;
-  Bool_t Ele30_;
-  Bool_t Ele30_;
-  Bool_t Ele32_;
-  Bool_t Ele32_;
-  Bool_t Ele32_;
-  Bool_t Ele32_;
-  Bool_t Ele35_;
-  Bool_t Ele35_;
-  Bool_t Ele36_;
-  Bool_t Ele45_;
-  Bool_t Ele45_;
-  Bool_t Ele45_;
-  Bool_t Ele105_;
-  Bool_t Ele30WP60_;
-  Bool_t Ele30WP60_;
+  Bool_t Ele17_Ele8_Gsf_;
+  Bool_t Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_;
+  Bool_t Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_;
+  Bool_t Ele22_eta2p1_WPLoose_Gsf_;
+  Bool_t Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;
+  Bool_t Ele23_WPLoose_Gsf_;
+  Bool_t Ele23_WPLoose_Gsf_WHbbBoost_;
+  Bool_t Ele24_eta2p1_WPLoose_Gsf_;
+  Bool_t Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_;
+  Bool_t Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;
+  Bool_t Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_;
+  Bool_t Ele25_WPTight_Gsf_;
+  Bool_t Ele25_eta2p1_WPLoose_Gsf_;
+  Bool_t Ele25_eta2p1_WPTight_Gsf_;
+  Bool_t Ele27_WPLoose_Gsf_;
+  Bool_t Ele27_WPLoose_Gsf_WHbbBoost_;
+  Bool_t Ele27_WPTight_Gsf_;
+  Bool_t Ele27_WPTight_Gsf_L1JetTauSeeded_;
+  Bool_t Ele27_eta2p1_WPLoose_Gsf_;
+  Bool_t Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;
+  Bool_t Ele27_eta2p1_WPTight_Gsf_;
+  Bool_t Ele30_WPTight_Gsf_;
+  Bool_t Ele30_eta2p1_WPLoose_Gsf_;
+  Bool_t Ele30_eta2p1_WPTight_Gsf_;
+  Bool_t Ele32_WPTight_Gsf_;
+  Bool_t Ele32_eta2p1_WPLoose_Gsf_;
+  Bool_t Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;
+  Bool_t Ele32_eta2p1_WPTight_Gsf_;
+  Bool_t Ele35_WPLoose_Gsf_;
+  Bool_t Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_;
+  Bool_t Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_;
+  Bool_t Ele45_WPLoose_Gsf_;
+  Bool_t Ele45_WPLoose_Gsf_L1JetTauSeeded_;
+  Bool_t Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_;
+  Bool_t Ele105_CaloIdVT_GsfTrkIdT_;
+  Bool_t Ele30WP60_SC4_Mass55_;
+  Bool_t Ele30WP60_Ele8_Mass55_;
   Bool_t HT200_;
   Bool_t HT275_;
   Bool_t HT325_;
@@ -2430,123 +2431,123 @@ private:
   Bool_t HT500to550_;
   Bool_t HT550to650_;
   Bool_t HT650_;
-  Bool_t Mu16_;
-  Bool_t IsoMu16_;
-  Bool_t IsoMu16_;
-  Bool_t IsoMu17_;
-  Bool_t IsoMu17_;
-  Bool_t IsoMu17_;
-  Bool_t DoubleIsoMu17_;
-  Bool_t DoubleIsoMu17_;
+  Bool_t Mu16_eta2p1_MET30_;
+  Bool_t IsoMu16_eta2p1_MET30_;
+  Bool_t IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_;
+  Bool_t IsoMu17_eta2p1_;
+  Bool_t IsoMu17_eta2p1_LooseIsoPFTau20_;
+  Bool_t IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_;
+  Bool_t DoubleIsoMu17_eta2p1_;
+  Bool_t DoubleIsoMu17_eta2p1_noDzCut_;
   Bool_t IsoMu18_;
-  Bool_t IsoMu19_;
-  Bool_t IsoMu19_;
-  Bool_t IsoMu19_;
-  Bool_t IsoMu19_;
-  Bool_t IsoMu19_;
-  Bool_t IsoMu19_;
-  Bool_t IsoMu21_;
-  Bool_t IsoMu21_;
+  Bool_t IsoMu19_eta2p1_LooseIsoPFTau20_;
+  Bool_t IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_;
+  Bool_t IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_;
+  Bool_t IsoMu19_eta2p1_LooseCombinedIsoPFTau20_;
+  Bool_t IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_;
+  Bool_t IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_;
+  Bool_t IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_;
+  Bool_t IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_;
   Bool_t IsoMu20_;
-  Bool_t IsoMu21_;
-  Bool_t IsoMu21_;
-  Bool_t IsoMu21_;
+  Bool_t IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_;
+  Bool_t IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_;
+  Bool_t IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_;
   Bool_t IsoMu22_;
-  Bool_t IsoMu22_;
+  Bool_t IsoMu22_eta2p1_;
   Bool_t IsoMu24_;
   Bool_t IsoMu27_;
   Bool_t IsoTkMu18_;
   Bool_t IsoTkMu20_;
   Bool_t IsoTkMu22_;
-  Bool_t IsoTkMu22_;
+  Bool_t IsoTkMu22_eta2p1_;
   Bool_t IsoTkMu24_;
   Bool_t IsoTkMu27_;
-  Bool_t JetE30_;
-  Bool_t JetE30_;
-  Bool_t JetE50_;
-  Bool_t JetE70_;
+  Bool_t JetE30_NoBPTX3BX_;
+  Bool_t JetE30_NoBPTX_;
+  Bool_t JetE50_NoBPTX3BX_;
+  Bool_t JetE70_NoBPTX3BX_;
   Bool_t L1SingleMu18_;
   Bool_t L2Mu10_;
   Bool_t L1SingleMuOpen_;
-  Bool_t L1SingleMuOpen_;
-  Bool_t L2DoubleMu23_;
-  Bool_t L2DoubleMu28_;
-  Bool_t L2DoubleMu38_;
-  Bool_t L2Mu10_;
-  Bool_t L2Mu10_;
-  Bool_t L2Mu45_;
-  Bool_t L2Mu40_;
-  Bool_t LooseIsoPFTau50_;
-  Bool_t LooseIsoPFTau50_;
-  Bool_t LooseIsoPFTau50_;
-  Bool_t LooseIsoPFTau50_;
-  Bool_t LooseIsoPFTau50_;
-  Bool_t PFTau120_;
-  Bool_t PFTau140_;
-  Bool_t VLooseIsoPFTau120_;
-  Bool_t VLooseIsoPFTau140_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu20_;
-  Bool_t Mu20_;
-  Bool_t Mu20_;
-  Bool_t Mu20_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu25_;
-  Bool_t Mu27_;
-  Bool_t Mu30_;
-  Bool_t Mu30_;
-  Bool_t Mu40_;
-  Bool_t Mu40_;
+  Bool_t L1SingleMuOpen_DT_;
+  Bool_t L2DoubleMu23_NoVertex_;
+  Bool_t L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_;
+  Bool_t L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_;
+  Bool_t L2Mu10_NoVertex_NoBPTX3BX_;
+  Bool_t L2Mu10_NoVertex_NoBPTX_;
+  Bool_t L2Mu45_NoVertex_3Sta_NoBPTX3BX_;
+  Bool_t L2Mu40_NoVertex_3Sta_NoBPTX3BX_;
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_;
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET80_;
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET90_;
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET110_;
+  Bool_t LooseIsoPFTau50_Trk30_eta2p1_MET120_;
+  Bool_t PFTau120_eta2p1_;
+  Bool_t PFTau140_eta2p1_;
+  Bool_t VLooseIsoPFTau120_Trk50_eta2p1_;
+  Bool_t VLooseIsoPFTau140_Trk50_eta2p1_;
+  Bool_t Mu17_Mu8_;
+  Bool_t Mu17_Mu8_DZ_;
+  Bool_t Mu17_Mu8_SameSign_;
+  Bool_t Mu17_Mu8_SameSign_DZ_;
+  Bool_t Mu20_Mu10_;
+  Bool_t Mu20_Mu10_DZ_;
+  Bool_t Mu20_Mu10_SameSign_;
+  Bool_t Mu20_Mu10_SameSign_DZ_;
+  Bool_t Mu17_TkMu8_DZ_;
+  Bool_t Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_;
+  Bool_t Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_;
+  Bool_t Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_;
+  Bool_t Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
+  Bool_t Mu25_TkMu0_dEta18_Onia_;
+  Bool_t Mu27_TkMu8_;
+  Bool_t Mu30_TkMu11_;
+  Bool_t Mu30_eta2p1_PFJet150_PFJet50_;
+  Bool_t Mu40_TkMu11_;
+  Bool_t Mu40_eta2p1_PFJet200_PFJet50_;
   Bool_t Mu20_;
   Bool_t TkMu17_;
-  Bool_t TkMu17_;
-  Bool_t TkMu17_;
+  Bool_t TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_;
+  Bool_t TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_;
   Bool_t TkMu20_;
-  Bool_t Mu24_;
-  Bool_t TkMu24_;
+  Bool_t Mu24_eta2p1_;
+  Bool_t TkMu24_eta2p1_;
   Bool_t Mu27_;
   Bool_t TkMu27_;
-  Bool_t Mu45_;
+  Bool_t Mu45_eta2p1_;
   Bool_t Mu50_;
   Bool_t TkMu50_;
-  Bool_t Mu38NoFiltersNoVtx_;
-  Bool_t Mu42NoFiltersNoVtx_;
-  Bool_t Mu28NoFiltersNoVtxDisplaced_;
-  Bool_t Mu33NoFiltersNoVtxDisplaced_;
-  Bool_t Mu23NoFiltersNoVtx_;
+  Bool_t Mu38NoFiltersNoVtx_Photon38_CaloIdL_;
+  Bool_t Mu42NoFiltersNoVtx_Photon42_CaloIdL_;
+  Bool_t Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_;
+  Bool_t Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_;
+  Bool_t Mu23NoFiltersNoVtx_Photon23_CaloIdL_;
   Bool_t DoubleMu18NoFiltersNoVtx_;
-  Bool_t Mu33NoFiltersNoVtxDisplaced_;
-  Bool_t Mu33NoFiltersNoVtxDisplaced_;
-  Bool_t Mu28NoFiltersNoVtx_;
-  Bool_t Mu38NoFiltersNoVtxDisplaced_;
-  Bool_t Mu38NoFiltersNoVtxDisplaced_;
-  Bool_t Mu38NoFiltersNoVtx_;
-  Bool_t Mu28NoFiltersNoVtx_;
-  Bool_t PFHT300_;
-  Bool_t PFHT300_;
-  Bool_t PFHT550_;
-  Bool_t PFHT650_;
-  Bool_t PFHT750_;
-  Bool_t PFHT750_;
-  Bool_t PFHT750_;
-  Bool_t PFHT800_;
-  Bool_t PFHT850_;
-  Bool_t PFJet15_;
-  Bool_t PFJet25_;
-  Bool_t DiPFJet15_;
-  Bool_t DiPFJet25_;
-  Bool_t DiPFJet15_;
-  Bool_t DiPFJet25_;
-  Bool_t DiPFJetAve15_;
-  Bool_t DiPFJetAve25_;
-  Bool_t DiPFJetAve35_;
+  Bool_t Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_;
+  Bool_t Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_;
+  Bool_t Mu28NoFiltersNoVtx_DisplacedJet40_Loose_;
+  Bool_t Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_;
+  Bool_t Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_;
+  Bool_t Mu38NoFiltersNoVtx_DisplacedJet60_Loose_;
+  Bool_t Mu28NoFiltersNoVtx_CentralCaloJet40_;
+  Bool_t PFHT300_PFMET100_;
+  Bool_t PFHT300_PFMET110_;
+  Bool_t PFHT550_4JetPt50_;
+  Bool_t PFHT650_4JetPt50_;
+  Bool_t PFHT750_4JetPt50_;
+  Bool_t PFHT750_4JetPt70_;
+  Bool_t PFHT750_4JetPt80_;
+  Bool_t PFHT800_4JetPt50_;
+  Bool_t PFHT850_4JetPt50_;
+  Bool_t PFJet15_NoCaloMatched_;
+  Bool_t PFJet25_NoCaloMatched_;
+  Bool_t DiPFJet15_NoCaloMatched_;
+  Bool_t DiPFJet25_NoCaloMatched_;
+  Bool_t DiPFJet15_FBEta3_NoCaloMatched_;
+  Bool_t DiPFJet25_FBEta3_NoCaloMatched_;
+  Bool_t DiPFJetAve15_HFJEC_;
+  Bool_t DiPFJetAve25_HFJEC_;
+  Bool_t DiPFJetAve35_HFJEC_;
   Bool_t AK8PFJet40_;
   Bool_t AK8PFJet60_;
   Bool_t AK8PFJet80_;
@@ -2576,19 +2577,19 @@ private:
   Bool_t DiPFJetAve320_;
   Bool_t DiPFJetAve400_;
   Bool_t DiPFJetAve500_;
-  Bool_t DiPFJetAve60_;
-  Bool_t DiPFJetAve80_;
-  Bool_t DiPFJetAve100_;
-  Bool_t DiPFJetAve160_;
-  Bool_t DiPFJetAve220_;
-  Bool_t DiPFJetAve300_;
-  Bool_t DiPFJet40_;
-  Bool_t DiPFJet40_;
+  Bool_t DiPFJetAve60_HFJEC_;
+  Bool_t DiPFJetAve80_HFJEC_;
+  Bool_t DiPFJetAve100_HFJEC_;
+  Bool_t DiPFJetAve160_HFJEC_;
+  Bool_t DiPFJetAve220_HFJEC_;
+  Bool_t DiPFJetAve300_HFJEC_;
+  Bool_t DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_;
+  Bool_t DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_;
   Bool_t DiCentralPFJet170_;
-  Bool_t SingleCentralPFJet170_;
-  Bool_t DiCentralPFJet170_;
-  Bool_t DiCentralPFJet220_;
-  Bool_t DiCentralPFJet330_;
+  Bool_t SingleCentralPFJet170_CFMax0p1_;
+  Bool_t DiCentralPFJet170_CFMax0p1_;
+  Bool_t DiCentralPFJet220_CFMax0p3_;
+  Bool_t DiCentralPFJet330_CFMax0p5_;
   Bool_t DiCentralPFJet430_;
   Bool_t PFHT125_;
   Bool_t PFHT200_;
@@ -2601,125 +2602,125 @@ private:
   Bool_t PFHT650_;
   Bool_t PFHT800_;
   Bool_t PFHT900_;
-  Bool_t PFHT200_;
-  Bool_t PFHT200_;
-  Bool_t PFHT200_;
-  Bool_t PFHT250_;
-  Bool_t PFHT250_;
-  Bool_t PFHT300_;
-  Bool_t PFHT300_;
-  Bool_t PFHT350_;
-  Bool_t PFHT350_;
-  Bool_t PFHT400_;
-  Bool_t PFHT400_;
-  Bool_t MET60_;
-  Bool_t MET75_;
-  Bool_t MET90_;
-  Bool_t PFMET120_;
-  Bool_t PFMET120_;
-  Bool_t PFMET170_;
-  Bool_t PFMET170_;
-  Bool_t PFMET170_;
-  Bool_t PFMET170_;
-  Bool_t PFMET170_;
-  Bool_t PFMET170_;
-  Bool_t PFMETTypeOne190_;
-  Bool_t PFMET90_;
-  Bool_t PFMET100_;
-  Bool_t PFMET100_;
-  Bool_t PFMET110_;
-  Bool_t PFMET120_;
-  Bool_t CaloMHTNoPU90_;
-  Bool_t CaloMHTNoPU90_;
-  Bool_t QuadPFJet_;
-  Bool_t QuadPFJet_;
-  Bool_t QuadPFJet_;
-  Bool_t QuadPFJet_;
-  Bool_t QuadPFJet_;
-  Bool_t L1_;
-  Bool_t QuadJet45_;
-  Bool_t QuadJet45_;
-  Bool_t DoubleJet90_;
-  Bool_t DoubleJet90_;
-  Bool_t DoubleJetsC100_;
-  Bool_t DoubleJetsC100_;
-  Bool_t DoubleJetsC112_;
-  Bool_t DoubleJetsC112_;
-  Bool_t DoubleJetsC100_;
-  Bool_t DoubleJetsC100_;
-  Bool_t DoubleJetsC100_;
-  Bool_t DoubleJetsC100_;
-  Bool_t Photon135_;
-  Bool_t Photon20_;
-  Bool_t Photon22_;
-  Bool_t Photon22_;
-  Bool_t Photon250_;
-  Bool_t Photon300_;
-  Bool_t Photon26_;
-  Bool_t Photon36_;
-  Bool_t Photon36_;
-  Bool_t Photon36_;
-  Bool_t Photon50_;
-  Bool_t Photon50_;
-  Bool_t Photon75_;
-  Bool_t Photon75_;
-  Bool_t Photon90_;
-  Bool_t Photon90_;
-  Bool_t Photon120_;
-  Bool_t Photon120_;
-  Bool_t Mu8_;
-  Bool_t Mu17_;
-  Bool_t Ele8_;
-  Bool_t Ele12_;
-  Bool_t Ele17_;
-  Bool_t Ele23_;
-  Bool_t BTagMu_;
-  Bool_t BTagMu_;
-  Bool_t BTagMu_;
-  Bool_t BTagMu_;
-  Bool_t BTagMu_;
-  Bool_t BTagMu_;
-  Bool_t BTagMu_;
-  Bool_t Ele23_;
-  Bool_t Ele23_;
-  Bool_t Ele17_;
-  Bool_t Ele16_;
-  Bool_t Mu8_;
-  Bool_t Mu8_;
-  Bool_t Mu8_;
-  Bool_t Mu12_;
-  Bool_t Mu12_;
-  Bool_t Mu17_;
-  Bool_t Mu23_;
-  Bool_t Mu23_;
-  Bool_t Mu23_;
-  Bool_t Mu23_;
-  Bool_t Mu30_;
-  Bool_t Mu33_;
-  Bool_t Mu37_;
-  Bool_t Mu27_;
-  Bool_t Mu8_;
-  Bool_t Mu12_;
-  Bool_t Mu12_;
-  Bool_t Mu12_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t Mu17_;
-  Bool_t DiMu9_;
-  Bool_t TripleMu_;
-  Bool_t TripleMu_;
-  Bool_t Mu3er_;
-  Bool_t Mu6_;
-  Bool_t Mu6_;
-  Bool_t Mu14er_;
-  Bool_t Ele17_;
-  Bool_t Ele23_;
-  Bool_t Ele12_;
-  Bool_t Ele17_;
-  Bool_t Ele17_;
-  Bool_t Ele23_;
-  Bool_t PFHT650_;
-  Bool_t PFHT650_;
+  Bool_t PFHT200_PFAlphaT0p51_;
+  Bool_t PFHT200_DiPFJetAve90_PFAlphaT0p57_;
+  Bool_t PFHT200_DiPFJetAve90_PFAlphaT0p63_;
+  Bool_t PFHT250_DiPFJetAve90_PFAlphaT0p55_;
+  Bool_t PFHT250_DiPFJetAve90_PFAlphaT0p58_;
+  Bool_t PFHT300_DiPFJetAve90_PFAlphaT0p53_;
+  Bool_t PFHT300_DiPFJetAve90_PFAlphaT0p54_;
+  Bool_t PFHT350_DiPFJetAve90_PFAlphaT0p52_;
+  Bool_t PFHT350_DiPFJetAve90_PFAlphaT0p53_;
+  Bool_t PFHT400_DiPFJetAve90_PFAlphaT0p51_;
+  Bool_t PFHT400_DiPFJetAve90_PFAlphaT0p52_;
+  Bool_t MET60_IsoTrk35_Loose_;
+  Bool_t MET75_IsoTrk50_;
+  Bool_t MET90_IsoTrk50_;
+  Bool_t PFMET120_BTagCSV_p067_;
+  Bool_t PFMET120_Mu5_;
+  Bool_t PFMET170_NotCleaned_;
+  Bool_t PFMET170_NoiseCleaned_;
+  Bool_t PFMET170_HBHECleaned_;
+  Bool_t PFMET170_JetIdCleaned_;
+  Bool_t PFMET170_BeamHaloCleaned_;
+  Bool_t PFMET170_HBHE_BeamHaloCleaned_;
+  Bool_t PFMETTypeOne190_HBHE_BeamHaloCleaned_;
+  Bool_t PFMET90_PFMHT90_IDTight_;
+  Bool_t PFMET100_PFMHT100_IDTight_;
+  Bool_t PFMET100_PFMHT100_IDTight_BeamHaloCleaned_;
+  Bool_t PFMET110_PFMHT110_IDTight_;
+  Bool_t PFMET120_PFMHT120_IDTight_;
+  Bool_t CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_;
+  Bool_t CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_;
+  Bool_t QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_;
+  Bool_t QuadPFJet_BTagCSV_p016_VBF_Mqq460_;
+  Bool_t QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_;
+  Bool_t QuadPFJet_BTagCSV_p016_VBF_Mqq500_;
+  Bool_t QuadPFJet_VBF_;
+  Bool_t L1_TripleJet_VBF_;
+  Bool_t QuadJet45_TripleBTagCSV_p087_;
+  Bool_t QuadJet45_DoubleBTagCSV_p087_;
+  Bool_t DoubleJet90_Double30_TripleBTagCSV_p087_;
+  Bool_t DoubleJet90_Double30_DoubleBTagCSV_p087_;
+  Bool_t DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_;
+  Bool_t DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_;
+  Bool_t DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_;
+  Bool_t DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_;
+  Bool_t DoubleJetsC100_SingleBTagCSV_p026_;
+  Bool_t DoubleJetsC100_SingleBTagCSV_p014_;
+  Bool_t DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_;
+  Bool_t DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_;
+  Bool_t Photon135_PFMET100_;
+  Bool_t Photon20_CaloIdVL_IsoL_;
+  Bool_t Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_;
+  Bool_t Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_;
+  Bool_t Photon250_NoHE_;
+  Bool_t Photon300_NoHE_;
+  Bool_t Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_;
+  Bool_t Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_;
+  Bool_t Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_;
+  Bool_t Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_;
+  Bool_t Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_;
+  Bool_t Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_;
+  Bool_t Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_;
+  Bool_t Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_;
+  Bool_t Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_;
+  Bool_t Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_;
+  Bool_t Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_;
+  Bool_t Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_;
+  Bool_t Mu8_TrkIsoVVL_;
+  Bool_t Mu17_TrkIsoVVL_;
+  Bool_t Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_;
+  Bool_t Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_;
+  Bool_t Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30_;
+  Bool_t Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_;
+  Bool_t BTagMu_DiJet20_Mu5_;
+  Bool_t BTagMu_DiJet40_Mu5_;
+  Bool_t BTagMu_DiJet70_Mu5_;
+  Bool_t BTagMu_DiJet110_Mu5_;
+  Bool_t BTagMu_DiJet170_Mu5_;
+  Bool_t BTagMu_Jet300_Mu5_;
+  Bool_t BTagMu_AK8Jet300_Mu5_;
+  Bool_t Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Bool_t Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_;
+  Bool_t Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Bool_t Ele16_Ele12_Ele8_CaloIdL_TrackIdL_;
+  Bool_t Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Bool_t Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Bool_t Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Bool_t Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_;
+  Bool_t Mu30_Ele30_CaloIdL_GsfTrkIdVL_;
+  Bool_t Mu33_Ele33_CaloIdL_GsfTrkIdVL_;
+  Bool_t Mu37_Ele27_CaloIdL_GsfTrkIdVL_;
+  Bool_t Mu27_Ele37_CaloIdL_GsfTrkIdVL_;
+  Bool_t Mu8_DiEle12_CaloIdL_TrackIdL_;
+  Bool_t Mu12_Photon25_CaloIdL_;
+  Bool_t Mu12_Photon25_CaloIdL_L1ISO_;
+  Bool_t Mu12_Photon25_CaloIdL_L1OR_;
+  Bool_t Mu17_Photon22_CaloIdL_L1ISO_;
+  Bool_t Mu17_Photon30_CaloIdL_L1ISO_;
+  Bool_t Mu17_Photon35_CaloIdL_L1ISO_;
+  Bool_t DiMu9_Ele9_CaloIdL_TrackIdL_;
+  Bool_t TripleMu_5_3_3_;
+  Bool_t TripleMu_12_10_5_;
+  Bool_t Mu3er_PFHT140_PFMET125_;
+  Bool_t Mu6_PFHT200_PFMET80_BTagCSV_p067_;
+  Bool_t Mu6_PFHT200_PFMET100_;
+  Bool_t Mu14er_PFMET100_;
+  Bool_t Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Ele12_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Ele17_CaloIdL_GsfTrkIdVL_;
+  Bool_t Ele17_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t Ele23_CaloIdL_TrackIdL_IsoVL_;
+  Bool_t PFHT650_WideJetMJJ900DEtaJJ1p5_;
+  Bool_t PFHT650_WideJetMJJ950DEtaJJ1p5_;
   Bool_t Photon22_;
   Bool_t Photon30_;
   Bool_t Photon36_;
@@ -2728,143 +2729,143 @@ private:
   Bool_t Photon90_;
   Bool_t Photon120_;
   Bool_t Photon175_;
-  Bool_t Photon165_;
-  Bool_t Photon22_;
-  Bool_t Photon30_;
-  Bool_t Photon36_;
-  Bool_t Photon50_;
-  Bool_t Photon75_;
-  Bool_t Photon90_;
-  Bool_t Photon120_;
-  Bool_t Photon165_;
-  Bool_t Diphoton30_;
-  Bool_t Diphoton30_;
-  Bool_t Diphoton30PV_;
-  Bool_t Diphoton30_;
-  Bool_t Diphoton30EB_;
-  Bool_t Dimuon0_;
-  Bool_t Dimuon0_;
-  Bool_t QuadMuon0_;
-  Bool_t QuadMuon0_;
-  Bool_t Rsq0p25_;
-  Bool_t RsqMR240_;
-  Bool_t RsqMR240_;
+  Bool_t Photon165_HE10_;
+  Bool_t Photon22_R9Id90_HE10_IsoM_;
+  Bool_t Photon30_R9Id90_HE10_IsoM_;
+  Bool_t Photon36_R9Id90_HE10_IsoM_;
+  Bool_t Photon50_R9Id90_HE10_IsoM_;
+  Bool_t Photon75_R9Id90_HE10_IsoM_;
+  Bool_t Photon90_R9Id90_HE10_IsoM_;
+  Bool_t Photon120_R9Id90_HE10_IsoM_;
+  Bool_t Photon165_R9Id90_HE10_IsoM_;
+  Bool_t Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_;
+  Bool_t Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_;
+  Bool_t Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_;
+  Bool_t Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_;
+  Bool_t Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_;
+  Bool_t Dimuon0_Jpsi_Muon_;
+  Bool_t Dimuon0_Upsilon_Muon_;
+  Bool_t QuadMuon0_Dimuon0_Jpsi_;
+  Bool_t QuadMuon0_Dimuon0_Upsilon_;
+  Bool_t Rsq0p25_Calo_;
+  Bool_t RsqMR240_Rsq0p09_MR200_4jet_Calo_;
+  Bool_t RsqMR240_Rsq0p09_MR200_Calo_;
   Bool_t Rsq0p25_;
   Bool_t Rsq0p30_;
-  Bool_t RsqMR240_;
-  Bool_t RsqMR240_;
-  Bool_t RsqMR270_;
-  Bool_t RsqMR270_;
-  Bool_t Rsq0p02_;
-  Bool_t Rsq0p02_;
-  Bool_t Rsq0p02_;
-  Bool_t Rsq0p02_;
-  Bool_t Rsq0p02_;
-  Bool_t HT200_;
-  Bool_t HT250_;
-  Bool_t HT350_;
-  Bool_t HT350_;
-  Bool_t HT350_;
-  Bool_t HT350_;
-  Bool_t HT400_;
-  Bool_t HT500_;
-  Bool_t HT550_;
-  Bool_t HT550_;
-  Bool_t HT650_;
-  Bool_t HT750_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t VBF_;
-  Bool_t PFMETNoMu90_;
-  Bool_t PFMETNoMu100_;
-  Bool_t PFMETNoMu110_;
-  Bool_t PFMETNoMu120_;
-  Bool_t MonoCentralPFJet80_;
-  Bool_t MonoCentralPFJet80_;
-  Bool_t MonoCentralPFJet80_;
-  Bool_t MonoCentralPFJet80_;
-  Bool_t Ele27_;
-  Bool_t Photon90_;
-  Bool_t DoubleMu8_;
-  Bool_t Mu8_;
-  Bool_t DoubleEle8_;
-  Bool_t DoubleMu8_;
-  Bool_t Mu8_;
-  Bool_t DoubleEle8_;
-  Bool_t Mu10_;
-  Bool_t DoubleMu3_;
-  Bool_t Ele10_;
-  Bool_t Ele15_;
-  Bool_t Ele15_;
-  Bool_t Ele15_;
-  Bool_t Ele15_;
-  Bool_t Ele15_;
-  Bool_t Ele15_;
-  Bool_t Ele50_;
-  Bool_t Mu8_;
-  Bool_t Mu10_;
-  Bool_t Mu15_;
-  Bool_t Mu15_;
-  Bool_t Mu15_;
-  Bool_t Mu15_;
-  Bool_t Mu15_;
-  Bool_t Mu15_;
-  Bool_t Mu50_;
-  Bool_t Dimuon16_;
-  Bool_t Dimuon10_;
-  Bool_t Dimuon8_;
-  Bool_t Dimuon8_;
-  Bool_t Dimuon0_;
-  Bool_t Mu16_;
-  Bool_t Mu16_;
-  Bool_t TrkMu15_;
-  Bool_t TrkMu17_;
+  Bool_t RsqMR240_Rsq0p09_MR200_;
+  Bool_t RsqMR240_Rsq0p09_MR200_4jet_;
+  Bool_t RsqMR270_Rsq0p09_MR200_;
+  Bool_t RsqMR270_Rsq0p09_MR200_4jet_;
+  Bool_t Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_;
+  Bool_t Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;
+  Bool_t Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;
+  Bool_t Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;
+  Bool_t Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_;
+  Bool_t HT200_DisplacedDijet40_DisplacedTrack_;
+  Bool_t HT250_DisplacedDijet40_DisplacedTrack_;
+  Bool_t HT350_DisplacedDijet40_DisplacedTrack_;
+  Bool_t HT350_DisplacedDijet80_DisplacedTrack_;
+  Bool_t HT350_DisplacedDijet80_Tight_DisplacedTrack_;
+  Bool_t HT350_DisplacedDijet40_Inclusive_;
+  Bool_t HT400_DisplacedDijet40_Inclusive_;
+  Bool_t HT500_DisplacedDijet40_Inclusive_;
+  Bool_t HT550_DisplacedDijet40_Inclusive_;
+  Bool_t HT550_DisplacedDijet80_Inclusive_;
+  Bool_t HT650_DisplacedDijet80_Inclusive_;
+  Bool_t HT750_DisplacedDijet80_Inclusive_;
+  Bool_t VBF_DisplacedJet40_DisplacedTrack_;
+  Bool_t VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_;
+  Bool_t VBF_DisplacedJet40_TightID_DisplacedTrack_;
+  Bool_t VBF_DisplacedJet40_Hadronic_;
+  Bool_t VBF_DisplacedJet40_Hadronic_2PromptTrack_;
+  Bool_t VBF_DisplacedJet40_TightID_Hadronic_;
+  Bool_t VBF_DisplacedJet40_VTightID_Hadronic_;
+  Bool_t VBF_DisplacedJet40_VVTightID_Hadronic_;
+  Bool_t VBF_DisplacedJet40_VTightID_DisplacedTrack_;
+  Bool_t VBF_DisplacedJet40_VVTightID_DisplacedTrack_;
+  Bool_t PFMETNoMu90_PFMHTNoMu90_IDTight_;
+  Bool_t PFMETNoMu100_PFMHTNoMu100_IDTight_;
+  Bool_t PFMETNoMu110_PFMHTNoMu110_IDTight_;
+  Bool_t PFMETNoMu120_PFMHTNoMu120_IDTight_;
+  Bool_t MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_;
+  Bool_t MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_;
+  Bool_t MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_;
+  Bool_t MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_;
+  Bool_t Ele27_eta2p1_WPLoose_Gsf_HT200_;
+  Bool_t Photon90_CaloIdL_PFHT500_;
+  Bool_t DoubleMu8_Mass8_PFHT250_;
+  Bool_t Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_;
+  Bool_t DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_;
+  Bool_t DoubleMu8_Mass8_PFHT300_;
+  Bool_t Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_;
+  Bool_t DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_;
+  Bool_t Mu10_CentralPFJet30_BTagCSV_p13_;
+  Bool_t DoubleMu3_PFMET50_;
+  Bool_t Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_;
+  Bool_t Ele15_IsoVVVL_BTagCSV_p067_PFHT400_;
+  Bool_t Ele15_IsoVVVL_PFHT350_PFMET50_;
+  Bool_t Ele15_IsoVVVL_PFHT600_;
+  Bool_t Ele15_IsoVVVL_PFHT350_;
+  Bool_t Ele15_IsoVVVL_PFHT400_PFMET50_;
+  Bool_t Ele15_IsoVVVL_PFHT400_;
+  Bool_t Ele50_IsoVVVL_PFHT400_;
+  Bool_t Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_;
+  Bool_t Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_;
+  Bool_t Mu15_IsoVVVL_BTagCSV_p067_PFHT400_;
+  Bool_t Mu15_IsoVVVL_PFHT350_PFMET50_;
+  Bool_t Mu15_IsoVVVL_PFHT600_;
+  Bool_t Mu15_IsoVVVL_PFHT350_;
+  Bool_t Mu15_IsoVVVL_PFHT400_PFMET50_;
+  Bool_t Mu15_IsoVVVL_PFHT400_;
+  Bool_t Mu50_IsoVVVL_PFHT400_;
+  Bool_t Dimuon16_Jpsi_;
+  Bool_t Dimuon10_Jpsi_Barrel_;
+  Bool_t Dimuon8_PsiPrime_Barrel_;
+  Bool_t Dimuon8_Upsilon_Barrel_;
+  Bool_t Dimuon0_Phi_Barrel_;
+  Bool_t Mu16_TkMu0_dEta18_Onia_;
+  Bool_t Mu16_TkMu0_dEta18_Phi_;
+  Bool_t TrkMu15_DoubleTrkMu5NoFiltersNoVtx_;
+  Bool_t TrkMu17_DoubleTrkMu8NoFiltersNoVtx_;
   Bool_t Mu8_;
   Bool_t Mu17_;
-  Bool_t Mu3_;
-  Bool_t Ele8_;
-  Bool_t Ele12_;
-  Bool_t Ele17_;
-  Bool_t Ele23_;
-  Bool_t Ele50_;
-  Bool_t Ele50_;
-  Bool_t PFHT400_;
-  Bool_t PFHT450_;
-  Bool_t PFHT400_;
-  Bool_t PFHT450_;
-  Bool_t Ele115_;
+  Bool_t Mu3_PFJet40_;
+  Bool_t Ele8_CaloIdM_TrackIdM_PFJet30_;
+  Bool_t Ele12_CaloIdM_TrackIdM_PFJet30_;
+  Bool_t Ele17_CaloIdM_TrackIdM_PFJet30_;
+  Bool_t Ele23_CaloIdM_TrackIdM_PFJet30_;
+  Bool_t Ele50_CaloIdVT_GsfTrkIdT_PFJet140_;
+  Bool_t Ele50_CaloIdVT_GsfTrkIdT_PFJet165_;
+  Bool_t PFHT400_SixJet30_DoubleBTagCSV_p056_;
+  Bool_t PFHT450_SixJet40_BTagCSV_p056_;
+  Bool_t PFHT400_SixJet30_;
+  Bool_t PFHT450_SixJet40_;
+  Bool_t Ele115_CaloIdVT_GsfTrkIdT_;
   Bool_t Mu55_;
-  Bool_t Photon42_;
-  Bool_t Photon90_;
-  Bool_t PixelTracks_;
-  Bool_t PixelTracks_;
-  Bool_t PixelTracks_;
-  Bool_t PixelTracks_;
-  Bool_t PixelTracks_;
-  Bool_t FullTracks_;
-  Bool_t FullTracks_;
-  Bool_t FullTracks_;
-  Bool_t FullTracks_;
+  Bool_t Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_;
+  Bool_t Photon90_CaloIdL_PFHT600_;
+  Bool_t PixelTracks_Multiplicity60ForEndOfFill_;
+  Bool_t PixelTracks_Multiplicity85ForEndOfFill_;
+  Bool_t PixelTracks_Multiplicity110ForEndOfFill_;
+  Bool_t PixelTracks_Multiplicity135ForEndOfFill_;
+  Bool_t PixelTracks_Multiplicity160ForEndOfFill_;
+  Bool_t FullTracks_Multiplicity80_;
+  Bool_t FullTracks_Multiplicity100_;
+  Bool_t FullTracks_Multiplicity130_;
+  Bool_t FullTracks_Multiplicity150_;
   Bool_t ECALHT800_;
-  Bool_t DiSC30_;
+  Bool_t DiSC30_18_EIso_AND_HE_Mass70_;
   Bool_t Photon125_;
   Bool_t MET100_;
   Bool_t MET150_;
   Bool_t MET200_;
-  Bool_t Ele27_;
+  Bool_t Ele27_HighEta_Ele20_Mass55_;
   Bool_t L1FatEvents_;
   Bool_t Physics_;
-  Bool_t L1FatEvents_;
-  Bool_t L1FatEvents_;
-  Bool_t L1FatEvents_;
-  Bool_t L1FatEvents_;
+  Bool_t L1FatEvents_part0_;
+  Bool_t L1FatEvents_part1_;
+  Bool_t L1FatEvents_part2_;
+  Bool_t L1FatEvents_part3_;
   Bool_t Random_;
   Bool_t ZeroBias_;
   Bool_t AK4CaloJet30_;
@@ -2890,17 +2891,17 @@ private:
   Bool_t L1BeamGasMinus_;
   Bool_t L1BeamGasPlus_;
   Bool_t L1BptxXOR_;
-  Bool_t L1MinimumBiasHF_;
-  Bool_t L1MinimumBiasHF_;
+  Bool_t L1MinimumBiasHF_OR_;
+  Bool_t L1MinimumBiasHF_AND_;
   Bool_t HcalNZS_;
   Bool_t HcalPhiSym_;
   Bool_t HcalIsolatedbunch_;
-  Bool_t ZeroBias_;
-  Bool_t ZeroBias_;
-  Bool_t ZeroBias_;
-  Bool_t ZeroBias_;
-  Bool_t ZeroBias_;
-  Bool_t ZeroBias_;
+  Bool_t ZeroBias_FirstCollisionAfterAbortGap_;
+  Bool_t ZeroBias_FirstCollisionAfterAbortGap_copy_;
+  Bool_t ZeroBias_FirstCollisionAfterAbortGap_TCDS_;
+  Bool_t ZeroBias_IsolatedBunches_;
+  Bool_t ZeroBias_FirstCollisionInTrain_;
+  Bool_t ZeroBias_FirstBXAfterTrain_;
   Bool_t Photon500_;
   Bool_t Photon600_;
   Bool_t Mu300_;
@@ -2913,114 +2914,114 @@ private:
   Bool_t PFMET400_;
   Bool_t PFMET500_;
   Bool_t PFMET600_;
-  Bool_t Ele250_;
-  Bool_t Ele300_;
+  Bool_t Ele250_CaloIdVT_GsfTrkIdT_;
+  Bool_t Ele300_CaloIdVT_GsfTrkIdT_;
   Bool_t HT2000_;
   Bool_t HT2500_;
   Bool_t IsoTrackHE_;
   Bool_t IsoTrackHB_;
   Bool_t HLTriggerFinalPath_;
   void setHLTriggerFirstPath(const Bool_t value) {HLTriggerFirstPath_ = value;}
-  void setAK8PFJet360(const Bool_t value) {AK8PFJet360_ = value;}
-  void setAK8PFJet400(const Bool_t value) {AK8PFJet400_ = value;}
-  void setAK8PFHT750(const Bool_t value) {AK8PFHT750_ = value;}
-  void setAK8PFHT800(const Bool_t value) {AK8PFHT800_ = value;}
-  void setAK8DiPFJet300(const Bool_t value) {AK8DiPFJet300_ = value;}
-  void setAK8DiPFJet280(const Bool_t value) {AK8DiPFJet280_ = value;}
-  void setAK8DiPFJet300(const Bool_t value) {AK8DiPFJet300_ = value;}
-  void setAK8DiPFJet300(const Bool_t value) {AK8DiPFJet300_ = value;}
-  void setAK8PFHT700(const Bool_t value) {AK8PFHT700_ = value;}
-  void setAK8PFHT650(const Bool_t value) {AK8PFHT650_ = value;}
-  void setAK8PFHT600(const Bool_t value) {AK8PFHT600_ = value;}
-  void setAK8DiPFJet280(const Bool_t value) {AK8DiPFJet280_ = value;}
-  void setAK8DiPFJet250(const Bool_t value) {AK8DiPFJet250_ = value;}
-  void setAK8DiPFJet280(const Bool_t value) {AK8DiPFJet280_ = value;}
-  void setAK8DiPFJet250(const Bool_t value) {AK8DiPFJet250_ = value;}
+  void setAK8PFJet360_TrimMass30(const Bool_t value) {AK8PFJet360_TrimMass30_ = value;}
+  void setAK8PFJet400_TrimMass30(const Bool_t value) {AK8PFJet400_TrimMass30_ = value;}
+  void setAK8PFHT750_TrimMass50(const Bool_t value) {AK8PFHT750_TrimMass50_ = value;}
+  void setAK8PFHT800_TrimMass50(const Bool_t value) {AK8PFHT800_TrimMass50_ = value;}
+  void setAK8DiPFJet300_200_TrimMass30_BTagCSV_p20(const Bool_t value) {AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_ = value;}
+  void setAK8DiPFJet280_200_TrimMass30_BTagCSV_p087(const Bool_t value) {AK8DiPFJet280_200_TrimMass30_BTagCSV_p087_ = value;}
+  void setAK8DiPFJet300_200_TrimMass30_BTagCSV_p087(const Bool_t value) {AK8DiPFJet300_200_TrimMass30_BTagCSV_p087_ = value;}
+  void setAK8DiPFJet300_200_TrimMass30(const Bool_t value) {AK8DiPFJet300_200_TrimMass30_ = value;}
+  void setAK8PFHT700_TrimR0p1PT0p03Mass50(const Bool_t value) {AK8PFHT700_TrimR0p1PT0p03Mass50_ = value;}
+  void setAK8PFHT650_TrimR0p1PT0p03Mass50(const Bool_t value) {AK8PFHT650_TrimR0p1PT0p03Mass50_ = value;}
+  void setAK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20(const Bool_t value) {AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_ = value;}
+  void setAK8DiPFJet280_200_TrimMass30(const Bool_t value) {AK8DiPFJet280_200_TrimMass30_ = value;}
+  void setAK8DiPFJet250_200_TrimMass30(const Bool_t value) {AK8DiPFJet250_200_TrimMass30_ = value;}
+  void setAK8DiPFJet280_200_TrimMass30_BTagCSV_p20(const Bool_t value) {AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_ = value;}
+  void setAK8DiPFJet250_200_TrimMass30_BTagCSV_p20(const Bool_t value) {AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_ = value;}
   void setCaloJet260(const Bool_t value) {CaloJet260_ = value;}
-  void setCaloJet500(const Bool_t value) {CaloJet500_ = value;}
-  void setDimuon13(const Bool_t value) {Dimuon13_ = value;}
-  void setDimuon13(const Bool_t value) {Dimuon13_ = value;}
-  void setDimuon20(const Bool_t value) {Dimuon20_ = value;}
-  void setDoubleEle24(const Bool_t value) {DoubleEle24_ = value;}
-  void setDoubleEle25(const Bool_t value) {DoubleEle25_ = value;}
-  void setDoubleEle33(const Bool_t value) {DoubleEle33_ = value;}
-  void setDoubleEle33(const Bool_t value) {DoubleEle33_ = value;}
-  void setDoubleEle33(const Bool_t value) {DoubleEle33_ = value;}
-  void setDoubleEle33(const Bool_t value) {DoubleEle33_ = value;}
-  void setDoubleMediumCombinedIsoPFTau35(const Bool_t value) {DoubleMediumCombinedIsoPFTau35_ = value;}
-  void setDoubleTightCombinedIsoPFTau35(const Bool_t value) {DoubleTightCombinedIsoPFTau35_ = value;}
-  void setDoubleMediumCombinedIsoPFTau40(const Bool_t value) {DoubleMediumCombinedIsoPFTau40_ = value;}
-  void setDoubleTightCombinedIsoPFTau40(const Bool_t value) {DoubleTightCombinedIsoPFTau40_ = value;}
-  void setDoubleMediumCombinedIsoPFTau40(const Bool_t value) {DoubleMediumCombinedIsoPFTau40_ = value;}
-  void setDoubleTightCombinedIsoPFTau40(const Bool_t value) {DoubleTightCombinedIsoPFTau40_ = value;}
-  void setDoubleMediumIsoPFTau35(const Bool_t value) {DoubleMediumIsoPFTau35_ = value;}
-  void setDoubleMediumIsoPFTau40(const Bool_t value) {DoubleMediumIsoPFTau40_ = value;}
-  void setDoubleMediumIsoPFTau40(const Bool_t value) {DoubleMediumIsoPFTau40_ = value;}
-  void setDoubleEle37(const Bool_t value) {DoubleEle37_ = value;}
+  void setCaloJet500_NoJetID(const Bool_t value) {CaloJet500_NoJetID_ = value;}
+  void setDimuon13_PsiPrime(const Bool_t value) {Dimuon13_PsiPrime_ = value;}
+  void setDimuon13_Upsilon(const Bool_t value) {Dimuon13_Upsilon_ = value;}
+  void setDimuon20_Jpsi(const Bool_t value) {Dimuon20_Jpsi_ = value;}
+  void setDoubleEle24_22_eta2p1_WPLoose_Gsf(const Bool_t value) {DoubleEle24_22_eta2p1_WPLoose_Gsf_ = value;}
+  void setDoubleEle25_CaloIdL_GsfTrkIdVL(const Bool_t value) {DoubleEle25_CaloIdL_GsfTrkIdVL_ = value;}
+  void setDoubleEle33_CaloIdL(const Bool_t value) {DoubleEle33_CaloIdL_ = value;}
+  void setDoubleEle33_CaloIdL_MW(const Bool_t value) {DoubleEle33_CaloIdL_MW_ = value;}
+  void setDoubleEle33_CaloIdL_GsfTrkIdVL_MW(const Bool_t value) {DoubleEle33_CaloIdL_GsfTrkIdVL_MW_ = value;}
+  void setDoubleEle33_CaloIdL_GsfTrkIdVL(const Bool_t value) {DoubleEle33_CaloIdL_GsfTrkIdVL_ = value;}
+  void setDoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg(const Bool_t value) {DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_ = value;}
+  void setDoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg(const Bool_t value) {DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg_ = value;}
+  void setDoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg(const Bool_t value) {DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_ = value;}
+  void setDoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg(const Bool_t value) {DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg_ = value;}
+  void setDoubleMediumCombinedIsoPFTau40_Trk1_eta2p1(const Bool_t value) {DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_ = value;}
+  void setDoubleTightCombinedIsoPFTau40_Trk1_eta2p1(const Bool_t value) {DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_ = value;}
+  void setDoubleMediumIsoPFTau35_Trk1_eta2p1_Reg(const Bool_t value) {DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_ = value;}
+  void setDoubleMediumIsoPFTau40_Trk1_eta2p1_Reg(const Bool_t value) {DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_ = value;}
+  void setDoubleMediumIsoPFTau40_Trk1_eta2p1(const Bool_t value) {DoubleMediumIsoPFTau40_Trk1_eta2p1_ = value;}
+  void setDoubleEle37_Ele27_CaloIdL_GsfTrkIdVL(const Bool_t value) {DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_ = value;}
   void setDoubleMu33NoFiltersNoVtx(const Bool_t value) {DoubleMu33NoFiltersNoVtx_ = value;}
   void setDoubleMu38NoFiltersNoVtx(const Bool_t value) {DoubleMu38NoFiltersNoVtx_ = value;}
   void setDoubleMu23NoFiltersNoVtxDisplaced(const Bool_t value) {DoubleMu23NoFiltersNoVtxDisplaced_ = value;}
   void setDoubleMu28NoFiltersNoVtxDisplaced(const Bool_t value) {DoubleMu28NoFiltersNoVtxDisplaced_ = value;}
   void setDoubleMu0(const Bool_t value) {DoubleMu0_ = value;}
-  void setDoubleMu4(const Bool_t value) {DoubleMu4_ = value;}
-  void setDoubleMu4(const Bool_t value) {DoubleMu4_ = value;}
-  void setDoubleMu4(const Bool_t value) {DoubleMu4_ = value;}
-  void setDoubleMu4(const Bool_t value) {DoubleMu4_ = value;}
-  void setDoubleMu3(const Bool_t value) {DoubleMu3_ = value;}
-  void setDoubleMu4(const Bool_t value) {DoubleMu4_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setMu7p5(const Bool_t value) {Mu7p5_ = value;}
-  void setDimuon0er16(const Bool_t value) {Dimuon0er16_ = value;}
-  void setDimuon0er16(const Bool_t value) {Dimuon0er16_ = value;}
-  void setDimuon6(const Bool_t value) {Dimuon6_ = value;}
+  void setDoubleMu4_3_Bs(const Bool_t value) {DoubleMu4_3_Bs_ = value;}
+  void setDoubleMu4_3_Jpsi_Displaced(const Bool_t value) {DoubleMu4_3_Jpsi_Displaced_ = value;}
+  void setDoubleMu4_JpsiTrk_Displaced(const Bool_t value) {DoubleMu4_JpsiTrk_Displaced_ = value;}
+  void setDoubleMu4_LowMassNonResonantTrk_Displaced(const Bool_t value) {DoubleMu4_LowMassNonResonantTrk_Displaced_ = value;}
+  void setDoubleMu3_Trk_Tau3mu(const Bool_t value) {DoubleMu3_Trk_Tau3mu_ = value;}
+  void setDoubleMu4_PsiPrimeTrk_Displaced(const Bool_t value) {DoubleMu4_PsiPrimeTrk_Displaced_ = value;}
+  void setMu7p5_L2Mu2_Jpsi(const Bool_t value) {Mu7p5_L2Mu2_Jpsi_ = value;}
+  void setMu7p5_L2Mu2_Upsilon(const Bool_t value) {Mu7p5_L2Mu2_Upsilon_ = value;}
+  void setMu7p5_Track2_Jpsi(const Bool_t value) {Mu7p5_Track2_Jpsi_ = value;}
+  void setMu7p5_Track3p5_Jpsi(const Bool_t value) {Mu7p5_Track3p5_Jpsi_ = value;}
+  void setMu7p5_Track7_Jpsi(const Bool_t value) {Mu7p5_Track7_Jpsi_ = value;}
+  void setMu7p5_Track2_Upsilon(const Bool_t value) {Mu7p5_Track2_Upsilon_ = value;}
+  void setMu7p5_Track3p5_Upsilon(const Bool_t value) {Mu7p5_Track3p5_Upsilon_ = value;}
+  void setMu7p5_Track7_Upsilon(const Bool_t value) {Mu7p5_Track7_Upsilon_ = value;}
+  void setDimuon0er16_Jpsi_NoOS_NoVertexing(const Bool_t value) {Dimuon0er16_Jpsi_NoOS_NoVertexing_ = value;}
+  void setDimuon0er16_Jpsi_NoVertexing(const Bool_t value) {Dimuon0er16_Jpsi_NoVertexing_ = value;}
+  void setDimuon6_Jpsi_NoVertexing(const Bool_t value) {Dimuon6_Jpsi_NoVertexing_ = value;}
   void setPhoton150(const Bool_t value) {Photon150_ = value;}
-  void setPhoton90(const Bool_t value) {Photon90_ = value;}
-  void setHT250(const Bool_t value) {HT250_ = value;}
+  void setPhoton90_CaloIdL_HT300(const Bool_t value) {Photon90_CaloIdL_HT300_ = value;}
+  void setHT250_CaloMET70(const Bool_t value) {HT250_CaloMET70_ = value;}
   void setDoublePhoton60(const Bool_t value) {DoublePhoton60_ = value;}
   void setDoublePhoton85(const Bool_t value) {DoublePhoton85_ = value;}
-  void setEle17(const Bool_t value) {Ele17_ = value;}
-  void setEle20(const Bool_t value) {Ele20_ = value;}
-  void setEle22(const Bool_t value) {Ele22_ = value;}
-  void setEle22(const Bool_t value) {Ele22_ = value;}
-  void setEle22(const Bool_t value) {Ele22_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setEle24(const Bool_t value) {Ele24_ = value;}
-  void setEle24(const Bool_t value) {Ele24_ = value;}
-  void setEle24(const Bool_t value) {Ele24_ = value;}
-  void setEle24(const Bool_t value) {Ele24_ = value;}
-  void setEle25(const Bool_t value) {Ele25_ = value;}
-  void setEle25(const Bool_t value) {Ele25_ = value;}
-  void setEle25(const Bool_t value) {Ele25_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setEle30(const Bool_t value) {Ele30_ = value;}
-  void setEle30(const Bool_t value) {Ele30_ = value;}
-  void setEle30(const Bool_t value) {Ele30_ = value;}
-  void setEle32(const Bool_t value) {Ele32_ = value;}
-  void setEle32(const Bool_t value) {Ele32_ = value;}
-  void setEle32(const Bool_t value) {Ele32_ = value;}
-  void setEle32(const Bool_t value) {Ele32_ = value;}
-  void setEle35(const Bool_t value) {Ele35_ = value;}
-  void setEle35(const Bool_t value) {Ele35_ = value;}
-  void setEle36(const Bool_t value) {Ele36_ = value;}
-  void setEle45(const Bool_t value) {Ele45_ = value;}
-  void setEle45(const Bool_t value) {Ele45_ = value;}
-  void setEle45(const Bool_t value) {Ele45_ = value;}
-  void setEle105(const Bool_t value) {Ele105_ = value;}
-  void setEle30WP60(const Bool_t value) {Ele30WP60_ = value;}
-  void setEle30WP60(const Bool_t value) {Ele30WP60_ = value;}
+  void setEle17_Ele8_Gsf(const Bool_t value) {Ele17_Ele8_Gsf_ = value;}
+  void setEle20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28(const Bool_t value) {Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_ = value;}
+  void setEle22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29(const Bool_t value) {Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_ = value;}
+  void setEle22_eta2p1_WPLoose_Gsf(const Bool_t value) {Ele22_eta2p1_WPLoose_Gsf_ = value;}
+  void setEle22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(const Bool_t value) {Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_ = value;}
+  void setEle23_WPLoose_Gsf(const Bool_t value) {Ele23_WPLoose_Gsf_ = value;}
+  void setEle23_WPLoose_Gsf_WHbbBoost(const Bool_t value) {Ele23_WPLoose_Gsf_WHbbBoost_ = value;}
+  void setEle24_eta2p1_WPLoose_Gsf(const Bool_t value) {Ele24_eta2p1_WPLoose_Gsf_ = value;}
+  void setEle24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20(const Bool_t value) {Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_ = value;}
+  void setEle24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(const Bool_t value) {Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_ = value;}
+  void setEle24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30(const Bool_t value) {Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_ = value;}
+  void setEle25_WPTight_Gsf(const Bool_t value) {Ele25_WPTight_Gsf_ = value;}
+  void setEle25_eta2p1_WPLoose_Gsf(const Bool_t value) {Ele25_eta2p1_WPLoose_Gsf_ = value;}
+  void setEle25_eta2p1_WPTight_Gsf(const Bool_t value) {Ele25_eta2p1_WPTight_Gsf_ = value;}
+  void setEle27_WPLoose_Gsf(const Bool_t value) {Ele27_WPLoose_Gsf_ = value;}
+  void setEle27_WPLoose_Gsf_WHbbBoost(const Bool_t value) {Ele27_WPLoose_Gsf_WHbbBoost_ = value;}
+  void setEle27_WPTight_Gsf(const Bool_t value) {Ele27_WPTight_Gsf_ = value;}
+  void setEle27_WPTight_Gsf_L1JetTauSeeded(const Bool_t value) {Ele27_WPTight_Gsf_L1JetTauSeeded_ = value;}
+  void setEle27_eta2p1_WPLoose_Gsf(const Bool_t value) {Ele27_eta2p1_WPLoose_Gsf_ = value;}
+  void setEle27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(const Bool_t value) {Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_ = value;}
+  void setEle27_eta2p1_WPTight_Gsf(const Bool_t value) {Ele27_eta2p1_WPTight_Gsf_ = value;}
+  void setEle30_WPTight_Gsf(const Bool_t value) {Ele30_WPTight_Gsf_ = value;}
+  void setEle30_eta2p1_WPLoose_Gsf(const Bool_t value) {Ele30_eta2p1_WPLoose_Gsf_ = value;}
+  void setEle30_eta2p1_WPTight_Gsf(const Bool_t value) {Ele30_eta2p1_WPTight_Gsf_ = value;}
+  void setEle32_WPTight_Gsf(const Bool_t value) {Ele32_WPTight_Gsf_ = value;}
+  void setEle32_eta2p1_WPLoose_Gsf(const Bool_t value) {Ele32_eta2p1_WPLoose_Gsf_ = value;}
+  void setEle32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(const Bool_t value) {Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_ = value;}
+  void setEle32_eta2p1_WPTight_Gsf(const Bool_t value) {Ele32_eta2p1_WPTight_Gsf_ = value;}
+  void setEle35_WPLoose_Gsf(const Bool_t value) {Ele35_WPLoose_Gsf_ = value;}
+  void setEle35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50(const Bool_t value) {Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_ = value;}
+  void setEle36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(const Bool_t value) {Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_ = value;}
+  void setEle45_WPLoose_Gsf(const Bool_t value) {Ele45_WPLoose_Gsf_ = value;}
+  void setEle45_WPLoose_Gsf_L1JetTauSeeded(const Bool_t value) {Ele45_WPLoose_Gsf_L1JetTauSeeded_ = value;}
+  void setEle45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50(const Bool_t value) {Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_ = value;}
+  void setEle105_CaloIdVT_GsfTrkIdT(const Bool_t value) {Ele105_CaloIdVT_GsfTrkIdT_ = value;}
+  void setEle30WP60_SC4_Mass55(const Bool_t value) {Ele30WP60_SC4_Mass55_ = value;}
+  void setEle30WP60_Ele8_Mass55(const Bool_t value) {Ele30WP60_Ele8_Mass55_ = value;}
   void setHT200(const Bool_t value) {HT200_ = value;}
   void setHT275(const Bool_t value) {HT275_ = value;}
   void setHT325(const Bool_t value) {HT325_ = value;}
@@ -3033,123 +3034,123 @@ private:
   void setHT500to550(const Bool_t value) {HT500to550_ = value;}
   void setHT550to650(const Bool_t value) {HT550to650_ = value;}
   void setHT650(const Bool_t value) {HT650_ = value;}
-  void setMu16(const Bool_t value) {Mu16_ = value;}
-  void setIsoMu16(const Bool_t value) {IsoMu16_ = value;}
-  void setIsoMu16(const Bool_t value) {IsoMu16_ = value;}
-  void setIsoMu17(const Bool_t value) {IsoMu17_ = value;}
-  void setIsoMu17(const Bool_t value) {IsoMu17_ = value;}
-  void setIsoMu17(const Bool_t value) {IsoMu17_ = value;}
-  void setDoubleIsoMu17(const Bool_t value) {DoubleIsoMu17_ = value;}
-  void setDoubleIsoMu17(const Bool_t value) {DoubleIsoMu17_ = value;}
+  void setMu16_eta2p1_MET30(const Bool_t value) {Mu16_eta2p1_MET30_ = value;}
+  void setIsoMu16_eta2p1_MET30(const Bool_t value) {IsoMu16_eta2p1_MET30_ = value;}
+  void setIsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1(const Bool_t value) {IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_ = value;}
+  void setIsoMu17_eta2p1(const Bool_t value) {IsoMu17_eta2p1_ = value;}
+  void setIsoMu17_eta2p1_LooseIsoPFTau20(const Bool_t value) {IsoMu17_eta2p1_LooseIsoPFTau20_ = value;}
+  void setIsoMu17_eta2p1_LooseIsoPFTau20_SingleL1(const Bool_t value) {IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_ = value;}
+  void setDoubleIsoMu17_eta2p1(const Bool_t value) {DoubleIsoMu17_eta2p1_ = value;}
+  void setDoubleIsoMu17_eta2p1_noDzCut(const Bool_t value) {DoubleIsoMu17_eta2p1_noDzCut_ = value;}
   void setIsoMu18(const Bool_t value) {IsoMu18_ = value;}
-  void setIsoMu19(const Bool_t value) {IsoMu19_ = value;}
-  void setIsoMu19(const Bool_t value) {IsoMu19_ = value;}
-  void setIsoMu19(const Bool_t value) {IsoMu19_ = value;}
-  void setIsoMu19(const Bool_t value) {IsoMu19_ = value;}
-  void setIsoMu19(const Bool_t value) {IsoMu19_ = value;}
-  void setIsoMu19(const Bool_t value) {IsoMu19_ = value;}
-  void setIsoMu21(const Bool_t value) {IsoMu21_ = value;}
-  void setIsoMu21(const Bool_t value) {IsoMu21_ = value;}
+  void setIsoMu19_eta2p1_LooseIsoPFTau20(const Bool_t value) {IsoMu19_eta2p1_LooseIsoPFTau20_ = value;}
+  void setIsoMu19_eta2p1_LooseIsoPFTau20_SingleL1(const Bool_t value) {IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_ = value;}
+  void setIsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg(const Bool_t value) {IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_ = value;}
+  void setIsoMu19_eta2p1_LooseCombinedIsoPFTau20(const Bool_t value) {IsoMu19_eta2p1_LooseCombinedIsoPFTau20_ = value;}
+  void setIsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg(const Bool_t value) {IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_ = value;}
+  void setIsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg(const Bool_t value) {IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_ = value;}
+  void setIsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg(const Bool_t value) {IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_ = value;}
+  void setIsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg(const Bool_t value) {IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_ = value;}
   void setIsoMu20(const Bool_t value) {IsoMu20_ = value;}
-  void setIsoMu21(const Bool_t value) {IsoMu21_ = value;}
-  void setIsoMu21(const Bool_t value) {IsoMu21_ = value;}
-  void setIsoMu21(const Bool_t value) {IsoMu21_ = value;}
+  void setIsoMu21_eta2p1_LooseIsoPFTau20_SingleL1(const Bool_t value) {IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_ = value;}
+  void setIsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1(const Bool_t value) {IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_ = value;}
+  void setIsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg(const Bool_t value) {IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_ = value;}
   void setIsoMu22(const Bool_t value) {IsoMu22_ = value;}
-  void setIsoMu22(const Bool_t value) {IsoMu22_ = value;}
+  void setIsoMu22_eta2p1(const Bool_t value) {IsoMu22_eta2p1_ = value;}
   void setIsoMu24(const Bool_t value) {IsoMu24_ = value;}
   void setIsoMu27(const Bool_t value) {IsoMu27_ = value;}
   void setIsoTkMu18(const Bool_t value) {IsoTkMu18_ = value;}
   void setIsoTkMu20(const Bool_t value) {IsoTkMu20_ = value;}
   void setIsoTkMu22(const Bool_t value) {IsoTkMu22_ = value;}
-  void setIsoTkMu22(const Bool_t value) {IsoTkMu22_ = value;}
+  void setIsoTkMu22_eta2p1(const Bool_t value) {IsoTkMu22_eta2p1_ = value;}
   void setIsoTkMu24(const Bool_t value) {IsoTkMu24_ = value;}
   void setIsoTkMu27(const Bool_t value) {IsoTkMu27_ = value;}
-  void setJetE30(const Bool_t value) {JetE30_ = value;}
-  void setJetE30(const Bool_t value) {JetE30_ = value;}
-  void setJetE50(const Bool_t value) {JetE50_ = value;}
-  void setJetE70(const Bool_t value) {JetE70_ = value;}
+  void setJetE30_NoBPTX3BX(const Bool_t value) {JetE30_NoBPTX3BX_ = value;}
+  void setJetE30_NoBPTX(const Bool_t value) {JetE30_NoBPTX_ = value;}
+  void setJetE50_NoBPTX3BX(const Bool_t value) {JetE50_NoBPTX3BX_ = value;}
+  void setJetE70_NoBPTX3BX(const Bool_t value) {JetE70_NoBPTX3BX_ = value;}
   void setL1SingleMu18(const Bool_t value) {L1SingleMu18_ = value;}
   void setL2Mu10(const Bool_t value) {L2Mu10_ = value;}
   void setL1SingleMuOpen(const Bool_t value) {L1SingleMuOpen_ = value;}
-  void setL1SingleMuOpen(const Bool_t value) {L1SingleMuOpen_ = value;}
-  void setL2DoubleMu23(const Bool_t value) {L2DoubleMu23_ = value;}
-  void setL2DoubleMu28(const Bool_t value) {L2DoubleMu28_ = value;}
-  void setL2DoubleMu38(const Bool_t value) {L2DoubleMu38_ = value;}
-  void setL2Mu10(const Bool_t value) {L2Mu10_ = value;}
-  void setL2Mu10(const Bool_t value) {L2Mu10_ = value;}
-  void setL2Mu45(const Bool_t value) {L2Mu45_ = value;}
-  void setL2Mu40(const Bool_t value) {L2Mu40_ = value;}
-  void setLooseIsoPFTau50(const Bool_t value) {LooseIsoPFTau50_ = value;}
-  void setLooseIsoPFTau50(const Bool_t value) {LooseIsoPFTau50_ = value;}
-  void setLooseIsoPFTau50(const Bool_t value) {LooseIsoPFTau50_ = value;}
-  void setLooseIsoPFTau50(const Bool_t value) {LooseIsoPFTau50_ = value;}
-  void setLooseIsoPFTau50(const Bool_t value) {LooseIsoPFTau50_ = value;}
-  void setPFTau120(const Bool_t value) {PFTau120_ = value;}
-  void setPFTau140(const Bool_t value) {PFTau140_ = value;}
-  void setVLooseIsoPFTau120(const Bool_t value) {VLooseIsoPFTau120_ = value;}
-  void setVLooseIsoPFTau140(const Bool_t value) {VLooseIsoPFTau140_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu20(const Bool_t value) {Mu20_ = value;}
-  void setMu20(const Bool_t value) {Mu20_ = value;}
-  void setMu20(const Bool_t value) {Mu20_ = value;}
-  void setMu20(const Bool_t value) {Mu20_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu25(const Bool_t value) {Mu25_ = value;}
-  void setMu27(const Bool_t value) {Mu27_ = value;}
-  void setMu30(const Bool_t value) {Mu30_ = value;}
-  void setMu30(const Bool_t value) {Mu30_ = value;}
-  void setMu40(const Bool_t value) {Mu40_ = value;}
-  void setMu40(const Bool_t value) {Mu40_ = value;}
+  void setL1SingleMuOpen_DT(const Bool_t value) {L1SingleMuOpen_DT_ = value;}
+  void setL2DoubleMu23_NoVertex(const Bool_t value) {L2DoubleMu23_NoVertex_ = value;}
+  void setL2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10(const Bool_t value) {L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_ = value;}
+  void setL2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10(const Bool_t value) {L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_ = value;}
+  void setL2Mu10_NoVertex_NoBPTX3BX(const Bool_t value) {L2Mu10_NoVertex_NoBPTX3BX_ = value;}
+  void setL2Mu10_NoVertex_NoBPTX(const Bool_t value) {L2Mu10_NoVertex_NoBPTX_ = value;}
+  void setL2Mu45_NoVertex_3Sta_NoBPTX3BX(const Bool_t value) {L2Mu45_NoVertex_3Sta_NoBPTX3BX_ = value;}
+  void setL2Mu40_NoVertex_3Sta_NoBPTX3BX(const Bool_t value) {L2Mu40_NoVertex_3Sta_NoBPTX3BX_ = value;}
+  void setLooseIsoPFTau50_Trk30_eta2p1(const Bool_t value) {LooseIsoPFTau50_Trk30_eta2p1_ = value;}
+  void setLooseIsoPFTau50_Trk30_eta2p1_MET80(const Bool_t value) {LooseIsoPFTau50_Trk30_eta2p1_MET80_ = value;}
+  void setLooseIsoPFTau50_Trk30_eta2p1_MET90(const Bool_t value) {LooseIsoPFTau50_Trk30_eta2p1_MET90_ = value;}
+  void setLooseIsoPFTau50_Trk30_eta2p1_MET110(const Bool_t value) {LooseIsoPFTau50_Trk30_eta2p1_MET110_ = value;}
+  void setLooseIsoPFTau50_Trk30_eta2p1_MET120(const Bool_t value) {LooseIsoPFTau50_Trk30_eta2p1_MET120_ = value;}
+  void setPFTau120_eta2p1(const Bool_t value) {PFTau120_eta2p1_ = value;}
+  void setPFTau140_eta2p1(const Bool_t value) {PFTau140_eta2p1_ = value;}
+  void setVLooseIsoPFTau120_Trk50_eta2p1(const Bool_t value) {VLooseIsoPFTau120_Trk50_eta2p1_ = value;}
+  void setVLooseIsoPFTau140_Trk50_eta2p1(const Bool_t value) {VLooseIsoPFTau140_Trk50_eta2p1_ = value;}
+  void setMu17_Mu8(const Bool_t value) {Mu17_Mu8_ = value;}
+  void setMu17_Mu8_DZ(const Bool_t value) {Mu17_Mu8_DZ_ = value;}
+  void setMu17_Mu8_SameSign(const Bool_t value) {Mu17_Mu8_SameSign_ = value;}
+  void setMu17_Mu8_SameSign_DZ(const Bool_t value) {Mu17_Mu8_SameSign_DZ_ = value;}
+  void setMu20_Mu10(const Bool_t value) {Mu20_Mu10_ = value;}
+  void setMu20_Mu10_DZ(const Bool_t value) {Mu20_Mu10_DZ_ = value;}
+  void setMu20_Mu10_SameSign(const Bool_t value) {Mu20_Mu10_SameSign_ = value;}
+  void setMu20_Mu10_SameSign_DZ(const Bool_t value) {Mu20_Mu10_SameSign_DZ_ = value;}
+  void setMu17_TkMu8_DZ(const Bool_t value) {Mu17_TkMu8_DZ_ = value;}
+  void setMu17_TrkIsoVVL_Mu8_TrkIsoVVL(const Bool_t value) {Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_ = value;}
+  void setMu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ(const Bool_t value) {Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_ = value;}
+  void setMu17_TrkIsoVVL_TkMu8_TrkIsoVVL(const Bool_t value) {Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_ = value;}
+  void setMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(const Bool_t value) {Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_ = value;}
+  void setMu25_TkMu0_dEta18_Onia(const Bool_t value) {Mu25_TkMu0_dEta18_Onia_ = value;}
+  void setMu27_TkMu8(const Bool_t value) {Mu27_TkMu8_ = value;}
+  void setMu30_TkMu11(const Bool_t value) {Mu30_TkMu11_ = value;}
+  void setMu30_eta2p1_PFJet150_PFJet50(const Bool_t value) {Mu30_eta2p1_PFJet150_PFJet50_ = value;}
+  void setMu40_TkMu11(const Bool_t value) {Mu40_TkMu11_ = value;}
+  void setMu40_eta2p1_PFJet200_PFJet50(const Bool_t value) {Mu40_eta2p1_PFJet200_PFJet50_ = value;}
   void setMu20(const Bool_t value) {Mu20_ = value;}
   void setTkMu17(const Bool_t value) {TkMu17_ = value;}
-  void setTkMu17(const Bool_t value) {TkMu17_ = value;}
-  void setTkMu17(const Bool_t value) {TkMu17_ = value;}
+  void setTkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL(const Bool_t value) {TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_ = value;}
+  void setTkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(const Bool_t value) {TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_ = value;}
   void setTkMu20(const Bool_t value) {TkMu20_ = value;}
-  void setMu24(const Bool_t value) {Mu24_ = value;}
-  void setTkMu24(const Bool_t value) {TkMu24_ = value;}
+  void setMu24_eta2p1(const Bool_t value) {Mu24_eta2p1_ = value;}
+  void setTkMu24_eta2p1(const Bool_t value) {TkMu24_eta2p1_ = value;}
   void setMu27(const Bool_t value) {Mu27_ = value;}
   void setTkMu27(const Bool_t value) {TkMu27_ = value;}
-  void setMu45(const Bool_t value) {Mu45_ = value;}
+  void setMu45_eta2p1(const Bool_t value) {Mu45_eta2p1_ = value;}
   void setMu50(const Bool_t value) {Mu50_ = value;}
   void setTkMu50(const Bool_t value) {TkMu50_ = value;}
-  void setMu38NoFiltersNoVtx(const Bool_t value) {Mu38NoFiltersNoVtx_ = value;}
-  void setMu42NoFiltersNoVtx(const Bool_t value) {Mu42NoFiltersNoVtx_ = value;}
-  void setMu28NoFiltersNoVtxDisplaced(const Bool_t value) {Mu28NoFiltersNoVtxDisplaced_ = value;}
-  void setMu33NoFiltersNoVtxDisplaced(const Bool_t value) {Mu33NoFiltersNoVtxDisplaced_ = value;}
-  void setMu23NoFiltersNoVtx(const Bool_t value) {Mu23NoFiltersNoVtx_ = value;}
+  void setMu38NoFiltersNoVtx_Photon38_CaloIdL(const Bool_t value) {Mu38NoFiltersNoVtx_Photon38_CaloIdL_ = value;}
+  void setMu42NoFiltersNoVtx_Photon42_CaloIdL(const Bool_t value) {Mu42NoFiltersNoVtx_Photon42_CaloIdL_ = value;}
+  void setMu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL(const Bool_t value) {Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_ = value;}
+  void setMu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL(const Bool_t value) {Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_ = value;}
+  void setMu23NoFiltersNoVtx_Photon23_CaloIdL(const Bool_t value) {Mu23NoFiltersNoVtx_Photon23_CaloIdL_ = value;}
   void setDoubleMu18NoFiltersNoVtx(const Bool_t value) {DoubleMu18NoFiltersNoVtx_ = value;}
-  void setMu33NoFiltersNoVtxDisplaced(const Bool_t value) {Mu33NoFiltersNoVtxDisplaced_ = value;}
-  void setMu33NoFiltersNoVtxDisplaced(const Bool_t value) {Mu33NoFiltersNoVtxDisplaced_ = value;}
-  void setMu28NoFiltersNoVtx(const Bool_t value) {Mu28NoFiltersNoVtx_ = value;}
-  void setMu38NoFiltersNoVtxDisplaced(const Bool_t value) {Mu38NoFiltersNoVtxDisplaced_ = value;}
-  void setMu38NoFiltersNoVtxDisplaced(const Bool_t value) {Mu38NoFiltersNoVtxDisplaced_ = value;}
-  void setMu38NoFiltersNoVtx(const Bool_t value) {Mu38NoFiltersNoVtx_ = value;}
-  void setMu28NoFiltersNoVtx(const Bool_t value) {Mu28NoFiltersNoVtx_ = value;}
-  void setPFHT300(const Bool_t value) {PFHT300_ = value;}
-  void setPFHT300(const Bool_t value) {PFHT300_ = value;}
-  void setPFHT550(const Bool_t value) {PFHT550_ = value;}
-  void setPFHT650(const Bool_t value) {PFHT650_ = value;}
-  void setPFHT750(const Bool_t value) {PFHT750_ = value;}
-  void setPFHT750(const Bool_t value) {PFHT750_ = value;}
-  void setPFHT750(const Bool_t value) {PFHT750_ = value;}
-  void setPFHT800(const Bool_t value) {PFHT800_ = value;}
-  void setPFHT850(const Bool_t value) {PFHT850_ = value;}
-  void setPFJet15(const Bool_t value) {PFJet15_ = value;}
-  void setPFJet25(const Bool_t value) {PFJet25_ = value;}
-  void setDiPFJet15(const Bool_t value) {DiPFJet15_ = value;}
-  void setDiPFJet25(const Bool_t value) {DiPFJet25_ = value;}
-  void setDiPFJet15(const Bool_t value) {DiPFJet15_ = value;}
-  void setDiPFJet25(const Bool_t value) {DiPFJet25_ = value;}
-  void setDiPFJetAve15(const Bool_t value) {DiPFJetAve15_ = value;}
-  void setDiPFJetAve25(const Bool_t value) {DiPFJetAve25_ = value;}
-  void setDiPFJetAve35(const Bool_t value) {DiPFJetAve35_ = value;}
+  void setMu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight(const Bool_t value) {Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_ = value;}
+  void setMu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose(const Bool_t value) {Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_ = value;}
+  void setMu28NoFiltersNoVtx_DisplacedJet40_Loose(const Bool_t value) {Mu28NoFiltersNoVtx_DisplacedJet40_Loose_ = value;}
+  void setMu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight(const Bool_t value) {Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_ = value;}
+  void setMu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose(const Bool_t value) {Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_ = value;}
+  void setMu38NoFiltersNoVtx_DisplacedJet60_Loose(const Bool_t value) {Mu38NoFiltersNoVtx_DisplacedJet60_Loose_ = value;}
+  void setMu28NoFiltersNoVtx_CentralCaloJet40(const Bool_t value) {Mu28NoFiltersNoVtx_CentralCaloJet40_ = value;}
+  void setPFHT300_PFMET100(const Bool_t value) {PFHT300_PFMET100_ = value;}
+  void setPFHT300_PFMET110(const Bool_t value) {PFHT300_PFMET110_ = value;}
+  void setPFHT550_4JetPt50(const Bool_t value) {PFHT550_4JetPt50_ = value;}
+  void setPFHT650_4JetPt50(const Bool_t value) {PFHT650_4JetPt50_ = value;}
+  void setPFHT750_4JetPt50(const Bool_t value) {PFHT750_4JetPt50_ = value;}
+  void setPFHT750_4JetPt70(const Bool_t value) {PFHT750_4JetPt70_ = value;}
+  void setPFHT750_4JetPt80(const Bool_t value) {PFHT750_4JetPt80_ = value;}
+  void setPFHT800_4JetPt50(const Bool_t value) {PFHT800_4JetPt50_ = value;}
+  void setPFHT850_4JetPt50(const Bool_t value) {PFHT850_4JetPt50_ = value;}
+  void setPFJet15_NoCaloMatched(const Bool_t value) {PFJet15_NoCaloMatched_ = value;}
+  void setPFJet25_NoCaloMatched(const Bool_t value) {PFJet25_NoCaloMatched_ = value;}
+  void setDiPFJet15_NoCaloMatched(const Bool_t value) {DiPFJet15_NoCaloMatched_ = value;}
+  void setDiPFJet25_NoCaloMatched(const Bool_t value) {DiPFJet25_NoCaloMatched_ = value;}
+  void setDiPFJet15_FBEta3_NoCaloMatched(const Bool_t value) {DiPFJet15_FBEta3_NoCaloMatched_ = value;}
+  void setDiPFJet25_FBEta3_NoCaloMatched(const Bool_t value) {DiPFJet25_FBEta3_NoCaloMatched_ = value;}
+  void setDiPFJetAve15_HFJEC(const Bool_t value) {DiPFJetAve15_HFJEC_ = value;}
+  void setDiPFJetAve25_HFJEC(const Bool_t value) {DiPFJetAve25_HFJEC_ = value;}
+  void setDiPFJetAve35_HFJEC(const Bool_t value) {DiPFJetAve35_HFJEC_ = value;}
   void setAK8PFJet40(const Bool_t value) {AK8PFJet40_ = value;}
   void setAK8PFJet60(const Bool_t value) {AK8PFJet60_ = value;}
   void setAK8PFJet80(const Bool_t value) {AK8PFJet80_ = value;}
@@ -3179,19 +3180,19 @@ private:
   void setDiPFJetAve320(const Bool_t value) {DiPFJetAve320_ = value;}
   void setDiPFJetAve400(const Bool_t value) {DiPFJetAve400_ = value;}
   void setDiPFJetAve500(const Bool_t value) {DiPFJetAve500_ = value;}
-  void setDiPFJetAve60(const Bool_t value) {DiPFJetAve60_ = value;}
-  void setDiPFJetAve80(const Bool_t value) {DiPFJetAve80_ = value;}
-  void setDiPFJetAve100(const Bool_t value) {DiPFJetAve100_ = value;}
-  void setDiPFJetAve160(const Bool_t value) {DiPFJetAve160_ = value;}
-  void setDiPFJetAve220(const Bool_t value) {DiPFJetAve220_ = value;}
-  void setDiPFJetAve300(const Bool_t value) {DiPFJetAve300_ = value;}
-  void setDiPFJet40(const Bool_t value) {DiPFJet40_ = value;}
-  void setDiPFJet40(const Bool_t value) {DiPFJet40_ = value;}
+  void setDiPFJetAve60_HFJEC(const Bool_t value) {DiPFJetAve60_HFJEC_ = value;}
+  void setDiPFJetAve80_HFJEC(const Bool_t value) {DiPFJetAve80_HFJEC_ = value;}
+  void setDiPFJetAve100_HFJEC(const Bool_t value) {DiPFJetAve100_HFJEC_ = value;}
+  void setDiPFJetAve160_HFJEC(const Bool_t value) {DiPFJetAve160_HFJEC_ = value;}
+  void setDiPFJetAve220_HFJEC(const Bool_t value) {DiPFJetAve220_HFJEC_ = value;}
+  void setDiPFJetAve300_HFJEC(const Bool_t value) {DiPFJetAve300_HFJEC_ = value;}
+  void setDiPFJet40_DEta3p5_MJJ600_PFMETNoMu140(const Bool_t value) {DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_ = value;}
+  void setDiPFJet40_DEta3p5_MJJ600_PFMETNoMu80(const Bool_t value) {DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_ = value;}
   void setDiCentralPFJet170(const Bool_t value) {DiCentralPFJet170_ = value;}
-  void setSingleCentralPFJet170(const Bool_t value) {SingleCentralPFJet170_ = value;}
-  void setDiCentralPFJet170(const Bool_t value) {DiCentralPFJet170_ = value;}
-  void setDiCentralPFJet220(const Bool_t value) {DiCentralPFJet220_ = value;}
-  void setDiCentralPFJet330(const Bool_t value) {DiCentralPFJet330_ = value;}
+  void setSingleCentralPFJet170_CFMax0p1(const Bool_t value) {SingleCentralPFJet170_CFMax0p1_ = value;}
+  void setDiCentralPFJet170_CFMax0p1(const Bool_t value) {DiCentralPFJet170_CFMax0p1_ = value;}
+  void setDiCentralPFJet220_CFMax0p3(const Bool_t value) {DiCentralPFJet220_CFMax0p3_ = value;}
+  void setDiCentralPFJet330_CFMax0p5(const Bool_t value) {DiCentralPFJet330_CFMax0p5_ = value;}
   void setDiCentralPFJet430(const Bool_t value) {DiCentralPFJet430_ = value;}
   void setPFHT125(const Bool_t value) {PFHT125_ = value;}
   void setPFHT200(const Bool_t value) {PFHT200_ = value;}
@@ -3204,125 +3205,125 @@ private:
   void setPFHT650(const Bool_t value) {PFHT650_ = value;}
   void setPFHT800(const Bool_t value) {PFHT800_ = value;}
   void setPFHT900(const Bool_t value) {PFHT900_ = value;}
-  void setPFHT200(const Bool_t value) {PFHT200_ = value;}
-  void setPFHT200(const Bool_t value) {PFHT200_ = value;}
-  void setPFHT200(const Bool_t value) {PFHT200_ = value;}
-  void setPFHT250(const Bool_t value) {PFHT250_ = value;}
-  void setPFHT250(const Bool_t value) {PFHT250_ = value;}
-  void setPFHT300(const Bool_t value) {PFHT300_ = value;}
-  void setPFHT300(const Bool_t value) {PFHT300_ = value;}
-  void setPFHT350(const Bool_t value) {PFHT350_ = value;}
-  void setPFHT350(const Bool_t value) {PFHT350_ = value;}
-  void setPFHT400(const Bool_t value) {PFHT400_ = value;}
-  void setPFHT400(const Bool_t value) {PFHT400_ = value;}
-  void setMET60(const Bool_t value) {MET60_ = value;}
-  void setMET75(const Bool_t value) {MET75_ = value;}
-  void setMET90(const Bool_t value) {MET90_ = value;}
-  void setPFMET120(const Bool_t value) {PFMET120_ = value;}
-  void setPFMET120(const Bool_t value) {PFMET120_ = value;}
-  void setPFMET170(const Bool_t value) {PFMET170_ = value;}
-  void setPFMET170(const Bool_t value) {PFMET170_ = value;}
-  void setPFMET170(const Bool_t value) {PFMET170_ = value;}
-  void setPFMET170(const Bool_t value) {PFMET170_ = value;}
-  void setPFMET170(const Bool_t value) {PFMET170_ = value;}
-  void setPFMET170(const Bool_t value) {PFMET170_ = value;}
-  void setPFMETTypeOne190(const Bool_t value) {PFMETTypeOne190_ = value;}
-  void setPFMET90(const Bool_t value) {PFMET90_ = value;}
-  void setPFMET100(const Bool_t value) {PFMET100_ = value;}
-  void setPFMET100(const Bool_t value) {PFMET100_ = value;}
-  void setPFMET110(const Bool_t value) {PFMET110_ = value;}
-  void setPFMET120(const Bool_t value) {PFMET120_ = value;}
-  void setCaloMHTNoPU90(const Bool_t value) {CaloMHTNoPU90_ = value;}
-  void setCaloMHTNoPU90(const Bool_t value) {CaloMHTNoPU90_ = value;}
-  void setQuadPFJet(const Bool_t value) {QuadPFJet_ = value;}
-  void setQuadPFJet(const Bool_t value) {QuadPFJet_ = value;}
-  void setQuadPFJet(const Bool_t value) {QuadPFJet_ = value;}
-  void setQuadPFJet(const Bool_t value) {QuadPFJet_ = value;}
-  void setQuadPFJet(const Bool_t value) {QuadPFJet_ = value;}
-  void setL1(const Bool_t value) {L1_ = value;}
-  void setQuadJet45(const Bool_t value) {QuadJet45_ = value;}
-  void setQuadJet45(const Bool_t value) {QuadJet45_ = value;}
-  void setDoubleJet90(const Bool_t value) {DoubleJet90_ = value;}
-  void setDoubleJet90(const Bool_t value) {DoubleJet90_ = value;}
-  void setDoubleJetsC100(const Bool_t value) {DoubleJetsC100_ = value;}
-  void setDoubleJetsC100(const Bool_t value) {DoubleJetsC100_ = value;}
-  void setDoubleJetsC112(const Bool_t value) {DoubleJetsC112_ = value;}
-  void setDoubleJetsC112(const Bool_t value) {DoubleJetsC112_ = value;}
-  void setDoubleJetsC100(const Bool_t value) {DoubleJetsC100_ = value;}
-  void setDoubleJetsC100(const Bool_t value) {DoubleJetsC100_ = value;}
-  void setDoubleJetsC100(const Bool_t value) {DoubleJetsC100_ = value;}
-  void setDoubleJetsC100(const Bool_t value) {DoubleJetsC100_ = value;}
-  void setPhoton135(const Bool_t value) {Photon135_ = value;}
-  void setPhoton20(const Bool_t value) {Photon20_ = value;}
-  void setPhoton22(const Bool_t value) {Photon22_ = value;}
-  void setPhoton22(const Bool_t value) {Photon22_ = value;}
-  void setPhoton250(const Bool_t value) {Photon250_ = value;}
-  void setPhoton300(const Bool_t value) {Photon300_ = value;}
-  void setPhoton26(const Bool_t value) {Photon26_ = value;}
-  void setPhoton36(const Bool_t value) {Photon36_ = value;}
-  void setPhoton36(const Bool_t value) {Photon36_ = value;}
-  void setPhoton36(const Bool_t value) {Photon36_ = value;}
-  void setPhoton50(const Bool_t value) {Photon50_ = value;}
-  void setPhoton50(const Bool_t value) {Photon50_ = value;}
-  void setPhoton75(const Bool_t value) {Photon75_ = value;}
-  void setPhoton75(const Bool_t value) {Photon75_ = value;}
-  void setPhoton90(const Bool_t value) {Photon90_ = value;}
-  void setPhoton90(const Bool_t value) {Photon90_ = value;}
-  void setPhoton120(const Bool_t value) {Photon120_ = value;}
-  void setPhoton120(const Bool_t value) {Photon120_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setEle8(const Bool_t value) {Ele8_ = value;}
-  void setEle12(const Bool_t value) {Ele12_ = value;}
-  void setEle17(const Bool_t value) {Ele17_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setBTagMu(const Bool_t value) {BTagMu_ = value;}
-  void setBTagMu(const Bool_t value) {BTagMu_ = value;}
-  void setBTagMu(const Bool_t value) {BTagMu_ = value;}
-  void setBTagMu(const Bool_t value) {BTagMu_ = value;}
-  void setBTagMu(const Bool_t value) {BTagMu_ = value;}
-  void setBTagMu(const Bool_t value) {BTagMu_ = value;}
-  void setBTagMu(const Bool_t value) {BTagMu_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setEle17(const Bool_t value) {Ele17_ = value;}
-  void setEle16(const Bool_t value) {Ele16_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setMu12(const Bool_t value) {Mu12_ = value;}
-  void setMu12(const Bool_t value) {Mu12_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu23(const Bool_t value) {Mu23_ = value;}
-  void setMu23(const Bool_t value) {Mu23_ = value;}
-  void setMu23(const Bool_t value) {Mu23_ = value;}
-  void setMu23(const Bool_t value) {Mu23_ = value;}
-  void setMu30(const Bool_t value) {Mu30_ = value;}
-  void setMu33(const Bool_t value) {Mu33_ = value;}
-  void setMu37(const Bool_t value) {Mu37_ = value;}
-  void setMu27(const Bool_t value) {Mu27_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setMu12(const Bool_t value) {Mu12_ = value;}
-  void setMu12(const Bool_t value) {Mu12_ = value;}
-  void setMu12(const Bool_t value) {Mu12_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setDiMu9(const Bool_t value) {DiMu9_ = value;}
-  void setTripleMu(const Bool_t value) {TripleMu_ = value;}
-  void setTripleMu(const Bool_t value) {TripleMu_ = value;}
-  void setMu3er(const Bool_t value) {Mu3er_ = value;}
-  void setMu6(const Bool_t value) {Mu6_ = value;}
-  void setMu6(const Bool_t value) {Mu6_ = value;}
-  void setMu14er(const Bool_t value) {Mu14er_ = value;}
-  void setEle17(const Bool_t value) {Ele17_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setEle12(const Bool_t value) {Ele12_ = value;}
-  void setEle17(const Bool_t value) {Ele17_ = value;}
-  void setEle17(const Bool_t value) {Ele17_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setPFHT650(const Bool_t value) {PFHT650_ = value;}
-  void setPFHT650(const Bool_t value) {PFHT650_ = value;}
+  void setPFHT200_PFAlphaT0p51(const Bool_t value) {PFHT200_PFAlphaT0p51_ = value;}
+  void setPFHT200_DiPFJetAve90_PFAlphaT0p57(const Bool_t value) {PFHT200_DiPFJetAve90_PFAlphaT0p57_ = value;}
+  void setPFHT200_DiPFJetAve90_PFAlphaT0p63(const Bool_t value) {PFHT200_DiPFJetAve90_PFAlphaT0p63_ = value;}
+  void setPFHT250_DiPFJetAve90_PFAlphaT0p55(const Bool_t value) {PFHT250_DiPFJetAve90_PFAlphaT0p55_ = value;}
+  void setPFHT250_DiPFJetAve90_PFAlphaT0p58(const Bool_t value) {PFHT250_DiPFJetAve90_PFAlphaT0p58_ = value;}
+  void setPFHT300_DiPFJetAve90_PFAlphaT0p53(const Bool_t value) {PFHT300_DiPFJetAve90_PFAlphaT0p53_ = value;}
+  void setPFHT300_DiPFJetAve90_PFAlphaT0p54(const Bool_t value) {PFHT300_DiPFJetAve90_PFAlphaT0p54_ = value;}
+  void setPFHT350_DiPFJetAve90_PFAlphaT0p52(const Bool_t value) {PFHT350_DiPFJetAve90_PFAlphaT0p52_ = value;}
+  void setPFHT350_DiPFJetAve90_PFAlphaT0p53(const Bool_t value) {PFHT350_DiPFJetAve90_PFAlphaT0p53_ = value;}
+  void setPFHT400_DiPFJetAve90_PFAlphaT0p51(const Bool_t value) {PFHT400_DiPFJetAve90_PFAlphaT0p51_ = value;}
+  void setPFHT400_DiPFJetAve90_PFAlphaT0p52(const Bool_t value) {PFHT400_DiPFJetAve90_PFAlphaT0p52_ = value;}
+  void setMET60_IsoTrk35_Loose(const Bool_t value) {MET60_IsoTrk35_Loose_ = value;}
+  void setMET75_IsoTrk50(const Bool_t value) {MET75_IsoTrk50_ = value;}
+  void setMET90_IsoTrk50(const Bool_t value) {MET90_IsoTrk50_ = value;}
+  void setPFMET120_BTagCSV_p067(const Bool_t value) {PFMET120_BTagCSV_p067_ = value;}
+  void setPFMET120_Mu5(const Bool_t value) {PFMET120_Mu5_ = value;}
+  void setPFMET170_NotCleaned(const Bool_t value) {PFMET170_NotCleaned_ = value;}
+  void setPFMET170_NoiseCleaned(const Bool_t value) {PFMET170_NoiseCleaned_ = value;}
+  void setPFMET170_HBHECleaned(const Bool_t value) {PFMET170_HBHECleaned_ = value;}
+  void setPFMET170_JetIdCleaned(const Bool_t value) {PFMET170_JetIdCleaned_ = value;}
+  void setPFMET170_BeamHaloCleaned(const Bool_t value) {PFMET170_BeamHaloCleaned_ = value;}
+  void setPFMET170_HBHE_BeamHaloCleaned(const Bool_t value) {PFMET170_HBHE_BeamHaloCleaned_ = value;}
+  void setPFMETTypeOne190_HBHE_BeamHaloCleaned(const Bool_t value) {PFMETTypeOne190_HBHE_BeamHaloCleaned_ = value;}
+  void setPFMET90_PFMHT90_IDTight(const Bool_t value) {PFMET90_PFMHT90_IDTight_ = value;}
+  void setPFMET100_PFMHT100_IDTight(const Bool_t value) {PFMET100_PFMHT100_IDTight_ = value;}
+  void setPFMET100_PFMHT100_IDTight_BeamHaloCleaned(const Bool_t value) {PFMET100_PFMHT100_IDTight_BeamHaloCleaned_ = value;}
+  void setPFMET110_PFMHT110_IDTight(const Bool_t value) {PFMET110_PFMHT110_IDTight_ = value;}
+  void setPFMET120_PFMHT120_IDTight(const Bool_t value) {PFMET120_PFMHT120_IDTight_ = value;}
+  void setCaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067(const Bool_t value) {CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_ = value;}
+  void setCaloMHTNoPU90_PFMET90_PFMHT90_IDTight(const Bool_t value) {CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_ = value;}
+  void setQuadPFJet_BTagCSV_p016_p11_VBF_Mqq200(const Bool_t value) {QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_ = value;}
+  void setQuadPFJet_BTagCSV_p016_VBF_Mqq460(const Bool_t value) {QuadPFJet_BTagCSV_p016_VBF_Mqq460_ = value;}
+  void setQuadPFJet_BTagCSV_p016_p11_VBF_Mqq240(const Bool_t value) {QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_ = value;}
+  void setQuadPFJet_BTagCSV_p016_VBF_Mqq500(const Bool_t value) {QuadPFJet_BTagCSV_p016_VBF_Mqq500_ = value;}
+  void setQuadPFJet_VBF(const Bool_t value) {QuadPFJet_VBF_ = value;}
+  void setL1_TripleJet_VBF(const Bool_t value) {L1_TripleJet_VBF_ = value;}
+  void setQuadJet45_TripleBTagCSV_p087(const Bool_t value) {QuadJet45_TripleBTagCSV_p087_ = value;}
+  void setQuadJet45_DoubleBTagCSV_p087(const Bool_t value) {QuadJet45_DoubleBTagCSV_p087_ = value;}
+  void setDoubleJet90_Double30_TripleBTagCSV_p087(const Bool_t value) {DoubleJet90_Double30_TripleBTagCSV_p087_ = value;}
+  void setDoubleJet90_Double30_DoubleBTagCSV_p087(const Bool_t value) {DoubleJet90_Double30_DoubleBTagCSV_p087_ = value;}
+  void setDoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160(const Bool_t value) {DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_ = value;}
+  void setDoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6(const Bool_t value) {DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_ = value;}
+  void setDoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172(const Bool_t value) {DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_ = value;}
+  void setDoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6(const Bool_t value) {DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_ = value;}
+  void setDoubleJetsC100_SingleBTagCSV_p026(const Bool_t value) {DoubleJetsC100_SingleBTagCSV_p026_ = value;}
+  void setDoubleJetsC100_SingleBTagCSV_p014(const Bool_t value) {DoubleJetsC100_SingleBTagCSV_p014_ = value;}
+  void setDoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350(const Bool_t value) {DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_ = value;}
+  void setDoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350(const Bool_t value) {DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_ = value;}
+  void setPhoton135_PFMET100(const Bool_t value) {Photon135_PFMET100_ = value;}
+  void setPhoton20_CaloIdVL_IsoL(const Bool_t value) {Photon20_CaloIdVL_IsoL_ = value;}
+  void setPhoton22_R9Id90_HE10_Iso40_EBOnly_PFMET40(const Bool_t value) {Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_ = value;}
+  void setPhoton22_R9Id90_HE10_Iso40_EBOnly_VBF(const Bool_t value) {Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_ = value;}
+  void setPhoton250_NoHE(const Bool_t value) {Photon250_NoHE_ = value;}
+  void setPhoton300_NoHE(const Bool_t value) {Photon300_NoHE_ = value;}
+  void setPhoton26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60(const Bool_t value) {Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_ = value;}
+  void setPhoton36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15(const Bool_t value) {Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_ = value;}
+  void setPhoton36_R9Id90_HE10_Iso40_EBOnly_PFMET40(const Bool_t value) {Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_ = value;}
+  void setPhoton36_R9Id90_HE10_Iso40_EBOnly_VBF(const Bool_t value) {Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_ = value;}
+  void setPhoton50_R9Id90_HE10_Iso40_EBOnly_PFMET40(const Bool_t value) {Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_ = value;}
+  void setPhoton50_R9Id90_HE10_Iso40_EBOnly_VBF(const Bool_t value) {Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_ = value;}
+  void setPhoton75_R9Id90_HE10_Iso40_EBOnly_PFMET40(const Bool_t value) {Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_ = value;}
+  void setPhoton75_R9Id90_HE10_Iso40_EBOnly_VBF(const Bool_t value) {Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_ = value;}
+  void setPhoton90_R9Id90_HE10_Iso40_EBOnly_PFMET40(const Bool_t value) {Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_ = value;}
+  void setPhoton90_R9Id90_HE10_Iso40_EBOnly_VBF(const Bool_t value) {Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_ = value;}
+  void setPhoton120_R9Id90_HE10_Iso40_EBOnly_PFMET40(const Bool_t value) {Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_ = value;}
+  void setPhoton120_R9Id90_HE10_Iso40_EBOnly_VBF(const Bool_t value) {Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_ = value;}
+  void setMu8_TrkIsoVVL(const Bool_t value) {Mu8_TrkIsoVVL_ = value;}
+  void setMu17_TrkIsoVVL(const Bool_t value) {Mu17_TrkIsoVVL_ = value;}
+  void setEle8_CaloIdL_TrackIdL_IsoVL_PFJet30(const Bool_t value) {Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_ = value;}
+  void setEle12_CaloIdL_TrackIdL_IsoVL_PFJet30(const Bool_t value) {Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_ = value;}
+  void setEle17_CaloIdL_TrackIdL_IsoVL_PFJet30(const Bool_t value) {Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30_ = value;}
+  void setEle23_CaloIdL_TrackIdL_IsoVL_PFJet30(const Bool_t value) {Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_ = value;}
+  void setBTagMu_DiJet20_Mu5(const Bool_t value) {BTagMu_DiJet20_Mu5_ = value;}
+  void setBTagMu_DiJet40_Mu5(const Bool_t value) {BTagMu_DiJet40_Mu5_ = value;}
+  void setBTagMu_DiJet70_Mu5(const Bool_t value) {BTagMu_DiJet70_Mu5_ = value;}
+  void setBTagMu_DiJet110_Mu5(const Bool_t value) {BTagMu_DiJet110_Mu5_ = value;}
+  void setBTagMu_DiJet170_Mu5(const Bool_t value) {BTagMu_DiJet170_Mu5_ = value;}
+  void setBTagMu_Jet300_Mu5(const Bool_t value) {BTagMu_Jet300_Mu5_ = value;}
+  void setBTagMu_AK8Jet300_Mu5(const Bool_t value) {BTagMu_AK8Jet300_Mu5_ = value;}
+  void setEle23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(const Bool_t value) {Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
+  void setEle23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded(const Bool_t value) {Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_ = value;}
+  void setEle17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(const Bool_t value) {Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
+  void setEle16_Ele12_Ele8_CaloIdL_TrackIdL(const Bool_t value) {Ele16_Ele12_Ele8_CaloIdL_TrackIdL_ = value;}
+  void setMu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setMu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setMu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ(const Bool_t value) {Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
+  void setMu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setMu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ(const Bool_t value) {Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
+  void setMu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setMu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setMu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ(const Bool_t value) {Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
+  void setMu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setMu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(const Bool_t value) {Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_ = value;}
+  void setMu30_Ele30_CaloIdL_GsfTrkIdVL(const Bool_t value) {Mu30_Ele30_CaloIdL_GsfTrkIdVL_ = value;}
+  void setMu33_Ele33_CaloIdL_GsfTrkIdVL(const Bool_t value) {Mu33_Ele33_CaloIdL_GsfTrkIdVL_ = value;}
+  void setMu37_Ele27_CaloIdL_GsfTrkIdVL(const Bool_t value) {Mu37_Ele27_CaloIdL_GsfTrkIdVL_ = value;}
+  void setMu27_Ele37_CaloIdL_GsfTrkIdVL(const Bool_t value) {Mu27_Ele37_CaloIdL_GsfTrkIdVL_ = value;}
+  void setMu8_DiEle12_CaloIdL_TrackIdL(const Bool_t value) {Mu8_DiEle12_CaloIdL_TrackIdL_ = value;}
+  void setMu12_Photon25_CaloIdL(const Bool_t value) {Mu12_Photon25_CaloIdL_ = value;}
+  void setMu12_Photon25_CaloIdL_L1ISO(const Bool_t value) {Mu12_Photon25_CaloIdL_L1ISO_ = value;}
+  void setMu12_Photon25_CaloIdL_L1OR(const Bool_t value) {Mu12_Photon25_CaloIdL_L1OR_ = value;}
+  void setMu17_Photon22_CaloIdL_L1ISO(const Bool_t value) {Mu17_Photon22_CaloIdL_L1ISO_ = value;}
+  void setMu17_Photon30_CaloIdL_L1ISO(const Bool_t value) {Mu17_Photon30_CaloIdL_L1ISO_ = value;}
+  void setMu17_Photon35_CaloIdL_L1ISO(const Bool_t value) {Mu17_Photon35_CaloIdL_L1ISO_ = value;}
+  void setDiMu9_Ele9_CaloIdL_TrackIdL(const Bool_t value) {DiMu9_Ele9_CaloIdL_TrackIdL_ = value;}
+  void setTripleMu_5_3_3(const Bool_t value) {TripleMu_5_3_3_ = value;}
+  void setTripleMu_12_10_5(const Bool_t value) {TripleMu_12_10_5_ = value;}
+  void setMu3er_PFHT140_PFMET125(const Bool_t value) {Mu3er_PFHT140_PFMET125_ = value;}
+  void setMu6_PFHT200_PFMET80_BTagCSV_p067(const Bool_t value) {Mu6_PFHT200_PFMET80_BTagCSV_p067_ = value;}
+  void setMu6_PFHT200_PFMET100(const Bool_t value) {Mu6_PFHT200_PFMET100_ = value;}
+  void setMu14er_PFMET100(const Bool_t value) {Mu14er_PFMET100_ = value;}
+  void setEle17_Ele12_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setEle23_Ele12_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setEle12_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Ele12_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setEle17_CaloIdL_GsfTrkIdVL(const Bool_t value) {Ele17_CaloIdL_GsfTrkIdVL_ = value;}
+  void setEle17_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Ele17_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setEle23_CaloIdL_TrackIdL_IsoVL(const Bool_t value) {Ele23_CaloIdL_TrackIdL_IsoVL_ = value;}
+  void setPFHT650_WideJetMJJ900DEtaJJ1p5(const Bool_t value) {PFHT650_WideJetMJJ900DEtaJJ1p5_ = value;}
+  void setPFHT650_WideJetMJJ950DEtaJJ1p5(const Bool_t value) {PFHT650_WideJetMJJ950DEtaJJ1p5_ = value;}
   void setPhoton22(const Bool_t value) {Photon22_ = value;}
   void setPhoton30(const Bool_t value) {Photon30_ = value;}
   void setPhoton36(const Bool_t value) {Photon36_ = value;}
@@ -3331,143 +3332,143 @@ private:
   void setPhoton90(const Bool_t value) {Photon90_ = value;}
   void setPhoton120(const Bool_t value) {Photon120_ = value;}
   void setPhoton175(const Bool_t value) {Photon175_ = value;}
-  void setPhoton165(const Bool_t value) {Photon165_ = value;}
-  void setPhoton22(const Bool_t value) {Photon22_ = value;}
-  void setPhoton30(const Bool_t value) {Photon30_ = value;}
-  void setPhoton36(const Bool_t value) {Photon36_ = value;}
-  void setPhoton50(const Bool_t value) {Photon50_ = value;}
-  void setPhoton75(const Bool_t value) {Photon75_ = value;}
-  void setPhoton90(const Bool_t value) {Photon90_ = value;}
-  void setPhoton120(const Bool_t value) {Photon120_ = value;}
-  void setPhoton165(const Bool_t value) {Photon165_ = value;}
-  void setDiphoton30(const Bool_t value) {Diphoton30_ = value;}
-  void setDiphoton30(const Bool_t value) {Diphoton30_ = value;}
-  void setDiphoton30PV(const Bool_t value) {Diphoton30PV_ = value;}
-  void setDiphoton30(const Bool_t value) {Diphoton30_ = value;}
-  void setDiphoton30EB(const Bool_t value) {Diphoton30EB_ = value;}
-  void setDimuon0(const Bool_t value) {Dimuon0_ = value;}
-  void setDimuon0(const Bool_t value) {Dimuon0_ = value;}
-  void setQuadMuon0(const Bool_t value) {QuadMuon0_ = value;}
-  void setQuadMuon0(const Bool_t value) {QuadMuon0_ = value;}
-  void setRsq0p25(const Bool_t value) {Rsq0p25_ = value;}
-  void setRsqMR240(const Bool_t value) {RsqMR240_ = value;}
-  void setRsqMR240(const Bool_t value) {RsqMR240_ = value;}
+  void setPhoton165_HE10(const Bool_t value) {Photon165_HE10_ = value;}
+  void setPhoton22_R9Id90_HE10_IsoM(const Bool_t value) {Photon22_R9Id90_HE10_IsoM_ = value;}
+  void setPhoton30_R9Id90_HE10_IsoM(const Bool_t value) {Photon30_R9Id90_HE10_IsoM_ = value;}
+  void setPhoton36_R9Id90_HE10_IsoM(const Bool_t value) {Photon36_R9Id90_HE10_IsoM_ = value;}
+  void setPhoton50_R9Id90_HE10_IsoM(const Bool_t value) {Photon50_R9Id90_HE10_IsoM_ = value;}
+  void setPhoton75_R9Id90_HE10_IsoM(const Bool_t value) {Photon75_R9Id90_HE10_IsoM_ = value;}
+  void setPhoton90_R9Id90_HE10_IsoM(const Bool_t value) {Photon90_R9Id90_HE10_IsoM_ = value;}
+  void setPhoton120_R9Id90_HE10_IsoM(const Bool_t value) {Photon120_R9Id90_HE10_IsoM_ = value;}
+  void setPhoton165_R9Id90_HE10_IsoM(const Bool_t value) {Photon165_R9Id90_HE10_IsoM_ = value;}
+  void setDiphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90(const Bool_t value) {Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_ = value;}
+  void setDiphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70(const Bool_t value) {Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_ = value;}
+  void setDiphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55(const Bool_t value) {Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_ = value;}
+  void setDiphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55(const Bool_t value) {Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_ = value;}
+  void setDiphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55(const Bool_t value) {Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_ = value;}
+  void setDimuon0_Jpsi_Muon(const Bool_t value) {Dimuon0_Jpsi_Muon_ = value;}
+  void setDimuon0_Upsilon_Muon(const Bool_t value) {Dimuon0_Upsilon_Muon_ = value;}
+  void setQuadMuon0_Dimuon0_Jpsi(const Bool_t value) {QuadMuon0_Dimuon0_Jpsi_ = value;}
+  void setQuadMuon0_Dimuon0_Upsilon(const Bool_t value) {QuadMuon0_Dimuon0_Upsilon_ = value;}
+  void setRsq0p25_Calo(const Bool_t value) {Rsq0p25_Calo_ = value;}
+  void setRsqMR240_Rsq0p09_MR200_4jet_Calo(const Bool_t value) {RsqMR240_Rsq0p09_MR200_4jet_Calo_ = value;}
+  void setRsqMR240_Rsq0p09_MR200_Calo(const Bool_t value) {RsqMR240_Rsq0p09_MR200_Calo_ = value;}
   void setRsq0p25(const Bool_t value) {Rsq0p25_ = value;}
   void setRsq0p30(const Bool_t value) {Rsq0p30_ = value;}
-  void setRsqMR240(const Bool_t value) {RsqMR240_ = value;}
-  void setRsqMR240(const Bool_t value) {RsqMR240_ = value;}
-  void setRsqMR270(const Bool_t value) {RsqMR270_ = value;}
-  void setRsqMR270(const Bool_t value) {RsqMR270_ = value;}
-  void setRsq0p02(const Bool_t value) {Rsq0p02_ = value;}
-  void setRsq0p02(const Bool_t value) {Rsq0p02_ = value;}
-  void setRsq0p02(const Bool_t value) {Rsq0p02_ = value;}
-  void setRsq0p02(const Bool_t value) {Rsq0p02_ = value;}
-  void setRsq0p02(const Bool_t value) {Rsq0p02_ = value;}
-  void setHT200(const Bool_t value) {HT200_ = value;}
-  void setHT250(const Bool_t value) {HT250_ = value;}
-  void setHT350(const Bool_t value) {HT350_ = value;}
-  void setHT350(const Bool_t value) {HT350_ = value;}
-  void setHT350(const Bool_t value) {HT350_ = value;}
-  void setHT350(const Bool_t value) {HT350_ = value;}
-  void setHT400(const Bool_t value) {HT400_ = value;}
-  void setHT500(const Bool_t value) {HT500_ = value;}
-  void setHT550(const Bool_t value) {HT550_ = value;}
-  void setHT550(const Bool_t value) {HT550_ = value;}
-  void setHT650(const Bool_t value) {HT650_ = value;}
-  void setHT750(const Bool_t value) {HT750_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setVBF(const Bool_t value) {VBF_ = value;}
-  void setPFMETNoMu90(const Bool_t value) {PFMETNoMu90_ = value;}
-  void setPFMETNoMu100(const Bool_t value) {PFMETNoMu100_ = value;}
-  void setPFMETNoMu110(const Bool_t value) {PFMETNoMu110_ = value;}
-  void setPFMETNoMu120(const Bool_t value) {PFMETNoMu120_ = value;}
-  void setMonoCentralPFJet80(const Bool_t value) {MonoCentralPFJet80_ = value;}
-  void setMonoCentralPFJet80(const Bool_t value) {MonoCentralPFJet80_ = value;}
-  void setMonoCentralPFJet80(const Bool_t value) {MonoCentralPFJet80_ = value;}
-  void setMonoCentralPFJet80(const Bool_t value) {MonoCentralPFJet80_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
-  void setPhoton90(const Bool_t value) {Photon90_ = value;}
-  void setDoubleMu8(const Bool_t value) {DoubleMu8_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setDoubleEle8(const Bool_t value) {DoubleEle8_ = value;}
-  void setDoubleMu8(const Bool_t value) {DoubleMu8_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setDoubleEle8(const Bool_t value) {DoubleEle8_ = value;}
-  void setMu10(const Bool_t value) {Mu10_ = value;}
-  void setDoubleMu3(const Bool_t value) {DoubleMu3_ = value;}
-  void setEle10(const Bool_t value) {Ele10_ = value;}
-  void setEle15(const Bool_t value) {Ele15_ = value;}
-  void setEle15(const Bool_t value) {Ele15_ = value;}
-  void setEle15(const Bool_t value) {Ele15_ = value;}
-  void setEle15(const Bool_t value) {Ele15_ = value;}
-  void setEle15(const Bool_t value) {Ele15_ = value;}
-  void setEle15(const Bool_t value) {Ele15_ = value;}
-  void setEle50(const Bool_t value) {Ele50_ = value;}
-  void setMu8(const Bool_t value) {Mu8_ = value;}
-  void setMu10(const Bool_t value) {Mu10_ = value;}
-  void setMu15(const Bool_t value) {Mu15_ = value;}
-  void setMu15(const Bool_t value) {Mu15_ = value;}
-  void setMu15(const Bool_t value) {Mu15_ = value;}
-  void setMu15(const Bool_t value) {Mu15_ = value;}
-  void setMu15(const Bool_t value) {Mu15_ = value;}
-  void setMu15(const Bool_t value) {Mu15_ = value;}
-  void setMu50(const Bool_t value) {Mu50_ = value;}
-  void setDimuon16(const Bool_t value) {Dimuon16_ = value;}
-  void setDimuon10(const Bool_t value) {Dimuon10_ = value;}
-  void setDimuon8(const Bool_t value) {Dimuon8_ = value;}
-  void setDimuon8(const Bool_t value) {Dimuon8_ = value;}
-  void setDimuon0(const Bool_t value) {Dimuon0_ = value;}
-  void setMu16(const Bool_t value) {Mu16_ = value;}
-  void setMu16(const Bool_t value) {Mu16_ = value;}
-  void setTrkMu15(const Bool_t value) {TrkMu15_ = value;}
-  void setTrkMu17(const Bool_t value) {TrkMu17_ = value;}
+  void setRsqMR240_Rsq0p09_MR200(const Bool_t value) {RsqMR240_Rsq0p09_MR200_ = value;}
+  void setRsqMR240_Rsq0p09_MR200_4jet(const Bool_t value) {RsqMR240_Rsq0p09_MR200_4jet_ = value;}
+  void setRsqMR270_Rsq0p09_MR200(const Bool_t value) {RsqMR270_Rsq0p09_MR200_ = value;}
+  void setRsqMR270_Rsq0p09_MR200_4jet(const Bool_t value) {RsqMR270_Rsq0p09_MR200_4jet_ = value;}
+  void setRsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200(const Bool_t value) {Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_ = value;}
+  void setRsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(const Bool_t value) {Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_ = value;}
+  void setRsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(const Bool_t value) {Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_ = value;}
+  void setRsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(const Bool_t value) {Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_ = value;}
+  void setRsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(const Bool_t value) {Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_ = value;}
+  void setHT200_DisplacedDijet40_DisplacedTrack(const Bool_t value) {HT200_DisplacedDijet40_DisplacedTrack_ = value;}
+  void setHT250_DisplacedDijet40_DisplacedTrack(const Bool_t value) {HT250_DisplacedDijet40_DisplacedTrack_ = value;}
+  void setHT350_DisplacedDijet40_DisplacedTrack(const Bool_t value) {HT350_DisplacedDijet40_DisplacedTrack_ = value;}
+  void setHT350_DisplacedDijet80_DisplacedTrack(const Bool_t value) {HT350_DisplacedDijet80_DisplacedTrack_ = value;}
+  void setHT350_DisplacedDijet80_Tight_DisplacedTrack(const Bool_t value) {HT350_DisplacedDijet80_Tight_DisplacedTrack_ = value;}
+  void setHT350_DisplacedDijet40_Inclusive(const Bool_t value) {HT350_DisplacedDijet40_Inclusive_ = value;}
+  void setHT400_DisplacedDijet40_Inclusive(const Bool_t value) {HT400_DisplacedDijet40_Inclusive_ = value;}
+  void setHT500_DisplacedDijet40_Inclusive(const Bool_t value) {HT500_DisplacedDijet40_Inclusive_ = value;}
+  void setHT550_DisplacedDijet40_Inclusive(const Bool_t value) {HT550_DisplacedDijet40_Inclusive_ = value;}
+  void setHT550_DisplacedDijet80_Inclusive(const Bool_t value) {HT550_DisplacedDijet80_Inclusive_ = value;}
+  void setHT650_DisplacedDijet80_Inclusive(const Bool_t value) {HT650_DisplacedDijet80_Inclusive_ = value;}
+  void setHT750_DisplacedDijet80_Inclusive(const Bool_t value) {HT750_DisplacedDijet80_Inclusive_ = value;}
+  void setVBF_DisplacedJet40_DisplacedTrack(const Bool_t value) {VBF_DisplacedJet40_DisplacedTrack_ = value;}
+  void setVBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5(const Bool_t value) {VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_ = value;}
+  void setVBF_DisplacedJet40_TightID_DisplacedTrack(const Bool_t value) {VBF_DisplacedJet40_TightID_DisplacedTrack_ = value;}
+  void setVBF_DisplacedJet40_Hadronic(const Bool_t value) {VBF_DisplacedJet40_Hadronic_ = value;}
+  void setVBF_DisplacedJet40_Hadronic_2PromptTrack(const Bool_t value) {VBF_DisplacedJet40_Hadronic_2PromptTrack_ = value;}
+  void setVBF_DisplacedJet40_TightID_Hadronic(const Bool_t value) {VBF_DisplacedJet40_TightID_Hadronic_ = value;}
+  void setVBF_DisplacedJet40_VTightID_Hadronic(const Bool_t value) {VBF_DisplacedJet40_VTightID_Hadronic_ = value;}
+  void setVBF_DisplacedJet40_VVTightID_Hadronic(const Bool_t value) {VBF_DisplacedJet40_VVTightID_Hadronic_ = value;}
+  void setVBF_DisplacedJet40_VTightID_DisplacedTrack(const Bool_t value) {VBF_DisplacedJet40_VTightID_DisplacedTrack_ = value;}
+  void setVBF_DisplacedJet40_VVTightID_DisplacedTrack(const Bool_t value) {VBF_DisplacedJet40_VVTightID_DisplacedTrack_ = value;}
+  void setPFMETNoMu90_PFMHTNoMu90_IDTight(const Bool_t value) {PFMETNoMu90_PFMHTNoMu90_IDTight_ = value;}
+  void setPFMETNoMu100_PFMHTNoMu100_IDTight(const Bool_t value) {PFMETNoMu100_PFMHTNoMu100_IDTight_ = value;}
+  void setPFMETNoMu110_PFMHTNoMu110_IDTight(const Bool_t value) {PFMETNoMu110_PFMHTNoMu110_IDTight_ = value;}
+  void setPFMETNoMu120_PFMHTNoMu120_IDTight(const Bool_t value) {PFMETNoMu120_PFMHTNoMu120_IDTight_ = value;}
+  void setMonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight(const Bool_t value) {MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_ = value;}
+  void setMonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight(const Bool_t value) {MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_ = value;}
+  void setMonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight(const Bool_t value) {MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_ = value;}
+  void setMonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight(const Bool_t value) {MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_ = value;}
+  void setEle27_eta2p1_WPLoose_Gsf_HT200(const Bool_t value) {Ele27_eta2p1_WPLoose_Gsf_HT200_ = value;}
+  void setPhoton90_CaloIdL_PFHT500(const Bool_t value) {Photon90_CaloIdL_PFHT500_ = value;}
+  void setDoubleMu8_Mass8_PFHT250(const Bool_t value) {DoubleMu8_Mass8_PFHT250_ = value;}
+  void setMu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250(const Bool_t value) {Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_ = value;}
+  void setDoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250(const Bool_t value) {DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_ = value;}
+  void setDoubleMu8_Mass8_PFHT300(const Bool_t value) {DoubleMu8_Mass8_PFHT300_ = value;}
+  void setMu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300(const Bool_t value) {Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_ = value;}
+  void setDoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300(const Bool_t value) {DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_ = value;}
+  void setMu10_CentralPFJet30_BTagCSV_p13(const Bool_t value) {Mu10_CentralPFJet30_BTagCSV_p13_ = value;}
+  void setDoubleMu3_PFMET50(const Bool_t value) {DoubleMu3_PFMET50_ = value;}
+  void setEle10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13(const Bool_t value) {Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_ = value;}
+  void setEle15_IsoVVVL_BTagCSV_p067_PFHT400(const Bool_t value) {Ele15_IsoVVVL_BTagCSV_p067_PFHT400_ = value;}
+  void setEle15_IsoVVVL_PFHT350_PFMET50(const Bool_t value) {Ele15_IsoVVVL_PFHT350_PFMET50_ = value;}
+  void setEle15_IsoVVVL_PFHT600(const Bool_t value) {Ele15_IsoVVVL_PFHT600_ = value;}
+  void setEle15_IsoVVVL_PFHT350(const Bool_t value) {Ele15_IsoVVVL_PFHT350_ = value;}
+  void setEle15_IsoVVVL_PFHT400_PFMET50(const Bool_t value) {Ele15_IsoVVVL_PFHT400_PFMET50_ = value;}
+  void setEle15_IsoVVVL_PFHT400(const Bool_t value) {Ele15_IsoVVVL_PFHT400_ = value;}
+  void setEle50_IsoVVVL_PFHT400(const Bool_t value) {Ele50_IsoVVVL_PFHT400_ = value;}
+  void setMu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60(const Bool_t value) {Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_ = value;}
+  void setMu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60(const Bool_t value) {Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_ = value;}
+  void setMu15_IsoVVVL_BTagCSV_p067_PFHT400(const Bool_t value) {Mu15_IsoVVVL_BTagCSV_p067_PFHT400_ = value;}
+  void setMu15_IsoVVVL_PFHT350_PFMET50(const Bool_t value) {Mu15_IsoVVVL_PFHT350_PFMET50_ = value;}
+  void setMu15_IsoVVVL_PFHT600(const Bool_t value) {Mu15_IsoVVVL_PFHT600_ = value;}
+  void setMu15_IsoVVVL_PFHT350(const Bool_t value) {Mu15_IsoVVVL_PFHT350_ = value;}
+  void setMu15_IsoVVVL_PFHT400_PFMET50(const Bool_t value) {Mu15_IsoVVVL_PFHT400_PFMET50_ = value;}
+  void setMu15_IsoVVVL_PFHT400(const Bool_t value) {Mu15_IsoVVVL_PFHT400_ = value;}
+  void setMu50_IsoVVVL_PFHT400(const Bool_t value) {Mu50_IsoVVVL_PFHT400_ = value;}
+  void setDimuon16_Jpsi(const Bool_t value) {Dimuon16_Jpsi_ = value;}
+  void setDimuon10_Jpsi_Barrel(const Bool_t value) {Dimuon10_Jpsi_Barrel_ = value;}
+  void setDimuon8_PsiPrime_Barrel(const Bool_t value) {Dimuon8_PsiPrime_Barrel_ = value;}
+  void setDimuon8_Upsilon_Barrel(const Bool_t value) {Dimuon8_Upsilon_Barrel_ = value;}
+  void setDimuon0_Phi_Barrel(const Bool_t value) {Dimuon0_Phi_Barrel_ = value;}
+  void setMu16_TkMu0_dEta18_Onia(const Bool_t value) {Mu16_TkMu0_dEta18_Onia_ = value;}
+  void setMu16_TkMu0_dEta18_Phi(const Bool_t value) {Mu16_TkMu0_dEta18_Phi_ = value;}
+  void setTrkMu15_DoubleTrkMu5NoFiltersNoVtx(const Bool_t value) {TrkMu15_DoubleTrkMu5NoFiltersNoVtx_ = value;}
+  void setTrkMu17_DoubleTrkMu8NoFiltersNoVtx(const Bool_t value) {TrkMu17_DoubleTrkMu8NoFiltersNoVtx_ = value;}
   void setMu8(const Bool_t value) {Mu8_ = value;}
   void setMu17(const Bool_t value) {Mu17_ = value;}
-  void setMu3(const Bool_t value) {Mu3_ = value;}
-  void setEle8(const Bool_t value) {Ele8_ = value;}
-  void setEle12(const Bool_t value) {Ele12_ = value;}
-  void setEle17(const Bool_t value) {Ele17_ = value;}
-  void setEle23(const Bool_t value) {Ele23_ = value;}
-  void setEle50(const Bool_t value) {Ele50_ = value;}
-  void setEle50(const Bool_t value) {Ele50_ = value;}
-  void setPFHT400(const Bool_t value) {PFHT400_ = value;}
-  void setPFHT450(const Bool_t value) {PFHT450_ = value;}
-  void setPFHT400(const Bool_t value) {PFHT400_ = value;}
-  void setPFHT450(const Bool_t value) {PFHT450_ = value;}
-  void setEle115(const Bool_t value) {Ele115_ = value;}
+  void setMu3_PFJet40(const Bool_t value) {Mu3_PFJet40_ = value;}
+  void setEle8_CaloIdM_TrackIdM_PFJet30(const Bool_t value) {Ele8_CaloIdM_TrackIdM_PFJet30_ = value;}
+  void setEle12_CaloIdM_TrackIdM_PFJet30(const Bool_t value) {Ele12_CaloIdM_TrackIdM_PFJet30_ = value;}
+  void setEle17_CaloIdM_TrackIdM_PFJet30(const Bool_t value) {Ele17_CaloIdM_TrackIdM_PFJet30_ = value;}
+  void setEle23_CaloIdM_TrackIdM_PFJet30(const Bool_t value) {Ele23_CaloIdM_TrackIdM_PFJet30_ = value;}
+  void setEle50_CaloIdVT_GsfTrkIdT_PFJet140(const Bool_t value) {Ele50_CaloIdVT_GsfTrkIdT_PFJet140_ = value;}
+  void setEle50_CaloIdVT_GsfTrkIdT_PFJet165(const Bool_t value) {Ele50_CaloIdVT_GsfTrkIdT_PFJet165_ = value;}
+  void setPFHT400_SixJet30_DoubleBTagCSV_p056(const Bool_t value) {PFHT400_SixJet30_DoubleBTagCSV_p056_ = value;}
+  void setPFHT450_SixJet40_BTagCSV_p056(const Bool_t value) {PFHT450_SixJet40_BTagCSV_p056_ = value;}
+  void setPFHT400_SixJet30(const Bool_t value) {PFHT400_SixJet30_ = value;}
+  void setPFHT450_SixJet40(const Bool_t value) {PFHT450_SixJet40_ = value;}
+  void setEle115_CaloIdVT_GsfTrkIdT(const Bool_t value) {Ele115_CaloIdVT_GsfTrkIdT_ = value;}
   void setMu55(const Bool_t value) {Mu55_ = value;}
-  void setPhoton42(const Bool_t value) {Photon42_ = value;}
-  void setPhoton90(const Bool_t value) {Photon90_ = value;}
-  void setPixelTracks(const Bool_t value) {PixelTracks_ = value;}
-  void setPixelTracks(const Bool_t value) {PixelTracks_ = value;}
-  void setPixelTracks(const Bool_t value) {PixelTracks_ = value;}
-  void setPixelTracks(const Bool_t value) {PixelTracks_ = value;}
-  void setPixelTracks(const Bool_t value) {PixelTracks_ = value;}
-  void setFullTracks(const Bool_t value) {FullTracks_ = value;}
-  void setFullTracks(const Bool_t value) {FullTracks_ = value;}
-  void setFullTracks(const Bool_t value) {FullTracks_ = value;}
-  void setFullTracks(const Bool_t value) {FullTracks_ = value;}
+  void setPhoton42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15(const Bool_t value) {Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_ = value;}
+  void setPhoton90_CaloIdL_PFHT600(const Bool_t value) {Photon90_CaloIdL_PFHT600_ = value;}
+  void setPixelTracks_Multiplicity60ForEndOfFill(const Bool_t value) {PixelTracks_Multiplicity60ForEndOfFill_ = value;}
+  void setPixelTracks_Multiplicity85ForEndOfFill(const Bool_t value) {PixelTracks_Multiplicity85ForEndOfFill_ = value;}
+  void setPixelTracks_Multiplicity110ForEndOfFill(const Bool_t value) {PixelTracks_Multiplicity110ForEndOfFill_ = value;}
+  void setPixelTracks_Multiplicity135ForEndOfFill(const Bool_t value) {PixelTracks_Multiplicity135ForEndOfFill_ = value;}
+  void setPixelTracks_Multiplicity160ForEndOfFill(const Bool_t value) {PixelTracks_Multiplicity160ForEndOfFill_ = value;}
+  void setFullTracks_Multiplicity80(const Bool_t value) {FullTracks_Multiplicity80_ = value;}
+  void setFullTracks_Multiplicity100(const Bool_t value) {FullTracks_Multiplicity100_ = value;}
+  void setFullTracks_Multiplicity130(const Bool_t value) {FullTracks_Multiplicity130_ = value;}
+  void setFullTracks_Multiplicity150(const Bool_t value) {FullTracks_Multiplicity150_ = value;}
   void setECALHT800(const Bool_t value) {ECALHT800_ = value;}
-  void setDiSC30(const Bool_t value) {DiSC30_ = value;}
+  void setDiSC30_18_EIso_AND_HE_Mass70(const Bool_t value) {DiSC30_18_EIso_AND_HE_Mass70_ = value;}
   void setPhoton125(const Bool_t value) {Photon125_ = value;}
   void setMET100(const Bool_t value) {MET100_ = value;}
   void setMET150(const Bool_t value) {MET150_ = value;}
   void setMET200(const Bool_t value) {MET200_ = value;}
-  void setEle27(const Bool_t value) {Ele27_ = value;}
+  void setEle27_HighEta_Ele20_Mass55(const Bool_t value) {Ele27_HighEta_Ele20_Mass55_ = value;}
   void setL1FatEvents(const Bool_t value) {L1FatEvents_ = value;}
   void setPhysics(const Bool_t value) {Physics_ = value;}
-  void setL1FatEvents(const Bool_t value) {L1FatEvents_ = value;}
-  void setL1FatEvents(const Bool_t value) {L1FatEvents_ = value;}
-  void setL1FatEvents(const Bool_t value) {L1FatEvents_ = value;}
-  void setL1FatEvents(const Bool_t value) {L1FatEvents_ = value;}
+  void setL1FatEvents_part0(const Bool_t value) {L1FatEvents_part0_ = value;}
+  void setL1FatEvents_part1(const Bool_t value) {L1FatEvents_part1_ = value;}
+  void setL1FatEvents_part2(const Bool_t value) {L1FatEvents_part2_ = value;}
+  void setL1FatEvents_part3(const Bool_t value) {L1FatEvents_part3_ = value;}
   void setRandom(const Bool_t value) {Random_ = value;}
   void setZeroBias(const Bool_t value) {ZeroBias_ = value;}
   void setAK4CaloJet30(const Bool_t value) {AK4CaloJet30_ = value;}
@@ -3493,17 +3494,17 @@ private:
   void setL1BeamGasMinus(const Bool_t value) {L1BeamGasMinus_ = value;}
   void setL1BeamGasPlus(const Bool_t value) {L1BeamGasPlus_ = value;}
   void setL1BptxXOR(const Bool_t value) {L1BptxXOR_ = value;}
-  void setL1MinimumBiasHF(const Bool_t value) {L1MinimumBiasHF_ = value;}
-  void setL1MinimumBiasHF(const Bool_t value) {L1MinimumBiasHF_ = value;}
+  void setL1MinimumBiasHF_OR(const Bool_t value) {L1MinimumBiasHF_OR_ = value;}
+  void setL1MinimumBiasHF_AND(const Bool_t value) {L1MinimumBiasHF_AND_ = value;}
   void setHcalNZS(const Bool_t value) {HcalNZS_ = value;}
   void setHcalPhiSym(const Bool_t value) {HcalPhiSym_ = value;}
   void setHcalIsolatedbunch(const Bool_t value) {HcalIsolatedbunch_ = value;}
-  void setZeroBias(const Bool_t value) {ZeroBias_ = value;}
-  void setZeroBias(const Bool_t value) {ZeroBias_ = value;}
-  void setZeroBias(const Bool_t value) {ZeroBias_ = value;}
-  void setZeroBias(const Bool_t value) {ZeroBias_ = value;}
-  void setZeroBias(const Bool_t value) {ZeroBias_ = value;}
-  void setZeroBias(const Bool_t value) {ZeroBias_ = value;}
+  void setZeroBias_FirstCollisionAfterAbortGap(const Bool_t value) {ZeroBias_FirstCollisionAfterAbortGap_ = value;}
+  void setZeroBias_FirstCollisionAfterAbortGap_copy(const Bool_t value) {ZeroBias_FirstCollisionAfterAbortGap_copy_ = value;}
+  void setZeroBias_FirstCollisionAfterAbortGap_TCDS(const Bool_t value) {ZeroBias_FirstCollisionAfterAbortGap_TCDS_ = value;}
+  void setZeroBias_IsolatedBunches(const Bool_t value) {ZeroBias_IsolatedBunches_ = value;}
+  void setZeroBias_FirstCollisionInTrain(const Bool_t value) {ZeroBias_FirstCollisionInTrain_ = value;}
+  void setZeroBias_FirstBXAfterTrain(const Bool_t value) {ZeroBias_FirstBXAfterTrain_ = value;}
   void setPhoton500(const Bool_t value) {Photon500_ = value;}
   void setPhoton600(const Bool_t value) {Photon600_ = value;}
   void setMu300(const Bool_t value) {Mu300_ = value;}
@@ -3516,8 +3517,8 @@ private:
   void setPFMET400(const Bool_t value) {PFMET400_ = value;}
   void setPFMET500(const Bool_t value) {PFMET500_ = value;}
   void setPFMET600(const Bool_t value) {PFMET600_ = value;}
-  void setEle250(const Bool_t value) {Ele250_ = value;}
-  void setEle300(const Bool_t value) {Ele300_ = value;}
+  void setEle250_CaloIdVT_GsfTrkIdT(const Bool_t value) {Ele250_CaloIdVT_GsfTrkIdT_ = value;}
+  void setEle300_CaloIdVT_GsfTrkIdT(const Bool_t value) {Ele300_CaloIdVT_GsfTrkIdT_ = value;}
   void setHT2000(const Bool_t value) {HT2000_ = value;}
   void setHT2500(const Bool_t value) {HT2500_ = value;}
   void setIsoTrackHE(const Bool_t value) {IsoTrackHE_ = value;}
@@ -3525,13 +3526,13 @@ private:
   void setHLTriggerFinalPath(const Bool_t value) {HLTriggerFinalPath_ = value;}
 };
 
-class Sv: public TLorentzVector{
+class Svs: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Sv(const Float_t &i_dlen_,const Float_t &i_dlenSig_,const Float_t &i_pAngle_,const Float_t &i_chi2_,const Float_t &i_ndof_,const Float_t &i_x_,const Float_t &i_y_,const Float_t &i_z_):
+//  Svs(const Float_t &i_dlen_,const Float_t &i_dlenSig_,const Float_t &i_pAngle_,const Float_t &i_chi2_,const Float_t &i_ndof_,const Float_t &i_x_,const Float_t &i_y_,const Float_t &i_z_):
 //    
 //  {}
-  Sv():
+  Svs():
     TLorentzVector(),
     dlen_(0),
     dlenSig_(0),
@@ -3626,7 +3627,7 @@ public:
 //    
 //  {}
   Genmet():
-    TLorentzVector(),
+    TLorentzVector()
     
   {}
   
@@ -3636,13 +3637,13 @@ private:
   void setLorentzVector(float pt, float phi){SetPtEtaPhiM(pt, 0., phi, 0.);}
 };
 
-class Fatjet: public TLorentzVector{
+class Fatjets: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Fatjet(const Float_t &i_area_,const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_btagHbb_,const Float_t &i_msoftdrop_,const Float_t &i_msoftdrop_,const Float_t &i_n2b1_,const Float_t &i_n3b1_,const Float_t &i_tau1_,const Float_t &i_tau2_,const Float_t &i_tau3_,const Float_t &i_tau4_,const Int_t &i_jetId_,const Int_t &i_subJetIdx1_,const Int_t &i_subJetIdx2_):
+//  Fatjets(const Float_t &i_area_,const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_btagHbb_,const Float_t &i_msoftdrop_,const Float_t &i_msoftdrop_chs_,const Float_t &i_n2b1_,const Float_t &i_n3b1_,const Float_t &i_tau1_,const Float_t &i_tau2_,const Float_t &i_tau3_,const Float_t &i_tau4_,const Int_t &i_jetId_,const Int_t &i_subJetIdx1_,const Int_t &i_subJetIdx2_):
 //    
 //  {}
-  Fatjet():
+  Fatjets():
     TLorentzVector(),
     area_(0),
     btagCMVA_(0),
@@ -3650,7 +3651,7 @@ public:
     btagDeepB_(0),
     btagHbb_(0),
     msoftdrop_(0),
-    msoftdrop_(0),
+    msoftdrop_chs_(0),
     n2b1_(0),
     n3b1_(0),
     tau1_(0),
@@ -3667,7 +3668,7 @@ public:
   Float_t btagDeepB() const {return btagDeepB_;}
   Float_t btagHbb() const {return btagHbb_;}
   Float_t msoftdrop() const {return msoftdrop_;}
-  Float_t msoftdrop() const {return msoftdrop_;}
+  Float_t msoftdrop_chs() const {return msoftdrop_chs_;}
   Float_t n2b1() const {return n2b1_;}
   Float_t n3b1() const {return n3b1_;}
   Float_t tau1() const {return tau1_;}
@@ -3684,7 +3685,7 @@ private:
   Float_t btagDeepB_;
   Float_t btagHbb_;
   Float_t msoftdrop_;
-  Float_t msoftdrop_;
+  Float_t msoftdrop_chs_;
   Float_t n2b1_;
   Float_t n3b1_;
   Float_t tau1_;
@@ -3700,7 +3701,7 @@ private:
   void setbtagDeepB(const Float_t value) {btagDeepB_ = value;}
   void setbtagHbb(const Float_t value) {btagHbb_ = value;}
   void setmsoftdrop(const Float_t value) {msoftdrop_ = value;}
-  void setmsoftdrop(const Float_t value) {msoftdrop_ = value;}
+  void setmsoftdrop_chs(const Float_t value) {msoftdrop_chs_ = value;}
   void setn2b1(const Float_t value) {n2b1_ = value;}
   void setn3b1(const Float_t value) {n3b1_ = value;}
   void settau1(const Float_t value) {tau1_ = value;}
@@ -3713,13 +3714,13 @@ private:
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
 };
 
-class Subjet: public TLorentzVector{
+class Subjets: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Subjet(const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_n2b1_,const Float_t &i_n3b1_,const Float_t &i_tau1_,const Float_t &i_tau2_,const Float_t &i_tau3_,const Float_t &i_tau4_):
+//  Subjets(const Float_t &i_btagCMVA_,const Float_t &i_btagCSVV2_,const Float_t &i_btagDeepB_,const Float_t &i_n2b1_,const Float_t &i_n3b1_,const Float_t &i_tau1_,const Float_t &i_tau2_,const Float_t &i_tau3_,const Float_t &i_tau4_):
 //    
 //  {}
-  Subjet():
+  Subjets():
     TLorentzVector(),
     btagCMVA_(0),
     btagCSVV2_(0),
@@ -3765,7 +3766,7 @@ private:
 class Flag{
 friend class URStreamer;
 public:
-//  Flag(const Bool_t &i_HBHENoiseFilter_,const Bool_t &i_HBHENoiseIsoFilter_,const Bool_t &i_CSCTightHaloFilter_,const Bool_t &i_CSCTightHaloTrkMuUnvetoFilter_,const Bool_t &i_CSCTightHalo2015Filter_,const Bool_t &i_globalTightHalo2016Filter_,const Bool_t &i_globalSuperTightHalo2016Filter_,const Bool_t &i_HcalStripHaloFilter_,const Bool_t &i_hcalLaserEventFilter_,const Bool_t &i_EcalDeadCellTriggerPrimitiveFilter_,const Bool_t &i_EcalDeadCellBoundaryEnergyFilter_,const Bool_t &i_goodVertices_,const Bool_t &i_eeBadScFilter_,const Bool_t &i_ecalLaserCorrFilter_,const Bool_t &i_trkPOGFilters_,const Bool_t &i_chargedHadronTrackResolutionFilter_,const Bool_t &i_muonBadTrackFilter_,const Bool_t &i_trkPOG_,const Bool_t &i_trkPOG_,const Bool_t &i_trkPOG_,const Bool_t &i_METFilters_):
+//  Flag(const Bool_t &i_HBHENoiseFilter_,const Bool_t &i_HBHENoiseIsoFilter_,const Bool_t &i_CSCTightHaloFilter_,const Bool_t &i_CSCTightHaloTrkMuUnvetoFilter_,const Bool_t &i_CSCTightHalo2015Filter_,const Bool_t &i_globalTightHalo2016Filter_,const Bool_t &i_globalSuperTightHalo2016Filter_,const Bool_t &i_HcalStripHaloFilter_,const Bool_t &i_hcalLaserEventFilter_,const Bool_t &i_EcalDeadCellTriggerPrimitiveFilter_,const Bool_t &i_EcalDeadCellBoundaryEnergyFilter_,const Bool_t &i_goodVertices_,const Bool_t &i_eeBadScFilter_,const Bool_t &i_ecalLaserCorrFilter_,const Bool_t &i_trkPOGFilters_,const Bool_t &i_chargedHadronTrackResolutionFilter_,const Bool_t &i_muonBadTrackFilter_,const Bool_t &i_trkPOG_manystripclus53X_,const Bool_t &i_trkPOG_toomanystripclus53X_,const Bool_t &i_trkPOG_logErrorTooManyClusters_,const Bool_t &i_METFilters_):
 //    
 //  {}
   Flag():
@@ -3786,9 +3787,9 @@ public:
     trkPOGFilters_(0),
     chargedHadronTrackResolutionFilter_(0),
     muonBadTrackFilter_(0),
-    trkPOG_(0),
-    trkPOG_(0),
-    trkPOG_(0),
+    trkPOG_manystripclus53X_(0),
+    trkPOG_toomanystripclus53X_(0),
+    trkPOG_logErrorTooManyClusters_(0),
     METFilters_(0)
   {}
   Bool_t HBHENoiseFilter() const {return HBHENoiseFilter_;}
@@ -3808,9 +3809,9 @@ public:
   Bool_t trkPOGFilters() const {return trkPOGFilters_;}
   Bool_t chargedHadronTrackResolutionFilter() const {return chargedHadronTrackResolutionFilter_;}
   Bool_t muonBadTrackFilter() const {return muonBadTrackFilter_;}
-  Bool_t trkPOG() const {return trkPOG_;}
-  Bool_t trkPOG() const {return trkPOG_;}
-  Bool_t trkPOG() const {return trkPOG_;}
+  Bool_t trkPOG_manystripclus53X() const {return trkPOG_manystripclus53X_;}
+  Bool_t trkPOG_toomanystripclus53X() const {return trkPOG_toomanystripclus53X_;}
+  Bool_t trkPOG_logErrorTooManyClusters() const {return trkPOG_logErrorTooManyClusters_;}
   Bool_t METFilters() const {return METFilters_;}
 private:
   Bool_t HBHENoiseFilter_;
@@ -3830,9 +3831,9 @@ private:
   Bool_t trkPOGFilters_;
   Bool_t chargedHadronTrackResolutionFilter_;
   Bool_t muonBadTrackFilter_;
-  Bool_t trkPOG_;
-  Bool_t trkPOG_;
-  Bool_t trkPOG_;
+  Bool_t trkPOG_manystripclus53X_;
+  Bool_t trkPOG_toomanystripclus53X_;
+  Bool_t trkPOG_logErrorTooManyClusters_;
   Bool_t METFilters_;
   void setHBHENoiseFilter(const Bool_t value) {HBHENoiseFilter_ = value;}
   void setHBHENoiseIsoFilter(const Bool_t value) {HBHENoiseIsoFilter_ = value;}
@@ -3851,9 +3852,9 @@ private:
   void settrkPOGFilters(const Bool_t value) {trkPOGFilters_ = value;}
   void setchargedHadronTrackResolutionFilter(const Bool_t value) {chargedHadronTrackResolutionFilter_ = value;}
   void setmuonBadTrackFilter(const Bool_t value) {muonBadTrackFilter_ = value;}
-  void settrkPOG(const Bool_t value) {trkPOG_ = value;}
-  void settrkPOG(const Bool_t value) {trkPOG_ = value;}
-  void settrkPOG(const Bool_t value) {trkPOG_ = value;}
+  void settrkPOG_manystripclus53X(const Bool_t value) {trkPOG_manystripclus53X_ = value;}
+  void settrkPOG_toomanystripclus53X(const Bool_t value) {trkPOG_toomanystripclus53X_ = value;}
+  void settrkPOG_logErrorTooManyClusters(const Bool_t value) {trkPOG_logErrorTooManyClusters_ = value;}
   void setMETFilters(const Bool_t value) {METFilters_ = value;}
 };
 
@@ -4050,9 +4051,9 @@ public:
     genWeight(0),
     LHEWeight_originalXWGTUP_(0),
     nLHEPdfWeight(0),
-    LHEPdfWeight(0),
+    LHEPdfWeight_(0),
     nLHEScaleWeight(0),
-    LHEScaleWeight(0),
+    LHEScaleWeight_(0),
     nJet(0),
     Jet_area_(0),
     Jet_btagCMVA_(0),
@@ -5094,7 +5095,7 @@ public:
     }
   }
   
-  void loadCalomets(){
+  void loadCalomet(){
     if(!are_CaloMET_loaded_){
       tree_->SetBranchStatus("CaloMET_phi", 1); tree_->SetBranchAddress("CaloMET_phi", &CaloMET_phi_);
       tree_->SetBranchStatus("CaloMET_pt", 1); tree_->SetBranchAddress("CaloMET_pt", &CaloMET_pt_);
@@ -5116,7 +5117,7 @@ public:
     }
   }
   
-  void loadPvs(){
+  void loadPv(){
     if(!are_PV_loaded_){
       tree_->SetBranchStatus("PV_ndof", 1); tree_->SetBranchAddress("PV_ndof", &PV_ndof_);
       tree_->SetBranchStatus("PV_x", 1); tree_->SetBranchAddress("PV_x", &PV_x_);
@@ -5131,7 +5132,7 @@ public:
     }
   }
   
-  void loadGenerators(){
+  void loadGenerator(){
     if(!are_Generator_loaded_){
       tree_->SetBranchStatus("Generator_binvar", 1); tree_->SetBranchAddress("Generator_binvar", &Generator_binvar_);
       tree_->SetBranchStatus("Generator_scalePDF", 1); tree_->SetBranchAddress("Generator_scalePDF", &Generator_scalePDF_);
@@ -5198,16 +5199,16 @@ public:
   
   void loadGenjets(){
     if(!are_GenJet_loaded_){
-      tree_->SetBranchStatus("GenJetAK8_eta", 1); tree_->SetBranchAddress("GenJetAK8_eta", &GenJetAK8_eta_);
-      tree_->SetBranchStatus("GenJetAK8_mass", 1); tree_->SetBranchAddress("GenJetAK8_mass", &GenJetAK8_mass_);
-      tree_->SetBranchStatus("GenJetAK8_phi", 1); tree_->SetBranchAddress("GenJetAK8_phi", &GenJetAK8_phi_);
-      tree_->SetBranchStatus("GenJetAK8_pt", 1); tree_->SetBranchAddress("GenJetAK8_pt", &GenJetAK8_pt_);
+      //tree_->SetBranchStatus("GenJetAK8_eta", 1); tree_->SetBranchAddress("GenJetAK8_eta", &GenJetAK8_eta_);
+      //tree_->SetBranchStatus("GenJetAK8_mass", 1); tree_->SetBranchAddress("GenJetAK8_mass", &GenJetAK8_mass_);
+      //tree_->SetBranchStatus("GenJetAK8_phi", 1); tree_->SetBranchAddress("GenJetAK8_phi", &GenJetAK8_phi_);
+      //tree_->SetBranchStatus("GenJetAK8_pt", 1); tree_->SetBranchAddress("GenJetAK8_pt", &GenJetAK8_pt_);
       tree_->SetBranchStatus("GenJet_eta", 1); tree_->SetBranchAddress("GenJet_eta", &GenJet_eta_);
       tree_->SetBranchStatus("GenJet_mass", 1); tree_->SetBranchAddress("GenJet_mass", &GenJet_mass_);
       tree_->SetBranchStatus("GenJet_phi", 1); tree_->SetBranchAddress("GenJet_phi", &GenJet_phi_);
       tree_->SetBranchStatus("GenJet_pt", 1); tree_->SetBranchAddress("GenJet_pt", &GenJet_pt_);
-      tree_->SetBranchStatus("GenJetAK8_partonFlavour", 1); tree_->SetBranchAddress("GenJetAK8_partonFlavour", &GenJetAK8_partonFlavour_);
-      tree_->SetBranchStatus("GenJetAK8_hadronFlavour", 1); tree_->SetBranchAddress("GenJetAK8_hadronFlavour", &GenJetAK8_hadronFlavour_);
+      //tree_->SetBranchStatus("GenJetAK8_partonFlavour", 1); tree_->SetBranchAddress("GenJetAK8_partonFlavour", &GenJetAK8_partonFlavour_);
+      //tree_->SetBranchStatus("GenJetAK8_hadronFlavour", 1); tree_->SetBranchAddress("GenJetAK8_hadronFlavour", &GenJetAK8_hadronFlavour_);
       tree_->SetBranchStatus("GenJet_partonFlavour", 1); tree_->SetBranchAddress("GenJet_partonFlavour", &GenJet_partonFlavour_);
       tree_->SetBranchStatus("GenJet_hadronFlavour", 1); tree_->SetBranchAddress("GenJet_hadronFlavour", &GenJet_hadronFlavour_);
       are_GenJet_loaded_ = true;
@@ -5215,7 +5216,7 @@ public:
     }
   }
   
-  void loadRawmets(){
+  void loadRawmet(){
     if(!are_RawMET_loaded_){
       tree_->SetBranchStatus("RawMET_phi", 1); tree_->SetBranchAddress("RawMET_phi", &RawMET_phi_);
       tree_->SetBranchStatus("RawMET_pt", 1); tree_->SetBranchAddress("RawMET_pt", &RawMET_pt_);
@@ -5277,7 +5278,7 @@ public:
     }
   }
   
-  void loadSoftactivityjets(){
+  void loadSoftactivityjet(){
     if(!are_SoftActivityJet_loaded_){
       tree_->SetBranchStatus("SoftActivityJet_eta", 1); tree_->SetBranchAddress("SoftActivityJet_eta", &SoftActivityJet_eta_);
       tree_->SetBranchStatus("SoftActivityJet_phi", 1); tree_->SetBranchAddress("SoftActivityJet_phi", &SoftActivityJet_phi_);
@@ -5294,7 +5295,7 @@ public:
     }
   }
   
-  void loadL1Simulations(){
+  void loadL1Simulation(){
     if(!are_L1simulation_loaded_){
       tree_->SetBranchStatus("L1simulation_step", 1); tree_->SetBranchAddress("L1simulation_step", &L1simulation_step_);
       are_L1simulation_loaded_ = true;
@@ -5317,11 +5318,11 @@ public:
     }
   }
   
-  void loadLhes(){
+  void loadLhe(){
     if(!are_LHE_loaded_){
       tree_->SetBranchStatus("LHEWeight_originalXWGTUP", 1); tree_->SetBranchAddress("LHEWeight_originalXWGTUP", &LHEWeight_originalXWGTUP_);
-      tree_->SetBranchStatus("LHEPdfWeight", 1); tree_->SetBranchAddress("LHEPdfWeight", &LHEPdfWeight);
-      tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight);
+      tree_->SetBranchStatus("LHEPdfWeight", 1); tree_->SetBranchAddress("LHEPdfWeight", &LHEPdfWeight_);
+      tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight_);
       tree_->SetBranchStatus("LHE_HT", 1); tree_->SetBranchAddress("LHE_HT", &LHE_HT_);
       tree_->SetBranchStatus("LHE_HTIncoming", 1); tree_->SetBranchAddress("LHE_HTIncoming", &LHE_HTIncoming_);
       tree_->SetBranchStatus("LHE_Vpt", 1); tree_->SetBranchAddress("LHE_Vpt", &LHE_Vpt_);
@@ -5337,7 +5338,7 @@ public:
     }
   }
   
-  void loadTkmets(){
+  void loadTkmet(){
     if(!are_TkMET_loaded_){
       tree_->SetBranchStatus("TkMET_phi", 1); tree_->SetBranchAddress("TkMET_phi", &TkMET_phi_);
       tree_->SetBranchStatus("TkMET_pt", 1); tree_->SetBranchAddress("TkMET_pt", &TkMET_pt_);
@@ -5387,7 +5388,7 @@ public:
     }
   }
   
-  void loadPuppimets(){
+  void loadPuppimet(){
     if(!are_PuppiMET_loaded_){
       tree_->SetBranchStatus("PuppiMET_phi", 1); tree_->SetBranchAddress("PuppiMET_phi", &PuppiMET_phi_);
       tree_->SetBranchStatus("PuppiMET_pt", 1); tree_->SetBranchAddress("PuppiMET_pt", &PuppiMET_pt_);
@@ -5444,7 +5445,7 @@ public:
     }
   }
   
-  void loadHlts(){
+  void loadHlt(){
     if(!are_HLT_loaded_){
       tree_->SetBranchStatus("HLTriggerFirstPath", 1); tree_->SetBranchAddress("HLTriggerFirstPath", &HLTriggerFirstPath);
       tree_->SetBranchStatus("HLT_AK8PFJet360_TrimMass30", 1); tree_->SetBranchAddress("HLT_AK8PFJet360_TrimMass30", &HLT_AK8PFJet360_TrimMass30_);
@@ -6073,7 +6074,7 @@ public:
     }
   }
   
-  void loadMets(){
+  void loadMet(){
     if(!are_MET_loaded_){
       tree_->SetBranchStatus("MET_MetUnclustEnUpDeltaX", 1); tree_->SetBranchAddress("MET_MetUnclustEnUpDeltaX", &MET_MetUnclustEnUpDeltaX_);
       tree_->SetBranchStatus("MET_MetUnclustEnUpDeltaY", 1); tree_->SetBranchAddress("MET_MetUnclustEnUpDeltaY", &MET_MetUnclustEnUpDeltaY_);
@@ -6091,7 +6092,7 @@ public:
     }
   }
   
-  void loadGenmets(){
+  void loadGenmet(){
     if(!are_GenMET_loaded_){
       tree_->SetBranchStatus("GenMET_phi", 1); tree_->SetBranchAddress("GenMET_phi", &GenMET_phi_);
       tree_->SetBranchStatus("GenMET_pt", 1); tree_->SetBranchAddress("GenMET_pt", &GenMET_pt_);
@@ -6147,7 +6148,7 @@ public:
     }
   }
   
-  void loadFlags(){
+  void loadFlag(){
     if(!are_Flag_loaded_){
       tree_->SetBranchStatus("Flag_HBHENoiseFilter", 1); tree_->SetBranchAddress("Flag_HBHENoiseFilter", &Flag_HBHENoiseFilter_);
       tree_->SetBranchStatus("Flag_HBHENoiseIsoFilter", 1); tree_->SetBranchAddress("Flag_HBHENoiseIsoFilter", &Flag_HBHENoiseIsoFilter_);
@@ -6175,7 +6176,7 @@ public:
     }
   }
   
-  void loadPileups(){
+  void loadPileup(){
     if(!are_Pileup_loaded_){
       tree_->SetBranchStatus("Pileup_nTrueInt", 1); tree_->SetBranchAddress("Pileup_nTrueInt", &Pileup_nTrueInt_);
       tree_->SetBranchStatus("Pileup_nPU", 1); tree_->SetBranchAddress("Pileup_nPU", &Pileup_nPU_);
@@ -6186,7 +6187,7 @@ public:
     }
   }
   
-  void loadLheweights(){
+  void loadLheweight(){
     if(!are_LHEWeight_loaded_){
       tree_->SetBranchStatus("LHEWeight_originalXWGTUP", 1); tree_->SetBranchAddress("LHEWeight_originalXWGTUP", &LHEWeight_originalXWGTUP_);
       are_LHEWeight_loaded_ = true;
@@ -6195,12 +6196,12 @@ public:
   }
   
 
-  const vector<Jet>& jets(){
-    if( Jet_ > 0) return Jet_;
+  const vector<Jets>& jets(){
+    if( Jet_.size() > 0) return Jet_;
     loadJets();
   	Jet_.reserve(nJet);
     for(size_t idx = 0; idx < nJet; ++idx ){
-      Jet obj;
+      Jets obj;
       obj.setarea(Jet_area_[idx]);
       obj.setbtagCMVA(Jet_btagCMVA_[idx]);
       obj.setbtagCSVV2(Jet_btagCSVV2_[idx]);
@@ -6232,12 +6233,12 @@ public:
     return Jet_;
   }
   
-  const vector<Genjetak8>& genjetak8s(){
-    if( GenJetAK8_ > 0) return GenJetAK8_;
+  const vector<Genjetak8s>& genjetak8s(){
+    if( GenJetAK8_.size() > 0) return GenJetAK8_;
     loadGenjetak8s();
-  	GenJetAK8_.reserve(nGenjetak8);
-    for(size_t idx = 0; idx < nGenjetak8; ++idx ){
-      Genjetak8 obj;
+  	GenJetAK8_.reserve(nGenJetAK8);
+    for(size_t idx = 0; idx < nGenJetAK8; ++idx ){
+      Genjetak8s obj;
       obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
       obj.sethadronFlavour(GenJetAK8_hadronFlavour_[idx]);
       obj.setLorentzVector(GenJetAK8_pt_[idx], GenJetAK8_eta_[idx], GenJetAK8_phi_[idx], GenJetAK8_mass_[idx]);
@@ -6246,12 +6247,12 @@ public:
     return GenJetAK8_;
   }
   
-  const vector<Genvistau>& genvistaus(){
-    if( GenVisTau_ > 0) return GenVisTau_;
+  const vector<Genvistaus>& genvistaus(){
+    if( GenVisTau_.size() > 0) return GenVisTau_;
     loadGenvistaus();
-  	GenVisTau_.reserve(nGenvistau);
-    for(size_t idx = 0; idx < nGenvistau; ++idx ){
-      Genvistau obj;
+  	GenVisTau_.reserve(nGenVisTau);
+    for(size_t idx = 0; idx < nGenVisTau; ++idx ){
+      Genvistaus obj;
       obj.setcharge(GenVisTau_charge_[idx]);
       obj.setgenPartIdxMother(GenVisTau_genPartIdxMother_[idx]);
       obj.setstatus(GenVisTau_status_[idx]);
@@ -6261,7 +6262,7 @@ public:
     return GenVisTau_;
   }
   
-  const Calomet CaloMET(){
+  const Calomet calomet(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadCalomet();
@@ -6272,12 +6273,12 @@ public:
     return obj;
   }
   
-  const vector<Gendressedlepton>& gendressedleptons(){
-    if( GenDressedLepton_ > 0) return GenDressedLepton_;
+  const vector<Gendressedleptons>& gendressedleptons(){
+    if( GenDressedLepton_.size() > 0) return GenDressedLepton_;
     loadGendressedleptons();
-  	GenDressedLepton_.reserve(nGendressedlepton);
-    for(size_t idx = 0; idx < nGendressedlepton; ++idx ){
-      Gendressedlepton obj;
+  	GenDressedLepton_.reserve(nGenDressedLepton);
+    for(size_t idx = 0; idx < nGenDressedLepton; ++idx ){
+      Gendressedleptons obj;
       obj.setpdgId(GenDressedLepton_pdgId_[idx]);
       obj.setLorentzVector(GenDressedLepton_pt_[idx], GenDressedLepton_eta_[idx], GenDressedLepton_phi_[idx], GenDressedLepton_mass_[idx]);
       GenDressedLepton_.push_back( obj );
@@ -6285,7 +6286,7 @@ public:
     return GenDressedLepton_;
   }
   
-  const Pv PV(){
+  const Pv pv(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadPv();
@@ -6303,7 +6304,7 @@ public:
     return obj;
   }
   
-  const Generator Generator(){
+  const Generator generator(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadGenerator();
@@ -6322,14 +6323,14 @@ public:
     return obj;
   }
   
-  const vector<Trigobj>& trigobjs(){
-    if( TrigObj_ > 0) return TrigObj_;
+  const vector<Trigobjs>& trigobjs(){
+    if( TrigObj_.size() > 0) return TrigObj_;
     loadTrigobjs();
-  	TrigObj_.reserve(nTrigobj);
-    for(size_t idx = 0; idx < nTrigobj; ++idx ){
-      Trigobj obj;
+  	TrigObj_.reserve(nTrigObj);
+    for(size_t idx = 0; idx < nTrigObj; ++idx ){
+      Trigobjs obj;
       obj.setl1pt(TrigObj_l1pt_[idx]);
-      obj.setl1pt(TrigObj_l1pt_2_[idx]);
+      obj.setl1pt_2(TrigObj_l1pt_2_[idx]);
       obj.setl2pt(TrigObj_l2pt_[idx]);
       obj.setid(TrigObj_id_[idx]);
       obj.setl1iso(TrigObj_l1iso_[idx]);
@@ -6341,18 +6342,18 @@ public:
     return TrigObj_;
   }
   
-  const vector<Photon>& photons(){
-    if( Photon_ > 0) return Photon_;
+  const vector<Photons>& photons(){
+    if( Photon_.size() > 0) return Photon_;
     loadPhotons();
   	Photon_.reserve(nPhoton);
     for(size_t idx = 0; idx < nPhoton; ++idx ){
-      Photon obj;
+      Photons obj;
       obj.seteCorr(Photon_eCorr_[idx]);
       obj.setenergyErr(Photon_energyErr_[idx]);
       obj.sethoe(Photon_hoe_[idx]);
       obj.setmvaID(Photon_mvaID_[idx]);
-      obj.setpfRelIso03(Photon_pfRelIso03_all_[idx]);
-      obj.setpfRelIso03(Photon_pfRelIso03_chg_[idx]);
+      obj.setpfRelIso03_all(Photon_pfRelIso03_all_[idx]);
+      obj.setpfRelIso03_chg(Photon_pfRelIso03_chg_[idx]);
       obj.setr9(Photon_r9_[idx]);
       obj.setsieie(Photon_sieie_[idx]);
       obj.setcharge(Photon_charge_[idx]);
@@ -6362,8 +6363,8 @@ public:
       obj.setpdgId(Photon_pdgId_[idx]);
       obj.setvidNestedWPBitmap(Photon_vidNestedWPBitmap_[idx]);
       obj.setelectronVeto(Photon_electronVeto_[idx]);
-      obj.setmvaID(Photon_mvaID_WP80_[idx]);
-      obj.setmvaID(Photon_mvaID_WP90_[idx]);
+      obj.setmvaID_WP80(Photon_mvaID_WP80_[idx]);
+      obj.setmvaID_WP90(Photon_mvaID_WP90_[idx]);
       obj.setpixelSeed(Photon_pixelSeed_[idx]);
       obj.setgenPartIdx(Photon_genPartIdx_[idx]);
       obj.setgenPartFlav(Photon_genPartFlav_[idx]);
@@ -6374,14 +6375,14 @@ public:
     return Photon_;
   }
   
-  const vector<Genjet>& genjets(){
-    if( GenJet_ > 0) return GenJet_;
+  const vector<Genjets>& genjets(){
+    if( GenJet_.size() > 0) return GenJet_;
     loadGenjets();
-  	GenJet_.reserve(nGenjet);
-    for(size_t idx = 0; idx < nGenjet; ++idx ){
-      Genjet obj;
-      obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
-      obj.sethadronFlavour(GenJetAK8_hadronFlavour_[idx]);
+  	GenJet_.reserve(nGenJet);
+    for(size_t idx = 0; idx < nGenJet; ++idx ){
+      Genjets obj;
+      //obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
+      //obj.sethadronFlavour(GenJetAK8_hadronFlavour_[idx]);
       obj.setpartonFlavour(GenJet_partonFlavour_[idx]);
       obj.sethadronFlavour(GenJet_hadronFlavour_[idx]);
       obj.setLorentzVector(GenJet_pt_[idx], GenJet_eta_[idx], GenJet_phi_[idx], GenJet_mass_[idx]);
@@ -6390,7 +6391,7 @@ public:
     return GenJet_;
   }
   
-  const Rawmet RawMET(){
+  const Rawmet rawmet(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadRawmet();
@@ -6401,12 +6402,12 @@ public:
     return obj;
   }
   
-  const vector<Electron>& electrons(){
-    if( Electron_ > 0) return Electron_;
+  const vector<Electrons>& electrons(){
+    if( Electron_.size() > 0) return Electron_;
     loadElectrons();
   	Electron_.reserve(nElectron);
     for(size_t idx = 0; idx < nElectron; ++idx ){
-      Electron obj;
+      Electrons obj;
       obj.setdeltaEtaSC(Electron_deltaEtaSC_[idx]);
       obj.setdr03EcalRecHitSumEt(Electron_dr03EcalRecHitSumEt_[idx]);
       obj.setdr03HcalDepth1TowerSumEt(Electron_dr03HcalDepth1TowerSumEt_[idx]);
@@ -6420,31 +6421,31 @@ public:
       obj.setenergyErr(Electron_energyErr_[idx]);
       obj.sethoe(Electron_hoe_[idx]);
       obj.setip3d(Electron_ip3d_[idx]);
-      obj.setminiPFRelIso(Electron_miniPFRelIso_all_[idx]);
-      obj.setminiPFRelIso(Electron_miniPFRelIso_chg_[idx]);
+      obj.setminiPFRelIso_all(Electron_miniPFRelIso_all_[idx]);
+      obj.setminiPFRelIso_chg(Electron_miniPFRelIso_chg_[idx]);
       obj.setmvaSpring16GP(Electron_mvaSpring16GP_[idx]);
       obj.setmvaSpring16HZZ(Electron_mvaSpring16HZZ_[idx]);
-      obj.setpfRelIso03(Electron_pfRelIso03_all_[idx]);
-      obj.setpfRelIso03(Electron_pfRelIso03_chg_[idx]);
+      obj.setpfRelIso03_all(Electron_pfRelIso03_all_[idx]);
+      obj.setpfRelIso03_chg(Electron_pfRelIso03_chg_[idx]);
       obj.setr9(Electron_r9_[idx]);
       obj.setsieie(Electron_sieie_[idx]);
       obj.setsip3d(Electron_sip3d_[idx]);
       obj.setmvaTTH(Electron_mvaTTH_[idx]);
       obj.setcharge(Electron_charge_[idx]);
       obj.setcutBased(Electron_cutBased_[idx]);
-      obj.setcutBased(Electron_cutBased_HLTPreSel_[idx]);
+      obj.setcutBased_HLTPreSel(Electron_cutBased_HLTPreSel_[idx]);
       obj.setjetIdx(Electron_jetIdx_[idx]);
       obj.setpdgId(Electron_pdgId_[idx]);
       obj.setphotonIdx(Electron_photonIdx_[idx]);
       obj.settightCharge(Electron_tightCharge_[idx]);
       obj.setvidNestedWPBitmap(Electron_vidNestedWPBitmap_[idx]);
       obj.setconvVeto(Electron_convVeto_[idx]);
-      obj.setcutBased(Electron_cutBased_HEEP_[idx]);
+      obj.setcutBased_HEEP(Electron_cutBased_HEEP_[idx]);
       obj.setisPFcand(Electron_isPFcand_[idx]);
       obj.setlostHits(Electron_lostHits_[idx]);
-      obj.setmvaSpring16GP(Electron_mvaSpring16GP_WP80_[idx]);
-      obj.setmvaSpring16GP(Electron_mvaSpring16GP_WP90_[idx]);
-      obj.setmvaSpring16HZZ(Electron_mvaSpring16HZZ_WPL_[idx]);
+      obj.setmvaSpring16GP_WP80(Electron_mvaSpring16GP_WP80_[idx]);
+      obj.setmvaSpring16GP_WP90(Electron_mvaSpring16GP_WP90_[idx]);
+      obj.setmvaSpring16HZZ_WPL(Electron_mvaSpring16HZZ_WPL_[idx]);
       obj.setgenPartIdx(Electron_genPartIdx_[idx]);
       obj.setgenPartFlav(Electron_genPartFlav_[idx]);
       obj.setcleanmask(Electron_cleanmask_[idx]);
@@ -6454,7 +6455,7 @@ public:
     return Electron_;
   }
   
-  const Softactivityjet SoftActivityJet(){
+  const Softactivityjet softactivityjet(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadSoftactivityjet();
@@ -6471,7 +6472,7 @@ public:
     return obj;
   }
   
-  const L1Simulation L1simulation(){
+  const L1Simulation l1simulation(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadL1Simulation();
@@ -6482,12 +6483,12 @@ public:
     return obj;
   }
   
-  const vector<Genpart>& genparts(){
-    if( GenPart_ > 0) return GenPart_;
+  const vector<Genparts>& genparts(){
+    if( GenPart_.size() > 0) return GenPart_;
     loadGenparts();
-  	GenPart_.reserve(nGenpart);
-    for(size_t idx = 0; idx < nGenpart; ++idx ){
-      Genpart obj;
+  	GenPart_.reserve(nGenPart);
+    for(size_t idx = 0; idx < nGenPart; ++idx ){
+      Genparts obj;
       obj.setgenPartIdxMother(GenPart_genPartIdxMother_[idx]);
       obj.setpdgId(GenPart_pdgId_[idx]);
       obj.setstatus(GenPart_status_[idx]);
@@ -6498,15 +6499,15 @@ public:
     return GenPart_;
   }
   
-  const Lhe LHE(){
+  const Lhe lhe(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadLhe();
   
     Lhe obj;
     obj.setoriginalXWGTUP(LHEWeight_originalXWGTUP_);
-    obj.setLHEPdfWeight(LHEPdfWeight);
-    obj.setLHEScaleWeight(LHEScaleWeight);
+    obj.setLHEPdfWeight(LHEPdfWeight_);
+    obj.setLHEScaleWeight(LHEScaleWeight_);
     obj.setHT(LHE_HT_);
     obj.setHTIncoming(LHE_HTIncoming_);
     obj.setVpt(LHE_Vpt_);
@@ -6521,7 +6522,7 @@ public:
     return obj;
   }
   
-  const Tkmet TkMET(){
+  const Tkmet tkmet(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadTkmet();
@@ -6532,12 +6533,12 @@ public:
     return obj;
   }
   
-  const vector<Tau>& taus(){
-    if( Tau_ > 0) return Tau_;
+  const vector<Taus>& taus(){
+    if( Tau_.size() > 0) return Tau_;
     loadTaus();
   	Tau_.reserve(nTau);
     for(size_t idx = 0; idx < nTau; ++idx ){
-      Tau obj;
+      Taus obj;
       obj.setchargedIso(Tau_chargedIso_[idx]);
       obj.setdxy(Tau_dxy_[idx]);
       obj.setdz(Tau_dz_[idx]);
@@ -6573,7 +6574,7 @@ public:
     return Tau_;
   }
   
-  const Puppimet PuppiMET(){
+  const Puppimet puppimet(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadPuppimet();
@@ -6584,22 +6585,22 @@ public:
     return obj;
   }
   
-  const vector<Muon>& muons(){
-    if( Muon_ > 0) return Muon_;
+  const vector<Muons>& muons(){
+    if( Muon_.size() > 0) return Muon_;
     loadMuons();
   	Muon_.reserve(nMuon);
     for(size_t idx = 0; idx < nMuon; ++idx ){
-      Muon obj;
+      Muons obj;
       obj.setdxy(Muon_dxy_[idx]);
       obj.setdxyErr(Muon_dxyErr_[idx]);
       obj.setdz(Muon_dz_[idx]);
       obj.setdzErr(Muon_dzErr_[idx]);
       obj.setip3d(Muon_ip3d_[idx]);
-      obj.setminiPFRelIso(Muon_miniPFRelIso_all_[idx]);
-      obj.setminiPFRelIso(Muon_miniPFRelIso_chg_[idx]);
-      obj.setpfRelIso03(Muon_pfRelIso03_all_[idx]);
-      obj.setpfRelIso03(Muon_pfRelIso03_chg_[idx]);
-      obj.setpfRelIso04(Muon_pfRelIso04_all_[idx]);
+      obj.setminiPFRelIso_all(Muon_miniPFRelIso_all_[idx]);
+      obj.setminiPFRelIso_chg(Muon_miniPFRelIso_chg_[idx]);
+      obj.setpfRelIso03_all(Muon_pfRelIso03_all_[idx]);
+      obj.setpfRelIso03_chg(Muon_pfRelIso03_chg_[idx]);
+      obj.setpfRelIso04_all(Muon_pfRelIso04_all_[idx]);
       obj.setptErr(Muon_ptErr_[idx]);
       obj.setsegmentComp(Muon_segmentComp_[idx]);
       obj.setsip3d(Muon_sip3d_[idx]);
@@ -6624,12 +6625,12 @@ public:
     return Muon_;
   }
   
-  const vector<Otherpv>& otherpvs(){
-    if( OtherPV_ > 0) return OtherPV_;
+  const vector<Otherpvs>& otherpvs(){
+    if( OtherPV_.size() > 0) return OtherPV_;
     loadOtherpvs();
-  	OtherPV_.reserve(nOtherpv);
-    for(size_t idx = 0; idx < nOtherpv; ++idx ){
-      Otherpv obj;
+  	OtherPV_.reserve(nOtherPV);
+    for(size_t idx = 0; idx < nOtherPV; ++idx ){
+      Otherpvs obj;
       obj.setz(OtherPV_z_[idx]);
       
       OtherPV_.push_back( obj );
@@ -6637,113 +6638,113 @@ public:
     return OtherPV_;
   }
   
-  const Hlt HLT(){
+  const Hlt hlt(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadHlt();
   
     Hlt obj;
     obj.setHLTriggerFirstPath(HLTriggerFirstPath);
-    obj.setAK8PFJet360(HLT_AK8PFJet360_TrimMass30_);
-    obj.setAK8PFJet400(HLT_AK8PFJet400_TrimMass30_);
-    obj.setAK8PFHT750(HLT_AK8PFHT750_TrimMass50_);
-    obj.setAK8PFHT800(HLT_AK8PFHT800_TrimMass50_);
-    obj.setAK8DiPFJet300(HLT_AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_);
-    obj.setAK8DiPFJet280(HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV_p087_);
-    obj.setAK8DiPFJet300(HLT_AK8DiPFJet300_200_TrimMass30_BTagCSV_p087_);
-    obj.setAK8DiPFJet300(HLT_AK8DiPFJet300_200_TrimMass30_);
-    obj.setAK8PFHT700(HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_);
-    obj.setAK8PFHT650(HLT_AK8PFHT650_TrimR0p1PT0p03Mass50_);
-    obj.setAK8PFHT600(HLT_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_);
-    obj.setAK8DiPFJet280(HLT_AK8DiPFJet280_200_TrimMass30_);
-    obj.setAK8DiPFJet250(HLT_AK8DiPFJet250_200_TrimMass30_);
-    obj.setAK8DiPFJet280(HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_);
-    obj.setAK8DiPFJet250(HLT_AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_);
+    obj.setAK8PFJet360_TrimMass30(HLT_AK8PFJet360_TrimMass30_);
+    obj.setAK8PFJet400_TrimMass30(HLT_AK8PFJet400_TrimMass30_);
+    obj.setAK8PFHT750_TrimMass50(HLT_AK8PFHT750_TrimMass50_);
+    obj.setAK8PFHT800_TrimMass50(HLT_AK8PFHT800_TrimMass50_);
+    obj.setAK8DiPFJet300_200_TrimMass30_BTagCSV_p20(HLT_AK8DiPFJet300_200_TrimMass30_BTagCSV_p20_);
+    obj.setAK8DiPFJet280_200_TrimMass30_BTagCSV_p087(HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV_p087_);
+    obj.setAK8DiPFJet300_200_TrimMass30_BTagCSV_p087(HLT_AK8DiPFJet300_200_TrimMass30_BTagCSV_p087_);
+    obj.setAK8DiPFJet300_200_TrimMass30(HLT_AK8DiPFJet300_200_TrimMass30_);
+    obj.setAK8PFHT700_TrimR0p1PT0p03Mass50(HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_);
+    obj.setAK8PFHT650_TrimR0p1PT0p03Mass50(HLT_AK8PFHT650_TrimR0p1PT0p03Mass50_);
+    obj.setAK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20(HLT_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_);
+    obj.setAK8DiPFJet280_200_TrimMass30(HLT_AK8DiPFJet280_200_TrimMass30_);
+    obj.setAK8DiPFJet250_200_TrimMass30(HLT_AK8DiPFJet250_200_TrimMass30_);
+    obj.setAK8DiPFJet280_200_TrimMass30_BTagCSV_p20(HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_);
+    obj.setAK8DiPFJet250_200_TrimMass30_BTagCSV_p20(HLT_AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_);
     obj.setCaloJet260(HLT_CaloJet260_);
-    obj.setCaloJet500(HLT_CaloJet500_NoJetID_);
-    obj.setDimuon13(HLT_Dimuon13_PsiPrime_);
-    obj.setDimuon13(HLT_Dimuon13_Upsilon_);
-    obj.setDimuon20(HLT_Dimuon20_Jpsi_);
-    obj.setDoubleEle24(HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_);
-    obj.setDoubleEle25(HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_);
-    obj.setDoubleEle33(HLT_DoubleEle33_CaloIdL_);
-    obj.setDoubleEle33(HLT_DoubleEle33_CaloIdL_MW_);
-    obj.setDoubleEle33(HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_);
-    obj.setDoubleEle33(HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
-    obj.setDoubleMediumCombinedIsoPFTau35(HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_);
-    obj.setDoubleTightCombinedIsoPFTau35(HLT_DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg_);
-    obj.setDoubleMediumCombinedIsoPFTau40(HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_);
-    obj.setDoubleTightCombinedIsoPFTau40(HLT_DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg_);
-    obj.setDoubleMediumCombinedIsoPFTau40(HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_);
-    obj.setDoubleTightCombinedIsoPFTau40(HLT_DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_);
-    obj.setDoubleMediumIsoPFTau35(HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_);
-    obj.setDoubleMediumIsoPFTau40(HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_);
-    obj.setDoubleMediumIsoPFTau40(HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_);
-    obj.setDoubleEle37(HLT_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_);
+    obj.setCaloJet500_NoJetID(HLT_CaloJet500_NoJetID_);
+    obj.setDimuon13_PsiPrime(HLT_Dimuon13_PsiPrime_);
+    obj.setDimuon13_Upsilon(HLT_Dimuon13_Upsilon_);
+    obj.setDimuon20_Jpsi(HLT_Dimuon20_Jpsi_);
+    obj.setDoubleEle24_22_eta2p1_WPLoose_Gsf(HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_);
+    obj.setDoubleEle25_CaloIdL_GsfTrkIdVL(HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_);
+    obj.setDoubleEle33_CaloIdL(HLT_DoubleEle33_CaloIdL_);
+    obj.setDoubleEle33_CaloIdL_MW(HLT_DoubleEle33_CaloIdL_MW_);
+    obj.setDoubleEle33_CaloIdL_GsfTrkIdVL_MW(HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_);
+    obj.setDoubleEle33_CaloIdL_GsfTrkIdVL(HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_);
+    obj.setDoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg(HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_);
+    obj.setDoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg(HLT_DoubleTightCombinedIsoPFTau35_Trk1_eta2p1_Reg_);
+    obj.setDoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg(HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_);
+    obj.setDoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg(HLT_DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_Reg_);
+    obj.setDoubleMediumCombinedIsoPFTau40_Trk1_eta2p1(HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_);
+    obj.setDoubleTightCombinedIsoPFTau40_Trk1_eta2p1(HLT_DoubleTightCombinedIsoPFTau40_Trk1_eta2p1_);
+    obj.setDoubleMediumIsoPFTau35_Trk1_eta2p1_Reg(HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_);
+    obj.setDoubleMediumIsoPFTau40_Trk1_eta2p1_Reg(HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_);
+    obj.setDoubleMediumIsoPFTau40_Trk1_eta2p1(HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_);
+    obj.setDoubleEle37_Ele27_CaloIdL_GsfTrkIdVL(HLT_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_);
     obj.setDoubleMu33NoFiltersNoVtx(HLT_DoubleMu33NoFiltersNoVtx_);
     obj.setDoubleMu38NoFiltersNoVtx(HLT_DoubleMu38NoFiltersNoVtx_);
     obj.setDoubleMu23NoFiltersNoVtxDisplaced(HLT_DoubleMu23NoFiltersNoVtxDisplaced_);
     obj.setDoubleMu28NoFiltersNoVtxDisplaced(HLT_DoubleMu28NoFiltersNoVtxDisplaced_);
     obj.setDoubleMu0(HLT_DoubleMu0_);
-    obj.setDoubleMu4(HLT_DoubleMu4_3_Bs_);
-    obj.setDoubleMu4(HLT_DoubleMu4_3_Jpsi_Displaced_);
-    obj.setDoubleMu4(HLT_DoubleMu4_JpsiTrk_Displaced_);
-    obj.setDoubleMu4(HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_);
-    obj.setDoubleMu3(HLT_DoubleMu3_Trk_Tau3mu_);
-    obj.setDoubleMu4(HLT_DoubleMu4_PsiPrimeTrk_Displaced_);
-    obj.setMu7p5(HLT_Mu7p5_L2Mu2_Jpsi_);
-    obj.setMu7p5(HLT_Mu7p5_L2Mu2_Upsilon_);
-    obj.setMu7p5(HLT_Mu7p5_Track2_Jpsi_);
-    obj.setMu7p5(HLT_Mu7p5_Track3p5_Jpsi_);
-    obj.setMu7p5(HLT_Mu7p5_Track7_Jpsi_);
-    obj.setMu7p5(HLT_Mu7p5_Track2_Upsilon_);
-    obj.setMu7p5(HLT_Mu7p5_Track3p5_Upsilon_);
-    obj.setMu7p5(HLT_Mu7p5_Track7_Upsilon_);
-    obj.setDimuon0er16(HLT_Dimuon0er16_Jpsi_NoOS_NoVertexing_);
-    obj.setDimuon0er16(HLT_Dimuon0er16_Jpsi_NoVertexing_);
-    obj.setDimuon6(HLT_Dimuon6_Jpsi_NoVertexing_);
+    obj.setDoubleMu4_3_Bs(HLT_DoubleMu4_3_Bs_);
+    obj.setDoubleMu4_3_Jpsi_Displaced(HLT_DoubleMu4_3_Jpsi_Displaced_);
+    obj.setDoubleMu4_JpsiTrk_Displaced(HLT_DoubleMu4_JpsiTrk_Displaced_);
+    obj.setDoubleMu4_LowMassNonResonantTrk_Displaced(HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_);
+    obj.setDoubleMu3_Trk_Tau3mu(HLT_DoubleMu3_Trk_Tau3mu_);
+    obj.setDoubleMu4_PsiPrimeTrk_Displaced(HLT_DoubleMu4_PsiPrimeTrk_Displaced_);
+    obj.setMu7p5_L2Mu2_Jpsi(HLT_Mu7p5_L2Mu2_Jpsi_);
+    obj.setMu7p5_L2Mu2_Upsilon(HLT_Mu7p5_L2Mu2_Upsilon_);
+    obj.setMu7p5_Track2_Jpsi(HLT_Mu7p5_Track2_Jpsi_);
+    obj.setMu7p5_Track3p5_Jpsi(HLT_Mu7p5_Track3p5_Jpsi_);
+    obj.setMu7p5_Track7_Jpsi(HLT_Mu7p5_Track7_Jpsi_);
+    obj.setMu7p5_Track2_Upsilon(HLT_Mu7p5_Track2_Upsilon_);
+    obj.setMu7p5_Track3p5_Upsilon(HLT_Mu7p5_Track3p5_Upsilon_);
+    obj.setMu7p5_Track7_Upsilon(HLT_Mu7p5_Track7_Upsilon_);
+    obj.setDimuon0er16_Jpsi_NoOS_NoVertexing(HLT_Dimuon0er16_Jpsi_NoOS_NoVertexing_);
+    obj.setDimuon0er16_Jpsi_NoVertexing(HLT_Dimuon0er16_Jpsi_NoVertexing_);
+    obj.setDimuon6_Jpsi_NoVertexing(HLT_Dimuon6_Jpsi_NoVertexing_);
     obj.setPhoton150(HLT_Photon150_);
-    obj.setPhoton90(HLT_Photon90_CaloIdL_HT300_);
-    obj.setHT250(HLT_HT250_CaloMET70_);
+    obj.setPhoton90_CaloIdL_HT300(HLT_Photon90_CaloIdL_HT300_);
+    obj.setHT250_CaloMET70(HLT_HT250_CaloMET70_);
     obj.setDoublePhoton60(HLT_DoublePhoton60_);
     obj.setDoublePhoton85(HLT_DoublePhoton85_);
-    obj.setEle17(HLT_Ele17_Ele8_Gsf_);
-    obj.setEle20(HLT_Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_);
-    obj.setEle22(HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_);
-    obj.setEle22(HLT_Ele22_eta2p1_WPLoose_Gsf_);
-    obj.setEle22(HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
-    obj.setEle23(HLT_Ele23_WPLoose_Gsf_);
-    obj.setEle23(HLT_Ele23_WPLoose_Gsf_WHbbBoost_);
-    obj.setEle24(HLT_Ele24_eta2p1_WPLoose_Gsf_);
-    obj.setEle24(HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_);
-    obj.setEle24(HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
-    obj.setEle24(HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_);
-    obj.setEle25(HLT_Ele25_WPTight_Gsf_);
-    obj.setEle25(HLT_Ele25_eta2p1_WPLoose_Gsf_);
-    obj.setEle25(HLT_Ele25_eta2p1_WPTight_Gsf_);
-    obj.setEle27(HLT_Ele27_WPLoose_Gsf_);
-    obj.setEle27(HLT_Ele27_WPLoose_Gsf_WHbbBoost_);
-    obj.setEle27(HLT_Ele27_WPTight_Gsf_);
-    obj.setEle27(HLT_Ele27_WPTight_Gsf_L1JetTauSeeded_);
-    obj.setEle27(HLT_Ele27_eta2p1_WPLoose_Gsf_);
-    obj.setEle27(HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
-    obj.setEle27(HLT_Ele27_eta2p1_WPTight_Gsf_);
-    obj.setEle30(HLT_Ele30_WPTight_Gsf_);
-    obj.setEle30(HLT_Ele30_eta2p1_WPLoose_Gsf_);
-    obj.setEle30(HLT_Ele30_eta2p1_WPTight_Gsf_);
-    obj.setEle32(HLT_Ele32_WPTight_Gsf_);
-    obj.setEle32(HLT_Ele32_eta2p1_WPLoose_Gsf_);
-    obj.setEle32(HLT_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
-    obj.setEle32(HLT_Ele32_eta2p1_WPTight_Gsf_);
-    obj.setEle35(HLT_Ele35_WPLoose_Gsf_);
-    obj.setEle35(HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_);
-    obj.setEle36(HLT_Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
-    obj.setEle45(HLT_Ele45_WPLoose_Gsf_);
-    obj.setEle45(HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded_);
-    obj.setEle45(HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_);
-    obj.setEle105(HLT_Ele105_CaloIdVT_GsfTrkIdT_);
-    obj.setEle30WP60(HLT_Ele30WP60_SC4_Mass55_);
-    obj.setEle30WP60(HLT_Ele30WP60_Ele8_Mass55_);
+    obj.setEle17_Ele8_Gsf(HLT_Ele17_Ele8_Gsf_);
+    obj.setEle20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28(HLT_Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_);
+    obj.setEle22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29(HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_);
+    obj.setEle22_eta2p1_WPLoose_Gsf(HLT_Ele22_eta2p1_WPLoose_Gsf_);
+    obj.setEle22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
+    obj.setEle23_WPLoose_Gsf(HLT_Ele23_WPLoose_Gsf_);
+    obj.setEle23_WPLoose_Gsf_WHbbBoost(HLT_Ele23_WPLoose_Gsf_WHbbBoost_);
+    obj.setEle24_eta2p1_WPLoose_Gsf(HLT_Ele24_eta2p1_WPLoose_Gsf_);
+    obj.setEle24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20(HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_);
+    obj.setEle24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
+    obj.setEle24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30(HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_);
+    obj.setEle25_WPTight_Gsf(HLT_Ele25_WPTight_Gsf_);
+    obj.setEle25_eta2p1_WPLoose_Gsf(HLT_Ele25_eta2p1_WPLoose_Gsf_);
+    obj.setEle25_eta2p1_WPTight_Gsf(HLT_Ele25_eta2p1_WPTight_Gsf_);
+    obj.setEle27_WPLoose_Gsf(HLT_Ele27_WPLoose_Gsf_);
+    obj.setEle27_WPLoose_Gsf_WHbbBoost(HLT_Ele27_WPLoose_Gsf_WHbbBoost_);
+    obj.setEle27_WPTight_Gsf(HLT_Ele27_WPTight_Gsf_);
+    obj.setEle27_WPTight_Gsf_L1JetTauSeeded(HLT_Ele27_WPTight_Gsf_L1JetTauSeeded_);
+    obj.setEle27_eta2p1_WPLoose_Gsf(HLT_Ele27_eta2p1_WPLoose_Gsf_);
+    obj.setEle27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
+    obj.setEle27_eta2p1_WPTight_Gsf(HLT_Ele27_eta2p1_WPTight_Gsf_);
+    obj.setEle30_WPTight_Gsf(HLT_Ele30_WPTight_Gsf_);
+    obj.setEle30_eta2p1_WPLoose_Gsf(HLT_Ele30_eta2p1_WPLoose_Gsf_);
+    obj.setEle30_eta2p1_WPTight_Gsf(HLT_Ele30_eta2p1_WPTight_Gsf_);
+    obj.setEle32_WPTight_Gsf(HLT_Ele32_WPTight_Gsf_);
+    obj.setEle32_eta2p1_WPLoose_Gsf(HLT_Ele32_eta2p1_WPLoose_Gsf_);
+    obj.setEle32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(HLT_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
+    obj.setEle32_eta2p1_WPTight_Gsf(HLT_Ele32_eta2p1_WPTight_Gsf_);
+    obj.setEle35_WPLoose_Gsf(HLT_Ele35_WPLoose_Gsf_);
+    obj.setEle35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50(HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_);
+    obj.setEle36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1(HLT_Ele36_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_);
+    obj.setEle45_WPLoose_Gsf(HLT_Ele45_WPLoose_Gsf_);
+    obj.setEle45_WPLoose_Gsf_L1JetTauSeeded(HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded_);
+    obj.setEle45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50(HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_);
+    obj.setEle105_CaloIdVT_GsfTrkIdT(HLT_Ele105_CaloIdVT_GsfTrkIdT_);
+    obj.setEle30WP60_SC4_Mass55(HLT_Ele30WP60_SC4_Mass55_);
+    obj.setEle30WP60_Ele8_Mass55(HLT_Ele30WP60_Ele8_Mass55_);
     obj.setHT200(HLT_HT200_);
     obj.setHT275(HLT_HT275_);
     obj.setHT325(HLT_HT325_);
@@ -6756,123 +6757,123 @@ public:
     obj.setHT500to550(HLT_HT500to550_);
     obj.setHT550to650(HLT_HT550to650_);
     obj.setHT650(HLT_HT650_);
-    obj.setMu16(HLT_Mu16_eta2p1_MET30_);
-    obj.setIsoMu16(HLT_IsoMu16_eta2p1_MET30_);
-    obj.setIsoMu16(HLT_IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_);
-    obj.setIsoMu17(HLT_IsoMu17_eta2p1_);
-    obj.setIsoMu17(HLT_IsoMu17_eta2p1_LooseIsoPFTau20_);
-    obj.setIsoMu17(HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_);
-    obj.setDoubleIsoMu17(HLT_DoubleIsoMu17_eta2p1_);
-    obj.setDoubleIsoMu17(HLT_DoubleIsoMu17_eta2p1_noDzCut_);
+    obj.setMu16_eta2p1_MET30(HLT_Mu16_eta2p1_MET30_);
+    obj.setIsoMu16_eta2p1_MET30(HLT_IsoMu16_eta2p1_MET30_);
+    obj.setIsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1(HLT_IsoMu16_eta2p1_MET30_LooseIsoPFTau50_Trk30_eta2p1_);
+    obj.setIsoMu17_eta2p1(HLT_IsoMu17_eta2p1_);
+    obj.setIsoMu17_eta2p1_LooseIsoPFTau20(HLT_IsoMu17_eta2p1_LooseIsoPFTau20_);
+    obj.setIsoMu17_eta2p1_LooseIsoPFTau20_SingleL1(HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_);
+    obj.setDoubleIsoMu17_eta2p1(HLT_DoubleIsoMu17_eta2p1_);
+    obj.setDoubleIsoMu17_eta2p1_noDzCut(HLT_DoubleIsoMu17_eta2p1_noDzCut_);
     obj.setIsoMu18(HLT_IsoMu18_);
-    obj.setIsoMu19(HLT_IsoMu19_eta2p1_LooseIsoPFTau20_);
-    obj.setIsoMu19(HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_);
-    obj.setIsoMu19(HLT_IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_);
-    obj.setIsoMu19(HLT_IsoMu19_eta2p1_LooseCombinedIsoPFTau20_);
-    obj.setIsoMu19(HLT_IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
-    obj.setIsoMu19(HLT_IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
-    obj.setIsoMu21(HLT_IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
-    obj.setIsoMu21(HLT_IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
+    obj.setIsoMu19_eta2p1_LooseIsoPFTau20(HLT_IsoMu19_eta2p1_LooseIsoPFTau20_);
+    obj.setIsoMu19_eta2p1_LooseIsoPFTau20_SingleL1(HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_);
+    obj.setIsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg(HLT_IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_);
+    obj.setIsoMu19_eta2p1_LooseCombinedIsoPFTau20(HLT_IsoMu19_eta2p1_LooseCombinedIsoPFTau20_);
+    obj.setIsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg(HLT_IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
+    obj.setIsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg(HLT_IsoMu19_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
+    obj.setIsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg(HLT_IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
+    obj.setIsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg(HLT_IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_);
     obj.setIsoMu20(HLT_IsoMu20_);
-    obj.setIsoMu21(HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_);
-    obj.setIsoMu21(HLT_IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_);
-    obj.setIsoMu21(HLT_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_);
+    obj.setIsoMu21_eta2p1_LooseIsoPFTau20_SingleL1(HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_);
+    obj.setIsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1(HLT_IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_);
+    obj.setIsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg(HLT_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_);
     obj.setIsoMu22(HLT_IsoMu22_);
-    obj.setIsoMu22(HLT_IsoMu22_eta2p1_);
+    obj.setIsoMu22_eta2p1(HLT_IsoMu22_eta2p1_);
     obj.setIsoMu24(HLT_IsoMu24_);
     obj.setIsoMu27(HLT_IsoMu27_);
     obj.setIsoTkMu18(HLT_IsoTkMu18_);
     obj.setIsoTkMu20(HLT_IsoTkMu20_);
     obj.setIsoTkMu22(HLT_IsoTkMu22_);
-    obj.setIsoTkMu22(HLT_IsoTkMu22_eta2p1_);
+    obj.setIsoTkMu22_eta2p1(HLT_IsoTkMu22_eta2p1_);
     obj.setIsoTkMu24(HLT_IsoTkMu24_);
     obj.setIsoTkMu27(HLT_IsoTkMu27_);
-    obj.setJetE30(HLT_JetE30_NoBPTX3BX_);
-    obj.setJetE30(HLT_JetE30_NoBPTX_);
-    obj.setJetE50(HLT_JetE50_NoBPTX3BX_);
-    obj.setJetE70(HLT_JetE70_NoBPTX3BX_);
+    obj.setJetE30_NoBPTX3BX(HLT_JetE30_NoBPTX3BX_);
+    obj.setJetE30_NoBPTX(HLT_JetE30_NoBPTX_);
+    obj.setJetE50_NoBPTX3BX(HLT_JetE50_NoBPTX3BX_);
+    obj.setJetE70_NoBPTX3BX(HLT_JetE70_NoBPTX3BX_);
     obj.setL1SingleMu18(HLT_L1SingleMu18_);
     obj.setL2Mu10(HLT_L2Mu10_);
     obj.setL1SingleMuOpen(HLT_L1SingleMuOpen_);
-    obj.setL1SingleMuOpen(HLT_L1SingleMuOpen_DT_);
-    obj.setL2DoubleMu23(HLT_L2DoubleMu23_NoVertex_);
-    obj.setL2DoubleMu28(HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_);
-    obj.setL2DoubleMu38(HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_);
-    obj.setL2Mu10(HLT_L2Mu10_NoVertex_NoBPTX3BX_);
-    obj.setL2Mu10(HLT_L2Mu10_NoVertex_NoBPTX_);
-    obj.setL2Mu45(HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_);
-    obj.setL2Mu40(HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_);
-    obj.setLooseIsoPFTau50(HLT_LooseIsoPFTau50_Trk30_eta2p1_);
-    obj.setLooseIsoPFTau50(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_);
-    obj.setLooseIsoPFTau50(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_);
-    obj.setLooseIsoPFTau50(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET110_);
-    obj.setLooseIsoPFTau50(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_);
-    obj.setPFTau120(HLT_PFTau120_eta2p1_);
-    obj.setPFTau140(HLT_PFTau140_eta2p1_);
-    obj.setVLooseIsoPFTau120(HLT_VLooseIsoPFTau120_Trk50_eta2p1_);
-    obj.setVLooseIsoPFTau140(HLT_VLooseIsoPFTau140_Trk50_eta2p1_);
-    obj.setMu17(HLT_Mu17_Mu8_);
-    obj.setMu17(HLT_Mu17_Mu8_DZ_);
-    obj.setMu17(HLT_Mu17_Mu8_SameSign_);
-    obj.setMu17(HLT_Mu17_Mu8_SameSign_DZ_);
-    obj.setMu20(HLT_Mu20_Mu10_);
-    obj.setMu20(HLT_Mu20_Mu10_DZ_);
-    obj.setMu20(HLT_Mu20_Mu10_SameSign_);
-    obj.setMu20(HLT_Mu20_Mu10_SameSign_DZ_);
-    obj.setMu17(HLT_Mu17_TkMu8_DZ_);
-    obj.setMu17(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_);
-    obj.setMu17(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_);
-    obj.setMu17(HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_);
-    obj.setMu17(HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
-    obj.setMu25(HLT_Mu25_TkMu0_dEta18_Onia_);
-    obj.setMu27(HLT_Mu27_TkMu8_);
-    obj.setMu30(HLT_Mu30_TkMu11_);
-    obj.setMu30(HLT_Mu30_eta2p1_PFJet150_PFJet50_);
-    obj.setMu40(HLT_Mu40_TkMu11_);
-    obj.setMu40(HLT_Mu40_eta2p1_PFJet200_PFJet50_);
+    obj.setL1SingleMuOpen_DT(HLT_L1SingleMuOpen_DT_);
+    obj.setL2DoubleMu23_NoVertex(HLT_L2DoubleMu23_NoVertex_);
+    obj.setL2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10(HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_);
+    obj.setL2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10(HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_);
+    obj.setL2Mu10_NoVertex_NoBPTX3BX(HLT_L2Mu10_NoVertex_NoBPTX3BX_);
+    obj.setL2Mu10_NoVertex_NoBPTX(HLT_L2Mu10_NoVertex_NoBPTX_);
+    obj.setL2Mu45_NoVertex_3Sta_NoBPTX3BX(HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_);
+    obj.setL2Mu40_NoVertex_3Sta_NoBPTX3BX(HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_);
+    obj.setLooseIsoPFTau50_Trk30_eta2p1(HLT_LooseIsoPFTau50_Trk30_eta2p1_);
+    obj.setLooseIsoPFTau50_Trk30_eta2p1_MET80(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_);
+    obj.setLooseIsoPFTau50_Trk30_eta2p1_MET90(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_);
+    obj.setLooseIsoPFTau50_Trk30_eta2p1_MET110(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET110_);
+    obj.setLooseIsoPFTau50_Trk30_eta2p1_MET120(HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_);
+    obj.setPFTau120_eta2p1(HLT_PFTau120_eta2p1_);
+    obj.setPFTau140_eta2p1(HLT_PFTau140_eta2p1_);
+    obj.setVLooseIsoPFTau120_Trk50_eta2p1(HLT_VLooseIsoPFTau120_Trk50_eta2p1_);
+    obj.setVLooseIsoPFTau140_Trk50_eta2p1(HLT_VLooseIsoPFTau140_Trk50_eta2p1_);
+    obj.setMu17_Mu8(HLT_Mu17_Mu8_);
+    obj.setMu17_Mu8_DZ(HLT_Mu17_Mu8_DZ_);
+    obj.setMu17_Mu8_SameSign(HLT_Mu17_Mu8_SameSign_);
+    obj.setMu17_Mu8_SameSign_DZ(HLT_Mu17_Mu8_SameSign_DZ_);
+    obj.setMu20_Mu10(HLT_Mu20_Mu10_);
+    obj.setMu20_Mu10_DZ(HLT_Mu20_Mu10_DZ_);
+    obj.setMu20_Mu10_SameSign(HLT_Mu20_Mu10_SameSign_);
+    obj.setMu20_Mu10_SameSign_DZ(HLT_Mu20_Mu10_SameSign_DZ_);
+    obj.setMu17_TkMu8_DZ(HLT_Mu17_TkMu8_DZ_);
+    obj.setMu17_TrkIsoVVL_Mu8_TrkIsoVVL(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_);
+    obj.setMu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_);
+    obj.setMu17_TrkIsoVVL_TkMu8_TrkIsoVVL(HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_);
+    obj.setMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
+    obj.setMu25_TkMu0_dEta18_Onia(HLT_Mu25_TkMu0_dEta18_Onia_);
+    obj.setMu27_TkMu8(HLT_Mu27_TkMu8_);
+    obj.setMu30_TkMu11(HLT_Mu30_TkMu11_);
+    obj.setMu30_eta2p1_PFJet150_PFJet50(HLT_Mu30_eta2p1_PFJet150_PFJet50_);
+    obj.setMu40_TkMu11(HLT_Mu40_TkMu11_);
+    obj.setMu40_eta2p1_PFJet200_PFJet50(HLT_Mu40_eta2p1_PFJet200_PFJet50_);
     obj.setMu20(HLT_Mu20_);
     obj.setTkMu17(HLT_TkMu17_);
-    obj.setTkMu17(HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_);
-    obj.setTkMu17(HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
+    obj.setTkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL(HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_);
+    obj.setTkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ(HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_);
     obj.setTkMu20(HLT_TkMu20_);
-    obj.setMu24(HLT_Mu24_eta2p1_);
-    obj.setTkMu24(HLT_TkMu24_eta2p1_);
+    obj.setMu24_eta2p1(HLT_Mu24_eta2p1_);
+    obj.setTkMu24_eta2p1(HLT_TkMu24_eta2p1_);
     obj.setMu27(HLT_Mu27_);
     obj.setTkMu27(HLT_TkMu27_);
-    obj.setMu45(HLT_Mu45_eta2p1_);
+    obj.setMu45_eta2p1(HLT_Mu45_eta2p1_);
     obj.setMu50(HLT_Mu50_);
     obj.setTkMu50(HLT_TkMu50_);
-    obj.setMu38NoFiltersNoVtx(HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_);
-    obj.setMu42NoFiltersNoVtx(HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_);
-    obj.setMu28NoFiltersNoVtxDisplaced(HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_);
-    obj.setMu33NoFiltersNoVtxDisplaced(HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_);
-    obj.setMu23NoFiltersNoVtx(HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_);
+    obj.setMu38NoFiltersNoVtx_Photon38_CaloIdL(HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_);
+    obj.setMu42NoFiltersNoVtx_Photon42_CaloIdL(HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_);
+    obj.setMu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL(HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_);
+    obj.setMu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL(HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_);
+    obj.setMu23NoFiltersNoVtx_Photon23_CaloIdL(HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_);
     obj.setDoubleMu18NoFiltersNoVtx(HLT_DoubleMu18NoFiltersNoVtx_);
-    obj.setMu33NoFiltersNoVtxDisplaced(HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_);
-    obj.setMu33NoFiltersNoVtxDisplaced(HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_);
-    obj.setMu28NoFiltersNoVtx(HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_);
-    obj.setMu38NoFiltersNoVtxDisplaced(HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_);
-    obj.setMu38NoFiltersNoVtxDisplaced(HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_);
-    obj.setMu38NoFiltersNoVtx(HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_);
-    obj.setMu28NoFiltersNoVtx(HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_);
-    obj.setPFHT300(HLT_PFHT300_PFMET100_);
-    obj.setPFHT300(HLT_PFHT300_PFMET110_);
-    obj.setPFHT550(HLT_PFHT550_4JetPt50_);
-    obj.setPFHT650(HLT_PFHT650_4JetPt50_);
-    obj.setPFHT750(HLT_PFHT750_4JetPt50_);
-    obj.setPFHT750(HLT_PFHT750_4JetPt70_);
-    obj.setPFHT750(HLT_PFHT750_4JetPt80_);
-    obj.setPFHT800(HLT_PFHT800_4JetPt50_);
-    obj.setPFHT850(HLT_PFHT850_4JetPt50_);
-    obj.setPFJet15(HLT_PFJet15_NoCaloMatched_);
-    obj.setPFJet25(HLT_PFJet25_NoCaloMatched_);
-    obj.setDiPFJet15(HLT_DiPFJet15_NoCaloMatched_);
-    obj.setDiPFJet25(HLT_DiPFJet25_NoCaloMatched_);
-    obj.setDiPFJet15(HLT_DiPFJet15_FBEta3_NoCaloMatched_);
-    obj.setDiPFJet25(HLT_DiPFJet25_FBEta3_NoCaloMatched_);
-    obj.setDiPFJetAve15(HLT_DiPFJetAve15_HFJEC_);
-    obj.setDiPFJetAve25(HLT_DiPFJetAve25_HFJEC_);
-    obj.setDiPFJetAve35(HLT_DiPFJetAve35_HFJEC_);
+    obj.setMu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight(HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_);
+    obj.setMu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose(HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_);
+    obj.setMu28NoFiltersNoVtx_DisplacedJet40_Loose(HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_);
+    obj.setMu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight(HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_);
+    obj.setMu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose(HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_);
+    obj.setMu38NoFiltersNoVtx_DisplacedJet60_Loose(HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_);
+    obj.setMu28NoFiltersNoVtx_CentralCaloJet40(HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_);
+    obj.setPFHT300_PFMET100(HLT_PFHT300_PFMET100_);
+    obj.setPFHT300_PFMET110(HLT_PFHT300_PFMET110_);
+    obj.setPFHT550_4JetPt50(HLT_PFHT550_4JetPt50_);
+    obj.setPFHT650_4JetPt50(HLT_PFHT650_4JetPt50_);
+    obj.setPFHT750_4JetPt50(HLT_PFHT750_4JetPt50_);
+    obj.setPFHT750_4JetPt70(HLT_PFHT750_4JetPt70_);
+    obj.setPFHT750_4JetPt80(HLT_PFHT750_4JetPt80_);
+    obj.setPFHT800_4JetPt50(HLT_PFHT800_4JetPt50_);
+    obj.setPFHT850_4JetPt50(HLT_PFHT850_4JetPt50_);
+    obj.setPFJet15_NoCaloMatched(HLT_PFJet15_NoCaloMatched_);
+    obj.setPFJet25_NoCaloMatched(HLT_PFJet25_NoCaloMatched_);
+    obj.setDiPFJet15_NoCaloMatched(HLT_DiPFJet15_NoCaloMatched_);
+    obj.setDiPFJet25_NoCaloMatched(HLT_DiPFJet25_NoCaloMatched_);
+    obj.setDiPFJet15_FBEta3_NoCaloMatched(HLT_DiPFJet15_FBEta3_NoCaloMatched_);
+    obj.setDiPFJet25_FBEta3_NoCaloMatched(HLT_DiPFJet25_FBEta3_NoCaloMatched_);
+    obj.setDiPFJetAve15_HFJEC(HLT_DiPFJetAve15_HFJEC_);
+    obj.setDiPFJetAve25_HFJEC(HLT_DiPFJetAve25_HFJEC_);
+    obj.setDiPFJetAve35_HFJEC(HLT_DiPFJetAve35_HFJEC_);
     obj.setAK8PFJet40(HLT_AK8PFJet40_);
     obj.setAK8PFJet60(HLT_AK8PFJet60_);
     obj.setAK8PFJet80(HLT_AK8PFJet80_);
@@ -6902,19 +6903,19 @@ public:
     obj.setDiPFJetAve320(HLT_DiPFJetAve320_);
     obj.setDiPFJetAve400(HLT_DiPFJetAve400_);
     obj.setDiPFJetAve500(HLT_DiPFJetAve500_);
-    obj.setDiPFJetAve60(HLT_DiPFJetAve60_HFJEC_);
-    obj.setDiPFJetAve80(HLT_DiPFJetAve80_HFJEC_);
-    obj.setDiPFJetAve100(HLT_DiPFJetAve100_HFJEC_);
-    obj.setDiPFJetAve160(HLT_DiPFJetAve160_HFJEC_);
-    obj.setDiPFJetAve220(HLT_DiPFJetAve220_HFJEC_);
-    obj.setDiPFJetAve300(HLT_DiPFJetAve300_HFJEC_);
-    obj.setDiPFJet40(HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_);
-    obj.setDiPFJet40(HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_);
+    obj.setDiPFJetAve60_HFJEC(HLT_DiPFJetAve60_HFJEC_);
+    obj.setDiPFJetAve80_HFJEC(HLT_DiPFJetAve80_HFJEC_);
+    obj.setDiPFJetAve100_HFJEC(HLT_DiPFJetAve100_HFJEC_);
+    obj.setDiPFJetAve160_HFJEC(HLT_DiPFJetAve160_HFJEC_);
+    obj.setDiPFJetAve220_HFJEC(HLT_DiPFJetAve220_HFJEC_);
+    obj.setDiPFJetAve300_HFJEC(HLT_DiPFJetAve300_HFJEC_);
+    obj.setDiPFJet40_DEta3p5_MJJ600_PFMETNoMu140(HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_);
+    obj.setDiPFJet40_DEta3p5_MJJ600_PFMETNoMu80(HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_);
     obj.setDiCentralPFJet170(HLT_DiCentralPFJet170_);
-    obj.setSingleCentralPFJet170(HLT_SingleCentralPFJet170_CFMax0p1_);
-    obj.setDiCentralPFJet170(HLT_DiCentralPFJet170_CFMax0p1_);
-    obj.setDiCentralPFJet220(HLT_DiCentralPFJet220_CFMax0p3_);
-    obj.setDiCentralPFJet330(HLT_DiCentralPFJet330_CFMax0p5_);
+    obj.setSingleCentralPFJet170_CFMax0p1(HLT_SingleCentralPFJet170_CFMax0p1_);
+    obj.setDiCentralPFJet170_CFMax0p1(HLT_DiCentralPFJet170_CFMax0p1_);
+    obj.setDiCentralPFJet220_CFMax0p3(HLT_DiCentralPFJet220_CFMax0p3_);
+    obj.setDiCentralPFJet330_CFMax0p5(HLT_DiCentralPFJet330_CFMax0p5_);
     obj.setDiCentralPFJet430(HLT_DiCentralPFJet430_);
     obj.setPFHT125(HLT_PFHT125_);
     obj.setPFHT200(HLT_PFHT200_);
@@ -6927,125 +6928,125 @@ public:
     obj.setPFHT650(HLT_PFHT650_);
     obj.setPFHT800(HLT_PFHT800_);
     obj.setPFHT900(HLT_PFHT900_);
-    obj.setPFHT200(HLT_PFHT200_PFAlphaT0p51_);
-    obj.setPFHT200(HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_);
-    obj.setPFHT200(HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_);
-    obj.setPFHT250(HLT_PFHT250_DiPFJetAve90_PFAlphaT0p55_);
-    obj.setPFHT250(HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_);
-    obj.setPFHT300(HLT_PFHT300_DiPFJetAve90_PFAlphaT0p53_);
-    obj.setPFHT300(HLT_PFHT300_DiPFJetAve90_PFAlphaT0p54_);
-    obj.setPFHT350(HLT_PFHT350_DiPFJetAve90_PFAlphaT0p52_);
-    obj.setPFHT350(HLT_PFHT350_DiPFJetAve90_PFAlphaT0p53_);
-    obj.setPFHT400(HLT_PFHT400_DiPFJetAve90_PFAlphaT0p51_);
-    obj.setPFHT400(HLT_PFHT400_DiPFJetAve90_PFAlphaT0p52_);
-    obj.setMET60(HLT_MET60_IsoTrk35_Loose_);
-    obj.setMET75(HLT_MET75_IsoTrk50_);
-    obj.setMET90(HLT_MET90_IsoTrk50_);
-    obj.setPFMET120(HLT_PFMET120_BTagCSV_p067_);
-    obj.setPFMET120(HLT_PFMET120_Mu5_);
-    obj.setPFMET170(HLT_PFMET170_NotCleaned_);
-    obj.setPFMET170(HLT_PFMET170_NoiseCleaned_);
-    obj.setPFMET170(HLT_PFMET170_HBHECleaned_);
-    obj.setPFMET170(HLT_PFMET170_JetIdCleaned_);
-    obj.setPFMET170(HLT_PFMET170_BeamHaloCleaned_);
-    obj.setPFMET170(HLT_PFMET170_HBHE_BeamHaloCleaned_);
-    obj.setPFMETTypeOne190(HLT_PFMETTypeOne190_HBHE_BeamHaloCleaned_);
-    obj.setPFMET90(HLT_PFMET90_PFMHT90_IDTight_);
-    obj.setPFMET100(HLT_PFMET100_PFMHT100_IDTight_);
-    obj.setPFMET100(HLT_PFMET100_PFMHT100_IDTight_BeamHaloCleaned_);
-    obj.setPFMET110(HLT_PFMET110_PFMHT110_IDTight_);
-    obj.setPFMET120(HLT_PFMET120_PFMHT120_IDTight_);
-    obj.setCaloMHTNoPU90(HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_);
-    obj.setCaloMHTNoPU90(HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_);
-    obj.setQuadPFJet(HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_);
-    obj.setQuadPFJet(HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq460_);
-    obj.setQuadPFJet(HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_);
-    obj.setQuadPFJet(HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_);
-    obj.setQuadPFJet(HLT_QuadPFJet_VBF_);
-    obj.setL1(HLT_L1_TripleJet_VBF_);
-    obj.setQuadJet45(HLT_QuadJet45_TripleBTagCSV_p087_);
-    obj.setQuadJet45(HLT_QuadJet45_DoubleBTagCSV_p087_);
-    obj.setDoubleJet90(HLT_DoubleJet90_Double30_TripleBTagCSV_p087_);
-    obj.setDoubleJet90(HLT_DoubleJet90_Double30_DoubleBTagCSV_p087_);
-    obj.setDoubleJetsC100(HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_);
-    obj.setDoubleJetsC100(HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_);
-    obj.setDoubleJetsC112(HLT_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_);
-    obj.setDoubleJetsC112(HLT_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_);
-    obj.setDoubleJetsC100(HLT_DoubleJetsC100_SingleBTagCSV_p026_);
-    obj.setDoubleJetsC100(HLT_DoubleJetsC100_SingleBTagCSV_p014_);
-    obj.setDoubleJetsC100(HLT_DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_);
-    obj.setDoubleJetsC100(HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_);
-    obj.setPhoton135(HLT_Photon135_PFMET100_);
-    obj.setPhoton20(HLT_Photon20_CaloIdVL_IsoL_);
-    obj.setPhoton22(HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
-    obj.setPhoton22(HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_);
-    obj.setPhoton250(HLT_Photon250_NoHE_);
-    obj.setPhoton300(HLT_Photon300_NoHE_);
-    obj.setPhoton26(HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_);
-    obj.setPhoton36(HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_);
-    obj.setPhoton36(HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
-    obj.setPhoton36(HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_);
-    obj.setPhoton50(HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
-    obj.setPhoton50(HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_);
-    obj.setPhoton75(HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
-    obj.setPhoton75(HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_);
-    obj.setPhoton90(HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
-    obj.setPhoton90(HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_);
-    obj.setPhoton120(HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
-    obj.setPhoton120(HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_);
-    obj.setMu8(HLT_Mu8_TrkIsoVVL_);
-    obj.setMu17(HLT_Mu17_TrkIsoVVL_);
-    obj.setEle8(HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_);
-    obj.setEle12(HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_);
-    obj.setEle17(HLT_Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30_);
-    obj.setEle23(HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_);
-    obj.setBTagMu(HLT_BTagMu_DiJet20_Mu5_);
-    obj.setBTagMu(HLT_BTagMu_DiJet40_Mu5_);
-    obj.setBTagMu(HLT_BTagMu_DiJet70_Mu5_);
-    obj.setBTagMu(HLT_BTagMu_DiJet110_Mu5_);
-    obj.setBTagMu(HLT_BTagMu_DiJet170_Mu5_);
-    obj.setBTagMu(HLT_BTagMu_Jet300_Mu5_);
-    obj.setBTagMu(HLT_BTagMu_AK8Jet300_Mu5_);
-    obj.setEle23(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
-    obj.setEle23(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_);
-    obj.setEle17(HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
-    obj.setEle16(HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_);
-    obj.setMu8(HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_);
-    obj.setMu8(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_);
-    obj.setMu8(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_);
-    obj.setMu12(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_);
-    obj.setMu12(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_);
-    obj.setMu17(HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_);
-    obj.setMu23(HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_);
-    obj.setMu23(HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_);
-    obj.setMu23(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_);
-    obj.setMu23(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
-    obj.setMu30(HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_);
-    obj.setMu33(HLT_Mu33_Ele33_CaloIdL_GsfTrkIdVL_);
-    obj.setMu37(HLT_Mu37_Ele27_CaloIdL_GsfTrkIdVL_);
-    obj.setMu27(HLT_Mu27_Ele37_CaloIdL_GsfTrkIdVL_);
-    obj.setMu8(HLT_Mu8_DiEle12_CaloIdL_TrackIdL_);
-    obj.setMu12(HLT_Mu12_Photon25_CaloIdL_);
-    obj.setMu12(HLT_Mu12_Photon25_CaloIdL_L1ISO_);
-    obj.setMu12(HLT_Mu12_Photon25_CaloIdL_L1OR_);
-    obj.setMu17(HLT_Mu17_Photon22_CaloIdL_L1ISO_);
-    obj.setMu17(HLT_Mu17_Photon30_CaloIdL_L1ISO_);
-    obj.setMu17(HLT_Mu17_Photon35_CaloIdL_L1ISO_);
-    obj.setDiMu9(HLT_DiMu9_Ele9_CaloIdL_TrackIdL_);
-    obj.setTripleMu(HLT_TripleMu_5_3_3_);
-    obj.setTripleMu(HLT_TripleMu_12_10_5_);
-    obj.setMu3er(HLT_Mu3er_PFHT140_PFMET125_);
-    obj.setMu6(HLT_Mu6_PFHT200_PFMET80_BTagCSV_p067_);
-    obj.setMu6(HLT_Mu6_PFHT200_PFMET100_);
-    obj.setMu14er(HLT_Mu14er_PFMET100_);
-    obj.setEle17(HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_);
-    obj.setEle23(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_);
-    obj.setEle12(HLT_Ele12_CaloIdL_TrackIdL_IsoVL_);
-    obj.setEle17(HLT_Ele17_CaloIdL_GsfTrkIdVL_);
-    obj.setEle17(HLT_Ele17_CaloIdL_TrackIdL_IsoVL_);
-    obj.setEle23(HLT_Ele23_CaloIdL_TrackIdL_IsoVL_);
-    obj.setPFHT650(HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_);
-    obj.setPFHT650(HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_);
+    obj.setPFHT200_PFAlphaT0p51(HLT_PFHT200_PFAlphaT0p51_);
+    obj.setPFHT200_DiPFJetAve90_PFAlphaT0p57(HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_);
+    obj.setPFHT200_DiPFJetAve90_PFAlphaT0p63(HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_);
+    obj.setPFHT250_DiPFJetAve90_PFAlphaT0p55(HLT_PFHT250_DiPFJetAve90_PFAlphaT0p55_);
+    obj.setPFHT250_DiPFJetAve90_PFAlphaT0p58(HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_);
+    obj.setPFHT300_DiPFJetAve90_PFAlphaT0p53(HLT_PFHT300_DiPFJetAve90_PFAlphaT0p53_);
+    obj.setPFHT300_DiPFJetAve90_PFAlphaT0p54(HLT_PFHT300_DiPFJetAve90_PFAlphaT0p54_);
+    obj.setPFHT350_DiPFJetAve90_PFAlphaT0p52(HLT_PFHT350_DiPFJetAve90_PFAlphaT0p52_);
+    obj.setPFHT350_DiPFJetAve90_PFAlphaT0p53(HLT_PFHT350_DiPFJetAve90_PFAlphaT0p53_);
+    obj.setPFHT400_DiPFJetAve90_PFAlphaT0p51(HLT_PFHT400_DiPFJetAve90_PFAlphaT0p51_);
+    obj.setPFHT400_DiPFJetAve90_PFAlphaT0p52(HLT_PFHT400_DiPFJetAve90_PFAlphaT0p52_);
+    obj.setMET60_IsoTrk35_Loose(HLT_MET60_IsoTrk35_Loose_);
+    obj.setMET75_IsoTrk50(HLT_MET75_IsoTrk50_);
+    obj.setMET90_IsoTrk50(HLT_MET90_IsoTrk50_);
+    obj.setPFMET120_BTagCSV_p067(HLT_PFMET120_BTagCSV_p067_);
+    obj.setPFMET120_Mu5(HLT_PFMET120_Mu5_);
+    obj.setPFMET170_NotCleaned(HLT_PFMET170_NotCleaned_);
+    obj.setPFMET170_NoiseCleaned(HLT_PFMET170_NoiseCleaned_);
+    obj.setPFMET170_HBHECleaned(HLT_PFMET170_HBHECleaned_);
+    obj.setPFMET170_JetIdCleaned(HLT_PFMET170_JetIdCleaned_);
+    obj.setPFMET170_BeamHaloCleaned(HLT_PFMET170_BeamHaloCleaned_);
+    obj.setPFMET170_HBHE_BeamHaloCleaned(HLT_PFMET170_HBHE_BeamHaloCleaned_);
+    obj.setPFMETTypeOne190_HBHE_BeamHaloCleaned(HLT_PFMETTypeOne190_HBHE_BeamHaloCleaned_);
+    obj.setPFMET90_PFMHT90_IDTight(HLT_PFMET90_PFMHT90_IDTight_);
+    obj.setPFMET100_PFMHT100_IDTight(HLT_PFMET100_PFMHT100_IDTight_);
+    obj.setPFMET100_PFMHT100_IDTight_BeamHaloCleaned(HLT_PFMET100_PFMHT100_IDTight_BeamHaloCleaned_);
+    obj.setPFMET110_PFMHT110_IDTight(HLT_PFMET110_PFMHT110_IDTight_);
+    obj.setPFMET120_PFMHT120_IDTight(HLT_PFMET120_PFMHT120_IDTight_);
+    obj.setCaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067(HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_);
+    obj.setCaloMHTNoPU90_PFMET90_PFMHT90_IDTight(HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_);
+    obj.setQuadPFJet_BTagCSV_p016_p11_VBF_Mqq200(HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_);
+    obj.setQuadPFJet_BTagCSV_p016_VBF_Mqq460(HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq460_);
+    obj.setQuadPFJet_BTagCSV_p016_p11_VBF_Mqq240(HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_);
+    obj.setQuadPFJet_BTagCSV_p016_VBF_Mqq500(HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_);
+    obj.setQuadPFJet_VBF(HLT_QuadPFJet_VBF_);
+    obj.setL1_TripleJet_VBF(HLT_L1_TripleJet_VBF_);
+    obj.setQuadJet45_TripleBTagCSV_p087(HLT_QuadJet45_TripleBTagCSV_p087_);
+    obj.setQuadJet45_DoubleBTagCSV_p087(HLT_QuadJet45_DoubleBTagCSV_p087_);
+    obj.setDoubleJet90_Double30_TripleBTagCSV_p087(HLT_DoubleJet90_Double30_TripleBTagCSV_p087_);
+    obj.setDoubleJet90_Double30_DoubleBTagCSV_p087(HLT_DoubleJet90_Double30_DoubleBTagCSV_p087_);
+    obj.setDoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160(HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_);
+    obj.setDoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6(HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_);
+    obj.setDoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172(HLT_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_);
+    obj.setDoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6(HLT_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_);
+    obj.setDoubleJetsC100_SingleBTagCSV_p026(HLT_DoubleJetsC100_SingleBTagCSV_p026_);
+    obj.setDoubleJetsC100_SingleBTagCSV_p014(HLT_DoubleJetsC100_SingleBTagCSV_p014_);
+    obj.setDoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350(HLT_DoubleJetsC100_SingleBTagCSV_p026_SinglePFJetC350_);
+    obj.setDoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350(HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_);
+    obj.setPhoton135_PFMET100(HLT_Photon135_PFMET100_);
+    obj.setPhoton20_CaloIdVL_IsoL(HLT_Photon20_CaloIdVL_IsoL_);
+    obj.setPhoton22_R9Id90_HE10_Iso40_EBOnly_PFMET40(HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
+    obj.setPhoton22_R9Id90_HE10_Iso40_EBOnly_VBF(HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_);
+    obj.setPhoton250_NoHE(HLT_Photon250_NoHE_);
+    obj.setPhoton300_NoHE(HLT_Photon300_NoHE_);
+    obj.setPhoton26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60(HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_);
+    obj.setPhoton36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15(HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_);
+    obj.setPhoton36_R9Id90_HE10_Iso40_EBOnly_PFMET40(HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
+    obj.setPhoton36_R9Id90_HE10_Iso40_EBOnly_VBF(HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_);
+    obj.setPhoton50_R9Id90_HE10_Iso40_EBOnly_PFMET40(HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
+    obj.setPhoton50_R9Id90_HE10_Iso40_EBOnly_VBF(HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_);
+    obj.setPhoton75_R9Id90_HE10_Iso40_EBOnly_PFMET40(HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
+    obj.setPhoton75_R9Id90_HE10_Iso40_EBOnly_VBF(HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_);
+    obj.setPhoton90_R9Id90_HE10_Iso40_EBOnly_PFMET40(HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
+    obj.setPhoton90_R9Id90_HE10_Iso40_EBOnly_VBF(HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_);
+    obj.setPhoton120_R9Id90_HE10_Iso40_EBOnly_PFMET40(HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_);
+    obj.setPhoton120_R9Id90_HE10_Iso40_EBOnly_VBF(HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_);
+    obj.setMu8_TrkIsoVVL(HLT_Mu8_TrkIsoVVL_);
+    obj.setMu17_TrkIsoVVL(HLT_Mu17_TrkIsoVVL_);
+    obj.setEle8_CaloIdL_TrackIdL_IsoVL_PFJet30(HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_);
+    obj.setEle12_CaloIdL_TrackIdL_IsoVL_PFJet30(HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_);
+    obj.setEle17_CaloIdL_TrackIdL_IsoVL_PFJet30(HLT_Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30_);
+    obj.setEle23_CaloIdL_TrackIdL_IsoVL_PFJet30(HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_);
+    obj.setBTagMu_DiJet20_Mu5(HLT_BTagMu_DiJet20_Mu5_);
+    obj.setBTagMu_DiJet40_Mu5(HLT_BTagMu_DiJet40_Mu5_);
+    obj.setBTagMu_DiJet70_Mu5(HLT_BTagMu_DiJet70_Mu5_);
+    obj.setBTagMu_DiJet110_Mu5(HLT_BTagMu_DiJet110_Mu5_);
+    obj.setBTagMu_DiJet170_Mu5(HLT_BTagMu_DiJet170_Mu5_);
+    obj.setBTagMu_Jet300_Mu5(HLT_BTagMu_Jet300_Mu5_);
+    obj.setBTagMu_AK8Jet300_Mu5(HLT_BTagMu_AK8Jet300_Mu5_);
+    obj.setEle23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
+    obj.setEle23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_);
+    obj.setEle17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
+    obj.setEle16_Ele12_Ele8_CaloIdL_TrackIdL(HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_);
+    obj.setMu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL(HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_);
+    obj.setMu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_);
+    obj.setMu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_);
+    obj.setMu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_);
+    obj.setMu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_);
+    obj.setMu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL(HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_);
+    obj.setMu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL(HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_);
+    obj.setMu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ(HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_);
+    obj.setMu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_);
+    obj.setMu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_);
+    obj.setMu30_Ele30_CaloIdL_GsfTrkIdVL(HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_);
+    obj.setMu33_Ele33_CaloIdL_GsfTrkIdVL(HLT_Mu33_Ele33_CaloIdL_GsfTrkIdVL_);
+    obj.setMu37_Ele27_CaloIdL_GsfTrkIdVL(HLT_Mu37_Ele27_CaloIdL_GsfTrkIdVL_);
+    obj.setMu27_Ele37_CaloIdL_GsfTrkIdVL(HLT_Mu27_Ele37_CaloIdL_GsfTrkIdVL_);
+    obj.setMu8_DiEle12_CaloIdL_TrackIdL(HLT_Mu8_DiEle12_CaloIdL_TrackIdL_);
+    obj.setMu12_Photon25_CaloIdL(HLT_Mu12_Photon25_CaloIdL_);
+    obj.setMu12_Photon25_CaloIdL_L1ISO(HLT_Mu12_Photon25_CaloIdL_L1ISO_);
+    obj.setMu12_Photon25_CaloIdL_L1OR(HLT_Mu12_Photon25_CaloIdL_L1OR_);
+    obj.setMu17_Photon22_CaloIdL_L1ISO(HLT_Mu17_Photon22_CaloIdL_L1ISO_);
+    obj.setMu17_Photon30_CaloIdL_L1ISO(HLT_Mu17_Photon30_CaloIdL_L1ISO_);
+    obj.setMu17_Photon35_CaloIdL_L1ISO(HLT_Mu17_Photon35_CaloIdL_L1ISO_);
+    obj.setDiMu9_Ele9_CaloIdL_TrackIdL(HLT_DiMu9_Ele9_CaloIdL_TrackIdL_);
+    obj.setTripleMu_5_3_3(HLT_TripleMu_5_3_3_);
+    obj.setTripleMu_12_10_5(HLT_TripleMu_12_10_5_);
+    obj.setMu3er_PFHT140_PFMET125(HLT_Mu3er_PFHT140_PFMET125_);
+    obj.setMu6_PFHT200_PFMET80_BTagCSV_p067(HLT_Mu6_PFHT200_PFMET80_BTagCSV_p067_);
+    obj.setMu6_PFHT200_PFMET100(HLT_Mu6_PFHT200_PFMET100_);
+    obj.setMu14er_PFMET100(HLT_Mu14er_PFMET100_);
+    obj.setEle17_Ele12_CaloIdL_TrackIdL_IsoVL(HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_);
+    obj.setEle23_Ele12_CaloIdL_TrackIdL_IsoVL(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_);
+    obj.setEle12_CaloIdL_TrackIdL_IsoVL(HLT_Ele12_CaloIdL_TrackIdL_IsoVL_);
+    obj.setEle17_CaloIdL_GsfTrkIdVL(HLT_Ele17_CaloIdL_GsfTrkIdVL_);
+    obj.setEle17_CaloIdL_TrackIdL_IsoVL(HLT_Ele17_CaloIdL_TrackIdL_IsoVL_);
+    obj.setEle23_CaloIdL_TrackIdL_IsoVL(HLT_Ele23_CaloIdL_TrackIdL_IsoVL_);
+    obj.setPFHT650_WideJetMJJ900DEtaJJ1p5(HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_);
+    obj.setPFHT650_WideJetMJJ950DEtaJJ1p5(HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_);
     obj.setPhoton22(HLT_Photon22_);
     obj.setPhoton30(HLT_Photon30_);
     obj.setPhoton36(HLT_Photon36_);
@@ -7054,143 +7055,143 @@ public:
     obj.setPhoton90(HLT_Photon90_);
     obj.setPhoton120(HLT_Photon120_);
     obj.setPhoton175(HLT_Photon175_);
-    obj.setPhoton165(HLT_Photon165_HE10_);
-    obj.setPhoton22(HLT_Photon22_R9Id90_HE10_IsoM_);
-    obj.setPhoton30(HLT_Photon30_R9Id90_HE10_IsoM_);
-    obj.setPhoton36(HLT_Photon36_R9Id90_HE10_IsoM_);
-    obj.setPhoton50(HLT_Photon50_R9Id90_HE10_IsoM_);
-    obj.setPhoton75(HLT_Photon75_R9Id90_HE10_IsoM_);
-    obj.setPhoton90(HLT_Photon90_R9Id90_HE10_IsoM_);
-    obj.setPhoton120(HLT_Photon120_R9Id90_HE10_IsoM_);
-    obj.setPhoton165(HLT_Photon165_R9Id90_HE10_IsoM_);
-    obj.setDiphoton30(HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_);
-    obj.setDiphoton30(HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_);
-    obj.setDiphoton30PV(HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_);
-    obj.setDiphoton30(HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_);
-    obj.setDiphoton30EB(HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_);
-    obj.setDimuon0(HLT_Dimuon0_Jpsi_Muon_);
-    obj.setDimuon0(HLT_Dimuon0_Upsilon_Muon_);
-    obj.setQuadMuon0(HLT_QuadMuon0_Dimuon0_Jpsi_);
-    obj.setQuadMuon0(HLT_QuadMuon0_Dimuon0_Upsilon_);
-    obj.setRsq0p25(HLT_Rsq0p25_Calo_);
-    obj.setRsqMR240(HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_);
-    obj.setRsqMR240(HLT_RsqMR240_Rsq0p09_MR200_Calo_);
+    obj.setPhoton165_HE10(HLT_Photon165_HE10_);
+    obj.setPhoton22_R9Id90_HE10_IsoM(HLT_Photon22_R9Id90_HE10_IsoM_);
+    obj.setPhoton30_R9Id90_HE10_IsoM(HLT_Photon30_R9Id90_HE10_IsoM_);
+    obj.setPhoton36_R9Id90_HE10_IsoM(HLT_Photon36_R9Id90_HE10_IsoM_);
+    obj.setPhoton50_R9Id90_HE10_IsoM(HLT_Photon50_R9Id90_HE10_IsoM_);
+    obj.setPhoton75_R9Id90_HE10_IsoM(HLT_Photon75_R9Id90_HE10_IsoM_);
+    obj.setPhoton90_R9Id90_HE10_IsoM(HLT_Photon90_R9Id90_HE10_IsoM_);
+    obj.setPhoton120_R9Id90_HE10_IsoM(HLT_Photon120_R9Id90_HE10_IsoM_);
+    obj.setPhoton165_R9Id90_HE10_IsoM(HLT_Photon165_R9Id90_HE10_IsoM_);
+    obj.setDiphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90(HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_);
+    obj.setDiphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70(HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_);
+    obj.setDiphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55(HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_);
+    obj.setDiphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55(HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_);
+    obj.setDiphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55(HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_);
+    obj.setDimuon0_Jpsi_Muon(HLT_Dimuon0_Jpsi_Muon_);
+    obj.setDimuon0_Upsilon_Muon(HLT_Dimuon0_Upsilon_Muon_);
+    obj.setQuadMuon0_Dimuon0_Jpsi(HLT_QuadMuon0_Dimuon0_Jpsi_);
+    obj.setQuadMuon0_Dimuon0_Upsilon(HLT_QuadMuon0_Dimuon0_Upsilon_);
+    obj.setRsq0p25_Calo(HLT_Rsq0p25_Calo_);
+    obj.setRsqMR240_Rsq0p09_MR200_4jet_Calo(HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_);
+    obj.setRsqMR240_Rsq0p09_MR200_Calo(HLT_RsqMR240_Rsq0p09_MR200_Calo_);
     obj.setRsq0p25(HLT_Rsq0p25_);
     obj.setRsq0p30(HLT_Rsq0p30_);
-    obj.setRsqMR240(HLT_RsqMR240_Rsq0p09_MR200_);
-    obj.setRsqMR240(HLT_RsqMR240_Rsq0p09_MR200_4jet_);
-    obj.setRsqMR270(HLT_RsqMR270_Rsq0p09_MR200_);
-    obj.setRsqMR270(HLT_RsqMR270_Rsq0p09_MR200_4jet_);
-    obj.setRsq0p02(HLT_Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_);
-    obj.setRsq0p02(HLT_Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
-    obj.setRsq0p02(HLT_Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
-    obj.setRsq0p02(HLT_Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
-    obj.setRsq0p02(HLT_Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
-    obj.setHT200(HLT_HT200_DisplacedDijet40_DisplacedTrack_);
-    obj.setHT250(HLT_HT250_DisplacedDijet40_DisplacedTrack_);
-    obj.setHT350(HLT_HT350_DisplacedDijet40_DisplacedTrack_);
-    obj.setHT350(HLT_HT350_DisplacedDijet80_DisplacedTrack_);
-    obj.setHT350(HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_);
-    obj.setHT350(HLT_HT350_DisplacedDijet40_Inclusive_);
-    obj.setHT400(HLT_HT400_DisplacedDijet40_Inclusive_);
-    obj.setHT500(HLT_HT500_DisplacedDijet40_Inclusive_);
-    obj.setHT550(HLT_HT550_DisplacedDijet40_Inclusive_);
-    obj.setHT550(HLT_HT550_DisplacedDijet80_Inclusive_);
-    obj.setHT650(HLT_HT650_DisplacedDijet80_Inclusive_);
-    obj.setHT750(HLT_HT750_DisplacedDijet80_Inclusive_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_DisplacedTrack_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_Hadronic_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_TightID_Hadronic_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_VTightID_Hadronic_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_VVTightID_Hadronic_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_);
-    obj.setVBF(HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_);
-    obj.setPFMETNoMu90(HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_);
-    obj.setPFMETNoMu100(HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_);
-    obj.setPFMETNoMu110(HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_);
-    obj.setPFMETNoMu120(HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_);
-    obj.setMonoCentralPFJet80(HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_);
-    obj.setMonoCentralPFJet80(HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_);
-    obj.setMonoCentralPFJet80(HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_);
-    obj.setMonoCentralPFJet80(HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_);
-    obj.setEle27(HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_);
-    obj.setPhoton90(HLT_Photon90_CaloIdL_PFHT500_);
-    obj.setDoubleMu8(HLT_DoubleMu8_Mass8_PFHT250_);
-    obj.setMu8(HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_);
-    obj.setDoubleEle8(HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_);
-    obj.setDoubleMu8(HLT_DoubleMu8_Mass8_PFHT300_);
-    obj.setMu8(HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_);
-    obj.setDoubleEle8(HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_);
-    obj.setMu10(HLT_Mu10_CentralPFJet30_BTagCSV_p13_);
-    obj.setDoubleMu3(HLT_DoubleMu3_PFMET50_);
-    obj.setEle10(HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_);
-    obj.setEle15(HLT_Ele15_IsoVVVL_BTagCSV_p067_PFHT400_);
-    obj.setEle15(HLT_Ele15_IsoVVVL_PFHT350_PFMET50_);
-    obj.setEle15(HLT_Ele15_IsoVVVL_PFHT600_);
-    obj.setEle15(HLT_Ele15_IsoVVVL_PFHT350_);
-    obj.setEle15(HLT_Ele15_IsoVVVL_PFHT400_PFMET50_);
-    obj.setEle15(HLT_Ele15_IsoVVVL_PFHT400_);
-    obj.setEle50(HLT_Ele50_IsoVVVL_PFHT400_);
-    obj.setMu8(HLT_Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_);
-    obj.setMu10(HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_);
-    obj.setMu15(HLT_Mu15_IsoVVVL_BTagCSV_p067_PFHT400_);
-    obj.setMu15(HLT_Mu15_IsoVVVL_PFHT350_PFMET50_);
-    obj.setMu15(HLT_Mu15_IsoVVVL_PFHT600_);
-    obj.setMu15(HLT_Mu15_IsoVVVL_PFHT350_);
-    obj.setMu15(HLT_Mu15_IsoVVVL_PFHT400_PFMET50_);
-    obj.setMu15(HLT_Mu15_IsoVVVL_PFHT400_);
-    obj.setMu50(HLT_Mu50_IsoVVVL_PFHT400_);
-    obj.setDimuon16(HLT_Dimuon16_Jpsi_);
-    obj.setDimuon10(HLT_Dimuon10_Jpsi_Barrel_);
-    obj.setDimuon8(HLT_Dimuon8_PsiPrime_Barrel_);
-    obj.setDimuon8(HLT_Dimuon8_Upsilon_Barrel_);
-    obj.setDimuon0(HLT_Dimuon0_Phi_Barrel_);
-    obj.setMu16(HLT_Mu16_TkMu0_dEta18_Onia_);
-    obj.setMu16(HLT_Mu16_TkMu0_dEta18_Phi_);
-    obj.setTrkMu15(HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_);
-    obj.setTrkMu17(HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_);
+    obj.setRsqMR240_Rsq0p09_MR200(HLT_RsqMR240_Rsq0p09_MR200_);
+    obj.setRsqMR240_Rsq0p09_MR200_4jet(HLT_RsqMR240_Rsq0p09_MR200_4jet_);
+    obj.setRsqMR270_Rsq0p09_MR200(HLT_RsqMR270_Rsq0p09_MR200_);
+    obj.setRsqMR270_Rsq0p09_MR200_4jet(HLT_RsqMR270_Rsq0p09_MR200_4jet_);
+    obj.setRsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200(HLT_Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_);
+    obj.setRsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(HLT_Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
+    obj.setRsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(HLT_Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
+    obj.setRsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(HLT_Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
+    obj.setRsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200(HLT_Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_);
+    obj.setHT200_DisplacedDijet40_DisplacedTrack(HLT_HT200_DisplacedDijet40_DisplacedTrack_);
+    obj.setHT250_DisplacedDijet40_DisplacedTrack(HLT_HT250_DisplacedDijet40_DisplacedTrack_);
+    obj.setHT350_DisplacedDijet40_DisplacedTrack(HLT_HT350_DisplacedDijet40_DisplacedTrack_);
+    obj.setHT350_DisplacedDijet80_DisplacedTrack(HLT_HT350_DisplacedDijet80_DisplacedTrack_);
+    obj.setHT350_DisplacedDijet80_Tight_DisplacedTrack(HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_);
+    obj.setHT350_DisplacedDijet40_Inclusive(HLT_HT350_DisplacedDijet40_Inclusive_);
+    obj.setHT400_DisplacedDijet40_Inclusive(HLT_HT400_DisplacedDijet40_Inclusive_);
+    obj.setHT500_DisplacedDijet40_Inclusive(HLT_HT500_DisplacedDijet40_Inclusive_);
+    obj.setHT550_DisplacedDijet40_Inclusive(HLT_HT550_DisplacedDijet40_Inclusive_);
+    obj.setHT550_DisplacedDijet80_Inclusive(HLT_HT550_DisplacedDijet80_Inclusive_);
+    obj.setHT650_DisplacedDijet80_Inclusive(HLT_HT650_DisplacedDijet80_Inclusive_);
+    obj.setHT750_DisplacedDijet80_Inclusive(HLT_HT750_DisplacedDijet80_Inclusive_);
+    obj.setVBF_DisplacedJet40_DisplacedTrack(HLT_VBF_DisplacedJet40_DisplacedTrack_);
+    obj.setVBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5(HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_);
+    obj.setVBF_DisplacedJet40_TightID_DisplacedTrack(HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_);
+    obj.setVBF_DisplacedJet40_Hadronic(HLT_VBF_DisplacedJet40_Hadronic_);
+    obj.setVBF_DisplacedJet40_Hadronic_2PromptTrack(HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_);
+    obj.setVBF_DisplacedJet40_TightID_Hadronic(HLT_VBF_DisplacedJet40_TightID_Hadronic_);
+    obj.setVBF_DisplacedJet40_VTightID_Hadronic(HLT_VBF_DisplacedJet40_VTightID_Hadronic_);
+    obj.setVBF_DisplacedJet40_VVTightID_Hadronic(HLT_VBF_DisplacedJet40_VVTightID_Hadronic_);
+    obj.setVBF_DisplacedJet40_VTightID_DisplacedTrack(HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_);
+    obj.setVBF_DisplacedJet40_VVTightID_DisplacedTrack(HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_);
+    obj.setPFMETNoMu90_PFMHTNoMu90_IDTight(HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_);
+    obj.setPFMETNoMu100_PFMHTNoMu100_IDTight(HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_);
+    obj.setPFMETNoMu110_PFMHTNoMu110_IDTight(HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_);
+    obj.setPFMETNoMu120_PFMHTNoMu120_IDTight(HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_);
+    obj.setMonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight(HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_);
+    obj.setMonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight(HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_);
+    obj.setMonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight(HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_);
+    obj.setMonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight(HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_);
+    obj.setEle27_eta2p1_WPLoose_Gsf_HT200(HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_);
+    obj.setPhoton90_CaloIdL_PFHT500(HLT_Photon90_CaloIdL_PFHT500_);
+    obj.setDoubleMu8_Mass8_PFHT250(HLT_DoubleMu8_Mass8_PFHT250_);
+    obj.setMu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250(HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_);
+    obj.setDoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250(HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_);
+    obj.setDoubleMu8_Mass8_PFHT300(HLT_DoubleMu8_Mass8_PFHT300_);
+    obj.setMu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300(HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_);
+    obj.setDoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300(HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_);
+    obj.setMu10_CentralPFJet30_BTagCSV_p13(HLT_Mu10_CentralPFJet30_BTagCSV_p13_);
+    obj.setDoubleMu3_PFMET50(HLT_DoubleMu3_PFMET50_);
+    obj.setEle10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13(HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_);
+    obj.setEle15_IsoVVVL_BTagCSV_p067_PFHT400(HLT_Ele15_IsoVVVL_BTagCSV_p067_PFHT400_);
+    obj.setEle15_IsoVVVL_PFHT350_PFMET50(HLT_Ele15_IsoVVVL_PFHT350_PFMET50_);
+    obj.setEle15_IsoVVVL_PFHT600(HLT_Ele15_IsoVVVL_PFHT600_);
+    obj.setEle15_IsoVVVL_PFHT350(HLT_Ele15_IsoVVVL_PFHT350_);
+    obj.setEle15_IsoVVVL_PFHT400_PFMET50(HLT_Ele15_IsoVVVL_PFHT400_PFMET50_);
+    obj.setEle15_IsoVVVL_PFHT400(HLT_Ele15_IsoVVVL_PFHT400_);
+    obj.setEle50_IsoVVVL_PFHT400(HLT_Ele50_IsoVVVL_PFHT400_);
+    obj.setMu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60(HLT_Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_);
+    obj.setMu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60(HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_);
+    obj.setMu15_IsoVVVL_BTagCSV_p067_PFHT400(HLT_Mu15_IsoVVVL_BTagCSV_p067_PFHT400_);
+    obj.setMu15_IsoVVVL_PFHT350_PFMET50(HLT_Mu15_IsoVVVL_PFHT350_PFMET50_);
+    obj.setMu15_IsoVVVL_PFHT600(HLT_Mu15_IsoVVVL_PFHT600_);
+    obj.setMu15_IsoVVVL_PFHT350(HLT_Mu15_IsoVVVL_PFHT350_);
+    obj.setMu15_IsoVVVL_PFHT400_PFMET50(HLT_Mu15_IsoVVVL_PFHT400_PFMET50_);
+    obj.setMu15_IsoVVVL_PFHT400(HLT_Mu15_IsoVVVL_PFHT400_);
+    obj.setMu50_IsoVVVL_PFHT400(HLT_Mu50_IsoVVVL_PFHT400_);
+    obj.setDimuon16_Jpsi(HLT_Dimuon16_Jpsi_);
+    obj.setDimuon10_Jpsi_Barrel(HLT_Dimuon10_Jpsi_Barrel_);
+    obj.setDimuon8_PsiPrime_Barrel(HLT_Dimuon8_PsiPrime_Barrel_);
+    obj.setDimuon8_Upsilon_Barrel(HLT_Dimuon8_Upsilon_Barrel_);
+    obj.setDimuon0_Phi_Barrel(HLT_Dimuon0_Phi_Barrel_);
+    obj.setMu16_TkMu0_dEta18_Onia(HLT_Mu16_TkMu0_dEta18_Onia_);
+    obj.setMu16_TkMu0_dEta18_Phi(HLT_Mu16_TkMu0_dEta18_Phi_);
+    obj.setTrkMu15_DoubleTrkMu5NoFiltersNoVtx(HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_);
+    obj.setTrkMu17_DoubleTrkMu8NoFiltersNoVtx(HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_);
     obj.setMu8(HLT_Mu8_);
     obj.setMu17(HLT_Mu17_);
-    obj.setMu3(HLT_Mu3_PFJet40_);
-    obj.setEle8(HLT_Ele8_CaloIdM_TrackIdM_PFJet30_);
-    obj.setEle12(HLT_Ele12_CaloIdM_TrackIdM_PFJet30_);
-    obj.setEle17(HLT_Ele17_CaloIdM_TrackIdM_PFJet30_);
-    obj.setEle23(HLT_Ele23_CaloIdM_TrackIdM_PFJet30_);
-    obj.setEle50(HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet140_);
-    obj.setEle50(HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_);
-    obj.setPFHT400(HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_);
-    obj.setPFHT450(HLT_PFHT450_SixJet40_BTagCSV_p056_);
-    obj.setPFHT400(HLT_PFHT400_SixJet30_);
-    obj.setPFHT450(HLT_PFHT450_SixJet40_);
-    obj.setEle115(HLT_Ele115_CaloIdVT_GsfTrkIdT_);
+    obj.setMu3_PFJet40(HLT_Mu3_PFJet40_);
+    obj.setEle8_CaloIdM_TrackIdM_PFJet30(HLT_Ele8_CaloIdM_TrackIdM_PFJet30_);
+    obj.setEle12_CaloIdM_TrackIdM_PFJet30(HLT_Ele12_CaloIdM_TrackIdM_PFJet30_);
+    obj.setEle17_CaloIdM_TrackIdM_PFJet30(HLT_Ele17_CaloIdM_TrackIdM_PFJet30_);
+    obj.setEle23_CaloIdM_TrackIdM_PFJet30(HLT_Ele23_CaloIdM_TrackIdM_PFJet30_);
+    obj.setEle50_CaloIdVT_GsfTrkIdT_PFJet140(HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet140_);
+    obj.setEle50_CaloIdVT_GsfTrkIdT_PFJet165(HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_);
+    obj.setPFHT400_SixJet30_DoubleBTagCSV_p056(HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_);
+    obj.setPFHT450_SixJet40_BTagCSV_p056(HLT_PFHT450_SixJet40_BTagCSV_p056_);
+    obj.setPFHT400_SixJet30(HLT_PFHT400_SixJet30_);
+    obj.setPFHT450_SixJet40(HLT_PFHT450_SixJet40_);
+    obj.setEle115_CaloIdVT_GsfTrkIdT(HLT_Ele115_CaloIdVT_GsfTrkIdT_);
     obj.setMu55(HLT_Mu55_);
-    obj.setPhoton42(HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_);
-    obj.setPhoton90(HLT_Photon90_CaloIdL_PFHT600_);
-    obj.setPixelTracks(HLT_PixelTracks_Multiplicity60ForEndOfFill_);
-    obj.setPixelTracks(HLT_PixelTracks_Multiplicity85ForEndOfFill_);
-    obj.setPixelTracks(HLT_PixelTracks_Multiplicity110ForEndOfFill_);
-    obj.setPixelTracks(HLT_PixelTracks_Multiplicity135ForEndOfFill_);
-    obj.setPixelTracks(HLT_PixelTracks_Multiplicity160ForEndOfFill_);
-    obj.setFullTracks(HLT_FullTracks_Multiplicity80_);
-    obj.setFullTracks(HLT_FullTracks_Multiplicity100_);
-    obj.setFullTracks(HLT_FullTracks_Multiplicity130_);
-    obj.setFullTracks(HLT_FullTracks_Multiplicity150_);
+    obj.setPhoton42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15(HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_);
+    obj.setPhoton90_CaloIdL_PFHT600(HLT_Photon90_CaloIdL_PFHT600_);
+    obj.setPixelTracks_Multiplicity60ForEndOfFill(HLT_PixelTracks_Multiplicity60ForEndOfFill_);
+    obj.setPixelTracks_Multiplicity85ForEndOfFill(HLT_PixelTracks_Multiplicity85ForEndOfFill_);
+    obj.setPixelTracks_Multiplicity110ForEndOfFill(HLT_PixelTracks_Multiplicity110ForEndOfFill_);
+    obj.setPixelTracks_Multiplicity135ForEndOfFill(HLT_PixelTracks_Multiplicity135ForEndOfFill_);
+    obj.setPixelTracks_Multiplicity160ForEndOfFill(HLT_PixelTracks_Multiplicity160ForEndOfFill_);
+    obj.setFullTracks_Multiplicity80(HLT_FullTracks_Multiplicity80_);
+    obj.setFullTracks_Multiplicity100(HLT_FullTracks_Multiplicity100_);
+    obj.setFullTracks_Multiplicity130(HLT_FullTracks_Multiplicity130_);
+    obj.setFullTracks_Multiplicity150(HLT_FullTracks_Multiplicity150_);
     obj.setECALHT800(HLT_ECALHT800_);
-    obj.setDiSC30(HLT_DiSC30_18_EIso_AND_HE_Mass70_);
+    obj.setDiSC30_18_EIso_AND_HE_Mass70(HLT_DiSC30_18_EIso_AND_HE_Mass70_);
     obj.setPhoton125(HLT_Photon125_);
     obj.setMET100(HLT_MET100_);
     obj.setMET150(HLT_MET150_);
     obj.setMET200(HLT_MET200_);
-    obj.setEle27(HLT_Ele27_HighEta_Ele20_Mass55_);
+    obj.setEle27_HighEta_Ele20_Mass55(HLT_Ele27_HighEta_Ele20_Mass55_);
     obj.setL1FatEvents(HLT_L1FatEvents_);
     obj.setPhysics(HLT_Physics_);
-    obj.setL1FatEvents(HLT_L1FatEvents_part0_);
-    obj.setL1FatEvents(HLT_L1FatEvents_part1_);
-    obj.setL1FatEvents(HLT_L1FatEvents_part2_);
-    obj.setL1FatEvents(HLT_L1FatEvents_part3_);
+    obj.setL1FatEvents_part0(HLT_L1FatEvents_part0_);
+    obj.setL1FatEvents_part1(HLT_L1FatEvents_part1_);
+    obj.setL1FatEvents_part2(HLT_L1FatEvents_part2_);
+    obj.setL1FatEvents_part3(HLT_L1FatEvents_part3_);
     obj.setRandom(HLT_Random_);
     obj.setZeroBias(HLT_ZeroBias_);
     obj.setAK4CaloJet30(HLT_AK4CaloJet30_);
@@ -7216,17 +7217,17 @@ public:
     obj.setL1BeamGasMinus(HLT_L1BeamGasMinus_);
     obj.setL1BeamGasPlus(HLT_L1BeamGasPlus_);
     obj.setL1BptxXOR(HLT_L1BptxXOR_);
-    obj.setL1MinimumBiasHF(HLT_L1MinimumBiasHF_OR_);
-    obj.setL1MinimumBiasHF(HLT_L1MinimumBiasHF_AND_);
+    obj.setL1MinimumBiasHF_OR(HLT_L1MinimumBiasHF_OR_);
+    obj.setL1MinimumBiasHF_AND(HLT_L1MinimumBiasHF_AND_);
     obj.setHcalNZS(HLT_HcalNZS_);
     obj.setHcalPhiSym(HLT_HcalPhiSym_);
     obj.setHcalIsolatedbunch(HLT_HcalIsolatedbunch_);
-    obj.setZeroBias(HLT_ZeroBias_FirstCollisionAfterAbortGap_);
-    obj.setZeroBias(HLT_ZeroBias_FirstCollisionAfterAbortGap_copy_);
-    obj.setZeroBias(HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_);
-    obj.setZeroBias(HLT_ZeroBias_IsolatedBunches_);
-    obj.setZeroBias(HLT_ZeroBias_FirstCollisionInTrain_);
-    obj.setZeroBias(HLT_ZeroBias_FirstBXAfterTrain_);
+    obj.setZeroBias_FirstCollisionAfterAbortGap(HLT_ZeroBias_FirstCollisionAfterAbortGap_);
+    obj.setZeroBias_FirstCollisionAfterAbortGap_copy(HLT_ZeroBias_FirstCollisionAfterAbortGap_copy_);
+    obj.setZeroBias_FirstCollisionAfterAbortGap_TCDS(HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_);
+    obj.setZeroBias_IsolatedBunches(HLT_ZeroBias_IsolatedBunches_);
+    obj.setZeroBias_FirstCollisionInTrain(HLT_ZeroBias_FirstCollisionInTrain_);
+    obj.setZeroBias_FirstBXAfterTrain(HLT_ZeroBias_FirstBXAfterTrain_);
     obj.setPhoton500(HLT_Photon500_);
     obj.setPhoton600(HLT_Photon600_);
     obj.setMu300(HLT_Mu300_);
@@ -7239,8 +7240,8 @@ public:
     obj.setPFMET400(HLT_PFMET400_);
     obj.setPFMET500(HLT_PFMET500_);
     obj.setPFMET600(HLT_PFMET600_);
-    obj.setEle250(HLT_Ele250_CaloIdVT_GsfTrkIdT_);
-    obj.setEle300(HLT_Ele300_CaloIdVT_GsfTrkIdT_);
+    obj.setEle250_CaloIdVT_GsfTrkIdT(HLT_Ele250_CaloIdVT_GsfTrkIdT_);
+    obj.setEle300_CaloIdVT_GsfTrkIdT(HLT_Ele300_CaloIdVT_GsfTrkIdT_);
     obj.setHT2000(HLT_HT2000_);
     obj.setHT2500(HLT_HT2500_);
     obj.setIsoTrackHE(HLT_IsoTrackHE_);
@@ -7250,12 +7251,12 @@ public:
     return obj;
   }
   
-  const vector<Sv>& svs(){
-    if( SV_ > 0) return SV_;
+  const vector<Svs>& svs(){
+    if( SV_.size() > 0) return SV_;
     loadSvs();
-  	SV_.reserve(nSv);
-    for(size_t idx = 0; idx < nSv; ++idx ){
-      Sv obj;
+  	SV_.reserve(nSV);
+    for(size_t idx = 0; idx < nSV; ++idx ){
+      Svs obj;
       obj.setdlen(SV_dlen_[idx]);
       obj.setdlenSig(SV_dlenSig_[idx]);
       obj.setpAngle(SV_pAngle_[idx]);
@@ -7270,7 +7271,7 @@ public:
     return SV_;
   }
   
-  const Met MET(){
+  const Met met(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadMet();
@@ -7289,7 +7290,7 @@ public:
     return obj;
   }
   
-  const Genmet GenMET(){
+  const Genmet genmet(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadGenmet();
@@ -7300,19 +7301,19 @@ public:
     return obj;
   }
   
-  const vector<Fatjet>& fatjets(){
-    if( FatJet_ > 0) return FatJet_;
+  const vector<Fatjets>& fatjets(){
+    if( FatJet_.size() > 0) return FatJet_;
     loadFatjets();
-  	FatJet_.reserve(nFatjet);
-    for(size_t idx = 0; idx < nFatjet; ++idx ){
-      Fatjet obj;
+  	FatJet_.reserve(nFatJet);
+    for(size_t idx = 0; idx < nFatJet; ++idx ){
+      Fatjets obj;
       obj.setarea(FatJet_area_[idx]);
       obj.setbtagCMVA(FatJet_btagCMVA_[idx]);
       obj.setbtagCSVV2(FatJet_btagCSVV2_[idx]);
       obj.setbtagDeepB(FatJet_btagDeepB_[idx]);
       obj.setbtagHbb(FatJet_btagHbb_[idx]);
       obj.setmsoftdrop(FatJet_msoftdrop_[idx]);
-      obj.setmsoftdrop(FatJet_msoftdrop_chs_[idx]);
+      obj.setmsoftdrop_chs(FatJet_msoftdrop_chs_[idx]);
       obj.setn2b1(FatJet_n2b1_[idx]);
       obj.setn3b1(FatJet_n3b1_[idx]);
       obj.settau1(FatJet_tau1_[idx]);
@@ -7328,12 +7329,12 @@ public:
     return FatJet_;
   }
   
-  const vector<Subjet>& subjets(){
-    if( SubJet_ > 0) return SubJet_;
+  const vector<Subjets>& subjets(){
+    if( SubJet_.size() > 0) return SubJet_;
     loadSubjets();
-  	SubJet_.reserve(nSubjet);
-    for(size_t idx = 0; idx < nSubjet; ++idx ){
-      Subjet obj;
+  	SubJet_.reserve(nSubJet);
+    for(size_t idx = 0; idx < nSubJet; ++idx ){
+      Subjets obj;
       obj.setbtagCMVA(SubJet_btagCMVA_[idx]);
       obj.setbtagCSVV2(SubJet_btagCSVV2_[idx]);
       obj.setbtagDeepB(SubJet_btagDeepB_[idx]);
@@ -7349,7 +7350,7 @@ public:
     return SubJet_;
   }
   
-  const Flag Flag(){
+  const Flag flag(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadFlag();
@@ -7372,15 +7373,15 @@ public:
     obj.settrkPOGFilters(Flag_trkPOGFilters_);
     obj.setchargedHadronTrackResolutionFilter(Flag_chargedHadronTrackResolutionFilter_);
     obj.setmuonBadTrackFilter(Flag_muonBadTrackFilter_);
-    obj.settrkPOG(Flag_trkPOG_manystripclus53X_);
-    obj.settrkPOG(Flag_trkPOG_toomanystripclus53X_);
-    obj.settrkPOG(Flag_trkPOG_logErrorTooManyClusters_);
+    obj.settrkPOG_manystripclus53X(Flag_trkPOG_manystripclus53X_);
+    obj.settrkPOG_toomanystripclus53X(Flag_trkPOG_toomanystripclus53X_);
+    obj.settrkPOG_logErrorTooManyClusters(Flag_trkPOG_logErrorTooManyClusters_);
     obj.setMETFilters(Flag_METFilters_);
   
     return obj;
   }
   
-  const Pileup Pileup(){
+  const Pileup pileup(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadPileup();
@@ -7394,7 +7395,7 @@ public:
     return obj;
   }
   
-  const Lheweight LHEWeight(){
+  const Lheweight lheweight(){
     //non-vectorial objects are recomputed every
     //time for simplicity 
     loadLheweight();
@@ -8346,59 +8347,59 @@ private:
   Bool_t Flag_trkPOG_logErrorTooManyClusters_;
   Bool_t Flag_METFilters_;
   bool are_Jet_loaded_;
-  vector<Jet> Jet_;
+  vector<Jets> Jet_;
   bool are_GenJetAK8_loaded_;
-  vector<Genjetak8> GenJetAK8_;
+  vector<Genjetak8s> GenJetAK8_;
   bool are_GenVisTau_loaded_;
-  vector<Genvistau> GenVisTau_;
+  vector<Genvistaus> GenVisTau_;
   bool are_CaloMET_loaded_;
   Calomet CaloMET_;
   bool are_GenDressedLepton_loaded_;
-  vector<Gendressedlepton> GenDressedLepton_;
+  vector<Gendressedleptons> GenDressedLepton_;
   bool are_PV_loaded_;
   Pv PV_;
   bool are_Generator_loaded_;
   Generator Generator_;
   bool are_TrigObj_loaded_;
-  vector<Trigobj> TrigObj_;
+  vector<Trigobjs> TrigObj_;
   bool are_Photon_loaded_;
-  vector<Photon> Photon_;
+  vector<Photons> Photon_;
   bool are_GenJet_loaded_;
-  vector<Genjet> GenJet_;
+  vector<Genjets> GenJet_;
   bool are_RawMET_loaded_;
   Rawmet RawMET_;
   bool are_Electron_loaded_;
-  vector<Electron> Electron_;
+  vector<Electrons> Electron_;
   bool are_SoftActivityJet_loaded_;
   Softactivityjet SoftActivityJet_;
   bool are_L1simulation_loaded_;
   L1Simulation L1simulation_;
   bool are_GenPart_loaded_;
-  vector<Genpart> GenPart_;
+  vector<Genparts> GenPart_;
   bool are_LHE_loaded_;
   Lhe LHE_;
   bool are_TkMET_loaded_;
   Tkmet TkMET_;
   bool are_Tau_loaded_;
-  vector<Tau> Tau_;
+  vector<Taus> Tau_;
   bool are_PuppiMET_loaded_;
   Puppimet PuppiMET_;
   bool are_Muon_loaded_;
-  vector<Muon> Muon_;
+  vector<Muons> Muon_;
   bool are_OtherPV_loaded_;
-  vector<Otherpv> OtherPV_;
+  vector<Otherpvs> OtherPV_;
   bool are_HLT_loaded_;
   Hlt HLT_;
   bool are_SV_loaded_;
-  vector<Sv> SV_;
+  vector<Svs> SV_;
   bool are_MET_loaded_;
   Met MET_;
   bool are_GenMET_loaded_;
   Genmet GenMET_;
   bool are_FatJet_loaded_;
-  vector<Fatjet> FatJet_;
+  vector<Fatjets> FatJet_;
   bool are_SubJet_loaded_;
-  vector<Subjet> SubJet_;
+  vector<Subjets> SubJet_;
   bool are_Flag_loaded_;
   Flag Flag_;
   bool are_Pileup_loaded_;
