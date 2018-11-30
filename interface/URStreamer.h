@@ -437,22 +437,14 @@ public:
 //  {}
   Genjets():
     TLorentzVector(),
-    //partonFlavour_(0),
-    //hadronFlavour_(0),
     partonFlavour_(0),
     hadronFlavour_(0)
   {}
-  //Int_t partonFlavour() const {return partonFlavour_;}
-  //UChar_t hadronFlavour() const {return hadronFlavour_;}
   Int_t partonFlavour() const {return partonFlavour_;}
   UChar_t hadronFlavour() const {return hadronFlavour_;}
 private:
-  //Int_t partonFlavour_;
-  //UChar_t hadronFlavour_;
   Int_t partonFlavour_;
   UChar_t hadronFlavour_;
-  //void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
-  //void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
   void setpartonFlavour(const Int_t value) {partonFlavour_ = value;}
   void sethadronFlavour(const UChar_t value) {hadronFlavour_ = value;}
   void setLorentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
@@ -740,11 +732,10 @@ private:
 class Lhe{
 friend class URStreamer;
 public:
-//  Lhe(const Float_t &i_originalXWGTUP_,const Float_t &i_LHEPdfWeight_,const Float_t &i_LHEScaleWeight_,const Float_t &i_HT_,const Float_t &i_HTIncoming_,const Float_t &i_Vpt_,const UChar_t &i_Njets_,const UChar_t &i_Nb_,const UChar_t &i_Nc_,const UChar_t &i_Nuds_,const UChar_t &i_Nglu_,const UChar_t &i_NpNLO_,const UChar_t &i_NpLO_):
+//  Lhe(const Float_t &i_originalXWGTUP_,const vector<Float_t> &i_LHEPdfWeight_,const vector<Float_t> &i_LHEScaleWeight_,const Float_t &i_HT_,const Float_t &i_HTIncoming_,const Float_t &i_Vpt_,const UChar_t &i_Njets_,const UChar_t &i_Nb_,const UChar_t &i_Nc_,const UChar_t &i_Nuds_,const UChar_t &i_Nglu_,const UChar_t &i_NpNLO_,const UChar_t &i_NpLO_):
 //    
 //  {}
   Lhe():
-    originalXWGTUP_(0),
     LHEPdfWeight_(0),
     LHEScaleWeight_(0),
     HT_(0),
@@ -758,9 +749,8 @@ public:
     NpNLO_(0),
     NpLO_(0)
   {}
-  Float_t originalXWGTUP() const {return originalXWGTUP_;}
-  Float_t LHEPdfWeight() const {return LHEPdfWeight_;}
-  Float_t LHEScaleWeight() const {return LHEScaleWeight_;}
+  vector<Float_t> LHEPdfWeight() const {return LHEPdfWeight_;}
+  vector<Float_t> LHEScaleWeight() const {return LHEScaleWeight_;}
   Float_t HT() const {return HT_;}
   Float_t HTIncoming() const {return HTIncoming_;}
   Float_t Vpt() const {return Vpt_;}
@@ -772,9 +762,8 @@ public:
   UChar_t NpNLO() const {return NpNLO_;}
   UChar_t NpLO() const {return NpLO_;}
 private:
-  Float_t originalXWGTUP_;
-  Float_t LHEPdfWeight_;
-  Float_t LHEScaleWeight_;
+  vector<Float_t> LHEPdfWeight_;
+  vector<Float_t> LHEScaleWeight_;
   Float_t HT_;
   Float_t HTIncoming_;
   Float_t Vpt_;
@@ -785,9 +774,8 @@ private:
   UChar_t Nglu_;
   UChar_t NpNLO_;
   UChar_t NpLO_;
-  void setoriginalXWGTUP(const Float_t value) {originalXWGTUP_ = value;}
-  void setLHEPdfWeight(const Float_t value) {LHEPdfWeight_ = value;}
-  void setLHEScaleWeight(const Float_t value) {LHEScaleWeight_ = value;}
+  void setLHEPdfWeight(const vector<Float_t> value) {LHEPdfWeight_ = value;}
+  void setLHEScaleWeight(const vector<Float_t> value) {LHEScaleWeight_ = value;}
   void setHT(const Float_t value) {HT_ = value;}
   void setHTIncoming(const Float_t value) {HTIncoming_ = value;}
   void setVpt(const Float_t value) {Vpt_ = value;}
@@ -3914,9 +3902,9 @@ public:
   UInt_t nGenVisTau;
   Float_t genWeight;
   UInt_t nLHEPdfWeight;
-  Float_t *LHEPdfWeight;
+  vector<Float_t> LHEPdfWeight;
   UInt_t nLHEScaleWeight;
-  Float_t *LHEScaleWeight;
+  vector<Float_t> LHEScaleWeight;
   UInt_t nJet;
   UInt_t nMuon;
   UInt_t nPhoton;
@@ -4051,9 +4039,9 @@ public:
     genWeight(0),
     LHEWeight_originalXWGTUP_(0),
     nLHEPdfWeight(0),
-    LHEPdfWeight_(0),
+    LHEPdfWeight(0),
     nLHEScaleWeight(0),
-    LHEScaleWeight_(0),
+    LHEScaleWeight(0),
     nJet(0),
     Jet_area_(0),
     Jet_btagCMVA_(0),
@@ -5199,16 +5187,10 @@ public:
   
   void loadGenjets(){
     if(!are_GenJet_loaded_){
-      //tree_->SetBranchStatus("GenJetAK8_eta", 1); tree_->SetBranchAddress("GenJetAK8_eta", &GenJetAK8_eta_);
-      //tree_->SetBranchStatus("GenJetAK8_mass", 1); tree_->SetBranchAddress("GenJetAK8_mass", &GenJetAK8_mass_);
-      //tree_->SetBranchStatus("GenJetAK8_phi", 1); tree_->SetBranchAddress("GenJetAK8_phi", &GenJetAK8_phi_);
-      //tree_->SetBranchStatus("GenJetAK8_pt", 1); tree_->SetBranchAddress("GenJetAK8_pt", &GenJetAK8_pt_);
       tree_->SetBranchStatus("GenJet_eta", 1); tree_->SetBranchAddress("GenJet_eta", &GenJet_eta_);
       tree_->SetBranchStatus("GenJet_mass", 1); tree_->SetBranchAddress("GenJet_mass", &GenJet_mass_);
       tree_->SetBranchStatus("GenJet_phi", 1); tree_->SetBranchAddress("GenJet_phi", &GenJet_phi_);
       tree_->SetBranchStatus("GenJet_pt", 1); tree_->SetBranchAddress("GenJet_pt", &GenJet_pt_);
-      //tree_->SetBranchStatus("GenJetAK8_partonFlavour", 1); tree_->SetBranchAddress("GenJetAK8_partonFlavour", &GenJetAK8_partonFlavour_);
-      //tree_->SetBranchStatus("GenJetAK8_hadronFlavour", 1); tree_->SetBranchAddress("GenJetAK8_hadronFlavour", &GenJetAK8_hadronFlavour_);
       tree_->SetBranchStatus("GenJet_partonFlavour", 1); tree_->SetBranchAddress("GenJet_partonFlavour", &GenJet_partonFlavour_);
       tree_->SetBranchStatus("GenJet_hadronFlavour", 1); tree_->SetBranchAddress("GenJet_hadronFlavour", &GenJet_hadronFlavour_);
       are_GenJet_loaded_ = true;
@@ -5320,9 +5302,8 @@ public:
   
   void loadLhe(){
     if(!are_LHE_loaded_){
-      tree_->SetBranchStatus("LHEWeight_originalXWGTUP", 1); tree_->SetBranchAddress("LHEWeight_originalXWGTUP", &LHEWeight_originalXWGTUP_);
-      tree_->SetBranchStatus("LHEPdfWeight", 1); tree_->SetBranchAddress("LHEPdfWeight", &LHEPdfWeight_);
-      tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight_);
+      tree_->SetBranchStatus("LHEPdfWeight", 1); tree_->SetBranchAddress("LHEPdfWeight", &LHEPdfWeight);
+      tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight);
       tree_->SetBranchStatus("LHE_HT", 1); tree_->SetBranchAddress("LHE_HT", &LHE_HT_);
       tree_->SetBranchStatus("LHE_HTIncoming", 1); tree_->SetBranchAddress("LHE_HTIncoming", &LHE_HTIncoming_);
       tree_->SetBranchStatus("LHE_Vpt", 1); tree_->SetBranchAddress("LHE_Vpt", &LHE_Vpt_);
@@ -6269,6 +6250,7 @@ public:
   
     Calomet obj;
     obj.setsumEt(CaloMET_sumEt_);
+    
   
     return obj;
   }
@@ -6300,6 +6282,7 @@ public:
     obj.setscore(PV_score_);
     obj.setnpvs(PV_npvs_);
     obj.setnpvsGood(PV_npvsGood_);
+    
   
     return obj;
   }
@@ -6319,6 +6302,7 @@ public:
     obj.setxpdf2(Generator_xpdf2_);
     obj.setid1(Generator_id1_);
     obj.setid2(Generator_id2_);
+    
   
     return obj;
   }
@@ -6381,8 +6365,6 @@ public:
   	GenJet_.reserve(nGenJet);
     for(size_t idx = 0; idx < nGenJet; ++idx ){
       Genjets obj;
-      //obj.setpartonFlavour(GenJetAK8_partonFlavour_[idx]);
-      //obj.sethadronFlavour(GenJetAK8_hadronFlavour_[idx]);
       obj.setpartonFlavour(GenJet_partonFlavour_[idx]);
       obj.sethadronFlavour(GenJet_hadronFlavour_[idx]);
       obj.setLorentzVector(GenJet_pt_[idx], GenJet_eta_[idx], GenJet_phi_[idx], GenJet_mass_[idx]);
@@ -6398,6 +6380,7 @@ public:
   
     Rawmet obj;
     obj.setsumEt(RawMET_sumEt_);
+    
   
     return obj;
   }
@@ -6468,6 +6451,7 @@ public:
     obj.setSoftActivityJetNjets10(SoftActivityJetNjets10);
     obj.setSoftActivityJetNjets2(SoftActivityJetNjets2);
     obj.setSoftActivityJetNjets5(SoftActivityJetNjets5);
+    
   
     return obj;
   }
@@ -6479,6 +6463,7 @@ public:
   
     L1Simulation obj;
     obj.setstep(L1simulation_step_);
+    
   
     return obj;
   }
@@ -6505,9 +6490,6 @@ public:
     loadLhe();
   
     Lhe obj;
-    obj.setoriginalXWGTUP(LHEWeight_originalXWGTUP_);
-    obj.setLHEPdfWeight(LHEPdfWeight_);
-    obj.setLHEScaleWeight(LHEScaleWeight_);
     obj.setHT(LHE_HT_);
     obj.setHTIncoming(LHE_HTIncoming_);
     obj.setVpt(LHE_Vpt_);
@@ -6518,6 +6500,14 @@ public:
     obj.setNglu(LHE_Nglu_);
     obj.setNpNLO(LHE_NpNLO_);
     obj.setNpLO(LHE_NpLO_);
+    for( size_t idx = 0; idx < nLHEPdfWeight; ++idx ){
+      LHEPdfWeight.push_back(LHEPdfWeight[idx]);
+    }
+    obj.setLHEPdfWeight(LHEPdfWeight);
+    for( size_t idx = 0; idx < nLHEScaleWeight; ++idx ){
+      LHEScaleWeight.push_back(LHEScaleWeight[idx]);
+    }
+    obj.setLHEScaleWeight(LHEScaleWeight);
   
     return obj;
   }
@@ -6529,6 +6519,7 @@ public:
   
     Tkmet obj;
     obj.setsumEt(TkMET_sumEt_);
+    
   
     return obj;
   }
@@ -6581,6 +6572,7 @@ public:
   
     Puppimet obj;
     obj.setsumEt(PuppiMET_sumEt_);
+    
   
     return obj;
   }
@@ -7247,6 +7239,7 @@ public:
     obj.setIsoTrackHE(HLT_IsoTrackHE_);
     obj.setIsoTrackHB(HLT_IsoTrackHB_);
     obj.setHLTriggerFinalPath(HLTriggerFinalPath);
+    
   
     return obj;
   }
@@ -7286,6 +7279,7 @@ public:
     obj.setsumEt(MET_sumEt_);
     obj.setfiducialGenPhi(MET_fiducialGenPhi_);
     obj.setfiducialGenPt(MET_fiducialGenPt_);
+    
   
     return obj;
   }
@@ -7296,6 +7290,7 @@ public:
     loadGenmet();
   
     Genmet obj;
+    
     
   
     return obj;
@@ -7377,6 +7372,7 @@ public:
     obj.settrkPOG_toomanystripclus53X(Flag_trkPOG_toomanystripclus53X_);
     obj.settrkPOG_logErrorTooManyClusters(Flag_trkPOG_logErrorTooManyClusters_);
     obj.setMETFilters(Flag_METFilters_);
+    
   
     return obj;
   }
@@ -7391,6 +7387,7 @@ public:
     obj.setnPU(Pileup_nPU_);
     obj.setsumEOOT(Pileup_sumEOOT_);
     obj.setsumLOOT(Pileup_sumLOOT_);
+    
   
     return obj;
   }
@@ -7402,6 +7399,7 @@ public:
   
     Lheweight obj;
     obj.setoriginalXWGTUP(LHEWeight_originalXWGTUP_);
+    
   
     return obj;
   }
