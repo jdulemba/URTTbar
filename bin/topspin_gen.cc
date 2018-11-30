@@ -671,14 +671,14 @@ class topspin_gen : public AnalyzerBase
                     if(skip > 0 && evt_idx < skip) {
                         continue;
                     }
-                    if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+                    if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
                     tracker_.track("start");
 
                     //Long and time consuming
                     bool selection = 	genp_selector_.select(event);			
                     if(!selection) {
                         //Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<
-                        //  "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+                        //  "run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
                         continue;
                     }
                     tracker_.track("gen selection");        

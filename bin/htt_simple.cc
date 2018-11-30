@@ -438,7 +438,7 @@ class htt_simple : public AnalyzerBase
         double btag_discval( const IDJet* jet){
 
             double btag_discval = -1000;
-            if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV) btag_discval = jet->csvIncl();
+            if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV) btag_discval = jet->btagCSVV2();
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA) btag_discval = jet->CombinedMVA();
             //else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPCSV) btag_discval = jet->DeepCSVProbB() + jet->DeepCSVProbBB();
             else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
@@ -491,7 +491,7 @@ class htt_simple : public AnalyzerBase
 
             auto &clean_jets = object_selector_.clean_jets();
            if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
@@ -901,7 +901,7 @@ class htt_simple : public AnalyzerBase
             // btag regions
             auto &clean_jets = object_selector_.clean_jets();
             if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
@@ -981,8 +981,8 @@ class htt_simple : public AnalyzerBase
                 if(sync_) {
                     if(lep_is_tight) {
                         sync_info_.Run  = event.run;
-                        sync_info_.LumiSection = event.lumi;
-                        sync_info_.Event= event.evt;
+                        sync_info_.LumiSection = event.luminosityBlock;
+                        sync_info_.Event= event.event;
                         sync_info_.hasMuon = (object_selector_.lepton_type() == -1) ? 0 : 1;
                         sync_info_.RecoSuccess = reco_success_3J;
                         if(reco_success_3J){
@@ -1111,8 +1111,8 @@ class htt_simple : public AnalyzerBase
             if(sync_) {
                 if(lep_is_tight) {
                     sync_info_.Run  = event.run;
-                    sync_info_.LumiSection = event.lumi;
-                    sync_info_.Event= event.evt;
+                    sync_info_.LumiSection = event.luminosityBlock;
+                    sync_info_.Event= event.event;
                     sync_info_.hasMuon = (object_selector_.lepton_type() == -1) ? 0 : 1;
                     sync_info_.RecoSuccess = reco_success;
                     if(reco_success)
@@ -1217,8 +1217,8 @@ class htt_simple : public AnalyzerBase
             {
 
                 if(picker.active()){
-                    if(picker.contains(event.run, event.lumi, event.evt)) {
-                        Logger::log().fatal() << "Picking event " << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+                    if(picker.contains(event.run, event.luminosityBlock, event.event)) {
+                        Logger::log().fatal() << "Picking event " << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
                     }
                     else continue;
                 }
@@ -1227,7 +1227,7 @@ class htt_simple : public AnalyzerBase
                     continue;
                 }
                 evt_idx_--;
-                if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+                if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
                 if(limit > 0 && evt_idx_ > limit) {
                     return;
                 }

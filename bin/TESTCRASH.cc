@@ -16,7 +16,7 @@
 class TESTCRASH : public AnalyzerBase
 {
 private:
-  unsigned long evt_idx_ = 0;
+  unsigned long event_idx_ = 0;
 	MCWeightProducer mc_weights_;
   TTGenParticleSelector genp_selector_;
   unordered_map<string, RObject > histos_;
@@ -49,15 +49,15 @@ public:
 		int limit = values["limit"].as<int>();
 		int skip  = values["skip"].as<int>();
 		int report = values["report"].as<int>();
-    if(evt_idx_ >= limit) return;
+    if(event_idx_ >= limit) return;
 
     URStreamer event(tree_);
     while(event.next())
     {
-			if(limit > 0 && evt_idx_ > limit) return;
-			evt_idx_++;
-			if(skip > 0 && evt_idx_ < skip) continue;
-			if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " -- " << event.run<<":"<<event.lumi<<":"<<event.evt <<endl;
+			if(limit > 0 && event_idx_ > limit) return;
+			event_idx_++;
+			if(skip > 0 && event_idx_ < skip) continue;
+			if(event_idx_ % report == 0) Logger::log().debug() << "Beginning event " << event_idx_ << " -- " << event.run<<":"<<event.luminosityBlock<<":"<<event.event <<endl;
 			/*
 
 				DO YOUR ANALYSIS HERE!

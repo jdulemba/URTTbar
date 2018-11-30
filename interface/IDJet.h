@@ -64,23 +64,23 @@ public:
 		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
 		//to be filled in new tree version
 		if(TMath::Abs(Eta()) <= 2.7) {
-			if(neutralHadronEnergyFraction() >= 0.99){return false;}
-			if(neutralEmEnergyFraction() >= 0.99){return false;}
-			if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;}
+			if(neHEF() >= 0.99){return false;}
+			if(neEmEF() >= 0.99){return false;}
+			//if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
 			if(TMath::Abs(Eta()) < 2.4)	{
-				if(chargedHadronEnergyFraction() <= 0.){return false;}
-				if(chargedMultiplicity() <= 0.){return false;}
-				if(chargedEmEnergyFraction() >= 0.99){return false;}
+				if(chHEF() <= 0.){return false;}
+				//if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
+				if(chEmEF() >= 0.99){return false;}
 			}
 			return true;
 		} else if(TMath::Abs(Eta()) <= 3) {
-			if(neutralEmEnergyFraction() <= 0.01) return false;
-			if(neutralHadronEnergyFraction() >= 0.98) return false; 
-			if(neutralMultiplicity() <= 2) return false;
+			if(neEmEF() <= 0.01) return false;
+			if(neHEF() >= 0.98) return false; 
+			//if(neutralMultiplicity() <= 2) return false; // no multiplicty now
 			return true;
 		} else {
-			if(neutralEmEnergyFraction() >= .9) return false;
-			if(neutralMultiplicity() <= 10) return false;
+			if(neEmEF() >= .9) return false;
+			//if(neutralMultiplicity() <= 10) return false; // no multiplicty now
 			return true;
 		}
 	}
@@ -89,23 +89,23 @@ public:
 		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
 		//to be filled in new tree version
 		if(TMath::Abs(Eta()) <= 2.7) {
-			if(neutralHadronEnergyFraction() >= 0.90){return false;}
-			if(neutralEmEnergyFraction() >= 0.90){return false;}
-			if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;}
+			if(neHEF() >= 0.90){return false;}
+			if(neEmEF() >= 0.90){return false;}
+			//if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
 			if(TMath::Abs(Eta()) < 2.4)	{
-				if(chargedHadronEnergyFraction() <= 0.){return false;}
-				if(chargedMultiplicity() <= 0.){return false;}
-				if(chargedEmEnergyFraction() >= 0.99){return false;}
+				if(chHEF() <= 0.){return false;}
+				//if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
+				if(chEmEF() >= 0.99){return false;}
 			}
 			return true;
 		} else if(TMath::Abs(Eta()) <= 3) {
-			if(neutralEmEnergyFraction() <= 0.01) return false;
-			if(neutralHadronEnergyFraction() >= 0.98) return false; 
-			if(neutralMultiplicity() <= 2) return false;
+			if(neEmEF() <= 0.01) return false;
+			if(neHEF() >= 0.98) return false; 
+			//if(neutralMultiplicity() <= 2) return false; // no multiplicty now
 			return true;
 		} else {
-			if(neutralEmEnergyFraction() >= .9) return false;
-			if(neutralMultiplicity() <= 10) return false;
+			if(neEmEF() >= .9) return false;
+			//if(neutralMultiplicity() <= 10) return false; // no multiplicty now
 			return true;
 		}
 	}

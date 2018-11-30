@@ -15,7 +15,7 @@ class GenObject : public TLorentzVector
         int status_;
 
     public:
-        GenObject(const Genparticle& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
+        GenObject(const Genpart& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
     {
     }
         /*GenObject(const Pst& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())

@@ -69,9 +69,9 @@ class ntupleDumper : public AnalyzerBase
             Logger::log().debug() << "-- DONE -- reporting every -- " << report << endl;
             while(event.next()) {
                 if(picker.active()) {
-                    if(picker.contains(event.run, event.lumi, event.evt)) {
-                        Logger::log().debug() << "Picking event " << " run: " << event.run << " lumisection: " << 
-                            event.lumi << " eventnumber: " << event.evt << endl;
+                    if(picker.contains(event.run, event.luminosityBlock, event.event)) {
+                        Logger::log().debug() << "Picking event " << " run: " << event.run << " luminosityBlocksection: " << 
+                            event.luminosityBlock << " eventnumber: " << event.event << endl;
                     }
                     else continue;
                 }
@@ -83,7 +83,7 @@ class ntupleDumper : public AnalyzerBase
                     continue;
                 }
                 bool mc = (event.run == 1);
-                cout << "***** Event "<<event.run<<":"<<event.lumi<<":"<<event.evt<<" *****"<< endl << endl;
+                cout << "***** Event "<<event.run<<":"<<event.luminosityBlock<<":"<<event.event<<" *****"<< endl << endl;
                 cout << "Trigger: " << endl;
                 cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << endl; 
                 cout << "  HLT_IsoMu24: " << event.trigger().HLT_IsoMu24() << endl; 
@@ -150,7 +150,7 @@ class ntupleDumper : public AnalyzerBase
                         cout <<"  JEC uncertainty: "<< jet.JESUnc() << ", JER uncertainty: " << max_unc << endl;
                     }
                     cout <<"  Pass jet ID: " << jet.LooseID() << endl;
-                    cout <<"  CSV: "<< jet.csvIncl()<<", cMVA: "<< jet.CombinedMVA() << endl;
+                    cout <<"  CSV: "<< jet.btagCSVV2()<<", cMVA: "<< jet.CombinedMVA() << endl;
                     cout <<"  cCvsL: "<< jet.CvsLtag()<<", cCvsB: "<< jet.CvsBtag() << endl;
                 }
                 cout << endl;

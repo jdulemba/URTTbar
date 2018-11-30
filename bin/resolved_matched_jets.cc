@@ -469,7 +469,7 @@ class jet_perm_disc : public AnalyzerBase
                 if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
             }
 
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); }); // CSVv2 btagger
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->btagCSVV2() > B->btagCSVV2() ); }); // CSVv2 btagger
 
             if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
 

@@ -37,7 +37,7 @@ class ctag_genstudies : public AnalyzerBase
         TTGenParticleSelector genp_selector_;
         TTObjectSelector object_selector_;
         TTGenMatcher matcher_;
-        float evt_weight_;
+        float event_weight_;
         TRandom3 randomizer_;// = TRandom3(98765);
         MCWeightProducer mc_weights_;
 
@@ -51,14 +51,14 @@ class ctag_genstudies : public AnalyzerBase
             tracker_(),
             object_selector_(),
             matcher_(),
-            evt_weight_(1.),
+            event_weight_(1.),
             mc_weights_(),
             electron_sf_("electron_sf", false),
             muon_sf_("muon_sf"){
 
                 //tracker_.verbose(true);    
                 //set tracker
-                tracker_.use_weight(&evt_weight_);
+                tracker_.use_weight(&event_weight_);
                 object_selector_.set_tracker(&tracker_);
 
                 opts::variables_map &values = URParser::instance().values();
@@ -105,16 +105,16 @@ class ctag_genstudies : public AnalyzerBase
             else return 0;
         }
 
-        void process_evt(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS) {
+        void process_event(URStreamer &event, systematics::SysShifts shift=systematics::SysShifts::NOSYS) {
             //select reco objects
             if( !object_selector_.select(event, shift) ) return;
             tracker_.track("obj selection");
 
             //find mc weight
             if(object_selector_.tight_muons().size() == 1)
-                evt_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+                event_weight_ *= muon_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
             if(object_selector_.tight_electrons().size() == 1)
-                evt_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
+                event_weight_ *= electron_sf_.get_sf(object_selector_.lepton()->Pt(), object_selector_.lepton()->Eta());
             tracker_.track("MC weights");
 
             //Gen matching
@@ -169,7 +169,7 @@ class ctag_genstudies : public AnalyzerBase
         //run your proper analysis here
         virtual void analyze()
         {
-            unsigned long evt_idx = 0;
+            unsigned long event_idx = 0;
             URStreamer event(tree_);
 
             Logger::log().debug() << "--retrieving running conditions--" << endl;
@@ -179,14 +179,14 @@ class ctag_genstudies : public AnalyzerBase
             Logger::log().debug() << "--DONE--" << endl;
 
             while(event.next()) {
-                if(limit > 0 && evt_idx > limit) {
+                if(limit > 0 && event_idx > limit) {
                     return;
                 }
-                evt_idx++;
-                if(skip > 0 && evt_idx < skip) {
+                event_idx++;
+                if(skip > 0 && event_idx < skip) {
                     continue;
                 }
-                if(evt_idx % 10000 == 0) Logger::log().debug() << "Beginning event " << evt_idx << endl;
+                if(event_idx % 10000 == 0) Logger::log().debug() << "Beginning event " << event_idx << endl;
                 tracker_.track("start");
 
                 //long and time consuming
@@ -195,14 +195,14 @@ class ctag_genstudies : public AnalyzerBase
                     bool selection = 	genp_selector_.select(event);			
                     tracker_.track("gen selection");        
                     if(!selection) {
-                        Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<
-                            "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
+                        Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << event_idx << endl <<
+                            "run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
                         continue;
                     }
                 }
 
-                evt_weight_ = mc_weights_.evt_weight(event, systematics::SysShifts::NOSYS);
-                process_evt(event);
+                event_weight_ = mc_weights_.event_weight(event, systematics::SysShifts::NOSYS);
+                process_event(event);
             }//while(event.next())
         }  
 

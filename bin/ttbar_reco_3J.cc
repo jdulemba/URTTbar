@@ -457,10 +457,10 @@ class ttbar_reco_3J : public AnalyzerBase
         void fill_perm_btag( string folder, Permutation &perm ){
             auto dir = histos_.find(folder);
 
-            dir->second["BHad_BTag"].fill( perm.BHad()->csvIncl() );
-            dir->second["BLep_BTag"].fill( perm.BLep()->csvIncl() );
-            if( perm.WJa() ) dir->second["WJa_BTag"].fill( perm.WJa()->csvIncl() );
-            if( perm.WJb() ) dir->second["WJb_BTag"].fill( perm.WJb()->csvIncl() );
+            dir->second["BHad_BTag"].fill( perm.BHad()->btagCSVV2() );
+            dir->second["BLep_BTag"].fill( perm.BLep()->btagCSVV2() );
+            if( perm.WJa() ) dir->second["WJa_BTag"].fill( perm.WJa()->btagCSVV2() );
+            if( perm.WJb() ) dir->second["WJb_BTag"].fill( perm.WJb()->btagCSVV2() );
 
             int n_btag = num_btag(perm);
 
@@ -1117,7 +1117,7 @@ class ttbar_reco_3J : public AnalyzerBase
             for( auto jet : object_selector_.clean_jets() ){
                 jets_vector.push_back(jet);
             }
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->btagCSVV2() > B->btagCSVV2() ); });
 
             tracker_.track("All Num BTag");
 

@@ -348,7 +348,7 @@ class ctag_eff : public AnalyzerBase
                 dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
                 dir->second["jets_CvsL"].fill(jet->CvsLtag(), evt_weight_);
                 dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
-                dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
+                dir->second["jets_CSV" ].fill(jet->btagCSVV2(), evt_weight_);
                 dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
 
                 dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
@@ -433,8 +433,8 @@ class ctag_eff : public AnalyzerBase
             dir->second["Whad_mass"].fill(hyp.WHad().M(), evt_weight_);
             dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()), evt_weight_);
             dir->second["thad_mass"].fill(hyp.THad().M() , evt_weight_);
-            dir->second["WjetCSV"  ].fill(hyp.WJa()->csvIncl(), evt_weight_);
-            dir->second["WjetCSV"  ].fill(hyp.WJb()->csvIncl(), evt_weight_);
+            dir->second["WjetCSV"  ].fill(hyp.WJa()->btagCSVV2(), evt_weight_);
+            dir->second["WjetCSV"  ].fill(hyp.WJb()->btagCSVV2(), evt_weight_);
 
             const IDJet *lb = (hyp.BHad()->Pt() > hyp.BLep()->Pt()) ? hyp.BHad() : hyp.BLep();
             const IDJet *sb = (hyp.BHad()->Pt() > hyp.BLep()->Pt()) ? hyp.BLep() : hyp.BHad();
@@ -619,7 +619,7 @@ class ctag_eff : public AnalyzerBase
             }
             const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
             const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
-            // dir->second["csvL_csvS" ].fill(leading->csvIncl(), subleading->csvIncl(), weight);
+            // dir->second["csvL_csvS" ].fill(leading->btagCSVV2(), subleading->btagCSVV2(), weight);
 
             set<IDJet*> hypjets;
             hypjets.insert(hyp.WJa());

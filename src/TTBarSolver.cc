@@ -223,11 +223,11 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
     }
 
     // if(USEBTAG_ && BTag_right_) {
-    //   //std::cout << bhad->csvIncl() << std::endl;
-    //   btagtest_  = -1.*Log(BTag_right_->Interpolate(bhad->csvIncl())/BTag_wrong_->Interpolate(bhad->csvIncl()));
-    //   btagtest_ -= Log(BTag_right_->Interpolate(blep->csvIncl())/BTag_wrong_->Interpolate(blep->csvIncl()));
-    //   btagtest_ -= Log(BTag_wrong_->Interpolate(j1had->csvIncl())/BTag_right_->Interpolate(j1had->csvIncl()));
-    //   btagtest_ -= Log(BTag_wrong_->Interpolate(j2had->csvIncl())/BTag_right_->Interpolate(j2had->csvIncl()));
+    //   //std::cout << bhad->btagCSVV2() << std::endl;
+    //   btagtest_  = -1.*Log(BTag_right_->Interpolate(bhad->btagCSVV2())/BTag_wrong_->Interpolate(bhad->btagCSVV2()));
+    //   btagtest_ -= Log(BTag_right_->Interpolate(blep->btagCSVV2())/BTag_wrong_->Interpolate(blep->btagCSVV2()));
+    //   btagtest_ -= Log(BTag_wrong_->Interpolate(j1had->btagCSVV2())/BTag_right_->Interpolate(j1had->btagCSVV2()));
+    //   btagtest_ -= Log(BTag_wrong_->Interpolate(j2had->btagCSVV2())/BTag_right_->Interpolate(j2had->btagCSVV2()));
     // }
 
     res = 0.;

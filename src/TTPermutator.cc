@@ -54,7 +54,7 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
     copy(jets_.begin(), jets_.begin()+reducedsize, capped_jets_.begin());
     //check b-tagging conditions
     if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
-        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
+        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
     }
     else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
         sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});

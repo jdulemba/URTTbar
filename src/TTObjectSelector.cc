@@ -285,7 +285,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift, b
     if(tracker_ && tight_lepton) tracker_->track("right trigger");
 
     if(sync && tight_lepton) {
-        cout << "SYNC " << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
+        cout << "SYNC " << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.luminosityBlock << ":" << event.event << endl; 
     }
 
     select_jetmet(event, shift);
