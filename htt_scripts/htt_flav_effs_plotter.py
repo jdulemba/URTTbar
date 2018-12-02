@@ -26,10 +26,6 @@ from argparse import ArgumentParser
 import math
 from rootpy import asrootpy
 #from uncertainties import ufloat
-#from URAnalysis.Utilities.datacard import DataCard
-#from URAnalysis.Utilities.tables import latex_table
-#from URAnalysis.Utilities.latex import t2latex
-#from URAnalysis.Utilities.roottools import Envelope
 from URAnalysis.PlotTools.views.RebinView import RebinView
 import re
 import itertools
@@ -84,14 +80,10 @@ class HTTPlotter(Plotter):
         lumis = data_lumis+MC_lumis
         #logging.debug('lumi files found %s' % lumis.__repr__())
 
-        #self.tt_lhe_weights = prettyjson.loads(
-        #    open('inputs/%s/ttJets.weights.json' % jobid).read()
-        #    )
         outdir= 'plots/%s/htt_qcd_est/%s' % (jobid, mode)
 
         super(HTTPlotter, self).__init__(
             files, lumis, outdir, styles, None, lumi
-            #defaults = {'save' : {'png' : True, 'pdf' : False}}
             )
 
         #set_trace()
@@ -209,16 +201,6 @@ class HTTPlotter(Plotter):
             ]
 
         self.mc_samples = self.generic_mcs
-        #self.split_mcs = [
-        #    'AllButTT',
-        #    'ttJets_other',
-        #    'ttJets_unmatchable',
-        #    'ttJets_matchable',
-        #    'ttJets_right',
-        #    ]
-
-        #non_qcd = ['TT', 'VV', 'TTV',   'WJets', 'ZJets',   'tChannel', 'tWChannel', 'sChannel']
-
 
 
 
@@ -314,6 +296,48 @@ class HTTPlotter(Plotter):
         #self.mc_samples = mc_default
 
 
+    def teff_comparisons(self, hpass, htotal, xtitle=None, ytitle=None, fig_name=None):
+
+        lwidth = 1
+
+        ratio = ROOT.TEfficiency(hpass, htotal)
+
+        #set_trace()
+        ratio_norm = ratio.Clone()
+        ratio_norm.SetStatisticOption(1)
+        ratio_norm.SetLineColor(1)
+        ratio_norm.SetLineWidth(lwidth)
+        ratio_norm.SetMarkerColor(1)
+        ratio_norm.SetTitle('Normal;%s;%s' % (xtitle, ytitle) )
+
+        ratio_jeff = ratio.Clone()
+        ratio_jeff.SetStatisticOption(5)
+        ratio_jeff.SetLineColor(2)
+        ratio_jeff.SetLineWidth(lwidth)
+        ratio_jeff.SetMarkerColor(2)
+        ratio_jeff.SetTitle('Jeffreys;%s;%s' % (xtitle, ytitle) )
+
+        ratio_uni = ratio.Clone()
+        ratio_uni.SetStatisticOption(6)
+        ratio_uni.SetLineColor(3)
+        ratio_uni.SetLineWidth(lwidth)
+        ratio_uni.SetMarkerColor(3)
+        ratio_uni.SetTitle('Uniform;%s;%s' % (xtitle, ytitle) )
+
+        leg = ROOT.TLegend(0.895,0.14,0.965,0.25)
+        leg.AddEntry(ratio_norm, "Normal")
+        leg.AddEntry(ratio_jeff, "Jeffreys")
+        leg.AddEntry(ratio_uni, "Uniform")
+
+        #set_trace()
+        ratio_uni.Draw()
+        ratio_norm.Draw('same')
+        ratio_jeff.Draw('same')
+        leg.Draw('same')
+        plotter.save( fig_name )
+        #set_trace()
+
+
 
 
     def flav_fracs_and_effs(self, var, xtitle, name, xlims, nbinsx): ## find fractions and efficiencies of MC for b and prompt quarks
@@ -356,64 +380,35 @@ class HTTPlotter(Plotter):
         plotter.save( 'N_p_nonCSV_%s' % name )
 
         #set_trace()
-        #    ## format and plot hists for fraction of leps matched to b and prompt
-        f_b_CSV = ROOT.TEfficiency(N_b_CSV, N_b_CSV+N_p_CSV)
-        f_b_CSV = f_b_CSV.SetStatisticOption(0)
-        f_b_CSV.Draw()
-        plotter.save( 'Fractions_b_CSV_%s' % name )
-        #f_b_CSV = N_b_CSV/(N_b_CSV+N_p_CSV)
+            ## format and plot hists for fraction of leps matched to b and prompt
+        plotter.teff_comparisons(N_b_CSV, N_b_CSV+N_p_CSV, xtitle=xtitle, ytitle='f_{b}^{CSV}', fig_name='Fractions_b_CSV_%s' % name )
         #plotter.plot( f_b_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{b}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Fractions_b_CSV_%s' % name )
-        f_p_CSV = ROOT.TEfficiency(N_p_CSV, N_b_CSV+N_p_CSV).SetStatisticOption(0)
-        f_p_CSV.Draw()
-        plotter.save( 'Fractions_p_CSV_%s' % name )
-        #f_p_CSV = N_p_CSV/(N_b_CSV+N_p_CSV)
+
+        plotter.teff_comparisons(N_p_CSV, N_b_CSV+N_p_CSV, xtitle=xtitle, ytitle='f_{prompt}^{CSV}', fig_name='Fractions_p_CSV_%s' % name )
         #plotter.plot( f_p_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{prompt}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Fractions_p_CSV_%s' % name )
-        ##plotter.set_histo_style( f_p_CSV, name='Prompt', color='r', fillstyle=0, drawstyle='E0 X0')
 
-        f_b_nonCSV = ROOT.TEfficiency(N_b_nonCSV, N_b_nonCSV+N_p_nonCSV).SetStatisticOption(0)
-        f_b_nonCSV.Draw()
-        plotter.save( 'Fractions_b_nonCSV_%s' % name )
-        #f_b_nonCSV = N_b_nonCSV/(N_b_nonCSV+N_p_nonCSV)
+        plotter.teff_comparisons(N_b_nonCSV, N_b_nonCSV+N_p_nonCSV, xtitle=xtitle, ytitle='f_{b}^{nonCSV}', fig_name='Fractions_b_nonCSV_%s' % name )
         #plotter.plot( f_b_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{b}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Fractions_b_nonCSV_%s' % name )
-        f_p_nonCSV = ROOT.TEfficiency(N_p_nonCSV, N_b_nonCSV+N_p_nonCSV).SetStatisticOption(0)
-        f_p_nonCSV.Draw()
-        plotter.save( 'Fractions_p_nonCSV_%s' % name )
-        #f_p_nonCSV = N_p_nonCSV/(N_b_nonCSV+N_p_nonCSV)
+
+        plotter.teff_comparisons(N_p_nonCSV, N_b_nonCSV+N_p_nonCSV, xtitle=xtitle, ytitle='f_{prompt}^{nonCSV}', fig_name='Fractions_p_nonCSV_%s' % name )
         #plotter.plot( f_p_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='f_{prompt}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Fractions_p_nonCSV_%s' % name )
 
+            ## format and plot hists for efficiencies of leps matched to b and prompt
         ##set_trace()
-        eff_b_CSV = ROOT.TEfficiency(N_Iso_CSV_b, N_b_CSV).SetStatisticOption(0)
-        eff_b_CSV.Draw()
-        plotter.save( 'Efficiencies_b_CSV_%s' % name )
-        #    ## format and plot hists for efficiency of leps matched to b and prompt
-        #e_b_CSV = N_Iso_CSV_b/N_b_CSV
+        plotter.teff_comparisons(N_Iso_CSV_b, N_b_CSV, xtitle=xtitle, ytitle='#epsilon_{b}^{CSV}', fig_name='Efficiencies_b_CSV_%s' % name )
         #plotter.plot( e_b_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{b}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Efficiencies_b_CSV_%s' % name )
-        eff_p_CSV = ROOT.TEfficiency(N_Iso_CSV_p, N_p_CSV).SetStatisticOption(0)
-        eff_p_CSV.Draw()
-        plotter.save( 'Efficiencies_b_CSV_%s' % name )
-        #e_p_CSV = N_Iso_CSV_p/N_p_CSV
-        #plotter.plot( e_p_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{prompt}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Efficiencies_p_CSV_%s' % name )
 
-        eff_b_nonCSV = ROOT.TEfficiency(N_Iso_nonCSV_b, N_b_nonCSV).SetStatisticOption(0)
-        eff_b_nonCSV.Draw()
-        plotter.save( 'Efficiencies_b_nonCSV_%s' % name )
-        #e_b_nonCSV = N_Iso_nonCSV_b/N_b_nonCSV
+        plotter.teff_comparisons(N_Iso_CSV_p, N_p_CSV, xtitle=xtitle, ytitle='#epsilon_{prompt}^{CSV}', fig_name='Efficiencies_p_CSV_%s' % name )
+        #plotter.plot( e_p_CSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{prompt}^{CSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
+
+        plotter.teff_comparisons(N_Iso_nonCSV_b, N_b_nonCSV, xtitle=xtitle, ytitle='#epsilon_{b}^{nonCSV}', fig_name='Efficiencies_b_nonCSV_%s' % name )
         #plotter.plot( e_b_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{b}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Efficiencies_b_nonCSV_%s' % name )
-        eff_p_nonCSV = ROOT.TEfficiency(N_Iso_nonCSV_p, N_p_nonCSV).SetStatisticOption(0)
-        eff_p_nonCSV.Draw()
-        plotter.save( 'Efficiencies_p_nonCSV_%s' % name )
-        #e_p_nonCSV = N_Iso_nonCSV_p/N_p_nonCSV
+
+        plotter.teff_comparisons(N_Iso_nonCSV_p, N_p_nonCSV, xtitle=xtitle, ytitle='#epsilon_{prompt}^{nonCSV}', fig_name='Efficiencies_p_nonCSV_%s' % name )
         #plotter.plot( e_p_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{prompt}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
-        #plotter.save( 'Efficiencies_p_nonCSV_%s' % name )
 
         #set_trace()
+        plotter.teff_comparisons(N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle, ytitle='r_{QCD}=f_{b}^{nonCSV}#epsilon_{b}^{nonCSV}+f_{prompt}^{nonCSV}#epsilon_{prompt}^{nonCSV}', fig_name='r_QCD_%s' % name )
 
         data_Iso_nonCSV_hist = self.get_view('data').Get('nosys/tight/csvFail/%s_B' % var )+self.get_view('data').Get('nosys/tight/csvFail/%s_Prompt' % var )
         data_Iso_nonCSV_hist = RebinView.rebin(data_Iso_nonCSV_hist, nbinsx)
@@ -493,8 +488,8 @@ if args.preselection or args.all:
 if args.qcd_yields or args.all:
 
     lepIso_bTag = [
-        ('lep_pt', 'p_{T}(l) (GeV)', 'Pt', (0, 300), 20),
-        ('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), 20)
+        ('lep_pt', 'p_{T}(l) (GeV)', 'Pt', (0, 300), [20,40,60,80,100, 500]),
+        ('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), [20,40,60,80,100, 500])
     ]
     for var, overlay_xtitle, name_var, xlims, nbinsx in lepIso_bTag:
         plotter.flav_fracs_and_effs(var, overlay_xtitle, name_var, xlims, nbinsx)
