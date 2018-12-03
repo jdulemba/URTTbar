@@ -10,7 +10,7 @@
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
 #include "URAnalysis/AnalysisFW/interface/BTagCalibrationStandalone.h"
 
-class IDJet : public Jet, public MCMatchable
+class IDJet : public Jets, public MCMatchable
 {
 private:
 	double rndm_;
@@ -28,16 +28,16 @@ public:
   static const std::unordered_map<std::string, IDJet::BTag> tag_names;
   static IDJet::BTag tag(std::string label);
 
-	IDJet(const Jet el, double rndm):
-		Jet(el),
+	IDJet(const Jets el, double rndm):
+		Jets(el),
     MCMatchable(),
 		rndm_(rndm),
     uncorr_(el)
 		{
 		}
 
-	IDJet(const Jet el):
-		Jet(el),
+	IDJet(const Jets el):
+		Jets(el),
     MCMatchable(),
 		rndm_(-1),
     uncorr_(el)

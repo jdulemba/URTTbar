@@ -22,7 +22,7 @@ public:
   bool is_bhad_in_acceptance(GenTTBar::DecayType decay_mode = GenTTBar::DecayType::SEMILEP);
   GenTTBar & ttbar_system() {return ttbar_;}
   GenTTBar & ttbar_final_system() {return ttbar_final_;}
-  vector<Genjet*>& additional_jets() {return added_jets_;}
+  vector<Genjets*>& additional_jets() {return added_jets_;}
   void setmode(SelMode mode) {
     mode_ = mode;
     if(mode_ == MADGRAPH || mode_ == MADGRAPHLHE) w_decay_momid_=6;
@@ -40,11 +40,11 @@ private:
   void select_with_deps(URStreamer& event);
   
   int comes_from_top(LHEParticle&);
-  bool assign(const Genparticle&, const std::vector<Genparticle>& , 
-              vector<const Genparticle*> &, vector<const Genparticle*> &, 
+  bool assign(const Genparts&, const std::vector<Genparts>& , 
+              vector<const Genparts*> &, vector<const Genparts*> &, 
               ura::PDGID);
-  vector< pair<const Genparticle*, const Genparticle*> > Collapse(vector<const Genparticle*> &, vector<const Genparticle*> &);
-  bool descends(const Genparticle*, const Genparticle*);
+  vector< pair<const Genparts*, const Genparts*> > Collapse(vector<const Genparts*> &, vector<const Genparts*> &);
+  bool descends(const Genparts*, const Genparts*);
   void reset();
 
   int w_decay_momid_=24;

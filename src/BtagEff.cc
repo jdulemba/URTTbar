@@ -20,7 +20,7 @@ void BtagEff::Init()
 void BtagEff::Fill(Permutation& per, int filltyp, double theweight)
 {
 	bool coin = (gRandom->Uniform() < 0.5);
-	Jet* bjet = 0;
+	Jets* bjet = 0;
 	if(coin)
 	{
 		if(per.BLep()->btagCSVV2() > 0.941) bjet = per.BHad();

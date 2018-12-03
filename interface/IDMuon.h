@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-class IDMuon : public Muon, public MCMatchable
+class IDMuon : public Muons, public MCMatchable
 {
     private:
         double rho_;
@@ -16,7 +16,7 @@ class IDMuon : public Muon, public MCMatchable
         enum IDS {FAIL, TIGHT_12, LOOSE_12, TIGHT_12Db, LOOSE_12Db, TIGHT_15, LOOSE_15, TIGHT_15Db, LOOSE_15Db, TIGHT_NOISO, ANTILOOSE_15Db};
         static const std::map<std::string, IDS> id_names;
 
-        IDMuon(const Muon mu, double rho=-1);
+        IDMuon(const Muons mu, double rho=-1);
         static IDMuon::IDS id(const std::string label);
         double rho() {return rho_;}
         double PFIsoDb();
