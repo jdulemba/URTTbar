@@ -296,13 +296,13 @@ class HTTPlotter(Plotter):
         #self.mc_samples = mc_default
 
 
-    def teff_comparisons(self, hpass, htotal, xtitle=None, ytitle=None, fig_name=None):
+    def teff_comparisons(self, hpass, htotal, xtitle=None, ytitle=None, fig_name=None, fit=False):
 
         lwidth = 1
 
+        #set_trace()
         ratio = ROOT.TEfficiency(hpass, htotal)
 
-        #set_trace()
         ratio_norm = ratio.Clone()
         ratio_norm.SetStatisticOption(1)
         ratio_norm.SetLineColor(1)
@@ -329,10 +329,40 @@ class HTTPlotter(Plotter):
         leg.AddEntry(ratio_jeff, "Jeffreys")
         leg.AddEntry(ratio_uni, "Uniform")
 
-        #set_trace()
         ratio_uni.Draw()
         ratio_norm.Draw('same')
         ratio_jeff.Draw('same')
+
+            ## different types of fitting
+        if fit:
+            #set_trace()
+
+            jeff_fit1 = ratio_jeff.Clone()
+
+            #fit1 = ROOT.TF1("erf", "[3]*(TMath::Erf( (x-[0])/[1] +[2] ))", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
+            #fit1.SetParameters(1., 1., 1., 1.)
+            fit1 = ROOT.TF1("sig", "[0]/(1. + TMath::Exp( -[1]*(x-[2]) ) )", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
+            fit1.SetParameters(1., 1., 1.)
+            fit1.SetLineColor(4)
+            fit1.SetLineStyle(4)
+
+            jeff_fit1.Fit(fit1)
+            jeff_fit1.Draw('same')
+            leg.AddEntry(jeff_fit1.GetListOfFunctions()[0], "Sigmoid")
+
+            jeff_fit2 = ratio_jeff.Clone()
+
+            fit2 = ROOT.TF1("erf", "[0]*(TMath::Erf( [1]*(x-[2])) ) + [3]", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
+            fit2.SetParameters(0.65, 0.5, 30., 0.5)
+            fit2.SetLineColor(6)
+            fit2.SetLineStyle(4)
+
+            jeff_fit2.Fit(fit2)
+            jeff_fit2.Draw('same')
+            leg.AddEntry(jeff_fit2.GetListOfFunctions()[0], "Erf")
+            #set_trace()
+            ##
+
         leg.Draw('same')
         plotter.save( fig_name )
         #set_trace()
@@ -408,7 +438,8 @@ class HTTPlotter(Plotter):
         #plotter.plot( e_p_nonCSV, legend_def=LegendDefinition(position='NE'), legendstyle='p', x_range=xlims, ytitle='#epsilon_{prompt}^{nonCSV}', xtitle=xtitle, fillstyle=0, drawstyle='E0 X0')
 
         #set_trace()
-        plotter.teff_comparisons(N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle, ytitle='r_{QCD}=f_{b}^{nonCSV}#epsilon_{b}^{nonCSV}+f_{prompt}^{nonCSV}#epsilon_{prompt}^{nonCSV}', fig_name='r_QCD_%s' % name )
+        plotter.teff_comparisons(N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
+            ytitle='r_{QCD}=f_{b}^{nonCSV}#epsilon_{b}^{nonCSV}+f_{prompt}^{nonCSV}#epsilon_{prompt}^{nonCSV}', fig_name='r_QCD_%s' % name, fit=True )
 
         data_Iso_nonCSV_hist = self.get_view('data').Get('nosys/tight/csvFail/%s_B' % var )+self.get_view('data').Get('nosys/tight/csvFail/%s_Prompt' % var )
         data_Iso_nonCSV_hist = RebinView.rebin(data_Iso_nonCSV_hist, nbinsx)
@@ -433,7 +464,10 @@ class HTTPlotter(Plotter):
         nonCSV_hist = data_nonCSV_hist - MC_nonCSV_hist
         plotter.plot( nonCSV_hist, xtitle=xtitle, ytitle='N_{data-nonQCD MC}^{nonCSV}', drawstyle='E0 X0')#, legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
         plotter.save( 'N_data_minus_MC_nonCSV_%s' % name )
+
+        #print '\nR_Data test\n'
         #set_trace()
+        #plotter.teff_comparisons(Iso_nonCSV_hist, nonCSV_hist, xtitle=xtitle, ytitle='r_{data}^{nonCSV}', fig_name='r_data_nonCSV_%s' % name )
         #r_data = ROOT.TEfficiency(data_Iso_nonCSV_hist - MC_Iso_nonCSV, data_nonCSV_hist - MC_nonCSV_hist)
         #r_data.Draw()
         #plotter.save( 'r_data_nonCSV_%s' % name )
@@ -488,8 +522,9 @@ if args.preselection or args.all:
 if args.qcd_yields or args.all:
 
     lepIso_bTag = [
-        ('lep_pt', 'p_{T}(l) (GeV)', 'Pt', (0, 300), [20,40,60,80,100, 500]),
-        ('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), [20,40,60,80,100, 500])
+        ('lep_pt', 'p_{T}(l) (GeV)', 'Pt', (0, 300), [20, 40, 60, 80, 100, 500]),
+        ('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), 30)
+        #('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), [-2.4, -1.2, 0., 1.2, 2.4])
     ]
     for var, overlay_xtitle, name_var, xlims, nbinsx in lepIso_bTag:
         plotter.flav_fracs_and_effs(var, overlay_xtitle, name_var, xlims, nbinsx)
