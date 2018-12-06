@@ -9,6 +9,7 @@ from styles import styles
 import sys
 import logging
 #import rootpy.plotting.views as views
+from rootpy.plotting import Hist
 import rootpy.plotting as plotting
 views = plotting.views
 from array import array
@@ -296,11 +297,27 @@ class HTTPlotter(Plotter):
         #self.mc_samples = mc_default
 
 
+
+        ### checks overflow bins for hpass and htotal so errors with TEff can be avoided
+    def check_overflow_bins(self, hpass, htotal):
+
+        hpass_xoverflow = hpass.GetBinContent(hpass.GetNbinsX()+1)
+        htotal_xoverflow = htotal.GetBinContent(hpass.GetNbinsX()+1)
+
+        if hpass_xoverflow > htotal_xoverflow:
+            hpass.SetBinContent(hpass.GetNbinsX()+1, 0.0)
+            htotal.SetBinContent(htotal.GetNbinsX()+1, 0.0)
+
+        return hpass, htotal
+
+
+
     def teff_comparisons(self, hpass, htotal, xtitle=None, ytitle=None, fig_name=None, fit=False):
 
         lwidth = 1
 
         #set_trace()
+        hpass, htotal = plotter.check_overflow_bins(hpass, htotal)
         ratio = ROOT.TEfficiency(hpass, htotal)
 
         ratio_norm = ratio.Clone()
@@ -335,32 +352,47 @@ class HTTPlotter(Plotter):
 
             ## different types of fitting
         if fit:
+
+            if 'Pt' in fig_name:
+                #jeff_fit1 = ratio_jeff.Clone()
+
+                #fit1 = ROOT.TF1("erf", "[0]*(TMath::Erf( [1]*(x-[2])) ) + [3]", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
+                #fit1.SetParameters(0.65, 0.5, 30., 0.5)
+                #fit1.SetLineColor(6)
+                #fit1.SetLineStyle(4)
+
+                #jeff_fit1.Fit(fit1)
+                #jeff_fit1.Draw('same')
+                #leg.AddEntry(jeff_fit1.GetListOfFunctions()[0], "Erf")
+
+                jeff_fit2 = ratio_jeff.Clone()
+
+                #fit2 = ROOT.TF1("erf", "[3]*(TMath::Erf( (x-[0])/[1] +[2] ))", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
+                #fit2.SetParameters(1., 1., 1., 1.)
+                fit2 = ROOT.TF1("sig", "[0]/(1. + TMath::Exp( -[1]*(x-[2]) ) )", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
+                fit2.SetParameters(1., 1., 1.)
+                fit2.SetLineColor(4)
+                fit2.SetLineStyle(4)
+
+                jeff_fit2.Fit(fit2)
+                jeff_fit2.Draw('same')
+                leg.AddEntry(jeff_fit2.GetListOfFunctions()[0], "Sigmoid")
+
             #set_trace()
+            elif 'Eta' in fig_name:
+                #set_trace()
 
-            jeff_fit1 = ratio_jeff.Clone()
+                jeff_fit1 = ratio_jeff.Clone()
 
-            #fit1 = ROOT.TF1("erf", "[3]*(TMath::Erf( (x-[0])/[1] +[2] ))", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-            #fit1.SetParameters(1., 1., 1., 1.)
-            fit1 = ROOT.TF1("sig", "[0]/(1. + TMath::Exp( -[1]*(x-[2]) ) )", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-            fit1.SetParameters(1., 1., 1.)
-            fit1.SetLineColor(4)
-            fit1.SetLineStyle(4)
+                fit1 = ROOT.TF1("f1", "pol2", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
+                fit1.SetParameters(0.0, 0.0, 0.0)
+                fit1.SetLineColor(6)
+                fit1.SetLineStyle(4)
 
-            jeff_fit1.Fit(fit1)
-            jeff_fit1.Draw('same')
-            leg.AddEntry(jeff_fit1.GetListOfFunctions()[0], "Sigmoid")
+                jeff_fit1.Fit(fit1)
+                jeff_fit1.Draw('same')
+                leg.AddEntry(jeff_fit1.GetListOfFunctions()[0], "pol2")
 
-            jeff_fit2 = ratio_jeff.Clone()
-
-            fit2 = ROOT.TF1("erf", "[0]*(TMath::Erf( [1]*(x-[2])) ) + [3]", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-            fit2.SetParameters(0.65, 0.5, 30., 0.5)
-            fit2.SetLineColor(6)
-            fit2.SetLineStyle(4)
-
-            jeff_fit2.Fit(fit2)
-            jeff_fit2.Draw('same')
-            leg.AddEntry(jeff_fit2.GetListOfFunctions()[0], "Erf")
-            #set_trace()
             ##
 
         leg.Draw('same')
@@ -368,6 +400,52 @@ class HTTPlotter(Plotter):
         #set_trace()
 
 
+
+    def sf_comparisons(self, hpass_data, htotal_data, hpass_QCD, htotal_QCD, xtitle=None, ytitle=None, fig_name=None, fit=False):
+
+        lwidth = 1
+
+        #set_trace()
+        hpass_data, htotal_data = plotter.check_overflow_bins(hpass_data, htotal_data)
+        r_data = ROOT.TEfficiency(hpass_data, htotal_data)
+
+            ## use Jeffreys stats option (5)
+        r_data_jeff = r_data.Clone()
+        r_data_jeff.SetStatisticOption(5)
+        r_data_jeff.SetLineColor(2)
+        r_data_jeff.SetLineWidth(lwidth)
+        r_data_jeff.SetMarkerColor(2)
+        r_data_jeff.SetTitle('Jeffreys;%s;%s' % (xtitle, ytitle) )
+
+        hpass_QCD, htotal_QCD = plotter.check_overflow_bins(hpass_QCD, htotal_QCD)
+        r_QCD = ROOT.TEfficiency(hpass_QCD, htotal_QCD)
+
+            ## use Jeffreys stats option (5)
+        r_QCD_jeff = r_QCD.Clone()
+        r_QCD_jeff.SetStatisticOption(5)
+        r_QCD_jeff.SetLineColor(2)
+        r_QCD_jeff.SetLineWidth(lwidth)
+        r_QCD_jeff.SetMarkerColor(2)
+        r_QCD_jeff.SetTitle('Jeffreys;%s;%s' % (xtitle, ytitle) )
+
+        s_hat = [r_data_jeff.GetEfficiency(i)/r_QCD_jeff.GetEfficiency(i) for i in range(1, hpass_data.GetNbinsX()+1) ]
+        s_err_up = [(r_data_jeff.GetEfficiencyErrorUp(i)**2+r_QCD_jeff.GetEfficiencyErrorUp(i)**2)**0.5 for i in range(1, hpass_data.GetNbinsX()+1) ]
+        s_err_down = [(r_data_jeff.GetEfficiencyErrorLow(i)**2+r_QCD_jeff.GetEfficiencyErrorLow(i)**2)**0.5 for i in range(1, hpass_data.GetNbinsX()+1) ]
+
+        xbins = sorted(set([hpass_data.GetXaxis().GetBinLowEdge(i) for i in range(1, hpass_data.GetNbinsX()+1)]+[hpass_data.GetXaxis().GetBinUpEdge(i) for i in range(1, hpass_data.GetNbinsX()+1)]))
+        s_hist = Hist(xbins, name='SF', title='SF')
+        for binx in range(len(xbins)):
+            s_hist[binix].value = s_hat[binx]
+
+ 
+        set_trace()
+
+        r_data_jeff.Draw()
+        r_QCD_jeff.Draw('same')        
+
+        leg = ROOT.TLegend(0.895,0.14,0.965,0.25)
+        leg.AddEntry(r_data_jeff, "Data")
+        leg.AddEntry(r_QCD_jeff, "QCD")
 
 
     def flav_fracs_and_effs(self, var, xtitle, name, xlims, nbinsx): ## find fractions and efficiencies of MC for b and prompt quarks
@@ -439,7 +517,10 @@ class HTTPlotter(Plotter):
 
         #set_trace()
         plotter.teff_comparisons(N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
-            ytitle='r_{QCD}=f_{b}^{nonCSV}#epsilon_{b}^{nonCSV}+f_{prompt}^{nonCSV}#epsilon_{prompt}^{nonCSV}', fig_name='r_QCD_%s' % name, fit=True )
+            ytitle='r_{QCD}=f_{b}^{nonCSV}#epsilon_{b}^{nonCSV}+f_{prompt}^{nonCSV}#epsilon_{prompt}^{nonCSV}', fig_name='r_QCD_nonCSV_%s' % name, fit=True )
+
+
+
 
         data_Iso_nonCSV_hist = self.get_view('data').Get('nosys/tight/csvFail/%s_B' % var )+self.get_view('data').Get('nosys/tight/csvFail/%s_Prompt' % var )
         data_Iso_nonCSV_hist = RebinView.rebin(data_Iso_nonCSV_hist, nbinsx)
@@ -465,16 +546,15 @@ class HTTPlotter(Plotter):
         plotter.plot( nonCSV_hist, xtitle=xtitle, ytitle='N_{data-nonQCD MC}^{nonCSV}', drawstyle='E0 X0')#, legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
         plotter.save( 'N_data_minus_MC_nonCSV_%s' % name )
 
-        #print '\nR_Data test\n'
-        #set_trace()
-        #plotter.teff_comparisons(Iso_nonCSV_hist, nonCSV_hist, xtitle=xtitle, ytitle='r_{data}^{nonCSV}', fig_name='r_data_nonCSV_%s' % name )
-        #r_data = ROOT.TEfficiency(data_Iso_nonCSV_hist - MC_Iso_nonCSV, data_nonCSV_hist - MC_nonCSV_hist)
-        #r_data.Draw()
-        #plotter.save( 'r_data_nonCSV_%s' % name )
-        #r_data = (data_Iso_nonCSV_hist - MC_Iso_nonCSV)/(data_nonCSV_hist - MC_nonCSV_hist)
-        #plotter.plot( r_data, x_range=xlims, xtitle=xtitle, ytitle='r=N_{data-nonQCD MC}^{Iso-nonCSV}/N_{data-nonQCD MC}^{nonCSV}', legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
-        #plotter.save( 'r_data_nonCSV_%s' % name )
-        #set_trace()
+
+
+        plotter.teff_comparisons(Iso_nonCSV_hist, nonCSV_hist, xtitle=xtitle,\
+            ytitle='r_{data-nonQCD MC}^{nonCSV}=N_{data-nonQCD MC}^{Iso-nonCSV}/N_{data-nonQCD MC}^{nonCSV}', fig_name='r_data_nonCSV_%s' % name, fit=True )
+
+
+        plotter.sf_comparisons(Iso_nonCSV_hist, nonCSV_hist, N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
+            ytitle='s^{nonCSV}=r_{data-nonQCD MC}^{nonCSV}/r_{QCD}^{nonCSV}', fig_name='SF_nonCSV_%s' % name)
+        set_trace()
 
         #scale_factor = r_data/(f_b_nonCSV*e_b_nonCSV+f_p_nonCSV*e_p_nonCSV)
         #plotter.plot( scale_factor, x_range=xlims, xtitle=xtitle, ytitle='SF^{nonCSV}', drawstyle='E0 X0' )
