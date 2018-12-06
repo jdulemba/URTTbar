@@ -134,7 +134,8 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
         return (b<a) ? std::make_pair(b, a) : std::make_pair(a, b); };
 
     NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
-    hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., nschi)); //ignore MET covariance matrix, take bare distance
+    hyp.Nu(NS.GetBest(1, 1, 1, 1, 0., nschi)); //ignore MET covariance matrix, take bare distance
+    //hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., nschi)); //ignore MET covariance matrix, take bare distance
 
     //Fill chi discriminant
     if(N_right_) {
@@ -208,7 +209,7 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
         //masstest = -1.*Log(WTmass_right_->Interpolate(mwhad, mthad)/Max(1., WTmass_wrong_->Interpolate(mwhad, mthad)));
     }
     if(USEBTAG_) {
-        auto btags = min_max(hyp.WJa()->CombinedMVA(), hyp.WJb()->CombinedMVA());
+        auto btags = min_max(hyp.WJa()->btagCMVA(), hyp.WJb()->btagCMVA());
         btagtest = -1.*Log(wj1_btag_right_->Interpolate(pow(btags.second, 11)));
         btagtest -= 1.*Log(wj2_btag_right_->Interpolate(pow(btags.first , 11)));
     }
@@ -286,7 +287,8 @@ void TTBarSolver::Solve_3J_Merged(Permutation &hyp, bool lazy){
 
     /// Neutrino Solver
     NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
-    hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., merged_nschi_3J)); // ignore MET covariance matrix, take bare distance
+    hyp.Nu(NS.GetBest(1, 1, 1, 1, 0., merged_nschi_3J)); // ignore MET covariance matrix, take bare distance
+    //hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., merged_nschi_3J)); // ignore MET covariance matrix, take bare distance
 
     if( NSchi2_3J_merged_right_ ){
         int binx = NSchi2_3J_merged_right_->GetXaxis()->FindFixBin(Sqrt(merged_nschi_3J));
@@ -365,7 +367,8 @@ void TTBarSolver::Solve_3J_Lost(Permutation &hyp, bool lazy){
 
     /// Neutrino Solver
     NeutrinoSolver NS(hyp.L(), hyp.BLep(), mw_, mtop_);
-    hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., lost_nschi_3J)); // ignore MET covariance matrix, take bare distance
+    hyp.Nu(NS.GetBest(1, 1, 1, 1, 0., lost_nschi_3J)); // ignore MET covariance matrix, take bare distance
+    //hyp.Nu(NS.GetBest(hyp.MET()->Px(), hyp.MET()->Py(), 1, 1, 0., lost_nschi_3J)); // ignore MET covariance matrix, take bare distance
 
     if( NSchi2_3J_lost_right_ ){
         int binx = NSchi2_3J_lost_right_->GetXaxis()->FindFixBin(Sqrt(lost_nschi_3J));

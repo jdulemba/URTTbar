@@ -719,7 +719,7 @@ class ttbar_alpha_reco : public AnalyzerBase
                     // if(-1.3 < object_selector_.muon()->Eta() && object_selector_.muon()->Eta() < -1)
                     //  cout << "Mu " << *object_selector_.muon() << " weight: " << lep_weight << " prev: " << evt_weight_ << endl;
                 }
-                if(object_selector_.tight_electrons().size() == 1) lep_weight = electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
+                //if(object_selector_.tight_electrons().size() == 1) lep_weight = electron_sf_.get_sf(object_selector_.electron()->Pt(), object_selector_.electron()->etaSC());
             }
             evt_weight_ *= lep_weight;
             tracker_.track("MC weights");
@@ -734,7 +734,8 @@ class ttbar_alpha_reco : public AnalyzerBase
             bool preselection_pass = permutator_.preselection(
                     object_selector_.clean_jets(), object_selector_.lepton(),
                     object_selector_.met(), object_selector_.lepton_charge(),
-                    event.rho().value(), lep_is_tight
+                    //event.rho().value(), lep_is_tight
+                    lep_is_tight
                     );
             tracker_.track("permutation pre-selection done (not applied)");
 

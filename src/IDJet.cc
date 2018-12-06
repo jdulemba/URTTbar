@@ -98,12 +98,12 @@ bool IDJet::BTagId(BTag wp) const {
     else if(wp == BTag::CSVLOOSE)  return btagCSVV2() > 0.5426;
     else if(wp == BTag::CSVMEDIUM) return btagCSVV2() > 0.8484;
     else if(wp == BTag::CSVTIGHT)  return btagCSVV2() > 0.9535;
-    else if(wp == BTag::MVALOOSE)  return CombinedMVA() > -0.5884;
-    else if(wp == BTag::MVAMEDIUM) return CombinedMVA() > 0.4432;
-    else if(wp == BTag::MVATIGHT)  return CombinedMVA() > 0.9432;
-    else if(wp == BTag::DEEPCSVLOOSE ) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.2219;
-    else if(wp == BTag::DEEPCSVMEDIUM) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.6324;
-    else if(wp == BTag::DEEPCSVTIGHT ) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.8958;
+    else if(wp == BTag::MVALOOSE)  return btagCMVA() > -0.5884;
+    else if(wp == BTag::MVAMEDIUM) return btagCMVA() > 0.4432;
+    else if(wp == BTag::MVATIGHT)  return btagCMVA() > 0.9432;
+    else if(wp == BTag::DEEPCSVLOOSE ) return btagDeepB() > 0.2219;
+    else if(wp == BTag::DEEPCSVMEDIUM) return btagDeepB() > 0.6324;
+    else if(wp == BTag::DEEPCSVTIGHT ) return btagDeepB() > 0.8958;
     else {
         Logger::log().fatal() << wp << "Is not a valid b-tagging working point!"<< std::endl;
         throw 42;
@@ -111,17 +111,18 @@ bool IDJet::BTagId(BTag wp) const {
 }
 
 bool IDJet::CTagId(BTag wp) const	{
-    double cvsl_thr = -1.;
-    double cvsb_thr = -1.;
+    //double cvsl_thr = -1.;
+    //double cvsb_thr = -1.;
     if(wp == BTag::NONE) return true;
-    else if(wp == BTag::CTAGLOOSE)  {cvsl_thr = -0.337; cvsb_thr = -0.356;}
-    else if(wp == BTag::CTAGMEDIUM) {cvsl_thr = -0.073; cvsb_thr = -0.302;}
-    else if(wp == BTag::CTAGTIGHT)  {cvsl_thr = 0.294; cvsb_thr = -0.682;}
+    //else if(wp == BTag::CTAGLOOSE)  {cvsl_thr = -0.337; cvsb_thr = -0.356;}
+    //else if(wp == BTag::CTAGMEDIUM) {cvsl_thr = -0.073; cvsb_thr = -0.302;}
+    //else if(wp == BTag::CTAGTIGHT)  {cvsl_thr = 0.294; cvsb_thr = -0.682;}
     else {
         Logger::log().fatal() << wp << "Is not a valid C-tagging working point!"<< std::endl;
         throw 42;
     }
-    return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);
+    return false;
+    //return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);
 }
 
 bool IDJet::TagId(BTag wp) const {

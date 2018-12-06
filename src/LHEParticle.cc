@@ -23,8 +23,8 @@
 	}*/
 
 std::ostream & operator<<(std::ostream &os, const LHEParticle &obj) {
-  os << "LHEParticle(" << ura::pdg_names.at(obj.pdgid()) << ", " 
-     << obj.status() << ", " << obj.mothers_range().first 
-     << " --> " << obj.mothers_range().second << ") ";
+  os << "LHEParticle(" << ura::pdg_names.at(obj.pdgId()) << ", " 
+     << obj.status() << ") ";//", " << obj.mothers_range().first 
+     //<< " --> " << obj.mothers_range().second << ") ";
   return os;
 }

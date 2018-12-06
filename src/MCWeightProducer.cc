@@ -8,21 +8,21 @@ using namespace std;
 using namespace TMath;
 
 float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift) {
-  const Geninfo& info = evt.genInfo();
+  const Generator& info = evt.generator();
   float ret = info.weight()/Abs(info.weight());	
 
-  const vector<Mcweight>& ws =  evt.MCWeights();
-  switch(shift) {
-  case systematics::SysShifts::FACTOR_DW: ret *= ws[2].weights()/ws[0].weights(); break;
-  case systematics::SysShifts::FACTOR_UP: ret *= ws[1].weights()/ws[0].weights(); break;
-  case systematics::SysShifts::RENORM_DW: ret *= ws[6].weights()/ws[0].weights(); break;
-  case systematics::SysShifts::RENORM_UP: ret *= ws[3].weights()/ws[0].weights(); break;
-	case systematics::SysShifts::RENFACTOR_UP: ret *= ws[4].weights()/ws[0].weights(); break;
-	case systematics::SysShifts::RENFACTOR_DW: ret *= ws[8].weights()/ws[0].weights(); break;
-	case systematics::SysShifts::HDAMP_UP: ret *= ws[240].weights()/ws[0].weights(); break;
-	case systematics::SysShifts::HDAMP_DW: ret *= ws[231].weights()/ws[0].weights(); break;
-  default: break;
-  }
+  //const vector<Mcweight>& ws =  evt.MCWeights();
+  //switch(shift) {
+  //case systematics::SysShifts::FACTOR_DW: ret *= ws[2].weights()/ws[0].weights(); break;
+  //case systematics::SysShifts::FACTOR_UP: ret *= ws[1].weights()/ws[0].weights(); break;
+  //case systematics::SysShifts::RENORM_DW: ret *= ws[6].weights()/ws[0].weights(); break;
+  //case systematics::SysShifts::RENORM_UP: ret *= ws[3].weights()/ws[0].weights(); break;
+  //  case systematics::SysShifts::RENFACTOR_UP: ret *= ws[4].weights()/ws[0].weights(); break;
+  //  case systematics::SysShifts::RENFACTOR_DW: ret *= ws[8].weights()/ws[0].weights(); break;
+  //  case systematics::SysShifts::HDAMP_UP: ret *= ws[240].weights()/ws[0].weights(); break;
+  //  case systematics::SysShifts::HDAMP_DW: ret *= ws[231].weights()/ws[0].weights(); break;
+  //default: break;
+  //}
 	
 	return ret;
 }
@@ -30,9 +30,9 @@ float MCWeightProducer::gen_weight(URStreamer &evt, systematics::SysShifts shift
 float MCWeightProducer::pu_weight(URStreamer &evt, systematics::SysShifts shift) {
 	float ret=1.;
   switch(shift) {
-  case systematics::SysShifts::PU_UP: ret *= pu_sf_up_.weight(evt.PUInfos()[0].nInteractions()); break;
-  case systematics::SysShifts::PU_DW: ret *= pu_sf_dw_.weight(evt.PUInfos()[0].nInteractions()); break;
-  default: ret *= pu_sf_.weight(evt.PUInfos()[0].nInteractions()); break;
+  case systematics::SysShifts::PU_UP: ret *= pu_sf_up_.weight(evt.pileup().nTrueInt()); break;
+  case systematics::SysShifts::PU_DW: ret *= pu_sf_dw_.weight(evt.pileup().nTrueInt()); break;
+  default: ret *= pu_sf_.weight(evt.pileup().nTrueInt()); break;
   }
 
   return ret;

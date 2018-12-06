@@ -20,7 +20,8 @@ public:
   LHEParticle(const Genparts &lhe):
 		Genparts(lhe),
         //{}
-    TLorentzVector(px(),py(),pz(),e()) {}
+    TLorentzVector(0., 0., 0., 0.) {}
+    //TLorentzVector(px(),py(),pz(),e()) {}
 
   //std::pair<int, int> mothers_range() const {return std::make_pair(fmother()-1, lmother()-1);}
   //static std::vector<LHEParticle> LHEParticles(URStreamer &event);

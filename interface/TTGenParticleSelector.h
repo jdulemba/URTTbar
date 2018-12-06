@@ -10,7 +10,7 @@
 
 using namespace std;
 
-std::ostream & operator<<(std::ostream &os, const Genparticle& w);
+std::ostream & operator<<(std::ostream &os, const Genparts w);
 
 class TTGenParticleSelector { 
 public:
@@ -57,8 +57,8 @@ private:
   vector<GenObject*> charged_leps_;
   vector<GenObject*> neutral_leps_;
   vector<GenObject*> final_charged_leps_;
-  list<Genjet> jets_;
-  vector<Genjet*> added_jets_;
+  list<Genjets> jets_;
+  vector<Genjets*> added_jets_;
   GenObject* top_;
   GenObject* tbar_;
   GenObject* b_;

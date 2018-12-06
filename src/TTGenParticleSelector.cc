@@ -6,8 +6,8 @@
 
 using namespace TMath;
 
-std::ostream & operator<<(std::ostream &os, const Genparticle& w) {
-  os << "Genparticle(" << w.idx() << ", id:";
+std::ostream & operator<<(std::ostream &os, const Genparts& w) {
+  os << "Genparticle(";//<< w.idx() << ", id:";
   if(ura::pdg_names.find(w.pdgId()) != ura::pdg_names.end()){
     os << ura::pdg_names.at(w.pdgId());// << ", stat:" << w.status() << ")";
   } else {
@@ -124,8 +124,8 @@ void TTGenParticleSelector::select_pstop(URStreamer& event)
 
 void TTGenParticleSelector::select_herwig(URStreamer& event)
 {
-  const vector<Genparticle>& gps = event.genParticles();
-  for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp) {
+  const vector<Genparts>& gps = event.genparts();
+  for(vector<Genparts>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp) {
     if(gp->status() == 11) {
       if(gp->pdgId() == 6 && gps[gp->firstDaughtIdx()].pdgId() != 6) {
         //weight *= 1.+ctopptweight*(gp->Pt()-200.)/1000.;
@@ -171,8 +171,8 @@ void TTGenParticleSelector::select_herwig(URStreamer& event)
 
 void TTGenParticleSelector::select_normal(URStreamer& event)
 {
-  const vector<Genparticle>& gps = event.genParticles();
-  for(vector<Genparticle>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp) {
+  const vector<Genparts>& gps = event.genparts();
+  for(vector<Genparts>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp) {
     if(gp->status() > 21 && gp->status() < 30 && gp->momIdx().size() != 0) {
       if(gp->pdgId() == 6) {
         //if(gps[gp->momIdx()[0]].pdgId() != 21) Logger::log().info() << gp->pdgId() << " <-- " << gps[gp->momIdx()[0]].pdgId() << std::endl;
