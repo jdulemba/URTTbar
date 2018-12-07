@@ -15,21 +15,24 @@ class GenObject : public TLorentzVector
         int status_;
 
     public:
-        GenObject(const Genparts& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
+        GenObject(const Genparts& gp) : pdgId_(gp.pdgId()), status_(gp.status())
+        //GenObject(const Genparts& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
     {
     }
         /*GenObject(const Pst& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
           {
           }*/
-        GenObject(const Genjets& jet) : TLorentzVector(jet), pdgId_(0), status_(0)
+        GenObject(const Genjets& jet) : pdgId_(0), status_(0)
+        //GenObject(const Genjets& jet) : TLorentzVector(jet), pdgId_(0), status_(0)
     {
     }
         template<class T>
             GenObject(const T& t): 
-                TLorentzVector(t),
+                //TLorentzVector(t),
                 pdgId_(t.pdgId()),
                 status_(t.status()) {}
-        GenObject() : TLorentzVector(), pdgId_(0), status_(0)
+        GenObject() : pdgId_(0), status_(0)
+        //GenObject() : TLorentzVector(), pdgId_(0), status_(0)
     {
     }
 

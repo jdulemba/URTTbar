@@ -26,7 +26,7 @@ private:
   double oldx1_;
   bool use_evt_weights_;
   int nweights_;
-  void SetupWeights(URStreamer& streamer);
+  //void SetupWeights(URStreamer &streamer);
 
 public:
   PDFuncertainty(const std::string setorigname, int memorig, const std::vector<std::string>& setnames); //custom PDF settings
@@ -80,8 +80,9 @@ public:
     }
   }
 
-  void fill_replicas(std::string dirname, std::string name, double val, double weight, URStreamer& streamer);
-  void fill_replicas2D(std::string dirname, std::string name, double xval, double yval, double weight, URStreamer& streamer);
+  void fill_replicas(std::string dirname, std::string name, double val, double weight, URStreamer &streamer);
+  void fill_replicas2D(std::string dirname, std::string name, double xval, double yval, double weight, URStreamer &streamer);
+  void SetupWeights(URStreamer &streamer);
 };
 
 #endif

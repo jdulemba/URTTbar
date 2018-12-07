@@ -7,7 +7,7 @@
 using namespace TMath;
 
 std::ostream & operator<<(std::ostream &os, const Genparts& w) {
-  os << "Genparticle(";//<< w.idx() << ", id:";
+  os << "Genparts(";//<< w.idx() << ", id:";
   if(ura::pdg_names.find(w.pdgId()) != ura::pdg_names.end()){
     os << ura::pdg_names.at(w.pdgId());// << ", stat:" << w.status() << ")";
   } else {
@@ -127,30 +127,31 @@ void TTGenParticleSelector::select_herwig(URStreamer& event)
   const vector<Genparts>& gps = event.genparts();
   for(vector<Genparts>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp) {
     if(gp->status() == 11) {
-      if(gp->pdgId() == 6 && gps[gp->firstDaughtIdx()].pdgId() != 6) {
-        //weight *= 1.+ctopptweight*(gp->Pt()-200.)/1000.;
-        topcounter_++;
-        selected_.push_back(*gp);
-        top_ = &(selected_.back());
-      }
-      else if(gp->pdgId() == -6 && gps[gp->firstDaughtIdx()].pdgId() != -6) {
-        topcounter_++;
-        selected_.push_back(*gp);
-        tbar_ = &(selected_.back());
-      }
-      else if(gp->pdgId() == 5 && gps[gp->momIdx()[0]].pdgId() == 6) {
+      //if(gp->pdgId() == 6 && gps[gp->firstDaughtIdx()].pdgId() != 6) {
+      //  //weight *= 1.+ctopptweight*(gp->Pt()-200.)/1000.;
+      //  topcounter_++;
+      //  selected_.push_back(*gp);
+      //  top_ = &(selected_.back());
+      //}
+      //else if(gp->pdgId() == -6 && gps[gp->firstDaughtIdx()].pdgId() != -6) {
+      //  topcounter_++;
+      //  selected_.push_back(*gp);
+      //  tbar_ = &(selected_.back());
+      //}
+      if(gp->pdgId() == 5 && gps[gp->genPartIdxMother()].pdgId() == 6) {
+      //else if(gp->pdgId() == 5 && gps[gp->genPartIdxMother()[0]].pdgId() == 6) {
         selected_.push_back(*gp);
         b_ = &(selected_.back());
       }
-      else if(gp->pdgId() == -5 && gps[gp->momIdx()[0]].pdgId() == -6) {
+      else if(gp->pdgId() == -5 && gps[gp->genPartIdxMother()].pdgId() == -6) {
         selected_.push_back(*gp);
         bbar_ = &(selected_.back());
       }
-      else if(Abs(gp->pdgId()) < 6 && gp->momIdx().size() != 0 && Abs(gps[gp->momIdx()[0]].pdgId()) == 24) {
+      else if(Abs(gp->pdgId()) < 6 && gp->genPartIdxMother() && Abs(gps[gp->genPartIdxMother()].pdgId()) == 24) {
         selected_.push_back(*gp);
         wpartons_.push_back(&(selected_.back()));
       }
-      else if(gp->momIdx().size() != 0 && Abs(gps[gp->momIdx()[0]].pdgId()) == 24) {
+      else if(gp->genPartIdxMother() && Abs(gps[gp->genPartIdxMother()].pdgId()) == 24) {
         if(Abs(gp->pdgId()) == 11 || Abs(gp->pdgId()) == 13) {
           selected_.push_back(*gp);
           charged_leps_.push_back(&(selected_.back()));
@@ -173,34 +174,34 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
 {
   const vector<Genparts>& gps = event.genparts();
   for(vector<Genparts>::const_iterator gp = gps.begin(); gp != gps.end(); ++gp) {
-    if(gp->status() > 21 && gp->status() < 30 && gp->momIdx().size() != 0) {
+    if(gp->status() > 21 && gp->status() < 30 && gp->genPartIdxMother()) {
       if(gp->pdgId() == 6) {
-        //if(gps[gp->momIdx()[0]].pdgId() != 21) Logger::log().info() << gp->pdgId() << " <-- " << gps[gp->momIdx()[0]].pdgId() << std::endl;
+        //if(gps[gp->genPartIdxMother()[0]].pdgId() != 21) Logger::log().info() << gp->pdgId() << " <-- " << gps[gp->genPartIdxMother()[0]].pdgId() << std::endl;
         topcounter_++;
         selected_.push_back(*gp);
         top_ = &(selected_.back());
       }
       else if(gp->pdgId() == -6) {
-        //if(gps[gp->momIdx()[0]].pdgId() != 21) Logger::log().info() << gp->pdgId() << " <-- " << gps[gp->momIdx()[0]].pdgId() << std::endl;
+        //if(gps[gp->genPartIdxMother()[0]].pdgId() != 21) Logger::log().info() << gp->pdgId() << " <-- " << gps[gp->genPartIdxMother()[0]].pdgId() << std::endl;
         topcounter_++;
         selected_.push_back(*gp);
         tbar_ = &(selected_.back());
       }
-      else if(gp->pdgId() == 5 && gps[gp->momIdx()[0]].pdgId() != 24) {
+      else if(gp->pdgId() == 5 && gps[gp->genPartIdxMother()].pdgId() != 24) {
         selected_.push_back(*gp);
         b_ = &(selected_.back());
       }
-      else if(gp->pdgId() == -5 && gps[gp->momIdx()[0]].pdgId() != -24) {
+      else if(gp->pdgId() == -5 && gps[gp->genPartIdxMother()].pdgId() != -24) {
         selected_.push_back(*gp);
         bbar_ = &(selected_.back());
       }
-      else if(Abs(gp->pdgId()) < 6 && Abs(gps[gp->momIdx()[0]].pdgId()) == w_decay_momid_) {
+      else if(Abs(gp->pdgId()) < 6 && Abs(gps[gp->genPartIdxMother()].pdgId()) == w_decay_momid_) {
         selected_.push_back(*gp);
         wpartons_.push_back(&(selected_.back()));
       }
     }
 
-    if(gp->momIdx().size() != 0 && Abs(gps[gp->momIdx()[0]].pdgId()) == w_decay_momid_) {	
+    if(gp->genPartIdxMother() && Abs(gps[gp->genPartIdxMother()].pdgId()) == w_decay_momid_) {	
       if(Abs(gp->pdgId()) == 11 || Abs(gp->pdgId()) == 13) {
         selected_.push_back(*gp);
         charged_leps_.push_back(&(selected_.back()));
@@ -215,7 +216,7 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
       }
     }
 
-    if(gp->status() == 1 && gp->momIdx().size() != 0 && (Abs(gps[gp->momIdx()[0]].pdgId()) == 24 || gp->pdgId() == gps[gp->momIdx()[0]].pdgId())) {
+    if(gp->status() == 1 && gp->genPartIdxMother() && (Abs(gps[gp->genPartIdxMother()].pdgId()) == 24 || gp->pdgId() == gps[gp->genPartIdxMother()].pdgId())) {
       if(Abs(gp->pdgId()) == 11 || Abs(gp->pdgId()) == 13) {
         selected_.push_back(*gp);
         final_charged_leps_.push_back(&(selected_.back()));	
@@ -224,57 +225,59 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
   }
 }
 
-int TTGenParticleSelector::comes_from_top(LHEParticle &lhe) {
-  pair<int,int> moms = lhe.mothers_range();
-  if(moms.first != moms.second || moms.first < 0) return -1; //not coming from top
-  LHEParticle &mom = lhes_[moms.first];
-  if(Abs(mom.pdgId()) == ura::PDGID::t) return moms.first;
-  return comes_from_top(mom);
-}
+//int TTGenParticleSelector::comes_from_top(LHEParticle &lhe) {
+//  pair<int,int> moms = lhe.mothers_range();
+//  if(moms.first != moms.second || moms.first < 0) return -1; //not coming from top
+//  LHEParticle &mom = lhes_[moms.first];
+//  if(Abs(mom.pdgId()) == ura::PDGID::t) return moms.first;
+//  return comes_from_top(mom);
+//}
 
 void TTGenParticleSelector::select_lhe(URStreamer& event) {
-	auto& evt_lhes = event.LHEPaticles();
-  lhes_.reserve(evt_lhes.size());// = LHEParticle::LHEParticles(event);
-	for(auto& lhe : evt_lhes){lhes_.emplace_back(lhe);}
+	auto& evt_lhes = event.genparts();
+    lhes_.reserve(evt_lhes.size());// = LHEParticle::LHEParticles(event);
+	for(auto& lhe : evt_lhes){
+        lhes_.emplace_back(lhe);
+    }
 	
 	if(lhes_.size() == 0) Logger::log().error() << "The LHEs have no content!" << endl;
-  for(auto &lhe : lhes_) {
-    if(lhe.pdgid() == ura::PDGID::t) {
-      selected_.push_back(lhe);
-      topcounter_++;
-      top_ = &(selected_.back());
-      continue;
-    }
-    else if(lhe.pdgid() == ura::PDGID::tbar) {
-      topcounter_++;
-      selected_.push_back(lhe);
-      tbar_ = &(selected_.back());
-      continue;
-    }
-    if(lhe.status() != 1) {continue;}
-    int top_id = this->comes_from_top(lhe);
-    if(top_id == 0) {continue;}//does not come from top
-    selected_.push_back(lhe);
-    int mom = lhe.mothers_range().first;
+    for(auto &lhe : lhes_) {
+        if(lhe.pdgId() == ura::PDGID::t) {
+            selected_.push_back(lhe);
+            topcounter_++;
+            top_ = &(selected_.back());
+            continue;
+        }
+        else if(lhe.pdgId() == ura::PDGID::tbar) {
+            topcounter_++;
+            selected_.push_back(lhe);
+            tbar_ = &(selected_.back());
+            continue;
+        }
+        if(lhe.status() != 1) {continue;}
+        int top_id = this->comes_from_top(lhe);
+        if(top_id == 0) {continue;}//does not come from top
+        selected_.push_back(lhe);
+        int mom = lhe.genPartIdxMother();
 
-    if(lhe.pdgid() == ura::PDGID::b && lhes_[mom].pdgid() != ura::PDGID::Wplus) {
-      b_ = &(selected_.back());
+        if(lhe.pdgId() == ura::PDGID::b && lhes_[mom].pdgId() != ura::PDGID::Wplus) {
+            b_ = &(selected_.back());
+        }
+        else if(lhe.pdgId() == ura::PDGID::bbar && lhes_[mom].pdgId() != ura::PDGID::Wminus) {
+            bbar_ = &(selected_.back());
+        }
+        else if(Abs(lhes_[mom].pdgId()) == w_decay_momid_) {
+            if(Abs(lhe.pdgId()) < 6) wpartons_.push_back(&(selected_.back()));
+            if(Abs(lhe.pdgId()) == ura::PDGID::e || Abs(lhe.pdgId()) == ura::PDGID::mu || Abs(lhe.pdgId()) == ura::PDGID::tau) {
+              		charged_leps_.push_back(&(selected_.back()));
+              		final_charged_leps_.push_back(&(selected_.back()));
+              	}
+            if(Abs(lhe.pdgId()) == ura::PDGID::nu_e || Abs(lhe.pdgId()) == ura::PDGID::nu_mu || Abs(lhe.pdgId()) == ura::PDGID::nu_tau) {
+              neutral_leps_.push_back(&(selected_.back()));
+              lepdecays_++;
+            }      
+        }
     }
-    else if(lhe.pdgid() == ura::PDGID::bbar && lhes_[mom].pdgid() != ura::PDGID::Wminus) {
-      bbar_ = &(selected_.back());
-    }
-    else if(Abs(lhes_[mom].pdgid()) == w_decay_momid_) {
-      if(Abs(lhe.pdgid()) < 6) wpartons_.push_back(&(selected_.back()));
-      if(Abs(lhe.pdgid()) == ura::PDGID::e || Abs(lhe.pdgid()) == ura::PDGID::mu || Abs(lhe.pdgid()) == ura::PDGID::tau) {
-				charged_leps_.push_back(&(selected_.back()));
-				final_charged_leps_.push_back(&(selected_.back()));
-			}
-      if(Abs(lhe.pdgid()) == ura::PDGID::nu_e || Abs(lhe.pdgid()) == ura::PDGID::nu_mu || Abs(lhe.pdgid()) == ura::PDGID::nu_tau) {
-        neutral_leps_.push_back(&(selected_.back()));
-        lepdecays_++;
-      }      
-    }
-  }
 }
 
 void TTGenParticleSelector::reset() {
@@ -346,8 +349,8 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
 	if(ttbar_.type == GenTTBar::DecayType::SEMILEP) {
     if(!charged_leps_[0] || !wpartons_[0] || !wpartons_[1] || !bbar_ || !b_) return false;
 
-		const vector<Genjet>& genjets = event.genjets();
-		for(vector<Genjet>::const_iterator gj = genjets.begin(); gj != genjets.end(); ++gj)
+		const vector<Genjets>& genjets = event.genjets();
+		for(vector<Genjets>::const_iterator gj = genjets.begin(); gj != genjets.end(); ++gj)
 		{
 			if(gj->Pt() < jetptmin_ || Abs(gj->Eta()) > jetetamax_) {continue;}
 			if(gj->DeltaR(*charged_leps_[0]) < 0.4) continue;
@@ -356,7 +359,7 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
 			if(gj->DeltaR(*bbar_) < 0.4) continue;
 			if(gj->DeltaR(*b_) < 0.4) continue;
 
-			jets_.push_back(Genjet(*gj));
+			jets_.push_back(Genjets(*gj));
 			added_jets_.push_back(&(jets_.back()));
 		}
 	}
@@ -453,55 +456,55 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
 // OLD CODE, might come useful as matching is different
 //
 
-bool TTGenParticleSelector::descends(const Genparticle* mother, const Genparticle* child) {
-  for(int mom_idx : child->momIdx()) 
-    if(mom_idx == mother->idx()) 
-      return true;
-  return false;
-}
+//bool TTGenParticleSelector::descends(const Genparts* mother, const Genparts* child) {
+//  for(int mom_idx : child->momIdx()) 
+//    if(mom_idx == mother->idx()) 
+//      return true;
+//  return false;
+//}
+//
+//vector< pair<const Genparts*, const Genparts*> > TTGenParticleSelector::Collapse(
+//  vector<const Genparts*> &roots, 
+//  vector<const Genparts*> &particles) {
+//  //particles MUST NOT contain roots
+//  vector< pair<const Genparts*, const Genparts*> > retval;
+//  vector<bool> used(particles.size(), false);
+//  
+//  for(auto& root : roots) {
+//    const Genparts* current = root;
+//    bool go_on=true;
+//    while(go_on){
+//      go_on=false;
+//      //loop over particles
+//      for(size_t pos=0; pos<particles.size(); pos++){
+//        //check if already used and has mothers
+//        if(particles[pos]->momIdx().size() == 0 || used[pos]) continue;
+//
+//        //check if is a descendent
+//        bool descends_from = descends(current, particles[pos]);
+//        
+//        //if so use it
+//        if(descends_from) {
+//          used[pos] = true;
+//          go_on=true;
+//          current = particles[pos];
+//          break;
+//        }
+//      }
+//    }
+//    
+//    //make pair
+//    retval.push_back( make_pair(root, current) );
+//  }
+//
+//	return retval;
+//}
 
-vector< pair<const Genparticle*, const Genparticle*> > TTGenParticleSelector::Collapse(
-  vector<const Genparticle*> &roots, 
-  vector<const Genparticle*> &particles) {
-  //particles MUST NOT contain roots
-  vector< pair<const Genparticle*, const Genparticle*> > retval;
-  vector<bool> used(particles.size(), false);
-  
-  for(auto& root : roots) {
-    const Genparticle* current = root;
-    bool go_on=true;
-    while(go_on){
-      go_on=false;
-      //loop over particles
-      for(size_t pos=0; pos<particles.size(); pos++){
-        //check if already used and has mothers
-        if(particles[pos]->momIdx().size() == 0 || used[pos]) continue;
-
-        //check if is a descendent
-        bool descends_from = descends(current, particles[pos]);
-        
-        //if so use it
-        if(descends_from) {
-          used[pos] = true;
-          go_on=true;
-          current = particles[pos];
-          break;
-        }
-      }
-    }
-    
-    //make pair
-    retval.push_back( make_pair(root, current) );
-  }
-
-	return retval;
-}
-
-bool TTGenParticleSelector::assign(const Genparticle& gp, const std::vector<Genparticle>& gps, 
-            vector<const Genparticle*> &collection, vector<const Genparticle*> &roots, 
+bool TTGenParticleSelector::assign(const Genparts& gp, const std::vector<Genparts>& gps, 
+            vector<const Genparts*> &collection, vector<const Genparts*> &roots, 
             ura::PDGID to_match) {
   if(gp.pdgId() == to_match){
-    if(gp.momIdx().size() == 0 || gps[gp.momIdx()[0]].pdgId() != to_match) {
+    if( !gp.genPartIdxMother() || gps[gp.genPartIdxMother()].pdgId() != to_match) {
       roots.push_back(&gp);
     } else {
       collection.push_back(&gp);
@@ -511,123 +514,123 @@ bool TTGenParticleSelector::assign(const Genparticle& gp, const std::vector<Genp
   else return false;
 }
 
-void TTGenParticleSelector::select_with_deps(URStreamer& event)
-{
-	const std::vector<Genparticle>& gps = event.genParticles();
-
-	//find top and tbar (multiple due to radiation
-	vector<const Genparticle*> tops;
-	vector<const Genparticle*> tbars;  
-  vector<const Genparticle*> Wpluses;
-  vector<const Genparticle*> Wminuses;
-  vector<const Genparticle*> bs;
-  vector<const Genparticle*> bbars;
-
-	vector<const Genparticle*> root_tops;
-	vector<const Genparticle*> root_tbars;  
-  vector<const Genparticle*> root_Wpluses;
-  vector<const Genparticle*> root_Wminuses;
-
-  //find tops, bs, and Ws
-	for(auto& gp : gps) {
-    if( assign(gp, gps, tops, root_tops, ura::PDGID::t) ) continue;
-    else if(assign(gp, gps, tbars, root_tbars, ura::PDGID::tbar)) continue;
-    else if(assign(gp, gps, Wpluses, root_Wpluses, ura::PDGID::Wplus)) continue;
-    else if(assign(gp, gps, Wminuses, root_Wminuses, ura::PDGID::Wminus)) continue;
-    else if(gp.pdgId() == ura::PDGID::b) bs.push_back(&gp);
-    else if(gp.pdgId() == ura::PDGID::bbar) bbars.push_back(&gp);
-	}
-
-  //collapse them (compress the same paricle)
-	auto collapsed_tops = Collapse(root_tops, tops);
-	auto collapsed_tbars = Collapse(root_tbars, tbars);
-	auto collapsed_Wpluses = Collapse(root_Wpluses, Wpluses);
-	auto collapsed_Wminuses = Collapse(root_Wminuses, Wminuses);
-
-  if(collapsed_tops.size() != 1 || collapsed_tbars.size() != 1) {
-    Logger::log().error() << "Could not find the proper number of tops!" << endl;
-    throw 42;
-  }
-
-  //store tops
-  topcounter_ += 2;
-  selected_.push_back(*(collapsed_tops[0].second));
-  top_ = &(selected_.back());
-  selected_.push_back(*(collapsed_tbars[0].second));
-  tbar_ = &(selected_.back());
-  
-  //select and store b quarks
-  for(auto &bcan : bs) {
-    if(descends(collapsed_tops[0].second, bcan) ) {
-      selected_.push_back(*bcan);
-      b_ =  &(selected_.back());
-      break;
-    }
-  }
-  for(auto &bcan : bbars) {
-    if(descends(collapsed_tbars[0].second, bcan) ) {
-      selected_.push_back(*bcan);
-      bbar_ =  &(selected_.back());
-      break;
-    }
-  }
-  
-  //select Ws
-  const Genparticle* wplus = 0;
-  const Genparticle* wminus = 0;
-  for(auto &ws : collapsed_Wpluses) {
-    if(descends(collapsed_tops[0].second, ws.first)) {
-      wplus = ws.second;
-    }
-  }
-  for(auto &ws : collapsed_Wminuses) {
-    if(descends(collapsed_tbars[0].second, ws.first)) {
-      wminus = ws.second;
-    }
-  }
-
-  if(!wplus || !wminus) {
-    Logger::log().error() << "Could not find the Ws from top decay!" << endl;
-    throw 42;
-  }
-  
-  //cout << wplus << " " << wminus << endl;
-
-	//look for W decay products
-  vector<const Genparticle*> root_leps;
-  for(auto& gp : gps) {
-    int abs_pdgid = std::abs(gp.pdgId());
-    // if(abs_pdgid > 5 && abs_pdgid % 2 == 0) {
-    //   cout << "neutrino found: mother " << gps[gp.momIdx()[0]].pdgId() << endl;
-    // }
-
-    if(descends(wplus, &gp) || descends(wminus, &gp)) {
-      selected_.push_back(gp);
-      if(abs_pdgid < 5) wpartons_.push_back(&(selected_.back()));//quark      
-      else if(abs_pdgid % 2 == 0) neutral_leps_.push_back(&(selected_.back())); //neutrino
-      else {//charged lepton
-        root_leps.push_back(&gp);
-        charged_leps_.push_back(&(selected_.back()));
-      }
-    } 
-  }
-
-  //look for lepton radiation
-  if(root_leps.size() > 0) {
-    vector<const Genparticle*> leps;
-    for(auto& gp : gps) {
-      for(auto& root : root_leps) {
-        if(root->pdgId() == gp.pdgId() && root->idx() != gp.idx()) leps.push_back(&gp);
-      }
-    }//for(auto& gp : gps)
-    
-    auto collapsed_leps = Collapse(root_leps, leps);
-    for(auto& lep : collapsed_leps) {
-      selected_.push_back(*(lep.second));
-      final_charged_leps_.push_back(&(selected_.back()));
-    }
-  } //if(root_leps.size() > 0)
-
-}
+//void TTGenParticleSelector::select_with_deps(URStreamer& event)
+//{
+//	const std::vector<Genparts>& gps = event.genparts();
+//
+//	//find top and tbar (multiple due to radiation
+//	vector<const Genparts*> tops;
+//	vector<const Genparts*> tbars;  
+//  vector<const Genparts*> Wpluses;
+//  vector<const Genparts*> Wminuses;
+//  vector<const Genparts*> bs;
+//  vector<const Genparts*> bbars;
+//
+//	vector<const Genparts*> root_tops;
+//	vector<const Genparts*> root_tbars;  
+//  vector<const Genparts*> root_Wpluses;
+//  vector<const Genparts*> root_Wminuses;
+//
+//  //find tops, bs, and Ws
+//	for(auto& gp : gps) {
+//    if( assign(gp, gps, tops, root_tops, ura::PDGID::t) ) continue;
+//    else if(assign(gp, gps, tbars, root_tbars, ura::PDGID::tbar)) continue;
+//    else if(assign(gp, gps, Wpluses, root_Wpluses, ura::PDGID::Wplus)) continue;
+//    else if(assign(gp, gps, Wminuses, root_Wminuses, ura::PDGID::Wminus)) continue;
+//    else if(gp.pdgId() == ura::PDGID::b) bs.push_back(&gp);
+//    else if(gp.pdgId() == ura::PDGID::bbar) bbars.push_back(&gp);
+//	}
+//
+//  //collapse them (compress the same paricle)
+//	auto collapsed_tops = Collapse(root_tops, tops);
+//	auto collapsed_tbars = Collapse(root_tbars, tbars);
+//	auto collapsed_Wpluses = Collapse(root_Wpluses, Wpluses);
+//	auto collapsed_Wminuses = Collapse(root_Wminuses, Wminuses);
+//
+//  if(collapsed_tops.size() != 1 || collapsed_tbars.size() != 1) {
+//    Logger::log().error() << "Could not find the proper number of tops!" << endl;
+//    throw 42;
+//  }
+//
+//  //store tops
+//  topcounter_ += 2;
+//  selected_.push_back(*(collapsed_tops[0].second));
+//  top_ = &(selected_.back());
+//  selected_.push_back(*(collapsed_tbars[0].second));
+//  tbar_ = &(selected_.back());
+//  
+//  //select and store b quarks
+//  for(auto &bcan : bs) {
+//    if(descends(collapsed_tops[0].second, bcan) ) {
+//      selected_.push_back(*bcan);
+//      b_ =  &(selected_.back());
+//      break;
+//    }
+//  }
+//  for(auto &bcan : bbars) {
+//    if(descends(collapsed_tbars[0].second, bcan) ) {
+//      selected_.push_back(*bcan);
+//      bbar_ =  &(selected_.back());
+//      break;
+//    }
+//  }
+//  
+//  //select Ws
+//  const Genparts* wplus = 0;
+//  const Genparts* wminus = 0;
+//  for(auto &ws : collapsed_Wpluses) {
+//    if(descends(collapsed_tops[0].second, ws.first)) {
+//      wplus = ws.second;
+//    }
+//  }
+//  for(auto &ws : collapsed_Wminuses) {
+//    if(descends(collapsed_tbars[0].second, ws.first)) {
+//      wminus = ws.second;
+//    }
+//  }
+//
+//  if(!wplus || !wminus) {
+//    Logger::log().error() << "Could not find the Ws from top decay!" << endl;
+//    throw 42;
+//  }
+//  
+//  //cout << wplus << " " << wminus << endl;
+//
+//	//look for W decay products
+//  vector<const Genparts*> root_leps;
+//  for(auto& gp : gps) {
+//    int abs_pdgid = std::abs(gp.pdgId());
+//    // if(abs_pdgid > 5 && abs_pdgid % 2 == 0) {
+//    //   cout << "neutrino found: mother " << gps[gp.momIdx()[0]].pdgId() << endl;
+//    // }
+//
+//    if(descends(wplus, &gp) || descends(wminus, &gp)) {
+//      selected_.push_back(gp);
+//      if(abs_pdgid < 5) wpartons_.push_back(&(selected_.back()));//quark      
+//      else if(abs_pdgid % 2 == 0) neutral_leps_.push_back(&(selected_.back())); //neutrino
+//      else {//charged lepton
+//        root_leps.push_back(&gp);
+//        charged_leps_.push_back(&(selected_.back()));
+//      }
+//    } 
+//  }
+//
+//  //look for lepton radiation
+//  if(root_leps.size() > 0) {
+//    vector<const Genparts*> leps;
+//    for(auto& gp : gps) {
+//      for(auto& root : root_leps) {
+//        if(root->pdgId() == gp.pdgId() && root->idx() != gp.idx()) leps.push_back(&gp);
+//      }
+//    }//for(auto& gp : gps)
+//    
+//    auto collapsed_leps = Collapse(root_leps, leps);
+//    for(auto& lep : collapsed_leps) {
+//      selected_.push_back(*(lep.second));
+//      final_charged_leps_.push_back(&(selected_.back()));
+//    }
+//  } //if(root_leps.size() > 0)
+//
+//}
 
 

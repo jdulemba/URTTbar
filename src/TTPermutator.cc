@@ -57,10 +57,10 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
         sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
     }
     else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
+        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->btagCMVA() > B->btagCMVA());});
     }
     else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPFLAVOUR){
-        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->DeepCSVProbB() + A->DeepCSVProbBB() > B->DeepCSVProbB() + B->DeepCSVProbBB());});
+        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->btagDeepB() > B->btagDeepB());});
     }
     else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
         Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
