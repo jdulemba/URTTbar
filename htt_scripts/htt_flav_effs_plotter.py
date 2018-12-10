@@ -312,7 +312,7 @@ class HTTPlotter(Plotter):
 
 
 
-    def teff_comparisons(self, hpass, htotal, xtitle=None, ytitle=None, fig_name=None, fit=False):
+    def teff_comparisons(self, hpass, htotal, xtitle=None, ytitle=None, fig_name=None, **kwargs):
 
         lwidth = 1
 
@@ -350,8 +350,9 @@ class HTTPlotter(Plotter):
         ratio_norm.Draw('same')
         ratio_jeff.Draw('same')
 
+        #set_trace()
             ## different types of fitting
-        if fit:
+        if 'fit' in kwargs:
 
             if 'Pt' in fig_name:
                 #jeff_fit1 = ratio_jeff.Clone()
@@ -397,7 +398,11 @@ class HTTPlotter(Plotter):
 
         leg.Draw('same')
         plotter.save( fig_name )
+
         #set_trace()
+        if 'intfrac' in kwargs:
+            eff, err_up, err_low = ratio_jeff.GetEfficiency(1), ratio_jeff.GetEfficiencyErrorUp(1), ratio_jeff.GetEfficiencyErrorLow(1)
+            return eff, err_up, err_low
 
 
 
@@ -446,6 +451,159 @@ class HTTPlotter(Plotter):
         leg = ROOT.TLegend(0.895,0.14,0.965,0.25)
         leg.AddEntry(r_data_jeff, "Data")
         leg.AddEntry(r_QCD_jeff, "QCD")
+
+
+    def sf_simplifications(self, var, xtitle, name, xlims, nbinsx): ## find fractions and efficiencies of MC for b and prompt quarks
+
+        ### combine CSV, nonCSV regions
+
+        plotter.set_subdir( '%s/ISO_BTag_Est_Simps/%s' % ('3Jets' if args.njets == '3' else '4PJets', name) )
+
+
+        N_Iso_CSV_b = self.get_view('QCD*').Get('nosys/tight/csvPass/%s_B' % var )
+        N_Iso_CSV_b = RebinView.rebin(N_Iso_CSV_b, nbinsx)
+        N_nonIso_CSV_b = self.get_view('QCD*').Get('nosys/looseNOTTight/csvPass/%s_B' % var )
+        N_nonIso_CSV_b = RebinView.rebin(N_nonIso_CSV_b, nbinsx)
+
+        N_Iso_nonCSV_b = self.get_view('QCD*').Get('nosys/tight/csvFail/%s_B' % var )
+        N_Iso_nonCSV_b = RebinView.rebin(N_Iso_nonCSV_b, nbinsx)
+        N_nonIso_nonCSV_b = self.get_view('QCD*').Get('nosys/looseNOTTight/csvFail/%s_B' % var )
+        N_nonIso_nonCSV_b = RebinView.rebin(N_nonIso_nonCSV_b, nbinsx)
+
+        N_Iso_CSV_p = self.get_view('QCD*').Get('nosys/tight/csvPass/%s_Prompt' % var )
+        N_Iso_CSV_p = RebinView.rebin(N_Iso_CSV_p, nbinsx)
+        N_nonIso_CSV_p = self.get_view('QCD*').Get('nosys/looseNOTTight/csvPass/%s_Prompt' % var )
+        N_nonIso_CSV_p = RebinView.rebin(N_nonIso_CSV_p, nbinsx)
+
+        N_Iso_nonCSV_p = self.get_view('QCD*').Get('nosys/tight/csvFail/%s_Prompt' % var )
+        N_Iso_nonCSV_p = RebinView.rebin(N_Iso_nonCSV_p, nbinsx)
+        N_nonIso_nonCSV_p = self.get_view('QCD*').Get('nosys/looseNOTTight/csvFail/%s_Prompt' % var )
+        N_nonIso_nonCSV_p = RebinView.rebin(N_nonIso_nonCSV_p, nbinsx)
+
+        N_b_CSV = N_Iso_CSV_b+N_nonIso_CSV_b
+        N_p_CSV = N_Iso_CSV_p+N_nonIso_CSV_p
+        N_b_nonCSV = N_Iso_nonCSV_b+N_nonIso_nonCSV_b
+        N_p_nonCSV = N_Iso_nonCSV_p+N_nonIso_nonCSV_p
+
+        #set_trace()
+            ## format and plot lep pT hists for number of leps matched to b and prompt
+        plotter.plot( N_b_CSV, x_range=xlims, ytitle='N_{b}^{CSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
+        plotter.save( 'N_b_CSV_%s' % name )
+        plotter.plot( N_p_CSV, x_range=xlims, ytitle='N_{prompt}^{CSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
+        plotter.save( 'N_p_CSV_%s' % name )
+        plotter.plot( N_b_nonCSV, x_range=xlims, ytitle='N_{b}^{nonCSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
+        plotter.save( 'N_b_nonCSV_%s' % name )
+        plotter.plot( N_p_nonCSV, x_range=xlims, ytitle='N_{prompt}^{nonCSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
+        plotter.save( 'N_p_nonCSV_%s' % name )
+
+        #set_trace()
+
+            ## format and plot hists for fractions of leps matched to b and prompt
+        N_Iso_CSV_b_fracs = RebinView.rebin(N_Iso_CSV_b, [nbinsx[0], nbinsx[-1]])
+        N_nonIso_CSV_b_fracs = RebinView.rebin(N_nonIso_CSV_b, [nbinsx[0], nbinsx[-1]])
+        N_Iso_nonCSV_b_fracs = RebinView.rebin(N_Iso_nonCSV_b, [nbinsx[0], nbinsx[-1]])
+        N_nonIso_nonCSV_b_fracs = RebinView.rebin(N_nonIso_nonCSV_b, [nbinsx[0], nbinsx[-1]])
+
+        N_Iso_CSV_p_fracs = RebinView.rebin(N_Iso_CSV_p, [nbinsx[0], nbinsx[-1]])
+        N_nonIso_CSV_p_fracs = RebinView.rebin(N_nonIso_CSV_p, [nbinsx[0], nbinsx[-1]])
+        N_Iso_nonCSV_p_fracs = RebinView.rebin(N_Iso_nonCSV_p, [nbinsx[0], nbinsx[-1]])
+        N_nonIso_nonCSV_p_fracs = RebinView.rebin(N_nonIso_nonCSV_p, [nbinsx[0], nbinsx[-1]])
+
+        N_CSV_b_fracs = N_Iso_CSV_b_fracs + N_nonIso_CSV_b_fracs
+        N_nonCSV_b_fracs = N_Iso_nonCSV_b_fracs + N_nonIso_nonCSV_b_fracs
+        N_CSV_p_fracs = N_Iso_CSV_p_fracs + N_nonIso_CSV_p_fracs
+        N_nonCSV_p_fracs = N_Iso_nonCSV_p_fracs + N_nonIso_nonCSV_p_fracs
+
+        f_b_CSV_val, f_b_CSV_errup, f_b_CSV_errlow = plotter.teff_comparisons(N_CSV_b_fracs, N_CSV_b_fracs+N_CSV_p_fracs,\
+                    xtitle=xtitle, ytitle='f_{b}^{CSV}', fig_name='Fractions_b_CSV_%s' % name, intfrac=True )
+
+        f_b_nonCSV_val, f_b_nonCSV_errup, f_b_nonCSV_errlow = plotter.teff_comparisons(N_nonCSV_b_fracs, N_nonCSV_b_fracs+N_nonCSV_p_fracs,\
+                    xtitle=xtitle, ytitle='f_{b}^{nonCSV}', fig_name='Fractions_b_nonCSV_%s' % name, intfrac=True )
+
+        plotter.teff_comparisons(N_CSV_p_fracs, N_CSV_b_fracs+N_CSV_p_fracs,\
+                    xtitle=xtitle, ytitle='f_{prompt}^{CSV}', fig_name='Fractions_p_CSV_%s' % name, intfrac=True )
+
+        plotter.teff_comparisons(N_nonCSV_p_fracs, N_nonCSV_b_fracs+N_nonCSV_p_fracs,\
+                    xtitle=xtitle, ytitle='f_{prompt}^{nonCSV}', fig_name='Fractions_p_nonCSV_%s' % name, intfrac=True )
+
+            ## format and plot hists for efficiencies of leps matched to b and prompt
+        N_Iso_b = N_Iso_CSV_b + N_Iso_nonCSV_b
+        N_nonIso_b = N_nonIso_CSV_b + N_nonIso_nonCSV_b
+        N_Iso_p = N_Iso_CSV_p + N_Iso_nonCSV_p
+        N_nonIso_p = N_nonIso_CSV_p + N_nonIso_nonCSV_p
+
+        plotter.teff_comparisons(N_Iso_b, N_Iso_b + N_nonIso_b, xtitle=xtitle,\
+            ytitle='#epsilon_{b}=(N_{b}^{Iso-CSV}+N_{b}^{Iso-nonCSV})/(N_{b}^{CSV}+N_{b}^{nonCSV})', fig_name='Efficiencies_b_%s' % name )
+
+        plotter.teff_comparisons(N_Iso_p, N_Iso_p + N_nonIso_p, xtitle=xtitle,\
+            ytitle='#epsilon_{p}=(N_{p}^{Iso-CSV}+N_{p}^{Iso-nonCSV})/(N_{p}^{CSV}+N_{p}^{nonCSV})', fig_name='Efficiencies_p_%s' % name )
+
+        plotter.teff_comparisons(f_b_nonCSV_val*N_Iso_b*(N_Iso_p+N_nonIso_p)+(1-f_b_nonCSV_val)*N_Iso_p*(N_Iso_b+N_nonIso_b),\
+            (N_Iso_b+N_nonIso_b)*(N_Iso_p+N_nonIso_p), xtitle=xtitle,\
+            ytitle='r_{QCD}^{nonCSV}=f_{b}^{nonCSV}#epsilon_{b}+(1-f_{b}^{nonCSV})#epsilon_{prompt}', fig_name='r_QCD_nonCSV_%s' % name, fit=True )
+
+
+        #set_trace()
+
+            ### data hists
+        data_Iso_nonCSV_hist = self.get_view('data').Get('nosys/tight/csvFail/%s_B' % var )+self.get_view('data').Get('nosys/tight/csvFail/%s_Prompt' % var )
+        data_Iso_nonCSV_hist = RebinView.rebin(data_Iso_nonCSV_hist, nbinsx)
+        data_nonIso_nonCSV_hist = self.get_view('data').Get('nosys/looseNOTTight/csvFail/%s_B' % var )+self.get_view('data').Get('nosys/looseNOTTight/csvFail/%s_Prompt' % var )
+        data_nonIso_nonCSV_hist = RebinView.rebin(data_nonIso_nonCSV_hist, nbinsx)
+        data_nonCSV_hist = data_Iso_nonCSV_hist+data_nonIso_nonCSV_hist
+
+        data_Iso_CSV_hist = self.get_view('data').Get('nosys/tight/csvPass/%s_B' % var )+self.get_view('data').Get('nosys/tight/csvPass/%s_Prompt' % var )
+        data_Iso_CSV_hist = RebinView.rebin(data_Iso_CSV_hist, nbinsx)
+        data_nonIso_CSV_hist = self.get_view('data').Get('nosys/looseNOTTight/csvPass/%s_B' % var )+self.get_view('data').Get('nosys/looseNOTTight/csvPass/%s_Prompt' % var )
+        data_nonIso_CSV_hist = RebinView.rebin(data_nonIso_CSV_hist, nbinsx)
+        data_CSV_hist = data_Iso_CSV_hist+data_nonIso_CSV_hist
+
+            ## get non-QCD MC hists
+        MC_Iso_nonCSV = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvFail', False) if i.Get('%s_B' % var).title != 'QCD' ])+\
+                        sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvFail', False) if i.Get('%s_Prompt' % var).title != 'QCD' ])
+        MC_Iso_nonCSV = RebinView.rebin(MC_Iso_nonCSV, nbinsx)
+        MC_nonIso_nonCSV = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvFail', False) if i.Get('%s_B' % var).title != 'QCD' ])+\
+                        sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvFail', False) if i.Get('%s_Prompt' % var).title != 'QCD' ])
+        MC_nonIso_nonCSV = RebinView.rebin(MC_nonIso_nonCSV, nbinsx)
+        MC_nonCSV_hist = MC_Iso_nonCSV+MC_nonIso_nonCSV
+
+        MC_Iso_CSV = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvPass', False) if i.Get('%s_B' % var).title != 'QCD' ])+\
+                     sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/tight/csvPass', False) if i.Get('%s_Prompt' % var).title != 'QCD' ])
+        MC_Iso_CSV = RebinView.rebin(MC_Iso_CSV, nbinsx)
+        MC_nonIso_CSV = sum([ i.Get('%s_B' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvPass', False) if i.Get('%s_B' % var).title != 'QCD' ])+\
+                        sum([ i.Get('%s_Prompt' % var) for i in plotter.mc_views(1, None, 'nosys/looseNOTTight/csvPass', False) if i.Get('%s_Prompt' % var).title != 'QCD' ])
+        MC_nonIso_CSV = RebinView.rebin(MC_nonIso_CSV, nbinsx)
+        MC_CSV_hist = MC_Iso_CSV+MC_nonIso_CSV
+
+
+        Iso_nonCSV_hist = data_Iso_nonCSV_hist - MC_Iso_nonCSV
+        plotter.plot( Iso_nonCSV_hist, xtitle=xtitle, ytitle='N_{data-nonQCD MC}^{Iso-nonCSV}', drawstyle='E0 X0')#, legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
+        plotter.save( 'N_data_minus_MC_Iso_nonCSV_%s' % name )
+        
+        Iso_CSV_hist = data_Iso_CSV_hist - MC_Iso_CSV
+        plotter.plot( Iso_CSV_hist, xtitle=xtitle, ytitle='N_{data-nonQCD MC}^{Iso-CSV}', drawstyle='E0 X0')#, legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
+        plotter.save( 'N_data_minus_MC_Iso_CSV_%s' % name )
+
+        nonCSV_hist = data_nonCSV_hist - MC_nonCSV_hist
+        plotter.plot( nonCSV_hist, xtitle=xtitle, ytitle='N_{data-nonQCD MC}^{nonCSV}', drawstyle='E0 X0')#, legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
+        plotter.save( 'N_data_minus_MC_nonCSV_%s' % name )
+
+        CSV_hist = data_CSV_hist - MC_CSV_hist
+        plotter.plot( CSV_hist, xtitle=xtitle, ytitle='N_{data-nonQCD MC}^{CSV}', drawstyle='E0 X0')#, legend_def=LegendDefinition(position='NE'), legendstyle='p', drawstyle='E0 X0' )
+        plotter.save( 'N_data_minus_MC_CSV_%s' % name )
+
+
+        plotter.teff_comparisons(Iso_nonCSV_hist, nonCSV_hist, xtitle=xtitle,\
+            ytitle='r_{data}^{nonCSV}=N_{data}^{Iso-nonCSV}/N_{data}^{Iso-nonCSV}', fig_name='r_data_nonCSV_%s' % name, fit=True )
+
+
+        #plotter.sf_comparisons(Iso_nonCSV_hist, nonCSV_hist, N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
+        #    ytitle='s^{nonCSV}=r_{data-nonQCD MC}^{nonCSV}/r_{QCD}^{nonCSV}', fig_name='SF_nonCSV_%s' % name)
+        #set_trace()
+
+        ##scale_factor = r_data/(f_b_nonCSV*e_b_nonCSV+f_p_nonCSV*e_p_nonCSV)
+        ##plotter.plot( scale_factor, x_range=xlims, xtitle=xtitle, ytitle='SF^{nonCSV}', drawstyle='E0 X0' )
+        ##plotter.save( 'SF_nonCSV_%s' % name )
 
 
     def flav_fracs_and_effs(self, var, xtitle, name, xlims, nbinsx): ## find fractions and efficiencies of MC for b and prompt quarks
@@ -607,7 +765,8 @@ if args.qcd_yields or args.all:
         #('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), [-2.4, -1.2, 0., 1.2, 2.4])
     ]
     for var, overlay_xtitle, name_var, xlims, nbinsx in lepIso_bTag:
-        plotter.flav_fracs_and_effs(var, overlay_xtitle, name_var, xlims, nbinsx)
+        plotter.sf_simplifications(var, overlay_xtitle, name_var, xlims, nbinsx)
+        #plotter.flav_fracs_and_effs(var, overlay_xtitle, name_var, xlims, nbinsx)
 
 
 
