@@ -488,9 +488,9 @@ class jet_perm_disc : public AnalyzerBase
 //            test_dir->second["3J_wj1_Mass"].fill( wj1->M() );
 //
 //            // MVA
-//            test_dir->second["3J_bj1_MVA"].fill( bj1->CombinedMVA() );
-//            test_dir->second["3J_bj2_MVA"].fill( bj2->CombinedMVA() );
-//            test_dir->second["3J_wj1_MVA"].fill( wj1->CombinedMVA() );
+//            test_dir->second["3J_bj1_MVA"].fill( bj1->btagCMVA() );
+//            test_dir->second["3J_bj2_MVA"].fill( bj2->btagCMVA() );
+//            test_dir->second["3J_wj1_MVA"].fill( wj1->btagCMVA() );
 //
 //            // CvsL
 //            test_dir->second["3J_bj1_CvsL"].fill( bj1->CvsLtag() );
@@ -498,9 +498,9 @@ class jet_perm_disc : public AnalyzerBase
 //            test_dir->second["3J_wj1_CvsL"].fill( wj1->CvsLtag() );
 //
 //            //Mult 
-//            test_dir->second["3J_bj1_Mult"].fill( bj1->numberOfDaughters() );
-//            test_dir->second["3J_bj2_Mult"].fill( bj2->numberOfDaughters() );
-//            test_dir->second["3J_wj1_Mult"].fill( wj1->numberOfDaughters() );
+//            test_dir->second["3J_bj1_Mult"].fill( bj1->nConstituents() );
+//            test_dir->second["3J_bj2_Mult"].fill( bj2->nConstituents() );
+//            test_dir->second["3J_wj1_Mult"].fill( wj1->nConstituents() );
 //
 //
 //

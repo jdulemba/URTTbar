@@ -337,26 +337,26 @@ class ctag_eff : public AnalyzerBase
 
         void fill_presel_plots(string folder, URStreamer &event) {
             auto dir = histos_.find(folder);
-            dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
-            dir->second["nvtx_noweight"].fill(event.vertexs().size());
-            dir->second["rho"].fill(event.rho().value(), evt_weight_);
+            dir->second["nvtx"].fill(event.pv().npvs(), evt_weight_);
+            dir->second["nvtx_noweight"].fill(event.pv().npvs());
+            dir->second["rho"].fill(event.fixedGridRhoFastjetAll, evt_weight_);
             dir->second["weight"].fill(evt_weight_);
             dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
             dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
             for(IDJet* jet : object_selector_.clean_jets()) {
                 dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
                 dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
-                dir->second["jets_CvsL"].fill(jet->CvsLtag(), evt_weight_);
-                dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
+                //dir->second["jets_CvsL"].fill(jet->CvsLtag(), evt_weight_);
+                //dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
                 dir->second["jets_CSV" ].fill(jet->btagCSVV2(), evt_weight_);
-                dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
+                dir->second["jets_cMVA"].fill(jet->btagCMVA(), evt_weight_);
 
-                dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
-                dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
-                dir->second["jets_DeepCSVbb"].fill(jet->DeepCSVProbBB(), evt_weight_);
-                dir->second["jets_DeepCSVc" ].fill(jet->DeepCSVProbC(), evt_weight_);
-                dir->second["jets_DeepCSVcc"].fill(jet->DeepCSVProbCC(), evt_weight_);
-                dir->second["jets_DeepCSVbD"].fill(jet->DeepCSVProbB()+jet->DeepCSVProbBB(), evt_weight_);
+                //dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
+                //dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
+                //dir->second["jets_DeepCSVbb"].fill(jet->DeepCSVProbBB(), evt_weight_);
+                //dir->second["jets_DeepCSVc" ].fill(jet->DeepCSVProbC(), evt_weight_);
+                //dir->second["jets_DeepCSVcc"].fill(jet->DeepCSVProbCC(), evt_weight_);
+                //dir->second["jets_DeepCSVbD"].fill(jet->DeepCSVProbB()+jet->DeepCSVProbBB(), evt_weight_);
                 // int hflav = fabs(jet->hadronFlavour());
                 // int pflav = fabs(jet->partonFlavour());
                 // string hstr;
@@ -474,31 +474,31 @@ class ctag_eff : public AnalyzerBase
                 // dir->second[wj+"_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
             }
 
-            dir->second["Wja_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
-            dir->second["Wjb_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
+            //dir->second["Wja_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
+            //dir->second["Wjb_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
 
-            dir->second["Wjets_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
-            dir->second["Wjets_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
-            dir->second["Wjets_CvsB"].fill(hyp.WJa()->CvsBtag() , evt_weight_);
-            dir->second["Wjets_CvsB"].fill(hyp.WJb()->CvsBtag() , evt_weight_);
-            dir->second["Bjets_CvsL"].fill(hyp.BHad()->CvsLtag(), evt_weight_);
-            dir->second["Bjets_CvsL"].fill(hyp.BLep()->CvsLtag(), evt_weight_);
-            dir->second["Bjets_CvsB"].fill(hyp.BHad()->CvsBtag(), evt_weight_);
-            dir->second["Bjets_CvsB"].fill(hyp.BLep()->CvsBtag(), evt_weight_);
-            dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
-            dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
-            dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
-            dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
-            dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
-            dir->second["Wjets_DeepCSVc" ].fill(hyp.WJa()->DeepCSVProbC(), evt_weight_);
-            dir->second["Wjets_DeepCSVcc"].fill(hyp.WJa()->DeepCSVProbCC(), evt_weight_);
-            dir->second["Wjets_DeepCSVbD"].fill(hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB(), evt_weight_);
-            dir->second["Wjets_DeepCSVb" ].fill(hyp.WJb()->DeepCSVProbB(), evt_weight_);
-            dir->second["Wjets_DeepCSVl" ].fill(hyp.WJb()->DeepCSVProbUDSG(), evt_weight_);
-            dir->second["Wjets_DeepCSVbb"].fill(hyp.WJb()->DeepCSVProbBB(), evt_weight_);
-            dir->second["Wjets_DeepCSVc" ].fill(hyp.WJb()->DeepCSVProbC(), evt_weight_);
-            dir->second["Wjets_DeepCSVcc"].fill(hyp.WJb()->DeepCSVProbCC(), evt_weight_);
-            dir->second["Wjets_DeepCSVbD"].fill(hyp.WJb()->DeepCSVProbB()+hyp.WJb()->DeepCSVProbBB(), evt_weight_);
+            //dir->second["Wjets_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
+            //dir->second["Wjets_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
+            //dir->second["Wjets_CvsB"].fill(hyp.WJa()->CvsBtag() , evt_weight_);
+            //dir->second["Wjets_CvsB"].fill(hyp.WJb()->CvsBtag() , evt_weight_);
+            //dir->second["Bjets_CvsL"].fill(hyp.BHad()->CvsLtag(), evt_weight_);
+            //dir->second["Bjets_CvsL"].fill(hyp.BLep()->CvsLtag(), evt_weight_);
+            //dir->second["Bjets_CvsB"].fill(hyp.BHad()->CvsBtag(), evt_weight_);
+            //dir->second["Bjets_CvsB"].fill(hyp.BLep()->CvsBtag(), evt_weight_);
+            dir->second["Wjets_CMVA"].fill(hyp.WJa()->btagCMVA(), evt_weight_);
+            dir->second["Wjets_CMVA"].fill(hyp.WJb()->btagCMVA(), evt_weight_);
+            //dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
+            //dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
+            //dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
+            //dir->second["Wjets_DeepCSVc" ].fill(hyp.WJa()->DeepCSVProbC(), evt_weight_);
+            //dir->second["Wjets_DeepCSVcc"].fill(hyp.WJa()->DeepCSVProbCC(), evt_weight_);
+            //dir->second["Wjets_DeepCSVbD"].fill(hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB(), evt_weight_);
+            //dir->second["Wjets_DeepCSVb" ].fill(hyp.WJb()->DeepCSVProbB(), evt_weight_);
+            //dir->second["Wjets_DeepCSVl" ].fill(hyp.WJb()->DeepCSVProbUDSG(), evt_weight_);
+            //dir->second["Wjets_DeepCSVbb"].fill(hyp.WJb()->DeepCSVProbBB(), evt_weight_);
+            //dir->second["Wjets_DeepCSVc" ].fill(hyp.WJb()->DeepCSVProbC(), evt_weight_);
+            //dir->second["Wjets_DeepCSVcc"].fill(hyp.WJb()->DeepCSVProbCC(), evt_weight_);
+            //dir->second["Wjets_DeepCSVbD"].fill(hyp.WJb()->DeepCSVProbB()+hyp.WJb()->DeepCSVProbBB(), evt_weight_);
         }
 
         void book_jet_plots(string folder, bool extended){
@@ -524,9 +524,9 @@ class ctag_eff : public AnalyzerBase
             dir->second["phi"	 ].fill(jet->Phi(), evt_weight_);
             dir->second["energy"].fill(jet->E(), evt_weight_);
 
-            dir->second["ncharged"].fill(jet->numChargedHadrons(), evt_weight_);
-            dir->second["nneutral"].fill(jet->numNeutralHadrons(), evt_weight_);
-            dir->second["ntotal"  ].fill(jet->numChargedHadrons()+jet->numNeutralHadrons(), evt_weight_);
+            //dir->second["ncharged"].fill(jet->numChargedHadrons(), evt_weight_);
+            //dir->second["nneutral"].fill(jet->numNeutralHadrons(), evt_weight_);
+            //dir->second["ntotal"  ].fill(jet->numChargedHadrons()+jet->numNeutralHadrons(), evt_weight_);
 
             dir->second["pflav_smart"].fill(jet->flavor(), evt_weight_);
             dir->second["abs_pflav_smart"].fill(fabs(jet->flavor()), evt_weight_);

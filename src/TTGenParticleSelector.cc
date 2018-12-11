@@ -317,7 +317,7 @@ bool  TTGenParticleSelector::select(URStreamer& event) {
 		select_lhe(event); 
 		if(lhes_.size() == 0) return false;
 		break;
-  case FULLDEP:     select_with_deps(event); break;
+ // case FULLDEP:     select_with_deps(event); break;
   }
 
   //Build GenTTBar
@@ -457,8 +457,8 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
 //
 
 //bool TTGenParticleSelector::descends(const Genparts* mother, const Genparts* child) {
-//  for(int mom_idx : child->momIdx()) 
-//    if(mom_idx == mother->idx()) 
+//  for(int mom_idx : child->genPartIdxMother()) 
+//    if(mom_idx == mother->genPartIdxMother()) 
 //      return true;
 //  return false;
 //}
@@ -478,7 +478,7 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
 //      //loop over particles
 //      for(size_t pos=0; pos<particles.size(); pos++){
 //        //check if already used and has mothers
-//        if(particles[pos]->momIdx().size() == 0 || used[pos]) continue;
+//        if(particles[pos]->genPartIdxMother().size() == 0 || used[pos]) continue;
 //
 //        //check if is a descendent
 //        bool descends_from = descends(current, particles[pos]);
@@ -499,37 +499,37 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode) {
 //
 //	return retval;
 //}
-
-bool TTGenParticleSelector::assign(const Genparts& gp, const std::vector<Genparts>& gps, 
-            vector<const Genparts*> &collection, vector<const Genparts*> &roots, 
-            ura::PDGID to_match) {
-  if(gp.pdgId() == to_match){
-    if( !gp.genPartIdxMother() || gps[gp.genPartIdxMother()].pdgId() != to_match) {
-      roots.push_back(&gp);
-    } else {
-      collection.push_back(&gp);
-    }
-    return true;
-  }
-  else return false;
-}
-
+//
+//bool TTGenParticleSelector::assign(const Genparts& gp, const std::vector<Genparts>& gps, 
+//            vector<const Genparts*> &collection, vector<const Genparts*> &roots, 
+//            ura::PDGID to_match) {
+//  if(gp.pdgId() == to_match){
+//    if( !gp.genPartIdxMother() || gps[gp.genPartIdxMother()].pdgId() != to_match) {
+//      roots.push_back(&gp);
+//    } else {
+//      collection.push_back(&gp);
+//    }
+//    return true;
+//  }
+//  else return false;
+//}
+//
 //void TTGenParticleSelector::select_with_deps(URStreamer& event)
 //{
 //	const std::vector<Genparts>& gps = event.genparts();
 //
 //	//find top and tbar (multiple due to radiation
-//	vector<const Genparts*> tops;
-//	vector<const Genparts*> tbars;  
-//  vector<const Genparts*> Wpluses;
-//  vector<const Genparts*> Wminuses;
-//  vector<const Genparts*> bs;
-//  vector<const Genparts*> bbars;
-//
-//	vector<const Genparts*> root_tops;
-//	vector<const Genparts*> root_tbars;  
-//  vector<const Genparts*> root_Wpluses;
-//  vector<const Genparts*> root_Wminuses;
+//    vector<const Genparts*> tops;
+//    vector<const Genparts*> tbars;  
+//    vector<const Genparts*> Wpluses;
+//    vector<const Genparts*> Wminuses;
+//    vector<const Genparts*> bs;
+//    vector<const Genparts*> bbars;
+//    
+//    vector<const Genparts*> root_tops;
+//    vector<const Genparts*> root_tbars;  
+//    vector<const Genparts*> root_Wpluses;
+//    vector<const Genparts*> root_Wminuses;
 //
 //  //find tops, bs, and Ws
 //	for(auto& gp : gps) {
@@ -547,10 +547,10 @@ bool TTGenParticleSelector::assign(const Genparts& gp, const std::vector<Genpart
 //	auto collapsed_Wpluses = Collapse(root_Wpluses, Wpluses);
 //	auto collapsed_Wminuses = Collapse(root_Wminuses, Wminuses);
 //
-//  if(collapsed_tops.size() != 1 || collapsed_tbars.size() != 1) {
-//    Logger::log().error() << "Could not find the proper number of tops!" << endl;
-//    throw 42;
-//  }
+//    if(collapsed_tops.size() != 1 || collapsed_tbars.size() != 1) {
+//      Logger::log().error() << "Could not find the proper number of tops!" << endl;
+//      throw 42;
+//    }
 //
 //  //store tops
 //  topcounter_ += 2;

@@ -201,7 +201,7 @@ class ctag_genstudies : public AnalyzerBase
                     }
                 }
 
-                event_weight_ = mc_weights_.event_weight(event, systematics::SysShifts::NOSYS);
+                event_weight_ = mc_weights_.evt_weight(event, systematics::SysShifts::NOSYS);
                 process_event(event);
             }//while(event.next())
         }  

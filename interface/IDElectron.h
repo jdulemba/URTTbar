@@ -29,8 +29,7 @@ class IDElectron : public Electrons, public MCMatchable
         static IDS id(std::string label);
         double rho() {return rho_;}
         double PFIsolationRho2015() const;
-        double etaSC() const {return Eta();}
-        //double etaSC() const {return TVector3(x(), y(), z()).Eta();}
+        double etaSC() const {return delatEtaSC()+Eta();}
 
         bool LooseID25ns() const {return IPCuts() && (cutBased() == 2);}
         bool MediumID25ns() const {return IPCuts() && (cutBased() == 3);}

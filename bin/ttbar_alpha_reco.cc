@@ -734,7 +734,7 @@ class ttbar_alpha_reco : public AnalyzerBase
             bool preselection_pass = permutator_.preselection(
                     object_selector_.clean_jets(), object_selector_.lepton(),
                     object_selector_.met(), object_selector_.lepton_charge(),
-                    //event.rho().value(), lep_is_tight
+                    //event.fixedGridRhoFastjetAll, lep_is_tight
                     lep_is_tight
                     );
             tracker_.track("permutation pre-selection done (not applied)");

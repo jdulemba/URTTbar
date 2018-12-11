@@ -14,7 +14,8 @@ std::ostream & operator<<(std::ostream &os, const Genparts w);
 
 class TTGenParticleSelector { 
 public:
-  enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP, FULLDEP, MADGRAPH, LHE, MADGRAPHLHE};
+  enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP, MADGRAPH, LHE, MADGRAPHLHE};
+  //enum SelMode {NORMAL, PSEUDOTOP, HERWIGPP, FULLDEP, MADGRAPH, LHE, MADGRAPHLHE};
   TTGenParticleSelector(SelMode mode=NORMAL);
   bool select(URStreamer& event);
 
@@ -37,7 +38,7 @@ private:
   void select_pstop(URStreamer& event);
   void select_herwig(URStreamer& event);
   void select_lhe(URStreamer& event);
-  void select_with_deps(URStreamer& event);
+  //void select_with_deps(URStreamer& event);
   
   int comes_from_top(LHEParticle&);
   bool assign(const Genparts&, const std::vector<Genparts>& , 

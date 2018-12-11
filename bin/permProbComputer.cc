@@ -427,8 +427,8 @@ class permProbComputer : public AnalyzerBase
 
                 plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
 
-                auto b_mM = Minmax(test_perm.BHad()->CombinedMVA(), test_perm.BLep()->CombinedMVA());
-                auto w_mM = Minmax(test_perm.WJa()->CombinedMVA(), test_perm.WJb()->CombinedMVA());
+                auto b_mM = Minmax(test_perm.BHad()->btagCMVA(), test_perm.BLep()->btagCMVA());
+                auto w_mM = Minmax(test_perm.WJa()->btagCMVA(), test_perm.WJb()->btagCMVA());
                 plots[perm_status]["wjets_cMVA"].fill(pow(w_mM.first, 11), pow(w_mM.second, 11), evt_weight_);
                 plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
                 plots[perm_status]["wjets_bcMVA_p11"].fill(pow(w_mM.second, 11), evt_weight_);

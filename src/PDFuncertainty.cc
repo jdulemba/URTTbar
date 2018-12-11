@@ -4,16 +4,16 @@
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
 
 //using namespace std;
-using namespace LHAPDF;        
+//using namespace LHAPDF;        
 PDFuncertainty::PDFuncertainty(const string setorigname, int memorig, const vector<string>& setnames) : 
     oldx1_(0.),
     use_evt_weights_(false),
     nweights_(-1) {
-        setorig_ = new PDFSet(setorigname);
+        setorig_ = new LHAPDF::PDFSet(setorigname);
         pdforig_ = setorig_->mkPDF(memorig);
         for(const string& setname : setnames)
         {
-            sets_.push_back(new PDFSet(setname));
+            sets_.push_back(new LHAPDF::PDFSet(setname));
             pdfs_.push_back(sets_.back()->mkPDFs());
             weights_.push_back(vector<double>(pdfs_.back().size()));
         }

@@ -9,7 +9,7 @@ class IDMet : public Met, public TLorentzVector
 public:
 	IDMet() {}
 	IDMet(const Met met):
-		Met(met), TLorentzVector(0., 0., 0., 0.)
+		Met(met), TLorentzVector(10., 10., 0., TMath::Sqrt(10.*10. + 10.*10.) )
 		{
 		}
 

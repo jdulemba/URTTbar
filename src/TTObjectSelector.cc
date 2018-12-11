@@ -144,8 +144,9 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
 
     if( clean_jets_.size() ==0) return false;
 
-    ////SET MET
-    //const mets = event.met();
+    //SET MET
+    const Met& mets = event.met();
+    met_ = mets;
     //if(mets.size() == 1) {
     //    met_ = mets[0];
     //    if(event.run == 1 && apply_jer_ && smear_met_)   met_.setvect(met_.pxsmear(), met_.pysmear());
@@ -198,14 +199,14 @@ bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shi
     filter_answer &= (filters.goodVertices() == 1);
     filter_answer &= (filters.eeBadScFilter() == 1);
     filter_answer &= (filters.globalTightHalo2016Filter() == 1);
-    //filter_answer &= (filters.Flag_BadPFMuonFilter() == 1);
-    //filter_answer &= (filters.Flag_BadChargedCandidateFilter() == 1);	
+    //filter_answer &= (filters.BadPFMuonFilter() == 1);
+    //filter_answer &= (filters.BadChargedCandidateFilter() == 1);	
     return filter_answer;
 }
 
 bool TTObjectSelector::pass_vertex(URStreamer &event, systematics::SysShifts shift) {
     auto vtxs = event.pv();
-    //if(!vtxs) return false; //should never happen, but also the Titanic should have never sank...
+    if(vtxs.npvs() == 0) return false; //should never happen, but also the Titanic should have never sank...
     return vtxs.npvsGood();
 }
 

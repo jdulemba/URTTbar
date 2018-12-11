@@ -100,8 +100,9 @@ class topspin_gen : public AnalyzerBase
             else genp_selector_.setmode(TTGenParticleSelector::SelMode::LHE);
         } else {
             Logger::log().info() << "Using normal matching" << endl;
-            if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::FULLDEP);
-            else genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
+            //if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::FULLDEP);
+            //else genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
+            genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
         }
         mc_weights_.init(sample);
     };
@@ -505,9 +506,9 @@ class topspin_gen : public AnalyzerBase
             }
 
             void print_decay(URStreamer &event) {
-                const vector<Genparticle>& gps = event.genParticles();
-                const Genparticle *top = 0;
-                const Genparticle *tbar = 0;
+                const vector<Genparts>& gps = event.genparts();
+                const Genparts *top = 0;
+                const Genparts *tbar = 0;
                 for(auto &gp : gps) {
                     if(!top && gp.pdgId() == ura::PDGID::t) {
                         top = &gp;
@@ -518,19 +519,19 @@ class topspin_gen : public AnalyzerBase
                 }
                 //cout << *top << " " << *tbar << endl;
                 cout << *top;
-                while(top) {
-                    cout << " --> ";
-                    const Genparticle *next=0;
-                    for(auto &gp : gps) {
-                        for(auto idx : gp.momIdx()) {
-                            if(idx == top->idx()) {
-                                cout << gp << ", ";
-                                next = &gp;
-                            }
-                        }
-                    }
-                    top = next;
-                }
+                //while(top) {
+                //    cout << " --> ";
+                //    const Genparts *next=0;
+                //    for(auto &gp : gps) {
+                //        for(auto idx : gp.genPartIdxMother()) {
+                //            if(idx == top->idx()) {
+                //                cout << gp << ", ";
+                //                next = &gp;
+                //            }
+                //        }
+                //    }
+                //    top = next;
+                //}
                 cout <<endl;
                 throw 43;
             }

@@ -102,9 +102,12 @@ class htt_simple : public AnalyzerBase
         float MTCut_;
 
     public:
-        inline double MT(TLorentzVector *l, TLorentzVector *met) {
-            return sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
+        inline double MT(TLorentzVector *l) {
+            return sqrt(pow(l->Pt(), 2) - pow(l->Px(), 2) - pow(l->Py(), 2));
         }
+        //inline double MT(TLorentzVector *l, TLorentzVector *met) {
+        //    return sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
+        //}
 
         htt_simple(const std::string output_filename):
             AnalyzerBase("htt_simple", output_filename), 
@@ -439,7 +442,7 @@ class htt_simple : public AnalyzerBase
 
             double btag_discval = -1000;
             if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV) btag_discval = jet->btagCSVV2();
-            else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA) btag_discval = jet->CombinedMVA();
+            else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA) btag_discval = jet->btagCMVA();
             //else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPCSV) btag_discval = jet->DeepCSVProbB() + jet->DeepCSVProbBB();
             else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
                 Logger::log().error() << "BTag working point not valid!" << endl;
@@ -456,9 +459,9 @@ class htt_simple : public AnalyzerBase
                 throw 40;
             }
 
-            dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
-            dir->second["nvtx_noweight"].fill(event.vertexs().size());
-            dir->second["rho"].fill(event.rho().value(), evt_weight_);
+            dir->second["nvtx"].fill(event.pv().npvs(), evt_weight_);
+            dir->second["nvtx_noweight"].fill(event.pv().npvs());
+            dir->second["rho"].fill(event.fixedGridRhoFastjetAll, evt_weight_);
             dir->second["weight"].fill(evt_weight_);
             dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
             dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
@@ -483,9 +486,10 @@ class htt_simple : public AnalyzerBase
             dir->second["lead_jet_pt" ].fill(max_pt , evt_weight_);
             dir->second["lead_jet_eta"].fill(max_eta, evt_weight_);
 
-            dir->second["MET"   ].fill(object_selector_.met()->Et() , evt_weight_);
-            dir->second["METPhi"].fill(object_selector_.met()->Phi(), evt_weight_);
-            double mt = MT(object_selector_.lepton(), object_selector_.met());
+            dir->second["MET"   ].fill(object_selector_.met()->sumEt() , evt_weight_);
+            dir->second["METPhi"].fill(object_selector_.met()->fiducialGenPhi(), evt_weight_);
+            double mt = MT(object_selector_.lepton());
+            //double mt = MT(object_selector_.lepton(), object_selector_.met());
             dir->second["MT"].fill(mt, evt_weight_);
             dir->second["max_jets_"+btag_str_id_].fill(max_btagval, evt_weight_);
 
@@ -494,7 +498,7 @@ class htt_simple : public AnalyzerBase
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCMVA() > B->btagCMVA());});
             }
             else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
@@ -523,7 +527,7 @@ class htt_simple : public AnalyzerBase
 
 
             double lep_jet_DR = 1e10;
-            Jet lep_parton;
+            Jets lep_parton;
             for( auto jet : event.jets() ){
                 if( jet.DeltaR( *object_selector_.lepton() ) < lep_jet_DR ){
                     lep_jet_DR = jet.DeltaR( *object_selector_.lepton() );
@@ -532,7 +536,7 @@ class htt_simple : public AnalyzerBase
             }
 
             string quark_flav = "Prompt";
-            for( auto genp : event.genParticles() ){
+            for( auto genp : event.genparts() ){
                 int pdgid = fabs( genp.pdgId() );
                 double dr = lep_parton.DeltaR( genp );
                 if( pdgid == 5 && dr < 0.4 ) quark_flav = "B"; //cout << "pdgId: " << pdgid << ", dr: " << dr << endl;
@@ -872,7 +876,8 @@ class htt_simple : public AnalyzerBase
             }
 
             // check MT
-            double mt = MT(object_selector_.lepton(), object_selector_.met());
+            double mt = MT(object_selector_.lepton());
+            //double mt = MT(object_selector_.lepton(), object_selector_.met());
             bool mt_high = true;
             if( mt < 50. ) mt_high = false;
 
@@ -904,7 +909,7 @@ class htt_simple : public AnalyzerBase
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCMVA() > B->btagCMVA());});
             }
             else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
@@ -938,13 +943,13 @@ class htt_simple : public AnalyzerBase
                         object_selector_.clean_jets(), object_selector_.lepton(), 
                         object_selector_.met(), object_selector_.lepton_charge(),
                         //lep_is_tight) ) return;
-                        event.rho().value(), lep_is_tight
+                        event.fixedGridRhoFastjetAll, lep_is_tight
             );
             //if( !permutator_.preselection(
             //            object_selector_.clean_jets(), object_selector_.lepton(), 
             //            object_selector_.met(), object_selector_.lepton_charge(),
             //            //lep_is_tight) ) return;
-            //            event.rho().value(), lep_is_tight
+            //            event.fixedGridRhoFastjetAll, lep_is_tight
             //            )
             //) return;
             //if(lep_is_tight) tracker_.track("perm preselection");
