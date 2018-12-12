@@ -59,12 +59,6 @@ class HTTPlotter(Plotter):
 
         self.tt_to_use = 'ttJets'
         self.tt_shifted = {
-        #    'mtop_up'   : 'ttJets_mtopup',
-        #    'mtop_down' : 'ttJets_mtopdown',
-        #    'isr_up'   : 'ttJets_isrup',
-        #    'isr_down' : 'ttJets_isrdown',
-        #    'fsr_up'   : 'ttJets_fsrup',
-        #    'fsr_down' : 'ttJets_fsrdown',
             }
         jobid = os.environ['jobid']
 
@@ -204,6 +198,29 @@ class HTTPlotter(Plotter):
         self.mc_samples = self.generic_mcs
 
 
+        self.fitopts_dict = {
+            'sigmoid' : {
+                            'fcn_string' : "p0/(1. + TMath::Exp( -p1*(x-p2) ) )",
+                            'npars'      : 3
+            },
+            'erf'     : {
+                            'fcn_string' : "p0*(TMath::Erf( p1*(x-p2)) ) + p3",
+                            'npars'      : 4
+            },
+            'constant': {
+                            'fcn_string' : "p0",
+                            'npars'      : 1
+            },
+            'line'    : {
+                            'fcn_string' : "p0 + p1*x",
+                            'npars'      : 2
+            },
+            'parabola': {
+                            'fcn_string' : "p0 + p1*x + p2*x*x",
+                            'npars'      : 3
+            },
+        }
+
 
     def create_subsample(self, baseview, subdirs, title, color='#9999CC'):
         return views.StyleView(
@@ -311,6 +328,15 @@ class HTTPlotter(Plotter):
         return hpass, htotal
 
 
+        ### extract pars from fit
+    def print_fitpars(self, fitresult, numpars):
+
+        fitpars = '#chi^{2}/ndof=%.3f/%i' % (fitresult.GetChisquare(), fitresult.GetNDF())
+        for i in range(numpars):
+            fitpars += '\np_{%i}=%.2f#pm%.2f' % (i, fitresult.GetParameter(i), fitresult.GetParError(i))
+
+        return fitpars
+
 
     def teff2hist(self, teff, **kwargs):
         
@@ -325,7 +351,9 @@ class HTTPlotter(Plotter):
 
         xbins = sorted(set([hpass.GetXaxis().GetBinLowEdge(i) for i in range(1, hpass.GetNbinsX()+1)]+[hpass.GetXaxis().GetBinUpEdge(i) for i in range(1, hpass.GetNbinsX()+1)]))
 
-        hist = Hist(xbins, name='SF', title='SF')
+
+        fig_name = kwargs['name']+'_fit' if 'name' in kwargs else 'test_fit'
+        hist = Hist(xbins, name=fig_name, title=fig_name)
         for binx in range(1, len(xbins)):
             hist[binx].value = mean_val[binx-1]
             hist[binx].error = err[binx-1]
@@ -339,30 +367,9 @@ class HTTPlotter(Plotter):
         plotter.plot(hist)
 
         if 'fit' in kwargs:
-            if kwargs['fit'] == 'sigmoid':
-                fit = ROOT.TF1("sig", "[0]/(1. + TMath::Exp( -[1]*(x-[2]) ) )", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-                fit.SetParLimits(0, 0., 1.)
-                if 'name' in kwargs and 'QCD' in kwargs['name']:
-                    fit.SetParameters(0.5, 1.0, 1.0)
-                elif 'name' in kwargs and 'data' in kwargs['name']:
-                    fit.SetParameters(1.0, 1.0, 1.0)
-                else:
-                    fit.SetParameters(1.0, 1.0, 1.0)
-                fit.SetLineColor(2)
-                fit.SetLineStyle(4)
-                hist.Fit(fit)
 
-                #set_trace()
-                    ## extract pars and put them in text box
-                chi2 = '#chi^{2}/ndof=%.3f/%i' % (fit.GetChisquare(), fit.GetNDF())
-                p0 = 'p_{0}=%.2f#pm%.2f' % (fit.GetParameter(0), fit.GetParError(0))
-                p1 = 'p_{1}=%.2f#pm%.2f' % (fit.GetParameter(1), fit.GetParError(1))
-                p2 = 'p_{2}=%.2f#pm%.2f' % (fit.GetParameter(2), fit.GetParError(2))
-                
-                box1 = plotter.make_text_box('%s\n%s\n%s\n%s' % (chi2, p0, p1, p2), position='SE')
-                box1.Draw()
-
-                #hist.Fit(fit, "LL")
+            with io.root_open('muons_3jets_fits.root', 'update') as out:
+                hist.Write()
 
             if kwargs['fit'] == 'compare':
                 fit = ROOT.TF1("const", "pol0", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
@@ -380,10 +387,52 @@ class HTTPlotter(Plotter):
                 fit3.SetLineStyle(4)
                 hist.Fit(fit3, "+")
 
+            else:
+                #set_trace()
+                fit_model = plotter.fitopts_dict[kwargs['fit']]['fcn_string']
+                num_pars = plotter.fitopts_dict[kwargs['fit']]['npars']
+                par_string = ""
+                fit_opts = "RMENS"
+                fixpars = (False,)*num_pars # no parameters are fixed by default
+                if 'Pt' in fig_name:
+                    if 'name' in kwargs and 'QCD' in kwargs['name']:
+                        par_string = "p0[0.5, 0, 1], p1[1.0], p2[1.0]"
+                    #elif 'name' in kwargs and 'data' in kwargs['name']:
+                    #    par_string = "p0[1.0, 0, 1], p1[1.0], p2[1.0]"
+                    #elif 'name' in kwargs and 'Efficiencies_b' in kwargs['name']:
+                    #    par_string = "p0[1.0, 0, 1], p1[1.0], p2[1.0]"
+                    #elif 'name' in kwargs and 'Efficiencies_p' in kwargs['name']:
+                    #    par_string = "p0[0.5, 0, 1], p1[0.0], p2[10.0]"
+                    else:
+                        par_string = "p0[1.0, 0, 1], p1[1.0], p2[1.0]"
+                else:
+                    #if 'name' in kwargs and 'QCD' in kwargs['name']:
+                    #    par_string = "p0[0.5], p1[1.0], p2[1.0]"
+                    ##elif 'name' in kwargs and 'data' in kwargs['name']:
+                    ##    par_string = "p0[1.0, 0, 1], p1[1.0], p2[1.0]"
+                    ##elif 'name' in kwargs and 'Efficiencies_b' in kwargs['name']:
+                    ##    par_string = "p0[1.0, 0, 1], p1[1.0], p2[1.0]"
+                    ##elif 'name' in kwargs and 'Efficiencies_p' in kwargs['name']:
+                    ##    par_string = "p0[0.5, 0, 1], p1[0.0], p2[10.0]"
+                    #else:
+                    #    par_string = "p0[1.0], p1[1.0], p2[1.0]"
+                    #par_string = "p0[1.0]"
+                    #par_string = "p0[1.0], p1[1.0]"
+                    par_string = "p0[1.0], p1[1.0], p2[1.0]"
 
-        fig_name = kwargs['name']+'_fit' if 'name' in kwargs else 'test_fit'
+                fit = plotter.fit_shape( hist, model=(fit_model, par_string),\
+                    x_range=(hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax()),\
+                    fix_pars=fixpars, fit_opt=fit_opts )
+                #set_trace()
+
+                    ## extract pars and put them in text box
+                fit_pars = plotter.print_fitpars(fit, num_pars)
+                
+                box1 = plotter.make_text_box( fit_pars, position='SE')
+                box1.Draw()
+
+
         plotter.save(fig_name)
-        #set_trace()
 
 
     def teff_comparisons(self, hpass, htotal, xtitle=None, ytitle=None, fig_name=None, **kwargs):
@@ -424,58 +473,14 @@ class HTTPlotter(Plotter):
         ratio_norm.Draw('same')
         ratio_jeff.Draw('same')
 
+        leg.Draw('same')
+        plotter.save( fig_name )
+
         #set_trace()
             ## different types of fitting
         if 'fit' in kwargs:
-
             plotter.teff2hist(ratio_jeff, x_title=xtitle, y_title=ytitle, name=fig_name, fit=kwargs['fit'])
-            #set_trace()
-            #if 'Pt' in fig_name:
-            #    #jeff_fit1 = ratio_jeff.Clone()
-
-            #    #fit1 = ROOT.TF1("erf", "[0]*(TMath::Erf( [1]*(x-[2])) ) + [3]", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-            #    #fit1.SetParameters(0.65, 0.5, 30., 0.5)
-            #    #fit1.SetLineColor(6)
-            #    #fit1.SetLineStyle(4)
-
-            #    #jeff_fit1.Fit(fit1, "LL")
-            #    #jeff_fit1.Draw('same')
-            #    #leg.AddEntry(jeff_fit1.GetListOfFunctions()[0], "Erf")
-
-            #    jeff_fit2 = ratio_jeff.Clone()
-
-            #    #fit2 = ROOT.TF1("erf", "[3]*(TMath::Erf( (x-[0])/[1] +[2] ))", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-            #    #fit2.SetParameters(1., 1., 1., 1.)
-            #    fit2 = ROOT.TF1("sig", "[0]/(1. + TMath::Exp( -[1]*(x-[2]) ) )", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-            #    #set_trace()
-            #    fit2.SetParLimits(0, 0., 1.)
-            #    fit2.SetParameters(1., 1., 1.)
-            #    fit2.SetLineColor(4)
-            #    fit2.SetLineStyle(4)
-
-            #    jeff_fit2.Fit(fit2, "I")
-            #    jeff_fit2.Draw('same')
-            #    leg.AddEntry(jeff_fit2.GetListOfFunctions()[0], "Sigmoid")
-
-            ##set_trace()
-            #elif 'Eta' in fig_name:
-            #    #set_trace()
-
-            #    jeff_fit1 = ratio_jeff.Clone()
-
-            #    fit1 = ROOT.TF1("f1", "pol2", hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax())
-            #    fit1.SetParameters(0.0, 0.0, 0.0)
-            #    fit1.SetLineColor(6)
-            #    fit1.SetLineStyle(4)
-
-            #    jeff_fit1.Fit(fit1, "I")
-            #    jeff_fit1.Draw('same')
-            #    leg.AddEntry(jeff_fit1.GetListOfFunctions()[0], "pol2")
-
             ##
-
-        leg.Draw('same')
-        plotter.save( fig_name )
 
         #set_trace()
         if 'intfrac' in kwargs:
@@ -574,18 +579,21 @@ class HTTPlotter(Plotter):
         plotter.plot( N_p_nonCSV, x_range=xlims, ytitle='N_{prompt}^{nonCSV}', legend_def=LegendDefinition(position='NE'), drawstyle='E0 X0', legendstyle='p' )
         plotter.save( 'N_p_nonCSV_%s' % name )
 
+        #if 'Eta' in name: set_trace()
         #set_trace()
 
             ## format and plot hists for fractions of leps matched to b and prompt
-        N_Iso_CSV_b_fracs = RebinView.rebin(N_Iso_CSV_b, [nbinsx[0], nbinsx[-1]])
-        N_nonIso_CSV_b_fracs = RebinView.rebin(N_nonIso_CSV_b, [nbinsx[0], nbinsx[-1]])
-        N_Iso_nonCSV_b_fracs = RebinView.rebin(N_Iso_nonCSV_b, [nbinsx[0], nbinsx[-1]])
-        N_nonIso_nonCSV_b_fracs = RebinView.rebin(N_nonIso_nonCSV_b, [nbinsx[0], nbinsx[-1]])
+        single_bin = [nbinsx[0], nbinsx[-1]] if 'Pt' in name else [-2.4, 2.4]
 
-        N_Iso_CSV_p_fracs = RebinView.rebin(N_Iso_CSV_p, [nbinsx[0], nbinsx[-1]])
-        N_nonIso_CSV_p_fracs = RebinView.rebin(N_nonIso_CSV_p, [nbinsx[0], nbinsx[-1]])
-        N_Iso_nonCSV_p_fracs = RebinView.rebin(N_Iso_nonCSV_p, [nbinsx[0], nbinsx[-1]])
-        N_nonIso_nonCSV_p_fracs = RebinView.rebin(N_nonIso_nonCSV_p, [nbinsx[0], nbinsx[-1]])
+        N_Iso_CSV_b_fracs = RebinView.rebin(N_Iso_CSV_b, single_bin)
+        N_nonIso_CSV_b_fracs = RebinView.rebin(N_nonIso_CSV_b, single_bin)
+        N_Iso_nonCSV_b_fracs = RebinView.rebin(N_Iso_nonCSV_b, single_bin)
+        N_nonIso_nonCSV_b_fracs = RebinView.rebin(N_nonIso_nonCSV_b, single_bin)
+
+        N_Iso_CSV_p_fracs = RebinView.rebin(N_Iso_CSV_p, single_bin)
+        N_nonIso_CSV_p_fracs = RebinView.rebin(N_nonIso_CSV_p, single_bin)
+        N_Iso_nonCSV_p_fracs = RebinView.rebin(N_Iso_nonCSV_p, single_bin)
+        N_nonIso_nonCSV_p_fracs = RebinView.rebin(N_nonIso_nonCSV_p, single_bin)
 
         N_CSV_b_fracs = N_Iso_CSV_b_fracs + N_nonIso_CSV_b_fracs
         N_nonCSV_b_fracs = N_Iso_nonCSV_b_fracs + N_nonIso_nonCSV_b_fracs
@@ -611,14 +619,14 @@ class HTTPlotter(Plotter):
         N_nonIso_p = N_nonIso_CSV_p + N_nonIso_nonCSV_p
 
         plotter.teff_comparisons(N_Iso_b, N_Iso_b + N_nonIso_b, xtitle=xtitle,\
-            ytitle='#epsilon_{b}=(N_{b}^{Iso-CSV}+N_{b}^{Iso-nonCSV})/(N_{b}^{CSV}+N_{b}^{nonCSV})', fig_name='Efficiencies_b_%s' % name, fit='compare' )
+            ytitle='#epsilon_{b}=(N_{b}^{Iso-CSV}+N_{b}^{Iso-nonCSV})/(N_{b}^{CSV}+N_{b}^{nonCSV})', fig_name='Efficiencies_b_%s' % name, fit='sigmoid' if 'Pt' in name else 'parabola' )
 
         plotter.teff_comparisons(N_Iso_p, N_Iso_p + N_nonIso_p, xtitle=xtitle,\
-            ytitle='#epsilon_{p}=(N_{p}^{Iso-CSV}+N_{p}^{Iso-nonCSV})/(N_{p}^{CSV}+N_{p}^{nonCSV})', fig_name='Efficiencies_p_%s' % name, fit='compare' )
+            ytitle='#epsilon_{p}=(N_{p}^{Iso-CSV}+N_{p}^{Iso-nonCSV})/(N_{p}^{CSV}+N_{p}^{nonCSV})', fig_name='Efficiencies_p_%s' % name, fit='sigmoid' if 'Pt' in name else 'parabola' )
 
         plotter.teff_comparisons(f_b_nonCSV_val*N_Iso_b*(N_Iso_p+N_nonIso_p)+(1-f_b_nonCSV_val)*N_Iso_p*(N_Iso_b+N_nonIso_b),\
             (N_Iso_b+N_nonIso_b)*(N_Iso_p+N_nonIso_p), xtitle=xtitle,\
-            ytitle='r_{QCD}^{nonCSV}=f_{b}^{nonCSV}#epsilon_{b}+(1-f_{b}^{nonCSV})#epsilon_{prompt}', fig_name='r_QCD_nonCSV_%s' % name, fit='sigmoid' )
+            ytitle='r_{QCD}^{nonCSV}=f_{b}^{nonCSV}#epsilon_{b}+(1-f_{b}^{nonCSV})#epsilon_{prompt}', fig_name='r_QCD_nonCSV_%s' % name, fit='sigmoid' if 'Pt' in name else 'parabola' )
 
 
         #set_trace()
@@ -672,12 +680,12 @@ class HTTPlotter(Plotter):
 
 
         plotter.teff_comparisons(Iso_nonCSV_hist, nonCSV_hist, xtitle=xtitle,\
-            ytitle='r_{data}^{nonCSV}=N_{data}^{Iso-nonCSV}/N_{data}^{Iso-nonCSV}', fig_name='r_data_nonCSV_%s' % name, fit='sigmoid' )
+            ytitle='r_{data}^{nonCSV}=N_{data}^{Iso-nonCSV}/N_{data}^{Iso-nonCSV}', fig_name='r_data_nonCSV_%s' % name, fit='sigmoid' if 'Pt' in name else 'parabola' )
 
 
-        #plotter.sf_comparisons(Iso_nonCSV_hist, nonCSV_hist, N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
-        #    ytitle='s^{nonCSV}=r_{data-nonQCD MC}^{nonCSV}/r_{QCD}^{nonCSV}', fig_name='SF_nonCSV_%s' % name)
-        set_trace()
+        ##plotter.sf_comparisons(Iso_nonCSV_hist, nonCSV_hist, N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
+        ##    ytitle='s^{nonCSV}=r_{data-nonQCD MC}^{nonCSV}/r_{QCD}^{nonCSV}', fig_name='SF_nonCSV_%s' % name)
+        #set_trace()
 
         ##scale_factor = r_data/(f_b_nonCSV*e_b_nonCSV+f_p_nonCSV*e_p_nonCSV)
         ##plotter.plot( scale_factor, x_range=xlims, xtitle=xtitle, ytitle='SF^{nonCSV}', drawstyle='E0 X0' )
@@ -788,9 +796,9 @@ class HTTPlotter(Plotter):
             ytitle='r_{data-nonQCD MC}^{nonCSV}=N_{data-nonQCD MC}^{Iso-nonCSV}/N_{data-nonQCD MC}^{nonCSV}', fig_name='r_data_nonCSV_%s' % name, fit=True )
 
 
-        plotter.sf_comparisons(Iso_nonCSV_hist, nonCSV_hist, N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
-            ytitle='s^{nonCSV}=r_{data-nonQCD MC}^{nonCSV}/r_{QCD}^{nonCSV}', fig_name='SF_nonCSV_%s' % name)
-        set_trace()
+        ##plotter.sf_comparisons(Iso_nonCSV_hist, nonCSV_hist, N_Iso_nonCSV_p+N_Iso_nonCSV_b, N_p_nonCSV+N_b_nonCSV, xtitle=xtitle,\
+        ##    ytitle='s^{nonCSV}=r_{data-nonQCD MC}^{nonCSV}/r_{QCD}^{nonCSV}', fig_name='SF_nonCSV_%s' % name)
+        #set_trace()
 
         #scale_factor = r_data/(f_b_nonCSV*e_b_nonCSV+f_p_nonCSV*e_p_nonCSV)
         #plotter.plot( scale_factor, x_range=xlims, xtitle=xtitle, ytitle='SF^{nonCSV}', drawstyle='E0 X0' )
@@ -837,10 +845,13 @@ if args.preselection or args.all:
 
 if args.qcd_yields or args.all:
 
+    with io.root_open('muons_3jets_fits.root', 'w') as out:
+        out.cd()
+
     lepIso_bTag = [
         ('lep_pt', 'p_{T}(l) (GeV)', 'Pt', (0, 300), [20, 40, 60, 80, 100, 500]),
-        ('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), 30)
-        #('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), [-2.4, -1.2, 0., 1.2, 2.4])
+        #('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), 30)
+        ('lep_eta', '#eta(l)', 'Eta', (-2.4, 2.4), [-2.4, -1.8, -1.2, -0.6, 0.0, 0.6, 1.2, 1.8, 2.4])
     ]
     for var, overlay_xtitle, name_var, xlims, nbinsx in lepIso_bTag:
         plotter.sf_simplifications(var, overlay_xtitle, name_var, xlims, nbinsx)
