@@ -420,10 +420,8 @@ class HTTPlotter(Plotter):
                     #par_string = "p0[1.0], p1[1.0]"
                     par_string = "p0[1.0], p1[1.0], p2[1.0]"
 
-                fit = plotter.fit_shape( hist, model=(fit_model, par_string),\
-                    x_range=(hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax()),\
-                    fix_pars=fixpars, fit_opt=fit_opts )
                 #set_trace()
+                fit = plotter.fit_shape( hist, model=(fit_model, par_string), x_range=(hpass.GetXaxis().GetXmin(), hpass.GetXaxis().GetXmax()), fix_pars=fixpars, fit_opt=fit_opts )
 
                     ## extract pars and put them in text box
                 fit_pars = plotter.print_fitpars(fit, num_pars)
@@ -474,18 +472,21 @@ class HTTPlotter(Plotter):
         ratio_jeff.Draw('same')
 
         leg.Draw('same')
-        plotter.save( fig_name )
-
-        #set_trace()
-            ## different types of fitting
-        if 'fit' in kwargs:
-            plotter.teff2hist(ratio_jeff, x_title=xtitle, y_title=ytitle, name=fig_name, fit=kwargs['fit'])
-            ##
 
         #set_trace()
         if 'intfrac' in kwargs:
             eff, err_up, err_low = ratio_jeff.GetEfficiency(1), ratio_jeff.GetEfficiencyErrorUp(1), ratio_jeff.GetEfficiencyErrorLow(1)
+            box1 = plotter.make_text_box('%.3f^{+%.2f}_{-%.2f}' % (eff, err_up, err_low) , position='NE')
+            box1.Draw()
+            plotter.save( fig_name )
             return eff, err_up, err_low
+
+        plotter.save( fig_name )
+
+            ## different types of fitting
+        if 'fit' in kwargs:
+            plotter.teff2hist(ratio_jeff, x_title=xtitle, y_title=ytitle, name=fig_name, fit=kwargs['fit'])
+            ##
 
 
 
