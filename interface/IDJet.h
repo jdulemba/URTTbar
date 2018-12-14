@@ -12,119 +12,122 @@
 
 class IDJet : public Jets, public MCMatchable
 {
-private:
-	double rndm_;
-  TLorentzVector uncorr_;
-public:
-	enum BTag {
-		NONE, 
-		CSVLOOSE, CSVMEDIUM, CSVTIGHT, 
-		DEEPCSVLOOSE, DEEPCSVMEDIUM, DEEPCSVTIGHT, 
-		CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   
-		MVALOOSE, MVAMEDIUM, MVATIGHT
-	};
-	enum IDType {NOTSET, CSV, CTAG, MVA, DEEPFLAVOUR};
-  
-  static const std::unordered_map<std::string, IDJet::BTag> tag_names;
-  static IDJet::BTag tag(std::string label);
+    private:
+        double rndm_;
+        TLorentzVector uncorr_;
+    public:
+        enum BTag {
+            NONE, 
+            CSVLOOSE, CSVMEDIUM, CSVTIGHT, 
+            DEEPCSVLOOSE, DEEPCSVMEDIUM, DEEPCSVTIGHT, 
+            CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   
+            MVALOOSE, MVAMEDIUM, MVATIGHT
+        };
+        enum IDType {NOTSET, CSV, CTAG, MVA, DEEPFLAVOUR};
 
-	IDJet(const Jets el, double rndm):
-		Jets(el),
-    MCMatchable(),
-		rndm_(rndm),
-    uncorr_(el)
-		{
-		}
+        static const std::unordered_map<std::string, IDJet::BTag> tag_names;
+        static IDJet::BTag tag(std::string label);
 
-	IDJet(const Jets el):
-		Jets(el),
-    MCMatchable(),
-		rndm_(-1),
-    uncorr_(el)
-		{
-		}
+        IDJet(const Jets el, double rndm):
+            Jets(el),
+            MCMatchable(),
+            rndm_(rndm),
+            uncorr_(el)
+            {
+            }
 
-	int flavor() const {return (match()) ? match()->pdgId() : partonFlavour();}
-  void update_energy(float val) {SetPtEtaPhiE(val*TMath::Sin(Theta()), Eta(), Phi(), val);}
-  void resetp4() {SetPtEtaPhiE(uncorr_.Pt(), uncorr_.Eta(), uncorr_.Phi(), uncorr_.E());}
-  TLorentzVector original_p4() {return uncorr_;}
+        IDJet(const Jets el):
+            Jets(el),
+            MCMatchable(),
+            rndm_(-1),
+            uncorr_(el)
+            {
+            }
 
-	double rndm() const {return rndm_;}
+        int flavor() const {return (match()) ? match()->pdgId() : partonFlavour();}
+        void update_energy(float val) {SetPtEtaPhiE(val*TMath::Sin(Theta()), Eta(), Phi(), val);}
+        void resetp4() {SetPtEtaPhiE(uncorr_.Pt(), uncorr_.Eta(), uncorr_.Phi(), uncorr_.E());}
+        TLorentzVector original_p4() {return uncorr_;}
 
-  static std::string tag2string(BTag id);
-  static IDType id_type(BTag id);
-  static std::string id_string(BTag id);
-  static BTagEntry::OperatingPoint tag_tightness(BTag id);
+        double rndm() const {return rndm_;}
 
-	bool BTagId(BTag wp) const;
-	bool CTagId(BTag wp) const;
-  bool TagId(BTag wp) const;
+        static std::string tag2string(BTag id);
+        static IDType id_type(BTag id);
+        static std::string id_string(BTag id);
+        static BTagEntry::OperatingPoint tag_tightness(BTag id);
 
-	bool LooseID()	{
-		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
-		//to be filled in new tree version
-		if(TMath::Abs(Eta()) <= 2.7) {
-			if(neHEF() >= 0.99){return false;}
-			if(neEmEF() >= 0.99){return false;}
-			//if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
-			if(TMath::Abs(Eta()) < 2.4)	{
-				if(chHEF() <= 0.){return false;}
-				//if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
-				if(chEmEF() >= 0.99){return false;}
-			}
-			return true;
-		} else if(TMath::Abs(Eta()) <= 3) {
-			if(neEmEF() <= 0.01) return false;
-			if(neHEF() >= 0.98) return false; 
-			//if(neutralMultiplicity() <= 2) return false; // no multiplicty now
-			return true;
-		} else {
-			if(neEmEF() >= .9) return false;
-			//if(neutralMultiplicity() <= 10) return false; // no multiplicty now
-			return true;
-		}
-	}
+        bool BTagId(BTag wp) const;
+        bool CTagId(BTag wp) const;
+        bool TagId(BTag wp) const;
 
-	bool TightID()	{
-		// Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
-		//to be filled in new tree version
-		if(TMath::Abs(Eta()) <= 2.7) {
-			if(neHEF() >= 0.90){return false;}
-			if(neEmEF() >= 0.90){return false;}
-			//if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
-			if(TMath::Abs(Eta()) < 2.4)	{
-				if(chHEF() <= 0.){return false;}
-				//if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
-				if(chEmEF() >= 0.99){return false;}
-			}
-			return true;
-		} else if(TMath::Abs(Eta()) <= 3) {
-			if(neEmEF() <= 0.01) return false;
-			if(neHEF() >= 0.98) return false; 
-			//if(neutralMultiplicity() <= 2) return false; // no multiplicty now
-			return true;
-		} else {
-			if(neEmEF() >= .9) return false;
-			//if(neutralMultiplicity() <= 10) return false; // no multiplicty now
-			return true;
-		}
-	}
+        float DeepCvsLtag() const;
+        float DeepCvsBtag() const;
 
-	bool Clean(const vector<IDMuon*>& muons, const vector<IDElectron*>& electrons, double distpar = 0.4) {
-		for(const IDMuon* mu : muons) {
-			if(DeltaR(*mu) < distpar) {
-				return false;
-			}
-		}
-		for(const IDElectron* el : electrons)	{
-			if(DeltaR(*el) < distpar)	{
-				return false;
-			}
-		}
-		return true;
-	}
+        bool LooseID()	{
+            // Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
+            //to be filled in new tree version
+            if(TMath::Abs(Eta()) <= 2.7) {
+                if(neHEF() >= 0.99){return false;}
+                if(neEmEF() >= 0.99){return false;}
+                //if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
+                if(TMath::Abs(Eta()) < 2.4)	{
+                    if(chHEF() <= 0.){return false;}
+                    //if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
+                    if(chEmEF() >= 0.99){return false;}
+                }
+                return true;
+            } else if(TMath::Abs(Eta()) <= 3) {
+                if(neEmEF() <= 0.01) return false;
+                if(neHEF() >= 0.98) return false; 
+                //if(neutralMultiplicity() <= 2) return false; // no multiplicty now
+                return true;
+            } else {
+                if(neEmEF() >= .9) return false;
+                //if(neutralMultiplicity() <= 10) return false; // no multiplicty now
+                return true;
+            }
+        }
 
-	void scale(double f) { SetPtEtaPhiE(f*Pt(), Eta(), Phi(), f*E()); }
+        bool TightID()	{
+            // Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
+            //to be filled in new tree version
+            if(TMath::Abs(Eta()) <= 2.7) {
+                if(neHEF() >= 0.90){return false;}
+                if(neEmEF() >= 0.90){return false;}
+                //if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
+                if(TMath::Abs(Eta()) < 2.4)	{
+                    if(chHEF() <= 0.){return false;}
+                    //if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
+                    if(chEmEF() >= 0.99){return false;}
+                }
+                return true;
+            } else if(TMath::Abs(Eta()) <= 3) {
+                if(neEmEF() <= 0.01) return false;
+                if(neHEF() >= 0.98) return false; 
+                //if(neutralMultiplicity() <= 2) return false; // no multiplicty now
+                return true;
+            } else {
+                if(neEmEF() >= .9) return false;
+                //if(neutralMultiplicity() <= 10) return false; // no multiplicty now
+                return true;
+            }
+        }
+
+        bool Clean(const vector<IDMuon*>& muons, const vector<IDElectron*>& electrons, double distpar = 0.4) {
+            for(const IDMuon* mu : muons) {
+                if(DeltaR(*mu) < distpar) {
+                    return false;
+                }
+            }
+            for(const IDElectron* el : electrons)	{
+                if(DeltaR(*el) < distpar)	{
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        void scale(double f) { SetPtEtaPhiE(f*Pt(), Eta(), Phi(), f*E()); }
 
 };
 

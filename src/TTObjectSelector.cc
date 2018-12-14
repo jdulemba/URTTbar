@@ -180,8 +180,8 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
         return true;
     }
     el_trg_ = (event.hlt().Ele27_WPTight_Gsf() == 1);
-    mu_trg_ = (event.hlt().IsoMu24() == 1 || event.hlt().IsoTkMu24() == 1);	
-    //mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
+    mu_trg_ = (event.hlt().IsoMu24() == 1);	
+    //mu_trg_ = (event.hlt().IsoMu24() == 1 || event.hlt().IsoTkMu24() == 1);	
 
     // cout << event.trigger().HLT_Ele27_WPLoose_Gsf() << " " <<  event.trigger().HLT_IsoMu22() << " " << event.trigger().HLT_IsoTkMu22() << endl;
     // cout << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << " " << event.trigger().HLT_IsoMu24() << " " << event.trigger().HLT_IsoTkMu22() << endl;
@@ -199,8 +199,8 @@ bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shi
     filter_answer &= (filters.goodVertices() == 1);
     filter_answer &= (filters.eeBadScFilter() == 1);
     filter_answer &= (filters.globalTightHalo2016Filter() == 1);
-    //filter_answer &= (filters.BadPFMuonFilter() == 1);
-    //filter_answer &= (filters.BadChargedCandidateFilter() == 1);	
+    filter_answer &= (filters.BadPFMuonFilter() == 1);
+    filter_answer &= (filters.BadChargedCandidateFilter() == 1);	
     return filter_answer;
 }
 

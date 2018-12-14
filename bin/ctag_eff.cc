@@ -318,8 +318,8 @@ class ctag_eff : public AnalyzerBase
             book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
             book<TH1F>(folder, "jets_eta" , ";#eta(j) (GeV)",  300, -3, 3);
             book<TH1F>(folder, "njets"    , "", 50, 0., 50.);
-            book<TH1F>(folder, "jets_CvsL" , "", 55, -1., 1.1);
-            book<TH1F>(folder, "jets_CvsB" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "jets_DeepCvsL" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "jets_DeepCvsB" , "", 55, -1., 1.1);
             book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
             book<TH1F>(folder, "jets_cMVA" , "", 55, -1., 1.1);
             book<TH1F>(folder, "jets_DeepCSVb" , "", 55,  0., 1.1);
@@ -329,10 +329,10 @@ class ctag_eff : public AnalyzerBase
             book<TH1F>(folder, "jets_DeepCSVcc", "", 55,  0., 1.1);
             book<TH1F>(folder, "jets_DeepCSVbD", "", 55,  0., 1.1);
 
-            // book<TH1F>(folder, "jets_hflav_CvsL_B" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "jets_hflav_CvsL_C" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "jets_hflav_CvsL_S" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "jets_hflav_CvsL_L" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "jets_hflav_DeepCvsL_B" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "jets_hflav_DeepCvsL_C" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "jets_hflav_DeepCvsL_S" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "jets_hflav_DeepCvsL_L" , "", 55, -1., 1.1);
         }
 
         void fill_presel_plots(string folder, URStreamer &event) {
@@ -346,8 +346,8 @@ class ctag_eff : public AnalyzerBase
             for(IDJet* jet : object_selector_.clean_jets()) {
                 dir->second["jets_pt"].fill(jet->Pt(), evt_weight_);
                 dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
-                //dir->second["jets_CvsL"].fill(jet->CvsLtag(), evt_weight_);
-                //dir->second["jets_CvsB"].fill(jet->CvsBtag(), evt_weight_);
+                dir->second["jets_DeepCvsL"].fill(jet->DeepCvsLtag(), evt_weight_);
+                dir->second["jets_DeepCvsB"].fill(jet->DeepCvsBtag(), evt_weight_);
                 dir->second["jets_CSV" ].fill(jet->btagCSVV2(), evt_weight_);
                 dir->second["jets_cMVA"].fill(jet->btagCMVA(), evt_weight_);
 
@@ -357,14 +357,14 @@ class ctag_eff : public AnalyzerBase
                 //dir->second["jets_DeepCSVc" ].fill(jet->DeepCSVProbC(), evt_weight_);
                 //dir->second["jets_DeepCSVcc"].fill(jet->DeepCSVProbCC(), evt_weight_);
                 //dir->second["jets_DeepCSVbD"].fill(jet->DeepCSVProbB()+jet->DeepCSVProbBB(), evt_weight_);
-                // int hflav = fabs(jet->hadronFlavour());
-                // int pflav = fabs(jet->partonFlavour());
-                // string hstr;
-                // if(hflav == 5) hstr="B";
-                // else if(hflav == 4) hstr="C";
-                // else if(pflav == 3) hstr="S";
-                // else hstr="L"; 
-                // dir->second["jets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+                int hflav = fabs(jet->hadronFlavour());
+                int pflav = fabs(jet->partonFlavour());
+                string hstr;
+                if(hflav == 5) hstr="B";
+                else if(hflav == 4) hstr="C";
+                else if(pflav == 3) hstr="S";
+                else hstr="L"; 
+                dir->second["jets_hflav_DeepCvsL_"+hstr].fill(jet->DeepCvsLtag(), evt_weight_);
             }
             dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
         }
@@ -384,13 +384,13 @@ class ctag_eff : public AnalyzerBase
             book<TH2F>(folder, "subB_subW_pts" , ";lead pT; sublead pT", 50, 0., 500., 50, 0., 500.);
 
             //info by flavor    
-            // book<TH1F>(folder, "Wjets_hflav_CvsL_B" , "", 42, -1., 1.1);
-            // book<TH1F>(folder, "Wjets_hflav_CvsL_C" , "", 42, -1., 1.1);
-            // book<TH1F>(folder, "Wjets_hflav_CvsL_L" , "", 42, -1., 1.1);
+            book<TH1F>(folder, "Wjets_hflav_DeepCvsL_B" , "", 42, -1., 1.1);
+            book<TH1F>(folder, "Wjets_hflav_DeepCvsL_C" , "", 42, -1., 1.1);
+            book<TH1F>(folder, "Wjets_hflav_DeepCvsL_L" , "", 42, -1., 1.1);
 
-            // book<TH1F>(folder, "Wjets_hflav_CvsB_B" , "", 42, -1., 1.1);
-            // book<TH1F>(folder, "Wjets_hflav_CvsB_C" , "", 42, -1., 1.1);
-            // book<TH1F>(folder, "Wjets_hflav_CvsB_L" , "", 42, -1., 1.1);
+            book<TH1F>(folder, "Wjets_hflav_DeepCvsB_B" , "", 42, -1., 1.1);
+            book<TH1F>(folder, "Wjets_hflav_DeepCvsB_C" , "", 42, -1., 1.1);
+            book<TH1F>(folder, "Wjets_hflav_DeepCvsB_L" , "", 42, -1., 1.1);
 
             book<TH1F>(folder, "Wjets_hflav_jpt_C" , "", 100, 0., 500.);    
             book<TH1F>(folder, "Wjets_hflav_jpt_L" , "", 100, 0., 500.);    
@@ -400,20 +400,20 @@ class ctag_eff : public AnalyzerBase
             // book<TH2F>(folder, "Wjets_hflav_jpt_jeta_L" , "", 20, 25., 100., 16, -2.5, 2.5);    
 
 
-            // book<TH1F>(folder, "Wja_hflav_CvsL_B" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "Wja_hflav_CvsL_C" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "Wja_hflav_CvsL_L" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "Wjb_hflav_CvsL_B" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "Wjb_hflav_CvsL_C" , "", 55, -1., 1.1);
-            // book<TH1F>(folder, "Wjb_hflav_CvsL_L" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wja_hflav_DeepCvsL_B" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wja_hflav_DeepCvsL_C" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wja_hflav_DeepCvsL_L" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wjb_hflav_DeepCvsL_B" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wjb_hflav_DeepCvsL_C" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wjb_hflav_DeepCvsL_L" , "", 55, -1., 1.1);
 
-            book<TH1F>(folder, "Wja_CvsL" , "", 55, -1., 1.1);
-            book<TH1F>(folder, "Wjb_CvsL" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wja_DeepCvsL" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wjb_DeepCvsL" , "", 55, -1., 1.1);
 
-            book<TH1F>(folder, "Wjets_CvsL" , "", 55, -1., 1.1);
-            book<TH1F>(folder, "Wjets_CvsB" , "", 55, -1., 1.1);
-            book<TH1F>(folder, "Bjets_CvsL" , "", 55, -1., 1.1);
-            book<TH1F>(folder, "Bjets_CvsB" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wjets_DeepCvsL" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Wjets_DeepCvsB" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Bjets_DeepCvsL" , "", 55, -1., 1.1);
+            book<TH1F>(folder, "Bjets_DeepCvsB" , "", 55, -1., 1.1);
             book<TH1F>(folder, "WjetCSV"   , "", 40, -20., 20.);
             book<TH1F>(folder, "Wjets_CMVA" , "", 55, -1., 1.1);
             book<TH1F>(folder, "Wjets_DeepCSVb" , "", 55,  0., 1.1);
@@ -469,22 +469,22 @@ class ctag_eff : public AnalyzerBase
                     // dir->second["Wjets_hflav_jpt_jeta_L"].fill(jet->Pt(), jet->Eta(), evt_weight_);
                 }
 
-                // dir->second["Wjets_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
-                // dir->second["Wjets_hflav_CvsB_"+hstr].fill(jet->CvsBtag(), evt_weight_);
-                // dir->second[wj+"_hflav_CvsL_"+hstr].fill(jet->CvsLtag(), evt_weight_);
+                dir->second["Wjets_hflav_DeepCvsL_"+hstr].fill(jet->DeepCvsLtag(), evt_weight_);
+                dir->second["Wjets_hflav_DeepCvsB_"+hstr].fill(jet->DeepCvsBtag(), evt_weight_);
+                dir->second[wj+"_hflav_DeepCvsL_"+hstr].fill(jet->DeepCvsLtag(), evt_weight_);
             }
 
-            //dir->second["Wja_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
-            //dir->second["Wjb_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
+            dir->second["Wja_DeepCvsL"].fill(hyp.WJa()->DeepCvsLtag() , evt_weight_);
+            dir->second["Wjb_DeepCvsL"].fill(hyp.WJb()->DeepCvsLtag() , evt_weight_);
 
-            //dir->second["Wjets_CvsL"].fill(hyp.WJa()->CvsLtag() , evt_weight_);
-            //dir->second["Wjets_CvsL"].fill(hyp.WJb()->CvsLtag() , evt_weight_);
-            //dir->second["Wjets_CvsB"].fill(hyp.WJa()->CvsBtag() , evt_weight_);
-            //dir->second["Wjets_CvsB"].fill(hyp.WJb()->CvsBtag() , evt_weight_);
-            //dir->second["Bjets_CvsL"].fill(hyp.BHad()->CvsLtag(), evt_weight_);
-            //dir->second["Bjets_CvsL"].fill(hyp.BLep()->CvsLtag(), evt_weight_);
-            //dir->second["Bjets_CvsB"].fill(hyp.BHad()->CvsBtag(), evt_weight_);
-            //dir->second["Bjets_CvsB"].fill(hyp.BLep()->CvsBtag(), evt_weight_);
+            dir->second["Wjets_DeepCvsL"].fill(hyp.WJa()->DeepCvsLtag() , evt_weight_);
+            dir->second["Wjets_DeepCvsL"].fill(hyp.WJb()->DeepCvsLtag() , evt_weight_);
+            dir->second["Wjets_DeepCvsB"].fill(hyp.WJa()->DeepCvsBtag() , evt_weight_);
+            dir->second["Wjets_DeepCvsB"].fill(hyp.WJb()->DeepCvsBtag() , evt_weight_);
+            dir->second["Bjets_DeepCvsL"].fill(hyp.BHad()->DeepCvsLtag(), evt_weight_);
+            dir->second["Bjets_DeepCvsL"].fill(hyp.BLep()->DeepCvsLtag(), evt_weight_);
+            dir->second["Bjets_DeepCvsB"].fill(hyp.BHad()->DeepCvsBtag(), evt_weight_);
+            dir->second["Bjets_DeepCvsB"].fill(hyp.BLep()->DeepCvsBtag(), evt_weight_);
             dir->second["Wjets_CMVA"].fill(hyp.WJa()->btagCMVA(), evt_weight_);
             dir->second["Wjets_CMVA"].fill(hyp.WJb()->btagCMVA(), evt_weight_);
             //dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);

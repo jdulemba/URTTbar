@@ -110,19 +110,29 @@ bool IDJet::BTagId(BTag wp) const {
     }
 }
 
+
+// definitions found in BTagAnalyzer https://github.com/cms-btv-pog/RecoBTag-PerformanceMeasurements/blob/9_4_X/plugins/BTagAnalyzer.cc#L2703-L2714
+// and in NanoAOD documentation https://cms-nanoaod-integration.web.cern.ch/integration/master-102X/mc94X_doc.html
+float IDJet::DeepCvsLtag() const {
+    return ( (btagDeepC() != -1) ? ( btagDeepC() )/( 1.0 - btagDeepB() ) : -1 ); // C/(C+L) where L = 1-B-C
+}
+float IDJet::DeepCvsBtag() const {
+    return ( (btagDeepC() != -1) ? ( btagDeepC() )/( btagDeepC() + btagDeepB() ) : -1 ); // C/(C+B)
+}
+
+
 bool IDJet::CTagId(BTag wp) const	{
-    //double cvsl_thr = -1.;
-    //double cvsb_thr = -1.;
+    double cvsl_thr = -1.;
+    double cvsb_thr = -1.;
     if(wp == BTag::NONE) return true;
-    //else if(wp == BTag::CTAGLOOSE)  {cvsl_thr = -0.337; cvsb_thr = -0.356;}
-    //else if(wp == BTag::CTAGMEDIUM) {cvsl_thr = -0.073; cvsb_thr = -0.302;}
-    //else if(wp == BTag::CTAGTIGHT)  {cvsl_thr = 0.294; cvsb_thr = -0.682;}
+    else if(wp == BTag::CTAGLOOSE)  {cvsl_thr = -0.337; cvsb_thr = -0.356;}
+    else if(wp == BTag::CTAGMEDIUM) {cvsl_thr = -0.073; cvsb_thr = -0.302;}
+    else if(wp == BTag::CTAGTIGHT)  {cvsl_thr = 0.294; cvsb_thr = -0.682;}
     else {
         Logger::log().fatal() << wp << "Is not a valid C-tagging working point!"<< std::endl;
         throw 42;
     }
-    return false;
-    //return (CvsLtag() > cvsl_thr && CvsBtag() > cvsb_thr);
+    return ( DeepCvsLtag() > cvsl_thr && DeepCvsBtag() > cvsb_thr);
 }
 
 bool IDJet::TagId(BTag wp) const {

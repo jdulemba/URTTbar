@@ -622,10 +622,10 @@ class jet_perm_disc : public AnalyzerBase
         book<TH1F>(test_per, "3J_bj2_MVA", "", 50, -1., 1.);
         book<TH1F>(test_per, "3J_wj1_MVA", "", 50, -1., 1.);
 
-        // CvsL
-        book<TH1F>(test_per, "3J_bj1_CvsL", "", 20, -0.5, 1.);
-        book<TH1F>(test_per, "3J_bj2_CvsL", "", 20, -0.5, 1.);
-        book<TH1F>(test_per, "3J_wj1_CvsL", "", 20, -0.5, 1.);
+        // DeepCvsL
+        book<TH1F>(test_per, "3J_bj1_DeepCvsL", "", 20, -0.5, 1.);
+        book<TH1F>(test_per, "3J_bj2_DeepCvsL", "", 20, -0.5, 1.);
+        book<TH1F>(test_per, "3J_wj1_DeepCvsL", "", 20, -0.5, 1.);
 
         // Multiplicity
         book<TH1F>(test_per, "3J_bj1_Mult", "", 101, 0., 100.);
@@ -648,10 +648,10 @@ class jet_perm_disc : public AnalyzerBase
         book<TH1F>(partial_merge, "3J_BLep_MVA", "", 50, -1., 1.);
         book<TH1F>(partial_merge, "3J_WJet_MVA", "", 50, -1., 1.);
 
-        // CvsL
-        book<TH1F>(partial_merge, "3J_BHad_CvsL", "", 20, -0.5, 1.);
-        book<TH1F>(partial_merge, "3J_BLep_CvsL", "", 20, -0.5, 1.);
-        book<TH1F>(partial_merge, "3J_WJet_CvsL", "", 20, -0.5, 1.);
+        // DeepCvsL
+        book<TH1F>(partial_merge, "3J_BHad_DeepCvsL", "", 20, -0.5, 1.);
+        book<TH1F>(partial_merge, "3J_BLep_DeepCvsL", "", 20, -0.5, 1.);
+        book<TH1F>(partial_merge, "3J_WJet_DeepCvsL", "", 20, -0.5, 1.);
 
         // Multiplicity
         book<TH1F>(partial_merge, "3J_BHad_Mult", "", 101, 0., 100.);
@@ -674,10 +674,10 @@ class jet_perm_disc : public AnalyzerBase
         book<TH1F>(unmerged, "3J_BLep_MVA", "", 50, -1., 1.);
         book<TH1F>(unmerged, "3J_WJet_MVA", "", 50, -1., 1.);
 
-        // CvsL
-        book<TH1F>(unmerged, "3J_BHad_CvsL", "", 20, -0.5, 1.);
-        book<TH1F>(unmerged, "3J_BLep_CvsL", "", 20, -0.5, 1.);
-        book<TH1F>(unmerged, "3J_WJet_CvsL", "", 20, -0.5, 1.);
+        // DeepCvsL
+        book<TH1F>(unmerged, "3J_BHad_DeepCvsL", "", 20, -0.5, 1.);
+        book<TH1F>(unmerged, "3J_BLep_DeepCvsL", "", 20, -0.5, 1.);
+        book<TH1F>(unmerged, "3J_WJet_DeepCvsL", "", 20, -0.5, 1.);
 
         // Multiplicity
         book<TH1F>(unmerged, "3J_BHad_Mult", "", 101, 0., 100.);
@@ -731,10 +731,10 @@ class jet_perm_disc : public AnalyzerBase
             test_dir->second["3J_bj2_MVA"].fill( bj2->btagCMVA() );
             test_dir->second["3J_wj1_MVA"].fill( wj1->btagCMVA() );
 
-            // CvsL
-            //test_dir->second["3J_bj1_CvsL"].fill( bj1->CvsLtag() );
-            //test_dir->second["3J_bj2_CvsL"].fill( bj2->CvsLtag() );
-            //test_dir->second["3J_wj1_CvsL"].fill( wj1->CvsLtag() );
+            // DeepCvsL
+            test_dir->second["3J_bj1_DeepCvsL"].fill( bj1->DeepCvsLtag() );
+            test_dir->second["3J_bj2_DeepCvsL"].fill( bj2->DeepCvsLtag() );
+            test_dir->second["3J_wj1_DeepCvsL"].fill( wj1->DeepCvsLtag() );
 
             //Mult 
             test_dir->second["3J_bj1_Mult"].fill( bj1->nConstituents() );
@@ -1680,7 +1680,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
                 merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
-                //merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
+                merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
 
                 tracker_.track("Merged 3J category");
@@ -1693,7 +1693,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
                 merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->btagCMVA() ); // jet csv
-                //merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJb()->CvsLtag() ); // jet CvsL
+                merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJb()->DeepCvsLtag() ); // jet DeepCvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->nConstituents() ); // jet mult
 
                 tracker_.track("Merged 3J category");
@@ -1706,7 +1706,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
                 merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
-                //merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
+                merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
 
                 tracker_.track("Merged 3J category");
@@ -1719,7 +1719,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
                 merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
-                //merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
+                merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
 
                 tracker_.track("Merged 3J category");
@@ -1732,7 +1732,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
                 merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->btagCMVA() ); // jet csv
-                //merged_dir->second["3J_WJet_CvsL"].fill( hyp.WJb()->CvsLtag() ); // jet CvsL
+                merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJb()->DeepCvsLtag() ); // jet DeepCvsL
                 merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->nConstituents() ); // jet mult
 
                 tracker_.track("Merged 3J category");
@@ -1742,13 +1742,13 @@ class jet_perm_disc : public AnalyzerBase
             // BHad plots        
             merged_dir->second["3J_BHad_Mass"].fill( hyp.BHad()->M() );
             merged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->btagCMVA() );
-            //merged_dir->second["3J_BHad_CvsL"].fill( hyp.BHad()->CvsLtag() );
+            merged_dir->second["3J_BHad_DeepCvsL"].fill( hyp.BHad()->DeepCvsLtag() );
             merged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->nConstituents() );
 
             // BLep plots        
             merged_dir->second["3J_BLep_Mass"].fill( hyp.BLep()->M() );
             merged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->btagCMVA() );
-            //merged_dir->second["3J_BLep_CvsL"].fill( hyp.BLep()->CvsLtag() );
+            merged_dir->second["3J_BLep_DeepCvsL"].fill( hyp.BLep()->DeepCvsLtag() );
             merged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->nConstituents() );
 
 
@@ -1776,7 +1776,7 @@ class jet_perm_disc : public AnalyzerBase
 
                 unmerged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
                 unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
-                //unmerged_dir->second["3J_WJet_CvsL"].fill( hyp.WJa()->CvsLtag() ); // jet CvsL
+                unmerged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
                 unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
             }
 
@@ -1787,20 +1787,20 @@ class jet_perm_disc : public AnalyzerBase
 
                 unmerged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
                 unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->btagCMVA() ); // jet csv
-                //unmerged_dir->second["3J_WJet_CvsL"].fill( hyp.WJb()->CvsLtag() ); // jet CvsL
+                unmerged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJb()->DeepCvsLtag() ); // jet DeepCvsL
                 unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->nConstituents() ); // jet mult
             }
 
             // BHad plots        
             unmerged_dir->second["3J_BHad_Mass"].fill( hyp.BHad()->M() );
             unmerged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->btagCMVA() );
-            //unmerged_dir->second["3J_BHad_CvsL"].fill( hyp.BHad()->CvsLtag() );
+            unmerged_dir->second["3J_BHad_DeepCvsL"].fill( hyp.BHad()->DeepCvsLtag() );
             unmerged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->nConstituents() );
 
             // BLep plots        
             unmerged_dir->second["3J_BLep_Mass"].fill( hyp.BLep()->M() );
             unmerged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->btagCMVA() );
-            //unmerged_dir->second["3J_BLep_CvsL"].fill( hyp.BLep()->CvsLtag() );
+            unmerged_dir->second["3J_BLep_DeepCvsL"].fill( hyp.BLep()->DeepCvsLtag() );
             unmerged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->nConstituents() );
 
         } // end of unmerged_3J_evts

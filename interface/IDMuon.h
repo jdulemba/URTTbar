@@ -19,12 +19,12 @@ class IDMuon : public Muons, public MCMatchable
         IDMuon(const Muons mu, double rho=-1);
         static IDMuon::IDS id(const std::string label);
         double rho() {return rho_;}
-        double PFIsoDb();
-        double RelPFIsoDb() {return PFIsoDb()/Pt();}
+        double PFIsoDb() const {return pfRelIso04_all()*Pt();}
+        double RelPFIsoDb() const {return pfRelIso04_all();}
         double CorPFIsolation2015();
         bool ID(IDS idtyp);
-        bool isTight();
-        bool isLoose();
+        bool isTight() const {return tightId();} // CHECK
+        bool isLoose() const {return softId();} // CHECK
         double etaSC() const {return 0.;} //dummy value just to woek in templates w/ electrons
 };
 

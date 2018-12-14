@@ -492,10 +492,10 @@ class jet_perm_disc : public AnalyzerBase
 //            test_dir->second["3J_bj2_MVA"].fill( bj2->btagCMVA() );
 //            test_dir->second["3J_wj1_MVA"].fill( wj1->btagCMVA() );
 //
-//            // CvsL
-//            test_dir->second["3J_bj1_CvsL"].fill( bj1->CvsLtag() );
-//            test_dir->second["3J_bj2_CvsL"].fill( bj2->CvsLtag() );
-//            test_dir->second["3J_wj1_CvsL"].fill( wj1->CvsLtag() );
+//            // DeepCvsL
+//            test_dir->second["3J_bj1_DeepCvsL"].fill( bj1->DeepCvsLtag() );
+//            test_dir->second["3J_bj2_DeepCvsL"].fill( bj2->DeepCvsLtag() );
+//            test_dir->second["3J_wj1_DeepCvsL"].fill( wj1->DeepCvsLtag() );
 //
 //            //Mult 
 //            test_dir->second["3J_bj1_Mult"].fill( bj1->nConstituents() );

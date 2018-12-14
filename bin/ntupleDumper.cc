@@ -85,9 +85,10 @@ class ntupleDumper : public AnalyzerBase
                 bool mc = (event.run == 1);
                 cout << "***** Event "<<event.run<<":"<<event.luminosityBlock<<":"<<event.event<<" *****"<< endl << endl;
                 cout << "Trigger: " << endl;
-                cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.hlt().Ele32_eta2p1_WPTight_Gsf() << endl; 
+                cout << "  HLT_Ele32_WPTight_Gsf: " << event.hlt().Ele32_WPTight_Gsf() << endl; 
+                //cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.hlt().Ele32_eta2p1_WPTight_Gsf() << endl; 
                 cout << "  HLT_IsoMu24: " << event.hlt().IsoMu24() << endl; 
-                cout << "  HLT_IsoTkMu24: " <<  event.hlt().IsoTkMu24() << endl;
+                //cout << "  HLT_IsoTkMu24: " <<  event.hlt().IsoTkMu24() << endl;
                 cout << endl;
 
                 cout << "Event Filters: " << endl;
@@ -97,8 +98,8 @@ class ntupleDumper : public AnalyzerBase
                 cout << "  Flag_goodVertices: " << 						  event.flag().goodVertices() << endl;												 
                 cout << "  Flag_eeBadScFilter: " << 					  event.flag().eeBadScFilter() << endl;											 
                 cout << "  Flag_globalTightHalo2016Filter: " << 		  event.flag().globalTightHalo2016Filter() << endl;					 
-                //cout << "  Flag_BadPFMuon: " << 						  event.flag().BadPFMuonFilter() << endl;													 
-                //cout << "  Flag_BadChargedCandidate: " << 	              event.flag().BadChargedCandidateFilter() << endl;	                
+                cout << "  Flag_BadPFMuon: " << 						  event.flag().BadPFMuonFilter() << endl;													 
+                cout << "  Flag_BadChargedCandidate: " << 	              event.flag().BadChargedCandidateFilter() << endl;	                
                 cout << endl;
 
 
@@ -153,7 +154,7 @@ class ntupleDumper : public AnalyzerBase
                     //}
                     cout <<"  Pass jet ID: " << jet.LooseID() << endl;
                     cout <<"  CSV: "<< jet.btagCSVV2()<<", cMVA: "<< jet.btagCMVA() << endl;
-                    //cout <<"  cCvsL: "<< jet.CvsLtag()<<", cCvsB: "<< jet.CvsBtag() << endl;
+                    cout <<"  cDeepCvsL: "<< jet.DeepCvsLtag()<<", cDeepCvsB: "<< jet.DeepCvsBtag() << endl;
                 }
                 cout << endl;
                 cout << "MET:" << endl;

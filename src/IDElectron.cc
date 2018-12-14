@@ -13,7 +13,7 @@ const std::map<std::string, IDElectron::IDS> IDElectron::id_names = {
     {"VETO_15"    , IDElectron::IDS::VETO_15    },
     {"TIGHT_15_NoECAL_Gap", IDElectron::IDS::TIGHT_15_NoECAL_Gap},
     {"NOTVETO_15", IDElectron::IDS::NOTVETO_15},
-    //{"FAKES", IDElectron::IDS::FAKES},
+    {"FAKES", IDElectron::IDS::FAKES},
 };
 
 IDElectron::IDS IDElectron::id(const std::string label) {
@@ -47,76 +47,22 @@ double IDElectron::PFIsolationRho2015() const
 
     if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation: " << rho_ << endl;}
     effarea *= Max(rho_, 0.);
-    //return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
-    //return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
-    return(pfHadronIso() + Max(pfNeutralIso() + pfPhotonIso() - effarea, 0.));
+    ////return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
+    ////return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
+    //return(pfHadronIso() + Max(pfNeutralIso() + pfPhotonIso() - effarea, 0.));
+    return(pfRelIso03_all()*Pt() + Max( (pfRelIso03_all()-pfRelIso03_chg())*Pt() - effarea, 0.)); // CHECK
 }
 
-// //https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
-// bool IDElectron::LooseID25ns() const {
-//   return (eidCutLoose() > 0.5);
-//   //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
-//   // if(full5x5_sigmaIEtaIEta()  >= ((isEB()) ? 0.0103: 0.0301)) return false; //to be updated to full5x5SigmaIEtaIEta
-//   // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0105: 0.00814)) return false;
-//   // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.115:  0.182)) return false;
-//   // if(hadronicOverEM() >= ((isEB()) ? 0.104:  0.0897)) return false;
-//   // if(PFIsolationRho2015() >= ((isEB()) ? 0.0893: 0.121)) return false; //to be updated
-//   // //relIsoWithEA
-//   // float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
-//   // if(ooEmooP    >= ((isEB()) ? 0.102 : 0.126)) return false;
-//   // if(Abs(dz())  >= ((isEB()) ? 0.0261: 0.118)) return false; //to be checked, needs vtx?
-//   // if(Abs(dB()) >= ((isEB()) ? 0.41  : 0.822)) return false; //to be checked, needs vtx?
-//   // if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
-//   // if(!passConversionVeto()) return false;
-//   // return true;
-// }
-
-// bool IDElectron::MediumID25ns() const {
-//   return (eidCutMedium() > 0.5);
-//   //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
-//   // if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101: 0.0283 )) return false; //to be updated to full5x5SigmaIEtaIEta
-//   // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.0103: 0.00733)) return false;
-//   // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336: 0.114  )) return false;
-//   // if(hadronicOverEM() >= ((isEB()) ? 0.0876: 0.0678 )) return false;
-//   // if(PFIsolationRho2015() >= ((isEB()) ? 0.0766: 0.0678 )) return false; //to be updated
-//   // //relIsoWithEA
-//   // float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
-//   // if(ooEmooP    >= ((isEB()) ? 0.0174: 0.0898)) return false;
-//   // if(Abs(dz())  >= ((isEB()) ? 0.0118: 0.0739)) return false; //to be checked, needs vtx?
-//   // if(Abs(dB()) >= ((isEB()) ? 0.373 : 0.602 )) return false; //to be checked, needs vtx?
-//   // if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
-//   // if(!passConversionVeto()) return false;
-//   // return true;
-// }
-
-// bool IDElectron::TightID25ns() const {
-//   return (eidCutTight() > 0.5);
-//   //if(full5x5SigmaIEtaIEta() > 0.01){return(false);}
-//   // if(sigmaIEtaIEta()  >= ((isEB()) ? 0.0101 : 0.0279 )) return false; //to be updated to full5x5SigmaIEtaIEta
-//   // if(Abs(DEtaSCTrk()) >= ((isEB()) ? 0.00926: 0.00724)) return false;
-//   // if(Abs(DPhiSCTrk()) >= ((isEB()) ? 0.0336 : 0.0918 )) return false;
-//   // if(hadronicOverEM() >= ((isEB()) ? 0.0597 : 0.0615 )) return false;
-//   // if(PFIsolationRho2015() >= ((isEB()) ? 0.0354 : 0.0646 )) return false; //to be updated
-//   // //relIsoWithEA
-//   // float ooEmooP = (ecalEnergy() == 0 || !std::isfinite(ecalEnergy())) ? 999 : Abs(1.0/ecalEnergy() - ESCOverETrack()/ecalEnergy() );
-//   // if(ooEmooP    >= ((isEB()) ? 0.012 : 0.00999)) return false;
-//   // if(Abs(dz())  >= ((isEB()) ? 0.0111: 0.0351 )) return false; //to be checked, needs vtx?
-//   // if(Abs(dB()) >= ((isEB()) ? 0.0466: 0.417  )) return false; //to be checked, needs vtx?
-//   // if(nMissingInnerHits() > ((isEB()) ? 2: 1)) return false; //to be updated to nMissingTrackerHits
-//   // if(!passConversionVeto()) return false;
-//   // return true;
-// }
-
-//bool IDElectron::FakeID() const {// {return IPCuts() && (eidCutNoIsoTight() > 0.5) ;TIGHT_15_NoECAL_Gap
-//    bool ecalgap = (fabs(etaSC()) <= 1.4442 || fabs(etaSC()) >= 1.5660);
-//    bool iso = (etaSC() < 1.479) ? PFIsolationRho2015() >= 0.0588 : PFIsolationRho2015() >= 0.0571;
-//    return IPCuts() && eidCutNoIsoTight() && ecalgap && iso;
-//}
+bool IDElectron::FakeID() const {// {return IPCuts() && (eidCutNoIsoTight() > 0.5) ;TIGHT_15_NoECAL_Gap
+    bool ecalgap = (fabs(etaSC()) <= 1.4442 || fabs(etaSC()) >= 1.5660);
+    bool iso = (etaSC() < 1.479) ? PFIsolationRho2015() >= 0.0588 : PFIsolationRho2015() >= 0.0571;
+    //return IPCuts() && eidCutNoIsoTight() && ecalgap && iso;
+    return IPCuts() && ecalgap && iso; // CHECK, no possible NoIsoTight
+}
 
 bool IDElectron::ID(IDS idtyp)
 {
     double sceta = Eta();
-    //double sceta = Abs(TVector3(x(), y(), z()).Eta());
     if(sceta > 2.5) return(false);
     switch(idtyp) {
         case FAIL: return false;
@@ -126,7 +72,7 @@ bool IDElectron::ID(IDS idtyp)
         case VETO_15: return VetoID25ns();
         case TIGHT_15_NoECAL_Gap: return (TightID25ns() && (fabs(etaSC()) <= 1.4442 || fabs(etaSC()) >= 1.5660)); //removes EB-EE gap  
         case NOTVETO_15: return !VetoID25ns();
-        //case FAKES: return FakeID();
+        case FAKES: return FakeID();
 
     }
     return false;

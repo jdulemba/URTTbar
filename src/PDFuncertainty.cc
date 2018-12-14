@@ -63,7 +63,6 @@ void PDFuncertainty::fill_replicas(string dirname, string name, double val, doub
         return;
     }
 
-    //const vector<Mcweight>& ws =  streamer.MCWeights();
     if(hists_.find(dirname) == hists_.end()) {
         Logger::log().fatal() << "You are asking to store PDFs replicas for the directory " << dirname << " which does not exist" << std::endl; 
         throw 42;		
@@ -72,6 +71,7 @@ void PDFuncertainty::fill_replicas(string dirname, string name, double val, doub
         Logger::log().fatal() << "You are asking to store PDFs replicas for the plot " << name << " which does not exist" << std::endl; 
         throw 42;		
     }
+    //const vector<Mcweight>& ws =  streamer.MCWeights();
     //if(hists_[dirname][name].size() != ws.size()) {
     //    Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << std::endl; 
     //    throw 42;
@@ -96,7 +96,6 @@ void PDFuncertainty::fill_replicas2D(string dirname, string name, double xval, d
         return;
     }
 
-    //const vector<Mcweight>& ws =  streamer.MCWeights();
     if(hists_.find(dirname) == hists_.end()) {
         Logger::log().fatal() << "You are asking to store PDFs replicas for the directory " << dirname << " which does not exist" << std::endl; 
         throw 42;		
@@ -105,6 +104,7 @@ void PDFuncertainty::fill_replicas2D(string dirname, string name, double xval, d
         Logger::log().fatal() << "You are asking to store PDFs replicas for the plot " << name << " which does not exist" << std::endl; 
         throw 42;		
     }
+    //const vector<Mcweight>& ws =  streamer.MCWeights();
     //if(hists_[dirname][name].size() != ws.size()) {
     //    Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << std::endl; 
     //    throw 42;
