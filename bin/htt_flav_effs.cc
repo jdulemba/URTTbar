@@ -184,8 +184,7 @@ class htt_flav_effs : public AnalyzerBase
 
                 fill(leptype+"/"+sys_name+"/"+"alljets");
 
-                double mt = (*object_selector_.lepton()).Mt() ;
-                //double mt = (*object_selector_.lepton()+*object_selector_.met()).Mt() ;
+                double mt = (*object_selector_.lepton()+*object_selector_.met()).Mt() ;
                 if(mt < cut_MT_) {
                     fill(leptype+"/"+sys_name+"/"+"mtfail");
                 } else {

@@ -15,9 +15,7 @@ private:
 public:
 
     DR_TTGenMatcher(); //configuration
-//    Permutation dr_match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets, TLorentzVector *lep, IDMet *met);
     Permutation dr_match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets, TLorentzVector *lep, IDMet *met, int lepcharge);
-//    Permutation dr_match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets, std::vector<IDElectron*> &electrons, std::vector<IDMuon*> &muons);
 
     template <class T>
     T* best_DR_match( const GenObject* gen, std::vector<T*> &recos){

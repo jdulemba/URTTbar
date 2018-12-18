@@ -12,11 +12,7 @@ DR_TTGenMatcher::DR_TTGenMatcher(){
     max_dr_ = parser.getCfgPar<float>("DR_gen_matching", "drval");
 }
 
-//Permutation DR_TTGenMatcher::dr_match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets, TLorentzVector *lep, IDMet *met){
 Permutation DR_TTGenMatcher::dr_match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets, TLorentzVector *lep, IDMet *met, int lepcharge){
-
-//Permutation DR_TTGenMatcher::dr_match(GenTTBar& gen_hyp, std::vector<IDJet*> &jets,
-//                std::vector<IDElectron*> &electrons, std::vector<IDMuon*> &muons){
 
     Permutation ret;
     Permutation empty_perm;

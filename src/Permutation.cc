@@ -4,7 +4,6 @@
 
 using namespace std;
 
-//Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge) :
 Permutation::Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge, double rho) :
     wja_(wja),
     wjb_(wjb),

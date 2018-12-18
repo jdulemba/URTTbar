@@ -295,8 +295,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift, b
     if(tracker_ && tight_lepton) tracker_->track("has N jets");
 
     TLorentzVector* l = lepton();
-    float mt = sqrt(pow(l->Pt(), 2) - pow(l->Px(), 2) - pow(l->Py(), 2));
-    //float mt = sqrt(pow(l->Pt() + met()->Pt(), 2) - pow(l->Px() + met()->Px(), 2) - pow(l->Py() + met()->Py(), 2));
+    float mt = sqrt(pow(l->Pt() + met()->Pt(), 2) - pow(l->Px() + met()->Px(), 2) - pow(l->Py() + met()->Py(), 2));
     if(mt < cut_mt_) return false;
     if(tracker_ && tight_lepton) tracker_->track("TTObjectSelector::MT CUT");
 

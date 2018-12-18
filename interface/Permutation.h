@@ -39,7 +39,6 @@ class Permutation
 
     public:
         Permutation() {}
-        //Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge=0);
         Permutation(IDJet* wja, IDJet* wjb, IDJet* bjh, IDJet* bjl, TLorentzVector* lep, IDMet* met, int lcharge=0, double rho=-1);
         int LepCharge() {return lepcharge_;}
         double RhoVal() {return rho_;}

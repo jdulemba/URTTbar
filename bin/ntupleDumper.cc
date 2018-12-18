@@ -161,8 +161,7 @@ class ntupleDumper : public AnalyzerBase
                 auto& mets = event.met();
                 IDMet met(mets);
                 cout << " Raw MET (pt, phi): --, --" << endl;
-                cout << " Corrected MET (pt, phi): " << met.fiducialGenPt() <<", "<< met.fiducialGenPhi() << endl;
-                //cout << " Corrected MET (pt, phi): " << met.Pt() <<", "<< met.Phi() << endl;
+                cout << " Corrected MET (pt, phi): " << met.Pt() <<", "<< met.Phi() << endl;
                 //cout << " Smeared MET pt: " << sqrt( pow(met.pxsmear(), 2) + pow(met.pysmear(), 2) ) << endl;
                 cout << " Smeared MET pt: " << sqrt( pow(met.MetUnclustEnUpDeltaX(), 2) + pow(met.MetUnclustEnUpDeltaY(), 2) ) << endl;
                 cout << endl << endl;

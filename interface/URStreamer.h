@@ -8055,6 +8055,7 @@ public:
     obj.setsumEt(MET_sumEt_);
     obj.setfiducialGenPhi(MET_fiducialGenPhi_);
     obj.setfiducialGenPt(MET_fiducialGenPt_);
+    obj.setLorentzVector(MET_pt_, MET_phi_);
     
   
     return obj;

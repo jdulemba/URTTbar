@@ -102,12 +102,9 @@ class htt_simple : public AnalyzerBase
         float MTCut_;
 
     public:
-        inline double MT(TLorentzVector *l) {
-            return sqrt(pow(l->Pt(), 2) - pow(l->Px(), 2) - pow(l->Py(), 2));
+        inline double MT(TLorentzVector *l, TLorentzVector *met) {
+            return sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
         }
-        //inline double MT(TLorentzVector *l, TLorentzVector *met) {
-        //    return sqrt(pow(l->Pt() + met->Pt(), 2) - pow(l->Px() + met->Px(), 2) - pow(l->Py() + met->Py(), 2));
-        //}
 
         htt_simple(const std::string output_filename):
             AnalyzerBase("htt_simple", output_filename), 
@@ -487,9 +484,9 @@ class htt_simple : public AnalyzerBase
             dir->second["lead_jet_eta"].fill(max_eta, evt_weight_);
 
             dir->second["MET"   ].fill(object_selector_.met()->sumEt() , evt_weight_);
-            dir->second["METPhi"].fill(object_selector_.met()->fiducialGenPhi(), evt_weight_);
-            double mt = MT(object_selector_.lepton());
-            //double mt = MT(object_selector_.lepton(), object_selector_.met());
+            dir->second["METPhi"].fill(object_selector_.met()->Phi(), evt_weight_);
+            //double mt = MT(object_selector_.lepton());
+            double mt = MT(object_selector_.lepton(), object_selector_.met());
             dir->second["MT"].fill(mt, evt_weight_);
             dir->second["max_jets_"+btag_str_id_].fill(max_btagval, evt_weight_);
 
@@ -876,8 +873,8 @@ class htt_simple : public AnalyzerBase
             }
 
             // check MT
-            double mt = MT(object_selector_.lepton());
-            //double mt = MT(object_selector_.lepton(), object_selector_.met());
+            //double mt = MT(object_selector_.lepton());
+            double mt = MT(object_selector_.lepton(), object_selector_.met());
             bool mt_high = true;
             if( mt < 50. ) mt_high = false;
 
