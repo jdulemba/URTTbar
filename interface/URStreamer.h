@@ -662,7 +662,7 @@ public:
   Lhe():
     TLorentzVector(),
     LHEPdfWeight_(0),
-    LHEScaleWeight_(0),
+    //LHEScaleWeight_(0),
     HT_(0),
     HTIncoming_(0),
     Vpt_(0),
@@ -675,8 +675,9 @@ public:
     NpLO_(0),
     pdgId_(0)
   {}
-  vector<Float_t> LHEPdfWeight() const {return LHEPdfWeight_;}
-  vector<Float_t> LHEScaleWeight() const {return LHEScaleWeight_;}
+  Float_t LHEPdfWeight() const {return LHEPdfWeight_;}
+  //vector<Float_t> LHEPdfWeight() const {return LHEPdfWeight_;}
+  //vector<Float_t> LHEScaleWeight() const {return LHEScaleWeight_;}
   Float_t HT() const {return HT_;}
   Float_t HTIncoming() const {return HTIncoming_;}
   Float_t Vpt() const {return Vpt_;}
@@ -689,8 +690,9 @@ public:
   UChar_t NpLO() const {return NpLO_;}
   Int_t pdgId() const {return pdgId_;}
 private:
-  vector<Float_t> LHEPdfWeight_;
-  vector<Float_t> LHEScaleWeight_;
+  Float_t LHEPdfWeight_;
+  //vector<Float_t> LHEPdfWeight_;
+  //vector<Float_t> LHEScaleWeight_;
   Float_t HT_;
   Float_t HTIncoming_;
   Float_t Vpt_;
@@ -702,8 +704,9 @@ private:
   UChar_t NpNLO_;
   UChar_t NpLO_;
   Int_t pdgId_;
-  void setLHEPdfWeight(const vector<Float_t> value) {LHEPdfWeight_ = value;}
-  void setLHEScaleWeight(const vector<Float_t> value) {LHEScaleWeight_ = value;}
+  void setLHEPdfWeight(const Float_t value) {LHEPdfWeight_ = value;}
+  //void setLHEPdfWeight(const vector<Float_t> value) {LHEPdfWeight_ = value;}
+  //void setLHEScaleWeight(const vector<Float_t> value) {LHEScaleWeight_ = value;}
   void setHT(const Float_t value) {HT_ = value;}
   void setHTIncoming(const Float_t value) {HTIncoming_ = value;}
   void setVpt(const Float_t value) {Vpt_ = value;}
@@ -4278,11 +4281,12 @@ public:
   UInt_t nGenVisTau;
   Float_t genWeight;
   UInt_t nLHEPdfWeight;
-  vector<Float_t> LHEPdfWeight;
+  Float_t LHEPdfWeight;
+  //vector<Float_t> LHEPdfWeight;
   UInt_t nLHEScaleWeight;
-  vector<Float_t> LHEScaleWeight;
+  //vector<Float_t> LHEScaleWeight;
   UInt_t nPSWeight;
-  vector<Float_t> PSWeight;
+  //vector<Float_t> PSWeight;
   UInt_t nIsoTrack;
   UInt_t nJet;
   UInt_t nLHEPart;
@@ -4438,9 +4442,9 @@ public:
     nLHEPdfWeight(0),
     LHEPdfWeight(0),
     nLHEScaleWeight(0),
-    LHEScaleWeight(0),
+    //LHEScaleWeight(0),
     nPSWeight(0),
-    PSWeight(0),
+    //PSWeight(0),
     nIsoTrack(0),
     IsoTrack_dxy_(0),
     IsoTrack_dz_(0),
@@ -5428,9 +5432,9 @@ public:
     tree_->SetBranchStatus("nLHEPdfWeight", 1); tree_->SetBranchAddress("nLHEPdfWeight", &nLHEPdfWeight);
     tree_->SetBranchStatus("LHEPdfWeight", 1); tree_->SetBranchAddress("LHEPdfWeight", &LHEPdfWeight);
     tree_->SetBranchStatus("nLHEScaleWeight", 1); tree_->SetBranchAddress("nLHEScaleWeight", &nLHEScaleWeight);
-    tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight);
+    //tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight);
     tree_->SetBranchStatus("nPSWeight", 1); tree_->SetBranchAddress("nPSWeight", &nPSWeight);
-    tree_->SetBranchStatus("PSWeight", 1); tree_->SetBranchAddress("PSWeight", &PSWeight);
+    //tree_->SetBranchStatus("PSWeight", 1); tree_->SetBranchAddress("PSWeight", &PSWeight);
     tree_->SetBranchStatus("nIsoTrack", 1); tree_->SetBranchAddress("nIsoTrack", &nIsoTrack);
     tree_->SetBranchStatus("nJet", 1); tree_->SetBranchAddress("nJet", &nJet);
     tree_->SetBranchStatus("nLHEPart", 1); tree_->SetBranchAddress("nLHEPart", &nLHEPart);
@@ -5788,7 +5792,7 @@ public:
   void loadLhe(){
     if(!are_LHE_loaded_){
       tree_->SetBranchStatus("LHEPdfWeight", 1); tree_->SetBranchAddress("LHEPdfWeight", &LHEPdfWeight);
-      tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight);
+      //tree_->SetBranchStatus("LHEScaleWeight", 1); tree_->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight);
       tree_->SetBranchStatus("LHE_HT", 1); tree_->SetBranchAddress("LHE_HT", &LHE_HT_);
       tree_->SetBranchStatus("LHE_HTIncoming", 1); tree_->SetBranchAddress("LHE_HTIncoming", &LHE_HTIncoming_);
       tree_->SetBranchStatus("LHE_Vpt", 1); tree_->SetBranchAddress("LHE_Vpt", &LHE_Vpt_);
@@ -7120,14 +7124,15 @@ public:
     obj.setNglu(LHE_Nglu_);
     obj.setNpNLO(LHE_NpNLO_);
     obj.setNpLO(LHE_NpLO_);
-    for( size_t idx = 0; idx < nLHEPdfWeight; ++idx ){
-      LHEPdfWeight.push_back(LHEPdfWeight[idx]);
-    }
     obj.setLHEPdfWeight(LHEPdfWeight);
-    for( size_t idx = 0; idx < nLHEScaleWeight; ++idx ){
-      LHEScaleWeight.push_back(LHEScaleWeight[idx]);
-    }
-    obj.setLHEScaleWeight(LHEScaleWeight);
+    //for( size_t idx = 0; idx < nLHEPdfWeight; ++idx ){
+    //  LHEPdfWeight.push_back(LHEPdfWeight[idx]);
+    //}
+    //obj.setLHEPdfWeight(LHEPdfWeight);
+    //for( size_t idx = 0; idx < nLHEScaleWeight; ++idx ){
+    //  LHEScaleWeight.push_back(LHEScaleWeight[idx]);
+    //}
+    //obj.setLHEScaleWeight(LHEScaleWeight);
   
     return obj;
   }
