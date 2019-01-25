@@ -5627,6 +5627,7 @@ public:
     if(!are_LHEPart_loaded_){
         cout << "Inside loadLheparts() in URStreamer" << endl;
         cout << "tree: " << tree_ << endl;
+        cout << "entries: " << tree_->GetEntries() << endl;
         cout << "LHEPart_pt: " << &LHEPart_pt_ << endl;
         cout << "nLHEPart: " << nLHEPart << endl;
         cout << "current_entry: " << current_entry_ << endl;

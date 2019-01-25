@@ -15,29 +15,31 @@ class GenObject : public TLorentzVector
         int status_;
 
     public:
-        GenObject(const Genparts& gp) : pdgId_(gp.pdgId()), status_(gp.status())
+        //GenObject(const Genparts& gp) : pdgId_(gp.pdgId()), status_(gp.status())
         //GenObject(const Genparts& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
+        GenObject(const Genparts& gp) : TLorentzVector(gp), pdgId_(gp.pdgId())
     {
     }
         /*GenObject(const Pst& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
           {
           }*/
-        GenObject(const Genjets& jet) : pdgId_(0), status_(0)
+        //GenObject(const Genjets& jet) : pdgId_(0), status_(0)
+        GenObject(const Genjets& jet) : TLorentzVector(jet), pdgId_(0)
         //GenObject(const Genjets& jet) : TLorentzVector(jet), pdgId_(0), status_(0)
     {
     }
         template<class T>
             GenObject(const T& t): 
-                //TLorentzVector(t),
-                pdgId_(t.pdgId()),
-                status_(t.status()) {}
-        GenObject() : pdgId_(0), status_(0)
+                TLorentzVector(t),
+                pdgId_(t.pdgId()) {}
+                //status_(t.status()) {}
+        GenObject() : TLorentzVector(), pdgId_(0)//, status_(0)
         //GenObject() : TLorentzVector(), pdgId_(0), status_(0)
     {
     }
 
         int pdgId() const {return pdgId_;}
-        int status() const {return status_;}
+        //int status() const {return status_;}
 
         friend std::ostream & operator<<(std::ostream &os, const GenObject &obj);
 };

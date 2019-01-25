@@ -234,12 +234,18 @@ void TTGenParticleSelector::select_normal(URStreamer& event)
 //}
 
 void TTGenParticleSelector::select_lhe(URStreamer& event) {
-	auto& evt_lhes = event.genparts();
+    std::cout << "before lheparts selected" << std::endl;	
+    std::cout << "nlheparts:" << event.nLHEPart << std::endl;
+	auto& evt_lhes = event.lheparts();
+    std::cout << "lheparts selected" << std::endl;	
+    //std::cout << "lhe size: " << evt_lhes.size() << std::endl;
     lhes_.reserve(evt_lhes.size());// = LHEParticle::LHEParticles(event);
+    //std::cout << "lhe reserved" << std::endl;	
 	for(auto& lhe : evt_lhes){
         lhes_.emplace_back(lhe);
     }
-	
+    //std::cout << "lhes emplaced" << std::endl;	
+
 	if(lhes_.size() == 0) Logger::log().error() << "The LHEs have no content!" << endl;
     for(auto &lhe : lhes_) {
         if(lhe.pdgId() == ura::PDGID::t) {
@@ -254,29 +260,30 @@ void TTGenParticleSelector::select_lhe(URStreamer& event) {
             tbar_ = &(selected_.back());
             continue;
         }
-        if(lhe.status() != 1) {continue;}
-        int top_id = this->comes_from_top(lhe);
-        if(top_id == 0) {continue;}//does not come from top
-        selected_.push_back(lhe);
-        int mom = lhe.genPartIdxMother();
+    //std::cout << "lhe pdgid foutnd: " << lhe.pdgId() << std::endl;	
+        //if(lhe.status() != 1) {continue;}
+        //int top_id = this->comes_from_top(lhe);
+        //if(top_id == 0) {continue;}//does not come from top
+        //selected_.push_back(lhe);
+        //int mom = lhe.genPartIdxMother();
 
-        if(lhe.pdgId() == ura::PDGID::b && lhes_[mom].pdgId() != ura::PDGID::Wplus) {
-            b_ = &(selected_.back());
-        }
-        else if(lhe.pdgId() == ura::PDGID::bbar && lhes_[mom].pdgId() != ura::PDGID::Wminus) {
-            bbar_ = &(selected_.back());
-        }
-        else if(Abs(lhes_[mom].pdgId()) == w_decay_momid_) {
-            if(Abs(lhe.pdgId()) < 6) wpartons_.push_back(&(selected_.back()));
-            if(Abs(lhe.pdgId()) == ura::PDGID::e || Abs(lhe.pdgId()) == ura::PDGID::mu || Abs(lhe.pdgId()) == ura::PDGID::tau) {
-              		charged_leps_.push_back(&(selected_.back()));
-              		final_charged_leps_.push_back(&(selected_.back()));
-              	}
-            if(Abs(lhe.pdgId()) == ura::PDGID::nu_e || Abs(lhe.pdgId()) == ura::PDGID::nu_mu || Abs(lhe.pdgId()) == ura::PDGID::nu_tau) {
-              neutral_leps_.push_back(&(selected_.back()));
-              lepdecays_++;
-            }      
-        }
+        //if(lhe.pdgId() == ura::PDGID::b && lhes_[mom].pdgId() != ura::PDGID::Wplus) {
+        //    b_ = &(selected_.back());
+        //}
+        //else if(lhe.pdgId() == ura::PDGID::bbar && lhes_[mom].pdgId() != ura::PDGID::Wminus) {
+        //    bbar_ = &(selected_.back());
+        //}
+        //else if(Abs(lhes_[mom].pdgId()) == w_decay_momid_) {
+        //    if(Abs(lhe.pdgId()) < 6) wpartons_.push_back(&(selected_.back()));
+        //    if(Abs(lhe.pdgId()) == ura::PDGID::e || Abs(lhe.pdgId()) == ura::PDGID::mu || Abs(lhe.pdgId()) == ura::PDGID::tau) {
+        //      		charged_leps_.push_back(&(selected_.back()));
+        //      		final_charged_leps_.push_back(&(selected_.back()));
+        //      	}
+        //    if(Abs(lhe.pdgId()) == ura::PDGID::nu_e || Abs(lhe.pdgId()) == ura::PDGID::nu_mu || Abs(lhe.pdgId()) == ura::PDGID::nu_tau) {
+        //      neutral_leps_.push_back(&(selected_.back()));
+        //      lepdecays_++;
+        //    }      
+        //}
     }
 }
 

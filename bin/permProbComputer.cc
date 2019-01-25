@@ -515,9 +515,15 @@ class permProbComputer : public AnalyzerBase
                 if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
                 tracker_.track("start");		 
 
+                //cout << "before muons" << endl;
+                //auto& evt_muons = event.muons();
+                //cout << "after muons" << endl;
+
                 //long and time consuming
                 if(isTTbar_){
+                    cout << "before genp" << endl;
                     bool selection = 	genp_selector_.select(event);			
+                    cout << "after genp" << endl;
                     tracker_.track("gen selection");        
                     if(!selection) {
                         Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<

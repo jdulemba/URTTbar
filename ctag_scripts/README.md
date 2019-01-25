@@ -29,11 +29,22 @@ Alternatively, download https://github.com/urcms/URBril on lxplus and follow tho
 
 Another option is to directly copy the inputs/$jobid directory from someone who already did it.
 
+```
+    ** FOR DATA **
+To create final_run.json files,
+check golden json file for correctness (/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt) and run
+
+bash data_run_json_creator.sh
+
 Pileup ** FOR DATA **
-Check input files (run.json and pileup_latest.txt) for correctness.
+Check input files (final_run.json and pileup_latest.txt) for correctness.
 
 bash data_pileup.sh
-
+# creates data.meta.pu(_up/_down).root files for all data
+# replaces compute_lumi_...sh lines in getting lumi
+# 1. check pileup_latest.txt file in data_pileup.sh for correctness
+#    and make sure it's actually the latest version (from /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PileUp/)
+```
 ## Running the analyzers
 
 The analysis proceeds in three steps:
