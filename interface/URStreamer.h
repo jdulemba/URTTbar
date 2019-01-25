@@ -6,6 +6,7 @@
 #include <TFile.h>
 #include "TLorentzVector.h"
 #include <vector>
+#include <iostream>
 using namespace std;
 
 class Jets: public TLorentzVector{
@@ -5438,6 +5439,10 @@ public:
     tree_->SetBranchStatus("nIsoTrack", 1); tree_->SetBranchAddress("nIsoTrack", &nIsoTrack);
     tree_->SetBranchStatus("nJet", 1); tree_->SetBranchAddress("nJet", &nJet);
     tree_->SetBranchStatus("nLHEPart", 1); tree_->SetBranchAddress("nLHEPart", &nLHEPart);
+        bool nlhepart_bstatus = tree_->GetBranchStatus("nLHEPart");
+        cout << "nLHEPart branch status: " << nlhepart_bstatus << endl;
+        cout << "LHEPart_pt branch status: " << tree_->GetBranchStatus("LHEPart_pt") << endl;
+      tree_->SetBranchStatus("LHEPart_eta", 1); tree_->SetBranchAddress("LHEPart_eta", &LHEPart_eta_);
     tree_->SetBranchStatus("nMuon", 1); tree_->SetBranchAddress("nMuon", &nMuon);
     tree_->SetBranchStatus("nPhoton", 1); tree_->SetBranchAddress("nPhoton", &nPhoton);
     tree_->SetBranchStatus("fixedGridRhoFastjetAll", 1); tree_->SetBranchAddress("fixedGridRhoFastjetAll", &fixedGridRhoFastjetAll);
@@ -5620,7 +5625,16 @@ public:
   
   void loadLheparts(){
     if(!are_LHEPart_loaded_){
+        cout << "Inside loadLheparts() in URStreamer" << endl;
+        cout << "tree: " << tree_ << endl;
+        cout << "LHEPart_pt: " << &LHEPart_pt_ << endl;
+        cout << "nLHEPart: " << nLHEPart << endl;
+        cout << "current_entry: " << current_entry_ << endl;
+        bool nlhepart_bstatus = tree_->GetBranchStatus("nLHEPart");
+        cout << "nLHEPart branch status: " << nlhepart_bstatus << endl;
+        cout << "LHEPart_pt branch status: " << tree_->GetBranchStatus("LHEPart_pt") << endl;
       tree_->SetBranchStatus("LHEPart_pt", 1); tree_->SetBranchAddress("LHEPart_pt", &LHEPart_pt_);
+        cout << "After LHEPart_pt: " << &LHEPart_pt_ << endl;
       tree_->SetBranchStatus("LHEPart_eta", 1); tree_->SetBranchAddress("LHEPart_eta", &LHEPart_eta_);
       tree_->SetBranchStatus("LHEPart_phi", 1); tree_->SetBranchAddress("LHEPart_phi", &LHEPart_phi_);
       tree_->SetBranchStatus("LHEPart_mass", 1); tree_->SetBranchAddress("LHEPart_mass", &LHEPart_mass_);
@@ -5803,11 +5817,11 @@ public:
       tree_->SetBranchStatus("LHE_Nglu", 1); tree_->SetBranchAddress("LHE_Nglu", &LHE_Nglu_);
       tree_->SetBranchStatus("LHE_NpNLO", 1); tree_->SetBranchAddress("LHE_NpNLO", &LHE_NpNLO_);
       tree_->SetBranchStatus("LHE_NpLO", 1); tree_->SetBranchAddress("LHE_NpLO", &LHE_NpLO_);
-      tree_->SetBranchStatus("LHEPart_pt", 1); tree_->SetBranchAddress("LHEPart_pt", &LHEPart_pt_);
-      tree_->SetBranchStatus("LHEPart_eta", 1); tree_->SetBranchAddress("LHEPart_eta", &LHEPart_eta_);
-      tree_->SetBranchStatus("LHEPart_phi", 1); tree_->SetBranchAddress("LHEPart_phi", &LHEPart_phi_);
-      tree_->SetBranchStatus("LHEPart_mass", 1); tree_->SetBranchAddress("LHEPart_mass", &LHEPart_mass_);
-      tree_->SetBranchStatus("LHEPart_pdgId", 1); tree_->SetBranchAddress("LHEPart_pdgId", &LHEPart_pdgId_);
+      //tree_->SetBranchStatus("LHEPart_pt", 1); tree_->SetBranchAddress("LHEPart_pt", &LHEPart_pt_);
+      //tree_->SetBranchStatus("LHEPart_eta", 1); tree_->SetBranchAddress("LHEPart_eta", &LHEPart_eta_);
+      //tree_->SetBranchStatus("LHEPart_phi", 1); tree_->SetBranchAddress("LHEPart_phi", &LHEPart_phi_);
+      //tree_->SetBranchStatus("LHEPart_mass", 1); tree_->SetBranchAddress("LHEPart_mass", &LHEPart_mass_);
+      //tree_->SetBranchStatus("LHEPart_pdgId", 1); tree_->SetBranchAddress("LHEPart_pdgId", &LHEPart_pdgId_);
       are_LHE_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -6918,6 +6932,7 @@ public:
   
   const vector<Lheparts>& lheparts(){
     if( LHEPart_.size() > 0) return LHEPart_;
+        cout << "nLHEPart before loadlheparts: " << nLHEPart << endl;
     loadLheparts();
   	LHEPart_.reserve(nLHEPart);
     for(size_t idx = 0; idx < nLHEPart; ++idx ){
