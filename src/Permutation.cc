@@ -44,8 +44,7 @@ bool operator>(const Permutation& A, const Permutation& B)
 }
 
 std::ostream & operator<<(std::ostream &os, const TLorentzVector& p) {
-    return os << "LV(" << p.Px() << ", " << p.Py()<< ", "<< p.Pz() << ", "<< p.E()<< ")";
-    //return os << "LV(" << p.Pt() << ", " << p.Eta()<< ", "<< p.Phi() << /*", "<< p.E()<<*/ ")";
+    return os << "LV(" << p.Pt() << ", " << p.Eta()<< ", "<< p.Phi() << /*", "<< p.E()<<*/ ")";
 }
 
 std::ostream & operator<<(std::ostream &os, const Permutation& p) {

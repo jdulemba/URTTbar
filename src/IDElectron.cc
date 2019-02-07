@@ -47,22 +47,20 @@ double IDElectron::PFIsolationRho2015() const
 
     if(rho_ < 0.){Logger::log().error() << "Store the value of rho in the electrons to use this isolation: " << rho_ << endl;}
     effarea *= Max(rho_, 0.);
-    ////return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
-    ////return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
-    //return(pfHadronIso() + Max(pfNeutralIso() + pfPhotonIso() - effarea, 0.));
-    return(pfRelIso03_all()*Pt() + Max( (pfRelIso03_all()-pfRelIso03_chg())*Pt() - effarea, 0.)); // CHECK
+    //return((PFR3().Charged() + Max(PFR3().Neutral() + PFR3().Photon() - Max(GLAN->AK5PFRho(), 0.f)*effarea, 0.))/Pt());
+    //return(chargedIso() + Max(neutralIso() + photonIso() - effarea, 0.))/Pt();
+    return(pfHadronIso() + Max(pfNeutralIso() + pfPhotonIso() - effarea, 0.));
 }
 
 bool IDElectron::FakeID() const {// {return IPCuts() && (eidCutNoIsoTight() > 0.5) ;TIGHT_15_NoECAL_Gap
     bool ecalgap = (fabs(etaSC()) <= 1.4442 || fabs(etaSC()) >= 1.5660);
     bool iso = (etaSC() < 1.479) ? PFIsolationRho2015() >= 0.0588 : PFIsolationRho2015() >= 0.0571;
-    //return IPCuts() && eidCutNoIsoTight() && ecalgap && iso;
-    return IPCuts() && ecalgap && iso; // CHECK, no possible NoIsoTight
+    return IPCuts() && eidCutNoIsoTight() && ecalgap && iso;
 }
 
 bool IDElectron::ID(IDS idtyp)
 {
-    double sceta = Eta();
+    double sceta = Abs(TVector3(x(), y(), z()).Eta());
     if(sceta > 2.5) return(false);
     switch(idtyp) {
         case FAIL: return false;

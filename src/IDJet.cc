@@ -12,6 +12,9 @@ const std::unordered_map<std::string, IDJet::BTag> IDJet::tag_names = {
     {"CTAGLOOSE" , IDJet::BTag::CTAGLOOSE }, 
     {"CTAGMEDIUM", IDJet::BTag::CTAGMEDIUM}, 
     {"CTAGTIGHT" , IDJet::BTag::CTAGTIGHT },
+    //{"DEEPCTAGLOOSE" , IDJet::BTag::DEEPCTAGLOOSE }, 
+    //{"DEEPCTAGMEDIUM", IDJet::BTag::DEEPCTAGMEDIUM}, 
+    //{"DEEPCTAGTIGHT" , IDJet::BTag::DEEPCTAGTIGHT },
     {"DEEPCSVLOOSE",  IDJet::BTag::DEEPCSVLOOSE }, 
     {"DEEPCSVMEDIUM", IDJet::BTag::DEEPCSVMEDIUM},
     {"DEEPCSVTIGHT",  IDJet::BTag::DEEPCSVTIGHT }, 
@@ -45,9 +48,12 @@ IDJet::IDType IDJet::id_type(BTag id) {
         case CTAGLOOSE: 
         case CTAGMEDIUM: 
         case CTAGTIGHT: return IDType::CTAG;
+        //case DEEPCTAGLOOSE: 
+        //case DEEPCTAGMEDIUM: 
+        //case DEEPCTAGTIGHT: return IDType::DEEPCTAG;
         case DEEPCSVLOOSE:
         case DEEPCSVMEDIUM:
-        case DEEPCSVTIGHT: return IDType::DEEPFLAVOUR;
+        case DEEPCSVTIGHT: return IDType::DEEPCSV;
         default: return IDType::NOTSET;
     }
     return IDType::NOTSET;
@@ -64,6 +70,9 @@ std::string IDJet::id_string(BTag id) {
         case CTAGLOOSE: 
         case CTAGMEDIUM: 
         case CTAGTIGHT: return "ctag";
+        //case DEEPCTAGLOOSE: 
+        //case DEEPCTAGMEDIUM: 
+        //case DEEPCTAGTIGHT: return "deepctag";
         case DEEPCSVLOOSE:
         case DEEPCSVMEDIUM:
         case DEEPCSVTIGHT: return "deepcsv";
@@ -84,6 +93,9 @@ BTagEntry::OperatingPoint IDJet::tag_tightness(BTag id) {
         case BTag::CSVTIGHT:   val = BTagEntry::OperatingPoint::OP_TIGHT;  break;
         case BTag::CTAGTIGHT:  val = BTagEntry::OperatingPoint::OP_TIGHT;  break;
         case BTag::MVATIGHT:   val = BTagEntry::OperatingPoint::OP_TIGHT;  break;
+        //case BTag::DEEPCTAGLOOSE : val = BTagEntry::OperatingPoint::OP_LOOSE;  break;
+        //case BTag::DEEPCTAGMEDIUM: val = BTagEntry::OperatingPoint::OP_MEDIUM; break;
+        //case BTag::DEEPCTAGTIGHT : val = BTagEntry::OperatingPoint::OP_TIGHT;  break;
         case BTag::DEEPCSVLOOSE : val = BTagEntry::OperatingPoint::OP_LOOSE;  break;
         case BTag::DEEPCSVMEDIUM: val = BTagEntry::OperatingPoint::OP_MEDIUM; break;
         case BTag::DEEPCSVTIGHT : val = BTagEntry::OperatingPoint::OP_TIGHT;  break;
@@ -95,15 +107,15 @@ BTagEntry::OperatingPoint IDJet::tag_tightness(BTag id) {
 
 bool IDJet::BTagId(BTag wp) const {
     if(wp == BTag::NONE) return true;
-    else if(wp == BTag::CSVLOOSE)  return btagCSVV2() > 0.5426;
-    else if(wp == BTag::CSVMEDIUM) return btagCSVV2() > 0.8484;
-    else if(wp == BTag::CSVTIGHT)  return btagCSVV2() > 0.9535;
-    else if(wp == BTag::MVALOOSE)  return btagCMVA() > -0.5884;
-    else if(wp == BTag::MVAMEDIUM) return btagCMVA() > 0.4432;
-    else if(wp == BTag::MVATIGHT)  return btagCMVA() > 0.9432;
-    else if(wp == BTag::DEEPCSVLOOSE ) return btagDeepB() > 0.2217;
-    else if(wp == BTag::DEEPCSVMEDIUM) return btagDeepB() > 0.6321;
-    else if(wp == BTag::DEEPCSVTIGHT ) return btagDeepB() > 0.8953;
+    else if(wp == BTag::CSVLOOSE)  return csvIncl() > 0.5426;
+    else if(wp == BTag::CSVMEDIUM) return csvIncl() > 0.8484;
+    else if(wp == BTag::CSVTIGHT)  return csvIncl() > 0.9535;
+    else if(wp == BTag::MVALOOSE)  return CombinedMVA() > -0.5884;
+    else if(wp == BTag::MVAMEDIUM) return CombinedMVA() > 0.4432;
+    else if(wp == BTag::MVATIGHT)  return CombinedMVA() > 0.9432;
+    else if(wp == BTag::DEEPCSVLOOSE ) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.2217;
+    else if(wp == BTag::DEEPCSVMEDIUM) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.6321;
+    else if(wp == BTag::DEEPCSVTIGHT ) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.8953;
     else {
         Logger::log().fatal() << wp << "Is not a valid b-tagging working point!"<< std::endl;
         throw 42;
@@ -112,12 +124,11 @@ bool IDJet::BTagId(BTag wp) const {
 
 
 // definitions found in BTagAnalyzer https://github.com/cms-btv-pog/RecoBTag-PerformanceMeasurements/blob/9_4_X/plugins/BTagAnalyzer.cc#L2703-L2714
-// and in NanoAOD documentation https://cms-nanoaod-integration.web.cern.ch/integration/master-102X/mc94X_doc.html
 float IDJet::DeepCvsLtag() const {
-    return ( (btagDeepC() != -1) ? ( btagDeepC() )/( 1.0 - btagDeepB() ) : -1 ); // C/(C+L) where L = 1-B-C
+    return ( (DeepCSVProbC() != -1) ? ( DeepCSVProbC() )/(DeepCSVProbC() + DeepCSVProbUDSG()) : -1 );
 }
 float IDJet::DeepCvsBtag() const {
-    return ( (btagDeepC() != -1) ? ( btagDeepC() )/( btagDeepC() + btagDeepB() ) : -1 ); // C/(C+B)
+    return ( (DeepCSVProbC() != -1) ? (DeepCSVProbC())/(DeepCSVProbC() + DeepCSVProbB() + DeepCSVProbBB()) : -1 );
 }
 
 
@@ -137,8 +148,9 @@ bool IDJet::CTagId(BTag wp) const	{
 
 bool IDJet::TagId(BTag wp) const {
     switch(id_type(wp)) {
-        case MVA:
+        case MVA: return BTagId(wp);
         case CSV: return BTagId(wp);
+        case DEEPCSV: return BTagId(wp);
         case CTAG: return CTagId(wp);
         default: return false;
     }

@@ -54,13 +54,13 @@ bool TTPermutator::preselection(vector<IDJet*> jets, TLorentzVector* lepton, IDM
     copy(jets_.begin(), jets_.begin()+reducedsize, capped_jets_.begin());
     //check b-tagging conditions
     if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
-        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
+        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
     }
     else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->btagCMVA() > B->btagCMVA());});
+        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
     }
-    else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPFLAVOUR){
-        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->btagDeepB() > B->btagDeepB());});
+    else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPCSV){
+        sort(capped_jets_.begin(), capped_jets_.end(), [](IDJet* A, IDJet* B){return(A->DeepCSVProbB() + A->DeepCSVProbBB() > B->DeepCSVProbB() + B->DeepCSVProbBB());});
     }
     else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
         Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;

@@ -75,9 +75,9 @@ void TTObjectSelector::reset() {
 }
 
 bool TTObjectSelector::select_muons(URStreamer &event, systematics::SysShifts shift) {
-    const vector<Muons>& muons = event.muons();
-    for(vector<Muons>::const_iterator muon = muons.begin(); muon != muons.end(); ++muon)	{
-        IDMuon mu(*muon, event.fixedGridRhoFastjetAll);
+    const vector<Muon>& muons = event.muons();
+    for(vector<Muon>::const_iterator muon = muons.begin(); muon != muons.end(); ++muon)	{
+        IDMuon mu(*muon, event.rho().value());
         bool isveto  = vmu_sel_.pass(mu);
         bool isloose = lmu_sel_.pass(mu);
         bool istight = tmu_sel_.pass(mu);
@@ -92,10 +92,10 @@ bool TTObjectSelector::select_muons(URStreamer &event, systematics::SysShifts sh
 }
 
 bool TTObjectSelector::select_electrons(URStreamer &event, systematics::SysShifts shift) {
-    const vector<Electrons>& electrons = event.electrons();
-    for(vector<Electrons>::const_iterator electron = electrons.begin(); electron != electrons.end(); ++electron)	{
-        if(event.fixedGridRhoFastjetAll < 0.) cout << "RHO: " << event.fixedGridRhoFastjetAll << endl;
-        IDElectron el(*electron, event.fixedGridRhoFastjetAll);
+    const vector<Electron>& electrons = event.electrons();
+    for(vector<Electron>::const_iterator electron = electrons.begin(); electron != electrons.end(); ++electron)	{
+        if(event.rho().value() < 0.) cout << "RHO: " << event.rho().value() << endl;
+        IDElectron el(*electron, event.rho().value());
         bool isveto  = vel_sel_.pass(el);
         bool isloose = lel_sel_.pass(el);
         bool istight = tel_sel_.pass(el);
@@ -109,19 +109,20 @@ bool TTObjectSelector::select_electrons(URStreamer &event, systematics::SysShift
     return (loose_electrons_.size() > 0 || tight_electrons_.size() > 0);
 }
 
-bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts shift) {
-    //SET JETS
-    const vector<Jets>& jets = event.jets();
-    for(vector<Jets>::const_iterator jetit = jets.begin(); jetit != jets.end(); ++jetit)
+bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts shift)
+{
+   //SET JETS
+    const vector<Jet>& jets = event.jets();
+    for(vector<Jet>::const_iterator jetit = jets.begin(); jetit != jets.end(); ++jetit)
     {
         IDJet jet(*jetit);
         //set shifts and systematics
-        //if(shift == systematics::SysShifts::JER_UP) jet.scale(jet.JERUp());
-        //else if(shift == systematics::SysShifts::JER_DW) jet.scale(jet.JERDown());
-        //else if(event.run == 1 && apply_jer_) jet.scale(jet.JER());
+        if(shift == systematics::SysShifts::JER_UP) jet.scale(jet.JERUp());
+        else if(shift == systematics::SysShifts::JER_DW) jet.scale(jet.JERDown());
+        else if(event.run == 1 && apply_jer_) jet.scale(jet.JER());
 
-        //if(shift == systematics::SysShifts::JES_DW)      jet.scale(1-jet.JESUnc());
-        //else if(shift == systematics::SysShifts::JES_UP) jet.scale(1+jet.JESUnc());
+        if(shift == systematics::SysShifts::JES_DW)      jet.scale(1-jet.JESUnc());
+        else if(shift == systematics::SysShifts::JES_UP) jet.scale(1+jet.JESUnc());
 
         if(jet.Pt() < cut_jet_ptmin_ || Abs(jet.Eta()) > cut_jet_etamax_) {continue;}
         if(!jet.LooseID() || !jet.Clean(veto_muons_, veto_electrons_)) {continue;}
@@ -145,21 +146,20 @@ bool TTObjectSelector::select_jetmet(URStreamer &event, systematics::SysShifts s
     if( clean_jets_.size() ==0) return false;
 
     //SET MET
-    const Met& mets = event.met();
-    met_ = mets;
-    //if(mets.size() == 1) {
-    //    met_ = mets[0];
-    //    if(event.run == 1 && apply_jer_ && smear_met_)   met_.setvect(met_.pxsmear(), met_.pysmear());
-    //    if(shift == systematics::SysShifts::JER_UP)      met_.shiftvect(   met_.pxuncJER(),    met_.pyuncJER());
-    //    else if(shift == systematics::SysShifts::JER_DW) met_.shiftvect(-1*met_.pxuncJER(), -1*met_.pyuncJER());
-    //    else if(shift == systematics::SysShifts::JES_DW) met_.shiftvect(   met_.pxuncJES(),    met_.pyuncJES());
-    //    else if(shift == systematics::SysShifts::JES_UP) met_.shiftvect(-1*met_.pxuncJES(), -1*met_.pyuncJES());
-    //    else if(shift == systematics::SysShifts::MET_DW) met_.shiftvect(met_.pxunc(), met_.pyunc());
-    //    else if(shift == systematics::SysShifts::MET_UP) met_.shiftvect(-1*met_.pxunc(), -1*met_.pyunc());
-    //}
-    //else {
-    //    Logger::log().error() << "met collection has more than one entry! which I should pick?" << std::endl;
-    //}
+    const vector<Met>& mets = event.METs();
+    if(mets.size() == 1) {
+        met_ = mets[0];
+        if(event.run == 1 && apply_jer_ && smear_met_)   met_.setvect(met_.pxsmear(), met_.pysmear());
+        if(shift == systematics::SysShifts::JER_UP)      met_.shiftvect(   met_.pxuncJER(),    met_.pyuncJER());
+        else if(shift == systematics::SysShifts::JER_DW) met_.shiftvect(-1*met_.pxuncJER(), -1*met_.pyuncJER());
+        else if(shift == systematics::SysShifts::JES_DW) met_.shiftvect(   met_.pxuncJES(),    met_.pyuncJES());
+        else if(shift == systematics::SysShifts::JES_UP) met_.shiftvect(-1*met_.pxuncJES(), -1*met_.pyuncJES());
+        else if(shift == systematics::SysShifts::MET_DW) met_.shiftvect(met_.pxunc(), met_.pyunc());
+        else if(shift == systematics::SysShifts::MET_UP) met_.shiftvect(-1*met_.pxunc(), -1*met_.pyunc());
+    }
+    else {
+        Logger::log().error() << "met collection has more than one entry! which I should pick?" << std::endl;
+    }
     return true;
 }
 
@@ -179,9 +179,8 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
         mu_trg_ = true;
         return true;
     }
-    el_trg_ = (event.hlt().Ele27_WPTight_Gsf() == 1);
-    mu_trg_ = (event.hlt().IsoMu24() == 1);	
-    //mu_trg_ = (event.hlt().IsoMu24() == 1 || event.hlt().IsoTkMu24() == 1);	
+    el_trg_ = (event.trigger().HLT_Ele27_WPTight_Gsf() == 1);
+    mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
 
     // cout << event.trigger().HLT_Ele27_WPLoose_Gsf() << " " <<  event.trigger().HLT_IsoMu22() << " " << event.trigger().HLT_IsoTkMu22() << endl;
     // cout << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << " " << event.trigger().HLT_IsoMu24() << " " << event.trigger().HLT_IsoTkMu22() << endl;
@@ -193,21 +192,21 @@ bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shi
     //Filters
     bool filter_answer = true;
     auto filters = event.flag();
-    filter_answer &= (filters.HBHENoiseFilter() == 1); 
-    filter_answer &= (filters.HBHENoiseIsoFilter() == 1); 
-    filter_answer &= (filters.EcalDeadCellTriggerPrimitiveFilter() == 1);
-    filter_answer &= (filters.goodVertices() == 1);
-    filter_answer &= (filters.eeBadScFilter() == 1);
-    filter_answer &= (filters.globalTightHalo2016Filter() == 1);
-    filter_answer &= (filters.BadPFMuonFilter() == 1);
-    filter_answer &= (filters.BadChargedCandidateFilter() == 1);	
+    filter_answer &= (filters.Flag_HBHENoiseFilter() == 1); 
+    filter_answer &= (filters.Flag_HBHENoiseIsoFilter() == 1); 
+    filter_answer &= (filters.Flag_EcalDeadCellTriggerPrimitiveFilter() == 1);
+    filter_answer &= (filters.Flag_goodVertices() == 1);
+    filter_answer &= (filters.Flag_eeBadScFilter() == 1);
+    filter_answer &= (filters.Flag_globalTightHalo2016Filter() == 1);
+    filter_answer &= (filters.Flag_BadPFMuon() == 1);
+    filter_answer &= (filters.Flag_BadChargedCandidate() == 1); 
     return filter_answer;
 }
 
 bool TTObjectSelector::pass_vertex(URStreamer &event, systematics::SysShifts shift) {
-    auto vtxs = event.pv();
-    if(vtxs.npvs() == 0) return false; //should never happen, but also the Titanic should have never sank...
-    return vtxs.npvsGood();
+    auto vtxs = event.vertexs();
+    if(vtxs.size() == 0) return false; //should never happen, but also the Titanic should have never sank...
+    return !vtxs[0].isFake() && vtxs[0].ndof() > 4. && fabs(vtxs[0].z()) < 24. && vtxs[0].rho() < 2.;
 }
 
 bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift, bool sync) {
@@ -286,7 +285,7 @@ bool TTObjectSelector::select(URStreamer &event, systematics::SysShifts shift, b
     if(tracker_ && tight_lepton) tracker_->track("right trigger");
 
     if(sync && tight_lepton) {
-        cout << "SYNC " << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.luminosityBlock << ":" << event.event << endl; 
+        cout << "SYNC " << (evt_type_  == TIGHTMU) << " " << event.run << ":" << event.lumi << ":" << event.evt << endl; 
     }
 
     select_jetmet(event, shift);

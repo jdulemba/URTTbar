@@ -35,14 +35,14 @@ PDFuncertainty::~PDFuncertainty()
 }
 
 void PDFuncertainty::SetupWeights(URStreamer &streamer) {
-    const Generator& info = streamer.generator();
+    const Geninfo& info = streamer.genInfo();
     double x1 = info.x1();	
     if(oldx1_ == x1) return;
     oldx1_ = x1;
     double x2 = info.x2();
-    double Q = info.scalePDF();
-    int id1 = info.id1();	
-    int id2 = info.id2();	
+    double Q = info.renScale();
+    int id1 = info.pdfid1();	
+    int id2 = info.pdfid2();	
     for(size_t s = 0 ; s < sets_.size() ; ++s) {
         for(size_t p = 0 ; p < pdfs_[s].size() ; ++p) {
             weights_[s][p] = pdfs_[s][p]->xfxQ(id1,x1,Q)/pdforig_->xfxQ(id1,x1,Q) * pdfs_[s][p]->xfxQ(id2,x2,Q)/pdforig_->xfxQ(id2,x2,Q);
@@ -71,15 +71,15 @@ void PDFuncertainty::fill_replicas(string dirname, string name, double val, doub
         Logger::log().fatal() << "You are asking to store PDFs replicas for the plot " << name << " which does not exist" << std::endl; 
         throw 42;		
     }
-    //const vector<Mcweight>& ws =  streamer.MCWeights();
-    //if(hists_[dirname][name].size() != ws.size()) {
-    //    Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << std::endl; 
-    //    throw 42;
-    //}
+    const vector<Mcweight>& ws =  streamer.MCWeights();
+    if(hists_[dirname][name].size() != ws.size()) {
+        Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << std::endl; 
+        throw 42;
+    }
 
-    //for(size_t h = 0 ; h < ws.size() ; ++h) {
-    //    hists_[dirname][name][h].fill(val, weight*ws[h].weights()/ws[0].weights());
-    //}
+    for(size_t h = 0 ; h < ws.size() ; ++h) {
+        hists_[dirname][name][h].fill(val, weight*ws[h].weights()/ws[0].weights());
+    }
 }
 
 
@@ -104,13 +104,13 @@ void PDFuncertainty::fill_replicas2D(string dirname, string name, double xval, d
         Logger::log().fatal() << "You are asking to store PDFs replicas for the plot " << name << " which does not exist" << std::endl; 
         throw 42;		
     }
-    //const vector<Mcweight>& ws =  streamer.MCWeights();
-    //if(hists_[dirname][name].size() != ws.size()) {
-    //    Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << std::endl; 
-    //    throw 42;
-    //}
+    const vector<Mcweight>& ws =  streamer.MCWeights();
+    if(hists_[dirname][name].size() != ws.size()) {
+        Logger::log().fatal() << "I got " << ws.size() << " pdf shifts, which is not what I expected! (" << hists_[dirname][name].size() << ")" << std::endl; 
+        throw 42;
+    }
 
-    //for(size_t h = 0 ; h < ws.size() ; ++h) {
-    //    hists_[dirname][name][h].fill(xval, yval, weight*ws[h].weights()/ws[0].weights());
-    //}
+    for(size_t h = 0 ; h < ws.size() ; ++h) {
+        hists_[dirname][name][h].fill(xval, yval, weight*ws[h].weights()/ws[0].weights());
+    }
 }

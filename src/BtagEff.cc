@@ -20,14 +20,14 @@ void BtagEff::Init()
 void BtagEff::Fill(Permutation& per, int filltyp, double theweight)
 {
 	bool coin = (gRandom->Uniform() < 0.5);
-	Jets* bjet = 0;
+	Jet* bjet = 0;
 	if(coin)
 	{
-		if(per.BLep()->btagCSVV2() > 0.941) bjet = per.BHad();
+		if(per.BLep()->csvIncl() > 0.941) bjet = per.BHad();
 	}
 	else
 	{
-		if(per.BHad()->btagCSVV2() > 0.941) bjet = per.BLep();
+		if(per.BHad()->csvIncl() > 0.941) bjet = per.BLep();
 	}
 	if(bjet == 0) return;
 	TLorentzVector thad = per.THad();
@@ -36,9 +36,9 @@ void BtagEff::Fill(Permutation& per, int filltyp, double theweight)
 	//if(whad.M() < 60. || whad.M() > 90.) return;
 	//if(thad.M() < 130. || thad.M() > 190.) return;
 
-	jwa[0] = per.WJa()->Px(); jwa[1] = per.WJa()->Py(); jwa[2] = per.WJa()->Pz(); jwa[3] = per.WJa()->E(); jwa[4] = per.WJa()->btagCSVV2();
-	jwb[0] = per.WJb()->Px(); jwb[1] = per.WJb()->Py(); jwb[2] = per.WJb()->Pz(); jwb[3] = per.WJb()->E(); jwb[4] = per.WJb()->btagCSVV2();
-	jb[0] = bjet->Px(); jb[1] = bjet->Py(); jb[2] = bjet->Pz(); jb[3] = bjet->E(); jb[4] = bjet->btagCSVV2();
+	jwa[0] = per.WJa()->Px(); jwa[1] = per.WJa()->Py(); jwa[2] = per.WJa()->Pz(); jwa[3] = per.WJa()->E(); jwa[4] = per.WJa()->csvIncl();
+	jwb[0] = per.WJb()->Px(); jwb[1] = per.WJb()->Py(); jwb[2] = per.WJb()->Pz(); jwb[3] = per.WJb()->E(); jwb[4] = per.WJb()->csvIncl();
+	jb[0] = bjet->Px(); jb[1] = bjet->Py(); jb[2] = bjet->Pz(); jb[3] = bjet->E(); jb[4] = bjet->csvIncl();
 	prob = per.Prob();
 	typ = filltyp;
 	weight = theweight;
