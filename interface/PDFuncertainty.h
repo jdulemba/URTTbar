@@ -26,7 +26,7 @@ private:
   double oldx1_;
   bool use_evt_weights_;
   int nweights_;
-  //void SetupWeights(URStreamer &streamer);
+  void SetupWeights(URStreamer &streamer);
 
 public:
   PDFuncertainty(const std::string setorigname, int memorig, const std::vector<std::string>& setnames); //custom PDF settings

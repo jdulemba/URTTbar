@@ -44,7 +44,7 @@ class Alpha_Corrections {
         double get_1D_corr( std::shared_ptr<TH1> h, double mthad) const;
         double get_2D_corr( std::shared_ptr<TH2> h, double mthad, double mtt) const;
 
-            // create hists of alpha values
+        // create hists of alpha values
         std::shared_ptr<TH2D> THad_E_Mtt_1d_;
         std::shared_ptr<TH2D> THad_E_Mtt_2d_;
         std::shared_ptr<TH2D> THad_P_Mtt_1d_;

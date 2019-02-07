@@ -18,7 +18,6 @@ public:
 		use_weight_ = use_weight;
     std::string sfile = sample+".meta.pu.root";
     pu_sf_.init(sfile);
-    //pu_sf_.init(sfile, "data.meta.pu.root");
     pu_sf_up_.init(sfile, "data.meta.pu_up.root");
     pu_sf_dw_.init(sfile, "data.meta.pu_down.root");
   }  

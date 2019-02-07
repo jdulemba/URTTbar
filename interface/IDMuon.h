@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-class IDMuon : public Muons, public MCMatchable
+class IDMuon : public Muon, public MCMatchable
 {
     private:
         double rho_;
@@ -16,15 +16,15 @@ class IDMuon : public Muons, public MCMatchable
         enum IDS {FAIL, TIGHT_12, LOOSE_12, TIGHT_12Db, LOOSE_12Db, TIGHT_15, LOOSE_15, TIGHT_15Db, LOOSE_15Db, TIGHT_NOISO, ANTILOOSE_15Db};
         static const std::map<std::string, IDS> id_names;
 
-        IDMuon(const Muons mu, double rho=-1);
+        IDMuon(const Muon mu, double rho=-1);
         static IDMuon::IDS id(const std::string label);
         double rho() {return rho_;}
-        double PFIsoDb() const {return pfRelIso04_all()*Pt();}
-        double RelPFIsoDb() const {return pfRelIso04_all();}
+        double PFIsoDb();
+        double RelPFIsoDb() {return PFIsoDb()/Pt();}
         double CorPFIsolation2015();
         bool ID(IDS idtyp);
-        bool isTight() const {return tightId();} // CHECK
-        bool isLoose() const {return softId();} // CHECK
+        bool isTight(); 
+        bool isLoose();
         double etaSC() const {return 0.;} //dummy value just to woek in templates w/ electrons
 };
 

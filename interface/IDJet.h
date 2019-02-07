@@ -10,7 +10,7 @@
 #include "URAnalysis/AnalysisFW/interface/Logger.h"
 #include "URAnalysis/AnalysisFW/interface/BTagCalibrationStandalone.h"
 
-class IDJet : public Jets, public MCMatchable
+class IDJet : public Jet, public MCMatchable
 {
     private:
         double rndm_;
@@ -21,28 +21,29 @@ class IDJet : public Jets, public MCMatchable
             CSVLOOSE, CSVMEDIUM, CSVTIGHT, 
             DEEPCSVLOOSE, DEEPCSVMEDIUM, DEEPCSVTIGHT, 
             CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   
+            DEEPCTAGLOOSE, DEEPCTAGMEDIUM, DEEPCTAGTIGHT,   
             MVALOOSE, MVAMEDIUM, MVATIGHT
         };
-        enum IDType {NOTSET, CSV, CTAG, MVA, DEEPFLAVOUR};
+        enum IDType {NOTSET, CSV, CTAG, MVA, DEEPCSV, DEEPCTAG};
 
         static const std::unordered_map<std::string, IDJet::BTag> tag_names;
         static IDJet::BTag tag(std::string label);
 
-        IDJet(const Jets el, double rndm):
-            Jets(el),
+        IDJet(const Jet el, double rndm):
+            Jet(el),
             MCMatchable(),
             rndm_(rndm),
             uncorr_(el)
-            {
-            }
+    {
+    }
 
-        IDJet(const Jets el):
-            Jets(el),
+        IDJet(const Jet el):
+            Jet(el),
             MCMatchable(),
             rndm_(-1),
             uncorr_(el)
-            {
-            }
+    {
+    }
 
         int flavor() const {return (match()) ? match()->pdgId() : partonFlavour();}
         void update_energy(float val) {SetPtEtaPhiE(val*TMath::Sin(Theta()), Eta(), Phi(), val);}
@@ -63,52 +64,52 @@ class IDJet : public Jets, public MCMatchable
         float DeepCvsLtag() const;
         float DeepCvsBtag() const;
 
-        bool LooseID()	{
+        bool LooseID()  {
             // Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
             //to be filled in new tree version
             if(TMath::Abs(Eta()) <= 2.7) {
-                if(neHEF() >= 0.99){return false;}
-                if(neEmEF() >= 0.99){return false;}
-                //if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
-                if(TMath::Abs(Eta()) < 2.4)	{
-                    if(chHEF() <= 0.){return false;}
-                    //if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
-                    if(chEmEF() >= 0.99){return false;}
+                if(neutralHadronEnergyFraction() >= 0.99){return false;}
+                if(neutralEmEnergyFraction() >= 0.99){return false;}
+                if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;}
+                if(TMath::Abs(Eta()) < 2.4) {
+                    if(chargedHadronEnergyFraction() <= 0.){return false;}
+                    if(chargedMultiplicity() <= 0.){return false;}
+                    if(chargedEmEnergyFraction() >= 0.99){return false;}
                 }
                 return true;
             } else if(TMath::Abs(Eta()) <= 3) {
-                if(neEmEF() <= 0.01) return false;
-                if(neHEF() >= 0.98) return false; 
-                //if(neutralMultiplicity() <= 2) return false; // no multiplicty now
+                if(neutralEmEnergyFraction() <= 0.01) return false;
+                if(neutralHadronEnergyFraction() >= 0.98) return false; 
+                if(neutralMultiplicity() <= 2) return false;
                 return true;
             } else {
-                if(neEmEF() >= .9) return false;
-                //if(neutralMultiplicity() <= 10) return false; // no multiplicty now
+                if(neutralEmEnergyFraction() >= .9) return false;
+                if(neutralMultiplicity() <= 10) return false;
                 return true;
             }
         }
 
-        bool TightID()	{
+        bool TightID()  {
             // Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
             //to be filled in new tree version
             if(TMath::Abs(Eta()) <= 2.7) {
-                if(neHEF() >= 0.90){return false;}
-                if(neEmEF() >= 0.90){return false;}
-                //if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;} // no multiplicty now
-                if(TMath::Abs(Eta()) < 2.4)	{
-                    if(chHEF() <= 0.){return false;}
-                    //if(chargedMultiplicity() <= 0.){return false;} // no multiplicty now
-                    if(chEmEF() >= 0.99){return false;}
+                if(neutralHadronEnergyFraction() >= 0.90){return false;}
+                if(neutralEmEnergyFraction() >= 0.90){return false;}
+                if((chargedMultiplicity()+neutralMultiplicity()) <= 1) {return false;}
+                if(TMath::Abs(Eta()) < 2.4) {
+                    if(chargedHadronEnergyFraction() <= 0.){return false;}
+                    if(chargedMultiplicity() <= 0.){return false;}
+                    if(chargedEmEnergyFraction() >= 0.99){return false;}
                 }
                 return true;
             } else if(TMath::Abs(Eta()) <= 3) {
-                if(neEmEF() <= 0.01) return false;
-                if(neHEF() >= 0.98) return false; 
-                //if(neutralMultiplicity() <= 2) return false; // no multiplicty now
+                if(neutralEmEnergyFraction() <= 0.01) return false;
+                if(neutralHadronEnergyFraction() >= 0.98) return false; 
+                if(neutralMultiplicity() <= 2) return false;
                 return true;
             } else {
-                if(neEmEF() >= .9) return false;
-                //if(neutralMultiplicity() <= 10) return false; // no multiplicty now
+                if(neutralEmEnergyFraction() >= .9) return false;
+                if(neutralMultiplicity() <= 10) return false;
                 return true;
             }
         }

@@ -6,8 +6,6 @@
 #include "Analyses/URTTbar/interface/LHEParticle.h"
 #include <iostream>
 
-using namespace TMath;
-
 class GenObject : public TLorentzVector
 {
     private:
@@ -15,31 +13,26 @@ class GenObject : public TLorentzVector
         int status_;
 
     public:
-        //GenObject(const Genparts& gp) : pdgId_(gp.pdgId()), status_(gp.status())
-        //GenObject(const Genparts& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
-        GenObject(const Genparts& gp) : TLorentzVector(gp), pdgId_(gp.pdgId())
+        GenObject(const Genparticle& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
     {
     }
         /*GenObject(const Pst& gp) : TLorentzVector(gp), pdgId_(gp.pdgId()), status_(gp.status())
           {
           }*/
-        //GenObject(const Genjets& jet) : pdgId_(0), status_(0)
-        GenObject(const Genjets& jet) : TLorentzVector(jet), pdgId_(0)
-        //GenObject(const Genjets& jet) : TLorentzVector(jet), pdgId_(0), status_(0)
+        GenObject(const Genjet& jet) : TLorentzVector(jet), pdgId_(0), status_(0)
     {
     }
         template<class T>
             GenObject(const T& t): 
                 TLorentzVector(t),
-                pdgId_(t.pdgId()) {}
-                //status_(t.status()) {}
-        GenObject() : TLorentzVector(), pdgId_(0)//, status_(0)
-        //GenObject() : TLorentzVector(), pdgId_(0), status_(0)
+                pdgId_(t.pdgId()), 
+                status_(t.status()) {}
+        GenObject() : TLorentzVector(), pdgId_(0), status_(0)
     {
     }
 
         int pdgId() const {return pdgId_;}
-        //int status() const {return status_;}
+        int status() const {return status_;}
 
         friend std::ostream & operator<<(std::ostream &os, const GenObject &obj);
 };
@@ -149,7 +142,7 @@ class GenTTBar: public TLorentzVector {
         //// Joseph added
         bool leadjet_ptmin_in_acceptance(double lead_pt) { // check if any parton has pt > min leading jet pT
             if( had_b()->Pt() > lead_pt || lep_b()->Pt() > lead_pt ||
-                had_W()->first->Pt() > lead_pt || had_W()->second->Pt() > lead_pt ) {return(true);}
+                    had_W()->first->Pt() > lead_pt || had_W()->second->Pt() > lead_pt ) {return(true);}
             return(false);
         }
         bool is_bhad_in_acceptance(double pt, double eta, double lead_pt) { // check if bhad parton falls w/in pt and eta acceptance
