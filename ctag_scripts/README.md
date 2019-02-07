@@ -13,7 +13,7 @@ To get the info:
 echo export jobid=SOME_JOBID_TAG > jobid.sh
 rake getfiles[USER, sample]  ** if user==group then lpcbtag will be checked else a personal eos is used **
 #depending on the number of files, might take a couple of hours
-rake meta_batch
+rake meta_batch   OR  meta_batch[sample]    for individual samples (can only be used for one at a time)
 #depending on the number of files, could take a very long time
 rake getlumi
 ```
@@ -55,8 +55,13 @@ The analysis proceeds in three steps:
 Every new iteration check:
    * Update the lepton SF for Trigger, ID, Isolation
 	 * Update Lepton ID/Isolation working points
-	 * Update CSV file with the BTagging SF
+        *Muons: https://twiki.cern.ch/twiki/bin/view/CMS/MuonPOG
+        *Electrons:
+	 * Update CSV file with the BTagging SF: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation
    * Check that the CSV/cMVA/CTag/Whatever btagging working points did not change defeinition
+   * Check MET Filter recommendations: https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2
+   * Check Triggers: https://twiki.cern.ch/twiki/bin/view/CMS/TopTriggerYear2016 (2017, etc...)
+
 
 These values are found in ctag_eff.cfg [general] section.
 
