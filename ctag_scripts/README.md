@@ -55,7 +55,7 @@ The analysis proceeds in three steps:
 Every new iteration check:
    * Update the lepton SF for Trigger, ID, Isolation
 	 * Update Lepton ID/Isolation working points
-        *Muons: https://twiki.cern.ch/twiki/bin/view/CMS/MuonPOG
+	    * Muons: https://twiki.cern.ch/twiki/bin/view/CMS/MuonPOG
         *Electrons:
 	 * Update CSV file with the BTagging SF: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation
    * Check that the CSV/cMVA/CTag/Whatever btagging working points did not change defeinition
