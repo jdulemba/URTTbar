@@ -21,10 +21,11 @@ class IDJet : public Jet, public MCMatchable
             CSVLOOSE, CSVMEDIUM, CSVTIGHT, 
             DEEPCSVLOOSE, DEEPCSVMEDIUM, DEEPCSVTIGHT, 
             CTAGLOOSE, CTAGMEDIUM, CTAGTIGHT,   
-            DEEPCTAGLOOSE, DEEPCTAGMEDIUM, DEEPCTAGTIGHT,   
+            //DEEPCTAGLOOSE, DEEPCTAGMEDIUM, DEEPCTAGTIGHT,   
             MVALOOSE, MVAMEDIUM, MVATIGHT
         };
-        enum IDType {NOTSET, CSV, CTAG, MVA, DEEPCSV, DEEPCTAG};
+        enum IDType {NOTSET, CSV, CTAG, MVA, DEEPCSV};
+        //enum IDType {NOTSET, CSV, CTAG, MVA, DEEPCSV, DEEPCTAG};
 
         static const std::unordered_map<std::string, IDJet::BTag> tag_names;
         static IDJet::BTag tag(std::string label);
