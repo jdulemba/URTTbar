@@ -1129,7 +1129,7 @@ class ttbar_post_alpha_reco : public AnalyzerBase
 
             //cut on btag
             auto &clean_jets = object_selector_.clean_jets();
-            sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){ return( A->btagCSVV2() > B->btagCSVV2() ); });
+            sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
             if(!clean_jets[0]->BTagId(cut_tight_b_)) return;
             if(!clean_jets[1]->BTagId(cut_loose_b_)) return;
 
@@ -1137,7 +1137,7 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             bool preselection_pass = permutator_.preselection(
                     object_selector_.clean_jets(), object_selector_.lepton(),
                     object_selector_.met(), object_selector_.lepton_charge(),
-                    event.fixedGridRhoFastjetAll, lep_is_tight
+                    event.rho().value(), lep_is_tight
                     );
             tracker_.track("permutation pre-selection done (not applied)");
 
@@ -1195,9 +1195,9 @@ class ttbar_post_alpha_reco : public AnalyzerBase
             while( event.next() )
             {
 
-                if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
 
-                //if(evt_idx_ < 20) Logger::log().debug() << "Beginning event " << evt_idx_ << " eventnumber: " << event.event << endl;
+                //if(evt_idx_ < 20) Logger::log().debug() << "Beginning event " << evt_idx_ << " eventnumber: " << event.evt << endl;
 
                 if(limit > 0 && evt_idx_ > limit) {
                     return;
@@ -1212,7 +1212,7 @@ class ttbar_post_alpha_reco : public AnalyzerBase
                     tracker_.track("gen selection");
                     if(!selection) {
                         Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx_ << endl <<
-                            "run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                            "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                         continue;
                     }
                 }

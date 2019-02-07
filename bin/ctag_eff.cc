@@ -337,9 +337,9 @@ class ctag_eff : public AnalyzerBase
 
         void fill_presel_plots(string folder, URStreamer &event) {
             auto dir = histos_.find(folder);
-            dir->second["nvtx"].fill(event.pv().npvs(), evt_weight_);
-            dir->second["nvtx_noweight"].fill(event.pv().npvs());
-            dir->second["rho"].fill(event.fixedGridRhoFastjetAll, evt_weight_);
+            dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
+            dir->second["nvtx_noweight"].fill(event.vertexs().size());
+            dir->second["rho"].fill(event.rho().value(), evt_weight_);
             dir->second["weight"].fill(evt_weight_);
             dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
             dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
@@ -348,8 +348,8 @@ class ctag_eff : public AnalyzerBase
                 dir->second["jets_eta"].fill(jet->Eta(), evt_weight_);
                 dir->second["jets_DeepCvsL"].fill(jet->DeepCvsLtag(), evt_weight_);
                 dir->second["jets_DeepCvsB"].fill(jet->DeepCvsBtag(), evt_weight_);
-                dir->second["jets_CSV" ].fill(jet->btagCSVV2(), evt_weight_);
-                dir->second["jets_cMVA"].fill(jet->btagCMVA(), evt_weight_);
+                dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
+                dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
 
                 //dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
                 //dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
@@ -433,8 +433,8 @@ class ctag_eff : public AnalyzerBase
             dir->second["Whad_mass"].fill(hyp.WHad().M(), evt_weight_);
             dir->second["Whad_DR"  ].fill(hyp.WJa()->DeltaR(*hyp.WJb()), evt_weight_);
             dir->second["thad_mass"].fill(hyp.THad().M() , evt_weight_);
-            dir->second["WjetCSV"  ].fill(hyp.WJa()->btagCSVV2(), evt_weight_);
-            dir->second["WjetCSV"  ].fill(hyp.WJb()->btagCSVV2(), evt_weight_);
+            dir->second["WjetCSV"  ].fill(hyp.WJa()->csvIncl(), evt_weight_);
+            dir->second["WjetCSV"  ].fill(hyp.WJb()->csvIncl(), evt_weight_);
 
             const IDJet *lb = (hyp.BHad()->Pt() > hyp.BLep()->Pt()) ? hyp.BHad() : hyp.BLep();
             const IDJet *sb = (hyp.BHad()->Pt() > hyp.BLep()->Pt()) ? hyp.BLep() : hyp.BHad();
@@ -485,8 +485,8 @@ class ctag_eff : public AnalyzerBase
             dir->second["Bjets_DeepCvsL"].fill(hyp.BLep()->DeepCvsLtag(), evt_weight_);
             dir->second["Bjets_DeepCvsB"].fill(hyp.BHad()->DeepCvsBtag(), evt_weight_);
             dir->second["Bjets_DeepCvsB"].fill(hyp.BLep()->DeepCvsBtag(), evt_weight_);
-            dir->second["Wjets_CMVA"].fill(hyp.WJa()->btagCMVA(), evt_weight_);
-            dir->second["Wjets_CMVA"].fill(hyp.WJb()->btagCMVA(), evt_weight_);
+            dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
+            dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
             //dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
             //dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
             //dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
@@ -619,7 +619,7 @@ class ctag_eff : public AnalyzerBase
             }
             const IDJet *leading    = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJa() : hyp.WJb();
             const IDJet *subleading = (hyp.WJa()->E() > hyp.WJb()->E()) ? hyp.WJb() : hyp.WJa();
-            // dir->second["csvL_csvS" ].fill(leading->btagCSVV2(), subleading->btagCSVV2(), weight);
+            // dir->second["csvL_csvS" ].fill(leading->csvIncl(), subleading->csvIncl(), weight);
 
             set<IDJet*> hypjets;
             hypjets.insert(hyp.WJa());

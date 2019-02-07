@@ -427,8 +427,8 @@ class permProbComputer : public AnalyzerBase
 
                 plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
 
-                auto b_mM = Minmax(test_perm.BHad()->btagCMVA(), test_perm.BLep()->btagCMVA());
-                auto w_mM = Minmax(test_perm.WJa()->btagCMVA(), test_perm.WJb()->btagCMVA());
+                auto b_mM = Minmax(test_perm.BHad()->CombinedMVA(), test_perm.BLep()->CombinedMVA());
+                auto w_mM = Minmax(test_perm.WJa()->CombinedMVA(), test_perm.WJb()->CombinedMVA());
                 plots[perm_status]["wjets_cMVA"].fill(pow(w_mM.first, 11), pow(w_mM.second, 11), evt_weight_);
                 plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
                 plots[perm_status]["wjets_bcMVA_p11"].fill(pow(w_mM.second, 11), evt_weight_);
@@ -512,22 +512,16 @@ class permProbComputer : public AnalyzerBase
                 if(skip > 0 && evt_idx < skip) {
                     continue;
                 }
-                if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                 tracker_.track("start");		 
-
-                //cout << "before muons" << endl;
-                //auto& evt_muons = event.muons();
-                //cout << "after muons" << endl;
 
                 //long and time consuming
                 if(isTTbar_){
-                    cout << "before genp" << endl;
                     bool selection = 	genp_selector_.select(event);			
-                    cout << "after genp" << endl;
                     tracker_.track("gen selection");        
                     if(!selection) {
                         Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<
-                            "run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                            "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                         continue;
                     }
                 }

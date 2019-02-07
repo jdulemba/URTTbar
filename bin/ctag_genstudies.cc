@@ -196,7 +196,7 @@ class ctag_genstudies : public AnalyzerBase
                     tracker_.track("gen selection");        
                     if(!selection) {
                         Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << event_idx << endl <<
-                            "run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                            "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                         continue;
                     }
                 }

@@ -175,9 +175,9 @@ class topspin_reco : public AnalyzerBase
                 Logger::log().error() << "could not find: " << folder << endl;
                 throw 42;
             }
-            dir->second["nvtx"].fill(event.pv().npvs(), evt_weight_);
-            dir->second["nvtx_noweight"].fill(event.pv().npvs());
-            dir->second["rho"].fill(event.fixedGridRhoFastjetAll, evt_weight_);
+            dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
+            dir->second["nvtx_noweight"].fill(event.vertexs().size());
+            dir->second["rho"].fill(event.rho().value(), evt_weight_);
             dir->second["weight"].fill(evt_weight_);
             dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
             dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);

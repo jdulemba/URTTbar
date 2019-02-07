@@ -471,7 +471,7 @@ class ttbar_bestperm_solutions : public AnalyzerBase
             for( auto jet : object_selector_.clean_jets() ){
                 jets_vector.push_back(jet);
             }
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->btagCSVV2() > B->btagCSVV2() ); });
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); });
 
             tracker_.track("All Num BTag");
 

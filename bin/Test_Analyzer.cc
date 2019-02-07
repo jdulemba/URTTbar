@@ -574,7 +574,7 @@ class Test_Analyzer : public AnalyzerBase
 //		
 //				for( vector<Muon>::const_iterator muon = muons.begin(); muon != muons.end(); ++muon ){
 //		
-//					IDMuon mu(*muon, event.fixedGridRhoFastjetAll);
+//					IDMuon mu(*muon, event.rho().value());
 //					if( mu.DeltaR(*lepton) > 0.4 ) continue; //cut on DR cone of 0.4
 //					if( Abs(lepton->Pt() - mu.Pt())/mu.Pt() > 0.2*Abs(lepton->Pt() - mu.Pt()) ) continue;//Rel DPt < 20% of DPt
 //					if( mu.DeltaR(*lepton) < dr ){

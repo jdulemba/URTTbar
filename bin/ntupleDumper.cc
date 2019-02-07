@@ -69,9 +69,9 @@ class ntupleDumper : public AnalyzerBase
             Logger::log().debug() << "-- DONE -- reporting every -- " << report << endl;
             while(event.next()) {
                 if(picker.active()) {
-                    if(picker.contains(event.run, event.luminosityBlock, event.event)) {
-                        Logger::log().debug() << "Picking event " << " run: " << event.run << " luminosityBlocksection: " << 
-                            event.luminosityBlock << " eventnumber: " << event.event << endl;
+                    if(picker.contains(event.run, event.lumi, event.evt)) {
+                        Logger::log().debug() << "Picking event " << " run: " << event.run << " lumisection: " << 
+                            event.lumi << " eventnumber: " << event.evt << endl;
                     }
                     else continue;
                 }
@@ -83,45 +83,45 @@ class ntupleDumper : public AnalyzerBase
                     continue;
                 }
                 bool mc = (event.run == 1);
-                cout << "***** Event "<<event.run<<":"<<event.luminosityBlock<<":"<<event.event<<" *****"<< endl << endl;
+                cout << "***** Event "<<event.run<<":"<<event.lumi<<":"<<event.evt<<" *****"<< endl << endl;
                 cout << "Trigger: " << endl;
-                cout << "  HLT_Ele32_WPTight_Gsf: " << event.hlt().Ele32_WPTight_Gsf() << endl; 
-                //cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.hlt().Ele32_eta2p1_WPTight_Gsf() << endl; 
-                cout << "  HLT_IsoMu24: " << event.hlt().IsoMu24() << endl; 
-                //cout << "  HLT_IsoTkMu24: " <<  event.hlt().IsoTkMu24() << endl;
+                //cout << "  HLT_Ele32_WPTight_Gsf: " << event.hlt().Ele32_WPTight_Gsf() << endl; 
+                cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << endl; 
+                cout << "  HLT_IsoMu24: " << event.trigger().HLT_IsoMu24() << endl; 
+                cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
                 cout << endl;
 
                 cout << "Event Filters: " << endl;
-                cout << "  Flag_HBHENoiseFilter: " <<                     event.flag().HBHENoiseFilter() << endl;
-                cout << "  Flag_HBHENoiseIsoFilter: " <<                  event.flag().HBHENoiseIsoFilter() << endl; 								 
-                cout << "  Flag_EcalDeadCellTriggerPrimitiveFilter: " <<  event.flag().EcalDeadCellTriggerPrimitiveFilter() << endl;	 
-                cout << "  Flag_goodVertices: " << 						  event.flag().goodVertices() << endl;												 
-                cout << "  Flag_eeBadScFilter: " << 					  event.flag().eeBadScFilter() << endl;											 
-                cout << "  Flag_globalTightHalo2016Filter: " << 		  event.flag().globalTightHalo2016Filter() << endl;					 
-                cout << "  Flag_BadPFMuon: " << 						  event.flag().BadPFMuonFilter() << endl;													 
-                cout << "  Flag_BadChargedCandidate: " << 	              event.flag().BadChargedCandidateFilter() << endl;	                
+                cout << "  Flag_HBHENoiseFilter: " <<                     event.filter().Flag_HBHENoiseFilter() << endl;
+                cout << "  Flag_HBHENoiseIsoFilter: " <<                  event.filter().Flag_HBHENoiseIsoFilter() << endl; 								 
+                cout << "  Flag_EcalDeadCellTriggerPrimitiveFilter: " <<  event.filter().Flag_EcalDeadCellTriggerPrimitiveFilter() << endl;	 
+                cout << "  Flag_goodVertices: " << 						  event.filter().Flag_goodVertices() << endl;												 
+                cout << "  Flag_eeBadScFilter: " << 					  event.filter().Flag_eeBadScFilter() << endl;											 
+                cout << "  Flag_globalTightHalo2016Filter: " << 		  event.filter().Flag_globalTightHalo2016Filter() << endl;					 
+                cout << "  Flag_BadPFMuon: " << 						  event.filter().Flag_BadPFMuonFilter() << endl;													 
+                cout << "  Flag_BadChargedCandidate: " << 	              event.filter().Flag_BadChargedCandidate() << endl;	                
                 cout << endl;
 
 
                 cout << "PVs:" << endl;
-                auto vtxs = event.pv();
-                int nvtx = vtxs.npvs();
-                float x = (nvtx) ? vtxs.x() : -999;
-                float y = (nvtx) ? vtxs.y() : -999;
-                float z = (nvtx) ? vtxs.z() : -999;
+                auto vtxs = event.vertexs();
+                int nvtx = vtxs.size();
+                float x = (nvtx) ? vtxs[0].x() : -999;
+                float y = (nvtx) ? vtxs[0].y() : -999;
+                float z = (nvtx) ? vtxs[0].z() : -999;
                 cout << "#: " << nvtx << ", FIRST x: " << x << ", y: " << y << ", z: " << z << endl;
                 cout << endl;
 
                 cout << "Electrons:" << endl;
                 auto& els = event.electrons();
-                double rho = event.fixedGridRhoFastjetAll;
+                double rho = event.rho().value();
                 for(size_t i=0; i<els.size(); i++) {
                     IDElectron el(els[i], rho);
                     cout <<" #" << i+1 << endl;
                     cout <<"  Momentum (pt, eta, phi): " << el.Pt() << ", " << el.Eta() << ", " << el.Phi() << endl;
                     cout <<"  Isolation: "<< el.PFIsolationRho2015()/el.Pt() <<", eta_SC: "<< el.etaSC() << endl;
                     cout <<"  dxy: " << el.dxy() << ", dz: " << el.dz() << endl;
-                    cout <<"  Pass cut-based ID (veto to tight): " << el.VetoID25ns() <<", " << el.LooseID25ns()<<", "<< el.MediumID25ns() <<", " <<el.TightID25ns()<<endl;
+                    cout <<"  Pass cut-based ID (veto to tight): " << el.eidCutVeto() <<", " << el.LooseID25ns()<<", "<< el.MediumID25ns() <<", " <<el.TightID25ns()<<endl;
                     cout <<"  Triggering MVA ID (80%, 90%): " << "--"<< endl;
                     cout <<"  Pass trigger-emulating preselection: " << endl;
                 }
@@ -141,29 +141,26 @@ class ntupleDumper : public AnalyzerBase
                 for(size_t i=0; i<jets.size(); i++) {
                     IDJet jet(jets[i]);
                     cout <<" #" << i+1 << endl;
-                    //cout <<"  Raw momentum (pt, eta, phi, m): " << jet.uncorrPt() << ", " << jet.uncorrEta() << ", " << jet.uncorrPhi() <<", "<<jet.uncorrM() << endl;
-                    //double pt = (mc) ? jet.Pt()*jet.JER() : jet.Pt();
-                    double pt = jet.Pt();
-                    cout <<"  Fully corrected pt: " << pt << ", JES: " << 1./(1.-jet.rawFactor()) << endl;
-                    //cout <<"  Fully corrected pt: " << pt << " JER: " << jet.JER() << " JES: " << jet.Pt()/jet.uncorrPt() << endl;
-                    //if(mc) {
-                    //    double jerup = Abs(jet.JERUp()-jet.JER());
-                    //    double jerdw = Abs(jet.JERDown()-jet.JER());
-                    //    double max_unc = (jerup > jerdw) ? jerup : jerdw;
-                    //    cout <<"  JEC uncertainty: "<< jet.JESUnc() << ", JER uncertainty: " << max_unc << endl;
-                    //}
+                    cout <<"  Raw momentum (pt, eta, phi, m): " << jet.uncorrPt() << ", " << jet.uncorrEta() << ", " << jet.uncorrPhi() <<", "<<jet.uncorrM() << endl;
+                    double pt = (mc) ? jet.Pt()*jet.JER() : jet.Pt();
+                    cout <<"  Fully corrected pt: " << pt << " JER: " << jet.JER() << " JES: " << jet.Pt()/jet.uncorrPt() << endl;
+                    if(mc) {
+                        double jerup = Abs(jet.JERUp()-jet.JER());
+                        double jerdw = Abs(jet.JERDown()-jet.JER());
+                        double max_unc = (jerup > jerdw) ? jerup : jerdw;
+                        cout <<"  JEC uncertainty: "<< jet.JESUnc() << ", JER uncertainty: " << max_unc << endl;
+                    }
                     cout <<"  Pass jet ID: " << jet.LooseID() << endl;
-                    cout <<"  CSV: "<< jet.btagCSVV2()<<", cMVA: "<< jet.btagCMVA() << endl;
+                    cout <<"  CSV: "<< jet.csvIncl()<<", cMVA: "<< jet.combinedMVA() << endl;
                     cout <<"  cDeepCvsL: "<< jet.DeepCvsLtag()<<", cDeepCvsB: "<< jet.DeepCvsBtag() << endl;
                 }
                 cout << endl;
                 cout << "MET:" << endl;
-                auto& mets = event.met();
-                IDMet met(mets);
+                auto& mets = event.METs();
+                IDMet met(mets[0]);
                 cout << " Raw MET (pt, phi): --, --" << endl;
                 cout << " Corrected MET (pt, phi): " << met.Pt() <<", "<< met.Phi() << endl;
-                //cout << " Smeared MET pt: " << sqrt( pow(met.pxsmear(), 2) + pow(met.pysmear(), 2) ) << endl;
-                cout << " Smeared MET pt: " << sqrt( pow(met.MetUnclustEnUpDeltaX(), 2) + pow(met.MetUnclustEnUpDeltaY(), 2) ) << endl;
+                cout << " Smeared MET pt: " << sqrt( pow(met.pxsmear(), 2) + pow(met.pysmear(), 2) ) << endl;
                 cout << endl << endl;
             }  //while(event.next())
         }

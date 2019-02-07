@@ -438,8 +438,8 @@ class htt_simple : public AnalyzerBase
         double btag_discval( const IDJet* jet){
 
             double btag_discval = -1000;
-            if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV) btag_discval = jet->btagCSVV2();
-            else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA) btag_discval = jet->btagCMVA();
+            if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV) btag_discval = jet->csvIncl();
+            else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA) btag_discval = jet->combinedMVA();
             //else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPCSV) btag_discval = jet->DeepCSVProbB() + jet->DeepCSVProbBB();
             else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
                 Logger::log().error() << "BTag working point not valid!" << endl;
@@ -456,9 +456,9 @@ class htt_simple : public AnalyzerBase
                 throw 40;
             }
 
-            dir->second["nvtx"].fill(event.pv().npvs(), evt_weight_);
-            dir->second["nvtx_noweight"].fill(event.pv().npvs());
-            dir->second["rho"].fill(event.fixedGridRhoFastjetAll, evt_weight_);
+            dir->second["nvtx"].fill(event.vertexs().size(), evt_weight_);
+            dir->second["nvtx_noweight"].fill(event.vertexs().size());
+            dir->second["rho"].fill(event.rho().value(), evt_weight_);
             dir->second["weight"].fill(evt_weight_);
             dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
             dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
@@ -483,19 +483,18 @@ class htt_simple : public AnalyzerBase
             dir->second["lead_jet_pt" ].fill(max_pt , evt_weight_);
             dir->second["lead_jet_eta"].fill(max_eta, evt_weight_);
 
-            dir->second["MET"   ].fill(object_selector_.met()->sumEt() , evt_weight_);
+            dir->second["MET"   ].fill(object_selector_.met()->Et() , evt_weight_);
             dir->second["METPhi"].fill(object_selector_.met()->Phi(), evt_weight_);
-            //double mt = MT(object_selector_.lepton());
             double mt = MT(object_selector_.lepton(), object_selector_.met());
             dir->second["MT"].fill(mt, evt_weight_);
             dir->second["max_jets_"+btag_str_id_].fill(max_btagval, evt_weight_);
 
             auto &clean_jets = object_selector_.clean_jets();
            if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCMVA() > B->btagCMVA());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->combinedMVA() > B->combinedMVA());});
             }
             else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
@@ -873,7 +872,6 @@ class htt_simple : public AnalyzerBase
             }
 
             // check MT
-            //double mt = MT(object_selector_.lepton());
             double mt = MT(object_selector_.lepton(), object_selector_.met());
             bool mt_high = true;
             if( mt < 50. ) mt_high = false;
@@ -903,10 +901,10 @@ class htt_simple : public AnalyzerBase
             // btag regions
             auto &clean_jets = object_selector_.clean_jets();
             if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCSVV2() > B->btagCSVV2());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->btagCMVA() > B->btagCMVA());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->combinedMVA() > B->combinedMVA());});
             }
             else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
@@ -940,13 +938,13 @@ class htt_simple : public AnalyzerBase
                         object_selector_.clean_jets(), object_selector_.lepton(), 
                         object_selector_.met(), object_selector_.lepton_charge(),
                         //lep_is_tight) ) return;
-                        event.fixedGridRhoFastjetAll, lep_is_tight
+                        event.rho().value(), lep_is_tight
             );
             //if( !permutator_.preselection(
             //            object_selector_.clean_jets(), object_selector_.lepton(), 
             //            object_selector_.met(), object_selector_.lepton_charge(),
             //            //lep_is_tight) ) return;
-            //            event.fixedGridRhoFastjetAll, lep_is_tight
+            //            event.rho().value(), lep_is_tight
             //            )
             //) return;
             //if(lep_is_tight) tracker_.track("perm preselection");
@@ -983,8 +981,8 @@ class htt_simple : public AnalyzerBase
                 if(sync_) {
                     if(lep_is_tight) {
                         sync_info_.Run  = event.run;
-                        sync_info_.LumiSection = event.luminosityBlock;
-                        sync_info_.Event= event.event;
+                        sync_info_.LumiSection = event.lumi;
+                        sync_info_.Event= event.evt;
                         sync_info_.hasMuon = (object_selector_.lepton_type() == -1) ? 0 : 1;
                         sync_info_.RecoSuccess = reco_success_3J;
                         if(reco_success_3J){
@@ -1113,8 +1111,8 @@ class htt_simple : public AnalyzerBase
             if(sync_) {
                 if(lep_is_tight) {
                     sync_info_.Run  = event.run;
-                    sync_info_.LumiSection = event.luminosityBlock;
-                    sync_info_.Event= event.event;
+                    sync_info_.LumiSection = event.lumi;
+                    sync_info_.Event= event.evt;
                     sync_info_.hasMuon = (object_selector_.lepton_type() == -1) ? 0 : 1;
                     sync_info_.RecoSuccess = reco_success;
                     if(reco_success)
@@ -1219,8 +1217,8 @@ class htt_simple : public AnalyzerBase
             {
 
                 if(picker.active()){
-                    if(picker.contains(event.run, event.luminosityBlock, event.event)) {
-                        Logger::log().fatal() << "Picking event " << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                    if(picker.contains(event.run, event.lumi, event.evt)) {
+                        Logger::log().fatal() << "Picking event " << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                     }
                     else continue;
                 }
@@ -1229,7 +1227,7 @@ class htt_simple : public AnalyzerBase
                     continue;
                 }
                 evt_idx_--;
-                if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                if(evt_idx_ % report == 0) Logger::log().debug() << "Beginning event " << evt_idx_ << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                 if(limit > 0 && evt_idx_ > limit) {
                     return;
                 }

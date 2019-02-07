@@ -57,7 +57,7 @@ public:
 			if(limit > 0 && event_idx_ > limit) return;
 			event_idx_++;
 			if(skip > 0 && event_idx_ < skip) continue;
-			if(event_idx_ % report == 0) Logger::log().debug() << "Beginning event " << event_idx_ << " -- " << event.run<<":"<<event.luminosityBlock<<":"<<event.event <<endl;
+			if(event_idx_ % report == 0) Logger::log().debug() << "Beginning event " << event_idx_ << " -- " << event.run<<":"<<event.lumi<<":"<<event.evt <<endl;
 			/*
 
 				DO YOUR ANALYSIS HERE!

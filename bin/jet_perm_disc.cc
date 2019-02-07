@@ -709,7 +709,7 @@ class jet_perm_disc : public AnalyzerBase
                 if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
             }
 
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->btagCMVA() > B->btagCMVA() ); });
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->CombinedMVA() > B->CombinedMVA() ); });
 
             if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
 
@@ -727,9 +727,9 @@ class jet_perm_disc : public AnalyzerBase
             test_dir->second["3J_wj1_Mass"].fill( wj1->M() );
 
             // MVA
-            test_dir->second["3J_bj1_MVA"].fill( bj1->btagCMVA() );
-            test_dir->second["3J_bj2_MVA"].fill( bj2->btagCMVA() );
-            test_dir->second["3J_wj1_MVA"].fill( wj1->btagCMVA() );
+            test_dir->second["3J_bj1_MVA"].fill( bj1->CombinedMVA() );
+            test_dir->second["3J_bj2_MVA"].fill( bj2->CombinedMVA() );
+            test_dir->second["3J_wj1_MVA"].fill( wj1->CombinedMVA() );
 
             // DeepCvsL
             test_dir->second["3J_bj1_DeepCvsL"].fill( bj1->DeepCvsLtag() );
@@ -737,9 +737,9 @@ class jet_perm_disc : public AnalyzerBase
             test_dir->second["3J_wj1_DeepCvsL"].fill( wj1->DeepCvsLtag() );
 
             //Mult 
-            test_dir->second["3J_bj1_Mult"].fill( bj1->nConstituents() );
-            test_dir->second["3J_bj2_Mult"].fill( bj2->nConstituents() );
-            test_dir->second["3J_wj1_Mult"].fill( wj1->nConstituents() );
+            test_dir->second["3J_bj1_Mult"].fill( bj1->numberOfDaughters() );
+            test_dir->second["3J_bj2_Mult"].fill( bj2->numberOfDaughters() );
+            test_dir->second["3J_wj1_Mult"].fill( wj1->numberOfDaughters() );
 
 
 
@@ -846,9 +846,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_LCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                    best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                    best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                     best_dir->second["3J_BHadWJet_Mass_WRONG_LCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                     best_dir->second["3J_BLepWJet_Mass_WRONG_LCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -868,9 +868,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_WRONG_LCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_WRONG_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_WRONG_LCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                    best_dir->second["3J_BLep_Mult_WRONG_LCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_WRONG_LCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_WRONG_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                    best_dir->second["3J_BLep_Mult_WRONG_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_WRONG_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
                 }
 
                 else{
@@ -892,9 +892,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_WRONG_GCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_WRONG_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_WRONG_GCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                    best_dir->second["3J_BLep_Mult_WRONG_GCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_WRONG_GCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_WRONG_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                    best_dir->second["3J_BLep_Mult_WRONG_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_WRONG_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
                 }
 
                 permutator_.reset_3J();
@@ -936,9 +936,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_LCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                    best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                    best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                     best_dir->second["3J_BHadWJet_Mass_WRONG_LCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                     best_dir->second["3J_BLepWJet_Mass_WRONG_LCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -958,9 +958,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_WRONG_LCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_WRONG_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_WRONG_LCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                    best_dir->second["3J_BLep_Mult_WRONG_LCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_WRONG_LCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_WRONG_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                    best_dir->second["3J_BLep_Mult_WRONG_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_WRONG_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
                 }
 
                 else{
@@ -982,9 +982,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_GCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                    best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                    best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                     best_dir->second["3J_BHadWJet_Mass_WRONG_GCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                     best_dir->second["3J_BLepWJet_Mass_WRONG_GCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1004,9 +1004,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_WRONG_GCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_WRONG_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_WRONG_GCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                    best_dir->second["3J_BLep_Mult_WRONG_GCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_WRONG_GCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_WRONG_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                    best_dir->second["3J_BLep_Mult_WRONG_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_WRONG_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
                 }
 
                 permutator_.reset_3J();
@@ -1043,9 +1043,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_LCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                        best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                        best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                         best_dir->second["3J_BHadWJet_Mass_RIGHT_LCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                         best_dir->second["3J_BLepWJet_Mass_RIGHT_LCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1065,9 +1065,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_RIGHT_LCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_RIGHT_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_RIGHT_LCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                        best_dir->second["3J_BLep_Mult_RIGHT_LCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_RIGHT_LCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_RIGHT_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                        best_dir->second["3J_BLep_Mult_RIGHT_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_RIGHT_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
                     }
 
                     else{
@@ -1089,9 +1089,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_GCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                        best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                        best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                         best_dir->second["3J_BHadWJet_Mass_RIGHT_GCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                         best_dir->second["3J_BLepWJet_Mass_RIGHT_GCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1111,9 +1111,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_RIGHT_GCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_RIGHT_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_RIGHT_GCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                        best_dir->second["3J_BLep_Mult_RIGHT_GCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_RIGHT_GCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_RIGHT_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                        best_dir->second["3J_BLep_Mult_RIGHT_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_RIGHT_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
                     }
 
                 }
@@ -1144,9 +1144,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_LCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                        best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                        best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                         best_dir->second["3J_BHadWJet_Mass_MERGE_SWAP_LCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                         best_dir->second["3J_BLepWJet_Mass_MERGE_SWAP_LCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1166,9 +1166,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_MERGE_SWAP_LCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_MERGE_SWAP_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_MERGE_SWAP_LCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                        best_dir->second["3J_BLep_Mult_MERGE_SWAP_LCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_MERGE_SWAP_LCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_MERGE_SWAP_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                        best_dir->second["3J_BLep_Mult_MERGE_SWAP_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_MERGE_SWAP_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
                     }
 
                     else{
@@ -1190,9 +1190,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_GCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                        best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                        best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                         best_dir->second["3J_BHadWJet_Mass_MERGE_SWAP_GCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                         best_dir->second["3J_BLepWJet_Mass_MERGE_SWAP_GCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1212,9 +1212,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_MERGE_SWAP_GCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_MERGE_SWAP_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_MERGE_SWAP_GCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                        best_dir->second["3J_BLep_Mult_MERGE_SWAP_GCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_MERGE_SWAP_GCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_MERGE_SWAP_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                        best_dir->second["3J_BLep_Mult_MERGE_SWAP_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_MERGE_SWAP_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
                     }
 
                 }
@@ -1245,9 +1245,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_LCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                        best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                        best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                         best_dir->second["3J_BHadWJet_Mass_MERGE_LCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                         best_dir->second["3J_BLepWJet_Mass_MERGE_LCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1267,9 +1267,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_MERGE_LCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_MERGE_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_MERGE_LCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                        best_dir->second["3J_BLep_Mult_MERGE_LCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_MERGE_LCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_MERGE_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                        best_dir->second["3J_BLep_Mult_MERGE_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_MERGE_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
                     }
 
                     else{
@@ -1291,9 +1291,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_GCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                        best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                        best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                         best_dir->second["3J_BHadWJet_Mass_MERGE_GCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                         best_dir->second["3J_BLepWJet_Mass_MERGE_GCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1313,9 +1313,9 @@ class jet_perm_disc : public AnalyzerBase
                         best_dir->second["3J_BLep_Costh_MERGE_GCut"].fill( best_perm.BLep()->CosTheta() );
                         best_dir->second["3J_WJet_Costh_MERGE_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                        best_dir->second["3J_BHad_Mult_MERGE_GCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                        best_dir->second["3J_BLep_Mult_MERGE_GCut"].fill( best_perm.BLep()->nConstituents() );
-                        best_dir->second["3J_WJet_Mult_MERGE_GCut"].fill( best_perm.WJa()->nConstituents() );
+                        best_dir->second["3J_BHad_Mult_MERGE_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                        best_dir->second["3J_BLep_Mult_MERGE_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                        best_dir->second["3J_WJet_Mult_MERGE_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
                     }
 
                 }
@@ -1346,9 +1346,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_LCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                    best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                    best_dir->second["3J_BLep_Mult_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                     best_dir->second["3J_BHadWJet_Mass_WRONG_LCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                     best_dir->second["3J_BLepWJet_Mass_WRONG_LCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1368,9 +1368,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_WRONG_LCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_WRONG_LCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_WRONG_LCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                    best_dir->second["3J_BLep_Mult_WRONG_LCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_WRONG_LCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_WRONG_LCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                    best_dir->second["3J_BLep_Mult_WRONG_LCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_WRONG_LCut"].fill( best_perm.WJa()->numberOfDaughters() );
                 }
 
                 else{
@@ -1392,9 +1392,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_GCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->nConstituents() ); // Mult
-                    best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); // Mult
+                    best_dir->second["3J_BLep_Mult_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
 
                     best_dir->second["3J_BHadWJet_Mass_WRONG_GCut"].fill( (*best_perm.BHad()+*best_perm.WJa()).M() ); //mass
                     best_dir->second["3J_BLepWJet_Mass_WRONG_GCut"].fill( (*best_perm.BLep()+*best_perm.WJa()).M() );
@@ -1414,9 +1414,9 @@ class jet_perm_disc : public AnalyzerBase
                     best_dir->second["3J_BLep_Costh_WRONG_GCut"].fill( best_perm.BLep()->CosTheta() );
                     best_dir->second["3J_WJet_Costh_WRONG_GCut"].fill( best_perm.WJa()->CosTheta() );
 
-                    best_dir->second["3J_BHad_Mult_WRONG_GCut"].fill( best_perm.BHad()->nConstituents() ); //mult
-                    best_dir->second["3J_BLep_Mult_WRONG_GCut"].fill( best_perm.BLep()->nConstituents() );
-                    best_dir->second["3J_WJet_Mult_WRONG_GCut"].fill( best_perm.WJa()->nConstituents() );
+                    best_dir->second["3J_BHad_Mult_WRONG_GCut"].fill( best_perm.BHad()->numberOfDaughters() ); //mult
+                    best_dir->second["3J_BLep_Mult_WRONG_GCut"].fill( best_perm.BLep()->numberOfDaughters() );
+                    best_dir->second["3J_WJet_Mult_WRONG_GCut"].fill( best_perm.WJa()->numberOfDaughters() );
                 }
 
             } 
@@ -1679,9 +1679,9 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
-                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
+                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
 
                 tracker_.track("Merged 3J category");
             }
@@ -1692,9 +1692,9 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJb()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
-                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->btagCMVA() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJb()->DeepCvsLtag() ); // jet DeepCvsL
-                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->nConstituents() ); // jet mult
+                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->numberOfDaughters() ); // jet mult
 
                 tracker_.track("Merged 3J category");
             }
@@ -1705,9 +1705,9 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
-                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
+                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
 
                 tracker_.track("Merged 3J category");
             }
@@ -1718,9 +1718,9 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
-                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
+                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
 
                 tracker_.track("Merged 3J category");
             }
@@ -1731,9 +1731,9 @@ class jet_perm_disc : public AnalyzerBase
                 merged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJb()).M() );
 
                 merged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
-                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->btagCMVA() ); // jet csv
+                merged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->CombinedMVA() ); // jet csv
                 merged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJb()->DeepCvsLtag() ); // jet DeepCvsL
-                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->nConstituents() ); // jet mult
+                merged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->numberOfDaughters() ); // jet mult
 
                 tracker_.track("Merged 3J category");
             }
@@ -1741,15 +1741,15 @@ class jet_perm_disc : public AnalyzerBase
 
             // BHad plots        
             merged_dir->second["3J_BHad_Mass"].fill( hyp.BHad()->M() );
-            merged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->btagCMVA() );
+            merged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->CombinedMVA() );
             merged_dir->second["3J_BHad_DeepCvsL"].fill( hyp.BHad()->DeepCvsLtag() );
-            merged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->nConstituents() );
+            merged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->numberOfDaughters() );
 
             // BLep plots        
             merged_dir->second["3J_BLep_Mass"].fill( hyp.BLep()->M() );
-            merged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->btagCMVA() );
+            merged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->CombinedMVA() );
             merged_dir->second["3J_BLep_DeepCvsL"].fill( hyp.BLep()->DeepCvsLtag() );
-            merged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->nConstituents() );
+            merged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->numberOfDaughters() );
 
 
         } // end of merged_3J_evt
@@ -1775,9 +1775,9 @@ class jet_perm_disc : public AnalyzerBase
                 unmerged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJa()).M() );
 
                 unmerged_dir->second["3J_WJet_Mass"].fill( hyp.WJa()->M() ); // jet mass
-                unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->btagCMVA() ); // jet csv
+                unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJa()->CombinedMVA() ); // jet csv
                 unmerged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJa()->DeepCvsLtag() ); // jet DeepCvsL
-                unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->nConstituents() ); // jet mult
+                unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJa()->numberOfDaughters() ); // jet mult
             }
 
             if( hyp.WJb() ){
@@ -1786,22 +1786,22 @@ class jet_perm_disc : public AnalyzerBase
                 unmerged_dir->second["3J_BLepWJet_Mass"].fill( (*hyp.BLep()+*hyp.WJb()).M() );
 
                 unmerged_dir->second["3J_WJet_Mass"].fill( hyp.WJb()->M() ); // jet mass
-                unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->btagCMVA() ); // jet csv
+                unmerged_dir->second["3J_WJet_MVA"].fill( hyp.WJb()->CombinedMVA() ); // jet csv
                 unmerged_dir->second["3J_WJet_DeepCvsL"].fill( hyp.WJb()->DeepCvsLtag() ); // jet DeepCvsL
-                unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->nConstituents() ); // jet mult
+                unmerged_dir->second["3J_WJet_Mult"].fill( hyp.WJb()->numberOfDaughters() ); // jet mult
             }
 
             // BHad plots        
             unmerged_dir->second["3J_BHad_Mass"].fill( hyp.BHad()->M() );
-            unmerged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->btagCMVA() );
+            unmerged_dir->second["3J_BHad_MVA"].fill( hyp.BHad()->CombinedMVA() );
             unmerged_dir->second["3J_BHad_DeepCvsL"].fill( hyp.BHad()->DeepCvsLtag() );
-            unmerged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->nConstituents() );
+            unmerged_dir->second["3J_BHad_Mult"].fill( hyp.BHad()->numberOfDaughters() );
 
             // BLep plots        
             unmerged_dir->second["3J_BLep_Mass"].fill( hyp.BLep()->M() );
-            unmerged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->btagCMVA() );
+            unmerged_dir->second["3J_BLep_MVA"].fill( hyp.BLep()->CombinedMVA() );
             unmerged_dir->second["3J_BLep_DeepCvsL"].fill( hyp.BLep()->DeepCvsLtag() );
-            unmerged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->nConstituents() );
+            unmerged_dir->second["3J_BLep_Mult"].fill( hyp.BLep()->numberOfDaughters() );
 
         } // end of unmerged_3J_evts
 

@@ -469,7 +469,7 @@ class jet_perm_disc : public AnalyzerBase
                 if( (*jets)->BTagId(cut_medium_b_) ) ++num_btag;
             }
 
-            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->btagCSVV2() > B->btagCSVV2() ); }); // CSVv2 btagger
+            sort(jets_vector.begin(), jets_vector.end(), [](IDJet* A, IDJet* B){ return( A->csvIncl() > B->csvIncl() ); }); // CSVv2 btagger
 
             if( num_btag < 2 ) return empty_perm; // require at least 2 b-tagged jets
 
@@ -488,9 +488,9 @@ class jet_perm_disc : public AnalyzerBase
 //            test_dir->second["3J_wj1_Mass"].fill( wj1->M() );
 //
 //            // MVA
-//            test_dir->second["3J_bj1_MVA"].fill( bj1->btagCMVA() );
-//            test_dir->second["3J_bj2_MVA"].fill( bj2->btagCMVA() );
-//            test_dir->second["3J_wj1_MVA"].fill( wj1->btagCMVA() );
+//            test_dir->second["3J_bj1_MVA"].fill( bj1->CombinedMVA() );
+//            test_dir->second["3J_bj2_MVA"].fill( bj2->CombinedMVA() );
+//            test_dir->second["3J_wj1_MVA"].fill( wj1->CombinedMVA() );
 //
 //            // DeepCvsL
 //            test_dir->second["3J_bj1_DeepCvsL"].fill( bj1->DeepCvsLtag() );
@@ -498,9 +498,9 @@ class jet_perm_disc : public AnalyzerBase
 //            test_dir->second["3J_wj1_DeepCvsL"].fill( wj1->DeepCvsLtag() );
 //
 //            //Mult 
-//            test_dir->second["3J_bj1_Mult"].fill( bj1->nConstituents() );
-//            test_dir->second["3J_bj2_Mult"].fill( bj2->nConstituents() );
-//            test_dir->second["3J_wj1_Mult"].fill( wj1->nConstituents() );
+//            test_dir->second["3J_bj1_Mult"].fill( bj1->numberOfDaughters() );
+//            test_dir->second["3J_bj2_Mult"].fill( bj2->numberOfDaughters() );
+//            test_dir->second["3J_wj1_Mult"].fill( wj1->numberOfDaughters() );
 //
 //
 //

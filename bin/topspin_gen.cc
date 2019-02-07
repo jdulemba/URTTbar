@@ -100,9 +100,8 @@ class topspin_gen : public AnalyzerBase
             else genp_selector_.setmode(TTGenParticleSelector::SelMode::LHE);
         } else {
             Logger::log().info() << "Using normal matching" << endl;
-            //if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::FULLDEP);
-            //else genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
-            genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
+            if(isSignal_) genp_selector_.setmode(TTGenParticleSelector::SelMode::FULLDEP);
+            else genp_selector_.setmode(TTGenParticleSelector::SelMode::NORMAL);
         }
         mc_weights_.init(sample);
     };
@@ -506,9 +505,9 @@ class topspin_gen : public AnalyzerBase
             }
 
             void print_decay(URStreamer &event) {
-                const vector<Genparts>& gps = event.genparts();
-                const Genparts *top = 0;
-                const Genparts *tbar = 0;
+                const vector<Genparticle>& gps = event.genParticles();
+                const Genparticle *top = 0;
+                const Genparticle *tbar = 0;
                 for(auto &gp : gps) {
                     if(!top && gp.pdgId() == ura::PDGID::t) {
                         top = &gp;
@@ -519,19 +518,19 @@ class topspin_gen : public AnalyzerBase
                 }
                 //cout << *top << " " << *tbar << endl;
                 cout << *top;
-                //while(top) {
-                //    cout << " --> ";
-                //    const Genparts *next=0;
-                //    for(auto &gp : gps) {
-                //        for(auto idx : gp.genPartIdxMother()) {
-                //            if(idx == top->idx()) {
-                //                cout << gp << ", ";
-                //                next = &gp;
-                //            }
-                //        }
-                //    }
-                //    top = next;
-                //}
+                while(top) {
+                    cout << " --> ";
+                    const Genparticle *next=0;
+                    for(auto &gp : gps) {
+                        for(auto idx : gp.genPartIdxMother()) {
+                            if(idx == top->idx()) {
+                                cout << gp << ", ";
+                                next = &gp;
+                            }
+                        }
+                    }
+                    top = next;
+                }
                 cout <<endl;
                 throw 43;
             }
@@ -672,14 +671,14 @@ class topspin_gen : public AnalyzerBase
                     if(skip > 0 && evt_idx < skip) {
                         continue;
                     }
-                    if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                    if(evt_idx % report == 0) Logger::log().debug() << "Beginning event " << evt_idx << " run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                     tracker_.track("start");
 
                     //Long and time consuming
                     bool selection = 	genp_selector_.select(event);			
                     if(!selection) {
                         //Logger::log().error() << "Error: TTGenParticleSelector was not able to find all the generated top decay products in event " << evt_idx << endl <<
-                        //  "run: " << event.run << " luminosityBlocksection: " << event.luminosityBlock << " eventnumber: " << event.event << endl;
+                        //  "run: " << event.run << " lumisection: " << event.lumi << " eventnumber: " << event.evt << endl;
                         continue;
                     }
                     tracker_.track("gen selection");        
