@@ -25,6 +25,7 @@
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
 #include "Analyses/URTTbar/interface/Alpha_Corrections.h"
+#include "Analyses/URTTbar/interface/QCD_WeightProducer.h"
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
@@ -71,9 +72,13 @@ class htt_simple : public AnalyzerBase
         TTGenMatcher matcher_;
         DR_TTGenMatcher dr_matcher_;
         Alpha_Corrections alpha_corr_;
+        QCD_WeightProducer qcd_reweight_;
         TTPermutator permutator_;
         TTObjectSelector object_selector_;
         float evt_weight_;
+        float nominal_qcd_weight_;
+        float up_qcd_weight_;
+        float down_qcd_weight_;
         TRandom3 randomizer_;// = TRandom3(98765);
         MCWeightProducer mc_weights_;
         BTagSFProducer btag_sf_;
@@ -397,6 +402,9 @@ class htt_simple : public AnalyzerBase
             book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
             book<TH1F>(folder, "rho", "", 100, 0., 100.);
             book<TH1F>(folder, "weight", "", 100, 0., 5.);
+            book<TH1F>(folder, "nominal_qcd_weight", "", 200, -10., 10.);
+            book<TH1F>(folder, "up_qcd_weight", "", 200, -10., 10.);
+            book<TH1F>(folder, "down_qcd_weight", "", 200, -10., 10.);
             book<TH1F>(folder, "lep_pt"   , ";p_{T}(l) (GeV)", 500, 0., 500.);
             book<TH1F>(folder, "lep_eta"  , ";#eta(l) (GeV)", 300, -3, 3);
             book<TH1F>(folder, "jets_pt"  , ";p_{T}(j) (GeV)", 500, 0., 500.);
@@ -454,6 +462,9 @@ class htt_simple : public AnalyzerBase
             dir->second["nvtx_noweight"].fill(event.vertexs().size());
             dir->second["rho"].fill(event.rho().value(), evt_weight_);
             dir->second["weight"].fill(evt_weight_);
+            dir->second["nominal_qcd_weight"].fill(nominal_qcd_weight_);
+            dir->second["up_qcd_weight"].fill(up_qcd_weight_);
+            dir->second["down_qcd_weight"].fill(down_qcd_weight_);
             dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
             dir->second["lep_eta"].fill(object_selector_.lepton()->Eta(), evt_weight_);
             dir->second["njets" ].fill(object_selector_.clean_jets().size(), evt_weight_);
@@ -893,6 +904,12 @@ class htt_simple : public AnalyzerBase
                 evt_weight_ *= top_pt_weight;
             }
 
+            // find qcd weight
+            nominal_qcd_weight_ = qcd_reweight_.qcd_weight( object_selector_.lepton()->Pt(), "Pt", "nominal" );
+            up_qcd_weight_ = qcd_reweight_.qcd_weight( object_selector_.lepton()->Pt(), "Pt", "up" );
+            down_qcd_weight_ = qcd_reweight_.qcd_weight( object_selector_.lepton()->Pt(), "Pt", "down" );
+
+
             if( njets == 3 ){
 
                 /// Find best permutation
@@ -905,8 +922,9 @@ class htt_simple : public AnalyzerBase
                 if(!sync_ && !reco_success_3J){
                     //tracker_.track("not sync and not reco success");
                     return;
-               }
+                }
                 if(lep_is_tight) tracker_.track("best perm");
+
 
                 if(sync_) {
                     if(lep_is_tight) {

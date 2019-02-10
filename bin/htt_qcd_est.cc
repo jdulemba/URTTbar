@@ -25,6 +25,7 @@
 #include "Analyses/URTTbar/interface/systematics.h"
 #include "Analyses/URTTbar/interface/TTObjectSelector.h"
 #include "Analyses/URTTbar/interface/Alpha_Corrections.h"
+#include "Analyses/URTTbar/interface/QCD_WeightProducer.h"
 #include "Analyses/URTTbar/interface/TTGenParticleSelector.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
@@ -71,9 +72,13 @@ class htt_qcd_est : public AnalyzerBase
         TTGenMatcher matcher_;
         DR_TTGenMatcher dr_matcher_;
         Alpha_Corrections alpha_corr_;
+        QCD_WeightProducer qcd_reweight_;
         TTPermutator permutator_;
         TTObjectSelector object_selector_;
         float evt_weight_;
+        float nominal_qcd_weight_;
+        float up_qcd_weight_;
+        float down_qcd_weight_;
         TRandom3 randomizer_;// = TRandom3(98765);
         MCWeightProducer mc_weights_;
         BTagSFProducer btag_sf_;
@@ -253,7 +258,23 @@ class htt_qcd_est : public AnalyzerBase
             book<TH2F>(folder, "lep_eta_pt_B" , ";p_{T}(l matched to b-quark) (GeV);#eta(l matched to b-quark)", 500, 0., 500., 300, -3., 3.);
             book<TH2F>(folder, "lep_eta_pt_Prompt" , ";p_{T}(l matched to prompt-quark) (GeV);#eta(l matched to prompt-quark)", 500, 0., 500., 300, -3., 3.);
 
+            book<TH1F>(folder, "lep_pt" , ";p_{T}(l) (GeV)", 500, 0., 500.);
+            book<TH1F>(folder, "lep_pt_nom_qcd_weight" , ";p_{T}(l)w/ w_{QCD}^{nom} (GeV)", 500, 0., 500.);
+            book<TH1F>(folder, "lep_pt_up_qcd_weight" , ";p_{T}(l)w/ w_{QCD}^{up} (GeV)", 500, 0., 500.);
+            book<TH1F>(folder, "lep_pt_down_qcd_weight" , ";p_{T}(l)w/ w_{QCD}^{dw} (GeV)", 500, 0., 500.);
+
             book<TH1F>(folder, "MT" , ";M_{T} (GeV)",  500, 0, 500);
+            book<TH1F>(folder, "MT_nom_qcd_weight" , ";M_{T} w/ w_{QCD}^{nom} (GeV)",  500, 0, 500);
+            book<TH1F>(folder, "MT_up_qcd_weight" , ";M_{T} w/ w_{QCD}^{up} (GeV)",  500, 0, 500);
+            book<TH1F>(folder, "MT_down_qcd_weight" , ";M_{T} w/ w_{QCD}^{dw} (GeV)",  500, 0, 500);
+
+            book<TH1F>(folder, "nominal_qcd_weight", "", 200, -10., 10.);
+            book<TH1F>(folder, "up_qcd_weight", "", 200, -10., 10.);
+            book<TH1F>(folder, "down_qcd_weight", "", 200, -10., 10.);
+
+            book<TH2F>(folder, "nominal_qcd_weight_vs_lep_pt" , ";p_{T}(l) (GeV);w_{QCD}^{nom}", 500, 0., 500., 200, -10., 10.);
+            book<TH2F>(folder, "up_qcd_weight_vs_lep_pt" , ";p_{T}(l) (GeV);w_{QCD}^{up}", 500, 0., 500., 200, -10., 10.);
+            book<TH2F>(folder, "down_qcd_weight_vs_lep_pt" , ";p_{T}(l) (GeV);w_{QCD}^{down}", 500, 0., 500., 200, -10., 10.);
 
         }
 
@@ -265,8 +286,24 @@ class htt_qcd_est : public AnalyzerBase
                 throw 40;
             }
 
+            dir->second["lep_pt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
+            dir->second["lep_pt_nom_qcd_weight"].fill(object_selector_.lepton()->Pt(), evt_weight_*nominal_qcd_weight_);
+            dir->second["lep_pt_up_qcd_weight"].fill(object_selector_.lepton()->Pt(), evt_weight_*up_qcd_weight_);
+            dir->second["lep_pt_down_qcd_weight"].fill(object_selector_.lepton()->Pt(), evt_weight_*down_qcd_weight_);
+
             double mt = MT(object_selector_.lepton(), object_selector_.met());
             dir->second["MT"].fill(mt, evt_weight_);
+            dir->second["MT_nom_qcd_weight"].fill(mt, evt_weight_*nominal_qcd_weight_);
+            dir->second["MT_up_qcd_weight"].fill(mt, evt_weight_*up_qcd_weight_);
+            dir->second["MT_down_qcd_weight"].fill(mt, evt_weight_*down_qcd_weight_);
+
+            dir->second["nominal_qcd_weight"].fill(nominal_qcd_weight_, evt_weight_);
+            dir->second["up_qcd_weight"].fill(up_qcd_weight_, evt_weight_);
+            dir->second["down_qcd_weight"].fill(down_qcd_weight_, evt_weight_);
+
+            dir->second["nominal_qcd_weight_vs_lep_pt"].fill(object_selector_.lepton()->Pt(), nominal_qcd_weight_, evt_weight_);
+            dir->second["up_qcd_weight_vs_lep_pt"].fill(object_selector_.lepton()->Pt(), up_qcd_weight_, evt_weight_);
+            dir->second["down_qcd_weight_vs_lep_pt"].fill(object_selector_.lepton()->Pt(), down_qcd_weight_, evt_weight_);
 
             double lep_jet_DR = 1e10;
             Jet lep_parton;
@@ -519,6 +556,16 @@ class htt_qcd_est : public AnalyzerBase
                 double top_pt_weight = top_pt_reweighting("nominal");
                 evt_weight_ *= top_pt_weight;
             }
+
+            //if( btag_pass && !lep_is_tight ){ // nonIso-CSV region
+                // find qcd weight
+                nominal_qcd_weight_ = qcd_reweight_.qcd_weight( object_selector_.lepton()->Pt(), "Pt", "nominal" );
+                up_qcd_weight_ = qcd_reweight_.qcd_weight( object_selector_.lepton()->Pt(), "Pt", "up" );
+                down_qcd_weight_ = qcd_reweight_.qcd_weight( object_selector_.lepton()->Pt(), "Pt", "down" );
+
+                //double qcd_weight = ( nominal_qcd_weight_ < 0.0 ) ? 1.0 : nominal_qcd_weight_;
+                //evt_weight_ *= qcd_weight;
+            //}
 
             if( njets == 3 ){
                 //return;

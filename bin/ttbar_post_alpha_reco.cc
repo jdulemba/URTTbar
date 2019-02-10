@@ -12,6 +12,7 @@
 #include "Analyses/URTTbar/interface/TTGenMatcher.h"
 #include "Analyses/URTTbar/interface/DR_TTGenMatcher.h"
 #include "Analyses/URTTbar/interface/Alpha_Corrections.h"
+#include "Analyses/URTTbar/interface/QCD_WeightProducer.h"
 #include "Analyses/URTTbar/interface/TTPermutator.h"
 #include "Analyses/URTTbar/interface/NeutrinoSolver.h"
 #include "Analyses/URTTbar/interface/IDJet.h"
@@ -100,6 +101,7 @@ class ttbar_post_alpha_reco : public AnalyzerBase
         TTGenMatcher matcher_; //matches particles on generator level
         DR_TTGenMatcher dr_matcher_;
         Alpha_Corrections alpha_corr_;
+        QCD_WeightProducer qcd_reweight_;
         TTPermutator permutator_;
         TTObjectSelector object_selector_; //selects ttbar objects
         float evt_weight_;
@@ -430,6 +432,11 @@ class ttbar_post_alpha_reco : public AnalyzerBase
                             // get corrected thad 4-vec and costhetastar vals
                         TLorentzVector Alpha_THad = alpha_corr_.Alpha_THad(perm, fit_deg, fit_var, fit_range);
                         double alpha_thad_cth = alpha_corr_.alpha_thad_cthstar(perm, fit_deg, fit_var, fit_range);
+
+                        //double nominal_qcd_weight = qcd_reweight_.qcd_weight( perm, "Pt", "nominal" );
+                        //double up_qcd_weight = qcd_reweight_.qcd_weight( perm, "Pt", "up" );
+                        //double down_qcd_weight = qcd_reweight_.qcd_weight( perm, "Pt", "down" );
+                        //cout << "Qcd nominal: " << nominal_qcd_weight << ", up: " << up_qcd_weight << ", down: " << down_qcd_weight << endl << endl;
 
                             // fill plots for corrected thad
                         corr_reco_mass_dir->second["THad"].fill( Alpha_THad.M(), evt_weight_ );
