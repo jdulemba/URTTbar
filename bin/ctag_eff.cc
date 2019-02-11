@@ -46,9 +46,14 @@ static map<string, IDJet::BTag> available_bjet_id = {
     {"ctagLoose" , IDJet::BTag::CTAGLOOSE},
     {"ctagTight" , IDJet::BTag::CTAGTIGHT},
 
-    {"mvaMedium", IDJet::BTag::MVAMEDIUM},
-    {"mvaLoose" , IDJet::BTag::MVALOOSE},
-    {"mvaTight" , IDJet::BTag::MVATIGHT},
+    //{"mvaMedium", IDJet::BTag::MVAMEDIUM},
+    //{"mvaLoose" , IDJet::BTag::MVALOOSE},
+    //{"mvaTight" , IDJet::BTag::MVATIGHT},
+
+    {"deepcsvMedium", IDJet::BTag::DEEPCSVMEDIUM},
+    {"deepcsvLoose" , IDJet::BTag::DEEPCSVLOOSE},
+    {"deepcsvTight" , IDJet::BTag::DEEPCSVTIGHT},
+
 };	
 
 static map<string, std::function<bool(const Permutation &, const Permutation &)> > available_ordering = {
@@ -192,9 +197,9 @@ class ctag_eff : public AnalyzerBase
         working_points_["ctagLoose"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGLOOSE);};
         working_points_["ctagTight"]  = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGTIGHT);};
         working_points_["ctagMedium"] = [](const IDJet* jet) {return jet->CTagId(IDJet::BTag::CTAGMEDIUM);};
-        working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
-        working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
-        working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
+        //working_points_["cmvaLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVALOOSE);};
+        //working_points_["cmvaTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVATIGHT);};
+        //working_points_["cmvaMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::MVAMEDIUM);};
         working_points_["DeepCsvLoose"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVLOOSE);};
         working_points_["DeepCsvMedium"] = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM);};
         working_points_["DeepCsvTight"]  = [](const IDJet* jet) {return jet->BTagId(IDJet::BTag::DEEPCSVTIGHT);};
@@ -204,7 +209,7 @@ class ctag_eff : public AnalyzerBase
         DataFile csv_sfs(parser.getCfgPar<string>("general.csv_sffile"));
         DataFile deepcsv_sfs(parser.getCfgPar<string>("general.deepcsv_sffile"));
         DataFile ctag_sfs(parser.getCfgPar<string>("general.ctag_sffile"));
-        DataFile cmva_sfs(parser.getCfgPar<string>("general.cmva_sffile"));
+        //DataFile cmva_sfs(parser.getCfgPar<string>("general.cmva_sffile"));
 
         wp_SFs_["csvLoose" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
         wp_SFs_["csvTight" ] 	= new BTagSFProducer(csv_sfs, wjet_efficiency, IDJet::BTag::CSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
@@ -212,9 +217,9 @@ class ctag_eff : public AnalyzerBase
         wp_SFs_["DeepCsvLoose" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVLOOSE , IDJet::BTag::NONE, 0.5, -1, -1);
         wp_SFs_["DeepCsvTight" ] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVTIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
         wp_SFs_["DeepCsvMedium"] = new BTagSFProducer(deepcsv_sfs, wjet_efficiency, IDJet::BTag::DEEPCSVMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
-        wp_SFs_["cmvaLoose" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
-        wp_SFs_["cmvaTight" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
-        wp_SFs_["cmvaMedium"] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
+        //wp_SFs_["cmvaLoose" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVALOOSE , IDJet::BTag::NONE, 0.5, -1, -1); 
+        //wp_SFs_["cmvaTight" ] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVATIGHT , IDJet::BTag::NONE, 0.5, -1, -1); 
+        //wp_SFs_["cmvaMedium"] = new BTagSFProducer(cmva_sfs, wjet_efficiency, IDJet::BTag::MVAMEDIUM, IDJet::BTag::NONE, 0.5, -1, -1); 
         wp_SFs_["ctagLoose" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGLOOSE , IDJet::BTag::NONE, 0.5, -1, 0.5); 
         wp_SFs_["ctagTight" ] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGTIGHT , IDJet::BTag::NONE, 0.5, -1, 0.5); 
         wp_SFs_["ctagMedium"] = new BTagSFProducer(ctag_sfs, wjet_efficiency, IDJet::BTag::CTAGMEDIUM, IDJet::BTag::NONE, 0.5, -1, 0.5); 
@@ -225,9 +230,9 @@ class ctag_eff : public AnalyzerBase
         wp_SFs_["ctagLoose" ]->ignore_general_shifts(); 
         wp_SFs_["ctagTight" ]->ignore_general_shifts(); 
         wp_SFs_["ctagMedium"]->ignore_general_shifts(); 
-        wp_SFs_["cmvaLoose" ]->ignore_general_shifts(); 
-        wp_SFs_["cmvaTight" ]->ignore_general_shifts(); 
-        wp_SFs_["cmvaMedium"]->ignore_general_shifts(); 
+        //wp_SFs_["cmvaLoose" ]->ignore_general_shifts(); 
+        //wp_SFs_["cmvaTight" ]->ignore_general_shifts(); 
+        //wp_SFs_["cmvaMedium"]->ignore_general_shifts(); 
         wp_SFs_["DeepCsvLoose" ]->ignore_general_shifts();
         wp_SFs_["DeepCsvTight" ]->ignore_general_shifts(); 
         wp_SFs_["DeepCsvMedium"]->ignore_general_shifts(); 
@@ -321,12 +326,12 @@ class ctag_eff : public AnalyzerBase
             book<TH1F>(folder, "jets_DeepCvsL" , "", 55, -1., 1.1);
             book<TH1F>(folder, "jets_DeepCvsB" , "", 55, -1., 1.1);
             book<TH1F>(folder, "jets_CSV"  , "", 55,  0., 1.1);
-            book<TH1F>(folder, "jets_cMVA" , "", 55, -1., 1.1);
+            //book<TH1F>(folder, "jets_cMVA" , "", 55, -1., 1.1);
             book<TH1F>(folder, "jets_DeepCSVb" , "", 55,  0., 1.1);
             book<TH1F>(folder, "jets_DeepCSVl" , "", 55,  0., 1.1);
             book<TH1F>(folder, "jets_DeepCSVbb", "", 55,  0., 1.1);
             book<TH1F>(folder, "jets_DeepCSVc" , "", 55,  0., 1.1);
-            book<TH1F>(folder, "jets_DeepCSVcc", "", 55,  0., 1.1);
+            //book<TH1F>(folder, "jets_DeepCSVcc", "", 55,  0., 1.1);
             book<TH1F>(folder, "jets_DeepCSVbD", "", 55,  0., 1.1);
 
             book<TH1F>(folder, "jets_hflav_DeepCvsL_B" , "", 55, -1., 1.1);
@@ -349,14 +354,14 @@ class ctag_eff : public AnalyzerBase
                 dir->second["jets_DeepCvsL"].fill(jet->DeepCvsLtag(), evt_weight_);
                 dir->second["jets_DeepCvsB"].fill(jet->DeepCvsBtag(), evt_weight_);
                 dir->second["jets_CSV" ].fill(jet->csvIncl(), evt_weight_);
-                dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
+                //dir->second["jets_cMVA"].fill(jet->CombinedMVA(), evt_weight_);
 
-                //dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
-                //dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
-                //dir->second["jets_DeepCSVbb"].fill(jet->DeepCSVProbBB(), evt_weight_);
-                //dir->second["jets_DeepCSVc" ].fill(jet->DeepCSVProbC(), evt_weight_);
+                dir->second["jets_DeepCSVb" ].fill(jet->DeepCSVProbB(), evt_weight_);
+                dir->second["jets_DeepCSVl" ].fill(jet->DeepCSVProbUDSG(), evt_weight_);
+                dir->second["jets_DeepCSVbb"].fill(jet->DeepCSVProbBB(), evt_weight_);
+                dir->second["jets_DeepCSVc" ].fill(jet->DeepCSVProbC(), evt_weight_);
                 //dir->second["jets_DeepCSVcc"].fill(jet->DeepCSVProbCC(), evt_weight_);
-                //dir->second["jets_DeepCSVbD"].fill(jet->DeepCSVProbB()+jet->DeepCSVProbBB(), evt_weight_);
+                dir->second["jets_DeepCSVbD"].fill(jet->DeepCSV(), evt_weight_);
                 int hflav = fabs(jet->hadronFlavour());
                 int pflav = fabs(jet->partonFlavour());
                 string hstr;
@@ -415,12 +420,12 @@ class ctag_eff : public AnalyzerBase
             book<TH1F>(folder, "Bjets_DeepCvsL" , "", 55, -1., 1.1);
             book<TH1F>(folder, "Bjets_DeepCvsB" , "", 55, -1., 1.1);
             book<TH1F>(folder, "WjetCSV"   , "", 40, -20., 20.);
-            book<TH1F>(folder, "Wjets_CMVA" , "", 55, -1., 1.1);
+            //book<TH1F>(folder, "Wjets_CMVA" , "", 55, -1., 1.1);
             book<TH1F>(folder, "Wjets_DeepCSVb" , "", 55,  0., 1.1);
             book<TH1F>(folder, "Wjets_DeepCSVl" , "", 55,  0., 1.1);
             book<TH1F>(folder, "Wjets_DeepCSVbb", "", 55,  0., 1.1);
             book<TH1F>(folder, "Wjets_DeepCSVc" , "", 55,  0., 1.1);
-            book<TH1F>(folder, "Wjets_DeepCSVcc", "", 55,  0., 1.1);
+            //book<TH1F>(folder, "Wjets_DeepCSVcc", "", 55,  0., 1.1);
             book<TH1F>(folder, "Wjets_DeepCSVbD", "", 55,  0., 1.1);
         }
 
@@ -485,20 +490,20 @@ class ctag_eff : public AnalyzerBase
             dir->second["Bjets_DeepCvsL"].fill(hyp.BLep()->DeepCvsLtag(), evt_weight_);
             dir->second["Bjets_DeepCvsB"].fill(hyp.BHad()->DeepCvsBtag(), evt_weight_);
             dir->second["Bjets_DeepCvsB"].fill(hyp.BLep()->DeepCvsBtag(), evt_weight_);
-            dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
-            dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
-            //dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
-            //dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
-            //dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
-            //dir->second["Wjets_DeepCSVc" ].fill(hyp.WJa()->DeepCSVProbC(), evt_weight_);
+            //dir->second["Wjets_CMVA"].fill(hyp.WJa()->CombinedMVA(), evt_weight_);
+            //dir->second["Wjets_CMVA"].fill(hyp.WJb()->CombinedMVA(), evt_weight_);
+            dir->second["Wjets_DeepCSVb" ].fill(hyp.WJa()->DeepCSVProbB(), evt_weight_);
+            dir->second["Wjets_DeepCSVl" ].fill(hyp.WJa()->DeepCSVProbUDSG(), evt_weight_);
+            dir->second["Wjets_DeepCSVbb"].fill(hyp.WJa()->DeepCSVProbBB(), evt_weight_);
+            dir->second["Wjets_DeepCSVc" ].fill(hyp.WJa()->DeepCSVProbC(), evt_weight_);
             //dir->second["Wjets_DeepCSVcc"].fill(hyp.WJa()->DeepCSVProbCC(), evt_weight_);
-            //dir->second["Wjets_DeepCSVbD"].fill(hyp.WJa()->DeepCSVProbB()+hyp.WJa()->DeepCSVProbBB(), evt_weight_);
-            //dir->second["Wjets_DeepCSVb" ].fill(hyp.WJb()->DeepCSVProbB(), evt_weight_);
-            //dir->second["Wjets_DeepCSVl" ].fill(hyp.WJb()->DeepCSVProbUDSG(), evt_weight_);
-            //dir->second["Wjets_DeepCSVbb"].fill(hyp.WJb()->DeepCSVProbBB(), evt_weight_);
-            //dir->second["Wjets_DeepCSVc" ].fill(hyp.WJb()->DeepCSVProbC(), evt_weight_);
+            dir->second["Wjets_DeepCSVbD"].fill(hyp.WJa()->DeepCSV(), evt_weight_);
+            dir->second["Wjets_DeepCSVb" ].fill(hyp.WJb()->DeepCSVProbB(), evt_weight_);
+            dir->second["Wjets_DeepCSVl" ].fill(hyp.WJb()->DeepCSVProbUDSG(), evt_weight_);
+            dir->second["Wjets_DeepCSVbb"].fill(hyp.WJb()->DeepCSVProbBB(), evt_weight_);
+            dir->second["Wjets_DeepCSVc" ].fill(hyp.WJb()->DeepCSVProbC(), evt_weight_);
             //dir->second["Wjets_DeepCSVcc"].fill(hyp.WJb()->DeepCSVProbCC(), evt_weight_);
-            //dir->second["Wjets_DeepCSVbD"].fill(hyp.WJb()->DeepCSVProbB()+hyp.WJb()->DeepCSVProbBB(), evt_weight_);
+            dir->second["Wjets_DeepCSVbD"].fill(hyp.WJb()->DeepCSV(), evt_weight_);
         }
 
         void book_jet_plots(string folder, bool extended){

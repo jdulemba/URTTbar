@@ -179,8 +179,11 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
         mu_trg_ = true;
         return true;
     }
+
+        //event triggers to be used found here: https://twiki.cern.ch/twiki/bin/view/CMS/TopTriggerYear2016 or 2017, 2018...
     el_trg_ = (event.trigger().HLT_Ele27_WPTight_Gsf() == 1);
-    mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
+    mu_trg_ = (event.trigger().HLT_IsoMu24() == 1);	
+    //mu_trg_ = (event.trigger().HLT_IsoMu24() == 1 || event.trigger().HLT_IsoTkMu24() == 1);	
 
     // cout << event.trigger().HLT_Ele27_WPLoose_Gsf() << " " <<  event.trigger().HLT_IsoMu22() << " " << event.trigger().HLT_IsoTkMu22() << endl;
     // cout << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << " " << event.trigger().HLT_IsoMu24() << " " << event.trigger().HLT_IsoTkMu22() << endl;
@@ -189,17 +192,19 @@ bool TTObjectSelector::pass_trig(URStreamer &event, systematics::SysShifts shift
 }
 
 bool TTObjectSelector::pass_filter(URStreamer &event, systematics::SysShifts shift) {
+    // Supported filters found here: https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2
+
     //Filters
     bool filter_answer = true;
-    auto filters = event.flag();
+    auto filters = event.filter();
     filter_answer &= (filters.Flag_HBHENoiseFilter() == 1); 
     filter_answer &= (filters.Flag_HBHENoiseIsoFilter() == 1); 
     filter_answer &= (filters.Flag_EcalDeadCellTriggerPrimitiveFilter() == 1);
     filter_answer &= (filters.Flag_goodVertices() == 1);
-    filter_answer &= (filters.Flag_eeBadScFilter() == 1);
-    filter_answer &= (filters.Flag_globalTightHalo2016Filter() == 1);
-    filter_answer &= (filters.Flag_BadPFMuon() == 1);
-    filter_answer &= (filters.Flag_BadChargedCandidate() == 1); 
+    //filter_answer &= (filters.Flag_eeBadScFilter() == 1); //
+    filter_answer &= (filters.Flag_globalSuperTightHalo2016Filter() == 1);//needs to be globalSuperTight
+    filter_answer &= (filters.Flag_BadPFMuonFilter() == 1);
+    filter_answer &= (filters.Flag_BadChargedCandidateFilter() == 1); 
     return filter_answer;
 }
 

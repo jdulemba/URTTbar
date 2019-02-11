@@ -113,9 +113,9 @@ bool IDJet::BTagId(BTag wp) const {
     else if(wp == BTag::MVALOOSE)  return CombinedMVA() > -0.5884;
     else if(wp == BTag::MVAMEDIUM) return CombinedMVA() > 0.4432;
     else if(wp == BTag::MVATIGHT)  return CombinedMVA() > 0.9432;
-    else if(wp == BTag::DEEPCSVLOOSE ) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.2217;
-    else if(wp == BTag::DEEPCSVMEDIUM) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.6321;
-    else if(wp == BTag::DEEPCSVTIGHT ) return (DeepCSVProbB() + DeepCSVProbBB()) > 0.8953;
+    else if(wp == BTag::DEEPCSVLOOSE ) return DeepCSV() > 0.2217;
+    else if(wp == BTag::DEEPCSVMEDIUM) return DeepCSV() > 0.6321;
+    else if(wp == BTag::DEEPCSVTIGHT ) return DeepCSV() > 0.8953;
     else {
         Logger::log().fatal() << wp << "Is not a valid b-tagging working point!"<< std::endl;
         throw 42;

@@ -270,21 +270,21 @@ task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
-$wroking_points = ['csvLoose', 
-                   'csvMedium', 'csvTight', 
+$working_points = [
+                   'csvLoose', 'csvMedium', 'csvTight', 
                    'ctagLoose', 'ctagMedium', 'ctagTight', 
-                   'cmvaLoose', 'cmvaMedium', 'cmvaTight',
+                   #'cmvaLoose', 'cmvaMedium', 'cmvaTight',
                    'DeepCsvLoose', 'DeepCsvMedium', 'DeepCsvTight'
                   ]
 task :ctag_fitall do |t|
-  $wroking_points.each do |wp|
+  $working_points.each do |wp|
     Rake::Task["ctag_postfit"].invoke(wp)
     Rake::Task["ctag_postfit"].reenable
   end
 end
 
 task :breakdown_all do |t|
-  $wroking_points.each do |wp|
+  $working_points.each do |wp|
     Rake::Task['sys_breakdown'].invoke(wp)
     Rake::Task["sys_breakdown"].reenable
   end

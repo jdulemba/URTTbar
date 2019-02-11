@@ -88,7 +88,7 @@ class ntupleDumper : public AnalyzerBase
                 //cout << "  HLT_Ele32_WPTight_Gsf: " << event.hlt().Ele32_WPTight_Gsf() << endl; 
                 cout << "  HLT_Ele32_eta2p1_WPTight_Gsf: " << event.trigger().HLT_Ele32_eta2p1_WPTight_Gsf() << endl; 
                 cout << "  HLT_IsoMu24: " << event.trigger().HLT_IsoMu24() << endl; 
-                cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
+                //cout << "  HLT_IsoTkMu24: " <<  event.trigger().HLT_IsoTkMu24() << endl;
                 cout << endl;
 
                 cout << "Event Filters: " << endl;
@@ -97,9 +97,9 @@ class ntupleDumper : public AnalyzerBase
                 cout << "  Flag_EcalDeadCellTriggerPrimitiveFilter: " <<  event.filter().Flag_EcalDeadCellTriggerPrimitiveFilter() << endl;	 
                 cout << "  Flag_goodVertices: " << 						  event.filter().Flag_goodVertices() << endl;												 
                 cout << "  Flag_eeBadScFilter: " << 					  event.filter().Flag_eeBadScFilter() << endl;											 
-                cout << "  Flag_globalTightHalo2016Filter: " << 		  event.filter().Flag_globalTightHalo2016Filter() << endl;					 
+                cout << "  Flag_globalSuperTightHalo2016Filter: " << 	  event.filter().Flag_globalSuperTightHalo2016Filter() << endl;					 
                 cout << "  Flag_BadPFMuon: " << 						  event.filter().Flag_BadPFMuonFilter() << endl;													 
-                cout << "  Flag_BadChargedCandidate: " << 	              event.filter().Flag_BadChargedCandidate() << endl;	                
+                cout << "  Flag_BadChargedCandidate: " << 	              event.filter().Flag_BadChargedCandidateFilter() << endl;	                
                 cout << endl;
 
 
@@ -151,7 +151,7 @@ class ntupleDumper : public AnalyzerBase
                         cout <<"  JEC uncertainty: "<< jet.JESUnc() << ", JER uncertainty: " << max_unc << endl;
                     }
                     cout <<"  Pass jet ID: " << jet.LooseID() << endl;
-                    cout <<"  CSV: "<< jet.csvIncl()<<", cMVA: "<< jet.combinedMVA() << endl;
+                    cout <<"  CSV: "<< jet.csvIncl()<<", cMVA: "<< jet.CombinedMVA() << endl;
                     cout <<"  cDeepCvsL: "<< jet.DeepCvsLtag()<<", cDeepCvsB: "<< jet.DeepCvsBtag() << endl;
                 }
                 cout << endl;

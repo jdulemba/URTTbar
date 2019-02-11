@@ -208,7 +208,7 @@ void TTBarSolver::Solve(Permutation &hyp, bool lazy)
         //masstest = -1.*Log(WTmass_right_->Interpolate(mwhad, mthad)/Max(1., WTmass_wrong_->Interpolate(mwhad, mthad)));
     }
     if(USEBTAG_) {
-        auto btags = min_max(hyp.WJa()->btagCMVA(), hyp.WJb()->btagCMVA());
+        auto btags = min_max(hyp.WJa()->CombinedMVA(), hyp.WJb()->CombinedMVA());
         btagtest = -1.*Log(wj1_btag_right_->Interpolate(pow(btags.second, 11)));
         btagtest -= 1.*Log(wj2_btag_right_->Interpolate(pow(btags.first , 11)));
     }

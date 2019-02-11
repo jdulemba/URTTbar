@@ -296,7 +296,7 @@ private:
 class Filter{
 friend class URStreamer;
 public:
-//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_globalTightHalo2016Filter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_duplicateMuons_,const Int_t &i_Flag_badMuons_,const Int_t &i_Flag_ecalBadCalibFilter_,const Int_t &i_Flag_BadPFMuonFilter_,const Int_t &i_Flag_BadChargedCandidateFilter_):
+//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_globalSuperTightHalo2016Filter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_duplicateMuons_,const Int_t &i_Flag_badMuons_,const Int_t &i_Flag_ecalBadCalibFilter_,const Int_t &i_Flag_BadPFMuonFilter_,const Int_t &i_Flag_BadChargedCandidateFilter_):
 //    
 //  {}
   Filter():
@@ -311,7 +311,7 @@ public:
     Flag_METFilters_(0),
     Flag_HBHENoiseFilter_(0),
     Flag_HBHENoiseIsoFilter_(0),
-    Flag_globalTightHalo2016Filter_(0),
+    Flag_globalSuperTightHalo2016Filter_(0),
     Flag_trkPOG_toomanystripclus53X_(0),
     Flag_hcalLaserEventFilter_(0),
     Flag_duplicateMuons_(0),
@@ -331,7 +331,7 @@ public:
   Int_t Flag_METFilters() const {return Flag_METFilters_;}
   Int_t Flag_HBHENoiseFilter() const {return Flag_HBHENoiseFilter_;}
   Int_t Flag_HBHENoiseIsoFilter() const {return Flag_HBHENoiseIsoFilter_;}
-  Int_t Flag_globalTightHalo2016Filter() const {return Flag_globalTightHalo2016Filter_;}
+  Int_t Flag_globalSuperTightHalo2016Filter() const {return Flag_globalSuperTightHalo2016Filter_;}
   Int_t Flag_trkPOG_toomanystripclus53X() const {return Flag_trkPOG_toomanystripclus53X_;}
   Int_t Flag_hcalLaserEventFilter() const {return Flag_hcalLaserEventFilter_;}
   Int_t Flag_duplicateMuons() const {return Flag_duplicateMuons_;}
@@ -351,7 +351,7 @@ private:
   Int_t Flag_METFilters_;
   Int_t Flag_HBHENoiseFilter_;
   Int_t Flag_HBHENoiseIsoFilter_;
-  Int_t Flag_globalTightHalo2016Filter_;
+  Int_t Flag_globalSuperTightHalo2016Filter_;
   Int_t Flag_trkPOG_toomanystripclus53X_;
   Int_t Flag_hcalLaserEventFilter_;
   Int_t Flag_duplicateMuons_;
@@ -370,7 +370,7 @@ private:
   void setFlag_METFilters(const Int_t value) {Flag_METFilters_ = value;}
   void setFlag_HBHENoiseFilter(const Int_t value) {Flag_HBHENoiseFilter_ = value;}
   void setFlag_HBHENoiseIsoFilter(const Int_t value) {Flag_HBHENoiseIsoFilter_ = value;}
-  void setFlag_globalTightHalo2016Filter(const Int_t value) {Flag_globalTightHalo2016Filter_ = value;}
+  void setFlag_globalSuperTightHalo2016Filter(const Int_t value) {Flag_globalSuperTightHalo2016Filter_ = value;}
   void setFlag_trkPOG_toomanystripclus53X(const Int_t value) {Flag_trkPOG_toomanystripclus53X_ = value;}
   void setFlag_hcalLaserEventFilter(const Int_t value) {Flag_hcalLaserEventFilter_ = value;}
   void setFlag_duplicateMuons(const Int_t value) {Flag_duplicateMuons_ = value;}
@@ -1369,7 +1369,7 @@ public:
     filter_Flag_METFilters_(0),
     filter_Flag_HBHENoiseFilter_(0),
     filter_Flag_HBHENoiseIsoFilter_(0),
-    filter_Flag_globalTightHalo2016Filter_(0),
+    filter_Flag_globalSuperTightHalo2016Filter_(0),
     filter_Flag_trkPOG_toomanystripclus53X_(0),
     filter_Flag_hcalLaserEventFilter_(0),
     filter_Flag_duplicateMuons_(0),
@@ -1805,7 +1805,7 @@ public:
       tree_->SetBranchStatus("filter.Flag_METFilters", 1); tree_->SetBranchAddress("filter.Flag_METFilters", &filter_Flag_METFilters_);
       tree_->SetBranchStatus("filter.Flag_HBHENoiseFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseFilter", &filter_Flag_HBHENoiseFilter_);
       tree_->SetBranchStatus("filter.Flag_HBHENoiseIsoFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseIsoFilter", &filter_Flag_HBHENoiseIsoFilter_);
-      tree_->SetBranchStatus("filter.Flag_globalTightHalo2016Filter", 1); tree_->SetBranchAddress("filter.Flag_globalTightHalo2016Filter", &filter_Flag_globalTightHalo2016Filter_);
+      tree_->SetBranchStatus("filter.Flag_globalSuperTightHalo2016Filter", 1); tree_->SetBranchAddress("filter.Flag_globalSuperTightHalo2016Filter", &filter_Flag_globalSuperTightHalo2016Filter_);
       tree_->SetBranchStatus("filter.Flag_trkPOG_toomanystripclus53X", 1); tree_->SetBranchAddress("filter.Flag_trkPOG_toomanystripclus53X", &filter_Flag_trkPOG_toomanystripclus53X_);
       tree_->SetBranchStatus("filter.Flag_hcalLaserEventFilter", 1); tree_->SetBranchAddress("filter.Flag_hcalLaserEventFilter", &filter_Flag_hcalLaserEventFilter_);
       tree_->SetBranchStatus("filter.Flag_duplicateMuons", 1); tree_->SetBranchAddress("filter.Flag_duplicateMuons", &filter_Flag_duplicateMuons_);
@@ -2324,7 +2324,7 @@ public:
     obj.setFlag_METFilters(filter_Flag_METFilters_);
     obj.setFlag_HBHENoiseFilter(filter_Flag_HBHENoiseFilter_);
     obj.setFlag_HBHENoiseIsoFilter(filter_Flag_HBHENoiseIsoFilter_);
-    obj.setFlag_globalTightHalo2016Filter(filter_Flag_globalTightHalo2016Filter_);
+    obj.setFlag_globalSuperTightHalo2016Filter(filter_Flag_globalSuperTightHalo2016Filter_);
     obj.setFlag_trkPOG_toomanystripclus53X(filter_Flag_trkPOG_toomanystripclus53X_);
     obj.setFlag_hcalLaserEventFilter(filter_Flag_hcalLaserEventFilter_);
     obj.setFlag_duplicateMuons(filter_Flag_duplicateMuons_);
@@ -3092,7 +3092,7 @@ private:
   Int_t filter_Flag_METFilters_;
   Int_t filter_Flag_HBHENoiseFilter_;
   Int_t filter_Flag_HBHENoiseIsoFilter_;
-  Int_t filter_Flag_globalTightHalo2016Filter_;
+  Int_t filter_Flag_globalSuperTightHalo2016Filter_;
   Int_t filter_Flag_trkPOG_toomanystripclus53X_;
   Int_t filter_Flag_hcalLaserEventFilter_;
   Int_t filter_Flag_duplicateMuons_;

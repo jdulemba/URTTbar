@@ -522,7 +522,7 @@ class topspin_gen : public AnalyzerBase
                     cout << " --> ";
                     const Genparticle *next=0;
                     for(auto &gp : gps) {
-                        for(auto idx : gp.genPartIdxMother()) {
+                        for(auto idx : gp.momIdx()) {
                             if(idx == top->idx()) {
                                 cout << gp << ", ";
                                 next = &gp;

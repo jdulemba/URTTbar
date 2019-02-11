@@ -392,12 +392,6 @@ class htt_simple : public AnalyzerBase
 
         void book_presel_plots(string folder) {
             if(optim_) return;
-            //book<TH1F>(folder, "min_lep_jet_dr" , "", 50, 0., 5.);			
-            book<TH1F>(folder, "min_lep_jet_dr" , ";min #Delta R(lep, jets);", 50, 0., 5.);			
-            book<TH1F>(folder, "lep_pt_B" , ";p_{T}(l matched to b-quark) (GeV)", 500, 0., 500.);
-            book<TH1F>(folder, "lep_pt_Prompt" , ";p_{T}(l matched to prompt-quark) (GeV)", 500, 0., 500.);
-            book<TH1F>(folder, "lep_pt_B_pdgid" , ";p_{T}(l with b parton nearby) (GeV)", 500, 0., 500.);
-            book<TH1F>(folder, "lep_pt_Prompt_pdgid" , ";p_{T}(l with no b parton nearby) (GeV)", 500, 0., 500.);
 
             book<TH1F>(folder, "nvtx_noweight", "", 100, 0., 100.);
             book<TH1F>(folder, "nvtx", "", 100, 0., 100.);
@@ -439,7 +433,7 @@ class htt_simple : public AnalyzerBase
 
             double btag_discval = -1000;
             if( IDJet::id_type(cut_tight_b_) == IDJet::IDType::CSV) btag_discval = jet->csvIncl();
-            else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA) btag_discval = jet->combinedMVA();
+            else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA) btag_discval = jet->CombinedMVA();
             //else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::DEEPCSV) btag_discval = jet->DeepCSVProbB() + jet->DeepCSVProbBB();
             else if(IDJet::id_type(cut_tight_b_) != IDJet::IDType::NOTSET){
                 Logger::log().error() << "BTag working point not valid!" << endl;
@@ -494,7 +488,7 @@ class htt_simple : public AnalyzerBase
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->combinedMVA() > B->combinedMVA());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
             }
             else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;
@@ -520,42 +514,6 @@ class htt_simple : public AnalyzerBase
             dir->second["MT_iso"  ].fill(mt, iso, evt_weight_);
             dir->second["MT_btag" ].fill(mt, max_btagval, evt_weight_);
             dir->second["iso_btag"].fill(iso, max_btagval, evt_weight_);
-
-
-            double lep_jet_DR = 1e10;
-            Jets lep_parton;
-            for( auto jet : event.jets() ){
-                if( jet.DeltaR( *object_selector_.lepton() ) < lep_jet_DR ){
-                    lep_jet_DR = jet.DeltaR( *object_selector_.lepton() );
-                    lep_parton = jet;
-                }
-            }
-
-            string quark_flav = "Prompt";
-            for( auto genp : event.genparts() ){
-                int pdgid = fabs( genp.pdgId() );
-                double dr = lep_parton.DeltaR( genp );
-                if( pdgid == 5 && dr < 0.4 ) quark_flav = "B"; //cout << "pdgId: " << pdgid << ", dr: " << dr << endl;
-            }
-            dir->second["lep_pt_"+quark_flav+"_pdgid"].fill(object_selector_.lepton()->Pt(), evt_weight_);
-
-            //string pflav_str = "Prompt";
-            int pflav = fabs( lep_parton.partonFlavour() );
-            if( pflav == 5 ){
-                //pflav_str = "B";
-                dir->second["lep_pt_B"].fill(object_selector_.lepton()->Pt(), evt_weight_);
-            //    cout << pflav_str << endl;
-            }
-            else if( pflav != 5 && pflav > 0 ){
-                //pflav_str = "Prompt";
-                dir->second["lep_pt_Prompt"].fill(object_selector_.lepton()->Pt(), evt_weight_);
-            }
-            //else{
-            //    pflav_str = "g,PU";
-            //}
-
-            dir->second["min_lep_jet_dr"].fill(lep_jet_DR, evt_weight_);
-            //dir->second["lep_pt_"+pflav_str].fill(object_selector_.lepton()->Pt(), evt_weight_);
 
         }
 
@@ -904,7 +862,7 @@ class htt_simple : public AnalyzerBase
                 sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->csvIncl() > B->csvIncl());});
             }
             else if(IDJet::id_type(cut_tight_b_) == IDJet::IDType::MVA){
-                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->combinedMVA() > B->combinedMVA());});
+                sort(clean_jets.begin(), clean_jets.end(), [](IDJet* A, IDJet* B){return(A->CombinedMVA() > B->CombinedMVA());});
             }
             else{
                 Logger::log().error() << "Don't know how to sort bjets in Permutations!" << endl;

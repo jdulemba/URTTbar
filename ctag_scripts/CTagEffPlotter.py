@@ -65,8 +65,8 @@ class CTagPlotter(Plotter):
 		self.tt_shifted = {
 			'mtop_up' : 'ttJets_mtopup',
 			'mtop_down' : 'ttJets_mtopdown',
-			'isr_up'   : 'ttJets_isrup',
-			'isr_down' : 'ttJets_isrdown',
+#			'isr_up'   : 'ttJets_isrup',
+			#'isr_down' : 'ttJets_isrdown',
 			'fsr_up'   : 'ttJets_fsrup',
 			'fsr_down' : 'ttJets_fsrdown',
 			}
@@ -89,34 +89,35 @@ class CTagPlotter(Plotter):
 			'view' : self.create_tt_subsample(
 				['semilep_visible_right'],
 				't#bar{t}',
-				'#6666b3'
+				'r'
 				)
 			}
 		self.views['ttJets_sig'] = {
 			'view' : self.create_tt_subsample(
 				['semilep_visible_right', 'semilep_right_thad', 'semilep_right_whad'], 
 				't#bar{t}, right W_{h}',
-				'#6666b3'
+				'r'
 				)
 			}
 		self.views['ttJets_bkg'] = {
 			'view' : self.create_tt_subsample(
 				['semilep_right_tlep', 'semilep_wrong'], 
 				't#bar{t}, wrong W_{h}',
-				'#ab5555'
+				'b'
 				)
 			}
 		self.views['ttJets_other'] = {
 			'view' : self.create_tt_subsample(
 				['other'], 
 				'Other tt decay',
-				'#668db3',
+				'm',
 				)
 			}
 
 		self.views['VJets'] = {
 			'view' : views.SumView(
-				self.get_view('W[1-5]Jets'),
+				self.get_view('WJets'),
+				#self.get_view('W[1-5]Jets'),
 				self.get_view('ZJets'),
 				)
 			}
@@ -141,8 +142,9 @@ class CTagPlotter(Plotter):
 			]
 
 		self.card_names = {
-			#'qcd' : ['QCD*'],
-			'vjets'		: ['ZJets', 'W[1-5]Jets'],
+			'qcd' : ['QCD*'],
+			'vjets'		: ['ZJets', 'WJets'],
+			#'vjets'		: ['ZJets', 'W[1-5]Jets'],
 			'right_whad' : ['ttJets_sig'],
 			'wrong_whad' : ['ttJets_bkg'],
 			'nonsemi_tt' : ['ttJets_other'],
@@ -224,18 +226,18 @@ class CTagPlotter(Plotter):
 				'-' : lambda x: x.replace('nosys', 'mtop_down'),
 				'value' : 1.00,				
 				},
-			'ISR' : {
-				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-				'categories' : ['.*'],
-				'type' : 'shape',
-				'+' : lambda x: x.replace('nosys', 'isr_up'),
-				'-' : lambda x: x.replace('nosys', 'isr_down'),
-				'constants' : (
-					'isr_down', 
-					'isr_up'
-					),
-				'value' : 1.00,				
-				},
+			#'ISR' : {
+			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+			#	'categories' : ['.*'],
+			#	'type' : 'shape',
+			#	#'+' : lambda x: x.replace('nosys', 'isr_up'),
+			#	'-' : lambda x: x.replace('nosys', 'isr_down'),
+			#	'constants' : (
+			#		'isr_down', 
+			#		'isr_up'
+			#		),
+			#	'value' : 1.00,				
+			#	},
 			'FSR' : {
 				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
 				'categories' : ['.*'],
@@ -314,24 +316,24 @@ class CTagPlotter(Plotter):
 				'subtag'  : [6, 8, 10, 12, 20],
 				'ditag'	  : [6, 12, 20],
 				},			
-			'cmvaLoose' : {
-				'notag'	  : [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag'	  : [6, 8, 10, 12, 20],	
-				},
-			'cmvaMedium' : {
-				'notag'  	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 8, 10, 12, 20],
-				},
-			'cmvaTight' : {
-				'notag' 	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 12, 20],
-				},			
+			#'cmvaLoose' : {
+			#	'notag'	  : [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag'	  : [6, 8, 10, 12, 20],	
+			#	},
+			#'cmvaMedium' : {
+			#	'notag'  	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag' 	: [6, 8, 10, 12, 20],
+			#	},
+			#'cmvaTight' : {
+			#	'notag' 	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag' 	: [6, 12, 20],
+			#	},			
 			'DeepCsvLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
@@ -1022,10 +1024,10 @@ class CTagPlotter(Plotter):
 		
 		if not hasattr(self, 'flav_styles'):
 			self.flav_styles = {
-				'b' : {'fillcolor' : '#0055ff', 'linecolor' : '#0055ff'},
-				'c' : {'fillcolor' : '#9999CC', 'linecolor' : '#9999CC'},
-				'l' : {'fillcolor' : '#ab5555', 'linecolor' : '#ab5555'},
-				's' : {'fillcolor' : '#FFCC66', 'linecolor' : '#FFCC66'}
+				'b' : {'fillcolor' : 'r', 'linecolor' : 'k', 'markercolor' : 'k'},
+				'c' : {'fillcolor' : '#008900', 'linecolor' : 'k', 'markercolor' : 'k'},
+				'l' : {'fillcolor' : 'b', 'linecolor' : 'k', 'markercolor' : 'k'},
+				's' : {'fillcolor' : '#FFCC66', 'linecolor' : 'k', 'markercolor' : 'k'}
 				}
 		hb.decorate(**self.flav_styles['b']) 
 		hb.title = 'b-jets'
@@ -1035,7 +1037,17 @@ class CTagPlotter(Plotter):
 		hc.title = 'c-jets'
 		stack = plotter.create_stack(hb, hl, hc, sort=False)
 		data = plotter.get_view('data').Get(dirname+'%s_%s' % (basename, disc.replace('hflav_','').replace('pflav_','')))
-		plotter.overlay([stack, data])
+		#plotter.overlay([stack, data])
+		plotter.overlay_and_compare(
+		    [stack], data,
+		    method='datamc',
+		    ignore_style=False,
+		    lower_y_range=0.5,
+		    xtitle=disc.replace('hflav_','')+ ' (%s)' % basename,
+		    ytitle='Events',
+		)
+		self.canvas.Update()
+		self.pad.cd()
 		plotter.add_legend([stack, data], leftleg, 5)
 		plotter.save('%s_%s_flavour' % (basename, disc))
 		
@@ -1092,7 +1104,7 @@ systematics_to_check = [
 	'CTAGC', 
 	'MTOP', 
 	'FSR', 
-	'ISR', 
+	#'ISR', 
 	'pu'
 ]
 
@@ -1103,19 +1115,19 @@ vars2D = [
 variables = [
   ("njets"	 , "# of selected jets", range(13), None, False),
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
-  ("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
-  ("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
+  ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
+  ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
 	("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
-  ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
-  ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
-  ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
-  ("Bjets_CvsL", "CvsL Discriminator (B Jet)", 1, None, False),
-	("Wjets_CMVA"     , "cMVA Discriminator", 1, None, False),
+  ("Wjets_DeepCvsL", "DeepCSV CvsL Discriminator (W Jet)", 1, (0,1), False),
+  ("Wjets_DeepCvsB", "DeepCSV CvsB Discriminator (W Jet)", 1, (0,1), False),
+  ("Bjets_DeepCvsB", "DeepCSV CvsB Discriminator (B Jet)", 1, (0,1), False),
+  ("Bjets_DeepCvsL", "DeepCSV CvsL Discriminator (B Jet)", 1, (0,1), False),
+	#("Wjets_CMVA"     , "cMVA Discriminator", 1, None, False),
 	("Wjets_DeepCSVb" , "DeepCSVb Discriminator", 1, None, False),
 	("Wjets_DeepCSVl" , "DeepCSVl Discriminator", 1, None, False),
 	("Wjets_DeepCSVbb", "DeepCSVbb Discriminator", 1, None, False),
 	("Wjets_DeepCSVc" , "DeepCSVc Discriminator", 1, None, False),
-	("Wjets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
+	#("Wjets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
 	("Wjets_DeepCSVbD", "DeepCSV Discriminator", 1, None, False),
   #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None, False),
   #("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
@@ -1133,15 +1145,15 @@ variables = [
 preselection = [
   ("njets"	 , "# of selected jets", range(13), None, False),
   ("jets_CSV", "jet CSV",	2, None, False),
-  ("jets_CvsB", "CvsB Discriminator", 1, None, False),
-  ("jets_CvsL", "CvsL Discriminator", 1, None, False),
-	("jets_cMVA"     , "cMVA Discriminator", 1, None, False),
+  ("jets_DeepCvsB", "DeepCSV CvsB Discriminator", 1, (0,1), False),
+  ("jets_DeepCvsL", "DeepCSV CvsL Discriminator", 1, (0,1), False),
+	#("jets_cMVA"     , "cMVA Discriminator", 1, None, False),
 	("jets_DeepCSVb" , "DeepCSVb Discriminator" , 1, None, False),
 	("jets_DeepCSVl" , "DeepCSVl Discriminator" , 1, None, False),
 	("jets_DeepCSVbb", "DeepCSVbb Discriminator", 1, None, False),
 	("jets_DeepCSVc" , "DeepCSVc Discriminator" , 1, None, False),
-	("jets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
-	("jets_DeepCSVbD", "DeepCSVbD Discriminator", 1, None, False),
+	#("jets_DeepCSVcc", "DeepCSVcc Discriminator", 1, None, False),
+	("jets_DeepCSVbD", "DeepCSV Discriminator", 1, None, False),
   ("jets_eta", "#eta(jet)", 10, None, False),
   ("jets_pt", "p_{T}(jet)", 10, None, False),
   ("lep_eta", "#eta(l)", 10, None, False),
@@ -1167,9 +1179,9 @@ available_wps = [
 	"ctagLoose",
 	"ctagMedium",
 	"ctagTight",
-	"cmvaMedium",
-	"cmvaLoose" ,
-	"cmvaTight" ,
+	#"cmvaMedium",
+	#"cmvaLoose" ,
+	#"cmvaTight" ,
 	"DeepCsvLoose" ,
 	"DeepCsvTight" ,
 	"DeepCsvMedium",
@@ -1233,22 +1245,20 @@ if args.mceffs:
 		out.write(prettyjson.dumps(json))
 
 if args.plots:
-	#cut flow
-	## flow = plotter.cut_flow()
 	## plotter.save('cut_flow')
 
 	plotter.set_subdir('preselection')
 	for var, axis, rebin, x_range, leftside in preselection:
 		plotter.make_preselection_plot(
 			'nosys/preselection', var, sort=True,
-			xaxis=axis, leftside=leftside, rebin=rebin, 
+			xaxis=axis, leftside=leftside, rebin=rebin, xrange=x_range, 
 			show_ratio=True, ratio_range=0.5, sys_effs='pu' if var == 'nvtx' or var == 'rho' else None)		
 		plotter.save(var)
 		
 	for var, axis, rebin, x_range, leftside in permutation_presel:
 		plotter.make_preselection_plot(
 			'nosys/permutations', var, sort=True,
-			xaxis=axis, leftside=leftside, rebin=rebin, 
+			xaxis=axis, leftside=leftside, rebin=rebin, xrange=x_range, 
 			show_ratio=True, ratio_range=0.5)
 		plotter.save(var)
 
@@ -1336,7 +1346,8 @@ if args.plots:
 				 folder, var, rebin,
 				 xaxis=axis, leftside=leftside,
 				 xrange=x_range, show_ratio=True, 
-				 ratio_range=0.5)
+				 ratio_range=1.0)
+				 #ratio_range=0.5)
 			 plotter.save(var)
 
 #

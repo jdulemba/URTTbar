@@ -146,22 +146,22 @@ class GenTTBar: public TLorentzVector {
             return(false);
         }
         bool is_bhad_in_acceptance(double pt, double eta, double lead_pt) { // check if bhad parton falls w/in pt and eta acceptance
-            if( had_b()->Pt() < pt || Abs(had_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
+            if( had_b()->Pt() < pt || abs(had_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
         bool is_blep_in_acceptance(double pt, double eta, double lead_pt) { // check if blep parton falls w/in pt and eta acceptance
-            if( lep_b()->Pt() < pt || Abs(lep_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
+            if( lep_b()->Pt() < pt || abs(lep_b()->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
         bool is_wja_in_acceptance(double pt, double eta, double lead_pt) { // check if wja parton falls w/in pt and eta acceptance
-            if( had_W()->first->Pt() < pt || Abs(had_W()->first->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
+            if( had_W()->first->Pt() < pt || abs(had_W()->first->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 
         bool is_wjb_in_acceptance(double pt, double eta, double lead_pt) { // check if wjb parton falls w/in pt and eta acceptance
-            if( had_W()->second->Pt() < pt || Abs(had_W()->second->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
+            if( had_W()->second->Pt() < pt || abs(had_W()->second->Eta()) > eta || !leadjet_ptmin_in_acceptance(lead_pt) ) {return(false);}
             return(true);
         }
 

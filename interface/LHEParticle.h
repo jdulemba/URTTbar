@@ -23,7 +23,7 @@ class LHEParticle: public Lhepaticle , public TLorentzVector {
 
         std::pair<int, int> mothers_range() const {return std::make_pair(fmother()-1, lmother()-1);}
         //static std::vector<LHEParticle> LHEParticles(URStreamer &event);
-        int pdgId() const {return pdgId();} //stupid patch
+        int pdgId() const {return pdgid();} //stupid patch
         friend std::ostream & operator<<(std::ostream &os, const LHEParticle &obj);
 };
 #endif

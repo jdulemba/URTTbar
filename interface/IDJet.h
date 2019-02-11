@@ -65,6 +65,8 @@ class IDJet : public Jet, public MCMatchable
         float DeepCvsLtag() const;
         float DeepCvsBtag() const;
 
+        float DeepCSV() const {return DeepCSVProbB() + DeepCSVProbBB();}
+
         bool LooseID()  {
             // Jet ID https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016#Recommendations_for_the_13_TeV_d
             //to be filled in new tree version

@@ -56,7 +56,7 @@ Every new iteration check:
    * Update the lepton SF for Trigger, ID, Isolation
 	 * Update Lepton ID/Isolation working points
 	    * Muons: https://twiki.cern.ch/twiki/bin/view/CMS/MuonPOG
-        *Electrons:
+	    * Electrons: 
 	 * Update CSV file with the BTagging SF: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation
    * Check that the CSV/cMVA/CTag/Whatever btagging working points did not change defeinition
    * Check MET Filter recommendations: https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2
@@ -85,7 +85,7 @@ python ctag_scripts/make_btag_efficiencies.py
 
 Takes a **long** time
 ```
-rake 'analyze_batch[ctag_eff.cc]'
+rake 'analyze_batch[bin/ctag_eff.cc, *, ctag_scripts/ctag_eff.cfg]'
 ```
 
 ## Making plots

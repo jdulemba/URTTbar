@@ -234,6 +234,7 @@ int TTGenParticleSelector::comes_from_top(LHEParticle &lhe) {
 
 void TTGenParticleSelector::select_lhe(URStreamer& event)
 {
+
     auto& evt_lhes = event.LHEPaticles();
     lhes_.reserve(evt_lhes.size());// = LHEParticle::LHEParticles(event);
     for(auto& lhe : evt_lhes){lhes_.emplace_back(lhe);}
@@ -458,9 +459,11 @@ bool TTGenParticleSelector::is_in_acceptance(GenTTBar::DecayType decay_mode)
 //
 
 bool TTGenParticleSelector::descends(const Genparticle* mother, const Genparticle* child) {
-    for(int mom_idx : child->momIdx()) 
-        if(mom_idx == mother->momIdx()) 
+    for(int mom_idx : child->momIdx()){
+        if(mom_idx == mother->idx()){
             return true;
+        }
+    }
     return false;
 }
 
