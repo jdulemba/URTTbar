@@ -146,7 +146,7 @@ end
 rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   dir = File.dirname(t.name)
   bname = File.basename(t.name)
-  combine_cmd = "combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveWorkspace --minos=all --saveNLL  --skipBOnlyFit"
+  combine_cmd = "combine fitModel.root -M FitDiagnostics --saveNormalizations --saveWithUncertainties --saveWorkspace --minos=all --saveNLL  --skipBOnlyFit"
   chdir(dir) do
     if t.name.include? 'Toy'
       if $batch == "1"
@@ -184,7 +184,7 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
       sh "#{combine_cmd} #{toy_cmd}"# &> fit.log"
       #sh "cat fit.log"
       sh "mv mlfit.root #{File.basename(t.name)}"      
-      sh "mv higgsCombineTest.MaxLikelihoodFit.mH120.root MLFit_workspace.root"
+      sh "mv higgsCombineTest.FitDiagnostics.mH120.root MLFit_workspace.root"
     end
     #sh "mv higgsCombineTest.MultiDimFit.mH120.root MultiDimFit.root"
   end
@@ -195,7 +195,7 @@ rule /MaxLikeFitStatOnly\.root$/ => psub(/MaxLikeFitStatOnly/, 'MultiDimFit') do
   dir = File.dirname(t.name)
   bname = File.basename(t.name)
   chdir(dir) do
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit --freezeNuisances all --minos=all --snapshotName MultiDimFit"
+    sh "combine MultiDimFit.root -M FitDiagnostics --freezeNuisances all --minos=all --snapshotName MultiDimFit"
     sh "mv mlfit.root #{File.basename(t.name)}"      
   end
 end
@@ -212,13 +212,13 @@ task :sys_breakdown, [:wp] do |t, args|
   singles = [/JES/,/pu/, /MTOP/, /PDF/, /BTAG/, /CTAGL/]
   for_cmb = [/JES/,/pu/]
   chdir(wpdir) do
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit --freezeNuisances all --minos=all --snapshotName MultiDimFit &> /dev/null"
+    sh "combine MultiDimFit.root -M FitDiagnostics --freezeNuisances all --minos=all --snapshotName MultiDimFit &> /dev/null"
     sh "mv mlfit.root MaxLikeFitStatistic.root"
     nuisances.each do |nuisance|
       if singles.map {|g| g =~ nuisance}.any?
         puts nuisance
         to_freeze = nuisances.select{|x| x != nuisance}.join(',')
-        sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
+        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
         sh "mv mlfit.root sys_breakdown/#{nuisance}.root"
       end
     end
@@ -229,7 +229,7 @@ task :sys_breakdown, [:wp] do |t, args|
       if to_freeze.length == 0
         next
       end
-      sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
+      sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
       sh "mv mlfit.root sys_breakdown/#{name}.root"
     end
 
@@ -240,12 +240,12 @@ task :sys_breakdown, [:wp] do |t, args|
       if for_cmb.map {|g| g =~ nuisance}.any?
         puts nuisance
         to_freeze = nuisances.select{|x| x != nuisance}.join(',')
-        sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
+        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
         sh "mv mlfit.root for_cmb/#{nuisance}.root"
       end
     end
     to_freeze = nuisances.select{|x| for_cmb.map{|y| y =~ x}.any? }.join(',')
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
+    sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
     sh "mv mlfit.root for_cmb/other.root"
   end
   sh "python ctag_scripts/make_sys_table.py #{args.wp}"
