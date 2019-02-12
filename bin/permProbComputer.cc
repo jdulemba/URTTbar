@@ -69,6 +69,8 @@ class permProbComputer : public AnalyzerBase
         //Scale factors
         LeptonSF electron_sf_, muon_sf_;
 
+        float MTCut_;
+
     public:
         permProbComputer(const std::string output_filename):
             AnalyzerBase("permProbComputer", output_filename),
@@ -83,7 +85,15 @@ class permProbComputer : public AnalyzerBase
             muon_sf_("muon_sf"){
 
                 URParser &parser = URParser::instance();
+                parser.addCfgParameter<string>("event", "MTCut","");
                 parser.parseArguments();
+
+                MTCut_ = parser.getCfgPar<float>("event", "MTCut" );
+        
+                if( MTCut_ != 50 ){
+                    Logger::log().error() << "MTCut is " << MTCut_ << " but it should be 50 in the cfg!" << endl;
+                    throw 42;
+                }
 
                 //set tracker
                 tracker_.use_weight(&evt_weight_);

@@ -275,7 +275,7 @@ double BTagSFProducer::scale_factor(const std::vector<IDJet*> &jets, systematics
 														<< ", Tight ID: " << jet->TagId(tight_) << ", eff_tight: " << eff_tight 
 														<< ", tight_sf: " << tight_sf
                                                         << ", Loose ID: " << jet->TagId(loose_) << ", eff_loose: " << eff_loose
-                                                        << ", loose_sf: " << loose_sf << endl;
+                                                        << ", loose_sf: " << loose_sf << ", binx: " << binx << ", biny: " << biny << endl;
 		}
 
     if(jet->TagId(tight_)) {

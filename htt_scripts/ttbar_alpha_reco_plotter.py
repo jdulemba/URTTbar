@@ -46,61 +46,6 @@ if not args.plot in allowed_plot_types+['All']:
     print "You chose %s as your plot type.\nYou must choose from the help list!" % args.plot
     sys.exit()
 
-#
-hist_styles = {
-            'CORRECT_B': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'red',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b's",
-                'fillstyle': '3345',
-            },
-            'WRONG_B': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'blue',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Wrong b's",
-                'fillstyle': '3354',
-            },
-            'OTHER' : styles['*OTHER'],
-
-            'CORRECT_BHAD': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'blue',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b_{h} match",
-                'fillstyle': '3345',
-            },
-            'CORRECT_BLEP': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'red',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b_{l} match",
-                'fillstyle': '3354',
-            },
-            'CORRECT_Bs': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'black',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b's",
-                'fillstyle': '0',
-            },
-            'SWAPPED_Bs': styles['*SWAP'],
-            'OTHER_MATCH' : styles['*OTHER'],
-}
-#
-#
-#
 
 class ALPHAPlotter(Plotter):
     def __init__(self, lumi=None):
@@ -112,7 +57,8 @@ class ALPHAPlotter(Plotter):
 
         MC_files =  glob.glob('results/%s/ttbar_alpha_reco/*.root' % jobid )
         ttJets_files = [ fname for fname in MC_files if os.path.basename(fname).startswith('ttJets') and 'up' not in fname and 'down' not in fname ]
-        data_files =  glob.glob('results/%s/htt_simple/*.root' % jobid )
+        data_files =  glob.glob('results/%s/ctag_eff/*.root' % jobid )
+        #data_files =  glob.glob('results/%s/htt_simple/*.root' % jobid )
         #data_files = [ fname for fname in data_files if (os.path.basename(fname).startswith('data') and mode[:-1] in os.path.basename(fname).lower() ) ]
         data_files = [ fname for fname in data_files if (os.path.basename(fname).startswith('data') ) ]
         files = ttJets_files+data_files
@@ -127,20 +73,7 @@ class ALPHAPlotter(Plotter):
         #set_trace()
 
         super(ALPHAPlotter, self).__init__(        
-            files, lumis, outdir, styles, None, lumi
-        	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
-        	#defaults = {'blurb': [13, views['data']['intlumi']], 'save' : {'png' : True, 'pdf' : False}},
-            #styles# = 
-            #{
-            #    'RIGHT' : styles['*RIGHT'],
-            #    'MERGED_SWAP' : styles['*SWAP'],
-            #    'MERGED' : styles['*OTHER'],
-            #    'WRONG' : styles['*WRONG'],
-            #    'LOST_SWAP' : styles['*SWAP'],
-            #    'LOST' : styles['*OTHER'],
-            #    #'sample' : styles[args.sample]
-            #},
-            #None, None
+                files, lumis, outdir, styles, None, lumi
             )
 
         self.defaults = {
@@ -189,8 +122,14 @@ This section creates dictionaries used for making plots based on different class
 6. var_types- the objects used for each kinematic variable and their axis labels
 '''
 
-Perm_Categories = ['CORRECT_B', 'WRONG_B', 'OTHER']
-Gen_Categories = ['CORRECT_BHAD', 'CORRECT_BLEP', 'CORRECT_Bs', 'SWAPPED_Bs', 'OTHER_MATCH']
+#Perm_Categories = ['NO_MP', 'CORRECT_WJET_CORRECT_Bs', 'CORRECT_WJET_SWAPPED_Bs', 'CORRECT_WJET_CORRECT_BHAD', 'CORRECT_WJET_CORRECT_BLEP', 'CORRECT_WJET_WRONG_Bs',
+#                    'WRONG_WJET_CORRECT_Bs', 'WRONG_WJET_SWAPPED_Bs', 'WRONG_WJET_CORRECT_BHAD', 'WRONG_WJET_CORRECT_BLEP', 'WRONG_WJET_WRONG_Bs'
+#                ]
+Correct_WJet_Categories = ['CORRECT_WJET_CORRECT_Bs', 'CORRECT_WJET_SWAPPED_Bs', 'CORRECT_WJET_CORRECT_BHAD', 'CORRECT_WJET_CORRECT_BLEP', 'CORRECT_WJET_WRONG_Bs']
+Wrong_WJet_Categories = ['WRONG_WJET_CORRECT_Bs', 'WRONG_WJET_SWAPPED_Bs', 'WRONG_WJET_CORRECT_BHAD', 'WRONG_WJET_CORRECT_BLEP', 'WRONG_WJET_WRONG_Bs']
+
+#Perm_Categories = ['CORRECT_B', 'WRONG_B', 'OTHER']
+#Gen_Categories = ['CORRECT_BHAD', 'CORRECT_BLEP', 'CORRECT_Bs', 'SWAPPED_Bs', 'OTHER_MATCH']
 
 
 #Categories = {'MERGED' : ['RIGHT', 'MERGED_SWAP', 'MERGED', 'WRONG'],\
@@ -248,7 +187,7 @@ def alpha_corrections(directory, subdir):
     }
 
     for hvar, xlabel, ylabel, txt_box_label in hvars:
-        hname = '/'.join([directory, 'Alpha_Correction', hvar])
+        hname = '/'.join([directory, 'Alpha_Correction', 'CORRECT_WJET_CORRECT_Bs', hvar])
         #set_trace()
         hist = plotter.get_view('ttJetsAll').Get(hname).Clone()
 
@@ -344,7 +283,9 @@ def alpha_corrections(directory, subdir):
             p2_1p1_weighted = plt.plot(xfit_bins, p2_1p1(xfit_bins), label='weighted deg=2 bins > 1.1', linestyle='-', color='green') #plots p2 for weighted bins > 1.1
             p2_groom_fit = plt.plot(xfit_bins, p2_groom(xfit_bins), label='weighted deg=2 bins > 0.9', linestyle='--', color='green') #plots p2 for bins > 0.9
 
+            fits[hvar.split('/')[1]]['1D_g0.9'] = fit_1d_groom.tolist()
             fits[hvar.split('/')[1]]['1D_g1.1'] = fit_1d_1p1.tolist()
+            fits[hvar.split('/')[1]]['2D_g0.9'] = fit_2d_groom.tolist()
             fits[hvar.split('/')[1]]['2D_g1.1'] = fit_2d_1p1.tolist()
 
             plt.xlabel('173.1/Reco M($t_{h}$)')
@@ -389,8 +330,8 @@ def alpha_corrections(directory, subdir):
         #if topology:
         #    for cat in Categories[topology]:
         #        plotter.set_subdir('/'.join([subdir, 'Alpha_Correction', cat]))
-        #        #evt_col=hist_styles[cat]['fillcolor']
-        #        evt_type = hist_styles[cat]['name']
+        #        #evt_col=styles[cat]['fillcolor']
+        #        evt_type = styles[cat]['name']
         #        cat_hname = '/'.join([directory, 'Alpha_Correction', cat, hvar])
         #        cat_hist = asrootpy(myfile.Get(cat_hname)).Clone()
 
@@ -473,11 +414,11 @@ def Gen_Plots(directory, subdir):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
             to_draw = []
-            for cat in Perm_Categories:#[topology]:
+            for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
                 plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Perm_Categories']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Gen', cat, kvar, obj])
                 cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
     
@@ -488,7 +429,7 @@ def Gen_Plots(directory, subdir):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -504,13 +445,13 @@ def Gen_Plots(directory, subdir):
             plotter.save('Gen_%s_%s_Stack_Norm' % (obj, kvar))
 
 
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+                ### create hists based on correct wjet perm assignment
             to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Gen_Categories']))
+            for cat in Correct_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Perm_Categories', 'Correct_WJet']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Gen', cat, kvar, obj])
                 cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
     
@@ -521,7 +462,7 @@ def Gen_Plots(directory, subdir):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -529,11 +470,52 @@ def Gen_Plots(directory, subdir):
                 continue
             stack, norm_stack, ratio = fncts.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
             plotter.save('Gen_%s_%s_Stack' % (obj, kvar))
     
             plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            box2.Draw()
+            plotter.save('Gen_%s_%s_Stack_Norm' % (obj, kvar))
+
+
+                ### create hists based on wrong wjet perm assignment
+            to_draw = []
+            for cat in Wrong_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Gen', kvar, 'Perm_Categories', 'Wrong_WJet']))
+                #set_trace()
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
+                cat_hname = '/'.join([directory, 'Gen', cat, kvar, obj])
+                cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
+    
+                cat_hist = RebinView.rebin(cat_hist, new_bins)
+                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+    
+                if cat_hist.Integral() == 0:
+                    continue
+    
+                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                to_draw.append(cat_hist)
+    
+            if not to_draw:
+                continue
+            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            #set_trace()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
+            plotter.save('Gen_%s_%s_Stack' % (obj, kvar))
+    
+            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            box2.Draw()
             plotter.save('Gen_%s_%s_Stack_Norm' % (obj, kvar))
 
 
@@ -583,11 +565,11 @@ def Reco_Plots(directory, subdir):#, topology):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
             to_draw = []
-            for cat in Perm_Categories:#[topology]:
+            for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
                 plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Perm_Categories']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
                 cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
     
@@ -598,7 +580,7 @@ def Reco_Plots(directory, subdir):#, topology):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -614,13 +596,13 @@ def Reco_Plots(directory, subdir):#, topology):
             plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
 
 
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+                ### create hists based on correct wjet assignment
             to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Gen_Categories']))
+            for cat in Correct_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Perm_Categories', 'Correct_WJet']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
                 cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
     
@@ -631,7 +613,7 @@ def Reco_Plots(directory, subdir):#, topology):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -639,13 +621,51 @@ def Reco_Plots(directory, subdir):#, topology):
                 continue
             stack, norm_stack, ratio = fncts.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
             plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
     
             plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            box2.Draw()
             plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
 
+
+                ### create hists based on wrong wjet assignment
+            to_draw = []
+            for cat in Wrong_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Reconstruction', kvar, 'Perm_Categories', 'Wrong_WJet']))
+                #set_trace()
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
+                cat_hname = '/'.join([directory, 'Reconstruction', cat, kvar, obj])
+                cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
+    
+                cat_hist = RebinView.rebin(cat_hist, new_bins)
+                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+    
+                if cat_hist.Integral() == 0:
+                    continue
+    
+                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                to_draw.append(cat_hist)
+    
+            if not to_draw:
+                continue
+            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
+            plotter.save('Reco_%s_%s_Stack' % (obj, kvar))
+    
+            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            box2.Draw()
+            plotter.save('Reco_%s_%s_Stack_Norm' % (obj, kvar))
 
 
 
@@ -690,11 +710,11 @@ def Resolution_Plots(directory, subdir):#, topology):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
             to_draw = []
-            for cat in Perm_Categories:#[topology]:
+            for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
                 plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Perm_Categories']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
                 cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
     
@@ -705,7 +725,7 @@ def Resolution_Plots(directory, subdir):#, topology):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -721,13 +741,13 @@ def Resolution_Plots(directory, subdir):#, topology):
             plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
 
 
-                ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+                ### create hists based on correct wjet assignment
             to_draw = []
-            for cat in Gen_Categories:#[topology]:
-                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Gen_Categories']))
+            for cat in Correct_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Perm_Categories', 'Correct_WJet']))
                 #set_trace()
-                evt_col=hist_styles[cat]['fillcolor']
-                evt_type = hist_styles[cat]['name']
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
                 cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
                 cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
     
@@ -738,7 +758,7 @@ def Resolution_Plots(directory, subdir):#, topology):
                     continue
     
                 plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
                 plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
                 to_draw.append(cat_hist)
     
@@ -746,13 +766,51 @@ def Resolution_Plots(directory, subdir):#, topology):
                 continue
             stack, norm_stack, ratio = fncts.stack_plots(to_draw)
             plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
             plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
     
             plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-            box1.Draw()
+            box2.Draw()
             plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
 
+
+                ### create hists based on wrong wjet assignment
+            to_draw = []
+            for cat in Wrong_WJet_Categories:
+                plotter.set_subdir('/'.join([subdir, 'Resolution', kvar, 'Perm_Categories', 'Wrong_WJet']))
+                #set_trace()
+                evt_col=styles[cat]['fillcolor']
+                evt_type = styles[cat]['name']
+                cat_hname = '/'.join([directory, 'Resolution', cat, kvar, obj])
+                cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
+    
+                cat_hist = RebinView.rebin(cat_hist, new_bins)
+                #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+    
+                if cat_hist.Integral() == 0:
+                    continue
+    
+                plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                to_draw.append(cat_hist)
+    
+            if not to_draw:
+                continue
+            stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+            plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+            hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+            box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+            box2.Draw()
+            plotter.save('Reso_%s_%s_Stack' % (obj, kvar))
+    
+            plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+            box2.Draw()
+            plotter.save('Reso_%s_%s_Stack_Norm' % (obj, kvar))
 
     
 ######################################################################################################
@@ -783,11 +841,11 @@ def Discriminant_Plots(directory, subdir):#, topology):
 
                 ### create hists based on perm category (Correct b, wrong b, etc...)
         to_draw = []
-        for cat in Perm_Categories:#[topology]:
+        for cat in Correct_WJet_Categories+Wrong_WJet_Categories+['NO_MP']:
             plotter.set_subdir('/'.join([directory, 'Discr', disc, 'Perm_Categories']))
             #set_trace()
-            evt_col=hist_styles[cat]['fillcolor']
-            evt_type = hist_styles[cat]['name']
+            evt_col=styles[cat]['fillcolor']
+            evt_type = styles[cat]['name']
             cat_hname = '/'.join([directory, 'Discr', cat, disc])
             cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
         
@@ -798,7 +856,7 @@ def Discriminant_Plots(directory, subdir):#, topology):
                 continue
         
             plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel+' 3 jets', ytitle=defyax)
-            cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+            cat_hist.SetFillStyle(styles[cat]['fillstyle'])
             plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
             to_draw.append(cat_hist)
         
@@ -813,14 +871,14 @@ def Discriminant_Plots(directory, subdir):#, topology):
         box1.Draw()
         plotter.save(disc+'_Stack_Norm')
         
-        
-                 ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+
+                ### create hists based on correct wjet assignment
         to_draw = []
-        for cat in Gen_Categories:#[topology]:
-            plotter.set_subdir('/'.join([directory, 'Discr', disc, 'Gen_Categories']))
+        for cat in Correct_WJet_Categories:
+            plotter.set_subdir('/'.join([directory, 'Discr', disc, 'Perm_Categories', 'Correct_WJet']))
             #set_trace()
-            evt_col=hist_styles[cat]['fillcolor']
-            evt_type = hist_styles[cat]['name']
+            evt_col=styles[cat]['fillcolor']
+            evt_type = styles[cat]['name']
             cat_hname = '/'.join([directory, 'Discr', cat, disc])
             cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
         
@@ -831,7 +889,7 @@ def Discriminant_Plots(directory, subdir):#, topology):
                 continue
         
             plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel+' 3 jets', ytitle=defyax)
-            cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
+            cat_hist.SetFillStyle(styles[cat]['fillstyle'])
             plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
             to_draw.append(cat_hist)
         
@@ -839,42 +897,79 @@ def Discriminant_Plots(directory, subdir):#, topology):
             continue
         stack, norm_stack, ratio = fncts.stack_plots(to_draw)
         plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
-        box1.Draw()
+        hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+        hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+        box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+        box2.Draw()
         plotter.save(disc+'_Stack')
         
         plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
-        box1.Draw()
+        box2.Draw()
         plotter.save(disc+'_Stack_Norm')
+        
 
-
+                ### create hists based on wrong wjet assignment
+        to_draw = []
+        for cat in Wrong_WJet_Categories:
+            plotter.set_subdir('/'.join([directory, 'Discr', disc, 'Perm_Categories', 'Wrong_WJet']))
+            #set_trace()
+            evt_col=styles[cat]['fillcolor']
+            evt_type = styles[cat]['name']
+            cat_hname = '/'.join([directory, 'Discr', cat, disc])
+            cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
+        
+            #cat_hist = RebinView.rebin(cat_hist, new_bins)
+            #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+        
+            if cat_hist.Integral() == 0:
+                continue
+        
+            plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel+' 3 jets', ytitle=defyax)
+            cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+            plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+            to_draw.append(cat_hist)
+        
+        if not to_draw:
+            continue
+        stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+        plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
+        hmean = sum([ stack[i] for i in range(len(stack))]).GetMean()
+        hrms = sum([ stack[i] for i in range(len(stack))]).GetRMS()
+        box2 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (hmean, hrms), position='NE')
+        box2.Draw()
+        plotter.save(disc+'_Stack')
+        
+        plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel+' 3 jets', ytitle=defyax, drawstyle='hist')
+        box2.Draw()
+        plotter.save(disc+'_Stack_Norm')
     
 
 #####################################################################################################
 
 def Final_Reco_Plots( plot ):
     #set_trace()
-    reco_dir = '3J_Event_Plots/Lost_BP'
-    reco_subdir = '3J_Event_Plots/Lost_BP'
+    reco_dir = '3J/nosys'
+    #reco_subdir = '3J_Event_Plots/Lost_BP'
 
     if plot == 'Discriminant':
         print '\nMaking Discr plots for 3-jet events\n\n'
-        Discriminant_Plots( reco_dir , reco_subdir ) 
+        Discriminant_Plots( reco_dir , reco_dir ) 
 
     if plot == 'Gen':
         print '\nMaking Gen plots for 3-jet events\n\n' 
-        Gen_Plots( reco_dir , reco_subdir )
+        Gen_Plots( reco_dir , reco_dir )
 
     if plot == 'Reconstruction':
         print '\nMaking reco plots for 3-jet events\n\n'
-        Reco_Plots( reco_dir , reco_subdir)
+        Reco_Plots( reco_dir , reco_dir)
 
     if plot == 'Resolution':
         print '\nMaking resolution plots for 3-jet events\n\n'
-        Resolution_Plots( reco_dir , reco_subdir)
+        Resolution_Plots( reco_dir , reco_dir)
 
     if plot == 'Alpha_Correction':
         ### create alpha correction plots for lost-jet events
-        alpha_corrections( reco_dir , reco_subdir )
+        alpha_corrections( reco_dir , reco_dir )
 
 
 #if args.perm == 'Event':

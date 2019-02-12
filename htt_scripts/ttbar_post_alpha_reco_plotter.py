@@ -53,57 +53,57 @@ if not (args.perm == "Event" or args.perm == "Matched"):
 
 #analyzer = 'ttbar_post_alpha_reco'
 
-hist_styles = {
-            'CORRECT_B': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'red',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b's",
-                'fillstyle': '3345',
-            },
-            'WRONG_B': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'blue',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Wrong b's",
-                'fillstyle': '3354',
-            },
-            'OTHER' : styles['*OTHER'],
-
-            'CORRECT_BHAD': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'blue',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b_{h} match",
-                'fillstyle': '3345',
-            },
-            'CORRECT_BLEP': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'red',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b_{l} match",
-                'fillstyle': '3354',
-            },
-            'CORRECT_Bs': {
-                'legendstyle' : 'l',
-                'drawstyle' : 'hist',
-                'fillcolor' : 'black',
-                'linecolor' : 'black',
-                'linewidth' : 1,
-                'name' : "Correct b's",
-                'fillstyle': '0',
-            },
-            'SWAPPED_Bs': styles['*SWAP'],
-            'OTHER_MATCH' : styles['*OTHER'],
-}
+#styles = {
+#            'CORRECT_B': {
+#                'legendstyle' : 'l',
+#                'drawstyle' : 'hist',
+#                'fillcolor' : 'red',
+#                'linecolor' : 'black',
+#                'linewidth' : 1,
+#                'name' : "Correct b's",
+#                'fillstyle': '3345',
+#            },
+#            'WRONG_B': {
+#                'legendstyle' : 'l',
+#                'drawstyle' : 'hist',
+#                'fillcolor' : 'blue',
+#                'linecolor' : 'black',
+#                'linewidth' : 1,
+#                'name' : "Wrong b's",
+#                'fillstyle': '3354',
+#            },
+#            'OTHER' : styles['*OTHER'],
+#
+#            'CORRECT_BHAD': {
+#                'legendstyle' : 'l',
+#                'drawstyle' : 'hist',
+#                'fillcolor' : 'blue',
+#                'linecolor' : 'black',
+#                'linewidth' : 1,
+#                'name' : "Correct b_{h} match",
+#                'fillstyle': '3345',
+#            },
+#            'CORRECT_BLEP': {
+#                'legendstyle' : 'l',
+#                'drawstyle' : 'hist',
+#                'fillcolor' : 'red',
+#                'linecolor' : 'black',
+#                'linewidth' : 1,
+#                'name' : "Correct b_{l} match",
+#                'fillstyle': '3354',
+#            },
+#            'CORRECT_Bs': {
+#                'legendstyle' : 'l',
+#                'drawstyle' : 'hist',
+#                'fillcolor' : 'black',
+#                'linecolor' : 'black',
+#                'linewidth' : 1,
+#                'name' : "Correct b's",
+#                'fillstyle': '0',
+#            },
+#            'SWAPPED_Bs': styles['*SWAP'],
+#            'OTHER_MATCH' : styles['*OTHER'],
+#}
 
 
 class ALPHAPlotter(Plotter):
@@ -116,7 +116,8 @@ class ALPHAPlotter(Plotter):
 
         MC_files =  glob.glob('results/%s/ttbar_post_alpha_reco/*.root' % jobid )
         ttJets_files = [ fname for fname in MC_files if os.path.basename(fname).startswith('ttJets') and 'up' not in fname and 'down' not in fname ]
-        data_files =  glob.glob('results/%s/htt_simple/*.root' % jobid )
+        data_files =  glob.glob('results/%s/ctag_eff/*.root' % jobid )
+        #data_files =  glob.glob('results/%s/htt_simple/*.root' % jobid )
         #data_files = [ fname for fname in data_files if (os.path.basename(fname).startswith('data') and mode[:-1] in os.path.basename(fname).lower() ) ]
         data_files = [ fname for fname in data_files if (os.path.basename(fname).startswith('data') ) ]
         files = ttJets_files+data_files
@@ -129,20 +130,7 @@ class ALPHAPlotter(Plotter):
         outdir = '%s/plots/%s/ttbar_alpha_reco/ttJetsAll' % (project, jobid)
 
         super(ALPHAPlotter, self).__init__(
-            files, lumis, outdir, styles, None, lumi
-            #defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
-            #defaults = {'blurb': [13, views['data']['intlumi']], 'save' : {'png' : True, 'pdf' : False}},
-            #styles# = 
-            #{
-            #    'RIGHT' : styles['*RIGHT'],
-            #    'MERGED_SWAP' : styles['*SWAP'],
-            #    'MERGED' : styles['*OTHER'],
-            #    'WRONG' : styles['*WRONG'],
-            #    'LOST_SWAP' : styles['*SWAP'],
-            #    'LOST' : styles['*OTHER'],
-            #    #'sample' : styles[args.sample]
-            #},
-            #None, None
+                files, lumis, outdir, styles, None, lumi
             )
 
         self.defaults = {
@@ -156,50 +144,6 @@ class ALPHAPlotter(Plotter):
         #set_trace()
 
 plotter = ALPHAPlotter()
-
-#
-###### check sample type
-#results_files = []
-#results_file = '' 
-#if args.analysis == "Test":
-#    results_files = filter(lambda x: '%s.%s.test.root' % (args.sample, analyzer) in x, os.listdir(project))
-#    results_file = '%s/%s' % (project, results_files[0])    
-#
-#    plotter = BasePlotter(
-#    	'%s/htt_scripts/plots/%s/%s/%s/%s' % (project, out_analyzer, jobid, args.analysis, args.sample),
-#    	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
-#    	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
-#        styles = {
-#            'RIGHT' : styles['*RIGHT'],
-#            'MERGED_SWAP' : styles['*SWAP'],
-#            'MERGED' : styles['*OTHER'],
-#            'WRONG' : styles['*WRONG'],
-#            'LOST_SWAP' : styles['*SWAP'],
-#            'LOST' : styles['*OTHER'],
-#            'sample' : styles[args.sample]
-#        }
-#    )
-#    #set_trace()
-#
-#if args.analysis == "Full":
-#    results_files = filter(lambda x: '%s.root' % args.sample in x, os.listdir('%s/results/%s/%s' % (project, jobid, analyzer)))
-#    results_file  = '%s/results/%s/%s/%s' % (project, jobid, analyzer, results_files[0])
-#
-#    plotter = BasePlotter(
-#    	'%s/plots/%s/%s/%s' % (project, jobid, out_analyzer, args.sample),
-#    	#defaults = {'show_title': True, 'save' : {'png' : True, 'pdf' : False}, 'watermark': ['(13 TeV, 25ns)', False]}
-#    	defaults = {'show_title': False, 'save' : {'png' : True, 'pdf' : False}},
-#        styles = {
-#            'RIGHT' : styles['*RIGHT'],
-#            'MERGED_SWAP' : styles['*SWAP'],
-#            'MERGED' : styles['*OTHER'],
-#            'WRONG' : styles['*WRONG'],
-#            'LOST_SWAP' : styles['*SWAP'],
-#            'LOST' : styles['*OTHER'],
-#            'sample' : styles[args.sample]
-#        }
-#    )
-
 
 allowed_plot_types = ['Reconstruction', 'Resolution', 'Partons_Acceptances']
 
@@ -245,8 +189,10 @@ This section creates dictionaries used for making plots based on different class
 6. var_types- the objects used for each kinematic variable and their axis labels
 '''
 
-Perm_Categories = ['CORRECT_B', 'WRONG_B', 'OTHER']
-Gen_Categories = ['CORRECT_BHAD', 'CORRECT_BLEP', 'CORRECT_Bs', 'SWAPPED_Bs', 'OTHER_MATCH']
+#Perm_Categories = ['CORRECT_B', 'WRONG_B', 'OTHER']
+#Gen_Categories = ['CORRECT_BHAD', 'CORRECT_BLEP', 'CORRECT_Bs', 'SWAPPED_Bs', 'OTHER_MATCH']
+Correct_WJet_Categories = ['CORRECT_WJET_CORRECT_Bs', 'CORRECT_WJET_SWAPPED_Bs', 'CORRECT_WJET_CORRECT_BHAD', 'CORRECT_WJET_CORRECT_BLEP', 'CORRECT_WJET_WRONG_Bs']
+Wrong_WJet_Categories = ['WRONG_WJET_CORRECT_Bs', 'WRONG_WJET_SWAPPED_Bs', 'WRONG_WJET_CORRECT_BHAD', 'WRONG_WJET_CORRECT_BLEP', 'WRONG_WJET_WRONG_Bs']
 
 
 #Categories = {'MERGED' : ['RIGHT', 'MERGED_SWAP', 'MERGED', 'WRONG'],\
@@ -281,14 +227,14 @@ def Reconstruction_Plots(directory, subdir):
 
     reco_hists = {
         'Mass' : {
-                    'THad' : { 'Uncorrected' : ('', 50., 200., 'b'), 'Corrected' : ('_Corrected', 100., 200., 'r') },
-                    'TTbar' : { 'Uncorrected' : ('', 200., 2000., 'b'), 'Corrected' : ('_Corrected', 200., 2000., 'r') },
-                    'Reco_vs_Gen_TTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) (GeV)', 'Uncorrected Reco M(t#bar{t}) (GeV)'), 'Corrected' : ('_Corrected', 'Gen M(t#bar{t}) (GeV)', 'Corrected Reco M(t#bar{t}) (GeV)') },
+                    'THad' : { 'Uncorrected' : ('', 50., 300., 'b'), 'Corrected_1D' : ('_Corrected_1D', 100., 300., 'r'), 'Corrected_2D' : ('_Corrected_2D', 100., 300., 'g') },
+                    'TTbar' : { 'Uncorrected' : ('', 200., 2000., 'b'), 'Corrected_1D' : ('_Corrected_1D', 200., 2000., 'r'), 'Corrected_2D' : ('_Corrected_2D', 200., 2000., 'g') },
+                    'Reco_vs_Gen_TTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) (GeV)', 'Uncorrected Reco M(t#bar{t}) (GeV)'), 'Corrected_1D' : ('_Corrected_1D', 'Gen M(t#bar{t}) (GeV)', 'Corrected 1D Reco M(t#bar{t}) (GeV)'), 'Corrected_2D' : ('_Corrected_2D', 'Gen M(t#bar{t}) (GeV)', 'Corrected 2D Reco M(t#bar{t}) (GeV)') },
          },
         'Costh' : {
-                    'THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') },
-                    'THad_Labframe' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') },
-                    'Reco_vs_Gen_THad' : { 'Uncorrected' : ('', 'Gen cos(#theta^{*})', 'Reco cos(#theta^{*})'), 'Corrected' : ('_Corrected', 'Gen cos(#theta^{*})', 'Corrected Reco cos(#theta^{*})') },
+                    'THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected_1D' : ('_Corrected_1D', -1., 1., 'r'), 'Corrected_2D' : ('_Corrected_2D', -1., 1., 'g') },
+                    'THad_Labframe' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected_1D' : ('_Corrected_1D', -1., 1., 'r'), 'Corrected_2D' : ('_Corrected_2D', -1., 1., 'g') },
+                    'Reco_vs_Gen_THad' : { 'Uncorrected' : ('', 'Gen cos(#theta^{*})', 'Reco cos(#theta^{*})'), 'Corrected_1D' : ('_Corrected_1D', 'Gen cos(#theta^{*})', 'Corrected 1D Reco cos(#theta^{*})'), 'Corrected_2D' : ('_Corrected_2D', 'Gen cos(#theta^{*})', 'Corrected 2D Reco cos(#theta^{*})') },
         }
     }
 
@@ -358,16 +304,16 @@ def Reso_Plots(directory, subdir):
 
     reso_hists = {
         'Mass' : {
-                    'THad' : { 'Uncorrected' : ('', -200., 200., 'b'), 'Corrected' : ('_Corrected', -100., 100., 'r') },
-                    'TTbar' : { 'Uncorrected' : ('', -400., 500., 'b'), 'Corrected' : ('_Corrected', -400., 400., 'r') },
-                    'Frac_THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -0.5, 0.5, 'r') },
-                    'Frac_TTbar' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') },
-                    'Reso_MTTbar_vs_Gen_MTTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Uncorrected M(t#bar{t}) Resolution [GeV]'), 'Corrected' : ('_Corrected', 'Gen M(t#bar{t}) [GeV]', 'Corrected Reco M(t#bar{t}) Resolution [GeV]') },
-                    'Frac_TTbar_vs_Gen_THadPt' : { 'Uncorrected' : ('', 'Gen p_{T}(t_{h}) [GeV]', 'Uncorrected M(t#bar{t}) Frac Resolution'), 'Corrected' : ('_Corrected', 'Gen p_{T}(t_{h}) [GeV]', 'Corrected M(t#bar{t}) Frac Resolution') },
+                    'THad' : { 'Uncorrected' : ('', -200., 200., 'b'), 'Corrected_1D' : ('_Corrected_1D', -100., 100., 'r'), 'Corrected_2D' : ('_Corrected_2D', -100., 100., 'g') },
+                    'TTbar' : { 'Uncorrected' : ('', -400., 500., 'b'), 'Corrected_1D' : ('_Corrected_1D', -400., 400., 'r'), 'Corrected_2D' : ('_Corrected_2D', -400., 400., 'g') },
+                    'Frac_THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected_1D' : ('_Corrected_1D', -0.5, 0.5, 'r'), 'Corrected_2D' : ('_Corrected_2D', -0.5, 0.5, 'g') },
+                    'Frac_TTbar' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected_1D' : ('_Corrected_1D', -1., 1., 'r'), 'Corrected_2D' : ('_Corrected_2D', -1., 1., 'g') },
+                    'Reso_MTTbar_vs_Gen_MTTbar' : { 'Uncorrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Uncorrected M(t#bar{t}) Resolution [GeV]'), 'Corrected_1D' : ('_Corrected_1D', 'Gen M(t#bar{t}) [GeV]', 'Corrected 1D Reco M(t#bar{t}) Resolution [GeV]'), 'Corrected_2D' : ('_Corrected_2D', 'Gen M(t#bar{t}) [GeV]', 'Corrected 2D Reco M(t#bar{t}) Resolution [GeV]') },
+                    'Frac_TTbar_vs_Gen_THadPt' : { 'Uncorrected' : ('', 'Gen p_{T}(t_{h}) [GeV]', 'Uncorrected M(t#bar{t}) Frac Resolution'), 'Corrected_1D' : ('_Corrected_1D', 'Gen p_{T}(t_{h}) [GeV]', 'Corrected 1D M(t#bar{t}) Frac Resolution'), 'Corrected_2D' : ('_Corrected_2D', 'Gen p_{T}(t_{h}) [GeV]', 'Corrected 2D M(t#bar{t}) Frac Resolution') },
                     #'Reso_MTTbar_Corrected_vs_Gen_MTTbar' : { 'Corrected' : ('', 'Gen M(t#bar{t}) [GeV]', 'Corrected Reco M(t#bar{t}) Resolution [GeV]') }
          },
         'Costh' : {
-                    'THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected' : ('_Corrected', -1., 1., 'r') }
+                    'THad' : { 'Uncorrected' : ('', -1., 1., 'b'), 'Corrected_1D' : ('_Corrected_1D', -1., 1., 'r'), 'Corrected_2D' : ('_Corrected_2D', -1., 1., 'g') }
         }
     }
 
@@ -387,72 +333,72 @@ def Reso_Plots(directory, subdir):
 
             to_draw_normal = []
             ## for comparing perm types
-            correct_b_to_draw = []
-            wrong_b_to_draw = []
-            other_to_draw = []
+            #correct_b_to_draw = []
+            #wrong_b_to_draw = []
+            #other_to_draw = []
 
             for corr_type in reso_hists[kvar][obj].keys():
 
                     ### create hists based on perm category (Correct b, wrong b, etc...)
                 #print 'kvar = %s\nobj = %s\ncorr_type= %s ' % (kvar, obj, corr_type)
-                if (kvar == 'Costh' and obj == 'THad') or (kvar == 'Mass' and obj == 'THad') or (kvar == 'Mass' and obj == 'TTbar'):
-                    to_draw = []
-                    for cat in Perm_Categories:
-                        plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories', corr_type]))
-                        evt_col=hist_styles[cat]['fillcolor']
-                        evt_type = hist_styles[cat]['name']
+                #if (kvar == 'Costh' and obj == 'THad') or (kvar == 'Mass' and obj == 'THad') or (kvar == 'Mass' and obj == 'TTbar'):
+                #    to_draw = []
+                #    for cat in Perm_Categories:
+                #        plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories', corr_type]))
+                #        evt_col=styles[cat]['fillcolor']
+                #        evt_type = styles[cat]['name']
 
-                        cat_hvar_extension = reso_hists[kvar][obj][corr_type][0]
-                        cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', kvar, obj+cat_hvar_extension])
-                        cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
-                        if cat_hist.Integral() == 0:
-                            continue
+                #        cat_hvar_extension = reso_hists[kvar][obj][corr_type][0]
+                #        cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', kvar, obj+cat_hvar_extension])
+                #        cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
+                #        if cat_hist.Integral() == 0:
+                #            continue
         
-                            ## set hist range, get hist mean and rms 
-                        hvar_xmin = reso_hists[kvar][obj][corr_type][1]
-                        hvar_xmax = reso_hists[kvar][obj][corr_type][2]
-                        hvar_col = reso_hists[kvar][obj][corr_type][3]
+                #            ## set hist range, get hist mean and rms 
+                #        hvar_xmin = reso_hists[kvar][obj][corr_type][1]
+                #        hvar_xmax = reso_hists[kvar][obj][corr_type][2]
+                #        hvar_col = reso_hists[kvar][obj][corr_type][3]
 
-                        cat_hist.xaxis.range_user = hvar_xmin, hvar_xmax
-                        cat_hist_mean = cat_hist.GetMean() 
-                        cat_hist_rms = cat_hist.GetRMS() 
+                #        cat_hist.xaxis.range_user = hvar_xmin, hvar_xmax
+                #        cat_hist_mean = cat_hist.GetMean() 
+                #        cat_hist_rms = cat_hist.GetRMS() 
     
-                        plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                        cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
-                        plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                        to_draw.append(cat_hist)
+                #        plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                #        cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                #        plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                #        to_draw.append(cat_hist)
     
-                        box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
-                        box.Draw()
-                        plotter.save('Reso_%s_%s_%s_%s' % (obj, kvar, corr_type, cat))
+                #        box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
+                #        box.Draw()
+                #        plotter.save('Reso_%s_%s_%s_%s' % (obj, kvar, corr_type, cat))
     
-                        #set_trace() 
-                        perm_cat_hist = cat_hist.Clone()
-                        perm_cat_hist.set_name(corr_type)
-                        plotter.set_histo_style(perm_cat_hist, color=hvar_col, fillstyle=0, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, cat_hist_mean, cat_hist_rms), xtitle='%s, %s' % (xlabel, evt_type) )
-                        if cat == 'CORRECT_B':
-                            correct_b_to_draw.append(perm_cat_hist)
-                        elif cat == 'WRONG_B':
-                            wrong_b_to_draw.append(perm_cat_hist)
-                        elif cat == 'OTHER':
-                            other_to_draw.append(perm_cat_hist)
+                #        #set_trace() 
+                #        perm_cat_hist = cat_hist.Clone()
+                #        perm_cat_hist.set_name(corr_type)
+                #        plotter.set_histo_style(perm_cat_hist, color=hvar_col, fillstyle=0, title='%s Mean=%.2f, RMS=%.2f' % (corr_type, cat_hist_mean, cat_hist_rms), xtitle='%s, %s' % (xlabel, evt_type) )
+                #        if cat == 'CORRECT_B':
+                #            correct_b_to_draw.append(perm_cat_hist)
+                #        elif cat == 'WRONG_B':
+                #            wrong_b_to_draw.append(perm_cat_hist)
+                #        elif cat == 'OTHER':
+                #            other_to_draw.append(perm_cat_hist)
 
 
-                    if not to_draw:
-                        continue
-                    
-                    box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
+                #    if not to_draw:
+                #        continue
+                #    
+                #    box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
 
-                    stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                #    stack, norm_stack, ratio = fncts.stack_plots(to_draw)
 
-                    #set_trace()   
-                    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', x_range=(hvar_xmin, hvar_xmax), xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    box1.Draw()
-                    plotter.save('Reso_%s_%s_%s_Stack' % (obj, kvar, corr_type))
+                #    #set_trace()   
+                #    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', x_range=(hvar_xmin, hvar_xmax), xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+                #    box1.Draw()
+                #    plotter.save('Reso_%s_%s_%s_Stack' % (obj, kvar, corr_type))
         
-                    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', x_range=(hvar_xmin, hvar_xmax), xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    box1.Draw()
-                    plotter.save('Reso_%s_%s_%s_Stack_Norm' % (obj, kvar, corr_type))
+                #    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', x_range=(hvar_xmin, hvar_xmax), xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+                #    box1.Draw()
+                #    plotter.save('Reso_%s_%s_%s_Stack_Norm' % (obj, kvar, corr_type))
 
                     #set_trace()   
 
@@ -510,19 +456,19 @@ def Reso_Plots(directory, subdir):
             plotter.save('Reso_%s_%s_Comparison' % (kvar, obj) )
 
 
-                ## compare perm categories
-            if not correct_b_to_draw:
-                continue
+            #    ## compare perm categories
+            #if not correct_b_to_draw:
+            #    continue
 
-            plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories']))
-            plotter.overlay(correct_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
-            plotter.save('Reso_%s_%s_CorrectBs_Comparison' % (kvar, obj) )
+            #plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', kvar, 'Perm_Categories']))
+            #plotter.overlay(correct_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
+            #plotter.save('Reso_%s_%s_CorrectBs_Comparison' % (kvar, obj) )
 
-            plotter.overlay(wrong_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
-            plotter.save('Reso_%s_%s_WrongBs_Comparison' % (kvar, obj) )
+            #plotter.overlay(wrong_b_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
+            #plotter.save('Reso_%s_%s_WrongBs_Comparison' % (kvar, obj) )
 
-            plotter.overlay(other_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
-            plotter.save('Reso_%s_%s_Other_Comparison' % (kvar, obj) )
+            #plotter.overlay(other_to_draw, legend_def=LegendDefinition(position='NW'), legendstyle='l', ytitle=defyax, drawstyle='hist')
+            #plotter.save('Reso_%s_%s_Other_Comparison' % (kvar, obj) )
             #set_trace()   
 
 
@@ -560,7 +506,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                     'title' : 'Reso_MTTbar_2Partons',
                                     'hists' : {
                                                 'Uncorrected' : ('', 'b'),
-                                                'Corrected' : ('_Corrected', 'r')
+                                                'Corrected_1D' : ('_Corrected_1D', 'r'),
+                                                'Corrected_2D' : ('_Corrected_2D', 'g')
                                     }
                             },
                             '2D' : {
@@ -569,7 +516,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Resolution [GeV]',
                                                 'hists' : {
                                                             'Uncorrected' : 'Reso_MTTbar_vs_Gen_MTTbar_2Partons',
-                                                            'Corrected' : 'Reso_MTTbar_vs_Gen_MTTbar_2Partons_Corrected'
+                                                            'Corrected_1D' : 'Reso_MTTbar_vs_Gen_MTTbar_2Partons_Corrected_1D',
+                                                            'Corrected_2D' : 'Reso_MTTbar_vs_Gen_MTTbar_2Partons_Corrected_2D'
                                                 }
                                     },
                                     'Gen_THadPt': {
@@ -577,7 +525,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Frac. Resolution',
                                                 'hists' : {
                                                            'Uncorrected' : 'Frac_MTTbar_vs_Gen_THadPt_2Partons',
-                                                           'Corrected' : 'Frac_MTTbar_vs_Gen_THadPt_2Partons_Corrected'
+                                                           'Corrected_1D' : 'Frac_MTTbar_vs_Gen_THadPt_2Partons_Corrected_1D',
+                                                           'Corrected_2D' : 'Frac_MTTbar_vs_Gen_THadPt_2Partons_Corrected_2D'
                                                 }
                                     }
                             }
@@ -588,7 +537,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                     'title' : 'Reso_MTTbar_3Partons',
                                     'hists' : {
                                                 'Uncorrected' : ('', 'b'),
-                                                'Corrected' : ('_Corrected', 'r')
+                                                'Corrected_1D' : ('_Corrected_1D', 'r'),
+                                                'Corrected_2D' : ('_Corrected_2D', 'g')
                                     }
                             },
                             '2D' : {
@@ -597,7 +547,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Resolution [GeV]',
                                                 'hists' : {
                                                             'Uncorrected' : 'Reso_MTTbar_vs_Gen_MTTbar_3Partons',
-                                                            'Corrected' : 'Reso_MTTbar_vs_Gen_MTTbar_3Partons_Corrected'
+                                                            'Corrected_1D' : 'Reso_MTTbar_vs_Gen_MTTbar_3Partons_Corrected_1D',
+                                                            'Corrected_2D' : 'Reso_MTTbar_vs_Gen_MTTbar_3Partons_Corrected_2D'
                                                 }
                                     },
                                     'Gen_THadPt': {
@@ -605,7 +556,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Frac. Resolution',
                                                 'hists' : {
                                                            'Uncorrected' : 'Frac_MTTbar_vs_Gen_THadPt_3Partons',
-                                                           'Corrected' : 'Frac_MTTbar_vs_Gen_THadPt_3Partons_Corrected'
+                                                           'Corrected_1D' : 'Frac_MTTbar_vs_Gen_THadPt_3Partons_Corrected_1D',
+                                                           'Corrected_2D' : 'Frac_MTTbar_vs_Gen_THadPt_3Partons_Corrected_2D'
                                                 }
                                     }
                             }
@@ -616,7 +568,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                     'title' : 'Reso_MTTbar_4Partons',
                                     'hists' : {
                                                 'Uncorrected' : ('', 'b'),
-                                                'Corrected' : ('_Corrected', 'r')
+                                                'Corrected_1D' : ('_Corrected_1D', 'r'),
+                                                'Corrected_2D' : ('_Corrected_2D', 'g'),
                                     }
                             },
                             '2D' : {
@@ -625,7 +578,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Resolution [GeV]',
                                                 'hists' : {
                                                             'Uncorrected' : 'Reso_MTTbar_vs_Gen_MTTbar_4Partons',
-                                                            'Corrected' : 'Reso_MTTbar_vs_Gen_MTTbar_4Partons_Corrected'
+                                                            'Corrected_1D' : 'Reso_MTTbar_vs_Gen_MTTbar_4Partons_Corrected_1D',
+                                                            'Corrected_2D' : 'Reso_MTTbar_vs_Gen_MTTbar_4Partons_Corrected_2D'
                                                 }
                                     },
                                     'Gen_THadPt': {
@@ -633,7 +587,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Frac. Resolution',
                                                 'hists' : {
                                                            'Uncorrected' : 'Frac_MTTbar_vs_Gen_THadPt_4Partons',
-                                                           'Corrected' : 'Frac_MTTbar_vs_Gen_THadPt_4Partons_Corrected'
+                                                           'Corrected_1D' : 'Frac_MTTbar_vs_Gen_THadPt_4Partons_Corrected_1D',
+                                                           'Corrected_2D' : 'Frac_MTTbar_vs_Gen_THadPt_4Partons_Corrected_2D'
                                                 }
                                     }
                             }
@@ -644,7 +599,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                     'title' : 'Reso_MTTbar_All',
                                     'hists' : {
                                                 'Uncorrected' : ('', 'b'),
-                                                'Corrected' : ('_Corrected', 'r')
+                                                'Corrected_1D' : ('_Corrected_1D', 'r'),
+                                                'Corrected_2D' : ('_Corrected_2D', 'g')
                                     }
                             },
                             '2D' : {
@@ -653,7 +609,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Resolution [GeV]',
                                                 'hists' : {
                                                            'Uncorrected' : 'Reso_MTTbar_vs_Gen_MTTbar_All',
-                                                           'Corrected' : 'Reso_MTTbar_vs_Gen_MTTbar_All_Corrected'
+                                                           'Corrected_1D' : 'Reso_MTTbar_vs_Gen_MTTbar_All_Corrected_1D',
+                                                           'Corrected_2D' : 'Reso_MTTbar_vs_Gen_MTTbar_All_Corrected_2D'
                                                 }
                                     },
                                     'Gen_THadPt': {
@@ -661,7 +618,8 @@ def Parton_Acceptances_Plots(directory, subdir):
                                                 'ylabel' : 'M(t#bar{t}) Frac. Resolution',
                                                 'hists' : {
                                                            'Uncorrected' : 'Frac_MTTbar_vs_Gen_THadPt_All',
-                                                           'Corrected' : 'Frac_MTTbar_vs_Gen_THadPt_All_Corrected'
+                                                           'Corrected_1D' : 'Frac_MTTbar_vs_Gen_THadPt_All_Corrected_1D',
+                                                           'Corrected_2D' : 'Frac_MTTbar_vs_Gen_THadPt_All_Corrected_2D'
                                                 }
                                     }
                             }
@@ -715,96 +673,96 @@ def Parton_Acceptances_Plots(directory, subdir):
                 for corr_type in parton_acceptances[nparts][ndim]['hists'].keys():
 
 
-                        ### create hists based on perm category (Correct b, wrong b, etc...)
-                    to_draw = []
-                    for cat in Perm_Categories:
-                        plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'Perm_Categories', corr_type]))
-                        evt_col=hist_styles[cat]['fillcolor']
-                        evt_type = hist_styles[cat]['name']
-                        varname = title+parton_acceptances[nparts][ndim]['hists'][corr_type][0]
-                        cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', 'Parton_Acceptance', varname])
-                        cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
+                    #    ### create hists based on perm category (Correct b, wrong b, etc...)
+                    #to_draw = []
+                    #for cat in Perm_Categories:
+                    #    plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'Perm_Categories', corr_type]))
+                    #    evt_col=styles[cat]['fillcolor']
+                    #    evt_type = styles[cat]['name']
+                    #    varname = title+parton_acceptances[nparts][ndim]['hists'][corr_type][0]
+                    #    cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', 'Parton_Acceptance', varname])
+                    #    cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
 
-                        #set_trace()   
-                        #cat_hist = RebinView.rebin(cat_hist, new_bins)
-                        #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+                    #    #set_trace()   
+                    #    #cat_hist = RebinView.rebin(cat_hist, new_bins)
+                    #    #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
     
-                        if cat_hist.Integral() == 0:
-                            continue
+                    #    if cat_hist.Integral() == 0:
+                    #        continue
     
-                        cat_hist_mean = cat_hist.GetMean() 
-                        cat_hist_rms = cat_hist.GetRMS() 
+                    #    cat_hist_mean = cat_hist.GetMean() 
+                    #    cat_hist_rms = cat_hist.GetRMS() 
 
-                        plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                        cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
-                        plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                        to_draw.append(cat_hist)
+                    #    plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                    #    cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                    #    plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                    #    to_draw.append(cat_hist)
 
-                        box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
-                        box.Draw()
-                        plotter.save('Post_Alpha_%s_%s_%s' % (corr_type, title, cat))
+                    #    box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
+                    #    box.Draw()
+                    #    plotter.save('Post_Alpha_%s_%s_%s' % (corr_type, title, cat))
  
-                    if not to_draw:
-                        continue
-                    stack, norm_stack, ratio = fncts.stack_plots(to_draw)
-                    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    #set_trace()
-                    
-                    box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
-                    box1.Draw()
+                    #if not to_draw:
+                    #    continue
+                    #stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                    #plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+                    ##set_trace()
+                    #
+                    #box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
+                    #box1.Draw()
 
-                    plotter.save('Post_Alpha_%s_%s_Stack' % (corr_type, title))
+                    #plotter.save('Post_Alpha_%s_%s_Stack' % (corr_type, title))
     
-                    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    box1.Draw()
-                    plotter.save('Post_Alpha_%s_%s_Stack_Norm' % (corr_type, title))
+                    #plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+                    #box1.Draw()
+                    #plotter.save('Post_Alpha_%s_%s_Stack_Norm' % (corr_type, title))
 
 
-                    ### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
-                    to_draw = []
-                    for cat in Gen_Categories:
-                        plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'Gen_Categories', corr_type]))
-                        evt_col=hist_styles[cat]['fillcolor']
-                        evt_type = hist_styles[cat]['name']
-                        varname = title+parton_acceptances[nparts][ndim]['hists'][corr_type][0]
-                        cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', 'Parton_Acceptance', varname])
-                        cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
+                    #### create hists based on gen category (Correct bhad, correct blep, wrong b, etc...)
+                    #to_draw = []
+                    #for cat in Gen_Categories:
+                    #    plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts, 'Gen_Categories', corr_type]))
+                    #    evt_col=styles[cat]['fillcolor']
+                    #    evt_type = styles[cat]['name']
+                    #    varname = title+parton_acceptances[nparts][ndim]['hists'][corr_type][0]
+                    #    cat_hname = '/'.join([directory, 'Post_Alpha_Correction', cat, 'Resolution', 'Parton_Acceptance', varname])
+                    #    cat_hist = plotter.get_view('ttJetsAll').Get(cat_hname).Clone()
     
-                        #cat_hist = RebinView.rebin(cat_hist, new_bins)
-                        #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
+                    #    #cat_hist = RebinView.rebin(cat_hist, new_bins)
+                    #    #cat_hist.xaxis.range_user = rebin_hist[kvar][obj][0], rebin_hist[kvar][obj][1]
     
-                        if cat_hist.Integral() == 0:
-                            continue
+                    #    if cat_hist.Integral() == 0:
+                    #        continue
     
-                        cat_hist_mean = cat_hist.GetMean() 
-                        cat_hist_rms = cat_hist.GetRMS() 
+                    #    cat_hist_mean = cat_hist.GetMean() 
+                    #    cat_hist_rms = cat_hist.GetRMS() 
     
-                        #set_trace()
+                    #    #set_trace()
 
-                        plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
-                        cat_hist.SetFillStyle(hist_styles[cat]['fillstyle'])
-                        plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
-                        to_draw.append(cat_hist)
+                    #    plotter.set_histo_style(cat_hist, color=evt_col, title=evt_type, xtitle=xlabel, ytitle=defyax)
+                    #    cat_hist.SetFillStyle(styles[cat]['fillstyle'])
+                    #    plotter.plot(cat_hist, legend_def=LegendDefinition(position='NW'), legendstyle='l', drawstyle='hist')
+                    #    to_draw.append(cat_hist)
 
-                        box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
-                        box.Draw()
-                        plotter.save('Post_Alpha_%s_%s_%s' % (corr_type, title, cat))
+                    #    box = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (cat_hist_mean, cat_hist_rms), position='NE')
+                    #    box.Draw()
+                    #    plotter.save('Post_Alpha_%s_%s_%s' % (corr_type, title, cat))
 
     
-                    if not to_draw:
-                        continue
-                    stack, norm_stack, ratio = fncts.stack_plots(to_draw)
-                    plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
-                    box1.Draw()
+                    #if not to_draw:
+                    #    continue
+                    #stack, norm_stack, ratio = fncts.stack_plots(to_draw)
+                    #plotter.plot(stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+                    #box1 = plotter.make_text_box('Mean=%.2f\nRMS=%.2f' % (sum(to_draw).GetMean(), sum(to_draw).GetRMS()), position='NE')
+                    #box1.Draw()
 
-                    plotter.save('Post_Alpha_%s_%s_Stack' % (corr_type, title))
+                    #plotter.save('Post_Alpha_%s_%s_Stack' % (corr_type, title))
     
-                    plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
-                    box1.Draw()
-                    plotter.save('Post_Alpha_%s_%s_Stack_Norm' % (corr_type, title))
+                    #plotter.plot(norm_stack, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
+                    #box1.Draw()
+                    #plotter.save('Post_Alpha_%s_%s_Stack_Norm' % (corr_type, title))
 
-                    #set_trace()
+                    ##set_trace()
 
                         #### normal plots
                     plotter.set_subdir('/'.join([subdir, 'Post_Alpha', 'Resolution', 'Partons_Acceptances', nparts]))
@@ -836,12 +794,14 @@ def Parton_Acceptances_Plots(directory, subdir):
                     ## compare uncorreced/corrected hists
                 if not to_draw_normal:
                     continue
+
+                set_trace()
                 plotter.overlay(to_draw_normal, legend_def=LegendDefinition(position='NW'), legendstyle='l', xtitle=xlabel, ytitle=defyax, drawstyle='hist')
                 plotter.save('%s_Comparison' % title )
 
 
             elif ndim == '2D':
-                
+
                 #set_trace()
                 for gen_var_type in parton_acceptances[nparts][ndim].keys():
 
@@ -1013,12 +973,12 @@ def Post_Alpha_Plots( plot ):
 
 
     if args.perm == 'Event':
-        reco_dir = '3J_Event_Plots/Lost_BP'
-        reco_subdir = '3J_Event_Plots/Lost_BP'
+        reco_dir = '3J/nosys'
+        reco_subdir = '3J/nosys'
 
     elif args.perm == 'Matched':
-        reco_dir = '3J_Event_Plots/Matched_Perm'
-        reco_subdir = '3J_Event_Plots/Matched_Perm'
+        reco_dir = '3J/nosys/Matched_Perm'
+        reco_subdir = '3J/nosys/Matched_Perm'
 
 
     if plot == 'Reconstruction':

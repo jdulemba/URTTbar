@@ -212,6 +212,7 @@ for pfit, tdir in plots_to_do:
 		line = [cat_name, '%.1f' % data.Integral()]+['%.1f' % (cat_dir.Get(i).Integral() if i in available_samples else 0.0) for i in sample_names]
 		table.add_line(*line)
 
+		#set_trace()
 		samples = [fix_binning(cat_dir.Get(i), data) for i in available_samples]
 		samples.sort(key=ordering)
 
@@ -232,6 +233,7 @@ for pfit, tdir in plots_to_do:
 	with open('%s/yields.raw_txt' % out_dir,'w') as tab:
 		tab.write('%s\n' % table)
 		if pfit == 'postfit':
+			#set_trace()
 			pars = rootpy.asrootpy(mlfit_file.fit_s.floatParsFinal())
 			tab.write(print_var_line('charmSF', pars))
 			if 'lightSF' in pars:
