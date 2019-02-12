@@ -5,6 +5,7 @@ rootpy.log["/data_views"].setLevel(rootpy.log.WARNING)
 log = rootpy.log["/make_postfit_plots"]
 log.setLevel(rootpy.log.INFO)
 from rootpy.plotting import Hist
+from rootpy import asrootpy
 from argparse import ArgumentParser
 import os
 import re
@@ -33,6 +34,7 @@ if args.plots == 'postfit' or args.plots == 'both':
 	plots_to_do.append(('postfit', 'shapes_fit_s'))
 
 def fix_binning(postfit, correct_bin):
+	#set_trace()
 	ret = correct_bin.Clone()
 	ret.Reset()
 	ret.title = postfit.title
@@ -63,53 +65,37 @@ def ordering(histo):
 
 plotter = BasePlotter(
 	'%s/postfit' % input_dir,
-	defaults = {'save' : {'png' : True, 'pdf' : True}},
+	defaults = {'save' : {'png' : True, 'pdf' : False}},
 	styles = {
-		'right_whad *' : {
-			'legendstyle' : 'f',
-			'drawstyle' : 'hist',
-			'fillcolor' : '#6666b3',
-			'linecolor' : 'black',
-			'title' : "tt, right W_{h}",
-			'fillstyle': 'solid',
-			},
-		'qcd *' : styles['QCD*'],
-		'single_top *' : styles['single*'],
-		'wrong_whad *' : {
-			'legendstyle' : 'f',
-			'drawstyle' : 'hist',
-			'fillcolor' : '#ab5555',
-			'linecolor' : 'black',
-			'title' : "tt, wrong W_{h}",
-			'fillstyle': 'solid',
-			},
-		'nonsemi_tt *' : {
-			'legendstyle' : 'f',
-			'drawstyle' : 'hist',
-			'fillcolor' : '#668db3',
-			'linecolor' : 'black',
-			'title' : "tt, non semi-lep.",
-			'fillstyle': 'solid',
-			},		
-		'vjets *' : styles['[WZ]Jets*'],
-		'data_obs' : styles['data*'],
-		'Total signal+background *' : {
-			'legendstyle' : 'f',
-			'drawstyle' : 'PE2',
-			'linewidth' : 0,
-			'title' : "uncertainty",
-			'markersize' : 0,
-			'fillcolor' : 1,
-			'fillstyle' : 3013
-			}
-		}
+	    'right_whad *' : styles['right_whad *'],
+	    'qcd *' : styles['QCD*'],
+	    'single_top *' : styles['single*'],
+	    'wrong_whad *' : styles['wrong_whad *'],
+	    'nonsemi_tt *' : styles['nonsemi_tt *'],
+	    'vjets *' : styles['[WZ]Jets*'],
+	    'data_obs' : styles['data*'],
+	    'Total signal+background *' : {
+	        'legendstyle' : 'f',
+	        'drawstyle' : 'PE2',
+	        'linewidth' : 0,
+	        'title' : "uncertainty",
+	        'markersize' : 0,
+	        'fillcolor' : 1,
+	        'fillstyle' : 3013
+	    }
+	}
 )
 
-def print_var_line(varname, result):
-	var  = result[varname]
-	merr = min(var.error) if hasattr(var.error, '__len__') else var.error
-	Merr = max(var.error) if hasattr(var.error, '__len__') else var.error
-	return 'best fit value %s: %.3f %.3f/%.3f\n' % (varname, var.value, merr, Merr)
+def print_var_line(varname, tree):
+        ## Get branch entries
+	tree.GetBranch(varname).GetEntry(0)
+	tree.GetBranch('%sLoErr' % varname).GetEntry(0)
+	tree.GetBranch('%sHiErr' % varname).GetEntry(0)
+
+	var  = tree.GetLeaf(varname).GetValue()
+	MinErr = tree.GetLeaf('%sLoErr' % varname).GetValue()
+	MaxErr = tree.GetLeaf('%sHiErr' % varname).GetValue()
+	return 'best fit value %s: %.3f -%.3f/%.3f\n' % (varname, var, MinErr, MaxErr)
 
 for pfit, tdir in plots_to_do:
 	out_dir = '%s/%s' % (input_dir,pfit)
@@ -125,7 +111,7 @@ for pfit, tdir in plots_to_do:
 	sample_names = set()
 	for c in categories:
 		for i in shapes.Get(c).keys():
-			if i.name.startswith('total'): continue
+			if i.name.startswith('total') or 'data' in i.name: continue
 			sample_names.add(i.name)
 	sample_names = list(sample_names)
 	cols = ['category', 'observed']+sample_names
@@ -139,11 +125,12 @@ for pfit, tdir in plots_to_do:
 		data = data_dir.data_obs
 		data.title = 'data_obs' 
 		hsum = fix_binning(cat_dir.total, data)
-		available_samples = [i.name for i in cat_dir.keys() if not i.name.startswith('total')]
+		available_samples = [i.name for i in cat_dir.keys() if not i.name.startswith('total') and 'data' not in i.name]
 
 		line = [cat_name, '%.1f' % data.Integral()]+['%.1f' % (cat_dir.Get(i).Integral() if i in available_samples else 0.0) for i in sample_names]
 		table.add_line(*line)
 
+		#set_trace()
 		samples = [fix_binning(cat_dir.Get(i), data) for i in available_samples]
 		samples.sort(key=ordering)
 
@@ -153,16 +140,18 @@ for pfit, tdir in plots_to_do:
 			[stack, hsum], data,
 			writeTo=cat_name,
 			legend_def = legend,
-		  xtitle='#lambda_{M}',
-		  ytitle='Events'
-		  ,method='datamc'
-			)
+		    xtitle='%s #lambda_{M}' % cat_name,
+		    ytitle='Events',
+		    method='datamc'
+		)
 	table.add_separator()
 	with open('%s/yields.raw_txt' % out_dir,'w') as tab:
 		tab.write('%s\n' % table)
 		if pfit == 'postfit':
-			pars = rootpy.asrootpy(mlfit_file.fit_s.floatParsFinal())
-			tab.write(print_var_line('charmSF', pars))
-			if 'lightSF' in pars:
-				tab.write(print_var_line('lightSF', pars))
+			tree = mlfit_file.tree_fit_sb
+			#set_trace()
+			tab.write(print_var_line('charmSF', tree))
+			lightSF = [ i.GetName() for i in tree.GetListOfLeaves() if 'lightSF' in i.GetName()]
+			if lightSF:
+				tab.write(print_var_line('lightSF', tree))
 
