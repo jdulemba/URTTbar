@@ -139,9 +139,10 @@ for pfit, tdir in plots_to_do:
 		plotter.overlay_and_compare( 
 			[stack, hsum], data,
 			writeTo=cat_name,
-			legend_def = legend,
+			legend_def=legend,
 		    xtitle='%s #lambda_{M}' % cat_name,
 		    ytitle='Events',
+		    ratio_style={'ytitle': 'data/MC'},
 		    method='datamc'
 		)
 	table.add_separator()

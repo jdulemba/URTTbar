@@ -10,6 +10,8 @@ import ROOT
 from URAnalysis.Utilities.quad import quad
 import URAnalysis.Utilities.latex as tex
 from pdb import set_trace
+from URAnalysis.Utilities.print_table import print_table
+import URAnalysis.Utilities.prettyjson as prettyjson
 
 def pipppo():
 	pass
@@ -18,15 +20,15 @@ wps = [
 	('csvLoose'  , 'CSVv2 L'),
 	('csvMedium' , 'CSVv2 M'),
 	('csvTight'  , 'CSVv2 T'),
-	('ctagLoose' , 'c-tagger L'),
-	('ctagMedium', 'c-tagger M'),
-	('ctagTight' , 'c-tagger T'),
+	('ctagLoose' , 'DeepCSV c-tagger L'),
+	('ctagMedium', 'DeepCSV c-tagger M'),
+	('ctagTight' , 'DeepCSV c-tagger T'),
 	('DeepCsvLoose' , 'DeepCSV L'), 
 	('DeepCsvMedium',	'DeepCSV M'),
 	('DeepCsvTight' ,	'DeepCSV T'), 
-	('cmvaLoose' , 'cMVAv2 L' ),
-	('cmvaMedium', 'cMVAv2 M'),
-	('cmvaTight' , 'cMVAv2 T' ),
+	#('cmvaLoose' , 'cMVAv2 L' ),
+	#('cmvaMedium', 'cMVAv2 M'),
+	#('cmvaTight' , 'cMVAv2 T' ),
 	]
 
 categories = [
@@ -62,6 +64,12 @@ results.write('\n \\begin{tabular}{ccc} \n \\hline \n')
 results.write(tex.tabline(['working point', 'charm SF', 'stat only unc.'], convert=False))
 results.write('\\hline \n')
 
+## to make txt file with results
+rows = []
+rows.append(("Working Point", "SF Mean", "SF Upper Error", "SF Lower Error", "Stat Upper Error", "Stat Lower Error"))
+scale_factors = {}
+
+
 for wp, wpname in wps:
 	table.write('\hline \n')
 	table.write('\multicolumn{%d}{c}{ %s } \\\\ \n' % (ncols, wp))
@@ -71,6 +79,7 @@ for wp, wpname in wps:
 	data_f = io.root_open('%s/datacard.root'   % (wpdir))
 	mc_f   = io.root_open('%s/MaxLikeFit.root' % (wpdir))
 	stat_f = io.root_open('%s/MaxLikeFitStatOnly.root' % (wpdir))
+	#set_trace()
 	prefit = mc_f.norm_prefit
 	pshapes = mc_f.shapes_prefit
 	pars = rootpy.asrootpy(mc_f.fit_s.floatParsFinal())
@@ -84,6 +93,42 @@ for wp, wpname in wps:
 				], convert=False
 			)
 		)
+
+	if type(pars['charmSF'].error)==float:
+		rows.append((wpname, format(pars['charmSF'].value, '.3f'),\
+			format(pars['charmSF'].error, '.3f'),\
+			format(pars['charmSF'].error, '.3f'),\
+			format(stat_pars['charmSF'].error[0], '.3f'),\
+			format(stat_pars['charmSF'].error[1], '.3f'))
+		)
+		scale_factor = {
+			wpname : {
+				'mean' : pars['charmSF'].value,
+				'sf_upper' : pars['charmSF'].error,
+				'sf_lower' : pars['charmSF'].error,
+				'stat_upper' : stat_pars['charmSF'].error[0],
+				'stat_lower' : stat_pars['charmSF'].error[1],
+			}
+		}
+	else:
+		rows.append((wpname, format(pars['charmSF'].value, '.3f'),\
+			format(pars['charmSF'].error[0], '.3f'),\
+			format(pars['charmSF'].error[1], '.3f'),\
+			format(stat_pars['charmSF'].error[0], '.3f'),\
+			format(stat_pars['charmSF'].error[1], '.3f'))
+		)
+		scale_factor = {
+			wpname : {
+				'mean' : pars['charmSF'].value,
+				'sf_upper' : pars['charmSF'].error[0],
+				'sf_lower' : pars['charmSF'].error[1],
+				'stat_upper' : stat_pars['charmSF'].error[0],
+				'stat_lower' : stat_pars['charmSF'].error[1],
+			}
+		}
+
+	scale_factors[wp] = scale_factor
+
 	
 	for cat in categories:
 		line = [cat, '%d' % data_f.Get('%s/data_obs' % cat).Integral()]
@@ -113,3 +158,8 @@ table.write('''\hline
 results.write('''\hline
 \end{tabular}
 ''')
+
+with open('%s/plots/%s/ctageff/mass_discriminant/results.json' % (project, jobid), 'w') as f:
+    f.write(prettyjson.dumps(scale_factors))
+
+print_table(rows, filename='%s/plots/%s/ctageff/mass_discriminant/results.txt' % (project, jobid))
