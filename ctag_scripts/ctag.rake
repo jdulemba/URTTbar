@@ -272,10 +272,8 @@ task :ctag_scan, [:wp] do |t, args|
 end
 
 $working_points = [
-                   'csvLoose', 'csvMedium', 'csvTight', 
-                   'ctagLoose', 'ctagMedium', 'ctagTight', 
-                   #'cmvaLoose', 'cmvaMedium', 'cmvaTight',
-                   'DeepCsvLoose', 'DeepCsvMedium', 'DeepCsvTight'
+                   'DeepctagLoose', 'DeepctagMedium', 'DeepctagTight', 
+                   'DeepCSVLoose', 'DeepCSVMedium', 'DeepCSVTight'
                   ]
 task :ctag_fitall do |t|
   $working_points.each do |wp|
@@ -314,6 +312,7 @@ task :ctag_plotfit do |t|
   Rake::Task['breakdown_all'].invoke()
   #Rake::Task['breakdown_all'].invoke()
   sh 'python ctag_scripts/make_ctag_tables.py'
+  sh 'python ctag_scripts/plot_results.py'
   sh "python ctag_scripts/write_csv.py ctag"
   #sh "mv ctag.csv plots/#{jobid}/ctageff/."
 end

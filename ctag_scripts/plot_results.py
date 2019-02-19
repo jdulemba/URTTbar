@@ -4,6 +4,7 @@ import URAnalysis.Utilities.prettyjson as prettyjson
 from pdb import set_trace
 import logging
 import matplotlib.pyplot as plt
+from styles import styles
 
 parser = ArgumentParser()
 args = parser.parse_args()
@@ -103,7 +104,7 @@ for wp in sorted(working_points):
 tag_total_lower = [tag_stat_lower[i]+tag_sf_lower[i] for i in range(len(tag_stat_lower))]
 tag_total_upper = [tag_stat_upper[i]+tag_sf_upper[i] for i in range(len(tag_stat_upper))]
 
-plot_title = '2016 Legacy'
+plot_title = styles['data*']['name']
 
 fig1 = plt.figure()
 plt.title(plot_title)

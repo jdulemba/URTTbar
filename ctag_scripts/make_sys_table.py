@@ -13,7 +13,10 @@ args = parser.parse_args()
 def get_unc(fname):
 	tf = root_open(fname)
 	sf = asrootpy(tf.fit_s.floatParsFinal())['charmSF']
-	unc = max(abs(i) for i in sf.error)
+	if type(sf.error) == float:
+		unc = abs(sf.error)
+	else:
+		unc = max(abs(i) for i in sf.error)
 	return unc
 
 jobid = os.environ['jobid']
