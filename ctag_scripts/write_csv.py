@@ -26,7 +26,7 @@ def make_csv_entry(value, wpoint, flav, shift='central'):
    return entry
 
 parser = ArgumentParser()
-parser.add_argument('algo', help='algo to dump (CSV, CTAG etc..)')
+parser.add_argument('algo', help='algo to dump (csv, ctag, DeepCsv, etc..)')
 ## parser.add_argument('--wps', default='*',
 ##                     help='choose the working points to use')
 args = parser.parse_args()
@@ -104,6 +104,6 @@ for wp in wps:
                sf_idx, 'down%s' % shift_name)               
       first = False
 
-with open('%s.csv' % args.algo, 'w') as f:
+with open('plots/%s/ctageff/%s.csv' % (jobid, args.algo), 'w') as f:
    f.write(calibration.makeCSV())
 
