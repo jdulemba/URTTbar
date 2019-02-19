@@ -91,7 +91,7 @@ styles = {
       'drawstyle' : 'E0 X0',
       'markerstyle' : 20,
       #'markersize'  : 2,
-      'name' : "2016 Legacy",
+      'name' : "2018",
       #'name' : "Observed",
     },
    'tt*' : {
