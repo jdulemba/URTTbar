@@ -197,7 +197,6 @@ rule /MaxLikeFitStatOnly\.root$/ => psub(/MaxLikeFitStatOnly/, 'MultiDimFit') do
   bname = File.basename(t.name)
   chdir(dir) do
     sh "combine MultiDimFit.root -M FitDiagnostics --freezeParameters all --minos=all --snapshotName MultiDimFit"
-    #sh "combine MultiDimFit.root -M FitDiagnostics --freezeNuisances all --minos=all --snapshotName MultiDimFit"
     sh "mv fitDiagnostics.root #{File.basename(t.name)}"      
   end
 end
@@ -215,13 +214,12 @@ task :sys_breakdown, [:wp] do |t, args|
   for_cmb = [/JES/,/pu/]
   chdir(wpdir) do
     sh "combine MultiDimFit.root -M FitDiagnostics --freezeParameters all --minos=all --snapshotName MultiDimFit &> /dev/null"
-    #sh "combine MultiDimFit.root -M FitDiagnostics --freezeNuisances all --minos=all --snapshotName MultiDimFit &> /dev/null"
     sh "mv fitDiagnostics.root MaxLikeFitStatistic.root"
     nuisances.each do |nuisance|
       if singles.map {|g| g =~ nuisance}.any?
         puts nuisance
         to_freeze = nuisances.select{|x| x != nuisance}.join(',')
-        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
+        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null "
         sh "mv fitDiagnostics.root sys_breakdown/#{nuisance}.root"
       end
     end
@@ -232,7 +230,7 @@ task :sys_breakdown, [:wp] do |t, args|
       if to_freeze.length == 0
         next
       end
-      sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
+      sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null"
       sh "mv fitDiagnostics.root sys_breakdown/#{name}.root"
     end
 
@@ -243,12 +241,12 @@ task :sys_breakdown, [:wp] do |t, args|
       if for_cmb.map {|g| g =~ nuisance}.any?
         puts nuisance
         to_freeze = nuisances.select{|x| x != nuisance}.join(',')
-        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
+        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null "
         sh "mv fitDiagnostics.root for_cmb/#{nuisance}.root"
       end
     end
     to_freeze = nuisances.select{|x| for_cmb.map{|y| y =~ x}.any? }.join(',')
-    sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
+    sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null"
     sh "mv fitDiagnostics.root for_cmb/other.root"
   end
   sh "python ctag_scripts/make_sys_table.py #{args.wp}"
@@ -316,6 +314,6 @@ task :ctag_plotfit do |t|
   Rake::Task['breakdown_all'].invoke()
   #Rake::Task['breakdown_all'].invoke()
   sh 'python ctag_scripts/make_ctag_tables.py'
-  sh "ctag_scripts/write_csv.py ctag"
+  sh "python ctag_scripts/write_csv.py ctag"
   #sh "mv ctag.csv plots/#{jobid}/ctageff/."
 end
