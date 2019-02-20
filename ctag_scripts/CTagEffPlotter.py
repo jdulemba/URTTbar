@@ -48,7 +48,6 @@ parser.add_argument('--lumi', type=float, default=-1.,
                     help='force luminosity')
 parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 parser.add_argument('--noPOIpropagation', action='store_true')
-#parser.add_argument('--eras', help='split data into different eras (B, CtoE, EtoF)')
 args = parser.parse_args()
 
 def syscheck(cmd):
@@ -72,21 +71,6 @@ class CTagPlotter(Plotter):
 			#'fsr_down' : 'ttJets_fsrdown',
 			}
 		jobid = os.environ['jobid']
-
-		#MCfiles = filter(lambda x: 'data' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
-		#if args.eras == 'All':
-		#    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		#    era_name = 'All_Runs'
-		#    era_title = '2018'
-		##if args.eras == 'All':
-		###    #data_files = filter(lambda x: 'CtoE' in x or 'Bv1' in x or 'EtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		###    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		###    #data_files = filter(lambda x: 'BtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		##    era_name = 'All_Runs'
-		##    era_title = 'All 2016'
-		#else:
-		#    logging.error('Not a valid era to choose from.')
-		#    sys.exit()
 
 		files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
 
@@ -326,29 +310,6 @@ class CTagPlotter(Plotter):
 			'notag' : {
 				'notag'	: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
 				},
-			#'csvLoose' : {
-			#	'notag'	  : [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag'	  : [6, 8, 10, 12, 20],	
-			#	},
-			#'csvMedium' : {
-			#	'notag'	  : [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag'	  : [6, 8, 10, 12, 20],
-			#	},
-			#'csvTight' : {
-			#	#'notag'  	: [6, 20],
-			#	#'leadtag' : [6, 20],
-			#	#'subtag'  : [6, 20],
-			#	#'ditag'  : [6, 20],
-			#	'notag'  	: [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag'  : [6, 8, 10, 12, 20],
-			#	#'ditag'	  : [6, 12, 20],
-			#	},			
 			'DeepCSVLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
@@ -362,52 +323,65 @@ class CTagPlotter(Plotter):
 				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'DeepCSVTight' : {
-				#'notag' 	: [6, 20],
-				#'leadtag' : [6, 20],
-				#'subtag'  : [6, 20],
-				#'ditag'  : [6, 20],
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
 				'ditag'  : [6, 8, 10, 12, 20],
-				#'ditag' 	: [6, 12, 20],
 				},			
-			#'ctagLoose' : {
+			#'DeepJetLoose' : {
+			#	'notag' 	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag' 	: [6, 8, 10, 12, 20],	
+			#	},
+			#'DeepJetMedium' : {
 			#	'notag' 	: [6, 8, 10, 12, 20],
 			#	'leadtag' : [6, 8, 10, 12, 20],
 			#	'subtag'  : [6, 8, 10, 12, 20],
 			#	'ditag' 	: [6, 8, 10, 12, 20],
 			#	},
-			#'ctagMedium' : {
+			#'DeepJetTight' : {
+			#	'notag' 	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag'  : [6, 8, 10, 12, 20],
+			#	},			
+			'DeepCSVctagLoose' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepCSVctagMedium' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepCSVctagTight' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			#'DeepJetctagLoose' : {
 			#	'notag' 	: [6, 8, 10, 12, 20],
 			#	'leadtag' : [6, 8, 10, 12, 20],
 			#	'subtag'  : [6, 8, 10, 12, 20],
 			#	'ditag' 	: [6, 8, 10, 12, 20],
 			#	},
-			#'ctagTight' : {
+			#'DeepJetctagMedium' : {
 			#	'notag' 	: [6, 8, 10, 12, 20],
 			#	'leadtag' : [6, 8, 10, 12, 20],
 			#	'subtag'  : [6, 8, 10, 12, 20],
 			#	'ditag' 	: [6, 8, 10, 12, 20],
 			#	},
-			'DeepctagLoose' : {
-				'notag' 	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 8, 10, 12, 20],
-				},
-			'DeepctagMedium' : {
-				'notag' 	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 8, 10, 12, 20],
-				},
-			'DeepctagTight' : {
-				'notag' 	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 8, 10, 12, 20],
-				},
+			#'DeepJetctagTight' : {
+			#	'notag' 	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag' 	: [6, 8, 10, 12, 20],
+			#	},
 			}
 
 
@@ -958,6 +932,7 @@ class CTagPlotter(Plotter):
 			args = list(args)
 			args[0] = path.replace(dirname, '%s_up' % systematics)
 			kwargs['nodata'] = True
+			#set_trace()
 			self.plot_mc_vs_data(*args, **kwargs)
 			stack_up = [i for i in self.keep if isinstance(i, ROOT.THStack)][0]
 			self.reset()
@@ -1270,16 +1245,10 @@ variables = [
   ("thad_pt", "p_{T}(t_{h}) (GeV)", 1, None, False),
   #("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
   ("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
-#  ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
-#  ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
-#  ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
-#  ("Bjets_CvsL", "CvsL Discriminator (B Jet)", 1, None, False),
-#	("Wjets_CMVA"     , "cMVA Discriminator", 1, None, False),
 	("Wjets_DeepCSVb" , "DeepCSV Prob(b)", 1, None, False),
 	("Wjets_DeepCSVl" , "DeepCSV Prob(l) ", 1, None, False),
 	("Wjets_DeepCSVbb", "DeepCSV Prob(bb)", 1, None, False),
 	("Wjets_DeepCSVc" , "DeepCSV Prob(c)", 1, None, False),
-	#("Wjets_DeepCSVcc", "DeepCSV Prob(cc)", 1, None, False),
 	("Wjets_DeepCSVbD", "DeepCSV b Discriminator", 1, None, False),
 	("Wjets_DeepCSVCvsB", "DeepCSV CvsB Discriminator", 1, None, False),
 	("Wjets_DeepCSVCvsL", "DeepCSV CvsL Discriminator", 1, None, False),
@@ -1298,15 +1267,10 @@ variables = [
 
 preselection = [
   ("njets"	 , "# of selected jets", range(13), None, False),
-  ("jets_CSV", "jet CSV",	2, None, False),
-  ("jets_CvsB", "CvsB Discriminator", 1, None, False),
-  ("jets_CvsL", "CvsL Discriminator", 1, None, False),
-	("jets_cMVA"     , "cMVA Discriminator", 1, None, False),
 	("jets_DeepCSVb" , "DeepCSV Prob(b)" , 1, None, False),
 	("jets_DeepCSVl" , "DeepCSV Prob(l)" , 1, None, False),
 	("jets_DeepCSVbb", "DeepCSV Prob(bb)", 1, None, False),
 	("jets_DeepCSVc" , "DeepCSV Prob(c)" , 1, None, False),
-	#("jets_DeepCSVcc", "DeepCSV Prob(cc)", 1, None, False),
 	("jets_DeepCSVbD", "DeepCSV b Discriminator", 1, None, False),
 	("jets_DeepCSVCvsB", "DeepCSV CvsB Discriminator", 1, None, False),
 	("jets_DeepCSVCvsL", "DeepCSV CvsL Discriminator", 1, None, False),
@@ -1331,21 +1295,18 @@ order = "mass_discriminant"
 
 available_wps = [
 	"notag",
-	#"csvTight",
-	#"csvMedium",
-	#"csvLoose",
-	#"ctagLoose",
-	#"ctagMedium",
-	#"ctagTight",
-	#"cmvaMedium",
-	#"cmvaLoose" ,
-	#"cmvaTight" ,
 	"DeepCSVLoose" ,
 	"DeepCSVTight" ,
 	"DeepCSVMedium",
-	"DeepctagLoose",
-	"DeepctagMedium",
-	"DeepctagTight",
+	#"DeepJetLoose" ,
+	#"DeepJetTight" ,
+	#"DeepJetMedium",
+	"DeepCSVctagLoose",
+	"DeepCSVctagMedium",
+	"DeepCSVctagTight",
+	#"DeepJetctagLoose",
+	#"DeepJetctagMedium",
+	#"DeepJetctagTight",
 ]
 working_points = [i for i in available_wps if fnmatch(i, args.wps)]
 

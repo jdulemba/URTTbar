@@ -16,7 +16,7 @@ out_dir = '%s/plots/%s/ctageff/' % (os.environ['URA_PROJECT'],os.environ['jobid'
 
 results = prettyjson.loads(open('%s/results.json' % input_dir).read())
 
-#working_points = ['DeepctagLoose', 'DeepctagMedium', 'DeepctagTight']
+#working_points = ['DeepCSVctagLoose', 'DeepCSVctagMedium', 'DeepCSVctagTight']
 working_points = results.keys()
 #set_trace()
 
