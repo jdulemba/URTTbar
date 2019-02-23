@@ -17,18 +17,18 @@ def pipppo():
 	pass
 
 wps = [
-	('csvLoose'  , 'CSVv2 L'),
-	('csvMedium' , 'CSVv2 M'),
-	('csvTight'  , 'CSVv2 T'),
-	('ctagLoose' , 'DeepCSV c-tagger L'),
-	('ctagMedium', 'DeepCSV c-tagger M'),
-	('ctagTight' , 'DeepCSV c-tagger T'),
-	('DeepCsvLoose' , 'DeepCSV L'), 
-	('DeepCsvMedium',	'DeepCSV M'),
-	('DeepCsvTight' ,	'DeepCSV T'), 
-	#('cmvaLoose' , 'cMVAv2 L' ),
-	#('cmvaMedium', 'cMVAv2 M'),
-	#('cmvaTight' , 'cMVAv2 T' ),
+	('DeepCSVLoose' , 'DeepCSV L'), 
+	('DeepCSVMedium', 'DeepCSV M'),
+	('DeepCSVTight' , 'DeepCSV T'), 
+	('DeepJetLoose' , 'DeepJet L'), 
+	('DeepJetMedium', 'DeepJet M'),
+	('DeepJetTight' , 'DeepJet T'), 
+	('DeepCSVctagLoose' , 'DeepCSV c-tagger L'),
+	('DeepCSVctagMedium', 'DeepCSV c-tagger M'),
+	('DeepCSVctagTight' , 'DeepCSV c-tagger T'),
+	('DeepJetctagLoose' , 'DeepJet c-tagger L'),
+	('DeepJetctagMedium', 'DeepJet c-tagger M'),
+	('DeepJetctagTight' , 'DeepJet c-tagger T'),
 	]
 
 categories = [
