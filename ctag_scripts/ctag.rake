@@ -303,7 +303,7 @@ end
 
 task :ctag_shapes do |t|
   sh 'python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation'
-  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Loose"  --noLightFit --noPOIpropagation '
+  sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Loose"  --noLightFit --noPOIpropagation'
   sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Medium" --noPOIpropagation --noLightFit'
   sh 'python ctag_scripts/CTagEffPlotter.py  --shapes --wps="*Tight" --noPOIpropagation --noLightFit'
 end
