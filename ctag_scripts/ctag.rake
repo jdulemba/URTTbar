@@ -314,6 +314,6 @@ task :ctag_plotfit do |t|
   Rake::Task['breakdown_all'].invoke()
   sh 'python ctag_scripts/make_ctag_tables.py'
   sh 'python ctag_scripts/plot_results.py'
-  sh "python ctag_scripts/write_csv.py ctag"
-  #sh "mv ctag.csv plots/#{jobid}/ctageff/."
+  #sh "python ctag_scripts/write_csv.py ctag"
+  ##sh "mv ctag.csv plots/#{jobid}/ctageff/."
 end
