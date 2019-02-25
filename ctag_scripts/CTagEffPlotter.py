@@ -63,8 +63,13 @@ class CTagPlotter(Plotter):
 		#self.tt_to_use = 'ttJets' #original
 		self.flavour_info = 'hadronflav'
 		self.tt_shifted = {
-			#'mtop_up' : 'ttJetsSL_mtopup',
-			#'mtop_down' : 'ttJetsSL_mtopdown',
+			'ps_up'     : ['ttJetsHad_psUP', 'ttJetsDiLep_psUP'],
+			'ps_down'   : ['ttJetsHad_psDOWN', 'ttJetsDiLep_psDOWN'],
+			'hdamp_up'  : ['ttJetsDiLep_hdampUP'],
+			'hdamp_down': ['ttJetsHad_hdampDOWN', 'ttJetsDiLep_hdampDOWN'],
+			'mtop_up'   : ['ttJetsDiLep_mtopUP'],
+			'mtop_down' : ['ttJetsDiLep_mtopDOWN'],
+			#'mtop_down': 'ttJetsSL_mtopdown',
 			#'isr_up'   : 'ttJets_isrup',
 			#'isr_down' : 'ttJets_isrdown',
 			#'fsr_up'   : 'ttJets_fsrup',
@@ -230,14 +235,14 @@ class CTagPlotter(Plotter):
 				'constants' : ('jer_down', 'jer_up'),
 				'value' : 1.00,				
 				},
-			#'MTOP' : {
-			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-			#	'categories' : ['.*'],
-			#	'type' : 'shape',
-			#	'+' : lambda x: x.replace('nosys', 'mtop_up'),
-			#	'-' : lambda x: x.replace('nosys', 'mtop_down'),
-			#	'value' : 1.00,				
-			#	},
+			'MTOP' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'mtop_up'),
+				'-' : lambda x: x.replace('nosys', 'mtop_down'),
+				'value' : 1.00,				
+				},
 			#'ISR' : {
 			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
 			#	'categories' : ['.*'],
@@ -392,9 +397,13 @@ class CTagPlotter(Plotter):
 				 )
 			}
 		for shift, view in self.tt_shifted.iteritems():
+			#set_trace()
 			dirmap[shift] = views.SumView(
-				*[views.SubdirectoryView(self.views[view]['view'], '%s/nosys' % i) for i in subdirs]
+				    *[views.SumView(
+				        *[views.SubdirectoryView(self.views[v]['view'], '%s/nosys' % i) for i in subdirs]
+				    ) for v in view]
 				)
+		#set_trace()
 		
 		return views.StyleView(
 			views.TitleView(
