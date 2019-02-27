@@ -96,7 +96,7 @@ public:
 			cout << "  Flag_EcalDeadCellTriggerPrimitiveFilter: " << 	event.filter().Flag_EcalDeadCellTriggerPrimitiveFilter() << endl;	 
 			cout << "  Flag_goodVertices: " << 												event.filter().Flag_goodVertices() << endl;												 
 			cout << "  Flag_eeBadScFilter: " << 											event.filter().Flag_eeBadScFilter() << endl;											 
-			cout << "  Flag_globalTightHalo2016Filter: " << 					event.filter().Flag_globalTightHalo2016Filter() << endl;					 
+			cout << "  Flag_globalSuperTightHalo2016Filter: " << 					event.filter().Flag_globalSuperTightHalo2016Filter() << endl;					 
 			cout << "  Flag_BadPFMuonFilter: " << 													event.filter().Flag_BadPFMuonFilter() << endl;													 
 			cout << "  Flag_ecalBadCalibFilter: " << 													event.filter().Flag_ecalBadCalibFilter() << endl;													 
 			cout << "  Flag_BadChargedCandidateFilter: " << 	              event.filter().Flag_BadChargedCandidateFilter() << endl;	                
@@ -150,7 +150,7 @@ public:
 					double max_unc = (jerup > jerdw) ? jerup : jerdw;
 					cout <<"  JEC uncertainty: "<< jet.JESUnc() << ", JER uncertainty: " << max_unc << endl;
 				}
-				cout <<"  Pass jet ID: " << jet.LooseID() << endl;
+				//cout <<"  Pass jet ID: " << jet.LooseID() << endl;
 				cout <<"  CSV: "<< jet.csvIncl()<<", cMVA: "<< jet.CombinedMVA() << endl;
 				cout <<"  cCvsL: "<< jet.CvsLtag()<<", cCvsB: "<< jet.CvsBtag() << endl;
 			}

@@ -198,26 +198,12 @@ public:
 
     for(auto entry : IDJet::tag_names) {
       for(auto jet : {best_permutation.WJa(), best_permutation.WJb()}) {
-//cout << "entry first: " << entry.first << endl;
-//cout << "entry second: " << entry.second << endl;
-//if( entry.second == 12 ) cout << "ctagtight: " << jet->CTagId(entry.second) << endl;
-//if( entry.second == 7 ) cout << "deepctagloose: " << jet->CTagId(entry.second) << endl;
-////bool ctag_passes = entry.first.find("CTAG");
-////bool ctag_passes = boost::contains(entry.first, "CTAG");
-//bool ctag_startswith = boost::starts_with(entry.first, "CTAG");
-////cout << "   FIRST ENTRY: " << entry.first << ", " << ctag_passes << endl;
-//cout << " ctag startswith: " << ctag_startswith << endl;
-////cout << "BTagID: " << jet->BTagId(entry.second) << endl;
-////cout << "CTagID: " << jet->CTagId(entry.second) << endl;
-//bool ctag_passes = boost::contains(entry.first, "CTAG") ? jet->CTagId(entry.second) : jet->BTagId(entry.second);
-//cout << "ctag passes: " << ctag_passes << endl;
         int jet_flav = Abs(jet->hadronFlavour());
         string flav;
         if(jet_flav == ura::PDGID::b) flav = "_bjet_";
         else if(jet_flav == ura::PDGID::c) flav = "_cjet_";
         else flav = "_ljet_";
         plots["Wjets/WjetTag_"+entry.first+flav+"all"].fill(jet->Pt(), jet->Eta(), evt_weight_);
-        //bool passes = boost::starts_with(entry.first, "CTAG") ? jet->CTagId(entry.second) : jet->BTagId(entry.second);
         bool passes = boost::contains(entry.first, "CTAG") ? jet->CTagId(entry.second) : jet->BTagId(entry.second);
         if(passes) {plots["Wjets/WjetTag_"+entry.first+flav+"pass"].fill(jet->Pt(), jet->Eta(), evt_weight_);}
       }
@@ -236,8 +222,9 @@ public:
     opts::variables_map &values = URParser::instance().values();
 		int limit = values["limit"].as<int>();
 		int skip  = values["skip"].as<int>();
+        int report = values["report"].as<int>();
     Logger::log().debug() << "--DONE--" << endl;
-
+    Logger::log().debug() << "-- DONE -- reporting every -- " << report << " out of " << tree_->GetEntries() << endl;
     while(event.next()) {
 			if(limit > 0 && evt_idx > limit) {
 				return;
@@ -281,6 +268,7 @@ public:
 		opts::options_description &opts = parser.optionGroup("analyzer", "CLI and CFG options that modify the analysis");
 		opts.add_options()
       ("limit,l", opts::value<int>()->default_value(-1), "limit the number of events processed per file")
+      ("report", opts::value<int>()->default_value(10000), "report every in debug mode")
       ("skip,s", opts::value<int>()->default_value(-1), "limit the number of events processed per file");
     parser.addCfgParameter<std::string>("best_permutation", "tightb", "");
     parser.addCfgParameter<std::string>("best_permutation", "looseb", "");

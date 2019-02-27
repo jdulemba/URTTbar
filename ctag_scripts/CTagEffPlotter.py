@@ -48,7 +48,7 @@ parser.add_argument('--lumi', type=float, default=-1.,
                     help='force luminosity')
 parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 parser.add_argument('--noPOIpropagation', action='store_true')
-parser.add_argument('--eras', help='split data into different eras (B, CtoE, EtoF)')
+#parser.add_argument('--eras', help='split data into different eras (B, CtoE, EtoF)')
 args = parser.parse_args()
 
 def syscheck(cmd):
@@ -73,43 +73,28 @@ class CTagPlotter(Plotter):
 			}
 		jobid = os.environ['jobid']
 
-		MCfiles = filter(lambda x: 'data' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
-		if args.eras=='B':
-		    data_files = filter(lambda x: 'Bv1' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #keep only Bv1 data files
-		    era_name = 'Run_B'
-		    era_title = 'Run B'
-		elif args.eras=='CtoE':
-		    data_files = filter(lambda x: 'Cv1' in x or 'Dv1' in x or 'Part1' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #filter out Bv1 and EtoF data files
-		    era_name = 'Run_CtoE'
-		    era_title = 'Runs C-E'
-		elif args.eras=='EtoF':
-		    data_files = filter(lambda x: 'Part2' in x or 'Fv1' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #filter out Bv1 and CtoE data files
-		    era_name = 'Run_EtoF'
-		    era_title = 'Runs E-F'
-		elif args.eras == 'All':
-		    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		    era_name = 'All_Runs'
-		    era_title = 'All 2017 (B-F)'
+		#MCfiles = filter(lambda x: 'data' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
 		#if args.eras == 'All':
-		##    #data_files = filter(lambda x: 'CtoE' in x or 'Bv1' in x or 'EtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		##    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		##    #data_files = filter(lambda x: 'BtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
+		#    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
 		#    era_name = 'All_Runs'
-		#    era_title = 'All 2016'
-		else:
-		    logging.error('Not a valid era to choose from.')
-		    sys.exit()
+		#    era_title = '2018'
+		##if args.eras == 'All':
+		###    #data_files = filter(lambda x: 'CtoE' in x or 'Bv1' in x or 'EtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
+		###    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
+		###    #data_files = filter(lambda x: 'BtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
+		##    era_name = 'All_Runs'
+		##    era_title = 'All 2016'
+		#else:
+		#    logging.error('Not a valid era to choose from.')
+		#    sys.exit()
 
-		files = MCfiles+data_files
-		#set_trace() #files = MCfiles+data_files
-
-		#files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) # original 2016
+		files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
 
 		logging.debug('files found %s' % files.__repr__())
 		lumis = glob.glob('inputs/%s/*.lumi' % jobid)
 		logging.debug('lumi files found %s' % lumis.__repr__())
 		
-		outdir= 'plots/%s/ctageff/%s' % (jobid, era_name)
+		outdir= 'plots/%s/ctageff' % jobid
 		super(CTagPlotter, self).__init__(
 			files, lumis, outdir, styles, None, lumi,
 			)
@@ -189,7 +174,6 @@ class CTagPlotter(Plotter):
 			'single_top' : ['singlet*'],
 			#'single_top' : ['SingleTOP'],
 			'data_obs'	: ['data']
-			#'data_obs'	: ['data*BtoF*']
 			}
 
 		self.card_by_title = {
@@ -342,46 +326,28 @@ class CTagPlotter(Plotter):
 			'notag' : {
 				'notag'	: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
 				},
-			'csvLoose' : {
-				'notag'	  : [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag'	  : [6, 8, 10, 12, 20],	
-				},
-			'csvMedium' : {
-				'notag'	  : [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag'	  : [6, 8, 10, 12, 20],
-				},
-			'csvTight' : {
-				#'notag'  	: [6, 20],
-				#'leadtag' : [6, 20],
-				#'subtag'  : [6, 20],
-				#'ditag'  : [6, 20],
-				'notag'  	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag'  : [6, 8, 10, 12, 20],
-				#'ditag'	  : [6, 12, 20],
-				},			
-			#'cmvaLoose' : {
+			#'csvLoose' : {
 			#	'notag'	  : [6, 8, 10, 12, 20],
 			#	'leadtag' : [6, 8, 10, 12, 20],
 			#	'subtag'  : [6, 8, 10, 12, 20],
 			#	'ditag'	  : [6, 8, 10, 12, 20],	
 			#	},
-			#'cmvaMedium' : {
+			#'csvMedium' : {
+			#	'notag'	  : [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag'	  : [6, 8, 10, 12, 20],
+			#	},
+			#'csvTight' : {
+			#	#'notag'  	: [6, 20],
+			#	#'leadtag' : [6, 20],
+			#	#'subtag'  : [6, 20],
+			#	#'ditag'  : [6, 20],
 			#	'notag'  	: [6, 8, 10, 12, 20],
 			#	'leadtag' : [6, 8, 10, 12, 20],
 			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag' 	: [6, 8, 10, 12, 20],
-			#	},
-			#'cmvaTight' : {
-			#	'notag' 	: [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag' 	: [6, 12, 20],
+			#	'ditag'  : [6, 8, 10, 12, 20],
+			#	#'ditag'	  : [6, 12, 20],
 			#	},			
 			'DeepCSVLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
@@ -406,24 +372,24 @@ class CTagPlotter(Plotter):
 				'ditag'  : [6, 8, 10, 12, 20],
 				#'ditag' 	: [6, 12, 20],
 				},			
-			'ctagLoose' : {
-				'notag' 	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 8, 10, 12, 20],
-				},
-			'ctagMedium' : {
-				'notag' 	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 8, 10, 12, 20],
-				},
-			'ctagTight' : {
-				'notag' 	: [6, 8, 10, 12, 20],
-				'leadtag' : [6, 8, 10, 12, 20],
-				'subtag'  : [6, 8, 10, 12, 20],
-				'ditag' 	: [6, 8, 10, 12, 20],
-				},
+			#'ctagLoose' : {
+			#	'notag' 	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag' 	: [6, 8, 10, 12, 20],
+			#	},
+			#'ctagMedium' : {
+			#	'notag' 	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag' 	: [6, 8, 10, 12, 20],
+			#	},
+			#'ctagTight' : {
+			#	'notag' 	: [6, 8, 10, 12, 20],
+			#	'leadtag' : [6, 8, 10, 12, 20],
+			#	'subtag'  : [6, 8, 10, 12, 20],
+			#	'ditag' 	: [6, 8, 10, 12, 20],
+			#	},
 			'DeepctagLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
@@ -623,16 +589,16 @@ class CTagPlotter(Plotter):
 		for name, view in card_views.iteritems():
 			histo = sum(view.Get(path) for path in paths)
 			integral = histo.Integral()
-			if args.eras=='B':
-				era_title = 'Run B'
-			elif args.eras=='CtoE':
-				era_title = 'Runs C-E'
-			elif args.eras=='EtoF':
-				era_title = 'Runs E-F'
-			elif args.eras == 'All':
-				era_title = 'All 2017 (B-F)'
-			self.views['data']['view'] = views.TitleView(self.views['data']['view'], era_title)
-			#set_trace()
+			#if args.eras=='B':
+			#	era_title = 'Run B'
+			#elif args.eras=='CtoE':
+			#	era_title = 'Runs C-E'
+			#elif args.eras=='EtoF':
+			#	era_title = 'Runs E-F'
+			#elif args.eras == 'All':
+			#	era_title = 'All 2017 (B-F)'
+			#self.views['data']['view'] = views.TitleView(self.views['data']['view'], era_title)
+			##set_trace()
 			if name == self.signal:
 				histo.Scale(1./integral)
 				self.signal_yields[category_name] = integral
@@ -1295,22 +1261,20 @@ vars2D = [
 
 variables = [
   ("njets"	 , "# of selected jets", range(13), None, False),
-  ("evt_weight", "event weight", range(-3,4), None, False),
-  ("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
-  ("muon_sf"	 , "SF applied to muon", 1, None, False),
+  #("evt_weight", "event weight", range(-3,4), None, False),
+  #("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
+  #("muon_sf"	 , "SF applied to muon", 1, None, False),
   ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
   ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
   ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
   ("thad_pt", "p_{T}(t_{h}) (GeV)", 1, None, False),
-  #("Whad_mass", "m_{W}(had) (GeV)", 10, None, False),
-  #("thad_mass", "m_{t}(had) (GeV)", 10, None, False),
   #("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
   ("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
-  ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
-  ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
-  ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
-  ("Bjets_CvsL", "CvsL Discriminator (B Jet)", 1, None, False),
-	("Wjets_CMVA"     , "cMVA Discriminator", 1, None, False),
+#  ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
+#  ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
+#  ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
+#  ("Bjets_CvsL", "CvsL Discriminator (B Jet)", 1, None, False),
+#	("Wjets_CMVA"     , "cMVA Discriminator", 1, None, False),
 	("Wjets_DeepCSVb" , "DeepCSV Prob(b)", 1, None, False),
 	("Wjets_DeepCSVl" , "DeepCSV Prob(l) ", 1, None, False),
 	("Wjets_DeepCSVbb", "DeepCSV Prob(bb)", 1, None, False),
@@ -1367,12 +1331,12 @@ order = "mass_discriminant"
 
 available_wps = [
 	"notag",
-	"csvTight",
-	"csvMedium",
-	"csvLoose",
-	"ctagLoose",
-	"ctagMedium",
-	"ctagTight",
+	#"csvTight",
+	#"csvMedium",
+	#"csvLoose",
+	#"ctagLoose",
+	#"ctagMedium",
+	#"ctagTight",
 	#"cmvaMedium",
 	#"cmvaLoose" ,
 	#"cmvaTight" ,
@@ -1476,15 +1440,15 @@ if args.plots:
 	##
 	## Special plot
 	##
-	plotter.draw_flavor_shapes('nosys/mass_discriminant/notag/both_untagged/', 'btag_sf', False, False) 
-	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsL', False, False) 
-	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsB', False, False) 
-	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVCvsL', False, False) 
-	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVCvsB', False, False) 
-	plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVbD', False, False) 
-	##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wja', 'hflav_CvsL', False, False) 
-	##plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjb', 'hflav_CvsL', False, False) 
-	##plotter.draw_cvsl_shapes('nosys/preselection/', 'jets', 'hflav_CvsL', False, True) 
+	#plotter.draw_flavor_shapes('nosys/mass_discriminant/notag/both_untagged/', 'btag_sf', False, False) 
+	#plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsL', False, False) 
+	#plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_CvsB', False, False) 
+	#plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVCvsL', False, False) 
+	#plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVCvsB', False, False) 
+	#plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjets', 'hflav_DeepCSVbD', False, False) 
+	###plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wja', 'hflav_CvsL', False, False) 
+	###plotter.draw_cvsl_shapes('nosys/mass_discriminant/notag/both_untagged/', 'Wjb', 'hflav_CvsL', False, False) 
+	###plotter.draw_cvsl_shapes('nosys/preselection/', 'jets', 'hflav_CvsL', False, True) 
 
 
 	def write_btag_muon_sf_hists():
@@ -1609,7 +1573,7 @@ if args.plots:
 
 		 plotter.set_subdir(os.path.join(order, wpoint, cat_name))
 
-		 write_btag_muon_sf_hists()
+		 #write_btag_muon_sf_hists()
 
 		 for var, xaxis, yaxis, rebin in vars2D:
 			 ROOT.gStyle.SetPalette(56)

@@ -139,16 +139,22 @@ class permProbComputer : public AnalyzerBase
                     range(binning, 0., 10., 1.);
                     range(binning, 12, 200., 2.);
                     histos_[shift][evt_type]["nusolver_chi2"] = RObject::book<TH1D>("nusolver_chi2", "#chi^{2};# Events", binning.size()-1, &binning[0]);
-                    histos_[shift][evt_type]["wjets_cMVA"] = RObject::book<TH2D>("wjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
-                    histos_[shift][evt_type]["bjets_cMVA"] = RObject::book<TH2D>("bjets_cMVA", "", 100, -1., 1.1, 100, -1., 1.1);
+                    histos_[shift][evt_type]["wjets_DeepCSV"] = RObject::book<TH2D>("wjets_DeepCSV", "", 100, 0., 1.1, 100, 0., 1.1);
+                    histos_[shift][evt_type]["bjets_DeepCSV"] = RObject::book<TH2D>("bjets_DeepCSV", "", 100, 0., 1.1, 100, 0., 1.1);
+                    histos_[shift][evt_type]["wjets_DeepJet"] = RObject::book<TH2D>("wjets_DeepJet", "", 100, 0., 1.1, 100, 0., 1.1);
+                    histos_[shift][evt_type]["bjets_DeepJet"] = RObject::book<TH2D>("bjets_DeepJet", "", 100, 0., 1.1, 100, 0., 1.1);
                     // histos_[shift][evt_type]["wjets_qgt"] = RObject::book<TH2D>("wjets_qgt", "", 50, -1., 1.1, 50, -1., 1.1);
                     // histos_[shift][evt_type]["bjets_qgt"] = RObject::book<TH2D>("bjets_qgt", "", 50, -1., 1.1, 50, -1., 1.1);
                     // histos_[shift][evt_type]["wjets_bqgt"] = RObject::book<TH1D>("wjets_bqgt", "", 50, -1., 1.1); //best
                     // histos_[shift][evt_type]["wjets_wqgt"] = RObject::book<TH1D>("wjets_wqgt", "", 50, -1., 1.1); //worst
-                    histos_[shift][evt_type]["wjets_bcMVA_p11"] = RObject::book<TH1D>("wjets_bcMVA_p11", "", 50, -1., 1.1); //best
-                    histos_[shift][evt_type]["wjets_wcMVA_p11"] = RObject::book<TH1D>("wjets_wcMVA_p11", "", 50, -1., 1.1); //worst
-                    histos_[shift][evt_type]["wjets_cMVA_WP"] = RObject::book<TH2D>("wjets_cMVA_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
-                    histos_[shift][evt_type]["bjets_cMVA_WP"] = RObject::book<TH2D>("bjets_cMVA_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
+                    histos_[shift][evt_type]["wjets_bDeepCSV_p11"] = RObject::book<TH1D>("wjets_bDeepCSV_p11", "", 50, -1., 1.1); //best
+                    histos_[shift][evt_type]["wjets_wDeepCSV_p11"] = RObject::book<TH1D>("wjets_wDeepCSV_p11", "", 50, -1., 1.1); //worst
+                    histos_[shift][evt_type]["wjets_DeepCSV_WP"] = RObject::book<TH2D>("wjets_DeepCSV_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
+                    histos_[shift][evt_type]["bjets_DeepCSV_WP"] = RObject::book<TH2D>("bjets_DeepCSV_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
+                    histos_[shift][evt_type]["wjets_bDeepJet_p11"] = RObject::book<TH1D>("wjets_bDeepJet_p11", "", 50, -1., 1.1); //best
+                    histos_[shift][evt_type]["wjets_wDeepJet_p11"] = RObject::book<TH1D>("wjets_wDeepJet_p11", "", 50, -1., 1.1); //worst
+                    histos_[shift][evt_type]["wjets_DeepJet_WP"] = RObject::book<TH2D>("wjets_DeepJet_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
+                    histos_[shift][evt_type]["bjets_DeepJet_WP"] = RObject::book<TH2D>("bjets_DeepJet_WP", ";M(W_{had}) [GeV];M(t_{had}) [GeV]", 4, 0., 4., 4, 0., 4.);
                     histos_[shift][evt_type]["lb_ratio" ] = RObject::book<TH1D>("lb_ratio" , "", 100, 0., 10.);
                     histos_[shift][evt_type]["w1b_ratio"] = RObject::book<TH1D>("w1b_ratio", "", 100, 0., 10.);
                     histos_[shift][evt_type]["w2b_ratio"] = RObject::book<TH1D>("w2b_ratio", "", 100, 0., 10.);
@@ -157,10 +163,16 @@ class permProbComputer : public AnalyzerBase
             }
         }
 
-        int btag_idval(const IDJet* jet) {
-            if(jet->BTagId(IDJet::BTag::MVATIGHT)) return 3;
-            else if(jet->BTagId(IDJet::BTag::MVAMEDIUM)) return 2;
-            else if(jet->BTagId(IDJet::BTag::MVALOOSE) ) return 1;
+        int deepcsv_idval(const IDJet* jet) {
+            if(jet->BTagId(IDJet::BTag::DEEPCSVTIGHT)) return 3;
+            else if(jet->BTagId(IDJet::BTag::DEEPCSVMEDIUM)) return 2;
+            else if(jet->BTagId(IDJet::BTag::DEEPCSVLOOSE) ) return 1;
+            return 0;
+        }
+        int deepjet_idval(const IDJet* jet) {
+            if(jet->BTagId(IDJet::BTag::DEEPJETTIGHT)) return 3;
+            else if(jet->BTagId(IDJet::BTag::DEEPJETMEDIUM)) return 2;
+            else if(jet->BTagId(IDJet::BTag::DEEPJETLOOSE) ) return 1;
             return 0;
         }
 
@@ -220,12 +232,19 @@ class permProbComputer : public AnalyzerBase
                 plots[perm_status]["mWhad_vs_mtophad"].fill(test_perm.WHad().M(), test_perm.THad().M(), evt_weight_);
                 plots[perm_status]["nusolver_chi2"].fill(test_perm.NuChisq(), evt_weight_);
 
-                auto b_mM = Minmax(test_perm.BHad()->CombinedMVA(), test_perm.BLep()->CombinedMVA());
-                auto w_mM = Minmax(test_perm.WJa()->CombinedMVA(), test_perm.WJb()->CombinedMVA());
-                plots[perm_status]["wjets_cMVA"].fill(pow(w_mM.first, 11), pow(w_mM.second, 11), evt_weight_);
-                plots[perm_status]["bjets_cMVA"].fill(pow(b_mM.first, 11), pow(b_mM.second, 11), evt_weight_);
-                plots[perm_status]["wjets_bcMVA_p11"].fill(pow(w_mM.second, 11), evt_weight_);
-                plots[perm_status]["wjets_wcMVA_p11"].fill(pow(w_mM.first,  11), evt_weight_);
+                auto b_mM_deepcsv = Minmax(test_perm.BHad()->DeepCSVbDisc(), test_perm.BLep()->DeepCSVbDisc());
+                auto w_mM_deepcsv = Minmax(test_perm.WJa()->DeepCSVbDisc(), test_perm.WJb()->DeepCSVbDisc());
+                plots[perm_status]["wjets_DeepCSV"].fill(pow(w_mM_deepcsv.first, 11), pow(w_mM_deepcsv.second, 11), evt_weight_);
+                plots[perm_status]["bjets_DeepCSV"].fill(pow(b_mM_deepcsv.first, 11), pow(b_mM_deepcsv.second, 11), evt_weight_);
+                plots[perm_status]["wjets_bDeepCSV_p11"].fill(pow(w_mM_deepcsv.second, 11), evt_weight_);
+                plots[perm_status]["wjets_wDeepCSV_p11"].fill(pow(w_mM_deepcsv.first,  11), evt_weight_);
+
+                auto b_mM_deepjet = Minmax(test_perm.BHad()->DeepJetbDisc(), test_perm.BLep()->DeepJetbDisc());
+                auto w_mM_deepjet = Minmax(test_perm.WJa()->DeepJetbDisc(), test_perm.WJb()->DeepJetbDisc());
+                plots[perm_status]["wjets_DeepJet"].fill(pow(w_mM_deepjet.first, 11), pow(w_mM_deepjet.second, 11), evt_weight_);
+                plots[perm_status]["bjets_DeepJet"].fill(pow(b_mM_deepjet.first, 11), pow(b_mM_deepjet.second, 11), evt_weight_);
+                plots[perm_status]["wjets_bDeepJet_p11"].fill(pow(w_mM_deepjet.second, 11), evt_weight_);
+                plots[perm_status]["wjets_wDeepJet_p11"].fill(pow(w_mM_deepjet.first,  11), evt_weight_);
 
                 // auto b_mM_qg = Minmax(test_perm.BHad()->qgTag(), test_perm.BLep()->qgTag());
                 // auto w_mM_qg = Minmax(test_perm.WJa() ->qgTag(), test_perm.WJb() ->qgTag());
@@ -234,10 +253,15 @@ class permProbComputer : public AnalyzerBase
                 // plots[perm_status]["wjets_bqgt"].fill(w_mM_qg.second, evt_weight_);
                 // plots[perm_status]["wjets_wqgt"].fill(pow(w_mM_qg.first, 8),  evt_weight_);
 
-                auto bwp_mM = Minmax(btag_idval(test_perm.BHad()), btag_idval(test_perm.BLep()));
-                auto wwp_mM = Minmax(btag_idval(test_perm.WJa() ), btag_idval(test_perm.WJb() ));
-                plots[perm_status]["wjets_cMVA_WP"].fill(wwp_mM.first, wwp_mM.second, evt_weight_);
-                plots[perm_status]["bjets_cMVA_WP"].fill(bwp_mM.first, bwp_mM.second, evt_weight_);
+                auto bwp_mM_deepcsv = Minmax(deepcsv_idval(test_perm.BHad()), deepcsv_idval(test_perm.BLep()));
+                auto wwp_mM_deepcsv = Minmax(deepcsv_idval(test_perm.WJa() ), deepcsv_idval(test_perm.WJb() ));
+                plots[perm_status]["wjets_DeepCSV_WP"].fill(wwp_mM_deepcsv.first, wwp_mM_deepcsv.second, evt_weight_);
+                plots[perm_status]["bjets_DeepCSV_WP"].fill(bwp_mM_deepcsv.first, bwp_mM_deepcsv.second, evt_weight_);
+
+                auto bwp_mM_deepjet = Minmax(deepjet_idval(test_perm.BHad()), deepjet_idval(test_perm.BLep()));
+                auto wwp_mM_deepjet = Minmax(deepjet_idval(test_perm.WJa() ), deepjet_idval(test_perm.WJb() ));
+                plots[perm_status]["wjets_DeepJet_WP"].fill(wwp_mM_deepjet.first, wwp_mM_deepjet.second, evt_weight_);
+                plots[perm_status]["bjets_DeepJet_WP"].fill(bwp_mM_deepjet.first, bwp_mM_deepjet.second, evt_weight_);
 
                 auto wpt_mM = Minmax(test_perm.WJa()->Pt(), test_perm.WJb()->Pt());
                 plots[perm_status]["lb_ratio" ].fill(test_perm.L()->Pt()/test_perm.BLep()->Pt(), evt_weight_);

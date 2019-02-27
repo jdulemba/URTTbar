@@ -5,10 +5,10 @@ that does not permeates in this world, everything is hardcoded.
 
 Enjoy
 '''
-from rootpy.io import root_open
+from rootpy.io import root_open, File
 from rootpy.plotting import Hist, Hist2D
 from pdb import set_trace
-from ROOT import TObjString
+from ROOT import TObjString, TFile
 
 def transpose(hist2d):
 	xbins = set()
@@ -54,17 +54,14 @@ def graph2hist(graph):
 		_, y = xy
 		ret[i+1].value = y
 
-#trig = root_open('TriggerSF_v1.root')
-trig = root_open('EfficienciesAndSF_RunBtoF_Nov17Nov2017.root')
-lepid = root_open('RunBCDEF_17Nov2017_SF_ID.root')
-iso = root_open('RunBCDEF_17Nov2017_SF_ISO.root') #tracking eff as iso given is a 2D plot
+#set_trace()
+trig = TFile.Open('EfficienciesAndSF_RunBtoF_Nov17Nov2017.root')
+lepid = TFile.Open('Run2018ABCD_SF_ID.root')
+iso = TFile.Open('Run2018ABCD_SF_ISO.root') #tracking eff as iso given is a 2D plot
 #trk = root_open('ratios.root')
 
 #trg = transpose(trig.Ele32_eta2p1_WPTight_Gsf__EffData)
-trg = transpose(trig.IsoMu27_PtEtaBins.abseta_pt_ratio)
-# trg1 = trig.IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093.efficienciesDATA.abseta_pt_DATA 
-# trg2 = trig.IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097.efficienciesDATA.abseta_pt_DATA
-# trg = trg1*0.0482 + trg2*0.9517
+#trg = transpose(trig.Get('IsoMu27_PtEtaBins/pt_abseta_ratio'))
 # 
 # htrk = graph2hist(trk.ratio_eta)
 
@@ -77,10 +74,15 @@ info[1].value = 1 #trig SF in |eta| (1) of full eta (0)
 info[2].value = 1 #ID SF in |eta| (1) of full eta (0)
 info[3].value = 1 #Iso SF in |eta| (1) of full eta (0)
 #info[4].value = 1 #tracking SF in |eta| (1) of full eta (0)
-with root_open('output.root', 'w') as out:
-	out.WriteTObject(trg, 'trg')
-	out.WriteTObject(fill_oflow(lepid.NUM_TightID_DEN_genTracks_pt_abseta.Clone()), 'id')
-	out.WriteTObject(fill_oflow(iso.NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta.Clone()), 'iso')
+with File.open('output.root', 'w') as out:
+#with TFile.Open('output.root', 'w') as out:
+	set_trace()
+	#out.WriteTObject(fill_oflow(trig.Get('IsoMu27_PtEtaBins/pt_abseta_ratio')), 'trg')
+	#out.WriteTObject(fill_oflow(lepid.NUM_TightID_DEN_genTracks_pt_abseta.Clone()), 'id')
+	#out.WriteTObject(fill_oflow(iso.NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta.Clone()), 'iso')
+	out.WriteTObject(trig.Get('IsoMu27_PtEtaBins/pt_abseta_ratio').Clone(), 'trg')
+	out.WriteTObject(lepid.Get('NUM_TightID_DEN_genTracks_pt_abseta').Clone(), 'id')
+	out.WriteTObject(iso.Get('NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta').Clone(), 'iso')
 	# out.WriteTObject(htrk, 'trk')
 	out.WriteTObject(info, 'info')
 	out.WriteTObject(code, 'code')

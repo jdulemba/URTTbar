@@ -11,22 +11,34 @@ To get the info:
 
 ```
 echo export jobid=SOME_JOBID_TAG > jobid.sh
-rake getfiles[USER]  ** user argument is only needed if you're getting files from someone else**
+rake getfiles[USER, sample]  ** if user==group then lpcbtag will be checked else a personal eos is used **
 #depending on the number of files, might take a couple of hours
-rake meta_batch    OR rake meta_batch[sample]     for individual samples (can only be used for one at a time)
+rake meta_batch   OR  meta_batch[sample]    for individual samples (can only be used for one at a time)
 #depending on the number of files, could take a very long time
-rake getlumi  **make sure symlink to json is correct**
+rake getlumi
 ```
 
 Plan on this taking a day or more depending on the number of files.
 
-Get lumi computes lumi for MC only, but creates .run.json files for data needed to compute lumi. **NOT FOR DATA**, for data you need to check every time (and works only on lxplus using BRIL).
+Get lumi computes lumi for MC only. **NOT FOR DATA**
+Lumi ** FOR DATA **
 Follow the commands from this webpage: https://cms-service-lumi.web.cern.ch/cms-service-lumi/brilwsdoc.html
     or from this TWIKI: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolPreExerciseThirdSet#Exercise_16_Combining_the_data_a
 
 Alternatively, download https://github.com/urcms/URBril on lxplus and follow those commands.
 
+Another option is to directly copy the inputs/$jobid directory from someone who already did it.
+
 ```
+    ** FOR DATA **
+To create final_run.json files,
+check golden json file for correctness (/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt) and run
+
+bash data_run_json_creator.sh
+
+Pileup ** FOR DATA **
+Check input files (final_run.json and pileup_latest.txt) for correctness.
+
 bash data_pileup.sh
 # creates data.meta.pu(_up/_down).root files for all data
 # replaces compute_lumi_...sh lines in getting lumi
@@ -34,7 +46,8 @@ bash data_pileup.sh
 #    and make sure it's actually the latest version (from /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PileUp/)
 ```
 
-Another option is to directly copy the inputs/$jobid directory from someone who already did it.
+** If new ntuples have different branches, must run rake 'proxy[ttJets]' **
+
 
 ## Running the analyzers
 
@@ -46,8 +59,13 @@ The analysis proceeds in three steps:
 Every new iteration check:
    * Update the lepton SF for Trigger, ID, Isolation
 	 * Update Lepton ID/Isolation working points
-	 * Update CSV file with the BTagging SF
-   * Check that the CSV/cMVA/CTag/DeepCSV/Whatever btagging working points did not change defeinition
+	    * Muons: https://twiki.cern.ch/twiki/bin/view/CMS/MuonPOG
+	    * Electrons: 
+	 * Update CSV file with the BTagging SF: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation
+   * Check that the CSV/cMVA/CTag/Whatever btagging working points did not change defeinition
+   * Check MET Filter recommendations: https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2
+   * Check Triggers: https://twiki.cern.ch/twiki/bin/view/CMS/TopTriggerYear2016 (2017, etc...)
+
 
 These values are found in ctag_eff.cfg [general] section.
 
@@ -56,15 +74,14 @@ These values are found in ctag_eff.cfg [general] section.
 This makes the distribution for TTBarSolver
 
 ```
-rake 'analyze_batch[bin/permProbComputer.cc, ttJets$, ctag_scripts/ctag_eff.cfg]'
-python make_permutation_distros.py  'what you want ttsolver filename in cfg file to be'
-# update ttsolver file in ctag_eff.cfg
+rake 'analyze_batch[permProbComputer.cc,ttJets$,ctag_scripts/ctag_eff.cfg]'
+python make_permutation_distros.py
 ```
 
 ### Compute the flavour probabilities
 
 ```
-rake 'analyze_batch[btag_topology_effs.cc, ttJets$, ctag_scripts/ctag_eff.cfg]'
+rake 'analyze_batch[btag_topology_effs.cc,ttJets$,ctag_scripts/ctag_eff.cfg]'
 python ctag_scripts/make_btag_efficiencies.py
 ```
 
@@ -75,18 +92,12 @@ Takes a **long** time
 rake 'analyze_batch[bin/ctag_eff.cc, *, ctag_scripts/ctag_eff.cfg]'
 ```
 
-## Runing Everything
-```
-rake ctag_plotfit  ## will make plots and run all of the fits/systematics that are below
-```
-
-
 ## Making plots
 
 General control plots
 
 ```
-python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation
+python CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation
 ```
 
 Makes plots and input stuff for the fit for every WP
@@ -117,5 +128,3 @@ python ctag_scripts/make_ctag_tables.py #this makes a latex file with SF values 
 python ctag_scripts/make_ctag_postfit.py #postfit plots
 python ctag_scripts/write_csv.py ctag|CSV|cMVA #this makes the CSV file to be given to POG
 ```
-
-

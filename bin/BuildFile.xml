@@ -12,15 +12,15 @@
 <flags CXXFLAGS="-Wno-error=reorder -Wno-error=sign-compare -Wno-error=unused-variable -g"/>  
 <bin file="btag_topology_effs.cc" name="btag_topology_effs"/>
 <bin file="ctag_eff.cc"           name="ctag_eff"/>          
-<bin file="ctag_genstudies.cc"    name="ctag_genstudies"/>   
+<!--bin file="ctag_genstudies.cc"    name="ctag_genstudies"/-->   
 <bin file="permProbComputer.cc"   name="permProbComputer"/>  
-<bin file="topspin_gen.cc"        name="topspin_gen"/>       
-<bin file="topspin_reco.cc"        name="topspin_reco"/>       
-<bin file="ntupleDumper.cc"       name="ntupleDumper"/>
-<bin file="TESTCRASH.cc"        name="TESTCRASH"/>
-<bin file="htt_simple.cc"        name="htt_simple"/>
-<bin file="htt_flav_effs.cc"        name="htt_flav_effs"/>
-<bin file="permStudy.cc"        name="permStudy"/>
+<!--bin file="topspin_gen.cc"        name="topspin_gen"/-->       
+<!--bin file="topspin_reco.cc"        name="topspin_reco"/-->       
+<!--bin file="ntupleDumper.cc"       name="ntupleDumper"/-->
+<!--bin file="TESTCRASH.cc"        name="TESTCRASH"/-->
+<!--bin file="htt_simple.cc"        name="htt_simple"/-->
+<!--bin file="htt_flav_effs.cc"        name="htt_flav_effs"/-->
+<!--bin file="permStudy.cc"        name="permStudy"/-->
 <!--bin file="Test_ctag.cc"        name="Test_ctag"/-->
 <!--bin file="jet_effs.cc"        name="jet_effs"/-->
 

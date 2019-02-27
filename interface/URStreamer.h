@@ -77,7 +77,7 @@ private:
 class Geninfo{
 friend class URStreamer;
 public:
-//  Geninfo(const Float_t &i_weight_,const Float_t &i_pdfid1_,const Float_t &i_pdfid2_,const Float_t &i_x1_,const Float_t &i_x2_,const Float_t &i_renScale_):
+//  Geninfo(const Float_t &i_weight_,const Float_t &i_pdfid1_,const Float_t &i_pdfid2_,const Float_t &i_x1_,const Float_t &i_x2_,const Float_t &i_renScale_,const Float_t &i_ps0_,const Float_t &i_ps1_,const Float_t &i_ps2_,const Float_t &i_ps3_,const Float_t &i_ps4_,const Float_t &i_ps5_,const Float_t &i_ps6_,const Float_t &i_ps7_,const Float_t &i_ps8_,const Float_t &i_ps9_,const Float_t &i_ps10_,const Float_t &i_ps11_,const Float_t &i_ps12_,const Float_t &i_ps13_):
 //    
 //  {}
   Geninfo():
@@ -86,7 +86,21 @@ public:
     pdfid2_(0),
     x1_(0),
     x2_(0),
-    renScale_(0)
+    renScale_(0),
+    ps0_(0),
+    ps1_(0),
+    ps2_(0),
+    ps3_(0),
+    ps4_(0),
+    ps5_(0),
+    ps6_(0),
+    ps7_(0),
+    ps8_(0),
+    ps9_(0),
+    ps10_(0),
+    ps11_(0),
+    ps12_(0),
+    ps13_(0)
   {}
   Float_t weight() const {return weight_;}
   Float_t pdfid1() const {return pdfid1_;}
@@ -94,6 +108,20 @@ public:
   Float_t x1() const {return x1_;}
   Float_t x2() const {return x2_;}
   Float_t renScale() const {return renScale_;}
+  Float_t ps0() const {return ps0_;}
+  Float_t ps1() const {return ps1_;}
+  Float_t ps2() const {return ps2_;}
+  Float_t ps3() const {return ps3_;}
+  Float_t ps4() const {return ps4_;}
+  Float_t ps5() const {return ps5_;}
+  Float_t ps6() const {return ps6_;}
+  Float_t ps7() const {return ps7_;}
+  Float_t ps8() const {return ps8_;}
+  Float_t ps9() const {return ps9_;}
+  Float_t ps10() const {return ps10_;}
+  Float_t ps11() const {return ps11_;}
+  Float_t ps12() const {return ps12_;}
+  Float_t ps13() const {return ps13_;}
 private:
   Float_t weight_;
   Float_t pdfid1_;
@@ -101,12 +129,40 @@ private:
   Float_t x1_;
   Float_t x2_;
   Float_t renScale_;
+  Float_t ps0_;
+  Float_t ps1_;
+  Float_t ps2_;
+  Float_t ps3_;
+  Float_t ps4_;
+  Float_t ps5_;
+  Float_t ps6_;
+  Float_t ps7_;
+  Float_t ps8_;
+  Float_t ps9_;
+  Float_t ps10_;
+  Float_t ps11_;
+  Float_t ps12_;
+  Float_t ps13_;
   void setweight(const Float_t value) {weight_ = value;}
   void setpdfid1(const Float_t value) {pdfid1_ = value;}
   void setpdfid2(const Float_t value) {pdfid2_ = value;}
   void setx1(const Float_t value) {x1_ = value;}
   void setx2(const Float_t value) {x2_ = value;}
   void setrenScale(const Float_t value) {renScale_ = value;}
+  void setps0(const Float_t value) {ps0_ = value;}
+  void setps1(const Float_t value) {ps1_ = value;}
+  void setps2(const Float_t value) {ps2_ = value;}
+  void setps3(const Float_t value) {ps3_ = value;}
+  void setps4(const Float_t value) {ps4_ = value;}
+  void setps5(const Float_t value) {ps5_ = value;}
+  void setps6(const Float_t value) {ps6_ = value;}
+  void setps7(const Float_t value) {ps7_ = value;}
+  void setps8(const Float_t value) {ps8_ = value;}
+  void setps9(const Float_t value) {ps9_ = value;}
+  void setps10(const Float_t value) {ps10_ = value;}
+  void setps11(const Float_t value) {ps11_ = value;}
+  void setps12(const Float_t value) {ps12_ = value;}
+  void setps13(const Float_t value) {ps13_ = value;}
 };
 
 class Photon: public TLorentzVector{
@@ -240,7 +296,7 @@ private:
 class Filter{
 friend class URStreamer;
 public:
-//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_globalTightHalo2016Filter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_duplicateMuons_,const Int_t &i_Flag_badMuons_,const Int_t &i_Flag_BadPFMuonFilter_,const Int_t &i_Flag_BadChargedCandidateFilter_, const Int_t &i_Flag_ecalBadCalibFilter_):
+//  Filter(const Int_t &i_Flag_goodVertices_,const Int_t &i_Flag_CSCTightHaloFilter_,const Int_t &i_Flag_trkPOGFilters_,const Int_t &i_Flag_trkPOG_logErrorTooManyClusters_,const Int_t &i_Flag_EcalDeadCellTriggerPrimitiveFilter_,const Int_t &i_Flag_ecalLaserCorrFilter_,const Int_t &i_Flag_trkPOG_manystripclus53X_,const Int_t &i_Flag_eeBadScFilter_,const Int_t &i_Flag_METFilters_,const Int_t &i_Flag_HBHENoiseFilter_,const Int_t &i_Flag_HBHENoiseIsoFilter_,const Int_t &i_Flag_globalSuperTightHalo2016Filter_,const Int_t &i_Flag_trkPOG_toomanystripclus53X_,const Int_t &i_Flag_hcalLaserEventFilter_,const Int_t &i_Flag_duplicateMuons_,const Int_t &i_Flag_badMuons_,const Int_t &i_Flag_ecalBadCalibFilter_,const Int_t &i_Flag_BadPFMuonFilter_,const Int_t &i_Flag_BadChargedCandidateFilter_):
 //    
 //  {}
   Filter():
@@ -255,13 +311,13 @@ public:
     Flag_METFilters_(0),
     Flag_HBHENoiseFilter_(0),
     Flag_HBHENoiseIsoFilter_(0),
-    Flag_globalTightHalo2016Filter_(0),
+    Flag_globalSuperTightHalo2016Filter_(0),
     Flag_trkPOG_toomanystripclus53X_(0),
     Flag_hcalLaserEventFilter_(0),
     Flag_duplicateMuons_(0),
     Flag_badMuons_(0),
-    Flag_BadPFMuonFilter_(0),
     Flag_ecalBadCalibFilter_(0),
+    Flag_BadPFMuonFilter_(0),
     Flag_BadChargedCandidateFilter_(0)
   {}
   Int_t Flag_goodVertices() const {return Flag_goodVertices_;}
@@ -275,13 +331,13 @@ public:
   Int_t Flag_METFilters() const {return Flag_METFilters_;}
   Int_t Flag_HBHENoiseFilter() const {return Flag_HBHENoiseFilter_;}
   Int_t Flag_HBHENoiseIsoFilter() const {return Flag_HBHENoiseIsoFilter_;}
-  Int_t Flag_globalTightHalo2016Filter() const {return Flag_globalTightHalo2016Filter_;}
+  Int_t Flag_globalSuperTightHalo2016Filter() const {return Flag_globalSuperTightHalo2016Filter_;}
   Int_t Flag_trkPOG_toomanystripclus53X() const {return Flag_trkPOG_toomanystripclus53X_;}
   Int_t Flag_hcalLaserEventFilter() const {return Flag_hcalLaserEventFilter_;}
   Int_t Flag_duplicateMuons() const {return Flag_duplicateMuons_;}
   Int_t Flag_badMuons() const {return Flag_badMuons_;}
-  Int_t Flag_BadPFMuonFilter() const {return Flag_BadPFMuonFilter_;}
   Int_t Flag_ecalBadCalibFilter() const {return Flag_ecalBadCalibFilter_;}
+  Int_t Flag_BadPFMuonFilter() const {return Flag_BadPFMuonFilter_;}
   Int_t Flag_BadChargedCandidateFilter() const {return Flag_BadChargedCandidateFilter_;}
 private:
   Int_t Flag_goodVertices_;
@@ -295,13 +351,13 @@ private:
   Int_t Flag_METFilters_;
   Int_t Flag_HBHENoiseFilter_;
   Int_t Flag_HBHENoiseIsoFilter_;
-  Int_t Flag_globalTightHalo2016Filter_;
+  Int_t Flag_globalSuperTightHalo2016Filter_;
   Int_t Flag_trkPOG_toomanystripclus53X_;
   Int_t Flag_hcalLaserEventFilter_;
   Int_t Flag_duplicateMuons_;
   Int_t Flag_badMuons_;
-  Int_t Flag_BadPFMuonFilter_;
   Int_t Flag_ecalBadCalibFilter_;
+  Int_t Flag_BadPFMuonFilter_;
   Int_t Flag_BadChargedCandidateFilter_;
   void setFlag_goodVertices(const Int_t value) {Flag_goodVertices_ = value;}
   void setFlag_CSCTightHaloFilter(const Int_t value) {Flag_CSCTightHaloFilter_ = value;}
@@ -314,13 +370,13 @@ private:
   void setFlag_METFilters(const Int_t value) {Flag_METFilters_ = value;}
   void setFlag_HBHENoiseFilter(const Int_t value) {Flag_HBHENoiseFilter_ = value;}
   void setFlag_HBHENoiseIsoFilter(const Int_t value) {Flag_HBHENoiseIsoFilter_ = value;}
-  void setFlag_globalTightHalo2016Filter(const Int_t value) {Flag_globalTightHalo2016Filter_ = value;}
+  void setFlag_globalSuperTightHalo2016Filter(const Int_t value) {Flag_globalSuperTightHalo2016Filter_ = value;}
   void setFlag_trkPOG_toomanystripclus53X(const Int_t value) {Flag_trkPOG_toomanystripclus53X_ = value;}
   void setFlag_hcalLaserEventFilter(const Int_t value) {Flag_hcalLaserEventFilter_ = value;}
   void setFlag_duplicateMuons(const Int_t value) {Flag_duplicateMuons_ = value;}
   void setFlag_badMuons(const Int_t value) {Flag_badMuons_ = value;}
-  void setFlag_BadPFMuonFilter(const Int_t value) {Flag_BadPFMuonFilter_ = value;}
   void setFlag_ecalBadCalibFilter(const Int_t value) {Flag_ecalBadCalibFilter_ = value;}
+  void setFlag_BadPFMuonFilter(const Int_t value) {Flag_BadPFMuonFilter_ = value;}
   void setFlag_BadChargedCandidateFilter(const Int_t value) {Flag_BadChargedCandidateFilter_ = value;}
 };
 
@@ -437,7 +493,7 @@ private:
 class Electron: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dxy_,const float &i_dz_,const float &i_dB_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const float &i_hadronicOverEM_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutVeto_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutNoIsoVeto_,const float &i_eidCutNoIsoLoose_,const float &i_eidCutNoIsoMedium_,const float &i_eidCutNoIsoTight_,const float &i_eidMVAWP80_,const float &i_eidMVAWP90_,const float &i_eidTrgMVAWP80_,const float &i_eidTrgMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele25_eta2p1_WPTight_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPTight_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_,const bool &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const bool &i_HLT_Ele35_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const bool &i_hasSeed_,const float &i_seedEta_,const bool &i_hasSC_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
+//  Electron(const int &i_charge_,const float &i_chargedIso_,const float &i_neutralIso_,const float &i_photonIso_,const float &i_puIso_,const float &i_dxy_,const float &i_dz_,const float &i_dB_,const float &i_nMissingInnerHits_,const float &i_r9_,const float &i_ESCOverETrack_,const float &i_DEtaSCTrk_,const float &i_DPhiSCTrk_,const float &i_ecalEnergy_,const bool &i_passConversionVeto_,const float &i_hadronicOverEM_,const bool &i_isEB_,const bool &i_isEE_,const bool &i_isEBGap_,const bool &i_isEBEtaGap_,const bool &i_isEBPhiGap_,const bool &i_isEEGap_,const bool &i_isEERingGap_,const bool &i_isEEDeeGap_,const bool &i_isEBEEGap_,const bool &i_isElectron_,const bool &i_ecalSeed_,const bool &i_trackSeed_,const float &i_eidCutVeto_,const float &i_eidCutLoose_,const float &i_eidCutMedium_,const float &i_eidCutTight_,const float &i_eidCutNoIsoVeto_,const float &i_eidCutNoIsoLoose_,const float &i_eidCutNoIsoMedium_,const float &i_eidCutNoIsoTight_,const float &i_eidIsoMVAWP80_,const float &i_eidIsoMVAWP90_,const float &i_eidNonIsoMVAWP80_,const float &i_eidNonIsoMVAWP90_,const float &i_pfHadronIso_,const float &i_pfNeutralIso_,const float &i_pfPhotonIso_,const bool &i_HLT_Ele22_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele23_WPLoose_Gsf_,const bool &i_HLT_Ele25_eta2p1_WPTight_Gsf_,const bool &i_HLT_Ele27_WPLoose_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_,const bool &i_HLT_Ele27_WPTight_Gsf_,const bool &i_HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_,const bool &i_HLT_Ele32_eta2p1_WPTight_Gsf_,const bool &i_HLT_Ele35_WPLoose_Gsf_,const bool &i_HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_,const bool &i_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_,const float &i_e1x5_,const float &i_e5x5_,const float &i_sigmaIEtaIEta_,const float &i_full5x5_sigmaIEtaIEta_,const float &i_sigmaIPhiIPhi_,const bool &i_hasSeed_,const float &i_seedEta_,const bool &i_hasSC_,const float &i_x_,const float &i_y_,const float &i_z_,const float &i_energy_,const float &i_rawEnergy_,const float &i_phiWidth_,const float &i_etaWidth_):
 //    
 //  {}
   Electron():
@@ -478,10 +534,10 @@ public:
     eidCutNoIsoLoose_(0),
     eidCutNoIsoMedium_(0),
     eidCutNoIsoTight_(0),
-    eidMVAWP80_(0),
-    eidMVAWP90_(0),
-    eidTrgMVAWP80_(0),
-    eidTrgMVAWP90_(0),
+    eidIsoMVAWP80_(0),
+    eidIsoMVAWP90_(0),
+    eidNonIsoMVAWP80_(0),
+    eidNonIsoMVAWP90_(0),
     pfHadronIso_(0),
     pfNeutralIso_(0),
     pfPhotonIso_(0),
@@ -548,10 +604,10 @@ public:
   float eidCutNoIsoLoose() const {return eidCutNoIsoLoose_;}
   float eidCutNoIsoMedium() const {return eidCutNoIsoMedium_;}
   float eidCutNoIsoTight() const {return eidCutNoIsoTight_;}
-  float eidMVAWP80() const {return eidMVAWP80_;}
-  float eidMVAWP90() const {return eidMVAWP90_;}
-  float eidTrgMVAWP80() const {return eidTrgMVAWP80_;}
-  float eidTrgMVAWP90() const {return eidTrgMVAWP90_;}
+  float eidIsoMVAWP80() const {return eidIsoMVAWP80_;}
+  float eidIsoMVAWP90() const {return eidIsoMVAWP90_;}
+  float eidNonIsoMVAWP80() const {return eidNonIsoMVAWP80_;}
+  float eidNonIsoMVAWP90() const {return eidNonIsoMVAWP90_;}
   float pfHadronIso() const {return pfHadronIso_;}
   float pfNeutralIso() const {return pfNeutralIso_;}
   float pfPhotonIso() const {return pfPhotonIso_;}
@@ -618,10 +674,10 @@ private:
   float eidCutNoIsoLoose_;
   float eidCutNoIsoMedium_;
   float eidCutNoIsoTight_;
-  float eidMVAWP80_;
-  float eidMVAWP90_;
-  float eidTrgMVAWP80_;
-  float eidTrgMVAWP90_;
+  float eidIsoMVAWP80_;
+  float eidIsoMVAWP90_;
+  float eidNonIsoMVAWP80_;
+  float eidNonIsoMVAWP90_;
   float pfHadronIso_;
   float pfNeutralIso_;
   float pfPhotonIso_;
@@ -687,10 +743,10 @@ private:
   void seteidCutNoIsoLoose(const float value) {eidCutNoIsoLoose_ = value;}
   void seteidCutNoIsoMedium(const float value) {eidCutNoIsoMedium_ = value;}
   void seteidCutNoIsoTight(const float value) {eidCutNoIsoTight_ = value;}
-  void seteidMVAWP80(const float value) {eidMVAWP80_ = value;}
-  void seteidMVAWP90(const float value) {eidMVAWP90_ = value;}
-  void seteidTrgMVAWP80(const float value) {eidTrgMVAWP80_ = value;}
-  void seteidTrgMVAWP90(const float value) {eidTrgMVAWP90_ = value;}
+  void seteidIsoMVAWP80(const float value) {eidIsoMVAWP80_ = value;}
+  void seteidIsoMVAWP90(const float value) {eidIsoMVAWP90_ = value;}
+  void seteidNonIsoMVAWP80(const float value) {eidNonIsoMVAWP80_ = value;}
+  void seteidNonIsoMVAWP90(const float value) {eidNonIsoMVAWP90_ = value;}
   void setpfHadronIso(const float value) {pfHadronIso_ = value;}
   void setpfNeutralIso(const float value) {pfNeutralIso_ = value;}
   void setpfPhotonIso(const float value) {pfPhotonIso_ = value;}
@@ -770,7 +826,7 @@ private:
 class Jet: public TLorentzVector{
 friend class URStreamer;
 public:
-//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_qgTag_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_DeepCSVProbUDSG_,const float &i_DeepCSVProbB_,const float &i_DeepCSVProbC_,const float &i_DeepCSVProbBB_,const float &i_DeepCSVProbCC_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
+//  Jet(const int &i_charge_,const float &i_e_,const float &i_area_,const float &i_qgTag_,const float &i_JESUnc_,const float &i_JER_,const float &i_JERUp_,const float &i_JERDown_,const float &i_uncorrPt_,const float &i_uncorrEta_,const float &i_uncorrPhi_,const float &i_uncorrM_,const float &i_uncorrEnergy_,const float &i_chargedHadronEnergyFraction_,const float &i_neutralHadronEnergyFraction_,const float &i_chargedEmEnergyFraction_,const float &i_neutralEmEnergyFraction_,const float &i_HFHadronEnergyFraction_,const float &i_HFEMEnergyFraction_,const float &i_muonEnergyFraction_,const float &i_chargedMultiplicity_,const float &i_neutralMultiplicity_,const float &i_numChargedHadrons_,const float &i_numNeutralHadrons_,const float &i_numPhotons_,const float &i_numElectrons_,const float &i_numMuons_,const float &i_numForwardEMs_,const float &i_numForwardHads_,const float &i_numberOfDaughters_,const float &i_puId_,const float &i_jetBProb_,const float &i_jetProb_,const float &i_trkHiPur_,const float &i_trkHiEff_,const float &i_ssvHiEff_,const float &i_ssvHiPur_,const float &i_csv_,const float &i_csvIncl_,const float &i_CvsLtag_,const float &i_CombinedMVA_,const float &i_CvsBtag_,const float &i_DeepCSVProbUDSG_,const float &i_DeepCSVProbB_,const float &i_DeepCSVProbC_,const float &i_DeepCSVProbBB_,const float &i_DeepCSVProbCC_,const float &i_DeepFlavourProbB_,const float &i_DeepFlavourProbBB_,const float &i_DeepFlavourProbLepB_,const float &i_DeepFlavourProbC_,const float &i_DeepFlavourProbUDS_,const float &i_DeepFlavourProbG_,const int &i_partonFlavour_,const int &i_hadronFlavour_):
 //    
 //  {}
   Jet():
@@ -822,6 +878,12 @@ public:
     DeepCSVProbC_(0),
     DeepCSVProbBB_(0),
     DeepCSVProbCC_(0),
+    DeepFlavourProbB_(0),
+    DeepFlavourProbBB_(0),
+    DeepFlavourProbLepB_(0),
+    DeepFlavourProbC_(0),
+    DeepFlavourProbUDS_(0),
+    DeepFlavourProbG_(0),
     partonFlavour_(0),
     hadronFlavour_(0)
   {}
@@ -872,6 +934,12 @@ public:
   float DeepCSVProbC() const {return DeepCSVProbC_;}
   float DeepCSVProbBB() const {return DeepCSVProbBB_;}
   float DeepCSVProbCC() const {return DeepCSVProbCC_;}
+  float DeepFlavourProbB() const {return DeepFlavourProbB_;}
+  float DeepFlavourProbBB() const {return DeepFlavourProbBB_;}
+  float DeepFlavourProbLepB() const {return DeepFlavourProbLepB_;}
+  float DeepFlavourProbC() const {return DeepFlavourProbC_;}
+  float DeepFlavourProbUDS() const {return DeepFlavourProbUDS_;}
+  float DeepFlavourProbG() const {return DeepFlavourProbG_;}
   int partonFlavour() const {return partonFlavour_;}
   int hadronFlavour() const {return hadronFlavour_;}
 private:
@@ -922,6 +990,12 @@ private:
   float DeepCSVProbC_;
   float DeepCSVProbBB_;
   float DeepCSVProbCC_;
+  float DeepFlavourProbB_;
+  float DeepFlavourProbBB_;
+  float DeepFlavourProbLepB_;
+  float DeepFlavourProbC_;
+  float DeepFlavourProbUDS_;
+  float DeepFlavourProbG_;
   int partonFlavour_;
   int hadronFlavour_;
   void setcharge(const int value) {charge_ = value;}
@@ -971,6 +1045,12 @@ private:
   void setDeepCSVProbC(const float value) {DeepCSVProbC_ = value;}
   void setDeepCSVProbBB(const float value) {DeepCSVProbBB_ = value;}
   void setDeepCSVProbCC(const float value) {DeepCSVProbCC_ = value;}
+  void setDeepFlavourProbB(const float value) {DeepFlavourProbB_ = value;}
+  void setDeepFlavourProbBB(const float value) {DeepFlavourProbBB_ = value;}
+  void setDeepFlavourProbLepB(const float value) {DeepFlavourProbLepB_ = value;}
+  void setDeepFlavourProbC(const float value) {DeepFlavourProbC_ = value;}
+  void setDeepFlavourProbUDS(const float value) {DeepFlavourProbUDS_ = value;}
+  void setDeepFlavourProbG(const float value) {DeepFlavourProbG_ = value;}
   void setpartonFlavour(const int value) {partonFlavour_ = value;}
   void sethadronFlavour(const int value) {hadronFlavour_ = value;}
   void setLotentzVector(float pt, float eta, float phi, float mass){SetPtEtaPhiM(pt, eta, phi, mass);}
@@ -1313,13 +1393,13 @@ public:
     filter_Flag_METFilters_(0),
     filter_Flag_HBHENoiseFilter_(0),
     filter_Flag_HBHENoiseIsoFilter_(0),
-    filter_Flag_globalTightHalo2016Filter_(0),
+    filter_Flag_globalSuperTightHalo2016Filter_(0),
     filter_Flag_trkPOG_toomanystripclus53X_(0),
     filter_Flag_hcalLaserEventFilter_(0),
     filter_Flag_duplicateMuons_(0),
     filter_Flag_badMuons_(0),
-    filter_Flag_BadPFMuonFilter_(0),
     filter_Flag_ecalBadCalibFilter_(0),
+    filter_Flag_BadPFMuonFilter_(0),
     filter_Flag_BadChargedCandidateFilter_(0),
     rho_value_(0),
     muons_pt_(0),
@@ -1416,6 +1496,12 @@ public:
     jets_DeepCSVProbC_(0),
     jets_DeepCSVProbBB_(0),
     jets_DeepCSVProbCC_(0),
+    jets_DeepFlavourProbB_(0),
+    jets_DeepFlavourProbBB_(0),
+    jets_DeepFlavourProbLepB_(0),
+    jets_DeepFlavourProbC_(0),
+    jets_DeepFlavourProbUDS_(0),
+    jets_DeepFlavourProbG_(0),
     jets_partonFlavour_(0),
     jets_hadronFlavour_(0),
     electrons_pt_(0),
@@ -1457,10 +1543,10 @@ public:
     electrons_eidCutNoIsoLoose_(0),
     electrons_eidCutNoIsoMedium_(0),
     electrons_eidCutNoIsoTight_(0),
-    electrons_eidMVAWP80_(0),
-    electrons_eidMVAWP90_(0),
-    electrons_eidTrgMVAWP80_(0),
-    electrons_eidTrgMVAWP90_(0),
+    electrons_eidIsoMVAWP80_(0),
+    electrons_eidIsoMVAWP90_(0),
+    electrons_eidNonIsoMVAWP80_(0),
+    electrons_eidNonIsoMVAWP90_(0),
     electrons_pfHadronIso_(0),
     electrons_pfNeutralIso_(0),
     electrons_pfPhotonIso_(0),
@@ -1535,6 +1621,20 @@ public:
     genInfo_x1_(0),
     genInfo_x2_(0),
     genInfo_renScale_(0),
+    genInfo_ps0_(0),
+    genInfo_ps1_(0),
+    genInfo_ps2_(0),
+    genInfo_ps3_(0),
+    genInfo_ps4_(0),
+    genInfo_ps5_(0),
+    genInfo_ps6_(0),
+    genInfo_ps7_(0),
+    genInfo_ps8_(0),
+    genInfo_ps9_(0),
+    genInfo_ps10_(0),
+    genInfo_ps11_(0),
+    genInfo_ps12_(0),
+    genInfo_ps13_(0),
     MCWeights_weights_(0),
     LHEInfo_npnlo_(0),
     LHEInfo_procID_(0),
@@ -1660,6 +1760,20 @@ public:
       tree_->SetBranchStatus("genInfo.x1", 1); tree_->SetBranchAddress("genInfo.x1", &genInfo_x1_);
       tree_->SetBranchStatus("genInfo.x2", 1); tree_->SetBranchAddress("genInfo.x2", &genInfo_x2_);
       tree_->SetBranchStatus("genInfo.renScale", 1); tree_->SetBranchAddress("genInfo.renScale", &genInfo_renScale_);
+      tree_->SetBranchStatus("genInfo.ps0", 1); tree_->SetBranchAddress("genInfo.ps0", &genInfo_ps0_);
+      tree_->SetBranchStatus("genInfo.ps1", 1); tree_->SetBranchAddress("genInfo.ps1", &genInfo_ps1_);
+      tree_->SetBranchStatus("genInfo.ps2", 1); tree_->SetBranchAddress("genInfo.ps2", &genInfo_ps2_);
+      tree_->SetBranchStatus("genInfo.ps3", 1); tree_->SetBranchAddress("genInfo.ps3", &genInfo_ps3_);
+      tree_->SetBranchStatus("genInfo.ps4", 1); tree_->SetBranchAddress("genInfo.ps4", &genInfo_ps4_);
+      tree_->SetBranchStatus("genInfo.ps5", 1); tree_->SetBranchAddress("genInfo.ps5", &genInfo_ps5_);
+      tree_->SetBranchStatus("genInfo.ps6", 1); tree_->SetBranchAddress("genInfo.ps6", &genInfo_ps6_);
+      tree_->SetBranchStatus("genInfo.ps7", 1); tree_->SetBranchAddress("genInfo.ps7", &genInfo_ps7_);
+      tree_->SetBranchStatus("genInfo.ps8", 1); tree_->SetBranchAddress("genInfo.ps8", &genInfo_ps8_);
+      tree_->SetBranchStatus("genInfo.ps9", 1); tree_->SetBranchAddress("genInfo.ps9", &genInfo_ps9_);
+      tree_->SetBranchStatus("genInfo.ps10", 1); tree_->SetBranchAddress("genInfo.ps10", &genInfo_ps10_);
+      tree_->SetBranchStatus("genInfo.ps11", 1); tree_->SetBranchAddress("genInfo.ps11", &genInfo_ps11_);
+      tree_->SetBranchStatus("genInfo.ps12", 1); tree_->SetBranchAddress("genInfo.ps12", &genInfo_ps12_);
+      tree_->SetBranchStatus("genInfo.ps13", 1); tree_->SetBranchAddress("genInfo.ps13", &genInfo_ps13_);
       are_genInfo_loaded_ = true;
       tree_->GetEntry(current_entry_);
     }
@@ -1721,13 +1835,13 @@ public:
       tree_->SetBranchStatus("filter.Flag_METFilters", 1); tree_->SetBranchAddress("filter.Flag_METFilters", &filter_Flag_METFilters_);
       tree_->SetBranchStatus("filter.Flag_HBHENoiseFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseFilter", &filter_Flag_HBHENoiseFilter_);
       tree_->SetBranchStatus("filter.Flag_HBHENoiseIsoFilter", 1); tree_->SetBranchAddress("filter.Flag_HBHENoiseIsoFilter", &filter_Flag_HBHENoiseIsoFilter_);
-      tree_->SetBranchStatus("filter.Flag_globalTightHalo2016Filter", 1); tree_->SetBranchAddress("filter.Flag_globalTightHalo2016Filter", &filter_Flag_globalTightHalo2016Filter_);
+      tree_->SetBranchStatus("filter.Flag_globalSuperTightHalo2016Filter", 1); tree_->SetBranchAddress("filter.Flag_globalSuperTightHalo2016Filter", &filter_Flag_globalSuperTightHalo2016Filter_);
       tree_->SetBranchStatus("filter.Flag_trkPOG_toomanystripclus53X", 1); tree_->SetBranchAddress("filter.Flag_trkPOG_toomanystripclus53X", &filter_Flag_trkPOG_toomanystripclus53X_);
       tree_->SetBranchStatus("filter.Flag_hcalLaserEventFilter", 1); tree_->SetBranchAddress("filter.Flag_hcalLaserEventFilter", &filter_Flag_hcalLaserEventFilter_);
       tree_->SetBranchStatus("filter.Flag_duplicateMuons", 1); tree_->SetBranchAddress("filter.Flag_duplicateMuons", &filter_Flag_duplicateMuons_);
       tree_->SetBranchStatus("filter.Flag_badMuons", 1); tree_->SetBranchAddress("filter.Flag_badMuons", &filter_Flag_badMuons_);
-      tree_->SetBranchStatus("filter.Flag_BadPFMuonFilter", 1); tree_->SetBranchAddress("filter.Flag_BadPFMuonFilter", &filter_Flag_BadPFMuonFilter_);
       tree_->SetBranchStatus("filter.Flag_ecalBadCalibFilter", 1); tree_->SetBranchAddress("filter.Flag_ecalBadCalibFilter", &filter_Flag_ecalBadCalibFilter_);
+      tree_->SetBranchStatus("filter.Flag_BadPFMuonFilter", 1); tree_->SetBranchAddress("filter.Flag_BadPFMuonFilter", &filter_Flag_BadPFMuonFilter_);
       tree_->SetBranchStatus("filter.Flag_BadChargedCandidateFilter", 1); tree_->SetBranchAddress("filter.Flag_BadChargedCandidateFilter", &filter_Flag_BadChargedCandidateFilter_);
       are_filter_loaded_ = true;
       tree_->GetEntry(current_entry_);
@@ -1811,10 +1925,10 @@ public:
       tree_->SetBranchStatus("electrons.eidCutNoIsoLoose", 1); tree_->SetBranchAddress("electrons.eidCutNoIsoLoose", &electrons_eidCutNoIsoLoose_);
       tree_->SetBranchStatus("electrons.eidCutNoIsoMedium", 1); tree_->SetBranchAddress("electrons.eidCutNoIsoMedium", &electrons_eidCutNoIsoMedium_);
       tree_->SetBranchStatus("electrons.eidCutNoIsoTight", 1); tree_->SetBranchAddress("electrons.eidCutNoIsoTight", &electrons_eidCutNoIsoTight_);
-      tree_->SetBranchStatus("electrons.eidMVAWP80", 1); tree_->SetBranchAddress("electrons.eidMVAWP80", &electrons_eidMVAWP80_);
-      tree_->SetBranchStatus("electrons.eidMVAWP90", 1); tree_->SetBranchAddress("electrons.eidMVAWP90", &electrons_eidMVAWP90_);
-      tree_->SetBranchStatus("electrons.eidTrgMVAWP80", 1); tree_->SetBranchAddress("electrons.eidTrgMVAWP80", &electrons_eidTrgMVAWP80_);
-      tree_->SetBranchStatus("electrons.eidTrgMVAWP90", 1); tree_->SetBranchAddress("electrons.eidTrgMVAWP90", &electrons_eidTrgMVAWP90_);
+      tree_->SetBranchStatus("electrons.eidIsoMVAWP80", 1); tree_->SetBranchAddress("electrons.eidIsoMVAWP80", &electrons_eidIsoMVAWP80_);
+      tree_->SetBranchStatus("electrons.eidIsoMVAWP90", 1); tree_->SetBranchAddress("electrons.eidIsoMVAWP90", &electrons_eidIsoMVAWP90_);
+      tree_->SetBranchStatus("electrons.eidNonIsoMVAWP80", 1); tree_->SetBranchAddress("electrons.eidNonIsoMVAWP80", &electrons_eidNonIsoMVAWP80_);
+      tree_->SetBranchStatus("electrons.eidNonIsoMVAWP90", 1); tree_->SetBranchAddress("electrons.eidNonIsoMVAWP90", &electrons_eidNonIsoMVAWP90_);
       tree_->SetBranchStatus("electrons.pfHadronIso", 1); tree_->SetBranchAddress("electrons.pfHadronIso", &electrons_pfHadronIso_);
       tree_->SetBranchStatus("electrons.pfNeutralIso", 1); tree_->SetBranchAddress("electrons.pfNeutralIso", &electrons_pfNeutralIso_);
       tree_->SetBranchStatus("electrons.pfPhotonIso", 1); tree_->SetBranchAddress("electrons.pfPhotonIso", &electrons_pfPhotonIso_);
@@ -1924,6 +2038,12 @@ public:
       tree_->SetBranchStatus("jets.DeepCSVProbC", 1); tree_->SetBranchAddress("jets.DeepCSVProbC", &jets_DeepCSVProbC_);
       tree_->SetBranchStatus("jets.DeepCSVProbBB", 1); tree_->SetBranchAddress("jets.DeepCSVProbBB", &jets_DeepCSVProbBB_);
       tree_->SetBranchStatus("jets.DeepCSVProbCC", 1); tree_->SetBranchAddress("jets.DeepCSVProbCC", &jets_DeepCSVProbCC_);
+      tree_->SetBranchStatus("jets.DeepFlavourProbB", 1); tree_->SetBranchAddress("jets.DeepFlavourProbB", &jets_DeepFlavourProbB_);
+      tree_->SetBranchStatus("jets.DeepFlavourProbBB", 1); tree_->SetBranchAddress("jets.DeepFlavourProbBB", &jets_DeepFlavourProbBB_);
+      tree_->SetBranchStatus("jets.DeepFlavourProbLepB", 1); tree_->SetBranchAddress("jets.DeepFlavourProbLepB", &jets_DeepFlavourProbLepB_);
+      tree_->SetBranchStatus("jets.DeepFlavourProbC", 1); tree_->SetBranchAddress("jets.DeepFlavourProbC", &jets_DeepFlavourProbC_);
+      tree_->SetBranchStatus("jets.DeepFlavourProbUDS", 1); tree_->SetBranchAddress("jets.DeepFlavourProbUDS", &jets_DeepFlavourProbUDS_);
+      tree_->SetBranchStatus("jets.DeepFlavourProbG", 1); tree_->SetBranchAddress("jets.DeepFlavourProbG", &jets_DeepFlavourProbG_);
       tree_->SetBranchStatus("jets.partonFlavour", 1); tree_->SetBranchAddress("jets.partonFlavour", &jets_partonFlavour_);
       tree_->SetBranchStatus("jets.hadronFlavour", 1); tree_->SetBranchAddress("jets.hadronFlavour", &jets_hadronFlavour_);
       are_jets_loaded_ = true;
@@ -2097,6 +2217,20 @@ public:
     obj.setx1(genInfo_x1_);
     obj.setx2(genInfo_x2_);
     obj.setrenScale(genInfo_renScale_);
+    obj.setps0(genInfo_ps0_);
+    obj.setps1(genInfo_ps1_);
+    obj.setps2(genInfo_ps2_);
+    obj.setps3(genInfo_ps3_);
+    obj.setps4(genInfo_ps4_);
+    obj.setps5(genInfo_ps5_);
+    obj.setps6(genInfo_ps6_);
+    obj.setps7(genInfo_ps7_);
+    obj.setps8(genInfo_ps8_);
+    obj.setps9(genInfo_ps9_);
+    obj.setps10(genInfo_ps10_);
+    obj.setps11(genInfo_ps11_);
+    obj.setps12(genInfo_ps12_);
+    obj.setps13(genInfo_ps13_);
   
     return obj;
   }
@@ -2226,13 +2360,13 @@ public:
     obj.setFlag_METFilters(filter_Flag_METFilters_);
     obj.setFlag_HBHENoiseFilter(filter_Flag_HBHENoiseFilter_);
     obj.setFlag_HBHENoiseIsoFilter(filter_Flag_HBHENoiseIsoFilter_);
-    obj.setFlag_globalTightHalo2016Filter(filter_Flag_globalTightHalo2016Filter_);
+    obj.setFlag_globalSuperTightHalo2016Filter(filter_Flag_globalSuperTightHalo2016Filter_);
     obj.setFlag_trkPOG_toomanystripclus53X(filter_Flag_trkPOG_toomanystripclus53X_);
     obj.setFlag_hcalLaserEventFilter(filter_Flag_hcalLaserEventFilter_);
     obj.setFlag_duplicateMuons(filter_Flag_duplicateMuons_);
     obj.setFlag_badMuons(filter_Flag_badMuons_);
-    obj.setFlag_BadPFMuonFilter(filter_Flag_BadPFMuonFilter_);
     obj.setFlag_ecalBadCalibFilter(filter_Flag_ecalBadCalibFilter_);
+    obj.setFlag_BadPFMuonFilter(filter_Flag_BadPFMuonFilter_);
     obj.setFlag_BadChargedCandidateFilter(filter_Flag_BadChargedCandidateFilter_);
   
     return obj;
@@ -2323,10 +2457,10 @@ public:
     auto it_electrons_eidCutNoIsoLoose_ = electrons_eidCutNoIsoLoose_->cbegin();
     auto it_electrons_eidCutNoIsoMedium_ = electrons_eidCutNoIsoMedium_->cbegin();
     auto it_electrons_eidCutNoIsoTight_ = electrons_eidCutNoIsoTight_->cbegin();
-    auto it_electrons_eidMVAWP80_ = electrons_eidMVAWP80_->cbegin();
-    auto it_electrons_eidMVAWP90_ = electrons_eidMVAWP90_->cbegin();
-    auto it_electrons_eidTrgMVAWP80_ = electrons_eidTrgMVAWP80_->cbegin();
-    auto it_electrons_eidTrgMVAWP90_ = electrons_eidTrgMVAWP90_->cbegin();
+    auto it_electrons_eidIsoMVAWP80_ = electrons_eidIsoMVAWP80_->cbegin();
+    auto it_electrons_eidIsoMVAWP90_ = electrons_eidIsoMVAWP90_->cbegin();
+    auto it_electrons_eidNonIsoMVAWP80_ = electrons_eidNonIsoMVAWP80_->cbegin();
+    auto it_electrons_eidNonIsoMVAWP90_ = electrons_eidNonIsoMVAWP90_->cbegin();
     auto it_electrons_pfHadronIso_ = electrons_pfHadronIso_->cbegin();
     auto it_electrons_pfNeutralIso_ = electrons_pfNeutralIso_->cbegin();
     auto it_electrons_pfPhotonIso_ = electrons_pfPhotonIso_->cbegin();
@@ -2394,10 +2528,10 @@ public:
       obj.seteidCutNoIsoLoose(*it_electrons_eidCutNoIsoLoose_);
       obj.seteidCutNoIsoMedium(*it_electrons_eidCutNoIsoMedium_);
       obj.seteidCutNoIsoTight(*it_electrons_eidCutNoIsoTight_);
-      obj.seteidMVAWP80(*it_electrons_eidMVAWP80_);
-      obj.seteidMVAWP90(*it_electrons_eidMVAWP90_);
-      obj.seteidTrgMVAWP80(*it_electrons_eidTrgMVAWP80_);
-      obj.seteidTrgMVAWP90(*it_electrons_eidTrgMVAWP90_);
+      obj.seteidIsoMVAWP80(*it_electrons_eidIsoMVAWP80_);
+      obj.seteidIsoMVAWP90(*it_electrons_eidIsoMVAWP90_);
+      obj.seteidNonIsoMVAWP80(*it_electrons_eidNonIsoMVAWP80_);
+      obj.seteidNonIsoMVAWP90(*it_electrons_eidNonIsoMVAWP90_);
       obj.setpfHadronIso(*it_electrons_pfHadronIso_);
       obj.setpfNeutralIso(*it_electrons_pfNeutralIso_);
       obj.setpfPhotonIso(*it_electrons_pfPhotonIso_);
@@ -2468,10 +2602,10 @@ public:
       ++it_electrons_eidCutNoIsoLoose_;
       ++it_electrons_eidCutNoIsoMedium_;
       ++it_electrons_eidCutNoIsoTight_;
-      ++it_electrons_eidMVAWP80_;
-      ++it_electrons_eidMVAWP90_;
-      ++it_electrons_eidTrgMVAWP80_;
-      ++it_electrons_eidTrgMVAWP90_;
+      ++it_electrons_eidIsoMVAWP80_;
+      ++it_electrons_eidIsoMVAWP90_;
+      ++it_electrons_eidNonIsoMVAWP80_;
+      ++it_electrons_eidNonIsoMVAWP90_;
       ++it_electrons_pfHadronIso_;
       ++it_electrons_pfNeutralIso_;
       ++it_electrons_pfPhotonIso_;
@@ -2601,6 +2735,12 @@ public:
     auto it_jets_DeepCSVProbC_ = jets_DeepCSVProbC_->cbegin();
     auto it_jets_DeepCSVProbBB_ = jets_DeepCSVProbBB_->cbegin();
     auto it_jets_DeepCSVProbCC_ = jets_DeepCSVProbCC_->cbegin();
+    auto it_jets_DeepFlavourProbB_ = jets_DeepFlavourProbB_->cbegin();
+    auto it_jets_DeepFlavourProbBB_ = jets_DeepFlavourProbBB_->cbegin();
+    auto it_jets_DeepFlavourProbLepB_ = jets_DeepFlavourProbLepB_->cbegin();
+    auto it_jets_DeepFlavourProbC_ = jets_DeepFlavourProbC_->cbegin();
+    auto it_jets_DeepFlavourProbUDS_ = jets_DeepFlavourProbUDS_->cbegin();
+    auto it_jets_DeepFlavourProbG_ = jets_DeepFlavourProbG_->cbegin();
     auto it_jets_partonFlavour_ = jets_partonFlavour_->cbegin();
     auto it_jets_hadronFlavour_ = jets_hadronFlavour_->cbegin();
     for(; it_jets_pt_ != jets_pt_->cend(); ){
@@ -2652,6 +2792,12 @@ public:
       obj.setDeepCSVProbC(*it_jets_DeepCSVProbC_);
       obj.setDeepCSVProbBB(*it_jets_DeepCSVProbBB_);
       obj.setDeepCSVProbCC(*it_jets_DeepCSVProbCC_);
+      obj.setDeepFlavourProbB(*it_jets_DeepFlavourProbB_);
+      obj.setDeepFlavourProbBB(*it_jets_DeepFlavourProbBB_);
+      obj.setDeepFlavourProbLepB(*it_jets_DeepFlavourProbLepB_);
+      obj.setDeepFlavourProbC(*it_jets_DeepFlavourProbC_);
+      obj.setDeepFlavourProbUDS(*it_jets_DeepFlavourProbUDS_);
+      obj.setDeepFlavourProbG(*it_jets_DeepFlavourProbG_);
       obj.setpartonFlavour(*it_jets_partonFlavour_);
       obj.sethadronFlavour(*it_jets_hadronFlavour_);
       obj.setLotentzVector(*it_jets_pt_, *it_jets_eta_, *it_jets_phi_, *it_jets_mass_);
@@ -2707,6 +2853,12 @@ public:
       ++it_jets_DeepCSVProbC_;
       ++it_jets_DeepCSVProbBB_;
       ++it_jets_DeepCSVProbCC_;
+      ++it_jets_DeepFlavourProbB_;
+      ++it_jets_DeepFlavourProbBB_;
+      ++it_jets_DeepFlavourProbLepB_;
+      ++it_jets_DeepFlavourProbC_;
+      ++it_jets_DeepFlavourProbUDS_;
+      ++it_jets_DeepFlavourProbG_;
       ++it_jets_partonFlavour_;
       ++it_jets_hadronFlavour_;
     }
@@ -2994,13 +3146,13 @@ private:
   Int_t filter_Flag_METFilters_;
   Int_t filter_Flag_HBHENoiseFilter_;
   Int_t filter_Flag_HBHENoiseIsoFilter_;
-  Int_t filter_Flag_globalTightHalo2016Filter_;
+  Int_t filter_Flag_globalSuperTightHalo2016Filter_;
   Int_t filter_Flag_trkPOG_toomanystripclus53X_;
   Int_t filter_Flag_hcalLaserEventFilter_;
   Int_t filter_Flag_duplicateMuons_;
   Int_t filter_Flag_badMuons_;
-  Int_t filter_Flag_BadPFMuonFilter_;
   Int_t filter_Flag_ecalBadCalibFilter_;
+  Int_t filter_Flag_BadPFMuonFilter_;
   Int_t filter_Flag_BadChargedCandidateFilter_;
   Double_t rho_value_;
   vector<float> *muons_pt_;
@@ -3097,6 +3249,12 @@ private:
   vector<float> *jets_DeepCSVProbC_;
   vector<float> *jets_DeepCSVProbBB_;
   vector<float> *jets_DeepCSVProbCC_;
+  vector<float> *jets_DeepFlavourProbB_;
+  vector<float> *jets_DeepFlavourProbBB_;
+  vector<float> *jets_DeepFlavourProbLepB_;
+  vector<float> *jets_DeepFlavourProbC_;
+  vector<float> *jets_DeepFlavourProbUDS_;
+  vector<float> *jets_DeepFlavourProbG_;
   vector<int> *jets_partonFlavour_;
   vector<int> *jets_hadronFlavour_;
   vector<float> *electrons_pt_;
@@ -3138,10 +3296,10 @@ private:
   vector<float> *electrons_eidCutNoIsoLoose_;
   vector<float> *electrons_eidCutNoIsoMedium_;
   vector<float> *electrons_eidCutNoIsoTight_;
-  vector<float> *electrons_eidMVAWP80_;
-  vector<float> *electrons_eidMVAWP90_;
-  vector<float> *electrons_eidTrgMVAWP80_;
-  vector<float> *electrons_eidTrgMVAWP90_;
+  vector<float> *electrons_eidIsoMVAWP80_;
+  vector<float> *electrons_eidIsoMVAWP90_;
+  vector<float> *electrons_eidNonIsoMVAWP80_;
+  vector<float> *electrons_eidNonIsoMVAWP90_;
   vector<float> *electrons_pfHadronIso_;
   vector<float> *electrons_pfNeutralIso_;
   vector<float> *electrons_pfPhotonIso_;
@@ -3216,6 +3374,20 @@ private:
   Float_t genInfo_x1_;
   Float_t genInfo_x2_;
   Float_t genInfo_renScale_;
+  Float_t genInfo_ps0_;
+  Float_t genInfo_ps1_;
+  Float_t genInfo_ps2_;
+  Float_t genInfo_ps3_;
+  Float_t genInfo_ps4_;
+  Float_t genInfo_ps5_;
+  Float_t genInfo_ps6_;
+  Float_t genInfo_ps7_;
+  Float_t genInfo_ps8_;
+  Float_t genInfo_ps9_;
+  Float_t genInfo_ps10_;
+  Float_t genInfo_ps11_;
+  Float_t genInfo_ps12_;
+  Float_t genInfo_ps13_;
   vector<float> *MCWeights_weights_;
   Int_t LHEInfo_npnlo_;
   Int_t LHEInfo_procID_;
