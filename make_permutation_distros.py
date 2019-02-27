@@ -4,7 +4,7 @@ import os, glob
 import rootpy
 from URAnalysis.PlotTools.data_views import extract_sample
 from pdb import set_trace
-from ROOT import TFile
+import ROOT
 rootpy.log["/"].setLevel(rootpy.log.INFO)
 log = rootpy.log["/make_permutation_distros.py"]
 from URAnalysis.PlotTools.BasePlotter import BasePlotter
@@ -24,6 +24,7 @@ shapes = [
     ('nusolver_chi2', '\chi^2', 'A.U', ''),
     ('wjets_bDeepCSV_p11', 'DeepCSV^{11}', 'A.U', ''),
     ('wjets_wDeepCSV_p11', 'DeepCSV^{11}', 'A.U.', ''),
+    ('wjets_DeepCSV', 'DeepCSV', 'A.U.', ''),
     #('wjets_bqgt', 'QG Tag', 'A.U.', ''),
     #('wjets_wqgt', 'QG Tag', 'A.U.', ''),
     ('lb_ratio', 'lb ratio', 'A.U.', ''),
@@ -55,7 +56,6 @@ log.info('found %d input files' % len(input_files))
 
 for fname in input_files:
     sample = extract_sample(fname)
-    #tfile = TFile.Open(fname)
     tfile = root_open(fname)
     test_dir = tfile.Get(right[0])
     right_view = merge_views(tfile, right)
@@ -63,29 +63,23 @@ for fname in input_files:
    
     #write output file
     outname = 'inputs/%s/INPUT/%s_%s.root' % (jobid,output_name_base, args.out)
-    #with open(outname, 'w') as out:
-    ##    out.cd()
-    #with File.open(outname, 'new') as out:
     with root_open(outname, 'w') as out:
-    #with io.root_open(outname, 'update') as out:
         for shift in systematics:
             #set_trace()
-            #if not hasattr(test_dir, shift):
-            #   log.warning('I could not find %s in %s, skipping systematic' % (shift, sample))
-            #   continue
-            #out.mkdir(shift).cd()
+            if not hasattr(test_dir, shift):
+               log.warning('I could not find %s in %s, skipping systematic' % (shift, sample))
+               continue
+            out.mkdir(shift).cd()
         #out.mkdir('nosys').cd()
             for shape, xtit, ytit, ztit in shapes:
                 path = '/'.join([shift, shape])
                 hright = right_view.Get(path)
-                #hright = asrootpy(hright)
                 
-                set_trace()
                 hright.name = '%s_%s' % (shape, 'right')
-                hright.SetXTitle(xtit)
-                hright.SetYTitle(ytit)
-                hright.GetYaxis().SetTitleOffset(1.5)
-                hright.SetZTitle(ztit)            
+                hright.xaxis.title = xtit
+                hright.yaxis.title = ytit
+                hright.yaxis.SetTitleOffset(1.5)
+                hright.zaxis.title = ztit            
                 if ztit:
                    hright.drawstyle = 'colz'
                    ROOT.gStyle.SetPalette(56)
@@ -93,33 +87,33 @@ for fname in input_files:
                 #plotter.plot(hright)
                 plotter.pad.SetLeftMargin(0.11)
                 plotter.pad.SetRightMargin(0.15)
-                hright.GetZaxis().SetLabelSize(0.8*hright.GetZaxis().GetLabelSize())
-                set_trace()
+                hright.zaxis.SetLabelSize(0.8*hright.zaxis.GetLabelSize())
+                #set_trace()
                 hright.Draw()
                 plotter.save(shape)
-                out.WriteTObject(hright)
+                hright.Write()
 
 
             #    set_trace()
-            #    hwrong = wrong_view.Get(path)
-##          #    hwrong = wrong_view.Get(shape)
+                hwrong = wrong_view.Get(path)
+##              hwrong = wrong_view.Get(shape)
 #
-            #    hwrong.name = '%s_%s' % (shape, 'wrong')
-            #    hwrong.SetXTitle(xtit)
-            #    hwrong.SetYTitle(ytit)
-            #    hwrong.GetYaxis().SetTitleOffset(1.5)
-            #    hwrong.SetZTitle(ztit)            
-            #    if ztit:
-            #       hwrong.drawstyle = 'colz'
-            #       ROOT.gStyle.SetPalette(56)
-            #       #plotter.canvas.SetRightMargin(0.18)
-            #    #plotter.plot(hwrong)
-            #    plotter.pad.SetLeftMargin(0.11)
-            #    plotter.pad.SetRightMargin(0.15)
-            #    hwrong.GetZaxis().SetLabelSize(0.8*hright.GetZaxis().GetLabelSize())
-            #    hwrong.Draw()
-            #    plotter.save(shape)
-            #    hwrong.Write()
+                hwrong.name = '%s_%s' % (shape, 'wrong')
+                hwrong.xaxis.title = xtit
+                hwrong.yaxis.title = ytit
+                hwrong.yaxis.SetTitleOffset(1.5)
+                hwrong.zaxis.title = ztit            
+                if ztit:
+                   hwrong.drawstyle = 'colz'
+                   ROOT.gStyle.SetPalette(56)
+                   #plotter.canvas.SetRightMargin(0.18)
+                #plotter.plot(hwrong)
+                plotter.pad.SetLeftMargin(0.11)
+                plotter.pad.SetRightMargin(0.15)
+                hwrong.zaxis.SetLabelSize(0.8*hright.zaxis.GetLabelSize())
+                hwrong.Draw()
+                plotter.save(shape)
+                hwrong.Write()
 #             
 #           for shape in jet_only_shapes:
 #              hright = tfile.Get('/'.join([right[0], shift, shape]))

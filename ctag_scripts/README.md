@@ -74,14 +74,18 @@ These values are found in ctag_eff.cfg [general] section.
 This makes the distribution for TTBarSolver
 
 ```
-rake 'analyze_batch[permProbComputer.cc,ttJets$,ctag_scripts/ctag_eff.cfg]'
-python make_permutation_distros.py
+rake 'test[bin/permProbComputer.cc, ttJetsSL$, ctag_scripts/ctag_eff.cfg]'
+
+rake 'analyze_batch[bin/permProbComputer.cc, ttJetsSL$, ctag_scripts/ctag_eff.cfg]'
+python make_permutation_distros.py 'outname'
 ```
 
 ### Compute the flavour probabilities
 
 ```
-rake 'analyze_batch[btag_topology_effs.cc,ttJets$,ctag_scripts/ctag_eff.cfg]'
+rake 'test[bin/btag_topology_effs.cc, ttJetsSL$, ctag_scripts/ctag_eff.cfg]'
+
+rake 'analyze_batch[bin/btag_topology_effs.cc, ttJets[SL, Had, DiLep]$, ctag_scripts/ctag_eff.cfg]'
 python ctag_scripts/make_btag_efficiencies.py
 ```
 
@@ -89,6 +93,8 @@ python ctag_scripts/make_btag_efficiencies.py
 
 Takes a **long** time
 ```
+rake 'test[bin/ctag_eff.cc, ttJetsSL$, ctag_scripts/ctag_eff.cfg]'
+
 rake 'analyze_batch[bin/ctag_eff.cc, *, ctag_scripts/ctag_eff.cfg]'
 ```
 

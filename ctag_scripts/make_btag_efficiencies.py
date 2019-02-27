@@ -20,14 +20,14 @@ class BTAGEffPlotter(Plotter):
 
         ## get files, lumis
         ttJetsfiles = glob.glob('results/%s/btag_topology_effs/ttJets*.root' % jobid )
-        data_files =  glob.glob('results/%s/btag_topology_effs/data*.root' % jobid )
-        #data_files =  glob.glob('results/%s/ctag_eff/*.root' % jobid )
+        #data_files =  glob.glob('results/%s/btag_topology_effs/data*.root' % jobid )
+        data_files =  glob.glob('results/2019Feb08/ctag_eff/*.root')# % jobid )
         data_files = [ fname for fname in data_files if (os.path.basename(fname).startswith('data') ) ]
         files = ttJetsfiles+data_files
 
         lumis = glob.glob('inputs/%s/*.lumi' % jobid)
         data_lumis = [ fname for fname in lumis if (os.path.basename(fname).startswith('data') ) ]
-        ttJets_lumis = [ fname for fname in lumis if os.path.basename(fname).startswith('ttJets') and 'up' not in fname and 'down' not in fname and 'UP' not in fname and 'DOWN' not in fname ]
+        ttJets_lumis = [ fname for fname in lumis if os.path.basename(fname).startswith('ttJets') and 'UP' not in fname and 'DOWN' not in fname ]
         lumis = data_lumis+ttJets_lumis
 
         #outdir = 'plots/%s/permutations' % jobid
@@ -47,7 +47,6 @@ class BTAGEffPlotter(Plotter):
 plotter = BTAGEffPlotter()
 
 ttJets_view = plotter.views['ttJetsAll']['view']
-set_trace()
 
 cut_scores = ['TIGHT', 'MEDIUM', 'LOOSE', 'NONE']
 def scoring(name):
@@ -63,7 +62,8 @@ input_file = '%s/results/%s/btag_topology_effs/ttJetsSL.root' % (plotter.project
 tfile = io.root_open(input_file)
 
 pt_bins  = [0., 40, 80, 120, 1000] #original bins
-eta_bins = [-2.4, -1.2, 0.0, 1.2, 2.4] #original bins
+#eta_bins = [-2.4, -1.2, 0.0, 1.2, 2.4] #original bins
+eta_bins = [-2.5, -1.2, 0.0, 1.2, 2.5] #extend eta to 2.5
 #pt_bins  = [0., 80, 1000]
 #eta_bins = [-2.4, 0.0, 2.4]
 hview = urviews.RebinView(ttJets_view, [pt_bins, eta_bins])
