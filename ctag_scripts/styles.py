@@ -29,6 +29,15 @@ styles = {
       'name' : "V + jets",
       'fillstyle': 'solid',
       },
+   'VJets*' : {
+      'legendstyle' : 'f',
+      'drawstyle' : 'hist',
+      'fillcolor' : '#FFD700',
+      'linecolor' : 'black',
+			'linewidth' : 1,
+      'name' : "V + jets",
+      'fillstyle': 'solid',
+      },
    '[WZ][WZ]' : {
       'legendstyle' : 'f',
       'drawstyle' : 'hist',
@@ -64,34 +73,12 @@ styles = {
       'name' : "single top",
       'fillstyle': 'solid',
       },
-   'data*B*' : {
-      'legendstyle' : 'p',
-      'drawstyle' : 'E0 X0',
-      'markerstyle' : 20,
-      #'markersize'  : 2,
-      'name' : "Run B",
-    },
-   'data*CtoE*' : {
-      'legendstyle' : 'p',
-      'drawstyle' : 'E0 X0',
-      'markerstyle' : 20,
-      #'markersize'  : 2,
-      'name' : "Runs C-E",
-    },
-   'data*EtoF*' : {
-      'legendstyle' : 'p',
-      'drawstyle' : 'E0 X0',
-      'markerstyle' : 20,
-      #'markersize'  : 2,
-      'name' : "Runs E-F",
-    },
-   #'data*BtoF*' : {
    'data*' : {
       'legendstyle' : 'p',
       'drawstyle' : 'E0 X0',
       'markerstyle' : 20,
       #'markersize'  : 2,
-      'name' : "All 2017 (B-F)",
+      'name' : "2018",
       #'name' : "Observed",
     },
    'tt*' : {
