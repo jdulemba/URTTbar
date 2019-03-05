@@ -43,7 +43,7 @@ bash data_pileup.sh
 # creates data.meta.pu(_up/_down).root files for all data
 # replaces compute_lumi_...sh lines in getting lumi
 # 1. check pileup_latest.txt file in data_pileup.sh for correctness
-#    and make sure it's actually the latest version (from /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PileUp/)
+#    and make sure it's actually the latest version (from /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PileUp/)
 ```
 
 ** If new ntuples have different branches, must run rake 'proxy[ttJets]' **
@@ -62,6 +62,7 @@ Every new iteration check:
 	    * Muons: https://twiki.cern.ch/twiki/bin/view/CMS/MuonPOG
 	    * Electrons: 
 	 * Update CSV file with the BTagging SF: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation
+	    * MUST CHANGE 'comb' and 'incl' operating points to 'used' 
    * Check that the CSV/cMVA/CTag/Whatever btagging working points did not change defeinition
    * Check MET Filter recommendations: https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2
    * Check Triggers: https://twiki.cern.ch/twiki/bin/view/CMS/TopTriggerYear2016 (2017, etc...)
@@ -108,14 +109,16 @@ python CTagEffPlotter.py --plots  --shapes --wps="notag" --noPOIpropagation
 
 Makes plots and input stuff for the fit for every WP
 ```
-rake ctag_shapes
+rake ctag_plotfit[DeepCSV or DeepJet]
 ```
 
 ## FIT
 
-Works only in CMSSW 7.1.5 and with the master branch.
+MAKE SURE jobid and branches ARE CORRECT!!!
 
-You can copy the plots directory from any CMSSW into the one you use for fitting.
+Must be run in CMSSW 8.1.0 with 810_miniaod_2018ctag_combine branch (URTTbar) and ura_810_2018 in URAnalysis
+
+You can copy the plots directory from any CMSSW into the one you use for fitting or use a symbolic link.
 
 Fitting one WP
 ```
