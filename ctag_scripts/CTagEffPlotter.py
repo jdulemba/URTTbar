@@ -48,7 +48,6 @@ parser.add_argument('--lumi', type=float, default=-1.,
                     help='force luminosity')
 parser.add_argument('--pdfs', action='store_true', help='make plots for the PDF uncertainties')
 parser.add_argument('--noPOIpropagation', action='store_true')
-#parser.add_argument('--eras', help='split data into different eras (B, CtoE, EtoF)')
 args = parser.parse_args()
 
 def syscheck(cmd):
@@ -64,29 +63,19 @@ class CTagPlotter(Plotter):
 		#self.tt_to_use = 'ttJets' #original
 		self.flavour_info = 'hadronflav'
 		self.tt_shifted = {
-			#'mtop_up' : 'ttJetsSL_mtopup',
-			#'mtop_down' : 'ttJetsSL_mtopdown',
+			'hdamp_up'  : ['ttJetsDiLep_hdampUP',  'ttJetsHad_hdampUP',  'ttJetsSL_hdampUP'],
+			'hdamp_down': ['ttJetsDiLep_hdampDOWN','ttJetsHad_hdampDOWN','ttJetsSL_hdampDOWN'],
+			'mtop_up'   : ['ttJetsDiLep_mtopUP',   'ttJetsHad_mtopUP',   'ttJetsSL_mtopUP'],
+			'mtop_down' : ['ttJetsDiLep_mtopDOWN', 'ttJetsHad_mtopDOWN', 'ttJetsSL_mtopDOWN'],
+			'ps_up'     : ['ttJetsDiLep_psUP',     'ttJetsHad_psUP',     'ttJetsSL_psUP'],
+			'ps_down'   : ['ttJetsDiLep_psDOWN',   'ttJetsHad_psDOWN',   'ttJetsSL_psDOWN'],
+			#'mtop_down': 'ttJetsSL_mtopdown',
 			#'isr_up'   : 'ttJets_isrup',
 			#'isr_down' : 'ttJets_isrdown',
 			#'fsr_up'   : 'ttJets_fsrup',
 			#'fsr_down' : 'ttJets_fsrdown',
 			}
 		jobid = os.environ['jobid']
-
-		#MCfiles = filter(lambda x: 'data' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
-		#if args.eras == 'All':
-		#    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		#    era_name = 'All_Runs'
-		#    era_title = '2018'
-		##if args.eras == 'All':
-		###    #data_files = filter(lambda x: 'CtoE' in x or 'Bv1' in x or 'EtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		###    data_files = filter(lambda x: 'data_' in x , glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		###    #data_files = filter(lambda x: 'BtoF' in x, glob.glob('results/%s/ctag_eff/*.root' % jobid)) #AllEras_files #keep files from combined eras
-		##    era_name = 'All_Runs'
-		##    era_title = 'All 2016'
-		#else:
-		#    logging.error('Not a valid era to choose from.')
-		#    sys.exit()
 
 		files = filter(lambda x: 'SingleElectron' not in x, glob.glob('results/%s/ctag_eff/*.root' % jobid))
 
@@ -95,6 +84,11 @@ class CTagPlotter(Plotter):
 		logging.debug('lumi files found %s' % lumis.__repr__())
 		
 		outdir= 'plots/%s/ctageff' % jobid
+
+		self.tt_lhe_weights = prettyjson.loads(
+			open('inputs/%s/ttJets.weights.json' % jobid).read()
+		)
+
 		super(CTagPlotter, self).__init__(
 			files, lumis, outdir, styles, None, lumi,
 			)
@@ -246,14 +240,48 @@ class CTagPlotter(Plotter):
 				'constants' : ('jer_down', 'jer_up'),
 				'value' : 1.00,				
 				},
-			#'MTOP' : {
-			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
-			#	'categories' : ['.*'],
-			#	'type' : 'shape',
-			#	'+' : lambda x: x.replace('nosys', 'mtop_up'),
-			#	'-' : lambda x: x.replace('nosys', 'mtop_down'),
-			#	'value' : 1.00,				
-			#	},
+			'QCDscaleMERenorm_TT' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'renorm_up'),
+				'-' : lambda x: x.replace('nosys', 'renorm_down'),
+				'value' : 1.00,				
+				'scales' : (1./self.tt_lhe_weights['3'], 1./self.tt_lhe_weights['6']),
+				},
+			'QCDscaleMEFactor_TT' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'factor_up'),
+				'-' : lambda x: x.replace('nosys', 'factor_down'),
+				'value' : 1.00,				
+				'scales' : (1./self.tt_lhe_weights['1'], 1./self.tt_lhe_weights['2']),
+				},
+			'MTOP' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'mtop_up'),
+				'-' : lambda x: x.replace('nosys', 'mtop_down'),
+				'value' : 1.00,				
+				},
+			'HDAMP' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'hdamp_up'),
+				'-' : lambda x: x.replace('nosys', 'hdamp_down'),
+				'value' : 1.00,				
+				},
+			'PS' : {
+				'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
+				'categories' : ['.*'],
+				'type' : 'shape',
+				'+' : lambda x: x.replace('nosys', 'ps_up'),
+				'-' : lambda x: x.replace('nosys', 'ps_down'),
+				'value' : 1.00,				
+				},
 			#'ISR' : {
 			#	'samples' : ['wrong_whad', 'nonsemi_tt', 'right_whad'],
 			#	'categories' : ['.*'],
@@ -326,29 +354,6 @@ class CTagPlotter(Plotter):
 			'notag' : {
 				'notag'	: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
 				},
-			#'csvLoose' : {
-			#	'notag'	  : [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag'	  : [6, 8, 10, 12, 20],	
-			#	},
-			#'csvMedium' : {
-			#	'notag'	  : [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag'	  : [6, 8, 10, 12, 20],
-			#	},
-			#'csvTight' : {
-			#	#'notag'  	: [6, 20],
-			#	#'leadtag' : [6, 20],
-			#	#'subtag'  : [6, 20],
-			#	#'ditag'  : [6, 20],
-			#	'notag'  	: [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag'  : [6, 8, 10, 12, 20],
-			#	#'ditag'	  : [6, 12, 20],
-			#	},			
 			'DeepCSVLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
@@ -362,47 +367,60 @@ class CTagPlotter(Plotter):
 				'ditag' 	: [6, 8, 10, 12, 20],
 				},
 			'DeepCSVTight' : {
-				#'notag' 	: [6, 20],
-				#'leadtag' : [6, 20],
-				#'subtag'  : [6, 20],
-				#'ditag'  : [6, 20],
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
 				'ditag'  : [6, 8, 10, 12, 20],
-				#'ditag' 	: [6, 12, 20],
 				},			
-			#'ctagLoose' : {
-			#	'notag' 	: [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag' 	: [6, 8, 10, 12, 20],
-			#	},
-			#'ctagMedium' : {
-			#	'notag' 	: [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag' 	: [6, 8, 10, 12, 20],
-			#	},
-			#'ctagTight' : {
-			#	'notag' 	: [6, 8, 10, 12, 20],
-			#	'leadtag' : [6, 8, 10, 12, 20],
-			#	'subtag'  : [6, 8, 10, 12, 20],
-			#	'ditag' 	: [6, 8, 10, 12, 20],
-			#	},
-			'DeepctagLoose' : {
+			'DeepJetLoose' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],	
+				},
+			'DeepJetMedium' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
 				'ditag' 	: [6, 8, 10, 12, 20],
 				},
-			'DeepctagMedium' : {
+			'DeepJetTight' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag'  : [6, 8, 10, 12, 20],
+				},			
+			'DeepCSVctagLoose' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
 				'ditag' 	: [6, 8, 10, 12, 20],
 				},
-			'DeepctagTight' : {
+			'DeepCSVctagMedium' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepCSVctagTight' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepJetctagLoose' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepJetctagMedium' : {
+				'notag' 	: [6, 8, 10, 12, 20],
+				'leadtag' : [6, 8, 10, 12, 20],
+				'subtag'  : [6, 8, 10, 12, 20],
+				'ditag' 	: [6, 8, 10, 12, 20],
+				},
+			'DeepJetctagTight' : {
 				'notag' 	: [6, 8, 10, 12, 20],
 				'leadtag' : [6, 8, 10, 12, 20],
 				'subtag'  : [6, 8, 10, 12, 20],
@@ -418,9 +436,13 @@ class CTagPlotter(Plotter):
 				 )
 			}
 		for shift, view in self.tt_shifted.iteritems():
+			#set_trace()
 			dirmap[shift] = views.SumView(
-				*[views.SubdirectoryView(self.views[view]['view'], '%s/nosys' % i) for i in subdirs]
+				    *[views.SumView(
+				        *[views.SubdirectoryView(self.views[v]['view'], '%s/nosys' % i) for i in subdirs]
+				    ) for v in view]
 				)
+		#set_trace()
 		
 		return views.StyleView(
 			views.TitleView(
@@ -454,7 +476,7 @@ class CTagPlotter(Plotter):
 			bbbs.extend(plotter.card.add_bbb_systematics('.*', 'vjets')) 
 			for cname, integral in self.signal_yields.iteritems():
 				bbbs.extend(plotter.card.add_bbb_systematics(cname, 'right_whad', multiplier=integral))
-			#plotter.card.add_bbb_systematics('.*', 'qcd') 
+			bbbs.extend(plotter.card.add_bbb_systematics('.*', 'qcd'))
 
 			#plotter.card.add_bbb_systematics('.*', 'right_whad', 0.05, relative=False)
 			#plotter.card.add_bbb_systematics('.*', '.*')  
@@ -639,6 +661,10 @@ class CTagPlotter(Plotter):
 					paths_dw = [info['-'](path) for path in paths] if '-' in info else None
 					hup = sum(view.Get(i) for i in paths_up) if paths_up else None
 					hdw = sum(view.Get(i) for i in paths_dw) if paths_dw else None
+					if 'scales' in info:
+						sup, sdw = info['scales']
+						hup.Scale(sup)
+						hdw.Scale(sdw)
 
 					if hup is None and hdw is None:
 						raise RuntimeError('%s systematic does not define neither "+" nor "-" values' % sys_name)
@@ -943,7 +969,8 @@ class CTagPlotter(Plotter):
 			systematics = kwargs['sys_effs']
 			del kwargs['sys_effs']
 		mc_default = self.mc_samples
-		self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
+		self.mc_samples = ['QCD*', 'VJets*', 'single*', 'ttJets_preselection']
+		#self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
 		#self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
 		##self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
 		#set_trace()
@@ -958,6 +985,7 @@ class CTagPlotter(Plotter):
 			args = list(args)
 			args[0] = path.replace(dirname, '%s_up' % systematics)
 			kwargs['nodata'] = True
+			#set_trace()
 			self.plot_mc_vs_data(*args, **kwargs)
 			stack_up = [i for i in self.keep if isinstance(i, ROOT.THStack)][0]
 			self.reset()
@@ -1260,63 +1288,70 @@ vars2D = [
 ]
 
 variables = [
-  ("njets"	 , "# of selected jets", range(13), None, False),
-  #("evt_weight", "event weight", range(-3,4), None, False),
-  #("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
-  #("muon_sf"	 , "SF applied to muon", 1, None, False),
-  ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
-  ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
-  ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
-  ("thad_pt", "p_{T}(t_{h}) (GeV)", 1, None, False),
-  #("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
-  ("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
-#  ("Wjets_CvsL", "CvsL Discriminator (W Jet)", 1, None, False),
-#  ("Wjets_CvsB", "CvsB Discriminator (W Jet)", 1, None, False),
-#  ("Bjets_CvsB", "CvsB Discriminator (B Jet)", 1, None, False),
-#  ("Bjets_CvsL", "CvsL Discriminator (B Jet)", 1, None, False),
-#	("Wjets_CMVA"     , "cMVA Discriminator", 1, None, False),
-	("Wjets_DeepCSVb" , "DeepCSV Prob(b)", 1, None, False),
-	("Wjets_DeepCSVl" , "DeepCSV Prob(l) ", 1, None, False),
-	("Wjets_DeepCSVbb", "DeepCSV Prob(bb)", 1, None, False),
-	("Wjets_DeepCSVc" , "DeepCSV Prob(c)", 1, None, False),
-	#("Wjets_DeepCSVcc", "DeepCSV Prob(cc)", 1, None, False),
-	("Wjets_DeepCSVbD", "DeepCSV b Discriminator", 1, None, False),
-	("Wjets_DeepCSVCvsB", "DeepCSV CvsB Discriminator", 1, None, False),
-	("Wjets_DeepCSVCvsL", "DeepCSV CvsL Discriminator", 1, None, False),
-  #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None, False),
-  #("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
-  #("Whad_pt"  , "p_{T}(W_{had}) (GeV)", 10, None, False),
-  #("Whad_leading_DR", "#DeltaR(W_{had}, leading jet)"	, 1, [0,7]),
-  #("Whad_sublead_DR", "#DeltaR(W_{had}, subleading jet)", 1, [0,7]),
-  #("nu_chisq"			, "nu_chisq"			, 1, [0, 20]),
-	#("nu_discriminant"	, "nu_discriminant"	 , 1, None, False),
-	#("btag_discriminant", "btag_discriminant", 1, [-11, -2]),
-  #("nbjets"	, "# of bjets", 1, [0, 12]),
-  #("lep_b_pt" , "p_{T}(b) (GeV)", 10, None, False),
-  #("had_b_pt" , "p_{T}(b) (GeV)", 10, None, False),
+    ("njets"	 , "# of selected jets", range(13), None, False),
+    #("evt_weight", "event weight", range(-3,4), None, False),
+    #("btag_sf"	 , "SF applied to b-tagged jets", 1, None, False),
+    #("muon_sf"	 , "SF applied to muon", 1, None, False),
+    ("lep_pt"	, "p_{T}(l) (GeV)", 20, None, False),
+    ("Whad_mass", "m_{W}(had) (GeV)", 1, None, False),
+    ("thad_mass", "m_{t}(had) (GeV)", 1, None, False),
+    ("thad_pt", "p_{T}(t_{h}) (GeV)", 1, None, False),
+    #("mass_discriminant", "#lambda_{M}", 1, [0,15], False), #[5, 20]),
+    ("mass_discriminant", "#lambda_{M}", 1, None, False), #[5, 20]),
+    ("Wjets_DeepCSVb" , "DeepCSV Prob(b)", 1, None, False),
+    ("Wjets_DeepCSVl" , "DeepCSV Prob(l) ", 1, None, False),
+    ("Wjets_DeepCSVbb", "DeepCSV Prob(bb)", 1, None, False),
+    ("Wjets_DeepCSVc" , "DeepCSV Prob(c)", 1, None, False),
+    ("Wjets_DeepCSVbD", "DeepCSV b Disc", 1, None, False),
+    ("Wjets_DeepCSVCvsB", "DeepCSV CvsB Disc (W Jet)", 1, None, False),
+    ("Wjets_DeepCSVCvsL", "DeepCSV CvsL Disc (W Jet)", 1, None, False),
+    #("Wlep_mass", "m_{W}(lep) (GeV)", 10, None, False),
+    ("Wjets_DeepJetCvsB", "DeepJet CvsB Disc (W Jet)", 1, None, False),
+    ("Wjets_DeepJetCvsL", "DeepJet CvsL Disc (W Jet)", 1, None, False),
+    ("Wjets_DeepFlavourb" ,   "DeepJet Prob(b)", 1, None, False),
+    ("Wjets_DeepFlavourbb",   "DeepJet Prob(bb)", 1, None, False),
+    ("Wjets_DeepFlavourlepb" ,"DeepJet Prob(lepb) ", 1, None, False),
+    ("Wjets_DeepFlavourc" ,   "DeepJet Prob(c)", 1, None, False),
+    ("Wjets_DeepFlavouruds" , "DeepJet Prob(uds)", 1, None, False),
+    ("Wjets_DeepFlavourg" ,   "DeepJet Prob(g)", 1, None, False),
+    ("Wjets_DeepFlavourbD",   "DeepJet b Disc", 1, None, False),
+    #("Whad_DR"  , "#DeltaR(jj) W_{had} (GeV)", 1, [0,7]),
+    #("Whad_pt"  , "p_{T}(W_{had}) (GeV)", 10, None, False),
+    #("Whad_leading_DR", "#DeltaR(W_{had}, leading jet)"	, 1, [0,7]),
+    #("Whad_sublead_DR", "#DeltaR(W_{had}, subleading jet)", 1, [0,7]),
+    #("nu_chisq"			, "nu_chisq"			, 1, [0, 20]),
+    #("nu_discriminant"	, "nu_discriminant"	 , 1, None, False),
+    #("btag_discriminant", "btag_discriminant", 1, [-11, -2]),
+    #("nbjets"	, "# of bjets", 1, [0, 12]),
+    #("lep_b_pt" , "p_{T}(b) (GeV)", 10, None, False),
+    #("had_b_pt" , "p_{T}(b) (GeV)", 10, None, False),
 ]
 
 preselection = [
-  ("njets"	 , "# of selected jets", range(13), None, False),
-  ("jets_CSV", "jet CSV",	2, None, False),
-  ("jets_CvsB", "CvsB Discriminator", 1, None, False),
-  ("jets_CvsL", "CvsL Discriminator", 1, None, False),
-	("jets_cMVA"     , "cMVA Discriminator", 1, None, False),
-	("jets_DeepCSVb" , "DeepCSV Prob(b)" , 1, None, False),
-	("jets_DeepCSVl" , "DeepCSV Prob(l)" , 1, None, False),
-	("jets_DeepCSVbb", "DeepCSV Prob(bb)", 1, None, False),
-	("jets_DeepCSVc" , "DeepCSV Prob(c)" , 1, None, False),
-	#("jets_DeepCSVcc", "DeepCSV Prob(cc)", 1, None, False),
-	("jets_DeepCSVbD", "DeepCSV b Discriminator", 1, None, False),
-	("jets_DeepCSVCvsB", "DeepCSV CvsB Discriminator", 1, None, False),
-	("jets_DeepCSVCvsL", "DeepCSV CvsL Discriminator", 1, None, False),
-  ("jets_eta", "#eta(jet)", 10, None, False),
-  ("jets_pt", "p_{T}(jet)", 10, None, False),
-  ("lep_eta", "#eta(l)", 10, None, False),
-  ("lep_pt", "p_{T}(l)", 10, None, False),
-  ("nvtx", "# of reconstructed vertices", range(41), None, False),
-  ("weight", "event weight", range(-3,4), None, False),
-  ("rho", "#rho", range(40), None, False),
+    ("njets"	 , "# of selected jets", range(13), None, False),
+    ("jets_DeepCSVb" , "DeepCSV Prob(b)" , 1, None, False),
+    ("jets_DeepCSVl" , "DeepCSV Prob(l)" , 1, None, False),
+    ("jets_DeepCSVbb", "DeepCSV Prob(bb)", 1, None, False),
+    ("jets_DeepCSVc" , "DeepCSV Prob(c)" , 1, None, False),
+    ("jets_DeepCSVbD", "DeepCSV b Disc", 1, None, False),
+    ("jets_DeepCSVCvsB", "DeepCSV CvsB Disc", 1, None, False),
+    ("jets_DeepCSVCvsL", "DeepCSV CvsL Disc", 1, None, False),
+    ("jets_DeepJetCvsB", "DeepJet CvsB Disc", 1, None, False),
+    ("jets_DeepJetCvsL", "DeepJet CvsL Disc", 1, None, False),
+    ("jets_DeepFlavourb" ,   "DeepJet Prob(b)", 1, None, False),
+    ("jets_DeepFlavourbb",   "DeepJet Prob(bb)", 1, None, False),
+    ("jets_DeepFlavourlepb" ,"DeepJet Prob(lepb) ", 1, None, False),
+    ("jets_DeepFlavourc" ,   "DeepJet Prob(c)", 1, None, False),
+    ("jets_DeepFlavouruds" , "DeepJet Prob(uds)", 1, None, False),
+    ("jets_DeepFlavourg" ,   "DeepJet Prob(g)", 1, None, False),
+    ("jets_DeepFlavourbD",   "DeepJet b Disc", 1, None, False),
+    ("jets_eta", "#eta(jet)", 10, None, False),
+    ("jets_pt", "p_{T}(jet)", 10, None, False),
+    ("lep_eta", "#eta(l)", 10, None, False),
+    ("lep_pt", "p_{T}(l)", 10, None, False),
+    ("nvtx", "# of reconstructed vertices", range(41), None, False),
+    ("weight", "event weight", range(-3,4), None, False),
+    ("rho", "#rho", range(40), None, False),
 ]
 
 permutation_presel = [
@@ -1331,21 +1366,18 @@ order = "mass_discriminant"
 
 available_wps = [
 	"notag",
-	#"csvTight",
-	#"csvMedium",
-	#"csvLoose",
-	#"ctagLoose",
-	#"ctagMedium",
-	#"ctagTight",
-	#"cmvaMedium",
-	#"cmvaLoose" ,
-	#"cmvaTight" ,
 	"DeepCSVLoose" ,
 	"DeepCSVTight" ,
 	"DeepCSVMedium",
-	"DeepctagLoose",
-	"DeepctagMedium",
-	"DeepctagTight",
+	"DeepJetLoose" ,
+	"DeepJetTight" ,
+	"DeepJetMedium",
+	"DeepCSVctagLoose",
+	"DeepCSVctagMedium",
+	"DeepCSVctagTight",
+	"DeepJetctagLoose",
+	"DeepJetctagMedium",
+	"DeepJetctagTight",
 ]
 working_points = [i for i in available_wps if fnmatch(i, args.wps)]
 
@@ -1853,6 +1885,7 @@ if args.shapes:
 		# Add Bin-by-bin uncertainties and plot their effect 
 		#
 		bbbs = plotter.add_systematics(args.noBBB)
+		#set_trace()
 		for category in categories:
 			plotter.set_subdir('%s/%s/systematics/BBB' % (wpoint_dir, category))
 			systematics = [i for i in bbbs if category in i]
