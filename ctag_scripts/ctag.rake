@@ -7,7 +7,7 @@ $no_batch_submit = ENV.fetch('no_batch_submit', "0")
 tools = "#{$fwk_dir}/rake/tools.rb"
 require tools
 
-#require 'json'
+require 'json'
 
 def psub(target, sub)
   ret = proc {|name| 
@@ -146,7 +146,7 @@ end
 rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/, 'fitModel.root') do |t|
   dir = File.dirname(t.name)
   bname = File.basename(t.name)
-  combine_cmd = "combine fitModel.root -M MaxLikelihoodFit --saveNormalizations --saveWithUncertainties --saveWorkspace --minos=all --saveNLL  --skipBOnlyFit"
+  combine_cmd = "combine fitModel.root -M FitDiagnostics --saveNormalizations --saveWithUncertainties --saveWorkspace --minos=all --saveNLL  --skipBOnlyFit"
   chdir(dir) do
     if t.name.include? 'Toy'
       if $batch == "1"
@@ -169,11 +169,11 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
         end
         sh 'condor_submit condor.mltoys.jdl'
         sh 'hold.py --check_correctness=./ --maxResubmission=0'
-        sh "merge_toys.py #{bname} mlfit[0-9]*.root" 
+        sh "merge_toys.py #{bname} fitDiagnostics[0-9]*.root" 
       else
         toy_cmd = '--saveToys --expectSignal 1 -t 200 -v -1'
         sh "#{combine_cmd} #{toy_cmd}"
-        sh "mv mlfit.root #{File.basename(t.name)}"      
+        sh "mv fitDiagnostics.root #{File.basename(t.name)}"      
       end
     else
       toy_cmd = '--saveShapes '
@@ -183,8 +183,9 @@ rule /MaxLikeFit(:?Toy|Asimov)?.root$/ => psub(/MaxLikeFit(:?Toy|Asimov)?.root$/
       puts 'running MaxLikelihood fit with Profile-Likelyhood errors'
       sh "#{combine_cmd} #{toy_cmd}"# &> fit.log"
       #sh "cat fit.log"
-      sh "mv mlfit.root #{File.basename(t.name)}"      
-      sh "mv higgsCombineTest.MaxLikelihoodFit.mH120.root MLFit_workspace.root"
+      #sh "hello: #{File.basename(t.name)}"      
+      sh "mv fitDiagnostics.root #{File.basename(t.name)}"      
+      sh "mv higgsCombineTest.FitDiagnostics.mH120.root MLFit_workspace.root"
     end
     #sh "mv higgsCombineTest.MultiDimFit.mH120.root MultiDimFit.root"
   end
@@ -195,13 +196,13 @@ rule /MaxLikeFitStatOnly\.root$/ => psub(/MaxLikeFitStatOnly/, 'MultiDimFit') do
   dir = File.dirname(t.name)
   bname = File.basename(t.name)
   chdir(dir) do
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit --freezeNuisances all --minos=all --snapshotName MultiDimFit"
-    sh "mv mlfit.root #{File.basename(t.name)}"      
+    sh "combine MultiDimFit.root -M FitDiagnostics --freezeParameters all --minos=all --snapshotName MultiDimFit"
+    sh "mv fitDiagnostics.root #{File.basename(t.name)}"      
   end
 end
 
-task :sys_breakdown, [:runs, :wp] do |t, args|
-  wpdir = "plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}"
+task :sys_breakdown, [:wp] do |t, args|
+  wpdir = "plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}"
   Rake::Task["#{wpdir}/MultiDimFit.root"].invoke()
   Rake::Task["#{wpdir}/MaxLikeFitStatOnly.root"].invoke()
   sh "mkdir -p #{wpdir}/sys_breakdown/"  
@@ -212,14 +213,14 @@ task :sys_breakdown, [:runs, :wp] do |t, args|
   singles = [/JES/,/pu/, /MTOP/, /PDF/, /BTAG/, /CTAGL/]
   for_cmb = [/JES/,/pu/]
   chdir(wpdir) do
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit --freezeNuisances all --minos=all --snapshotName MultiDimFit &> /dev/null"
-    sh "mv mlfit.root MaxLikeFitStatistic.root"
+    sh "combine MultiDimFit.root -M FitDiagnostics --freezeParameters all --minos=all --snapshotName MultiDimFit &> /dev/null"
+    sh "mv fitDiagnostics.root MaxLikeFitStatistic.root"
     nuisances.each do |nuisance|
       if singles.map {|g| g =~ nuisance}.any?
         puts nuisance
         to_freeze = nuisances.select{|x| x != nuisance}.join(',')
-        sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
-        sh "mv mlfit.root sys_breakdown/#{nuisance}.root"
+        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null "
+        sh "mv fitDiagnostics.root sys_breakdown/#{nuisance}.root"
       end
     end
     
@@ -229,8 +230,8 @@ task :sys_breakdown, [:runs, :wp] do |t, args|
       if to_freeze.length == 0
         next
       end
-      sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
-      sh "mv mlfit.root sys_breakdown/#{name}.root"
+      sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null"
+      sh "mv fitDiagnostics.root sys_breakdown/#{name}.root"
     end
 
     #
@@ -240,127 +241,53 @@ task :sys_breakdown, [:runs, :wp] do |t, args|
       if for_cmb.map {|g| g =~ nuisance}.any?
         puts nuisance
         to_freeze = nuisances.select{|x| x != nuisance}.join(',')
-        sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null "
-        sh "mv mlfit.root for_cmb/#{nuisance}.root"
+        sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null "
+        sh "mv fitDiagnostics.root for_cmb/#{nuisance}.root"
       end
     end
     to_freeze = nuisances.select{|x| for_cmb.map{|y| y =~ x}.any? }.join(',')
-    sh "combine MultiDimFit.root -M MaxLikelihoodFit --minos=all --snapshotName MultiDimFit --freezeNuisances=#{to_freeze} &> /dev/null"
-    sh "mv mlfit.root for_cmb/other.root"
+    sh "combine MultiDimFit.root -M FitDiagnostics --minos=all --snapshotName MultiDimFit --freezeParameters=#{to_freeze} &> /dev/null"
+    sh "mv fitDiagnostics.root for_cmb/other.root"
   end
-  sh "python ctag_scripts/make_sys_table.py #{args.wp} --eras=#{$runs_dict[args.runs]}"
+  sh "python ctag_scripts/make_sys_table.py #{args.wp}"
 end
 
 #tasks
-task :ctag_fit, [:runs, :wp] do |t, args|
-  Rake::Task["plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+task :ctag_fit, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
 end
 
-task :ctag_postfit, [:runs, :wp] do |t, args|
-  Rake::Task["plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
-  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} both --eras=#{args.runs}"
+task :ctag_postfit, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} both"
 end
 
-task :ctag_prefit, [:runs, :wp] do |t, args|
-  Rake::Task["plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
-  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} prefit --eras=#{args.runs}"
+task :ctag_prefit, [:wp] do |t, args|
+  Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MaxLikeFit.root"].invoke()
+  sh "python ctag_scripts/make_ctag_postfit.py #{args.wp} prefit"
 end
 
 task :ctag_scan, [:wp] do |t, args|
   Rake::Task["plots/#{$jobid}/ctageff/mass_discriminant/#{args.wp}/MultiDimScan.root"].invoke()
 end
 
-task :make_csv, [:runs, :wp] do |t, args|
- sh "python ctag_scripts/write_csv.py #{args.wp} --eras=#{args.runs}"
-end
-task :make_allcsvwps, [:runs] do |t, args|
-  $algorithms.each do |algo|
-    puts "\n   --- Making csv files for #{algo} algorithm for run #{args.runs}. ---\n\n"
-    Rake::Task["make_csv"].invoke(args.runs, algo)
-    Rake::Task["make_csv"].reenable
-  end
-end
-
-task :make_csvallruns do |t|
-  $runs_dict.each_key do |run|
-    Rake::Task['make_allcsvwps'].invoke(run)
-    Rake::Task['make_allcsvwps'].reenable
-  end
-end
-
-
-$working_points = ['csvLoose', 'csvMedium', 'csvTight', 
-                   'ctagLoose', 'ctagMedium', 'ctagTight', 
-                   #'cmvaLoose', 'cmvaMedium', 'cmvaTight',
-                   'DeepctagLoose', 'DeepctagMedium', 'DeepctagTight', 
-                   'DeepCSVLoose', 'DeepCSVMedium', 'DeepCSVTight'
+$working_points = [
+                   'DeepCSVctagLoose', 'DeepCSVctagMedium', 'DeepCSVctagTight', 
+                   'DeepCSVLoose', 'DeepCSVMedium', 'DeepCSVTight',
+                   'DeepJetctagLoose', 'DeepJetctagMedium', 'DeepJetctagTight', 
+                   'DeepJetLoose', 'DeepJetMedium', 'DeepJetTight'
                   ]
-
-$algorithms = ['csv',
-               'ctag',
-               #'cmva',
-               'DeepCSV',
-                'Deepctag'
-              ]
-
-$runs = ['All', 'B', 'CtoE', 'EtoF'] #2018 run splitting into eras
-$run_dirs = ['All_Runs', 'Run_B', 'Run_CtoE', 'Run_EtoF'] #2018 run splitting into eras
-$runs_dict = {'All' => "All_Runs", 'B' => "Run_B", 'CtoE' => "Run_CtoE", 'EtoF' => "Run_EtoF"}
-
-task :test_run, [:runs] do |t, args|
-  validity = $runs_dict.has_key?(args.runs)
-  puts "#{validity}"
-  if validity == false
-    puts "#{args.runs} isn't a valid run to choose from. Your options are"
-  #puts $runs_dict[args.runs]
-  #sh "ls plots/#{$jobid}/ctageff/#{$runs_dict[args.runs]}"
-    $runs_dict.each_key do |keys|
-      puts "   #{keys}"
-    end
-  end
-end
-
-
-task :make_datacard_plots, [:run] do |t,args|
+task :ctag_fitall do |t|
   $working_points.each do |wp|
-    puts "\n  --- Making #{wp} datacard plots for #{args.run} ---\n"
-    sh "python ctag_scripts/datacard_stack.py --wp=#{wp} --eras=#{args.run}"
-  end
-end
-
-task :all_datacard_plots do |t|
-  $runs.each do |run|
-    Rake::Task["make_datacard_plots"].invoke(run)
-    Rake::Task["make_datacard_plots"].reenable
-  end
-end
-
-task :ctag_fitallwps, [:runs] do |t,args|
-  $working_points.each do |wp|
-    puts "\n   --- Running fits for #{wp} for runs #{args.runs}. ---\n\n"
-    Rake::Task["ctag_postfit"].invoke(args.runs, wp)
+    Rake::Task["ctag_postfit"].invoke(wp)
     Rake::Task["ctag_postfit"].reenable
   end
 end
 
-task :ctag_fitallruns do |t|
-  $runs_dict.each_key do |run|
-    Rake::Task['ctag_fitallwps'].invoke(run)
-    Rake::Task['ctag_fitallwps'].reenable
-  end
-end
-
-task :breakdown_allwps, [:runs] do |t, args|
+task :breakdown_all do |t|
   $working_points.each do |wp|
-    Rake::Task['sys_breakdown'].invoke(args.runs, wp)
+    Rake::Task['sys_breakdown'].invoke(wp)
     Rake::Task["sys_breakdown"].reenable
-  end
-end
-
-task :breakdown_allruns do |t|
-  $runs_dict.each_key do |run|
-    Rake::Task['breakdown_allwps'].invoke(run)
-    Rake::Task['breakdown_allwps'].reenable
   end
 end
 
@@ -374,62 +301,29 @@ task :ctag_toy_diagnostics, [:wp ] do |t, args|
   sh "python toy_diagnostics.py '' '' #{toy_dir}/MaxLikeFitToy.root -o #{toy_dir}/toys/ --use-prefit --noshapes --filter-out-pars='.*_bin_\d+$'"
 end
 
-task :ctag_shapes, [:run] do |t, args|
-  sh "python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps=notag --noPOIpropagation --eras=#{args.run}"
-  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='*Loose'  --noLightFit --noPOIpropagation --eras=#{args.run}"
-  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='*Medium' --noPOIpropagation --noLightFit --eras=#{args.run}"
-  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='*Tight' --noPOIpropagation --noLightFit --eras=#{args.run}"
-end
-
-
-task :ctag_shapes_allruns do |t|
-  $runs_dict.each_key do |run|
-    puts " \n  --- Making shapes for Run #{run} -- \n"
-    Rake::Task['ctag_shapes'].invoke(run)
-    Rake::Task['ctag_shapes'].reenable
-  end
-end
-
-task :make_ctag_tables, [:runs] do |t, args|
-  sh "python ctag_scripts/make_ctag_tables.py --eras=#{args.runs}"
-end
-
-
-task :ctag_plotfit_singlerun, [:runs] do |t, args|
-  validity = $runs_dict.has_key?(args.runs)
-  if validity == false
-    puts "#{args.runs} isn't a valid run to choose from. Your options are"
-    $runs_dict.each_key do |keys|
-      puts "   #{keys}"
+task :jobid_disc_check, [:disc] do |t, args|
+    unless $jobid.include?(args.disc)
+        abort("\n\njobid=#{$jobid} and you chose to run the #{args.disc} working points, are you sure?(Will need to override abort.)\n\n")
     end
-    exit
-  end
-  Rake::Task['ctag_shapes'].invoke(args.runs)
-  Rake::Task['ctag_fitallwps'].invoke(args.runs)
-  Rake::Task['make_datacard_plots'].invoke(args.runs)
-  Rake::Task['breakdown_allwps'].invoke(args.runs)
-  Rake::Task['make_ctag_tables'].invoke(args.runs)
-  Rake::Task['make_allcsvwps'].invoke(args.runs)
-  sh "python ctag_scripts/plot_results.py --eras=#{args.runs}"
 end
 
-task :ctag_plotfit_allrun do |t|
-  $runs_dict.each_key do |run|
-    puts "\n --- Running entire workflow for Run #{run} ---\n"
-    Rake::Task['ctag_plotfit_singlerun'].invoke(run)
-    Rake::Task['ctag_plotfit_singlerun'].reenable
-  end
+task :ctag_shapes, [:disc] do |t, args|
+  sh "python ctag_scripts/CTagEffPlotter.py --plots  --shapes --wps='notag' --noPOIpropagation"
+  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='#{args.disc}*Loose'  --noLightFit --noPOIpropagation"
+  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='#{args.disc}*Medium' --noPOIpropagation --noLightFit"
+  sh "python ctag_scripts/CTagEffPlotter.py  --shapes --wps='#{args.disc}*Tight' --noPOIpropagation --noLightFit"
 end
-#task :ctag_plotfit do |t|
-#  Rake::Task['ctag_shapes'].invoke()
-#  Rake::Task['ctag_fitall'].invoke()
-#  Rake::Task['breakdown_all'].invoke()
-#  sh 'python ctag_scripts/make_ctag_tables.py'
-#  $algorithms.each do |algo|
-#    puts "\n   --- Making csv files for #{algo} algorithm. ---\n\n"
-#    Rake::Task["make_csv"].invoke(algo)
-#    Rake::Task["make_csv"].reenable
-#  end
-#  #sh "ctag_scripts/write_csv.py ctag"
-#  #sh "mv ctag.csv plots/#{jobid}/ctageff/."
-#end
+
+task :ctag_plotfit, [:disc] do |t, args|
+  puts "\n      #{args.disc} working points chosen\n\n"
+  Rake::Task["jobid_disc_check"].invoke(args.disc)
+  Rake::Task['ctag_shapes'].invoke(args.disc)
+
+    ## executed in other CMSSW release
+  #Rake::Task['ctag_fitall'].invoke()
+  #Rake::Task['breakdown_all'].invoke()
+  #sh 'python ctag_scripts/make_ctag_tables.py'
+  #sh 'python ctag_scripts/plot_results.py'
+  #sh "python ctag_scripts/write_csv.py ctag"
+  ##sh "mv ctag.csv plots/#{jobid}/ctageff/."
+end
