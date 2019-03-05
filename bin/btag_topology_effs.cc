@@ -113,7 +113,7 @@ class btag_topology_effs : public AnalyzerBase
                             string name = "btag_" + cut + flav + cat;
                             string key = dir+"/"+name;
                             Logger::log().debug() << "booking: " << name << std::endl;
-                            histos_[shift][key]= RObject::book<TH2D>(name.c_str(), "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 60, -3, 3);
+                            histos_[shift][key]= RObject::book<TH2D>(name.c_str(), "btag SF input histograms;p_{T};#eta", 100, 0, 1000, 120, -3, 3);
                         }
                     }
                 }
@@ -128,7 +128,7 @@ class btag_topology_effs : public AnalyzerBase
                         for(string cat : {"all", "pass"}) {
                             string name = "WjetTag_" + entry.first + flav + cat;
                             string key = dir+"/"+name;
-                            histos_[shift][key] = RObject::book<TH2D>(name.c_str(), "SF Input;p_{T};#eta", 100, 0, 1000, 60, -3, 3);
+                            histos_[shift][key] = RObject::book<TH2D>(name.c_str(), "SF Input;p_{T};#eta", 100, 0, 1000, 120, -3, 3);
                         }
                     }
                 }

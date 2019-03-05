@@ -63,7 +63,7 @@ tfile = io.root_open(input_file)
 
 pt_bins  = [0., 40, 80, 120, 1000] #original bins
 #eta_bins = [-2.4, -1.2, 0.0, 1.2, 2.4] #original bins
-eta_bins = [-2.5, -1.2, 0.0, 1.2, 2.5] #extend eta to 2.5
+eta_bins = [-2.5, -1.25, 0.0, 1.25, 2.5] #extend eta to 2.5
 #pt_bins  = [0., 80, 1000]
 #eta_bins = [-2.4, 0.0, 2.4]
 hview = urviews.RebinView(ttJets_view, [pt_bins, eta_bins])
