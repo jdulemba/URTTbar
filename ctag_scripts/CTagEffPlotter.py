@@ -69,7 +69,6 @@ class CTagPlotter(Plotter):
 			'mtop_down' : ['ttJetsDiLep_mtopDOWN', 'ttJetsHad_mtopDOWN', 'ttJetsSL_mtopDOWN'],
 			'ps_up'     : ['ttJetsDiLep_psUP',     'ttJetsHad_psUP',     'ttJetsSL_psUP'],
 			'ps_down'   : ['ttJetsDiLep_psDOWN',   'ttJetsHad_psDOWN',   'ttJetsSL_psDOWN'],
-			#'mtop_down': 'ttJetsSL_mtopdown',
 			#'isr_up'   : 'ttJets_isrup',
 			#'isr_down' : 'ttJets_isrdown',
 			#'fsr_up'   : 'ttJets_fsrup',
@@ -133,7 +132,8 @@ class CTagPlotter(Plotter):
 
 		self.views['VJets'] = {
 			'view' : views.SumView(
-				self.get_view('W[1-4]Jets'),
+				self.get_view('WJets'),
+				#self.get_view('W[1-4]Jets'),
 				#self.get_view('W[1-5]Jets'),
 				self.get_view('ZJets'),
 				)
@@ -159,9 +159,9 @@ class CTagPlotter(Plotter):
 
 		self.card_names = {
 			'qcd' : ['QCD*'],
-			'vjets'		: ['ZJets', 'W[1-4]Jets'],
+			#'vjets'		: ['ZJets', 'W[1-4]Jets'],
 			#'vjets'		: ['ZJets', 'W[1-5]Jets'],
-			#'vjets'		: ['[WZ]Jets'],#, 'Z[1-3]Jets'],
+			'vjets'		: ['[WZ]Jets'],#, 'Z[1-3]Jets'],
 			'right_whad' : ['ttJets_sig'],
 			'wrong_whad' : ['ttJets_bkg'],
 			'nonsemi_tt' : ['ttJets_other'],
@@ -476,7 +476,7 @@ class CTagPlotter(Plotter):
 			bbbs.extend(plotter.card.add_bbb_systematics('.*', 'vjets')) 
 			for cname, integral in self.signal_yields.iteritems():
 				bbbs.extend(plotter.card.add_bbb_systematics(cname, 'right_whad', multiplier=integral))
-			bbbs.extend(plotter.card.add_bbb_systematics('.*', 'qcd'))
+			#bbbs.extend(plotter.card.add_bbb_systematics('.*', 'qcd'))
 
 			#plotter.card.add_bbb_systematics('.*', 'right_whad', 0.05, relative=False)
 			#plotter.card.add_bbb_systematics('.*', '.*')  
@@ -1105,7 +1105,8 @@ class CTagPlotter(Plotter):
 	def draw_flavor_shapes(self, dirname, basename, leftleg, preselection):
 		if preselection:
 			mc_default = self.mc_samples
-			self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
+			#self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
+			self.mc_samples = ['QCD*', 'ZJets*', 'WJets*', 'single*', 'ttJets_preselection']
 			#self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
 			#self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
 			##self.mc_samples = ['[WZ]Jets*', 'Z[1-3]Jets', 'single*', 'ttJets_preselection']
@@ -1167,7 +1168,8 @@ class CTagPlotter(Plotter):
 	def draw_cvsl_shapes(self, dirname, basename, disc, leftleg, preselection):
 		if preselection:
 			mc_default = self.mc_samples
-			self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
+			#self.mc_samples = ['QCD*', 'ZJets*', 'W[1-4]Jets*', 'single*', 'ttJets_preselection']
+			self.mc_samples = ['QCD*', 'ZJets*', 'WJets*', 'single*', 'ttJets_preselection']
 			#self.mc_samples = ['QCD*', '[WZ]Jets', 'single*', 'ttJets_preselection']
 			#self.mc_samples = ['[WZ]Jets*', 'single*', 'ttJets_preselection']
 			##self.mc_samples = ['[WZ]Jets*', 'Z[1-3]Jets', 'single*', 'ttJets_preselection']
@@ -1624,15 +1626,15 @@ if args.plots:
 				 folder, var, rebin,
 				 xaxis=axis, leftside=leftside,
 				 xrange=x_range, show_ratio=True, 
-				 logy=True, ratio_range=1.0)
-				 #ratio_range=0.5)
+				 logy=True, #ratio_range=1.0)
+				 ratio_range=0.5)
 			 else:
 				plotter.plot_mc_vs_data(
 				 folder, var, rebin,
 				 xaxis=axis, leftside=leftside,
 				 xrange=x_range, show_ratio=True, 
-				 ratio_range=1.0)
-				 #ratio_range=0.5)
+				 #ratio_range=1.0)
+				 ratio_range=0.5)
 			# plotter.plot_mc_vs_data(
 			#	 folder, var, rebin,
 			#	 xaxis=axis, leftside=leftside,
